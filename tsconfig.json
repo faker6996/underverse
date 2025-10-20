@@ -42,6 +42,22 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "app/api/**",
+    "app/[locale]/**",
+    "components/admin/**",
+    "components/login/**",
+    "components/profile/**",
+    "components/register/**",
+    "components/settings/**",
+    "components/users/**",
+    "components/video/**",
+    "lib/cache/**",
+    "lib/models/**",
+    "lib/modules/**",
+    "lib/middlewares/**",
+    "lib/utils/auth-helper.ts",
+    "lib/utils/realtime.ts",
+    "packages/**"
   ]
 }

@@ -20,7 +20,13 @@
     "i18n:check-locales": "node scripts/check-locales.mjs",
     "i18n:dedupe": "node scripts/dedupe-locales.mjs",
     "i18n:remove-unused": "node scripts/remove-unused-keys.mjs",
-    "cleanup:console": "node scripts/remove-console-logs.mjs"
+    "cleanup:console": "node scripts/remove-console-logs.mjs",
+    "release:underverse": "npm --prefix packages/underverse run release",
+    "release:underverse:minor": "npm --prefix packages/underverse run release:minor",
+    "release:underverse:major": "npm --prefix packages/underverse run release:major",
+    "release:underverse:beta": "npm --prefix packages/underverse run release -- --tag=beta"
+    ,
+    "dev:underverse": "npm --prefix packages/underverse run dev"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.7",

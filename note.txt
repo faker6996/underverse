@@ -1,0 +1,28 @@
+Có 2 nhu cầu khác nhau: rebuild khi đang phát triển và tăng version + publish khi phát hành. Bạn dùng như sau:
+
+Phát triển (xem thay đổi ngay)
+
+Chạy watch để build lại khi sửa file:
+Tại root: npm run dev:underverse
+Hoặc vào thư mục package: cd packages/underverse && npm run dev
+Kết quả: tsup chạy ở chế độ watch, mỗi lần bạn sửa component là dist được rebuild ngay (không tăng version).
+Phát hành (tăng version + build + publish)
+
+Cách chạy (từ root)
+
+Bump patch + publish: npm run release:underverse
+Bump minor: npm run release:underverse:minor
+Bump major: npm run release:underverse:major
+Beta tag: npm run release:underverse:beta
+Hoặc trong package:
+cd packages/underverse
+npm run release (patch)
+npm run release:minor (minor)
+npm run release:major (major)
+npm run release -- --tag=beta
+Lưu ý: cần npm login trước lần đầu.
+Giải thích nhanh
+
+Watch chỉ rebuild dist khi bạn sửa code (phục vụ dev). Không tự tăng version.
+Khi sẵn sàng phát hành, chạy script release để tự bump version + build + publish lên npm.
+Bạn muốn tự động quyết định bump patch/minor/major theo commit message (conventional commits) cũng được; nếu cần mình có thể tích hợp standard-version/changesets để “release:auto” theo commit.
