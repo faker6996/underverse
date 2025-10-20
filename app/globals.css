@@ -1,0 +1,244 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+:root {
+  --background: oklch(97% 0 0); /* Very light gray - subtle backdrop */
+  --foreground: oklch(20.5% 0 0); /* Very dark charcoal - main text */
+
+  --card: oklch(100% 0 0); /* Pure white - elevated card surfaces */
+  --card-foreground: oklch(20.5% 0 0); /* Dark charcoal - card text */
+
+  --popover: oklch(100% 0 0); /* Pure white - dropdown/modal backgrounds */
+  --popover-foreground: oklch(20.5% 0 0); /* Dark charcoal - popup text */
+
+  /* Brand primary: Pickleball lime-yellow */
+  --primary: oklch(85% 0.22 110); /* Lively lime-yellow - primary actions */
+  --primary-foreground: oklch(20.5% 0 0); /* Dark text on bright primary */
+
+  --secondary: oklch(96.1% 0 0); /* Very light gray - secondary buttons */
+  --secondary-foreground: oklch(20.5% 0 0); /* Dark charcoal - text on secondary */
+
+  --muted: oklch(96.1% 0 0); /* Very light gray - muted backgrounds */
+  --muted-foreground: oklch(70.8% 0 0); /* Medium gray - muted text */
+
+  --accent: oklch(96.1% 0 0); /* Very light gray - hover states */
+  --accent-foreground: oklch(20.5% 0 0); /* Dark charcoal - text on accents */
+
+  --destructive: oklch(70.4% 0.191 22.216); /* Vibrant red - error/delete actions */
+  --destructive-foreground: oklch(98.5% 0 0); /* Near white - text on red buttons */
+
+  --border: oklch(20.5% 0 0 / 0.1); /* 10% transparent dark - subtle borders */
+  --input: oklch(20.5% 0 0 / 0.15); /* 15% transparent dark - input borders */
+  --ring: var(--primary); /* Match focus ring to primary */
+
+  --radius: 0.5rem; /* 8px border radius */
+
+  --success: 142.1 76.2% 36.3%; /* HSL Forest Green - success states */
+  --success-foreground: 0 0% 100%; /* Pure white - text on green */
+
+  --warning: 45 100% 51%; /* HSL Bright amber yellow - warnings */
+  --warning-foreground: 222.2 47.4% 11.2%; /* Dark charcoal - text on yellow */
+
+  --info: 200 86% 55%; /* HSL Bright blue - info states */
+  --info-foreground: 0 0% 100%; /* Pure white - text on blue */
+
+  /* Normalized light controls */
+  color-scheme: light;
+
+  /* (Removed unused: payment colors, video-call overlays, layout/shadow tokens) */
+}
+
+.dark {
+  --background: oklch(14.5% 0 0); /* Deep charcoal black - rich dark backdrop */
+  --foreground: oklch(98.5% 0 0); /* Near white - main text on dark */
+
+  --card: oklch(20.5% 0 0); /* Dark gray - elevated card surfaces */
+  --card-foreground: oklch(98.5% 0 0); /* Near white - text on cards */
+
+  --popover: oklch(26.9% 0 0); /* Medium dark gray - floating elements */
+  --popover-foreground: oklch(98.5% 0 0); /* Near white - popup text */
+
+  /* Brighter primary tuned for dark surfaces (lime-yellow) */
+  --primary: oklch(82% 0.21 110);
+  --primary-foreground: oklch(20.5% 0 0); /* Dark text on bright primary */
+
+  --secondary: oklch(26.9% 0 0); /* Medium dark gray - secondary buttons */
+  --secondary-foreground: oklch(98.5% 0 0); /* Near white - text on secondary */
+
+  --muted: oklch(26.9% 0 0); /* Medium dark gray - muted areas */
+  --muted-foreground: oklch(70.8% 0 0); /* Light gray - muted text */
+
+  --accent: oklch(37.1% 0 0); /* Lighter dark gray - hover/accent states */
+  --accent-foreground: oklch(98.5% 0 0); /* Near white - text on accents */
+
+  --destructive: oklch(70.4% 0.191 22.216); /* Warm red-orange - errors/danger */
+  --destructive-foreground: oklch(98.5% 0 0); /* Near white - text on red */
+
+  --border: oklch(100% 0 0 / 0.1); /* 10% transparent white - subtle borders */
+  --input: oklch(100% 0 0 / 0.15); /* 15% transparent white - input borders */
+  --ring: var(--primary); /* Match focus ring to primary */
+
+  --success: 142.1 70.6% 45.3%; /* HSL Forest Green - success states */
+  --success-foreground: 0 0% 100%; /* Pure white - text on green */
+
+  --warning: 45 100% 51%; /* HSL Bright amber yellow - warnings */
+  --warning-foreground: 222.2 47.4% 11.2%; /* Dark charcoal - text on yellow */
+
+  --info: 200 86% 55%; /* HSL Bright blue - info states */
+  --info-foreground: 0 0% 100%; /* Pure white - text on blue */
+
+  /* (Removed unused: payment and video-call tokens in dark mode) */
+  /* Normalized dark controls */
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-info: hsl(var(--info));
+  --color-info-foreground: hsl(var(--info-foreground));
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Base body styles: modern font + smooth theme transitions */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial,
+    "Apple Color Emoji", "Segoe UI Emoji";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* Fluid headings and consistent typography scale */
+@layer base {
+  h1 {
+    @apply text-3xl md:text-4xl font-semibold tracking-tight;
+  }
+  h2 {
+    @apply text-2xl md:text-3xl font-semibold tracking-tight;
+  }
+  h3 {
+    @apply text-xl md:text-2xl font-semibold tracking-tight;
+  }
+  h4 {
+    @apply text-lg md:text-xl font-medium;
+  }
+  p {
+    @apply leading-relaxed;
+  }
+  small {
+    @apply text-xs text-muted-foreground;
+  }
+  a {
+    @apply text-primary underline-offset-4 hover:underline;
+  }
+}
+
+/* Pretty, theme-aware scrollbars for ScrollArea */
+.scroll-area-viewport {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--border) transparent;
+  scrollbar-gutter: stable both-edges; /* Reserve gutter so corners look clean */
+}
+.scroll-area-viewport:hover {
+  scrollbar-color: var(--input) transparent;
+}
+.scroll-area-viewport::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scroll-area-viewport::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 999px;
+  border: 2px solid transparent; /* Gives airy, rounded thumb */
+  background-clip: padding-box;
+}
+.scroll-area-viewport:hover::-webkit-scrollbar-thumb {
+  background-color: var(--input);
+}
+.scroll-area-viewport::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-area-viewport::-webkit-scrollbar-corner {
+  background: transparent; /* Avoid dark square at bottom-right */
+}
+
+/* (Removed unused keyframes: gradient-shift, float, shimmer-call, ripple) */
+
+/* Smooth interactions */
+
+/* Hide native clear (x) button for search inputs, we provide our own clear UI */
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 0;
+  width: 0;
+  display: none;
+}
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+/* Old Edge/IE */
+input[type="search"]::-ms-clear {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Normalize native search/password appearance across browsers */
+input[type="search"],
+input[type="password"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  color: inherit;
+  caret-color: currentColor;
+}
+
+/* Unify placeholder color with tokens */
+input::placeholder,
+textarea::placeholder {
+  color: oklch(from var(--foreground) 70% c h / 0.6);
+}
+
+/* Override autofill yellow background to match theme */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--background) inset !important;
+  box-shadow: 0 0 0px 1000px var(--background) inset !important;
+  -webkit-text-fill-color: var(--foreground) !important;
+  caret-color: var(--foreground) !important;
+  transition: background-color 9999s ease-in-out 0s;
+}

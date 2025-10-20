@@ -1,0 +1,71 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: hawkeye-studio-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hawkeye-studio
+      POSTGRES_USER: hawkeye-studio
+      POSTGRES_PASSWORD: hawkeye-studio
+    ports:
+      - "5435:5432"
+    volumes:
+      - pgdata_local:/var/lib/postgresql/data
+      - ./database/setup_database.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hawkeye-studio -d hawkeye-studio"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - local_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: hawkeye-studio-redis
+    restart: unless-stopped
+    # Require password and enable AOF persistence
+    command: ["redis-server", "--requirepass", "hawkeye-studio", "--appendonly", "yes"]
+    ports:
+      - "6381:6379"
+    volumes:
+      - redisdata_local:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "hawkeye-studio", "PING"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - local_net
+
+  mediamtx:
+    build:
+      context: .
+      dockerfile: docker/mediamtx/Dockerfile
+    container_name: hawkeye-studio-mediamtx
+    restart: unless-stopped
+    ports:
+      # - "8554:8554"   # RTSP - Disabled: rtsp-server already uses this port
+      - "8888:8888"   # HLS/HTTP
+      - "8889:8889"   # WebRTC HTTP (WHEP/WHIP)
+      - "8189:8189/udp"  # WebRTC ICE UDP
+      - "8189:8189/tcp"  # WebRTC ICE TCP
+    volumes:
+      - ./mediamtx.yml:/mediamtx.template.yml:ro
+      - mediamtx_recordings:/recordings  # Persistent storage for recordings
+    environment:
+      - MAX_RECORDINGS=5         # Keep only 5 most recent recordings per camera
+      - CLEANUP_INTERVAL=300     # Cleanup every 300 seconds (5 minutes)
+    env_file:
+      - .env.local
+    networks:
+      - local_net
+
+volumes:
+  pgdata_local:
+  redisdata_local:
+  mediamtx_recordings:
+
+networks:
+  local_net:
+    driver: bridge

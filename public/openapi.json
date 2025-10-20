@@ -1,0 +1,6332 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "E-commerce Web API",
+    "version": "1.0.0",
+    "description": "\n## E-commerce Web Platform API Documentation\n\nThis API provides comprehensive endpoints for managing an e-commerce platform including:\n- **Authentication & Authorization** - JWT-based authentication with role-based access control\n- **User Management** - Complete user CRUD operations with admin privileges\n- **Admin Functions** - Administrative tools and management features\n- **Notifications** - Real-time notification system\n- **Health Checks** - System monitoring and health endpoints\n\n### Authentication\nMost endpoints require authentication via JWT token. Include the token in the Authorization header:\n`Authorization: Bearer your-jwt-token`\n\n### Rate Limiting\nSome endpoints (like login) have rate limiting applied to prevent abuse.\n\n### Roles\n- **USER**: Regular user with basic permissions\n- **ADMIN**: Administrative user with elevated permissions\n- **SUPER_ADMIN**: Super administrator with full system access\n      ",
+    "contact": {
+      "name": "E-commerce Web API Support",
+      "email": "support@ecommerce-web.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter your JWT token in the format: Bearer {token}"
+      },
+      "CookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "access_token",
+        "description": "Authentication via HTTP-only cookie"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "SUPER_ADMIN",
+              "ADMIN",
+              "USER"
+            ],
+            "example": "USER"
+          },
+          "needs_password_change": {
+            "type": "boolean",
+            "example": false
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UserListResponse": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "example": 100
+          },
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "example": 20
+          },
+          "totalPages": {
+            "type": "integer",
+            "example": 5
+          }
+        }
+      },
+      "CreateUserRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "role"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Jane Smith"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "jane@example.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "USER"
+            ],
+            "example": "USER",
+            "description": "User role (SUPER_ADMIN can only be assigned by existing SUPER_ADMIN)"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "example": "password123"
+          },
+          "rememberMe": {
+            "type": "boolean",
+            "example": false,
+            "description": "Extended session duration"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "needs_password_change": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "description": "Authentication tokens are set as HTTP-only cookies"
+      },
+      "ForgotPasswordRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          }
+        }
+      },
+      "ResetPasswordRequest": {
+        "type": "object",
+        "required": [
+          "token",
+          "password"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "reset-token-here"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "example": "newpassword123"
+          }
+        }
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ],
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "example": "oldpassword123"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 6,
+            "example": "newpassword123"
+          }
+        }
+      },
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Operation successful"
+          },
+          "data": {
+            "type": "object",
+            "nullable": true
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Error message"
+          },
+          "data": {
+            "type": "object",
+            "nullable": true
+          }
+        }
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Validation failed"
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": {
+              "email": [
+                "Email is required",
+                "Email must be valid"
+              ],
+              "password": [
+                "Password must be at least 6 characters"
+              ]
+            }
+          }
+        }
+      },
+      "HealthStatus": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "database": {
+            "type": "string",
+            "example": "connected"
+          },
+          "redis": {
+            "type": "string",
+            "example": "connected"
+          }
+        }
+      },
+      "Contact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_progress",
+              "resolved",
+              "closed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resolved_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resolved_by": {
+            "type": "integer"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "PageParam": {
+        "name": "page",
+        "in": "query",
+        "description": "Page number (starts from 1)",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        }
+      },
+      "PageSizeParam": {
+        "name": "pageSize",
+        "in": "query",
+        "description": "Number of items per page (max 100)",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        }
+      },
+      "SearchParam": {
+        "name": "q",
+        "in": "query",
+        "description": "Search query string",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Authentication required",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "Authentication required",
+              "data": null
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Insufficient permissions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "Forbidden",
+              "data": null
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "Resource not found",
+              "data": null
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Validation error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ValidationError"
+            }
+          }
+        }
+      },
+      "RateLimitExceeded": {
+        "description": "Rate limit exceeded",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "success": false,
+              "message": "Too many requests",
+              "data": null
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "User authentication and session management"
+    },
+    {
+      "name": "Users",
+      "description": "User management operations (Admin only)"
+    },
+    {
+      "name": "Profile",
+      "description": "User profile management"
+    },
+    {
+      "name": "Admin",
+      "description": "Administrative functions"
+    },
+    {
+      "name": "Health",
+      "description": "System health checks"
+    },
+    {
+      "name": "Notifications",
+      "description": "Notification management"
+    },
+    {
+      "name": "Addresses"
+    },
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Cart"
+    },
+    {
+      "name": "Categories"
+    },
+    {
+      "name": "Colors"
+    },
+    {
+      "name": "Contact"
+    },
+    {
+      "name": "External"
+    },
+    {
+      "name": "Favorites"
+    },
+    {
+      "name": "Forgot-password"
+    },
+    {
+      "name": "Integrations"
+    },
+    {
+      "name": "Me"
+    },
+    {
+      "name": "Orders"
+    },
+    {
+      "name": "Payment-accounts"
+    },
+    {
+      "name": "Payment-methods"
+    },
+    {
+      "name": "Policies"
+    },
+    {
+      "name": "Products"
+    },
+    {
+      "name": "Provinces"
+    },
+    {
+      "name": "Reset-password"
+    },
+    {
+      "name": "Revalidate"
+    },
+    {
+      "name": "Reviews"
+    },
+    {
+      "name": "Shipping"
+    },
+    {
+      "name": "Tags"
+    },
+    {
+      "name": "Upload"
+    },
+    {
+      "name": "Uploads"
+    },
+    {
+      "name": "Utils"
+    },
+    {
+      "name": "Vouchers"
+    },
+    {
+      "name": "Wards"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    },
+    {
+      "CookieAuth": []
+    }
+  ],
+  "paths": {
+    "/api/addresses/{id}": {
+      "put": {
+        "summary": "Update shipping address",
+        "description": "Update an existing shipping address for the authenticated user",
+        "tags": [
+          "Addresses"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Address ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "setAsDefault": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Address updated successfully"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete shipping address",
+        "description": "Delete a shipping address for the authenticated user",
+        "tags": [
+          "Addresses"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Address ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Address deleted successfully"
+          }
+        }
+      }
+    },
+    "/api/addresses": {
+      "get": {
+        "summary": "Get user's shipping addresses",
+        "description": "Retrieve all shipping addresses for the authenticated user",
+        "tags": [
+          "Addresses"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of addresses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "phone": {
+                            "type": "string"
+                          },
+                          "address": {
+                            "type": "string"
+                          },
+                          "isDefault": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new shipping address",
+        "description": "Add a new shipping address for the authenticated user",
+        "tags": [
+          "Addresses"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "phone",
+                  "address"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Nguyễn Văn A"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "0123456789"
+                  },
+                  "address": {
+                    "type": "string",
+                    "example": "123 Nguyễn Huệ, Quận 1, TP.HCM"
+                  },
+                  "setAsDefault": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Address created successfully"
+          }
+        }
+      }
+    },
+    "/api/admin/sql-query": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Execute raw SQL query (Super Admin only)",
+        "description": "⚠️ **DANGEROUS ENDPOINT** - Super Admin only. Execute raw SQL queries for debugging and admin tasks.\n\n**Security:**\n- Only accessible by Super Admins\n- Whitelist approach: SELECT queries allowed by default\n- Non-SELECT queries require explicit `allowWrite: true` flag\n- Blocks dangerous patterns (DROP, TRUNCATE, ALTER, GRANT, REVOKE, SQL comments)\n- Prevents stacked queries (only 1 statement per request)\n- All queries are logged with user email and timestamp\n\n**Supported commands:** SELECT (default), INSERT, UPDATE, DELETE with allowWrite flag\n\n**Use cases:**\n- Database debugging\n- Quick data fixes\n- Testing queries\n- Admin data analysis\n",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "example": "SELECT * FROM products LIMIT 10",
+                    "description": "Raw SQL query to execute"
+                  },
+                  "allowWrite": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Set to true to allow non-SELECT queries (INSERT, UPDATE, DELETE). Required for safety.",
+                    "example": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Query executed successfully (for SELECT)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "description": "Response for SELECT queries",
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "data": {
+                          "type": "array",
+                          "description": "Query result rows",
+                          "items": {
+                            "type": "object"
+                          },
+                          "example": [
+                            {
+                              "id": 1,
+                              "name": "Product 1"
+                            }
+                          ]
+                        },
+                        "executionTime": {
+                          "type": "integer",
+                          "description": "Query execution time in milliseconds",
+                          "example": 45
+                        },
+                        "rowCount": {
+                          "type": "integer",
+                          "description": "Number of rows returned",
+                          "example": 10
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "description": "Response for INSERT/UPDATE/DELETE queries",
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "rowsAffected": {
+                          "type": "integer",
+                          "description": "Number of rows affected",
+                          "example": 5
+                        },
+                        "executionTime": {
+                          "type": "integer",
+                          "description": "Query execution time in milliseconds",
+                          "example": 32
+                        },
+                        "command": {
+                          "type": "string",
+                          "description": "SQL command type",
+                          "example": "UPDATE"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "description": "Response for query errors",
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": false
+                        },
+                        "error": {
+                          "type": "string",
+                          "example": "relation \"invalid_table\" does not exist"
+                        },
+                        "executionTime": {
+                          "type": "integer",
+                          "example": 12
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query or dangerous SQL pattern detected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Query contains potentially dangerous SQL patterns and has been blocked for security."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - User not logged in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Super Admin access required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Forbidden. Super admin role required."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "GET /api/admin/sql-query",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "PUT /api/admin/sql-query",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "DELETE /api/admin/sql-query",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/change-password": {
+      "post": {
+        "summary": "Change password for authenticated user",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "newPassword"
+                ],
+                "properties": {
+                  "currentPassword": {
+                    "type": "string"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "minLength": 6
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password changed"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "User login",
+        "description": "Authenticate user with email and password",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              },
+              "example": {
+                "email": "user@example.com",
+                "password": "password123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                },
+                "example": {
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                  "user": {
+                    "id": 1,
+                    "email": "user@example.com",
+                    "name": "John Doe",
+                    "role": "USER"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Validation Error",
+                  "message": "Email and password are required",
+                  "statusCode": 400
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Authentication Failed",
+                  "message": "Invalid email or password",
+                  "statusCode": 401
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "summary": "Logout and revoke tokens",
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {
+          "200": {
+            "description": "Logged out"
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "summary": "Get authenticated user's profile",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update profile or change password",
+        "tags": [
+          "Profile"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "phone_number": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "citizen_id": {
+                    "type": "string"
+                  },
+                  "current_password": {
+                    "type": "string"
+                  },
+                  "new_password": {
+                    "type": "string",
+                    "minLength": 6
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "summary": "Refresh access token using refresh token cookie",
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {
+          "200": {
+            "description": "Token refreshed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "summary": "Register a new user",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 6
+                  },
+                  "phone_number": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "citizen_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registered"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/auth/sso_facebook": {
+      "post": {
+        "summary": "Begin Facebook OAuth (returns redirect URL)",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "vi",
+                      "en"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Redirect URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "redirectUrl": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Facebook OAuth callback (redirects to frontend)",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "state",
+            "schema": {
+              "type": "string",
+              "description": "locale"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirect to frontend with cookies"
+          }
+        }
+      }
+    },
+    "/api/auth/sso_google": {
+      "post": {
+        "summary": "Begin Google OAuth (returns redirect URL)",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "vi",
+                      "en"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Redirect URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "redirectUrl": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Google OAuth callback (redirects to frontend)",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "state",
+            "schema": {
+              "type": "string",
+              "description": "locale"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirect to frontend with cookies"
+          }
+        }
+      }
+    },
+    "/api/cart/{id}": {
+      "put": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Update cart item quantity",
+        "description": "Update the quantity of a specific cart item",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Cart item ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "quantity"
+                ],
+                "properties": {
+                  "quantity": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 2,
+                    "description": "New quantity for the cart item"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cart item updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "user_id": {
+                          "type": "integer",
+                          "example": 123
+                        },
+                        "product_id": {
+                          "type": "integer",
+                          "example": 456
+                        },
+                        "quantity": {
+                          "type": "integer",
+                          "example": 2
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Cart item updated"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid cart item ID or quantity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid cart item ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - User not logged in"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Remove item from cart",
+        "description": "Delete a specific item from the user's shopping cart",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Cart item ID to remove"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cart item removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": null,
+                      "nullable": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Cart item removed"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid cart item ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid cart item ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - User not logged in"
+          },
+          "404": {
+            "description": "Cart item not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/cart/clear": {
+      "post": {
+        "summary": "Clear cart",
+        "description": "Remove all items from cart",
+        "tags": [
+          "Cart"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sessionId": {
+                    "type": "string",
+                    "description": "Session ID for guest users"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cart": {
+      "get": {
+        "summary": "Get user's cart",
+        "description": "Retrieve the current user's cart items",
+        "tags": [
+          "Cart"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Add item to cart",
+        "description": "Add a product to the cart",
+        "tags": [
+          "Cart"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "productId",
+                  "quantity"
+                ],
+                "properties": {
+                  "productId": {
+                    "type": "integer"
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "sessionId": {
+                    "type": "string",
+                    "description": "Required for guest users"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cart/summary": {
+      "get": {
+        "summary": "Get cart summary",
+        "description": "Get cart summary with totals and shipping",
+        "tags": [
+          "Cart"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sessionId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Session ID for guest users"
+          }
+        ]
+      }
+    },
+    "/api/cart/transfer": {
+      "post": {
+        "summary": "Transfer guest session cart to authenticated user",
+        "tags": [
+          "Cart"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sessionId": {
+                    "type": "string",
+                    "description": "Guest cart session ID stored on client"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transferred successfully (or no-op if nothing to transfer)"
+          }
+        }
+      }
+    },
+    "/api/cart/validate": {
+      "get": {
+        "summary": "Validate cart",
+        "description": "Validate cart items against current stock and product availability",
+        "tags": [
+          "Cart"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sessionId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Session ID for guest users"
+          }
+        ]
+      }
+    },
+    "/api/categories/{id}": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Get category details",
+        "description": "Retrieve detailed information about a specific category",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Category ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "Hoa Valentine"
+                        },
+                        "description": {
+                          "type": "string",
+                          "example": "Các loại hoa dành cho ngày Valentine"
+                        },
+                        "is_active": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "OK"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid category ID"
+          },
+          "404": {
+            "description": "Category not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Update category",
+        "description": "Update category information (Admin only)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Category ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Hoa Sinh Nhật"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Các loại hoa dành cho sinh nhật"
+                  },
+                  "is_active": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Category updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Updated category object"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Updated"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid category ID"
+          },
+          "401": {
+            "description": "Unauthorized - User not logged in"
+          },
+          "403": {
+            "description": "Forbidden - Admin access required"
+          },
+          "404": {
+            "description": "Category not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Delete category",
+        "description": "Delete a category (Admin only). Cannot delete category if it has products.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Category ID to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": null,
+                      "nullable": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid category ID or category has products"
+          },
+          "401": {
+            "description": "Unauthorized - User not logged in"
+          },
+          "403": {
+            "description": "Forbidden - Admin access required"
+          },
+          "404": {
+            "description": "Category not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/categories": {
+      "get": {
+        "summary": "Get all categories",
+        "description": "Retrieve a list of categories with optional filtering",
+        "tags": [
+          "Categories"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name-asc",
+                "name-desc",
+                "newest",
+                "oldest"
+              ],
+              "default": "name-asc"
+            }
+          },
+          {
+            "name": "includeInactive",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "withProductCount",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create new category (Admin only)",
+        "description": "Create a new category. Requires admin privileges.",
+        "tags": [
+          "Categories"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "is_active": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/contact/{id}": {
+      "get": {
+        "summary": "Get contact by ID",
+        "description": "Retrieve a specific contact submission by ID (Admin only).",
+        "tags": [
+          "Contact"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Contact ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Contact"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Contact not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update contact status",
+        "description": "Update the status of a contact submission (Admin only).",
+        "tags": [
+          "Contact"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Contact ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "in_progress",
+                      "resolved",
+                      "closed"
+                    ]
+                  },
+                  "notes": {
+                    "type": "string"
+                  },
+                  "resolved_by": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contact updated successfully"
+          },
+          "404": {
+            "description": "Contact not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete contact",
+        "description": "Delete a contact submission (Admin only).",
+        "tags": [
+          "Contact"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Contact ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact deleted successfully"
+          },
+          "404": {
+            "description": "Contact not found"
+          }
+        }
+      }
+    },
+    "/api/contact": {
+      "get": {
+        "summary": "Get all contact submissions",
+        "description": "Retrieve list of contact form submissions with optional filtering (Admin only).",
+        "tags": [
+          "Contact"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number for pagination"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of items per page"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "in_progress",
+                "resolved",
+                "closed"
+              ]
+            },
+            "description": "Filter by contact status"
+          },
+          {
+            "in": "query",
+            "name": "email",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by email address"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of contacts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "contacts": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Contact"
+                          }
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Admin access required"
+          }
+        }
+      },
+      "post": {
+        "summary": "Submit a contact form",
+        "description": "Create a new contact form submission from website visitors.",
+        "tags": [
+          "Contact"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "email",
+                  "subject",
+                  "message"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Nguyễn Văn A"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "nguyen.a@example.com"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": 901234567
+                  },
+                  "subject": {
+                    "type": "string",
+                    "minLength": 5,
+                    "example": "Tư vấn về sản phẩm hoa cưới"
+                  },
+                  "message": {
+                    "type": "string",
+                    "minLength": 10,
+                    "example": "Tôi muốn đặt hoa cho đám cưới vào tháng 12. Vui lòng liên hệ lại."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Contact created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Contact"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "429": {
+            "description": "Too many requests - Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/api/contact/stats": {
+      "get": {
+        "summary": "Get contact statistics",
+        "description": "Retrieve statistics about contact submissions (Admin only).",
+        "tags": [
+          "Contact"
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "description": "Total number of contacts"
+                        },
+                        "pending": {
+                          "type": "integer",
+                          "description": "Number of pending contacts"
+                        },
+                        "in_progress": {
+                          "type": "integer",
+                          "description": "Number of contacts in progress"
+                        },
+                        "resolved": {
+                          "type": "integer",
+                          "description": "Number of resolved contacts"
+                        },
+                        "closed": {
+                          "type": "integer",
+                          "description": "Number of closed contacts"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/external/users": {
+      "get": {
+        "summary": "Get users from external API",
+        "description": "Fetch users from JSONPlaceholder API and return in standardized format",
+        "tags": [
+          "External APIs"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of users from external API",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "OK"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "email": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/favorites/{productId}": {
+      "delete": {
+        "summary": "Remove product from favorites",
+        "description": "Remove a specific product from user's favorites list",
+        "tags": [
+          "Favorites"
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID of the product to remove from favorites"
+          },
+          {
+            "name": "sessionId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Session ID for guest users"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "User ID for authenticated users"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product removed from favorites successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid product ID or missing sessionId/userId",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid product ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Internal server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/favorites/clear": {
+      "post": {
+        "summary": "Clear all favorites",
+        "description": "Remove all products from user's favorites list",
+        "tags": [
+          "Favorites"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sessionId": {
+                    "type": "string",
+                    "description": "Session ID for guest users"
+                  },
+                  "userId": {
+                    "type": "integer",
+                    "description": "User ID for authenticated users"
+                  }
+                },
+                "oneOf": [
+                  {
+                    "required": [
+                      "sessionId"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "userId"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "All favorites cleared successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - SessionId or UserId is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "SessionId or UserId is required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Internal server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/favorites": {
+      "get": {
+        "summary": "Get user favorites",
+        "description": "Retrieve all favorite products for a user or session",
+        "tags": [
+          "Favorites"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Session ID for guest users"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "User ID for authenticated users"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of favorite products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "product_id": {
+                        "type": "integer"
+                      },
+                      "user_id": {
+                        "type": "integer",
+                        "nullable": true
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "SessionId or UserId is required"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add product to favorites",
+        "description": "Add a product to user's favorites list",
+        "tags": [
+          "Favorites"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "productId"
+                ],
+                "properties": {
+                  "productId": {
+                    "type": "integer",
+                    "description": "ID of the product to add to favorites"
+                  },
+                  "sessionId": {
+                    "type": "string",
+                    "description": "Session ID for guest users"
+                  },
+                  "userId": {
+                    "type": "integer",
+                    "description": "User ID for authenticated users"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product added to favorites successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "product_id": {
+                      "type": "integer"
+                    },
+                    "user_id": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "session_id": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - missing required fields"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/forgot-password": {
+      "post": {
+        "summary": "Request password reset email",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "locale"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "vi",
+                      "en"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email sent if user exists"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Health check endpoint",
+        "description": "Check the health status of the application and its services including database connectivity",
+        "tags": [
+          "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "System is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "services": {
+                      "type": "object",
+                      "properties": {
+                        "database": {
+                          "type": "string",
+                          "enum": [
+                            "up",
+                            "down",
+                            "unknown"
+                          ],
+                          "example": "up"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "ok": true,
+                  "services": {
+                    "database": "up"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System is unhealthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "services": {
+                      "type": "object",
+                      "properties": {
+                        "database": {
+                          "type": "string",
+                          "example": "down"
+                        }
+                      }
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "DB connection failed"
+                    }
+                  }
+                },
+                "example": {
+                  "ok": false,
+                  "services": {
+                    "database": "down"
+                  },
+                  "error": "Connection timeout"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me/role": {
+      "get": {
+        "summary": "Get current user's role",
+        "tags": [
+          "Profile"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "role": {
+                              "type": "string",
+                              "example": "user"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/notifications/broadcast": {
+      "post": {
+        "summary": "Broadcast notification to multiple users (Admin only)",
+        "tags": [
+          "Notifications"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "message"
+                ],
+                "properties": {
+                  "all": {
+                    "type": "boolean",
+                    "description": "Send to all active users (excluding sender)"
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "admin",
+                        "super_admin"
+                      ]
+                    }
+                  },
+                  "userIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "info",
+                      "success",
+                      "warning",
+                      "error"
+                    ],
+                    "default": "info"
+                  },
+                  "email": {
+                    "type": "boolean",
+                    "description": "Also send email"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sent count returned"
+          },
+          "400": {
+            "description": "No targets or missing message"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "summary": "List my notifications",
+        "tags": [
+          "Notifications"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PageParam"
+          },
+          {
+            "$ref": "#/components/parameters/PageSizeParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List notifications",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update notifications (mark read, clear, mark single)",
+        "tags": [
+          "Notifications"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "type": "string",
+                        "enum": [
+                          "mark_all_read"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "type": "string",
+                        "enum": [
+                          "clear_all"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "type": "string",
+                        "enum": [
+                          "mark_single_read"
+                        ]
+                      },
+                      "id": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/notifications/send": {
+      "post": {
+        "summary": "Send notification to a user (Admin only)",
+        "tags": [
+          "Notifications"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "userId",
+                  "message"
+                ],
+                "properties": {
+                  "userId": {
+                    "type": "integer"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "info",
+                      "success",
+                      "warning",
+                      "error"
+                    ],
+                    "default": "info"
+                  },
+                  "email": {
+                    "type": "boolean",
+                    "description": "Also send email"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sent"
+          },
+          "400": {
+            "description": "Missing userId or message"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/notifications/sent": {
+      "get": {
+        "summary": "List notifications I sent",
+        "tags": [
+          "Notifications"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PageParam"
+          },
+          {
+            "$ref": "#/components/parameters/PageSizeParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/orders/{id}": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Get order details",
+        "description": "Retrieve detailed information about a specific order. Users can only view their own orders, admins can view any order.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Order ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "user_id": {
+                          "type": "integer",
+                          "example": 123
+                        },
+                        "total_amount": {
+                          "type": "number",
+                          "example": 500000
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "pending",
+                            "confirmed",
+                            "processing",
+                            "shipped",
+                            "delivered",
+                            "cancelled"
+                          ],
+                          "example": "pending"
+                        },
+                        "payment_method": {
+                          "type": "string",
+                          "example": "cod"
+                        },
+                        "recipientName": {
+                          "type": "string",
+                          "example": "Nguyễn Văn A"
+                        },
+                        "recipientPhone": {
+                          "type": "string",
+                          "example": "0901234567"
+                        },
+                        "shippingAddress": {
+                          "type": "string",
+                          "example": "123 Nguyễn Huệ, Q1, TPHCM"
+                        },
+                        "note": {
+                          "type": "string",
+                          "example": "Giao hàng giờ hành chính"
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "product_id": {
+                                "type": "integer",
+                                "example": 456
+                              },
+                              "product_name": {
+                                "type": "string",
+                                "example": "Bó hoa hồng đỏ"
+                              },
+                              "quantity": {
+                                "type": "integer",
+                                "example": 2
+                              },
+                              "price": {
+                                "type": "number",
+                                "example": 250000
+                              }
+                            }
+                          }
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "OK"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid order ID"
+          },
+          "401": {
+            "description": "Unauthorized - User not logged in"
+          },
+          "403": {
+            "description": "Forbidden - User doesn't have permission to view this order"
+          },
+          "404": {
+            "description": "Order not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Update order",
+        "description": "Update order information. Regular users can only update recipient details and note. Only admins can update order status.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Order ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "recipientName": {
+                    "type": "string",
+                    "example": "Nguyễn Văn B"
+                  },
+                  "recipientPhone": {
+                    "type": "string",
+                    "example": "0907654321"
+                  },
+                  "shippingAddress": {
+                    "type": "string",
+                    "example": "456 Lê Lợi, Q1, TPHCM"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "confirmed",
+                      "processing",
+                      "shipped",
+                      "delivered",
+                      "cancelled"
+                    ],
+                    "example": "confirmed",
+                    "description": "Only admins can update this field"
+                  },
+                  "note": {
+                    "type": "string",
+                    "example": "Gọi trước khi giao"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Updated order object"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Order updated"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid order ID"
+          },
+          "401": {
+            "description": "Unauthorized - User not logged in"
+          },
+          "403": {
+            "description": "Forbidden - User doesn't have permission or only admin can update status"
+          },
+          "404": {
+            "description": "Order not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Cancel order",
+        "description": "Cancel an order. Users can only cancel their own orders. Admins can cancel any order.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Order ID to cancel"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order cancelled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": null,
+                      "nullable": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Order cancelled"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid order ID or order cannot be cancelled"
+          },
+          "401": {
+            "description": "Unauthorized - User not logged in"
+          },
+          "403": {
+            "description": "Forbidden - User doesn't have permission to cancel this order"
+          },
+          "404": {
+            "description": "Order not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/orders": {
+      "get": {
+        "summary": "Get orders",
+        "description": "Get orders for current user or all orders for admin",
+        "tags": [
+          "Orders"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Pending",
+                "Processing",
+                "Shipped",
+                "Delivered",
+                "Cancelled"
+              ]
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "newest",
+                "oldest",
+                "amount-high",
+                "amount-low"
+              ],
+              "default": "newest"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create new order",
+        "description": "Create a new order from cart items",
+        "tags": [
+          "Orders"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "recipientName",
+                  "recipientPhone",
+                  "shippingAddress",
+                  "paymentMethod",
+                  "cartItems"
+                ],
+                "properties": {
+                  "recipientName": {
+                    "type": "string"
+                  },
+                  "recipientPhone": {
+                    "type": "string"
+                  },
+                  "shippingAddress": {
+                    "type": "string"
+                  },
+                  "paymentMethod": {
+                    "type": "string",
+                    "enum": [
+                      "COD",
+                      "Bank Transfer",
+                      "Credit Card"
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "voucherId": {
+                    "type": "integer"
+                  },
+                  "cartItems": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "productId": {
+                          "type": "integer"
+                        },
+                        "quantity": {
+                          "type": "integer"
+                        },
+                        "unitPrice": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment-methods": {
+      "get": {
+        "summary": "Get available payment methods",
+        "description": "Retrieve list of available payment methods for checkout",
+        "tags": [
+          "Payment Methods"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of payment methods",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "example": "cod"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Thanh toán khi nhận hàng (COD)"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Thanh toán bằng tiền mặt khi nhận hàng"
+                          },
+                          "icon": {
+                            "type": "string",
+                            "example": "Wallet"
+                          },
+                          "fee": {
+                            "type": "number",
+                            "example": 15000
+                          },
+                          "processingTime": {
+                            "type": "string",
+                            "example": "Ngay lập tức"
+                          },
+                          "available": {
+                            "type": "boolean",
+                            "example": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{id}": {
+      "get": {
+        "summary": "Get product by ID",
+        "description": "Retrieve a single product by its ID",
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update product (Admin only)",
+        "description": "Update an existing product. Requires admin privileges.",
+        "tags": [
+          "Products"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete product (Admin only)",
+        "description": "Hard delete a product permanently. Requires admin privileges.",
+        "tags": [
+          "Products"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    },
+    "/api/products/bestsellers": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get best-selling products",
+        "description": "Retrieve a list of best-selling products based on actual sales data from orders",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 8,
+              "minimum": 1,
+              "maximum": 50
+            },
+            "description": "Maximum number of products to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of best-selling products retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Bó hoa hồng đỏ 12 bông"
+                          },
+                          "product_code": {
+                            "type": "string",
+                            "example": "PRD-123"
+                          },
+                          "price": {
+                            "type": "number",
+                            "example": 350000
+                          },
+                          "quantity": {
+                            "type": "integer",
+                            "example": 100
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Bó hoa hồng đỏ tươi 12 bông"
+                          },
+                          "images": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": [
+                              "/images/products/rose-red.jpg"
+                            ]
+                          },
+                          "category_id": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "is_active": {
+                            "type": "boolean",
+                            "example": true
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updated_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Best-selling products retrieved successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid limit parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid limit parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Failed to fetch best-selling products"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/featured": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get featured products",
+        "description": "Retrieve a list of featured products (newest arrivals with ratings)",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 8,
+              "minimum": 1,
+              "maximum": 50
+            },
+            "description": "Maximum number of products to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of featured products retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Bó hoa hồng đỏ 12 bông"
+                          },
+                          "product_code": {
+                            "type": "string",
+                            "example": "PRD-123"
+                          },
+                          "price": {
+                            "type": "number",
+                            "example": 350000
+                          },
+                          "quantity": {
+                            "type": "integer",
+                            "example": 100
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "images": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "category": {
+                            "type": "string",
+                            "example": "Hoa valentine"
+                          },
+                          "rating": {
+                            "type": "number",
+                            "example": 4.5
+                          },
+                          "reviewCount": {
+                            "type": "integer",
+                            "example": 42
+                          },
+                          "is_active": {
+                            "type": "boolean",
+                            "example": true
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updated_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Featured products retrieved successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid limit parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid limit parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Failed to fetch featured products"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products": {
+      "get": {
+        "summary": "Get all products",
+        "description": "Retrieve a paginated list of products with filtering options",
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "newest",
+                "oldest",
+                "price-low",
+                "price-high",
+                "name-asc",
+                "name-desc"
+              ],
+              "default": "newest"
+            }
+          },
+          {
+            "name": "priceMin",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "priceMax",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create new product (Admin only)",
+        "description": "Create a new product. Requires admin privileges.",
+        "tags": [
+          "Products"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "price",
+                  "category_id"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "price": {
+                    "type": "number"
+                  },
+                  "sale": {
+                    "type": "integer",
+                    "description": "Discount percentage (0-100)",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "default": 0
+                  },
+                  "inStock": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "category_id": {
+                    "type": "integer"
+                  },
+                  "product_code": {
+                    "type": "string"
+                  },
+                  "meta_title": {
+                    "type": "string"
+                  },
+                  "meta_description": {
+                    "type": "string"
+                  },
+                  "image_url": {
+                    "type": "string",
+                    "description": "Single product image URL"
+                  },
+                  "is_active": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/suggestions": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get search suggestions",
+        "description": "Get autocomplete suggestions for product and category search.\nReturns matching products (with details like price, product code, and image) \nand matching categories based on the search query.\nMinimum query length is 2 characters.\n",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2
+            },
+            "description": "Search query string (minimum 2 characters)",
+            "example": "hoa hồng"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 8,
+              "minimum": 1,
+              "maximum": 50
+            },
+            "description": "Maximum number of suggestions to return",
+            "example": 8
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search suggestions retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Bó hoa hồng đỏ 12 bông"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "product",
+                              "category"
+                            ],
+                            "example": "product"
+                          },
+                          "price": {
+                            "type": "number",
+                            "nullable": true,
+                            "example": 350000,
+                            "description": "Only present for product type"
+                          },
+                          "product_code": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "PRD-123",
+                            "description": "Only present for product type"
+                          },
+                          "image_url": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "/images/products/rose-red.jpg",
+                            "description": "Only present for product type"
+                          },
+                          "category": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Category name (optional)"
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "OK"
+                    }
+                  }
+                },
+                "examples": {
+                  "mixedResults": {
+                    "summary": "Mixed product and category results",
+                    "value": {
+                      "success": true,
+                      "data": [
+                        {
+                          "id": 1,
+                          "name": "Bó hoa hồng đỏ 12 bông",
+                          "type": "product",
+                          "price": 350000,
+                          "product_code": "PRD-LZW8QH-1K9YKX",
+                          "image_url": "/images/products/rose-red.jpg"
+                        },
+                        {
+                          "id": 2,
+                          "name": "Hoa hồng trắng",
+                          "type": "product",
+                          "price": 320000,
+                          "product_code": "PRD-LZW8QI-2M3NOP",
+                          "image_url": "/images/products/rose-white.jpg"
+                        },
+                        {
+                          "id": 3,
+                          "name": "Hoa Valentine",
+                          "type": "category"
+                        }
+                      ],
+                      "message": "OK"
+                    }
+                  },
+                  "emptyQuery": {
+                    "summary": "Empty or short query",
+                    "value": {
+                      "success": true,
+                      "data": [],
+                      "message": "OK"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid parameters"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Failed to fetch suggestions"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/provinces": {
+      "get": {
+        "summary": "Get all provinces",
+        "description": "Retrieve list of all 63 provinces/cities in Vietnam. Data is fetched from provinces.open-api.vn API with database fallback.",
+        "tags": [
+          "Locations"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of provinces",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                            "example": 1
+                          },
+                          "code": {
+                            "type": "string",
+                            "example": "01"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Hà Nội"
+                          },
+                          "full_name": {
+                            "type": "string",
+                            "example": "Thành phố Hà Nội"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reset-password": {
+      "post": {
+        "summary": "Reset password with token",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "token",
+                  "password"
+                ],
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 6
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset success"
+          },
+          "400": {
+            "description": "Invalid or expired token"
+          }
+        }
+      }
+    },
+    "/api/reviews": {
+      "get": {
+        "summary": "Get product reviews",
+        "description": "Retrieve approved reviews for a specific product with aggregate rating (for SEO).",
+        "tags": [
+          "Reviews"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Product ID to fetch reviews for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reviews with aggregate summary"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a review",
+        "description": "Create a new product review. Requires authentication (to be enforced via middleware/withApiHandler).",
+        "tags": [
+          "Reviews"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "product_id",
+                  "user_id",
+                  "rating"
+                ],
+                "properties": {
+                  "product_id": {
+                    "type": "integer"
+                  },
+                  "user_id": {
+                    "type": "integer"
+                  },
+                  "rating": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5
+                  },
+                  "comment": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Review created"
+          }
+        }
+      }
+    },
+    "/api/shipping/{id}": {
+      "get": {
+        "summary": "Get shipping rate by ID",
+        "description": "Get a specific shipping rate by ID",
+        "tags": [
+          "Shipping"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update shipping rate (Admin only)",
+        "description": "Update a shipping rate. Requires admin privileges.",
+        "tags": [
+          "Shipping"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "district_name": {
+                    "type": "string"
+                  },
+                  "district_code": {
+                    "type": "string"
+                  },
+                  "shipping_fee": {
+                    "type": "number"
+                  },
+                  "free_shipping_threshold": {
+                    "type": "number"
+                  },
+                  "estimated_days": {
+                    "type": "integer"
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  },
+                  "sort_order": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete shipping rate (Admin only)",
+        "description": "Delete a shipping rate. Requires admin privileges.",
+        "tags": [
+          "Shipping"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    },
+    "/api/shipping/calculate": {
+      "post": {
+        "summary": "Calculate shipping fee",
+        "description": "Calculate shipping fee for a specific district and order amount",
+        "tags": [
+          "Shipping"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "districtCode",
+                  "orderAmount"
+                ],
+                "properties": {
+                  "districtCode": {
+                    "type": "string"
+                  },
+                  "orderAmount": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/shipping": {
+      "get": {
+        "summary": "Get shipping rates",
+        "description": "Get available shipping rates for user or all rates for admin",
+        "tags": [
+          "Shipping"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "includeInactive",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create new shipping rate (Admin only)",
+        "description": "Create a new shipping rate. Requires admin privileges.",
+        "tags": [
+          "Shipping"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "district_name",
+                  "district_code",
+                  "shipping_fee"
+                ],
+                "properties": {
+                  "district_name": {
+                    "type": "string"
+                  },
+                  "district_code": {
+                    "type": "string"
+                  },
+                  "shipping_fee": {
+                    "type": "number"
+                  },
+                  "free_shipping_threshold": {
+                    "type": "number"
+                  },
+                  "estimated_days": {
+                    "type": "integer"
+                  },
+                  "is_active": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "sort_order": {
+                    "type": "integer",
+                    "default": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/upload/image": {
+      "post": {
+        "tags": [
+          "Upload"
+        ],
+        "summary": "Upload an image file",
+        "description": "Upload an image file (product images, avatars, etc.). Supports JPG, PNG, GIF, WEBP formats. Max file size 10MB.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Image file to upload (JPG, PNG, GIF, WEBP)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "File uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1704067200000,
+                          "description": "Timestamp-based ID"
+                        },
+                        "path": {
+                          "type": "string",
+                          "example": "/uploads/images/product-1704067200000.jpg",
+                          "description": "Relative path to uploaded file"
+                        },
+                        "url": {
+                          "type": "string",
+                          "example": "https://example.com/uploads/images/product-1704067200000.jpg",
+                          "description": "Full URL to access the file"
+                        },
+                        "originalName": {
+                          "type": "string",
+                          "example": "flower-bouquet.jpg",
+                          "description": "Original filename"
+                        },
+                        "size": {
+                          "type": "integer",
+                          "example": 2048576,
+                          "description": "File size in bytes"
+                        },
+                        "mimeType": {
+                          "type": "string",
+                          "example": "image/jpeg",
+                          "description": "MIME type of uploaded file"
+                        },
+                        "width": {
+                          "type": "integer",
+                          "example": 1920,
+                          "description": "Image width in pixels"
+                        },
+                        "height": {
+                          "type": "integer",
+                          "example": 1080,
+                          "description": "Image height in pixels"
+                        },
+                        "formattedSize": {
+                          "type": "string",
+                          "example": "2.0 MB",
+                          "description": "Human-readable file size"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Uploaded"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing file or invalid format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Missing file"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - User not logged in"
+          },
+          "413": {
+            "description": "File too large - Max 10MB"
+          },
+          "415": {
+            "description": "Unsupported file type"
+          },
+          "500": {
+            "description": "Server error during upload"
+          }
+        }
+      }
+    },
+    "/api/upload/product-image": {
+      "post": {
+        "tags": [
+          "Upload"
+        ],
+        "summary": "Upload product image",
+        "description": "Upload product image to /public/images/products. Supports JPG, PNG, GIF, WEBP formats. Max file size 10MB.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Product image file (JPG, PNG, GIF, WEBP)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "File uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1704067200000
+                        },
+                        "path": {
+                          "type": "string",
+                          "example": "/images/products/abc-123.jpg"
+                        },
+                        "url": {
+                          "type": "string",
+                          "example": "http://localhost:3000/images/products/abc-123.jpg"
+                        },
+                        "originalName": {
+                          "type": "string",
+                          "example": "flower.jpg"
+                        },
+                        "size": {
+                          "type": "integer",
+                          "example": 2048576
+                        },
+                        "mimeType": {
+                          "type": "string",
+                          "example": "image/jpeg"
+                        },
+                        "width": {
+                          "type": "integer",
+                          "example": 1920
+                        },
+                        "height": {
+                          "type": "integer",
+                          "example": 1080
+                        },
+                        "formattedSize": {
+                          "type": "string",
+                          "example": "2.0 MB"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Product image uploaded"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "413": {
+            "description": "File too large"
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "summary": "Get user by ID (Admin only)",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid id"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update user (role/status/profile) (Admin only)",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "user",
+                      "super_admin"
+                    ]
+                  },
+                  "isDeleted": {
+                    "type": "boolean"
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "phone_number": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "citizen_id": {
+                    "type": "string"
+                  },
+                  "new_password": {
+                    "type": "string",
+                    "minLength": 6
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "summary": "Get all users (Admin only)",
+        "description": "Retrieve a paginated list of all users in the system. Requires admin privileges.",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PageParam"
+          },
+          {
+            "$ref": "#/components/parameters/PageSizeParam"
+          },
+          {
+            "$ref": "#/components/parameters/SearchParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/UserListResponse"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "OK",
+                  "data": {
+                    "users": [
+                      {
+                        "id": 1,
+                        "email": "admin@example.com",
+                        "name": "Admin User",
+                        "role": "ADMIN",
+                        "needs_password_change": false,
+                        "created_at": "2023-01-01T00:00:00Z",
+                        "updated_at": "2023-01-01T00:00:00Z"
+                      }
+                    ],
+                    "total": 50,
+                    "page": 1,
+                    "pageSize": 20,
+                    "totalPages": 3
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new user (Admin only)",
+        "description": "Create a new user account. Requires admin privileges. Super admin role can only be assigned by existing super admins.",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRequest"
+              },
+              "example": {
+                "name": "Jane Smith",
+                "email": "jane@example.com",
+                "role": "USER"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "success": true,
+                  "message": "Created",
+                  "data": {
+                    "id": 42,
+                    "email": "jane@example.com",
+                    "name": "Jane Smith",
+                    "role": "USER",
+                    "needs_password_change": true,
+                    "created_at": "2023-12-01T10:30:00Z",
+                    "updated_at": "2023-12-01T10:30:00Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/utils/verify-email": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "Verify email address",
+        "description": "Verify if an email address has valid DNS records (MX, A, or AAAA). Admin only. Useful for checking if email domain exists before sending emails.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com",
+                    "description": "Email address to verify"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email verification completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "exists": {
+                          "type": "boolean",
+                          "example": true,
+                          "description": "Whether the email domain has valid DNS records"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "OK"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid email format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "exists": {
+                          "type": "boolean",
+                          "example": false
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid email"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - User not logged in"
+          },
+          "403": {
+            "description": "Forbidden - Admin access required"
+          },
+          "500": {
+            "description": "Server error during verification"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Utils"
+        ],
+        "summary": "GET /api/utils/verify-email",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/vouchers": {
+      "get": {
+        "summary": "Get vouchers",
+        "description": "Get available vouchers for user or all vouchers for admin",
+        "tags": [
+          "Vouchers"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "newest",
+                "oldest",
+                "name-asc",
+                "name-desc",
+                "expiry-asc",
+                "expiry-desc"
+              ],
+              "default": "newest"
+            }
+          },
+          {
+            "name": "includeInactive",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "isExpired",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create new voucher (Admin only)",
+        "description": "Create a new voucher. Requires admin privileges.",
+        "tags": [
+          "Vouchers"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "CookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "voucherCode",
+                  "name",
+                  "discountType",
+                  "discountValue",
+                  "usageLimit",
+                  "startDate",
+                  "expiryDate"
+                ],
+                "properties": {
+                  "voucherCode": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "discountType": {
+                    "type": "string",
+                    "enum": [
+                      "PERCENTAGE",
+                      "FIXED"
+                    ]
+                  },
+                  "discountValue": {
+                    "type": "number"
+                  },
+                  "minOrderAmount": {
+                    "type": "number"
+                  },
+                  "maxDiscountAmount": {
+                    "type": "number"
+                  },
+                  "usageLimit": {
+                    "type": "integer"
+                  },
+                  "startDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "expiryDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "isActive": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vouchers/validate": {
+      "post": {
+        "summary": "Validate voucher",
+        "description": "Validate a voucher code for a specific order amount",
+        "tags": [
+          "Vouchers"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "voucherCode",
+                  "orderAmount"
+                ],
+                "properties": {
+                  "voucherCode": {
+                    "type": "string"
+                  },
+                  "orderAmount": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wards": {
+      "get": {
+        "summary": "Get wards by province",
+        "description": "Retrieve list of all wards/communes for a specific province. Data is fetched from provinces.open-api.vn API with database fallback.",
+        "tags": [
+          "Locations"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "province_id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Province ID to get wards for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of wards (typically 200-500+ wards per province)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                            "example": 1
+                          },
+                          "code": {
+                            "type": "string",
+                            "example": "00001"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Phúc Xá"
+                          },
+                          "full_name": {
+                            "type": "string",
+                            "example": "Phường Phúc Xá"
+                          },
+                          "province_id": {
+                            "type": "number",
+                            "example": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing province_id parameter"
+          }
+        }
+      }
+    },
+    "/api/admin/integrations/oa-errors": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "GET /api/admin/integrations/oa-errors",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/payment-accounts/{id}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "PUT /api/admin/payment-accounts/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "DELETE /api/admin/payment-accounts/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/payment-accounts": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "GET /api/admin/payment-accounts",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "POST /api/admin/payment-accounts",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/policies/{id}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "GET /api/admin/policies/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "PUT /api/admin/policies/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "DELETE /api/admin/policies/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/policies": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "GET /api/admin/policies",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "POST /api/admin/policies",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/categories/slug/{slug}": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "GET /api/categories/slug/{slug}",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/colors/{id}": {
+      "get": {
+        "tags": [
+          "Colors"
+        ],
+        "summary": "GET /api/colors/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Colors"
+        ],
+        "summary": "PUT /api/colors/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Colors"
+        ],
+        "summary": "DELETE /api/colors/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/colors": {
+      "get": {
+        "tags": [
+          "Colors"
+        ],
+        "summary": "GET /api/colors",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Colors"
+        ],
+        "summary": "POST /api/colors",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/integrations/zalo/authorize": {
+      "get": {
+        "tags": [
+          "Integrations"
+        ],
+        "summary": "GET /api/integrations/zalo/authorize",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/integrations/zalo/callback": {
+      "get": {
+        "tags": [
+          "Integrations"
+        ],
+        "summary": "GET /api/integrations/zalo/callback",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/payment-accounts": {
+      "get": {
+        "tags": [
+          "Payment-accounts"
+        ],
+        "summary": "GET /api/payment-accounts",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/policies": {
+      "get": {
+        "tags": [
+          "Policies"
+        ],
+        "summary": "GET /api/policies",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/products/next-code": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "GET /api/products/next-code",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/revalidate": {
+      "post": {
+        "tags": [
+          "Revalidate"
+        ],
+        "summary": "POST /api/revalidate",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/tags/{id}": {
+      "get": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "GET /api/tags/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "PUT /api/tags/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "DELETE /api/tags/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/tags": {
+      "get": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "GET /api/tags",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "POST /api/tags",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/upload/bank-qr": {
+      "post": {
+        "tags": [
+          "Upload"
+        ],
+        "summary": "POST /api/upload/bank-qr",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/uploads": {
+      "post": {
+        "tags": [
+          "Uploads"
+        ],
+        "summary": "POST /api/uploads",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/vouchers/{id}": {
+      "get": {
+        "tags": [
+          "Vouchers"
+        ],
+        "summary": "GET /api/vouchers/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Vouchers"
+        ],
+        "summary": "PUT /api/vouchers/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Vouchers"
+        ],
+        "summary": "DELETE /api/vouchers/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  }
+}
