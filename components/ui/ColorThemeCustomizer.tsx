@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { Palette, RotateCcw, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import Button from "./Button";
-import Input from "./Input";
 import { createPortal } from "react-dom";
 
 // Convert hex to RGB
@@ -60,7 +59,7 @@ function hexToOklch(hex: string): string | null {
   return rgbToOklch(rgb.r, rgb.g, rgb.b);
 }
 
-const DEFAULT_COLOR = "00E0FF";
+const DEFAULT_COLOR = "3B82F6";
 
 export default function ColorThemeCustomizer() {
   const [isOpen, setIsOpen] = useState(false);
@@ -271,8 +270,8 @@ export default function ColorThemeCustomizer() {
               <p className="text-xs font-medium mb-2">Quick Presets</p>
               <div className="grid grid-cols-6 gap-2">
                 {[
-                  "00E0FF", // Cyan (default)
-                  "3B82F6", // Blue
+                  "3B82F6", // Blue (default)
+                  "00E0FF", // Cyan
                   "10B981", // Green
                   "F59E0B", // Amber
                   "EF4444", // Red
