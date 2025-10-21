@@ -6,6 +6,8 @@ import viMessages from "@/i18n/locales/vi.json";
 
 export default function IntlDemoProvider({ children }: { children: React.ReactNode }) {
   return (
-    <NextIntlClientProvider locale="vi" messages={viMessages as any}>{children}</NextIntlClientProvider>
+    <NextIntlClientProvider locale="vi" messages={viMessages as any} timeZone="Asia/Ho_Chi_Minh">
+      {children}
+    </NextIntlClientProvider>
   );
 }
