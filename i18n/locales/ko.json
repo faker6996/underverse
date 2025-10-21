@@ -67,6 +67,7 @@
   "DocsUnderverse": {
     "pageTitle": "Underverse UI – 사용 가이드",
     "pageDescription": "이 페이지는 프로젝트에서 사용 가능한 UI 컴포넌트의 사용 방법을 보여줍니다. 프로젝트 내 <componentsPath>components/ui</componentsPath>에서 직접 가져오거나, 게시 후 <packageName>@underverse-ui/underverse</packageName> 패키지에서 가져올 수 있습니다.",
+    "tableOfContents": "목차",
     "sections": {
       "install": {
         "title": "설치",

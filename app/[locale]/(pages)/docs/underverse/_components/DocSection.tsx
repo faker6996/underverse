@@ -3,9 +3,12 @@
 import React, { useState } from "react";
 import { Link2, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useActiveSection } from "./ActiveSectionContext";
 
 export default function DocSection({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   const [copied, setCopied] = useState(false);
+  const { activeId } = useActiveSection();
+  const isActive = activeId === id;
 
   const handleCopyLink = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -18,10 +21,18 @@ export default function DocSection({ id, title, children }: { id: string; title:
   return (
     <section
       id={id}
-      className="scroll-mt-20 space-y-4 pb-8 border-b border-border/40 last:border-0"
+      className="scroll-mt-24 space-y-4 pb-8 border-b border-border/40 last:border-0"
     >
-      <div className="group flex items-center gap-3">
-        <h2 className="text-2xl font-semibold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+      <div className={cn(
+        "group flex items-center gap-3 -mx-4 px-4 py-2 rounded-lg transition-all duration-300",
+        isActive && "bg-primary/5 ring-2 ring-primary/20"
+      )}>
+        <h2 className={cn(
+          "text-2xl font-semibold tracking-tight transition-all duration-300",
+          isActive
+            ? "text-primary scale-105"
+            : "bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text"
+        )}>
           <a
             href={`#${id}`}
             className="hover:text-primary transition-colors"

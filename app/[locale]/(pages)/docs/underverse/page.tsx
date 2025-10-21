@@ -8,9 +8,10 @@ const CodeBlock = dynamicImport(() => import("./_components/CodeBlock"), { ssr: 
 const DocSection = dynamicImport(() => import("./_components/DocSection"), { ssr: false });
 import ClientOnly from "@/components/ui/ClientOnly";
 const ToastProvider = dynamicImport(() => import("@/components/ui/Toast"), { ssr: false });
+import { ActiveSectionProvider } from "./_components/ActiveSectionContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 // Lazy-load interactive examples to avoid SSR side effects during build
-const LanguageSwitcher = dynamicImport(() => import("@/components/ui/LanguageSwitcher"), { ssr: false });
 const ButtonExample = dynamicImport(() => import("./_examples/ButtonExample"), { ssr: false });
 const ButtonAdvancedExample = dynamicImport(() => import("./_examples/ButtonAdvancedExample"), { ssr: false });
 const BadgeExample = dynamicImport(() => import("./_examples/BadgeExample"), { ssr: false });
@@ -53,6 +54,8 @@ const FormExample = dynamicImport(() => import("./_examples/FormExample"), { ssr
 const ThemeToggleExample = dynamicImport(() => import("./_examples/ThemeToggleExample"), { ssr: false });
 const NotificationBellExample = dynamicImport(() => import("./_examples/NotificationBellExample"), { ssr: false });
 const FloatingContactsExample = dynamicImport(() => import("./_examples/FloatingContactsExample"), { ssr: false });
+const TableOfContents = dynamicImport(() => import("./_components/TableOfContents"), { ssr: false });
+const DocsHeader = dynamicImport(() => import("./_components/DocsHeader"), { ssr: false });
 
 export default function UnderverseGuidePage() {
   return (
@@ -64,11 +67,15 @@ export default function UnderverseGuidePage() {
 
 function DocsContent() {
   return (
-    <IntlDemoProvider>
-      <ToastProvider>
-        <DocsInner />
-      </ToastProvider>
-    </IntlDemoProvider>
+    <ThemeProvider>
+      <IntlDemoProvider>
+        <ToastProvider>
+          <ActiveSectionProvider>
+            <DocsInner />
+          </ActiveSectionProvider>
+        </ToastProvider>
+      </IntlDemoProvider>
+    </ThemeProvider>
   );
 }
 
@@ -77,11 +84,19 @@ function DocsInner() {
   const t = useTranslations("DocsUnderverse");
 
   return (
-      <div className="max-w-5xl mx-auto px-6 py-10 space-y-10">
-        <div className="flex justify-end">
-          <LanguageSwitcher />
-        </div>
-        <h1 className="text-3xl font-bold tracking-tight">{t("pageTitle")}</h1>
+    <div className="min-h-screen">
+      <DocsHeader />
+
+      <div className="container mx-auto px-4 py-10">
+        <div className="flex gap-8 max-w-7xl mx-auto">
+          {/* Sidebar - Table of Contents */}
+          <aside className="hidden lg:block w-64 shrink-0">
+            <TableOfContents />
+          </aside>
+
+          {/* Main Content */}
+          <main className="flex-1 min-w-0 max-w-4xl space-y-10">
+            <h1 className="text-3xl font-bold tracking-tight">{t("pageTitle")}</h1>
         <p className="text-muted-foreground">
           {t.rich("pageDescription", {
             componentsPath: (chunks: React.ReactNode) => <code className="mx-1">{chunks}</code>,
@@ -267,6 +282,9 @@ function DocsInner() {
           <DocSection id="floating-contacts" title={t("sections.floatingContacts.title")}>
             <FloatingContactsExample />
           </DocSection>
+        </main>
       </div>
+    </div>
+    </div>
   );
 }

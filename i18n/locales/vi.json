@@ -67,6 +67,7 @@
   "DocsUnderverse": {
     "pageTitle": "Underverse UI – Hướng dẫn sử dụng",
     "pageDescription": "Trang này minh họa cách dùng các UI component có sẵn trong dự án. Bạn có thể import trực tiếp từ <componentsPath>components/ui</componentsPath> trong dự án, hoặc từ gói <packageName>@underverse-ui/underverse</packageName> sau khi publish.",
+    "tableOfContents": "Mục lục",
     "sections": {
       "install": {
         "title": "Cài đặt",
