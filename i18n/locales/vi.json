@@ -58,5 +58,150 @@
       "browseFiles": "Chọn tệp",
       "supportedFormats": "Hỗ trợ các định dạng ảnh"
     }
+  },
+  "Form": {
+    "validation": {
+      "mustBeUsedWithinForm": "useFormField phải được sử dụng bên trong FormField"
+    }
+  },
+  "DocsUnderverse": {
+    "pageTitle": "Underverse UI – Hướng dẫn sử dụng",
+    "pageDescription": "Trang này minh họa cách dùng các UI component có sẵn trong dự án. Bạn có thể import trực tiếp từ <componentsPath>components/ui</componentsPath> trong dự án, hoặc từ gói <packageName>@underverse-ui/underverse</packageName> sau khi publish.",
+    "sections": {
+      "install": {
+        "title": "Cài đặt",
+        "npmComment": "Cài qua npm",
+        "peerDepsComment": "Peer deps (nếu chưa có)",
+        "usageComment": "Sử dụng trong dự án"
+      },
+      "button": {
+        "title": "Button"
+      },
+      "badge": {
+        "title": "Badge"
+      },
+      "avatar": {
+        "title": "Avatar"
+      },
+      "breadcrumb": {
+        "title": "Breadcrumb"
+      },
+      "card": {
+        "title": "Card"
+      },
+      "checkbox": {
+        "title": "Checkbox"
+      },
+      "textarea": {
+        "title": "Textarea"
+      },
+      "modal": {
+        "title": "Modal"
+      },
+      "tabs": {
+        "title": "Tabs"
+      },
+      "toast": {
+        "title": "Toast",
+        "description": "Các nút dưới đây sẽ hiển thị toast."
+      },
+      "imports": {
+        "title": "Import paths",
+        "orInternalImport": "Hoặc import nội bộ dự án"
+      },
+      "alert": {
+        "title": "Alert (with i18n)"
+      },
+      "accessDenied": {
+        "title": "AccessDenied"
+      },
+      "clientOnly": {
+        "title": "ClientOnly"
+      },
+      "loading": {
+        "title": "Loading / GlobalLoading"
+      },
+      "tooltip": {
+        "title": "Tooltip"
+      },
+      "popover": {
+        "title": "Popover"
+      },
+      "sheet": {
+        "title": "Sheet"
+      },
+      "switch": {
+        "title": "Switch"
+      },
+      "slider": {
+        "title": "Slider"
+      },
+      "radioGroup": {
+        "title": "RadioGroup"
+      },
+      "scrollArea": {
+        "title": "ScrollArea"
+      },
+      "table": {
+        "title": "Table"
+      },
+      "progress": {
+        "title": "Progress"
+      },
+      "skeleton": {
+        "title": "Skeleton"
+      },
+      "carousel": {
+        "title": "Carousel"
+      },
+      "dropdownMenu": {
+        "title": "DropdownMenu"
+      },
+      "combobox": {
+        "title": "Combobox"
+      },
+      "multiCombobox": {
+        "title": "MultiCombobox"
+      },
+      "section": {
+        "title": "Section"
+      },
+      "smartImage": {
+        "title": "SmartImage"
+      },
+      "categoryTreeSelect": {
+        "title": "CategoryTreeSelect"
+      },
+      "imageUpload": {
+        "title": "ImageUpload"
+      },
+      "notificationModal": {
+        "title": "NotificationModal (with i18n)"
+      },
+      "dataTable": {
+        "title": "DataTable (with i18n)"
+      },
+      "input": {
+        "title": "Input (with i18n)"
+      },
+      "datePicker": {
+        "title": "DatePicker (with i18n)"
+      },
+      "pagination": {
+        "title": "Pagination (with i18n)"
+      },
+      "form": {
+        "title": "Form (with i18n)"
+      },
+      "themeToggle": {
+        "title": "ThemeToggle (with i18n)"
+      },
+      "notificationBell": {
+        "title": "NotificationBell (with i18n)"
+      },
+      "floatingContacts": {
+        "title": "FloatingContacts"
+      }
+    }
   }
 }

@@ -58,6 +58,71 @@
       "browseFiles": "파일 선택",
       "supportedFormats": "지원 형식: 이미지"
     }
+  },
+  "Form": {
+    "validation": {
+      "mustBeUsedWithinForm": "useFormField는 FormField 내에서 사용해야 합니다"
+    }
+  },
+  "DocsUnderverse": {
+    "pageTitle": "Underverse UI – 사용 가이드",
+    "pageDescription": "이 페이지는 프로젝트에서 사용 가능한 UI 컴포넌트의 사용 방법을 보여줍니다. 프로젝트 내 <componentsPath>components/ui</componentsPath>에서 직접 가져오거나, 게시 후 <packageName>@underverse-ui/underverse</packageName> 패키지에서 가져올 수 있습니다.",
+    "sections": {
+      "install": {
+        "title": "설치",
+        "npmComment": "npm으로 설치",
+        "peerDepsComment": "의존성 (아직 설치하지 않은 경우)",
+        "usageComment": "프로젝트에서 사용"
+      },
+      "button": { "title": "Button" },
+      "badge": { "title": "Badge" },
+      "avatar": { "title": "Avatar" },
+      "breadcrumb": { "title": "Breadcrumb" },
+      "card": { "title": "Card" },
+      "checkbox": { "title": "Checkbox" },
+      "textarea": { "title": "Textarea" },
+      "modal": { "title": "Modal" },
+      "tabs": { "title": "Tabs" },
+      "toast": {
+        "title": "Toast",
+        "description": "아래 버튼을 클릭하면 토스트가 표시됩니다."
+      },
+      "imports": {
+        "title": "가져오기 경로",
+        "orInternalImport": "또는 프로젝트 내부에서 가져오기"
+      },
+      "alert": { "title": "Alert (with i18n)" },
+      "accessDenied": { "title": "AccessDenied" },
+      "clientOnly": { "title": "ClientOnly" },
+      "loading": { "title": "Loading / GlobalLoading" },
+      "tooltip": { "title": "Tooltip" },
+      "popover": { "title": "Popover" },
+      "sheet": { "title": "Sheet" },
+      "switch": { "title": "Switch" },
+      "slider": { "title": "Slider" },
+      "radioGroup": { "title": "RadioGroup" },
+      "scrollArea": { "title": "ScrollArea" },
+      "table": { "title": "Table" },
+      "progress": { "title": "Progress" },
+      "skeleton": { "title": "Skeleton" },
+      "carousel": { "title": "Carousel" },
+      "dropdownMenu": { "title": "DropdownMenu" },
+      "combobox": { "title": "Combobox" },
+      "multiCombobox": { "title": "MultiCombobox" },
+      "section": { "title": "Section" },
+      "smartImage": { "title": "SmartImage" },
+      "categoryTreeSelect": { "title": "CategoryTreeSelect" },
+      "imageUpload": { "title": "ImageUpload" },
+      "notificationModal": { "title": "NotificationModal (with i18n)" },
+      "dataTable": { "title": "DataTable (with i18n)" },
+      "input": { "title": "Input (with i18n)" },
+      "datePicker": { "title": "DatePicker (with i18n)" },
+      "pagination": { "title": "Pagination (with i18n)" },
+      "form": { "title": "Form (with i18n)" },
+      "themeToggle": { "title": "ThemeToggle (with i18n)" },
+      "notificationBell": { "title": "NotificationBell (with i18n)" },
+      "floatingContacts": { "title": "FloatingContacts" }
+    }
   }
 }
 

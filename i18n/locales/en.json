@@ -58,5 +58,150 @@
       "browseFiles": "Browse files",
       "supportedFormats": "Supported formats: images"
     }
+  },
+  "Form": {
+    "validation": {
+      "mustBeUsedWithinForm": "useFormField must be used within FormField"
+    }
+  },
+  "DocsUnderverse": {
+    "pageTitle": "Underverse UI – Usage Guide",
+    "pageDescription": "This page demonstrates how to use the available UI components in the project. You can import directly from <componentsPath>components/ui</componentsPath> in the project, or from the <packageName>@underverse-ui/underverse</packageName> package after publishing.",
+    "sections": {
+      "install": {
+        "title": "Installation",
+        "npmComment": "Install via npm",
+        "peerDepsComment": "Peer dependencies (if not already installed)",
+        "usageComment": "Usage in your project"
+      },
+      "button": {
+        "title": "Button"
+      },
+      "badge": {
+        "title": "Badge"
+      },
+      "avatar": {
+        "title": "Avatar"
+      },
+      "breadcrumb": {
+        "title": "Breadcrumb"
+      },
+      "card": {
+        "title": "Card"
+      },
+      "checkbox": {
+        "title": "Checkbox"
+      },
+      "textarea": {
+        "title": "Textarea"
+      },
+      "modal": {
+        "title": "Modal"
+      },
+      "tabs": {
+        "title": "Tabs"
+      },
+      "toast": {
+        "title": "Toast",
+        "description": "The buttons below will display toast notifications."
+      },
+      "imports": {
+        "title": "Import paths",
+        "orInternalImport": "Or import from internal project"
+      },
+      "alert": {
+        "title": "Alert (with i18n)"
+      },
+      "accessDenied": {
+        "title": "AccessDenied"
+      },
+      "clientOnly": {
+        "title": "ClientOnly"
+      },
+      "loading": {
+        "title": "Loading / GlobalLoading"
+      },
+      "tooltip": {
+        "title": "Tooltip"
+      },
+      "popover": {
+        "title": "Popover"
+      },
+      "sheet": {
+        "title": "Sheet"
+      },
+      "switch": {
+        "title": "Switch"
+      },
+      "slider": {
+        "title": "Slider"
+      },
+      "radioGroup": {
+        "title": "RadioGroup"
+      },
+      "scrollArea": {
+        "title": "ScrollArea"
+      },
+      "table": {
+        "title": "Table"
+      },
+      "progress": {
+        "title": "Progress"
+      },
+      "skeleton": {
+        "title": "Skeleton"
+      },
+      "carousel": {
+        "title": "Carousel"
+      },
+      "dropdownMenu": {
+        "title": "DropdownMenu"
+      },
+      "combobox": {
+        "title": "Combobox"
+      },
+      "multiCombobox": {
+        "title": "MultiCombobox"
+      },
+      "section": {
+        "title": "Section"
+      },
+      "smartImage": {
+        "title": "SmartImage"
+      },
+      "categoryTreeSelect": {
+        "title": "CategoryTreeSelect"
+      },
+      "imageUpload": {
+        "title": "ImageUpload"
+      },
+      "notificationModal": {
+        "title": "NotificationModal (with i18n)"
+      },
+      "dataTable": {
+        "title": "DataTable (with i18n)"
+      },
+      "input": {
+        "title": "Input (with i18n)"
+      },
+      "datePicker": {
+        "title": "DatePicker (with i18n)"
+      },
+      "pagination": {
+        "title": "Pagination (with i18n)"
+      },
+      "form": {
+        "title": "Form (with i18n)"
+      },
+      "themeToggle": {
+        "title": "ThemeToggle (with i18n)"
+      },
+      "notificationBell": {
+        "title": "NotificationBell (with i18n)"
+      },
+      "floatingContacts": {
+        "title": "FloatingContacts"
+      }
+    }
   }
 }

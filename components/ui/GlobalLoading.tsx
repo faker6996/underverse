@@ -138,17 +138,24 @@ export const ButtonLoading: React.FC<ButtonLoadingProps> = ({
   disabled,
   loadingText
 }) => {
+  // Avoid nested <button> by wrapping with a div and cloning child to disable it when loading
+  const child = React.isValidElement(children)
+    ? React.cloneElement(children as any, {
+        disabled: ((children as any).props?.disabled ?? false) || disabled || isLoading,
+        'aria-busy': isLoading || undefined,
+      })
+    : children;
+
   return (
-    <button 
+    <div
       className={cn(
-        'relative',
+        'relative inline-block',
         isLoading && 'cursor-not-allowed',
         className
       )}
-      disabled={disabled || isLoading}
     >
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <Activity className="w-4 h-4 animate-spin text-primary-foreground" />
           {loadingText && (
             <span className="ml-2 text-sm">
@@ -157,10 +164,10 @@ export const ButtonLoading: React.FC<ButtonLoadingProps> = ({
           )}
         </div>
       )}
-      
-      <div className={cn(isLoading && 'invisible')}>
-        {children}
+
+      <div className={cn(isLoading && 'opacity-50 pointer-events-none')}>
+        {child}
       </div>
-    </button>
+    </div>
   );
 };

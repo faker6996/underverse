@@ -1,11 +1,8 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from 'next-intl/plugin';
 
-const withNextIntl = createNextIntlPlugin({
-  locales: ['vi','en','ko','ja'],
-  defaultLocale: 'vi',
-  timeZone: 'Asia/Ho_Chi_Minh'
-});
+// Locales and defaultLocale are defined via `i18n/routing.ts` (next-intl v4)
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const nextConfig: NextConfig = {
   /* config options here */
