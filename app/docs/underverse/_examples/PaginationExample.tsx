@@ -5,6 +5,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import CodeBlock from "../_components/CodeBlock";
 import IntlDemoProvider from "../_components/IntlDemoProvider";
 import Button from "@/components/ui/Button";
+import { useTranslations } from "next-intl";
 
 export default function PaginationExample() {
   const [page, setPage] = React.useState(1);
@@ -18,6 +19,7 @@ export default function PaginationExample() {
 
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
+  const t = useTranslations("Pagination");
   return (
     <IntlDemoProvider>
       <div className="space-y-4">
@@ -35,6 +37,20 @@ export default function PaginationExample() {
           showPrevNext={prevNext}
           showPageNumbers={pageNumbers}
           showInfo
+          labels={{
+            navigationLabel: t('navigationLabel'),
+            showingResults: ({startItem,endItem,totalItems}) => t('showingResults', {startItem: startItem ?? 0, endItem: endItem ?? 0, totalItems: totalItems ?? 0}),
+            firstPage: t('firstPage'),
+            previousPage: t('previousPage'),
+            previous: t('previous'),
+            nextPage: t('nextPage'),
+            next: t('next'),
+            lastPage: t('lastPage'),
+            itemsPerPage: t('itemsPerPage'),
+            search: t('search'),
+            noOptions: t('noOptions'),
+            pageNumber: (p) => t('pageNumber', {page: p})
+          }}
         />
 
         <div className="flex flex-wrap gap-2 items-center text-sm">

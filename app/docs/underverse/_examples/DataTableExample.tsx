@@ -4,6 +4,7 @@ import React from "react";
 import DataTable from "@/components/ui/DataTable";
 import CodeBlock from "../_components/CodeBlock";
 import IntlDemoProvider from "../_components/IntlDemoProvider";
+import { useTranslations } from "next-intl";
 
 type Row = { id: number; name: string; role: string; created_at: string };
 
@@ -19,13 +20,26 @@ export default function DataTableExample() {
     { key: "created_at", title: "Created", dataIndex: "created_at", filter: { type: "date" } },
   ];
 
+  const t = useTranslations('Common');
   return (
     <IntlDemoProvider>
       <div className="space-y-3">
-        <DataTable<Row> columns={columns as any} data={rows} total={rows.length} page={1} pageSize={10} />
+        <DataTable<Row>
+          columns={columns as any}
+          data={rows}
+          total={rows.length}
+          page={1}
+          pageSize={10}
+          labels={{
+            density: t('density'),
+            columns: t('columns'),
+            compact: t('compact'),
+            normal: t('normal'),
+            comfortable: t('comfortable')
+          }}
+        />
         <CodeBlock code={`import { DataTable } from '@underverse-ui/underverse'`} />
       </div>
     </IntlDemoProvider>
   );
 }
-

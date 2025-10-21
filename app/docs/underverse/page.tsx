@@ -6,6 +6,7 @@ import ToastProvider from "@/components/ui/Toast";
 import IntlDemoProvider from "./_components/IntlDemoProvider";
 import CodeBlock from "./_components/CodeBlock";
 import DocSection from "./_components/DocSection";
+import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import ButtonExample from "./_examples/ButtonExample";
 import ButtonAdvancedExample from "./_examples/ButtonAdvancedExample";
 import BadgeExample from "./_examples/BadgeExample";
@@ -50,6 +51,9 @@ export default function UnderverseGuidePage() {
     <IntlDemoProvider>
     <ToastProvider>
       <div className="max-w-5xl mx-auto px-6 py-10 space-y-10">
+        <div className="flex justify-end">
+          <LanguageSwitcher />
+        </div>
         <h1 className="text-3xl font-bold tracking-tight">Underverse UI – Hướng dẫn sử dụng</h1>
         <p className="text-muted-foreground">
           Trang này minh họa cách dùng các UI component có sẵn trong dự án. Bạn có thể import trực tiếp từ

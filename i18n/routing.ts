@@ -3,7 +3,7 @@ import { LOCALE } from "@/lib/constants/enum";
 
 export const routing = defineRouting({
   // A list of all locales that are supported
-  locales: [LOCALE.EN, LOCALE.VI],
+  locales: [LOCALE.EN, LOCALE.VI, LOCALE.KO, LOCALE.JA],
 
   // Used when no locale matches
   defaultLocale: LOCALE.VI,

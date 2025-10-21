@@ -18,6 +18,8 @@ export enum Z_INDEX_LEVEL {
 export enum LOCALE {
   VI = "vi",
   EN = "en",
+  KO = "ko",
+  JA = "ja",
 }
 
 export enum MESSAGE_TYPE {
