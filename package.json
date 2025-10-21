@@ -21,10 +21,10 @@
     "i18n:dedupe": "node scripts/dedupe-locales.mjs",
     "i18n:remove-unused": "node scripts/remove-unused-keys.mjs",
     "cleanup:console": "node scripts/remove-console-logs.mjs",
-    "release:underverse": "npm --prefix packages/underverse run release",
-    "release:underverse:minor": "npm --prefix packages/underverse run release:minor",
-    "release:underverse:major": "npm --prefix packages/underverse run release:major",
-    "release:underverse:beta": "npm --prefix packages/underverse run release -- --tag=beta"
+    "release:underverse": "npm --prefix packages/underverse run release && npm run build",
+    "release:underverse:minor": "npm --prefix packages/underverse run release:minor && npm run build",
+    "release:underverse:major": "npm --prefix packages/underverse run release:major && npm run build",
+    "release:underverse:beta": "npm --prefix packages/underverse run release -- --tag=beta && npm run build"
     ,
     "dev:underverse": "npm --prefix packages/underverse run dev"
   },

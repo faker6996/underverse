@@ -1,11 +1,22 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from 'next-intl/plugin';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 // Locales and defaultLocale are defined via `i18n/routing.ts` (next-intl v4)
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
+// Read version from package.json
+const packageJson = JSON.parse(
+  readFileSync(join(process.cwd(), 'packages/underverse/package.json'), 'utf-8')
+);
+
 const nextConfig: NextConfig = {
   /* config options here */
+  env: {
+    NEXT_PUBLIC_NPM_VERSION: packageJson.version,
+    NEXT_PUBLIC_NPM_PACKAGE: packageJson.name,
+  },
   images: {
     // Allow bypassing the Image Optimizer in environments where
     // a reverse proxy (nginx) serves images directly. Set env
