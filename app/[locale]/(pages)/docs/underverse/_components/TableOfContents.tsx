@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils/cn";
 import { useActiveSection } from "./ActiveSectionContext";
@@ -59,6 +59,18 @@ const sections: TocSection[] = [
 export default function TableOfContents() {
   const t = useTranslations("DocsUnderverse");
   const { activeId, setActiveId } = useActiveSection();
+  const activeItemRef = useRef<HTMLButtonElement>(null);
+
+  // Auto-scroll to active item
+  useEffect(() => {
+    if (activeId && activeItemRef.current) {
+      activeItemRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    }
+  }, [activeId]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -106,6 +118,7 @@ export default function TableOfContents() {
           {sections.map(({ id, labelKey }) => (
             <li key={id}>
               <button
+                ref={activeId === id ? activeItemRef : null}
                 onClick={() => handleClick(id)}
                 className={cn(
                   "block w-full text-left text-sm py-1.5 px-3 -ml-px border-l-2 transition-all",

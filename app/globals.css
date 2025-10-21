@@ -11,9 +11,9 @@
   --popover: oklch(100% 0 0); /* Pure white - dropdown/modal backgrounds */
   --popover-foreground: oklch(20.5% 0 0); /* Dark charcoal - popup text */
 
-  /* Brand primary: Pickleball lime-yellow */
-  --primary: oklch(85% 0.22 110); /* Lively lime-yellow - primary actions */
-  --primary-foreground: oklch(20.5% 0 0); /* Dark text on bright primary */
+  /* Brand primary: Vibrant cyan-blue */
+  --primary: oklch(85% 0.139 200); /* Vibrant cyan #00E0FF - primary actions */
+  --primary-foreground: oklch(20% 0 0); /* Dark text on bright cyan */
 
   --secondary: oklch(96.1% 0 0); /* Very light gray - secondary buttons */
   --secondary-foreground: oklch(20.5% 0 0); /* Dark charcoal - text on secondary */
@@ -49,33 +49,33 @@
 }
 
 .dark {
-  --background: oklch(14.5% 0 0); /* Deep charcoal black - rich dark backdrop */
-  --foreground: oklch(98.5% 0 0); /* Near white - main text on dark */
+  --background: oklch(15% 0.04 200); /* Deep cyan-black - rich dark backdrop with cyan tint */
+  --foreground: oklch(98.5% 0.01 200); /* Near white with slight cyan tint */
 
-  --card: oklch(20.5% 0 0); /* Dark gray - elevated card surfaces */
-  --card-foreground: oklch(98.5% 0 0); /* Near white - text on cards */
+  --card: oklch(20% 0.03 200); /* Dark cyan-gray - elevated card surfaces */
+  --card-foreground: oklch(98.5% 0.01 200); /* Near white - text on cards */
 
-  --popover: oklch(26.9% 0 0); /* Medium dark gray - floating elements */
-  --popover-foreground: oklch(98.5% 0 0); /* Near white - popup text */
+  --popover: oklch(22% 0.035 200); /* Medium dark cyan-gray - floating elements */
+  --popover-foreground: oklch(98.5% 0.01 200); /* Near white - popup text */
 
-  /* Brighter primary tuned for dark surfaces (lime-yellow) */
-  --primary: oklch(82% 0.21 110);
-  --primary-foreground: oklch(20.5% 0 0); /* Dark text on bright primary */
+  /* Brighter primary tuned for dark surfaces (cyan-blue) */
+  --primary: oklch(88% 0.145 200); /* Brighter cyan for dark mode */
+  --primary-foreground: oklch(15% 0 0); /* Dark text on bright cyan */
 
-  --secondary: oklch(26.9% 0 0); /* Medium dark gray - secondary buttons */
-  --secondary-foreground: oklch(98.5% 0 0); /* Near white - text on secondary */
+  --secondary: oklch(25% 0.03 200); /* Dark cyan-gray - secondary buttons */
+  --secondary-foreground: oklch(98.5% 0.01 200); /* Near white - text on secondary */
 
-  --muted: oklch(26.9% 0 0); /* Medium dark gray - muted areas */
-  --muted-foreground: oklch(70.8% 0 0); /* Light gray - muted text */
+  --muted: oklch(25% 0.03 200); /* Dark cyan-gray - muted areas */
+  --muted-foreground: oklch(70% 0.02 200); /* Light gray with cyan tint - muted text */
 
-  --accent: oklch(37.1% 0 0); /* Lighter dark gray - hover/accent states */
-  --accent-foreground: oklch(98.5% 0 0); /* Near white - text on accents */
+  --accent: oklch(30% 0.04 200); /* Cyan-tinted dark gray - hover/accent states */
+  --accent-foreground: oklch(98.5% 0.01 200); /* Near white - text on accents */
 
   --destructive: oklch(70.4% 0.191 22.216); /* Warm red-orange - errors/danger */
   --destructive-foreground: oklch(98.5% 0 0); /* Near white - text on red */
 
-  --border: oklch(100% 0 0 / 0.1); /* 10% transparent white - subtle borders */
-  --input: oklch(100% 0 0 / 0.15); /* 15% transparent white - input borders */
+  --border: oklch(100% 0.02 200 / 0.12); /* Subtle cyan-tinted borders */
+  --input: oklch(100% 0.02 200 / 0.18); /* Cyan-tinted input borders */
   --ring: var(--primary); /* Match focus ring to primary */
 
   --success: 142.1 70.6% 45.3%; /* HSL Forest Green - success states */

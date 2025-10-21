@@ -4,6 +4,7 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import ColorThemeCustomizer from "@/components/ui/ColorThemeCustomizer";
 
 export default function DocsHeader() {
   const t = useTranslations("DocsUnderverse");
@@ -26,6 +27,7 @@ export default function DocsHeader() {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
+            <ColorThemeCustomizer />
             <ThemeToggle />
             <LanguageSwitcher />
           </div>
