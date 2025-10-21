@@ -10,10 +10,12 @@ Phát hành (tăng version + build + publish)
 
 Cách chạy (từ root)
 
-Bump patch + publish: npm run release:underverse
-Bump minor: npm run release:underverse:minor
-Bump major: npm run release:underverse:major
-Beta tag: npm run release:underverse:beta
+Workflow hoàn chỉnh:
+  npm run release:underverse        # patch version (0.1.7 → 0.1.8) + rebuild
+  npm run release:underverse:minor  # minor version (0.1.7 → 0.2.0) + rebuild
+  npm run release:underverse:major  # major version (0.1.7 → 1.0.0) + rebuild
+  npm run release:underverse:beta   # beta tag + rebuild
+
 Hoặc trong package:
 cd packages/underverse
 npm run release (patch)
