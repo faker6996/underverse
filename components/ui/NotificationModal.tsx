@@ -20,9 +20,12 @@ interface NotificationModalProps {
   isOpen: boolean;
   onClose: () => void;
   notification: NotificationItem | null;
+  titleText?: string;
+  openLinkText?: string;
+  closeText?: string;
 }
 
-export function NotificationModal({ isOpen, onClose, notification }: NotificationModalProps) {
+export function NotificationModal({ isOpen, onClose, notification, titleText, openLinkText, closeText }: NotificationModalProps) {
   const t = useTranslations('Common');
   
   if (!notification) return null;
@@ -51,7 +54,7 @@ export function NotificationModal({ isOpen, onClose, notification }: Notificatio
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={t('notifications')}
+      title={titleText || t('notifications')}
       size="md"
     >
       <div className="space-y-4">
@@ -92,7 +95,7 @@ export function NotificationModal({ isOpen, onClose, notification }: Notificatio
               className="gap-2"
             >
               <ExternalLink className="w-4 h-4" />
-              {t('openLink')}
+              {openLinkText || t('openLink')}
             </Button>
           )}
           <Button
@@ -100,7 +103,7 @@ export function NotificationModal({ isOpen, onClose, notification }: Notificatio
             size="sm"
             onClick={onClose}
           >
-            {t('close')}
+            {closeText || t('close')}
           </Button>
         </div>
       </div>

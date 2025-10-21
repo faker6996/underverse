@@ -26,9 +26,10 @@ interface AlertProps {
   dismissible?: boolean;
   onClose?: () => void;
   actions?: ReactNode;
+  closeAriaLabel?: string;
 }
 
-const Alert = ({ title, description, variant = "default", className, icon, dismissible = false, onClose, actions }: AlertProps) => {
+const Alert = ({ title, description, variant = "default", className, icon, dismissible = false, onClose, actions, closeAriaLabel }: AlertProps) => {
   const [open, setOpen] = useState(true);
   const t = useTranslations("Common");
 
@@ -61,7 +62,7 @@ const Alert = ({ title, description, variant = "default", className, icon, dismi
         <button
           onClick={handleClose}
           className="rounded-md p-1 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label={t("closeAlert")}
+          aria-label={closeAriaLabel || t("closeAlert")}
         >
           <X className="h-4 w-4" />
         </button>

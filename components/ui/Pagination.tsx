@@ -24,6 +24,20 @@ interface PaginationProps {
   pageSizeOptions?: number[];
   onPageSizeChange?: (size: number) => void;
   totalItems?: number;
+  labels?: {
+    navigationLabel?: string;
+    showingResults?: (ctx: { startItem: number; endItem: number; totalItems?: number }) => string;
+    firstPage?: string;
+    previousPage?: string;
+    previous?: string;
+    nextPage?: string;
+    next?: string;
+    lastPage?: string;
+    itemsPerPage?: string;
+    search?: string;
+    noOptions?: string;
+    pageNumber?: (page: number) => string;
+  };
 }
 
 export const Pagination: React.FC<PaginationProps> = ({
@@ -42,6 +56,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   pageSizeOptions,
   onPageSizeChange,
   totalItems,
+  labels,
 }) => {
   const t = useTranslations("Pagination");
 
@@ -115,11 +130,13 @@ export const Pagination: React.FC<PaginationProps> = ({
   if (totalPages <= 1) return null;
 
   return (
-    <nav className={cn("flex flex-col gap-4", className)} aria-label={t("navigationLabel")}>
+    <nav className={cn("flex flex-col gap-4", className)} aria-label={labels?.navigationLabel || t("navigationLabel")}>
       {/* Info Display */}
       {showInfo && totalItems && (
         <div className="text-sm text-muted-foreground text-center">
-          {t("showingResults", { startItem: startItem || 0, endItem: endItem || 0, totalItems })}
+          {labels?.showingResults
+            ? labels.showingResults({ startItem: startItem || 0, endItem: endItem || 0, totalItems })
+            : t("showingResults", { startItem: startItem || 0, endItem: endItem || 0, totalItems })}
         </div>
       )}
 
@@ -134,8 +151,8 @@ export const Pagination: React.FC<PaginationProps> = ({
             onClick={() => onChange(1)}
             disabled={disabled || page === 1}
             className="hidden sm:flex"
-            title={t("firstPage")}
-            aria-label={t("firstPage")}
+            title={labels?.firstPage || t("firstPage")}
+            aria-label={labels?.firstPage || t("firstPage")}
             aria-disabled={disabled || page === 1}
           />
         )}
@@ -148,11 +165,11 @@ export const Pagination: React.FC<PaginationProps> = ({
             icon={ChevronLeft}
             onClick={() => onChange(Math.max(1, page - 1))}
             disabled={disabled || page === 1}
-            title={t("previousPage")}
-            aria-label={t("previousPage")}
+            title={labels?.previousPage || t("previousPage")}
+            aria-label={labels?.previousPage || t("previousPage")}
             aria-disabled={disabled || page === 1}
           >
-            <span className="hidden sm:inline">{t("previous")}</span>
+            <span className="hidden sm:inline">{labels?.previous || t("previous")}</span>
           </Button>
         )}
 
@@ -174,7 +191,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                 onClick={() => onChange(pageNumber)}
                 disabled={disabled}
                 className={cn("min-w-[2.5rem]", isActive && "font-semibold")}
-                aria-label={t("pageNumber", { page: pageNumber })}
+                aria-label={labels?.pageNumber ? labels.pageNumber(pageNumber) : t("pageNumber", { page: pageNumber })}
                 aria-current={isActive ? "page" : undefined}
               >
                 {pageNumber}
@@ -190,11 +207,11 @@ export const Pagination: React.FC<PaginationProps> = ({
             iconRight={ChevronRight}
             onClick={() => onChange(Math.min(totalPages, page + 1))}
             disabled={disabled || page === totalPages}
-            title={t("nextPage")}
-            aria-label={t("nextPage")}
+            title={labels?.nextPage || t("nextPage")}
+            aria-label={labels?.nextPage || t("nextPage")}
             aria-disabled={disabled || page === totalPages}
           >
-            <span className="hidden sm:inline">{t("next")}</span>
+            <span className="hidden sm:inline">{labels?.next || t("next")}</span>
           </Button>
         )}
 
@@ -207,8 +224,8 @@ export const Pagination: React.FC<PaginationProps> = ({
             onClick={() => onChange(totalPages)}
             disabled={disabled || page === totalPages}
             className="hidden sm:flex"
-            title={t("lastPage")}
-            aria-label={t("lastPage")}
+            title={labels?.lastPage || t("lastPage")}
+            aria-label={labels?.lastPage || t("lastPage")}
             aria-disabled={disabled || page === totalPages}
           />
         )}
@@ -217,15 +234,15 @@ export const Pagination: React.FC<PaginationProps> = ({
       {/* Page Size Selector */}
       {pageSizeOptions && onPageSizeChange && (
         <div className="flex items-center justify-center gap-2 text-sm">
-          <span className="text-muted-foreground">{t("itemsPerPage")}:</span>
+          <span className="text-muted-foreground">{labels?.itemsPerPage || t("itemsPerPage")}:</span>
           <div className="w-20">
             <Combobox
               options={pageSizeOptionsStrings}
               value={pageSize?.toString() || "10"}
               onChange={handlePageSizeChange}
               placeholder="10"
-              searchPlaceholder={t("search")}
-              emptyText={t("noOptions")}
+              searchPlaceholder={labels?.search || t("search")}
+              emptyText={labels?.noOptions || t("noOptions")}
               disabled={disabled}
             />
           </div>

@@ -21,6 +21,9 @@ interface DatePickerProps {
   size?: "sm" | "md";
   label?: string;
   required?: boolean;
+  todayLabel?: string;
+  clearLabel?: string;
+  weekdayLabels?: string[];
 }
 
 export const DatePicker: React.FC<DatePickerProps> = ({
@@ -33,6 +36,9 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   size = "md",
   label,
   required,
+  todayLabel,
+  clearLabel,
+  weekdayLabels,
 }) => {
   const t = useTranslations("DatePicker");
   const locale = useLocale();
@@ -203,7 +209,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <div className="text-sm font-semibold">
-              {viewDate.toLocaleDateString(locale === LOCALE.VI ? "vi-VN" : "en-US", { month: "long", year: "numeric" })}
+              {viewDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
             </div>
             <Button variant="ghost" size="sm" onClick={() => navigateMonth("next")} className="p-1 h-auto">
               <ChevronRight className="h-4 w-4" />
@@ -212,7 +218,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
           {/* Weekday headers */}
           <div className={cn("grid grid-cols-7 gap-1", size === "sm" ? "mb-1" : "mb-2")}>
-            {(locale === LOCALE.VI ? t("weekdays").split(",") : ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]).map((day) => (
+            {(weekdayLabels || ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]).map((day) => (
               <div key={day} className={cn("text-muted-foreground text-center font-medium", size === "sm" ? "text-[10px] py-0.5" : "text-xs py-1")}>
                 {day}
               </div>

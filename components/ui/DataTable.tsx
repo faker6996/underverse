@@ -51,6 +51,13 @@ interface DataTableProps<T> {
   enableDensityToggle?: boolean;
   striped?: boolean; // Bật/tắt màu nền sẽn kẽ cho các dòng
   className?: string;
+  labels?: {
+    density?: string;
+    columns?: string;
+    compact?: string;
+    normal?: string;
+    comfortable?: string;
+  };
 }
 
 function useDebounced<T>(value: T, delay = 300) {
@@ -77,6 +84,7 @@ export function DataTable<T extends Record<string, any>>({
   enableDensityToggle = true,
   striped = true, // Mặc định bật màu nền sẽn kẽ cho các dòng
   className,
+  labels,
 }: DataTableProps<T>) {
   const t = useTranslations("Common");
   const [visibleCols, setVisibleCols] = React.useState<string[]>(() => columns.filter((c) => c.visible !== false).map((c) => c.key));
@@ -261,13 +269,13 @@ export function DataTable<T extends Record<string, any>>({
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                   </svg>
-                  {t("density")}
+                  {labels?.density || t("density")}
                 </Button>
               }
               items={[
-                { label: t("compact") as string, onClick: () => setDensity("compact") },
-                { label: t("normal") as string, onClick: () => setDensity("normal") },
-                { label: t("comfortable") as string, onClick: () => setDensity("comfortable") },
+                { label: (labels?.compact || t("compact")) as string, onClick: () => setDensity("compact") },
+                { label: (labels?.normal || t("normal")) as string, onClick: () => setDensity("normal") },
+                { label: (labels?.comfortable || t("comfortable")) as string, onClick: () => setDensity("comfortable") },
               ]}
             />
           )}
@@ -283,7 +291,7 @@ export function DataTable<T extends Record<string, any>>({
                       d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
                     />
                   </svg>
-                  {t("columns")}
+                  {labels?.columns || t("columns")}
                 </Button>
               }
             >
