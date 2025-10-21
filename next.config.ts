@@ -1,4 +1,11 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin({
+  locales: ['vi','en','ko','ja'],
+  defaultLocale: 'vi',
+  timeZone: 'Asia/Ho_Chi_Minh'
+});
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -73,4 +80,4 @@ const nextConfig: NextConfig = {
   }
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);
