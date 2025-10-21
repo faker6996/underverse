@@ -11,7 +11,7 @@
     "url": "git+https://github.com/faker6996/underverse.git",
     "directory": "packages/underverse"
   },
-  "homepage": "https://github.com/faker6996/underverse#readme",
+  "homepage": "https://underverse-sepia.vercel.app/vi/docs/underverse",
   "bugs": {
     "url": "https://github.com/faker6996/underverse/issues"
   },
