@@ -4,6 +4,17 @@
   "private": false,
   "description": "Underverse UI – reusable React/Next.js UI components",
   "type": "module",
+  "license": "MIT",
+  "author": "Tran Van Bach",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faker6996/underverse.git",
+    "directory": "packages/underverse"
+  },
+  "homepage": "https://github.com/faker6996/underverse#readme",
+  "bugs": {
+    "url": "https://github.com/faker6996/underverse/issues"
+  },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
