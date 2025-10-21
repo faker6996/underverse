@@ -62,3 +62,14 @@ export { VARIANT_STYLES_BTN, SIZE_STYLES_BTN } from "../../../lib/constants/cons
 export { VARIANT_STYLES_ALERT } from "../../../lib/constants/constants-ui/alert";
 
 // Excluded: NotificationBell (depends on project-specific API, auth, and sockets)
+
+// i18n messages for next-intl consumers
+// Provide ready-to-merge messages so apps can easily integrate underverse UI texts.
+import en from "../locales/en.json";
+import vi from "../locales/vi.json";
+
+export const underverseMessages = { en, vi } as const;
+export type UnderverseLocale = keyof typeof underverseMessages;
+export function getUnderverseMessages(locale: UnderverseLocale = 'en') {
+  return underverseMessages[locale] || underverseMessages.en;
+}

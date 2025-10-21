@@ -1,0 +1,62 @@
+{
+  "Common": {
+    "close": "Close",
+    "closeAlert": "Close alert",
+    "notifications": "Notifications",
+    "newNotification": "New",
+    "readStatus": "Read",
+    "openLink": "Open link",
+    "theme": "Theme",
+    "lightTheme": "Light",
+    "darkTheme": "Dark",
+    "systemTheme": "System",
+    "density": "Density",
+    "compact": "Compact",
+    "normal": "Normal",
+    "comfortable": "Comfortable",
+    "columns": "Columns"
+  },
+  "ValidationInput": {
+    "required": "This field is required",
+    "typeMismatch": "Invalid format",
+    "pattern": "Invalid pattern",
+    "tooShort": "Too short",
+    "tooLong": "Too long",
+    "rangeUnderflow": "Below minimum",
+    "rangeOverflow": "Above maximum",
+    "stepMismatch": "Step mismatch",
+    "badInput": "Bad input",
+    "invalid": "Invalid value"
+  },
+  "Loading": {
+    "loadingPage": "Loading page",
+    "pleaseWait": "Please wait"
+  },
+  "DatePicker": {
+    "placeholder": "Select date",
+    "today": "Today",
+    "clear": "Clear"
+  },
+  "Pagination": {
+    "navigationLabel": "Pagination navigation",
+    "showingResults": "Showing {startItem}–{endItem} of {totalItems}",
+    "firstPage": "First page",
+    "previousPage": "Previous page",
+    "previous": "Previous",
+    "nextPage": "Next page",
+    "next": "Next",
+    "lastPage": "Last page",
+    "pageNumber": "Page {page}",
+    "itemsPerPage": "Items per page",
+    "search": "Search",
+    "noOptions": "No options"
+  },
+  "OCR": {
+    "imageUpload": {
+      "dragDropText": "Drag & drop files here",
+      "browseFiles": "Browse files",
+      "supportedFormats": "Supported formats: images"
+    }
+  }
+}
+

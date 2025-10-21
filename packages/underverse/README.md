@@ -64,8 +64,64 @@ function App() {
 - Utility functions: `cn`, `DateUtils`, style constants
 
 ## Important Notes
-- Some components (like `DatePicker`) depend on `next-intl`. If your app doesn't use `next-intl`, either import only components without this dependency or install `next-intl` as a peer dependency.
-- `NotificationBell` is **not exported** to keep the package neutral (it depends on project-specific API/socket implementations).
+- Library is i18n‑agnostic: components have sensible English defaults and accept text via props.
+- If your app uses `next-intl`, you can merge our ready‑made messages to localize built‑in texts.
+- `NotificationBell` is not exported (depends on project‑specific API/socket implementations).
+
+## next-intl Integration (Next.js App Router)
+
+1) Configure plugin and time zone (to avoid `ENVIRONMENT_FALLBACK`):
+
+```ts
+// next.config.ts
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin({
+  locales: ['vi', 'en'],
+  defaultLocale: 'vi',
+  timeZone: 'Asia/Ho_Chi_Minh' // important for SSR
+});
+
+export default withNextIntl({
+  // your other Next config
+});
+```
+
+2) Merge underverse messages with your app messages:
+
+```tsx
+// app/layout.tsx (simplified)
+import {NextIntlClientProvider, getMessages} from 'next-intl/server';
+import {underverseMessages} from '@underverse-ui/underverse';
+
+export default async function RootLayout({children}:{children: React.ReactNode}) {
+  const appMessages = await getMessages();
+  const locale = 'vi'; // derive from params/headers
+  const uv = underverseMessages[locale] || underverseMessages.en;
+  const messages = {...uv, ...appMessages}; // app overrides uv if overlaps
+
+  return (
+    <html lang={locale}>
+      <body>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          {children}
+        </NextIntlClientProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+3) Use components normally. Any built‑in texts (DatePicker/Pagination/DataTable/Alert/ImageUpload…) will use merged messages. You can still override labels via props if desired.
+
+## Message Keys Summary
+
+- `Common`: close, closeAlert, notifications, newNotification, readStatus, openLink, theme, lightTheme, darkTheme, systemTheme, density, compact, normal, comfortable, columns
+- `ValidationInput`: required, typeMismatch, pattern, tooShort, tooLong, rangeUnderflow, rangeOverflow, stepMismatch, badInput, invalid
+- `Loading`: loadingPage, pleaseWait
+- `DatePicker`: placeholder, today, clear
+- `Pagination`: navigationLabel, showingResults ({startItem},{endItem},{totalItems}), firstPage, previousPage, previous, nextPage, next, lastPage, pageNumber ({page}), itemsPerPage, search, noOptions
+- `OCR.imageUpload`: dragDropText, browseFiles, supportedFormats
 
 ## License
 

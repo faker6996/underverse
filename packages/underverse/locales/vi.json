@@ -1,0 +1,62 @@
+{
+  "Common": {
+    "close": "Đóng",
+    "closeAlert": "Đóng cảnh báo",
+    "notifications": "Thông báo",
+    "newNotification": "Mới",
+    "readStatus": "Đã đọc",
+    "openLink": "Mở liên kết",
+    "theme": "Chủ đề",
+    "lightTheme": "Giao diện sáng",
+    "darkTheme": "Giao diện tối",
+    "systemTheme": "Theo hệ thống",
+    "density": "Mật độ",
+    "compact": "Gọn",
+    "normal": "Thường",
+    "comfortable": "Thoải mái",
+    "columns": "Cột"
+  },
+  "ValidationInput": {
+    "required": "Trường này là bắt buộc",
+    "typeMismatch": "Định dạng không hợp lệ",
+    "pattern": "Sai mẫu",
+    "tooShort": "Quá ngắn",
+    "tooLong": "Quá dài",
+    "rangeUnderflow": "Nhỏ hơn giá trị tối thiểu",
+    "rangeOverflow": "Lớn hơn giá trị tối đa",
+    "stepMismatch": "Sai bước",
+    "badInput": "Giá trị không hợp lệ",
+    "invalid": "Giá trị không hợp lệ"
+  },
+  "Loading": {
+    "loadingPage": "Đang tải trang",
+    "pleaseWait": "Vui lòng chờ"
+  },
+  "DatePicker": {
+    "placeholder": "Chọn ngày",
+    "today": "Hôm nay",
+    "clear": "Xóa"
+  },
+  "Pagination": {
+    "navigationLabel": "Điều hướng phân trang",
+    "showingResults": "Hiển thị {startItem}–{endItem} trong tổng {totalItems}",
+    "firstPage": "Trang đầu",
+    "previousPage": "Trang trước",
+    "previous": "Trước",
+    "nextPage": "Trang sau",
+    "next": "Sau",
+    "lastPage": "Trang cuối",
+    "pageNumber": "Trang {page}",
+    "itemsPerPage": "Số mục/trang",
+    "search": "Tìm kiếm",
+    "noOptions": "Không có lựa chọn"
+  },
+  "OCR": {
+    "imageUpload": {
+      "dragDropText": "Kéo & thả ảnh vào đây",
+      "browseFiles": "Chọn tệp",
+      "supportedFormats": "Hỗ trợ các định dạng ảnh"
+    }
+  }
+}
+
