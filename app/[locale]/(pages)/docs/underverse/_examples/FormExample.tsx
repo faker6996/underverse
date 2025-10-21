@@ -18,9 +18,9 @@ export default function FormExample() {
   const handleSubmit = (data: LoginFormData) => {
     console.log("Form submitted:", data);
     addToast({
+      type: "success",
       title: "Form Submitted",
-      description: `Email: ${data.email}, Remember Me: ${data.rememberMe}`,
-      variant: "success",
+      message: `Email: ${data.email}, Remember Me: ${data.rememberMe}`,
     });
   };
 
