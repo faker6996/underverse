@@ -55,7 +55,9 @@ const LoadingExample = dynamicImport(() => import("./_examples/LoadingExample"),
 const NotificationModalExample = dynamicImport(() => import("./_examples/NotificationModalExample"), { ssr: false });
 const DataTableExample = dynamicImport(() => import("./_examples/DataTableExample"), { ssr: false });
 const DataTableServerExample = dynamicImport(() => import("./_examples/DataTableServerExample"), { ssr: false });
+const DataTableSelectionExample = dynamicImport(() => import("./_examples/DataTableSelectionExample"), { ssr: false });
 const FormExample = dynamicImport(() => import("./_examples/FormExample"), { ssr: false });
+const FormAdvancedExample = dynamicImport(() => import("./_examples/FormAdvancedExample"), { ssr: false });
 const ThemeToggleExample = dynamicImport(() => import("./_examples/ThemeToggleExample"), { ssr: false });
 const NotificationBellExample = dynamicImport(() => import("./_examples/NotificationBellExample"), { ssr: false });
 const FloatingContactsExample = dynamicImport(() => import("./_examples/FloatingContactsExample"), { ssr: false });
@@ -262,6 +264,7 @@ function DocsInner() {
 
           <DocSection id="data-table" title={t("sections.dataTable.title")}>
             <DataTableExample />
+            <div className="mt-3"><DataTableSelectionExample /></div>
             <div className="mt-3"><DataTableServerExample /></div>
           </DocSection>
 
@@ -281,6 +284,7 @@ function DocsInner() {
 
           <DocSection id="form" title={t("sections.form.title")}>
             <FormExample />
+            <div className="mt-3"><FormAdvancedExample /></div>
           </DocSection>
 
           <DocSection id="theme-toggle" title={t("sections.themeToggle.title")}>
