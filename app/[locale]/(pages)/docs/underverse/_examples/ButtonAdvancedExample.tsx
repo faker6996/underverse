@@ -30,6 +30,20 @@ export default function ButtonAdvancedExample() {
           <Button variant="link" title="Link style">Link</Button>
           <Button variant="gradient">Gradient</Button>
         </div>
+        <CodeBlock
+          code={`import { Button } from '@underverse-ui/underverse'
+
+<Button>Default</Button>
+<Button variant='primary'>Primary</Button>
+<Button variant='secondary'>Secondary</Button>
+<Button variant='success'>Success</Button>
+<Button variant='warning'>Warning</Button>
+<Button variant='danger'>Danger</Button>
+<Button variant='outline'>Outline</Button>
+<Button variant='ghost'>Ghost</Button>
+<Button variant='link'>Link</Button>
+<Button variant='gradient'>Gradient</Button>`}
+        />
       </div>
 
       {/* Sizes */}
@@ -42,6 +56,13 @@ export default function ButtonAdvancedExample() {
           <Button size="smx">Smx</Button>
           <Button size="icon" variant="outline" icon={Plus} aria-label="Add" />
         </div>
+        <CodeBlock
+          code={`<Button size='sm'>Small</Button>
+<Button size='md'>Medium</Button>
+<Button size='lg'>Large</Button>
+<Button size='smx'>Smx</Button>
+<Button size='icon' variant='outline' icon={Plus} aria-label='Add' />`}
+        />
       </div>
 
       {/* Icons */}
@@ -52,6 +73,13 @@ export default function ButtonAdvancedExample() {
           <Button iconRight={ArrowRight} variant="primary">Tiếp tục</Button>
           <Button icon={Plus} iconRight={ArrowRight} variant="secondary">New</Button>
         </div>
+        <CodeBlock
+          code={`import { ArrowRight, Download, Plus } from 'lucide-react'
+
+<Button icon={Download}>Download</Button>
+<Button iconRight={ArrowRight} variant='primary'>Tiếp tục</Button>
+<Button icon={Plus} iconRight={ArrowRight} variant='secondary'>New</Button>`}
+        />
       </div>
 
       {/* Loading & disabled */}
@@ -63,6 +91,13 @@ export default function ButtonAdvancedExample() {
           <Button loading preserveChildrenOnLoading variant="success">Lưu</Button>
           <Button onClick={onSave} loading={saving} variant="primary">Lưu thay đổi</Button>
         </div>
+        <CodeBlock
+          code={`// loading shows spinner, optional loadingText, preserveChildrenOnLoading keeps children while loading
+<Button loading loadingText='Đang xử lý...'>Loading</Button>
+<Button disabled variant='outline'>Disabled</Button>
+<Button loading preserveChildrenOnLoading variant='success'>Lưu</Button>
+<Button onClick={onSave} loading={saving} variant='primary'>Lưu thay đổi</Button>`}
+        />
       </div>
 
       {/* Behavior */}
@@ -72,10 +107,15 @@ export default function ButtonAdvancedExample() {
           <Button preventDoubleClick onClick={() => console.log("clicked")}>Chống double-click</Button>
           <Button fullWidth variant="outline">Full width button</Button>
         </div>
+        <CodeBlock
+          code={`// preventDoubleClick locks button briefly (or until async onClick resolves)
+<Button preventDoubleClick onClick={handleClick}>Chống double-click</Button>
+// fullWidth stretches button to 100%
+<Button fullWidth variant='outline'>Full width button</Button>`}
+        />
       </div>
 
-      <CodeBlock code={`// Variants, sizes, icons, loading, disabled, behaviors\n<Button variant='primary' size='md' iconRight={ArrowRight}>Tiếp tục</Button>`} />
+      <CodeBlock code={`// Summary\n<Button variant='primary' size='md' iconRight={ArrowRight}>Tiếp tục</Button>`} />
     </div>
   );
 }
-
