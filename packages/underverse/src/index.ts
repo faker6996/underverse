@@ -66,10 +66,17 @@ export { default as FloatingContacts } from "../../../components/ui/FloatingCont
 export { default as AccessDenied } from "../../../components/ui/AccessDenied";
 
 // Headless, package-safe utilities
+// Export headless components under simple names
+export { default as ThemeToggle } from "../../../components/ui/ThemeToggleHeadless";
+export type { ThemeToggleHeadlessProps as ThemeToggleProps, ThemeMode } from "../../../components/ui/ThemeToggleHeadless";
+export { default as LanguageSwitcher } from "../../../components/ui/LanguageSwitcherHeadless";
+export type { LanguageSwitcherHeadlessProps as LanguageSwitcherProps, LanguageOption } from "../../../components/ui/LanguageSwitcherHeadless";
+
+// Back-compat (optional): keep headless aliases
 export { default as ThemeToggleHeadless } from "../../../components/ui/ThemeToggleHeadless";
-export type { ThemeToggleHeadlessProps, ThemeMode } from "../../../components/ui/ThemeToggleHeadless";
+export type { ThemeToggleHeadlessProps } from "../../../components/ui/ThemeToggleHeadless";
 export { default as LanguageSwitcherHeadless } from "../../../components/ui/LanguageSwitcherHeadless";
-export type { LanguageSwitcherHeadlessProps, LanguageOption } from "../../../components/ui/LanguageSwitcherHeadless";
+export type { LanguageSwitcherHeadlessProps } from "../../../components/ui/LanguageSwitcherHeadless";
 
 // Utilities needed by components (optional public re-exports)
 export { cn } from "../../../lib/utils/cn";
