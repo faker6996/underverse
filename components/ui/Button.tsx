@@ -29,6 +29,8 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   lockMs?: number; // thời gian khóa nếu onClick không trả Promise
   // Layout flexibility
   asContainer?: boolean; // cho phép children tự do layout (không force items-center)
+  // Ngăn xuống dòng khiến icon nằm trên, text nằm dưới
+  noWrap?: boolean; // mặc định: true
 }
 
 // Sử dụng forwardRef để chuyển tiếp ref
@@ -55,6 +57,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       preventDoubleClick = false,
       lockMs = 600,
       asContainer = false,
+      noWrap = true,
       ...rest
     },
     ref
@@ -108,6 +111,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           variantStyle,
           sizeStyle,
           "group",
+          noWrap && "whitespace-nowrap",
           {
             "cursor-pointer hover:opacity-95": !computedDisabled,
             "opacity-50 cursor-not-allowed": computedDisabled,
