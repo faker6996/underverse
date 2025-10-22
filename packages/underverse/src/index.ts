@@ -3,11 +3,15 @@
 
 // Core primitives
 export { default as Button } from "../../../components/ui/Button";
+export type { ButtonProps } from "../../../components/ui/Button";
 export { default as Badge } from "../../../components/ui/Badge";
 export { Badge as BadgeBase, NotificationBadge, StatusBadge, TagBadge, InteractiveBadge, GradientBadge, PulseBadge } from "../../../components/ui/Badge";
 export { default as Card } from "../../../components/ui/Card";
 export { Checkbox } from "../../../components/ui/CheckBox";
+export type { CheckboxProps } from "../../../components/ui/CheckBox";
 export { default as Input } from "../../../components/ui/Input";
+export type { InputProps } from "../../../components/ui/Input";
+export { PasswordInput, NumberInput } from "../../../components/ui/Input";
 export { default as Textarea } from "../../../components/ui/Textarea";
 export { default as Switch } from "../../../components/ui/Switch";
 export { Label } from "../../../components/ui/label";
@@ -28,14 +32,18 @@ export { GlobalLoading, PageLoading, InlineLoading, ButtonLoading } from "../../
 export { default as Breadcrumb } from "../../../components/ui/Breadcrumb";
 export { Tabs, SimpleTabs, PillTabs, VerticalTabs } from "../../../components/ui/Tab";
 export { default as DropdownMenu } from "../../../components/ui/DropdownMenu";
-export { Pagination } from "../../../components/ui/Pagination";
+export { Pagination, SimplePagination, CompactPagination } from "../../../components/ui/Pagination";
+export type { PaginationProps, SimplePaginationProps, CompactPaginationProps } from "../../../components/ui/Pagination";
 export { default as Section } from "../../../components/ui/Section";
 export { ScrollArea } from "../../../components/ui/ScrollArea";
 
 // Pickers / inputs
-export { DatePicker } from "../../../components/ui/DatePicker";
+export { DatePicker, DateRangePicker } from "../../../components/ui/DatePicker";
+export type { DatePickerProps } from "../../../components/ui/DatePicker";
 export { Combobox } from "../../../components/ui/Combobox";
+export type { ComboboxProps } from "../../../components/ui/Combobox";
 export { MultiCombobox } from "../../../components/ui/MultiCombobox";
+export type { MultiComboboxProps } from "../../../components/ui/MultiCombobox";
 export { default as RadioGroup } from "../../../components/ui/RadioGroup";
 export { Slider } from "../../../components/ui/Slider";
 export { CategoryTreeSelect } from "../../../components/ui/CategoryTreeSelect";
@@ -50,7 +58,9 @@ export { default as ClientOnly } from "../../../components/ui/ClientOnly";
 export * from "../../../components/ui/Loading";
 // ThemeToggle depends on app-specific ThemeContext, not exported to keep package neutral
 export { default as DataTable } from "../../../components/ui/DataTable";
+export type { DataTableColumn, DataTableQuery, Sorter } from "../../../components/ui/DataTable";
 export * from "../../../components/ui/Table";
+export * from "../../../components/ui/Form";
 export { default as NotificationModal } from "../../../components/ui/NotificationModal";
 export { default as FloatingContacts } from "../../../components/ui/FloatingContacts";
 export { default as AccessDenied } from "../../../components/ui/AccessDenied";

@@ -8,9 +8,9 @@ import { ChevronDown, Search, Check, X } from "lucide-react";
 import { useShadCNAnimations } from "@/lib/utils/shadcn-animations";
 
 // --- PROPS ---
-type ComboboxOption = string | { label: string; value: any };
+export type ComboboxOption = string | { label: string; value: any };
 
-interface ComboboxProps {
+export interface ComboboxProps {
   id?: string;
   options: ComboboxOption[];
   value?: any;

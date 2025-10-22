@@ -11,7 +11,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { LOCALE } from "@/lib/constants/enum";
 import { formatDate as formatDateUtil, formatDateShort } from "@/lib/utils/date";
 
-interface DatePickerProps {
+export interface DatePickerProps {
   id?: string;
   value?: Date;
   onChange: (date: Date) => void;

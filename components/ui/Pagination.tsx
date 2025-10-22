@@ -7,7 +7,7 @@ import Button from "./Button";
 import { Combobox } from "./Combobox";
 import { useTranslations } from "next-intl";
 
-interface PaginationProps {
+export interface PaginationProps {
   page: number;
   totalPages: number;
   onChange: (page: number) => void;
@@ -253,7 +253,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 };
 
 // Simple Pagination - minimal version with just prev/next
-interface SimplePaginationProps {
+export interface SimplePaginationProps {
   page: number;
   totalPages: number;
   onChange: (page: number) => void;
@@ -315,7 +315,7 @@ export const SimplePagination: React.FC<SimplePaginationProps> = ({
 };
 
 // Compact Pagination - icon only version
-interface CompactPaginationProps {
+export interface CompactPaginationProps {
   page: number;
   totalPages: number;
   onChange: (page: number) => void;

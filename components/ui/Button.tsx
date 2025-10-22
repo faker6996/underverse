@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils/cn";
 import { Activity } from "lucide-react";
 
 // Khai báo kiểu cho props
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   children?: React.ReactNode;
   type?: "button" | "submit" | "reset";

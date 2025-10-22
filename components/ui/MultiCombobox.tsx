@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils/cn";
 import { ChevronDown, Search, Check } from "lucide-react";
 import { useShadCNAnimations } from "@/lib/utils/shadcn-animations";
 
-interface MultiComboboxProps {
+export interface MultiComboboxProps {
   id?: string;
   options: string[];
   value: string[];
