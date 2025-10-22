@@ -19,6 +19,9 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@underverse-ui/underverse": [
+        "packages/underverse/src/index.ts"
       ]
     },
     "types": [

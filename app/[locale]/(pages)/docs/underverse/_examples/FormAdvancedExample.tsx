@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { useForm } from "react-hook-form";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormActions, FormSubmitButton } from "@/components/ui/Form";
 import Input, { PasswordInput } from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -14,10 +13,6 @@ type Values = {
 };
 
 export default function FormAdvancedExample() {
-  const methods = useForm<Values>({
-    defaultValues: { name: "", email: "", password: "" },
-    mode: "onBlur"
-  });
   const [size, setSize] = React.useState<"sm"|"md"|"lg">("md");
   const [loading, setLoading] = React.useState(false);
 
@@ -37,9 +32,8 @@ export default function FormAdvancedExample() {
         ))}
       </div>
 
-      <Form onSubmit={methods.handleSubmit(onSubmit)} size={size} className="space-y-4">
+      <Form<Values> onSubmit={onSubmit} initialValues={{ name: "", email: "", password: "" }} size={size} className="space-y-4">
         <FormField
-          control={methods.control}
           name="name"
           rules={{ required: "Name is required" }}
           render={({ field }) => (
@@ -54,7 +48,6 @@ export default function FormAdvancedExample() {
         />
 
         <FormField
-          control={methods.control}
           name="email"
           rules={{ required: "Email is required", pattern: { value: /.+@.+\..+/, message: "Invalid email" } }}
           render={({ field }) => (
@@ -69,7 +62,6 @@ export default function FormAdvancedExample() {
         />
 
         <FormField
-          control={methods.control}
           name="password"
           rules={{ required: "Password is required", minLength: { value: 6, message: "Min 6 characters" } }}
           render={({ field }) => (
@@ -92,4 +84,3 @@ export default function FormAdvancedExample() {
     </div>
   );
 }
-

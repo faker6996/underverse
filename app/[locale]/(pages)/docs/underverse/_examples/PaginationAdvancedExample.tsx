@@ -25,8 +25,9 @@ export default function PaginationAdvancedExample() {
         totalItems={totalItems}
         labels={{
           navigationLabel: t('navigationLabel'),
-          showingResults: ({startItem, endItem, totalItems}) => t('showingResults', { startItem, endItem, totalItems }),
-          pageNumber: (p) => t('pageNumber', { page: p })
+          showingResults: ({startItem, endItem, totalItems: ti}) =>
+            t('showingResults', { startItem: startItem ?? 0, endItem: endItem ?? 0, totalItems: ti ?? 0 }),
+          pageNumber: (p) => t('pageNumber', { page: p as number })
         }}
       />
       <CodeBlock code={`<Pagination page={page} totalPages={pages} pageSize={size}
@@ -34,4 +35,3 @@ export default function PaginationAdvancedExample() {
     </div>
   );
 }
-

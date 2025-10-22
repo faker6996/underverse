@@ -50,6 +50,12 @@ const nextConfig: NextConfig = {
       };
     }
 
+    // Local alias to use the in-repo package during docs build
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      ['@underverse-ui/underverse']: join(process.cwd(), 'packages/underverse/src/index.ts')
+    };
+
     // Handle WASM files
     config.experiments = {
       ...config.experiments,
