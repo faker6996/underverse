@@ -85,6 +85,42 @@ export default function Example() {
 
 Alternatively, you can import components locally from `components/ui/*` while developing inside this repo.
 
+### Headless components from the package
+- `ThemeToggle` (headless): UI only, you provide `theme` and `onChange`.
+- `LanguageSwitcher` (headless): UI only, you provide `locales`, `currentLocale`, `onSwitch`.
+
+Quick examples:
+
+```tsx
+import { ThemeToggle } from '@underverse-ui/underverse';
+import { useState } from 'react';
+
+export function MyThemeToggle() {
+  const [theme, setTheme] = useState<'light'|'dark'|'system'>('system');
+  return <ThemeToggle theme={theme} onChange={setTheme} />;
+}
+```
+
+```tsx
+import { LanguageSwitcher } from '@underverse-ui/underverse';
+import { useRouter, usePathname } from 'next/navigation';
+
+export function MyLangSwitcher({ currentLocale }: { currentLocale: string }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const locales = [
+    { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
+    { code: 'en', name: 'English', flag: '🇺🇸' }
+  ];
+  const onSwitch = (code: string) => {
+    const segs = pathname.split('/');
+    segs[1] = code;
+    router.push(segs.join('/'));
+  };
+  return <LanguageSwitcher locales={locales} currentLocale={currentLocale} onSwitch={onSwitch} />;
+}
+```
+
 ## i18n (next-intl)
 
 - The app demonstrates `next-intl` with English and Vietnamese. Message keys for common UI (Pagination, DatePicker, DataTable, Alert, ImageUpload, etc.) are included.
@@ -149,4 +185,3 @@ For package publishing details, see `packages/underverse/PUBLISHING.md` and `pac
 
 - App code: private (all rights reserved).
 - Underverse package: MIT (see `packages/underverse/README.md`).
-

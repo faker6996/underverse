@@ -63,6 +63,7 @@ function App() {
 
 ### Utilities
 - `ClientOnly`, `Loading`, `NotificationModal`, `FloatingContacts`, `AccessDenied`
+- Headless controls: `ThemeToggle`, `LanguageSwitcher`
 - Utility functions: `cn`, `DateUtils`, style constants
 
 ## Important Notes
@@ -132,3 +133,67 @@ MIT
 ## Author
 
 Tran Van Bach
+
+---
+
+## Headless Components Usage
+
+These variants avoid app-specific contexts and routing so you can wire them to your own state.
+
+### ThemeToggle (headless)
+
+```tsx
+import { ThemeToggle } from '@underverse-ui/underverse';
+import type { ThemeToggleProps, ThemeMode } from '@underverse-ui/underverse';
+import { useState } from 'react';
+
+export default function ExampleThemeToggle() {
+  const [theme, setTheme] = useState<ThemeMode>('system');
+  return (
+    <ThemeToggle
+      theme={theme}
+      onChange={setTheme}
+      // optional labels
+      labels={{ heading: 'Theme', light: 'Light', dark: 'Dark', system: 'System' }}
+    />
+  );
+}
+```
+
+If you use `next-themes` or a custom context, pass your current theme and the setter to `onChange`.
+
+### LanguageSwitcher (headless)
+
+```tsx
+import { LanguageSwitcher } from '@underverse-ui/underverse';
+import type { LanguageOption } from '@underverse-ui/underverse';
+import { useRouter, usePathname } from 'next/navigation';
+
+const locales: LanguageOption[] = [
+  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'ko', name: '한국어', flag: '🇰🇷' },
+  { code: 'ja', name: '日本語', flag: '🇯🇵' }
+];
+
+export default function ExampleLanguageSwitcher({ currentLocale }: { currentLocale: string }) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const onSwitch = (code: string) => {
+    // Replace first segment as locale, e.g. /vi/... -> /en/...
+    const segs = pathname.split('/');
+    segs[1] = code; 
+    router.push(segs.join('/'));
+  };
+
+  return (
+    <LanguageSwitcher
+      locales={locales}
+      currentLocale={currentLocale}
+      onSwitch={onSwitch}
+      labels={{ heading: 'Language' }}
+    />
+  );
+}
+```
