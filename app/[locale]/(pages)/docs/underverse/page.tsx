@@ -56,6 +56,8 @@ const NotificationBellExample = dynamicImport(() => import("./_examples/Notifica
 const FloatingContactsExample = dynamicImport(() => import("./_examples/FloatingContactsExample"), { ssr: false });
 const TableOfContents = dynamicImport(() => import("./_components/TableOfContents"), { ssr: false });
 const DocsHeader = dynamicImport(() => import("./_components/DocsHeader"), { ssr: false });
+const ThemeToggleHeadlessExample = dynamicImport(() => import("./_examples/ThemeToggleHeadlessExample"), { ssr: false });
+const LanguageSwitcherHeadlessExample = dynamicImport(() => import("./_examples/LanguageSwitcherHeadlessExample"), { ssr: false });
 
 export default function UnderverseGuidePage() {
   return (
@@ -273,6 +275,45 @@ function DocsInner() {
 
           <DocSection id="theme-toggle" title={t("sections.themeToggle.title")}>
             <ThemeToggleExample />
+          </DocSection>
+
+          <DocSection id="theme-toggle-headless" title={t("sections.themeToggleHeadless.title")}>
+            <p className="text-muted-foreground mb-3">Headless version from the npm package. You control state.</p>
+            <CodeBlock code={`import { ThemeToggle } from '@underverse-ui/underverse';
+import { useState } from 'react';
+
+export default function MyThemeToggle() {
+  const [theme, setTheme] = useState<'light'|'dark'|'system'>('system');
+  return <ThemeToggle theme={theme} onChange={setTheme} />;
+}`} />
+            <div className="mt-4">
+              <ThemeToggleHeadlessExample />
+            </div>
+          </DocSection>
+
+          <DocSection id="language-switcher-headless" title={t("sections.languageSwitcherHeadless.title")}>
+            <p className="text-muted-foreground mb-3">Headless language switcher using your own router logic.</p>
+            <CodeBlock code={`import { LanguageSwitcher } from '@underverse-ui/underverse';
+import { useRouter, usePathname } from 'next/navigation';
+
+const locales = [
+  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'en', name: 'English', flag: '🇺🇸' }
+];
+
+export default function MyLangSwitcher({ currentLocale }: { currentLocale: string }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const onSwitch = (code: string) => {
+    const segs = pathname.split('/');
+    segs[1] = code; 
+    router.push(segs.join('/'));
+  };
+  return <LanguageSwitcher locales={locales} currentLocale={currentLocale} onSwitch={onSwitch} />;
+}`} />
+            <div className="mt-4">
+              <LanguageSwitcherHeadlessExample />
+            </div>
           </DocSection>
 
           <DocSection id="notification-bell" title={t("sections.notificationBell.title")}>
