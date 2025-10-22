@@ -83,13 +83,19 @@ const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext);
   const itemContext = React.useContext(FormItemContext);
   const { getFieldState, formState } = useFormContext();
-  const t = useTranslations("Form");
-
-  const fieldState = getFieldState(fieldContext.name, formState);
 
   if (!fieldContext) {
-    throw new Error(t("validation.mustBeUsedWithinForm"));
+    // Only access i18n when we actually need the message, to avoid
+    // requiring the 'Form' namespace in all consumers.
+    try {
+      const t = useTranslations("Form");
+      throw new Error(t("validation.mustBeUsedWithinForm"));
+    } catch {
+      throw new Error("useFormField must be used within FormField");
+    }
   }
+
+  const fieldState = getFieldState(fieldContext.name, formState);
 
   const { id } = itemContext;
 
