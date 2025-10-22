@@ -65,6 +65,12 @@ export { default as NotificationModal } from "../../../components/ui/Notificatio
 export { default as FloatingContacts } from "../../../components/ui/FloatingContacts";
 export { default as AccessDenied } from "../../../components/ui/AccessDenied";
 
+// Headless, package-safe utilities
+export { default as ThemeToggleHeadless } from "../../../components/ui/ThemeToggleHeadless";
+export type { ThemeToggleHeadlessProps, ThemeMode } from "../../../components/ui/ThemeToggleHeadless";
+export { default as LanguageSwitcherHeadless } from "../../../components/ui/LanguageSwitcherHeadless";
+export type { LanguageSwitcherHeadlessProps, LanguageOption } from "../../../components/ui/LanguageSwitcherHeadless";
+
 // Utilities needed by components (optional public re-exports)
 export { cn } from "../../../lib/utils/cn";
 export * as DateUtils from "../../../lib/utils/date";
