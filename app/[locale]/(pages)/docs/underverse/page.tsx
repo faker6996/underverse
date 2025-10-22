@@ -37,12 +37,16 @@ const CarouselExample = dynamicImport(() => import("./_examples/CarouselExample"
 const DropdownMenuExample = dynamicImport(() => import("./_examples/DropdownMenuExample"), { ssr: false });
 const ComboboxExample = dynamicImport(() => import("./_examples/ComboboxExample"), { ssr: false });
 const MultiComboboxExample = dynamicImport(() => import("./_examples/MultiComboboxExample"), { ssr: false });
+const ComboboxAdvancedExample = dynamicImport(() => import("./_examples/ComboboxAdvancedExample"), { ssr: false });
+const MultiComboboxAdvancedExample = dynamicImport(() => import("./_examples/MultiComboboxAdvancedExample"), { ssr: false });
 const SectionExample = dynamicImport(() => import("./_examples/SectionExample"), { ssr: false });
 const SmartImageExample = dynamicImport(() => import("./_examples/SmartImageExample"), { ssr: false });
 const CategoryTreeSelectExample = dynamicImport(() => import("./_examples/CategoryTreeSelectExample"), { ssr: false });
 const InputExample = dynamicImport(() => import("./_examples/InputExample"), { ssr: false });
 const DatePickerExample = dynamicImport(() => import("./_examples/DatePickerExample"), { ssr: false });
+const DatePickerAdvancedExample = dynamicImport(() => import("./_examples/DatePickerAdvancedExample"), { ssr: false });
 const PaginationExample = dynamicImport(() => import("./_examples/PaginationExample"), { ssr: false });
+const PaginationAdvancedExample = dynamicImport(() => import("./_examples/PaginationAdvancedExample"), { ssr: false });
 const ImageUploadExample = dynamicImport(() => import("./_examples/ImageUploadExample"), { ssr: false });
 const AlertExample = dynamicImport(() => import("./_examples/AlertExample"), { ssr: false });
 const AccessDeniedExample = dynamicImport(() => import("./_examples/AccessDeniedExample"), { ssr: false });
@@ -50,6 +54,7 @@ const ClientOnlyExample = dynamicImport(() => import("./_examples/ClientOnlyExam
 const LoadingExample = dynamicImport(() => import("./_examples/LoadingExample"), { ssr: false });
 const NotificationModalExample = dynamicImport(() => import("./_examples/NotificationModalExample"), { ssr: false });
 const DataTableExample = dynamicImport(() => import("./_examples/DataTableExample"), { ssr: false });
+const DataTableServerExample = dynamicImport(() => import("./_examples/DataTableServerExample"), { ssr: false });
 const FormExample = dynamicImport(() => import("./_examples/FormExample"), { ssr: false });
 const ThemeToggleExample = dynamicImport(() => import("./_examples/ThemeToggleExample"), { ssr: false });
 const NotificationBellExample = dynamicImport(() => import("./_examples/NotificationBellExample"), { ssr: false });
@@ -227,10 +232,12 @@ function DocsInner() {
 
           <DocSection id="combobox" title={t("sections.combobox.title")}>
             <ComboboxExample />
+            <div className="mt-3"><ComboboxAdvancedExample /></div>
           </DocSection>
 
           <DocSection id="multi-combobox" title={t("sections.multiCombobox.title")}>
             <MultiComboboxExample />
+            <div className="mt-3"><MultiComboboxAdvancedExample /></div>
           </DocSection>
 
           <DocSection id="section" title={t("sections.section.title")}>
@@ -255,6 +262,7 @@ function DocsInner() {
 
           <DocSection id="data-table" title={t("sections.dataTable.title")}>
             <DataTableExample />
+            <div className="mt-3"><DataTableServerExample /></div>
           </DocSection>
 
           <DocSection id="input" title={t("sections.input.title")}>
@@ -263,10 +271,12 @@ function DocsInner() {
 
           <DocSection id="date-picker" title={t("sections.datePicker.title")}>
             <DatePickerExample />
+            <div className="mt-3"><DatePickerAdvancedExample /></div>
           </DocSection>
 
           <DocSection id="pagination" title={t("sections.pagination.title")}>
             <PaginationExample />
+            <div className="mt-3"><PaginationAdvancedExample /></div>
           </DocSection>
 
           <DocSection id="form" title={t("sections.form.title")}>
