@@ -3,14 +3,39 @@
 import React from "react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
 import CodeBlock from "../_components/CodeBlock";
+import { Tabs } from "@/components/ui/Tab";
 
 export default function TableExample() {
   const rows = [
     { name: "Alice", role: "Admin" },
     { name: "Bob", role: "User" },
   ];
-  return (
-    <div className="space-y-3">
+
+  const code =
+    `import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@underverse-ui/underverse'\n\n` +
+    `const rows = [\n` +
+    `  { name: "Alice", role: "Admin" },\n` +
+    `  { name: "Bob", role: "User" },\n` +
+    `]\n\n` +
+    `<Table containerClassName="max-w-xl">\n` +
+    `  <TableHeader>\n` +
+    `    <TableRow>\n` +
+    `      <TableHead>Name</TableHead>\n` +
+    `      <TableHead>Role</TableHead>\n` +
+    `    </TableRow>\n` +
+    `  </TableHeader>\n` +
+    `  <TableBody>\n` +
+    `    {rows.map((r, i) => (\n` +
+    `      <TableRow key={i}>\n` +
+    `        <TableCell>{r.name}</TableCell>\n` +
+    `        <TableCell>{r.role}</TableCell>\n` +
+    `      </TableRow>\n` +
+    `    ))}\n` +
+    `  </TableBody>\n` +
+    `</Table>`;
+
+  const demo = (
+    <div>
       <Table containerClassName="max-w-xl">
         <TableHeader>
           <TableRow>
@@ -27,10 +52,18 @@ export default function TableExample() {
           ))}
         </TableBody>
       </Table>
-      <CodeBlock
-        code={`import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@underverse-ui/underverse'\n\n<Table>...rows...</Table>`}
-      />
     </div>
+  );
+
+  return (
+    <Tabs
+      tabs={[
+        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
+        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+      ]}
+      variant="underline"
+      size="sm"
+    />
   );
 }
 

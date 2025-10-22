@@ -35,15 +35,15 @@ const ProgressExample = dynamicImport(() => import("./_examples/ProgressExample"
 const SkeletonExample = dynamicImport(() => import("./_examples/SkeletonExample"), { ssr: false });
 const CarouselExample = dynamicImport(() => import("./_examples/CarouselExample"), { ssr: false });
 const DropdownMenuExample = dynamicImport(() => import("./_examples/DropdownMenuExample"), { ssr: false });
-const ComboboxExample = dynamicImport(() => import("./_examples/ComboboxExample"), { ssr: false });
-const MultiComboboxExample = dynamicImport(() => import("./_examples/MultiComboboxExample"), { ssr: false });
+const ComboboxExample = dynamicImport(() => import("./_examples/ComboBoxExample"), { ssr: false });
+const MultiComboboxExample = dynamicImport(() => import("./_examples/MultiComboBoxExample"), { ssr: false });
 const ComboboxAdvancedExample = dynamicImport(() => import("./_examples/ComboboxAdvancedExample"), { ssr: false });
 const MultiComboboxAdvancedExample = dynamicImport(() => import("./_examples/MultiComboboxAdvancedExample"), { ssr: false });
 const SectionExample = dynamicImport(() => import("./_examples/SectionExample"), { ssr: false });
 const SmartImageExample = dynamicImport(() => import("./_examples/SmartImageExample"), { ssr: false });
 const CategoryTreeSelectExample = dynamicImport(() => import("./_examples/CategoryTreeSelectExample"), { ssr: false });
 const InputExample = dynamicImport(() => import("./_examples/InputExample"), { ssr: false });
-const DatePickerExample = dynamicImport(() => import("./_examples/DatePickerExample"), { ssr: false });
+const DatePickerExample = dynamicImport(() => import("./_examples/DatepickerExample"), { ssr: false });
 const DatePickerAdvancedExample = dynamicImport(() => import("./_examples/DatePickerAdvancedExample"), { ssr: false });
 const PaginationExample = dynamicImport(() => import("./_examples/PaginationExample"), { ssr: false });
 const PaginationAdvancedExample = dynamicImport(() => import("./_examples/PaginationAdvancedExample"), { ssr: false });
@@ -120,9 +120,14 @@ function DocsInner() {
 
           <DocSection id="button" title={t("sections.button.title")}>
             <ButtonExample />
+            <span className="">Button Advanced</span>
             <div className="mt-4">
               <ButtonAdvancedExample />
             </div>
+          </DocSection>
+
+          <DocSection id="button_advanced" title={t("sections.badge.title")}>
+            <ButtonAdvancedExample />
           </DocSection>
 
           <DocSection id="badge" title={t("sections.badge.title")}>
@@ -291,40 +296,7 @@ function DocsInner() {
             <ThemeToggleExample />
           </DocSection>
 
-          <DocSection id="theme-toggle-headless" title={t("sections.themeToggleHeadless.title")}>
-            <p className="text-muted-foreground mb-3">Headless version from the npm package. You control state.</p>
-            <CodeBlock code={`import { ThemeToggle } from '@underverse-ui/underverse';
-import { useState } from 'react';
-
-export default function MyThemeToggle() {
-  const [theme, setTheme] = useState<'light'|'dark'|'system'>('system');
-  return <ThemeToggle theme={theme} onChange={setTheme} />;
-}`} />
-            <div className="mt-4">
-              <ThemeToggleHeadlessExample />
-            </div>
-          </DocSection>
-
           <DocSection id="language-switcher-headless" title={t("sections.languageSwitcherHeadless.title")}>
-            <p className="text-muted-foreground mb-3">Headless language switcher using your own router logic.</p>
-            <CodeBlock code={`import { LanguageSwitcher } from '@underverse-ui/underverse';
-import { useRouter, usePathname } from 'next/navigation';
-
-const locales = [
-  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
-  { code: 'en', name: 'English', flag: '🇺🇸' }
-];
-
-export default function MyLangSwitcher({ currentLocale }: { currentLocale: string }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const onSwitch = (code: string) => {
-    const segs = pathname.split('/');
-    segs[1] = code; 
-    router.push(segs.join('/'));
-  };
-  return <LanguageSwitcher locales={locales} currentLocale={currentLocale} onSwitch={onSwitch} />;
-}`} />
             <div className="mt-4">
               <LanguageSwitcherHeadlessExample />
             </div>

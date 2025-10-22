@@ -22,9 +22,12 @@ export default function DocsHeader() {
           {/* Logo / Title */}
           <div className="flex items-center gap-4">
             <a href="#" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">U</span>
-              </div>
+              <svg className="w-8 h-8" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="512" cy="512" r="512" className="fill-background"/>
+                <circle cx="512" cy="512" r="400" fill="none" className="stroke-primary" strokeWidth="80"/>
+                <path d="M365 352 L365 550 C365 650 420 705 512 705 C604 705 659 650 659 550 L659 352"
+                      className="stroke-primary" strokeWidth="80" strokeLinecap="round" fill="none"/>
+              </svg>
               <span className="font-semibold text-lg hidden sm:inline-block">
                 {t("pageTitle").split("–")[0].trim()}
               </span>

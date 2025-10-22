@@ -3,6 +3,7 @@
 import React from "react";
 import { Pagination } from "@/components/ui/Pagination";
 import CodeBlock from "../_components/CodeBlock";
+import { Tabs } from "@/components/ui/Tab";
 import { useTranslations } from "next-intl";
 
 export default function PaginationAdvancedExample() {
@@ -12,8 +13,33 @@ export default function PaginationAdvancedExample() {
   const totalPages = Math.ceil(totalItems / size);
   const t = useTranslations('Pagination');
 
-  return (
-    <div className="space-y-3">
+  const code =
+    `import { Pagination } from '@underverse-ui/underverse'\n` +
+    `import { useTranslations } from 'next-intl'\n\n` +
+    `const [page, setPage] = useState(1)\n` +
+    `const [size, setSize] = useState(10)\n` +
+    `const totalItems = 237\n` +
+    `const totalPages = Math.ceil(totalItems / size)\n` +
+    `const t = useTranslations('Pagination')\n\n` +
+    `<Pagination\n` +
+    `  page={page}\n` +
+    `  totalPages={totalPages}\n` +
+    `  onChange={setPage}\n` +
+    `  pageSize={size}\n` +
+    `  pageSizeOptions={[10, 20, 50]}\n` +
+    `  onPageSizeChange={(n) => { setSize(n); setPage(1); }}\n` +
+    `  showInfo\n` +
+    `  totalItems={totalItems}\n` +
+    `  labels={{\n` +
+    `    navigationLabel: t('navigationLabel'),\n` +
+    `    showingResults: ({startItem, endItem, totalItems: ti}) =>\n` +
+    `      t('showingResults', { startItem: startItem ?? 0, endItem: endItem ?? 0, totalItems: ti ?? 0 }),\n` +
+    `    pageNumber: (p) => t('pageNumber', { page: p as number })\n` +
+    `  }}\n` +
+    `/>`;
+
+  const demo = (
+    <div>
       <Pagination
         page={page}
         totalPages={totalPages}
@@ -30,8 +56,17 @@ export default function PaginationAdvancedExample() {
           pageNumber: (p) => t('pageNumber', { page: p as number })
         }}
       />
-      <CodeBlock code={`<Pagination page={page} totalPages={pages} pageSize={size}
-  pageSizeOptions={[10,20,50]} onPageSizeChange={setSize} showInfo totalItems={237} />`} />
     </div>
+  );
+
+  return (
+    <Tabs
+      tabs={[
+        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
+        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+      ]}
+      variant="underline"
+      size="sm"
+    />
   );
 }
