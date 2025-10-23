@@ -3,7 +3,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils/cn";
 
-interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size'> {
+interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "size"> {
   value?: number;
   defaultValue?: number;
   min?: number;
@@ -22,6 +22,7 @@ interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 
   size?: "sm" | "md" | "lg";
   disabled?: boolean;
   orientation?: "horizontal" | "vertical";
+  noFocus?: boolean; // remove focus ring/outline styling
 }
 
 const SIZE_STYLES = {
@@ -43,28 +44,32 @@ const SIZE_STYLES = {
 };
 
 const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
-  ({
-    className,
-    value,
-    defaultValue = 0,
-    min = 0,
-    max = 100,
-    step = 1,
-    onChange,
-    onValueChange,
-    label,
-    labelClassName,
-    containerClassName,
-    trackClassName,
-    thumbClassName,
-    showValue = false,
-    valueClassName,
-    formatValue,
-    size = "md",
-    disabled = false,
-    orientation = "horizontal",
-    ...props
-  }, ref) => {
+  (
+    {
+      className,
+      value,
+      defaultValue = 0,
+      min = 0,
+      max = 100,
+      step = 1,
+      onChange,
+      onValueChange,
+      label,
+      labelClassName,
+      containerClassName,
+      trackClassName,
+      thumbClassName,
+      showValue = false,
+      valueClassName,
+      formatValue,
+      size = "md",
+      disabled = false,
+      orientation = "horizontal",
+      noFocus = false,
+      ...props
+    },
+    ref
+  ) => {
     const [internalValue, setInternalValue] = React.useState<number>(defaultValue);
 
     const isControlled = value !== undefined;
@@ -98,15 +103,9 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
         {/* Label and value display */}
         {(label || showValue) && (
           <div className="flex items-center justify-between">
-            {label && (
-              <label className={cn("text-sm font-medium text-foreground", labelClassName)}>
-                {label}
-              </label>
-            )}
+            {label && <label className={cn("text-sm font-medium text-foreground", labelClassName)}>{label}</label>}
             {showValue && (
-              <span className={cn("text-xs font-mono text-muted-foreground min-w-[2rem] text-right", valueClassName)}>
-                {displayValue}
-              </span>
+              <span className={cn("text-xs font-mono text-muted-foreground min-w-[2rem] text-right", valueClassName)}>{displayValue}</span>
             )}
           </div>
         )}
@@ -114,13 +113,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
         {/* Slider container */}
         <div className={cn("relative flex items-center", sizeStyles.container)}>
           {/* Track background */}
-          <div
-            className={cn(
-              "w-full rounded-full bg-secondary relative overflow-hidden",
-              sizeStyles.track,
-              trackClassName
-            )}
-          >
+          <div className={cn("w-full rounded-full bg-secondary relative overflow-hidden", sizeStyles.track, trackClassName)}>
             {/* Progress fill */}
             <div
               className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-150 ease-out"
@@ -141,7 +134,8 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
             className={cn(
               // Base styles
               "absolute w-full h-full appearance-none bg-transparent cursor-pointer",
-              "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background rounded-full",
+              !noFocus && "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background rounded-full",
+              noFocus && "outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none",
 
               // Webkit styles for thumb
               "[&::-webkit-slider-thumb]:appearance-none",
@@ -178,7 +172,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
               disabled && [
                 "cursor-not-allowed opacity-50",
                 "[&::-webkit-slider-thumb]:cursor-not-allowed [&::-webkit-slider-thumb]:opacity-50",
-                "[&::-moz-range-thumb]:cursor-not-allowed [&::-moz-range-thumb]:opacity-50"
+                "[&::-moz-range-thumb]:cursor-not-allowed [&::-moz-range-thumb]:opacity-50",
               ],
 
               className,
