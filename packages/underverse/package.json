@@ -1,6 +1,6 @@
 {
   "name": "@underverse-ui/underverse",
-  "version": "0.1.22",
+  "version": "0.1.24",
   "private": false,
   "description": "Underverse UI – reusable React/Next.js UI components",
   "type": "module",
