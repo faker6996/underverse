@@ -13,12 +13,19 @@ export default function MultiComboboxExample() {
     `import { MultiCombobox } from '@underverse-ui/underverse'\n\n` +
     `const [value, setValue] = useState<string[]>([])\n` +
     `const options = ["React", "Next.js", "Tailwind", "TypeScript", "Node.js"]\n\n` +
-    `<MultiCombobox options={options} value={value} onChange={setValue} />\n` +
+    `<MultiCombobox\n  options={options}\n  value={value}\n  onChange={setValue}\n  label=\"Technologies\"\n  showTags\n  showClear\n/>\n` +
     `<div className="text-sm text-muted-foreground">Chọn: {value.join(", ") || "(none)"}</div>`;
 
   const demo = (
     <div className="space-y-3">
-      <MultiCombobox options={options} value={value} onChange={setValue} />
+      <MultiCombobox 
+        options={options}
+        value={value}
+        onChange={setValue}
+        label="Technologies"
+        showTags
+        showClear
+      />
       <div className="text-sm text-muted-foreground">Chọn: {value.join(", ") || "(none)"}</div>
     </div>
   );

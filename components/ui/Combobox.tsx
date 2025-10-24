@@ -75,8 +75,14 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const resolvedId = id ? String(id) : `combobox-${autoId}`;
   const labelId = label ? `${resolvedId}-label` : undefined;
 
-  // Filter options based on query
-  const filteredOptions = React.useMemo(() => options.filter((o) => getOptionLabel(o).toLowerCase().includes(query.toLowerCase())), [options, query]);
+  // Enable search only when options length > 10
+  const enableSearch = options.length > 10;
+
+  // Filter options based on query (only when search enabled)
+  const filteredOptions = React.useMemo(
+    () => (enableSearch ? options.filter((o) => getOptionLabel(o).toLowerCase().includes(query.toLowerCase())) : options),
+    [options, query, enableSearch]
+  );
 
   // Manual positioning
   const [dropdownPosition, setDropdownPosition] = React.useState<{ top: number; left: number; width: number } | null>(null);
@@ -160,12 +166,12 @@ export const Combobox: React.FC<ComboboxProps> = ({
     if (!open) {
       setQuery("");
       setActiveIndex(null);
-    } else {
+    } else if (enableSearch) {
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
     }
-  }, [open]);
+  }, [open, enableSearch]);
 
   // Get display value
   const selectedOption = findOptionByValue(options, value);
@@ -191,45 +197,47 @@ export const Combobox: React.FC<ComboboxProps> = ({
       )}
     >
       <div className={cn("rounded-md border bg-popover text-popover-foreground shadow-md", "backdrop-blur-sm bg-popover/95 border-border/60")}>
-        {/* Search Input */}
-        <div className="relative p-3 border-b border-border/50 bg-muted/20">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors" />
-          <input
-            ref={inputRef}
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setActiveIndex(null);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "ArrowDown") {
-                e.preventDefault();
-                setActiveIndex((prev) => {
-                  const next = prev === null ? 0 : prev + 1;
-                  return next >= filteredOptions.length ? 0 : next;
-                });
-              } else if (e.key === "ArrowUp") {
-                e.preventDefault();
-                setActiveIndex((prev) => {
-                  const next = prev === null ? filteredOptions.length - 1 : prev - 1;
-                  return next < 0 ? filteredOptions.length - 1 : next;
-                });
-              } else if (e.key === "Enter") {
-                e.preventDefault();
-                if (activeIndex !== null && filteredOptions[activeIndex]) {
-                  handleSelect(filteredOptions[activeIndex]);
+        {/* Search Input (only when many options) */}
+        {enableSearch && (
+          <div className="relative p-3 border-b border-border/50 bg-muted/20">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors" />
+            <input
+              ref={inputRef}
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setActiveIndex(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setActiveIndex((prev) => {
+                    const next = prev === null ? 0 : prev + 1;
+                    return next >= filteredOptions.length ? 0 : next;
+                  });
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setActiveIndex((prev) => {
+                    const next = prev === null ? filteredOptions.length - 1 : prev - 1;
+                    return next < 0 ? filteredOptions.length - 1 : next;
+                  });
+                } else if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (activeIndex !== null && filteredOptions[activeIndex]) {
+                    handleSelect(filteredOptions[activeIndex]);
+                  }
+                } else if (e.key === "Escape") {
+                  e.preventDefault();
+                  setOpen(false);
                 }
-              } else if (e.key === "Escape") {
-                e.preventDefault();
-                setOpen(false);
-              }
-            }}
-            placeholder={searchPlaceholder}
-            className="w-full rounded-md bg-background/50 py-2 pl-8 pr-3 text-sm border-0 focus:outline-none focus:bg-background/80 transition-colors placeholder:text-muted-foreground/60"
-            aria-autocomplete="list"
-            aria-activedescendant={activeIndex != null ? `combobox-item-${activeIndex}` : undefined}
-          />
-        </div>
+              }}
+              placeholder={searchPlaceholder}
+              className="w-full rounded-md bg-background/50 py-2 pl-8 pr-3 text-sm border-0 focus:outline-none focus:bg-background/80 transition-colors placeholder:text-muted-foreground/60"
+              aria-autocomplete="list"
+              aria-activedescendant={activeIndex != null ? `combobox-item-${activeIndex}` : undefined}
+            />
+          </div>
+        )}
 
         {/* Options List */}
         <div className="max-h-64 overflow-y-auto overscroll-contain">
@@ -337,11 +345,12 @@ export const Combobox: React.FC<ComboboxProps> = ({
           setOpen(next);
         }}
         className={cn(
-          "flex w-full items-center justify-between border border-input bg-background px-3 vanh",
+          "flex w-full items-center justify-between border border-input bg-background px-3",
           radiusClass,
           sizeStyles[size],
-          "ring-offset-background placeholder:text-muted-foreground outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:ring-offset-0",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:cursor-not-allowed disabled:opacity-50",
+          "hover:bg-accent/5 transition-colors hover:border-primary/40 focus:border-primary",
           className
         )}
       >

@@ -21,12 +21,28 @@ export default function ComboboxExample() {
     `  { label: "Banana", value: "banana" },\n` +
     `  { label: "Cherry", value: "cherry" },\n` +
     `]\n\n` +
-    `<Combobox options={options} value={value} onChange={setValue} placeholder="Chọn trái cây" />\n` +
+    `<Combobox\n` +
+    `  options={options}\n` +
+    `  value={value}\n` +
+    `  onChange={setValue}\n` +
+    `  label="Fruit"\n` +
+    `  required\n` +
+    `  allowClear\n` +
+    `  placeholder="Chọn trái cây"\n` +
+    `/>\n` +
     `<div className="text-sm text-muted-foreground">Giá trị: {String(value ?? "(none)")}</div>`;
 
   const demo = (
     <div className="space-y-3">
-      <Combobox options={options} value={value} onChange={setValue} placeholder="Chọn trái cây" />
+      <Combobox 
+        options={options}
+        value={value}
+        onChange={setValue}
+        label="Fruit"
+        required
+        allowClear
+        placeholder="Chọn trái cây"
+      />
       <div className="text-sm text-muted-foreground">Giá trị: {String(value ?? "(none)")}</div>
     </div>
   );
@@ -42,4 +58,3 @@ export default function ComboboxExample() {
     />
   );
 }
-

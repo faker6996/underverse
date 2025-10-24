@@ -8,9 +8,14 @@ import { cn } from "@/lib/utils/cn";
 import { ChevronDown, Search, Check } from "lucide-react";
 import { useShadCNAnimations } from "@/lib/utils/shadcn-animations";
 
+export interface MultiComboboxOption {
+  value: string;
+  label: string;
+}
+
 export interface MultiComboboxProps {
   id?: string;
-  options: string[];
+  options: Array<string | MultiComboboxOption>;
   value: string[];
   onChange: (value: string[]) => void;
   placeholder?: string;
@@ -22,7 +27,9 @@ export interface MultiComboboxProps {
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
   label?: string;
+  title?: string;
   required?: boolean;
+  displayFormat?: (option: MultiComboboxOption) => string;
 }
 
 export const MultiCombobox: React.FC<MultiComboboxProps> = ({
@@ -39,7 +46,9 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   disabled = false,
   size = 'md',
   label,
+  title,
   required,
+  displayFormat = (option) => option.label,
 }) => {
   const [query, setQuery] = React.useState("");
   const [open, setOpen] = React.useState(false);
@@ -111,15 +120,27 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
     };
   }, [open]);
 
-  const filtered = options.filter((o) => o.toLowerCase().includes(query.toLowerCase()));
+  // Normalize options to objects { value, label } to support both string[] and object[] APIs
+  const normalizedOptions = React.useMemo<MultiComboboxOption[]>(
+    () => options.map((o) => (typeof o === 'string' ? { value: o, label: o } : { value: o.value, label: o.label })),
+    [options]
+  );
 
-  const toggleSelect = (val: string) => {
-    if (disabledOptions.includes(val)) return;
-    if (value.includes(val)) {
-      onChange(value.filter((v) => v !== val));
+  // Enable search only if options.length > 10
+  const enableSearch = normalizedOptions.length > 10;
+
+  const filtered = React.useMemo(
+    () => (enableSearch ? normalizedOptions.filter((opt) => opt.label.toLowerCase().includes(query.toLowerCase())) : normalizedOptions),
+    [normalizedOptions, query, enableSearch]
+  );
+
+  const toggleSelect = (optionValue: string) => {
+    if (disabledOptions.includes(optionValue)) return;
+    if (value.includes(optionValue)) {
+      onChange(value.filter((v) => v !== optionValue));
     } else {
       if (!maxSelected || value.length < maxSelected) {
-        onChange([...value, val]);
+        onChange([...value, optionValue]);
       }
     }
   };
@@ -134,7 +155,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
     if (e.key === "Enter") {
       e.preventDefault();
       if (activeIndex !== null && filtered[activeIndex]) {
-        toggleSelect(filtered[activeIndex]);
+        toggleSelect(filtered[activeIndex].value);
       }
     }
   };
@@ -143,15 +164,15 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
     onChange([]);
   };
 
-  // Auto-focus input when dropdown opens
+  // Auto-focus input when dropdown opens (only if search is enabled)
   React.useEffect(() => {
-    if (open) {
+    if (open && enableSearch) {
       // Focus input after dropdown is positioned
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
     }
-  }, [open]);
+  }, [open, enableSearch]);
 
   // Size styles to align with Input defaults
   const sizeStyles = {
@@ -185,6 +206,23 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
 
   return (
     <div className={cn("w-full space-y-2 group", className)}>
+      {/* Title */}
+      {title && (
+        <div className="flex items-center justify-between">
+          <label 
+            className={cn(
+              size === 'sm' ? 'text-xs' : size === 'lg' ? 'text-base' : 'text-sm',
+              "font-medium transition-colors duration-200",
+              disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary"
+            )}
+          >
+            {title}
+            {required && <span className="text-destructive ml-1">*</span>}
+          </label>
+        </div>
+      )}
+
+      {/* Label */}
       {label && (
         <label
           id={labelId}
@@ -200,39 +238,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         </label>
       )}
 
-      <div className="relative w-full">
-        <div className="flex flex-wrap gap-1">
-          {showTags &&
-            value.map((item) => (
-            <span key={item} className={cn("flex items-center gap-1 rounded bg-accent text-accent-foreground", sizeStyles[size].tag)}>
-              {item}
-              <button 
-                type="button" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleRemove(item);
-                }} 
-                className="text-xs hover:text-destructive"
-              >
-                ×
-              </button>
-            </span>
-          ))}
-        {showClear && value.length > 0 && (
-          <button 
-            type="button" 
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleClearAll();
-            }} 
-            className="ml-auto text-xs text-muted-foreground hover:underline"
-          >
-            Clear all
-          </button>
-        )}
-      </div>
+      <div className="relative w-full" />
 
       <button
         ref={triggerRef}
@@ -249,17 +255,47 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
           setOpen(next);
         }}
         className={cn(
-          "flex w-full items-center justify-between rounded-lg border border-input bg-background shadow-sm",
-          sizeStyles[size].trigger,
-          "outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:ring-offset-0",
+          "flex w-full items-center gap-2 rounded-lg border border-input bg-background shadow-sm min-h-[2.5rem]",
+          "px-3 py-2",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:cursor-not-allowed disabled:opacity-50"
         )}
       >
-        <span className="truncate">{value.length ? `${value.length} selected` : (placeholder || "Select...")}</span>
+        <div className="flex items-center gap-1 flex-wrap min-h-[1.5rem] flex-1">
+          {value.length > 0 ? (
+            showTags ? (
+              value.map((itemValue) => {
+                const option = normalizedOptions.find((o) => o.value === itemValue);
+                return (
+                  <span key={itemValue} className="inline-flex items-center gap-1 bg-accent text-accent-foreground rounded px-2 py-1 text-xs">
+                    <span className="truncate max-w-[120px]">
+                      {option ? displayFormat(option) : itemValue}
+                    </span>
+                     <button 
+                       type="button"
+                       onClick={(e) => {
+                         e.preventDefault();
+                         e.stopPropagation();
+                         handleRemove(itemValue);
+                       }}
+                       className="hover:text-destructive transition-colors cursor-pointer"
+                     >
+                       ×
+                     </button>
+                  </span>
+                );
+              })
+            ) : (
+              <span className="truncate text-sm">{value.length} selected</span>
+            )
+          ) : (
+            <span className="text-muted-foreground">{placeholder || "Select..."}</span>
+          )}
+        </div>
         <ChevronDown className={cn("opacity-50 transition-transform", sizeStyles[size].icon, open && "rotate-180")} />
       </button>
 
-      {open && dropdownPosition && typeof window !== 'undefined' && createPortal(
+      {open && dropdownPosition && typeof window !== 'undefined' ? createPortal(
         <div
           data-dropdown="multicombobox"
           style={{
@@ -282,34 +318,56 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
               "backdrop-blur-sm bg-popover/95 border-border/60"
             )}
           >
-          <div className="relative border-b border-border/60">
-            <Search className={cn("absolute left-2 top-2.5 text-muted-foreground", sizeStyles[size].icon)} />
-            <input
-              ref={inputRef}
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setActiveIndex(null);
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder={placeholder}
-              className={cn("w-full rounded-t-md bg-transparent focus:outline-none", sizeStyles[size].search)}
-            />
-          </div>
+          {/* Clear all button in dropdown */}
+          {showClear && value.length > 0 && (
+            <div className="px-3 py-2 border-b border-border/60 flex justify-end">
+               <button 
+                 type="button" 
+                 onClick={(e) => {
+                   e.preventDefault();
+                   e.stopPropagation();
+                   handleClearAll();
+                 }} 
+                 className="text-xs text-muted-foreground hover:underline cursor-pointer"
+               >
+                 Clear all
+               </button>
+            </div>
+          )}
+
+          {enableSearch && (
+            <div className="relative border-b border-border/60">
+              <Search className={cn("absolute left-2 top-2.5 text-muted-foreground", sizeStyles[size].icon)} />
+              <input
+                ref={inputRef}
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setActiveIndex(null);
+                }}
+                onKeyDown={handleKeyDown}
+                placeholder={placeholder}
+                className={cn("w-full rounded-t-md bg-transparent focus:outline-none cursor-text", sizeStyles[size].search)}
+              />
+            </div>
+          )}
+
           <ul className={cn("max-h-60 overflow-y-auto p-1", size === 'lg' ? 'text-base' : size === 'sm' ? 'text-xs' : 'text-sm')}>
             {filtered.length ? (
               filtered.map((item, index) => {
-                const isSelected = value.includes(item);
-                const isDisabled = disabledOptions.includes(item);
+                const isSelected = value.includes(item.value);
+                const isDisabled = disabledOptions.includes(item.value);
 
                 return (
                   <li
-                    key={item}
+                    key={item.value}
                     ref={(node) => {
                       listRef.current[index] = node;
                     }}
-                    onClick={() => {
-                      toggleSelect(item);
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toggleSelect(item.value);
                       inputRef.current?.focus();
                     }}
                     style={{
@@ -323,7 +381,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
                       isDisabled && "opacity-50 cursor-not-allowed pointer-events-none"
                     )}
                   >
-                    {item}
+                    {item.label}
                     {isSelected && <Check className={sizeStyles[size].icon} />}
                   </li>
                 );
@@ -333,10 +391,8 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
             )}
           </ul>
           </div>
-        </div>,
-        document.body
-      )}
-      </div>
+        </div>, document.body
+      ) : null}
     </div>
   );
 };
