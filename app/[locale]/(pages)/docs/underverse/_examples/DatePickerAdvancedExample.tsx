@@ -13,11 +13,13 @@ export default function DatePickerAdvancedExample() {
     <div className="space-y-3">
       <div className="grid md:grid-cols-2 gap-4">
         <DatePicker
-          value={dateSm as any}
-          onChange={(d) => setDateSm(d)}
+          value={dateSm}
+          onChange={setDateSm}
           size="sm"
           placeholder="Pick a date (sm)"
           weekdayLabels={["Su","Mo","Tu","We","Th","Fr","Sa"]}
+          label="Small date (sm)"
+          required
         />
         <DateRangePicker
           startDate={start as any}
@@ -29,4 +31,3 @@ export default function DatePickerAdvancedExample() {
     </div>
   );
 }
-

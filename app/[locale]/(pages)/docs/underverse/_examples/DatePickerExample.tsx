@@ -41,8 +41,8 @@ export default function DatePickerExample() {
   const demo = (
     <div className="space-y-4">
       <div className="grid md:grid-cols-2 gap-3">
-        <DatePicker value={date1} onChange={setDate1} label="Mặc định (md)" todayLabel={t('today')} clearLabel={t('clear')} weekdayLabels={weekdays} />
-        <DatePicker value={date2} onChange={setDate2} size="sm" label="Kích thước nhỏ (sm)" todayLabel={t('today')} clearLabel={t('clear')} weekdayLabels={weekdays} />
+        <DatePicker value={date1} onChange={setDate1} label="Mặc định (md)" clearLabel={t('clear')} weekdayLabels={weekdays} />
+        <DatePicker value={date2} onChange={setDate2} size="sm" label="Kích thước nhỏ (sm)" clearLabel={t('clear')} weekdayLabels={weekdays} />
       </div>
       <div className="text-sm text-muted-foreground">Giá trị 1: {date1?.toLocaleDateString("vi-VN") || "(none)"} | Giá trị 2: {date2?.toLocaleDateString("vi-VN") || "(none)"}</div>
     </div>

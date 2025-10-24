@@ -4,7 +4,7 @@ import * as React from "react";
 import { useId } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils/cn";
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, X as XIcon } from "lucide-react";
 import Button from "./Button";
 import { useShadCNAnimations } from "@/lib/utils/shadcn-animations";
 import { useTranslations, useLocale } from "next-intl";
@@ -14,7 +14,7 @@ import { formatDate as formatDateUtil, formatDateShort } from "@/lib/utils/date"
 export interface DatePickerProps {
   id?: string;
   value?: Date;
-  onChange: (date: Date) => void;
+  onChange: (date: Date | undefined) => void;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
@@ -46,6 +46,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const [dropdownPosition, setDropdownPosition] = React.useState<{ top: number; left: number; width: number } | null>(null);
   const [viewDate, setViewDate] = React.useState(value || new Date());
   const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   // Inject ShadCN animations
   useShadCNAnimations();
@@ -78,17 +79,28 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     };
   }, [isOpen, calculatePosition]);
 
+  // Keep calendar month synced with current value or today
+  React.useEffect(() => {
+    if (value) {
+      setViewDate(value);
+    } else {
+      setViewDate(new Date());
+    }
+  }, [value]);
+
   // Handle clicks outside
   React.useEffect(() => {
     if (!isOpen) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (triggerRef.current && !triggerRef.current.contains(target)) {
-        const dropdown = document.querySelector("[data-datepicker]") as Element;
-        if (dropdown && !dropdown.contains(target)) {
-          setIsOpen(false);
-        }
+      const trigger = triggerRef.current;
+      const dropdown = dropdownRef.current;
+      if (!trigger || !dropdown) return;
+      const clickedOutsideTrigger = !trigger.contains(target);
+      const clickedOutsideDropdown = !dropdown.contains(target);
+      if (clickedOutsideTrigger && clickedOutsideDropdown) {
+        setIsOpen(false);
       }
     };
 
@@ -108,13 +120,21 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   }, [isOpen]);
 
   const handleDateSelect = (date: Date) => {
-    onChange(date);
+    // Preserve time from existing value if it's not midnight; otherwise use current time
+    let selectedDate: Date;
+    if (value && (value.getHours() !== 0 || value.getMinutes() !== 0 || value.getSeconds() !== 0)) {
+      selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), value.getHours(), value.getMinutes(), value.getSeconds());
+    } else {
+      const now = new Date();
+      selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), now.getHours(), now.getMinutes(), now.getSeconds());
+    }
+    onChange(selectedDate);
     setIsOpen(false);
   };
 
   const formatDateDisplay = (date: Date): string => {
-    // Use our date utility for consistent formatting
-    return locale === LOCALE.VI ? formatDateUtil(date) : formatDateShort(date);
+    // Always include time for clarity
+    return formatDateUtil(date);
   };
 
   const getDaysInMonth = (date: Date): number => {
@@ -188,6 +208,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           left: dropdownPosition?.left || 0,
           width: size === "sm" ? dropdownPosition?.width || 224 : dropdownPosition?.width || 256,
           zIndex: 9999,
+          pointerEvents: "none",
         }}
         data-state={isOpen ? "open" : "closed"}
         className={cn(
@@ -197,11 +218,13 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         )}
       >
         <div
+          ref={dropdownRef}
           className={cn(
             "rounded-md border bg-popover text-popover-foreground shadow-md",
             "backdrop-blur-sm bg-popover/95 border-border/60",
             size === "sm" ? "p-3 w-56" : "p-4 w-64"
           )}
+          style={{ pointerEvents: "auto" }}
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
@@ -227,6 +250,19 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
           {/* Calendar grid */}
           <div className="grid grid-cols-7 gap-1">{renderCalendar()}</div>
+          <div className="flex items-center justify-end mt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                onChange(undefined);
+                setIsOpen(false);
+                setViewDate(new Date());
+              }}
+            >
+              {clearLabel || t("clear")}
+            </Button>
+          </div>
         </div>
       </div>
     ) : null;
@@ -285,6 +321,31 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         )}
       >
         <span className={cn("truncate", !value && "text-muted-foreground")}>{value ? formatDateDisplay(value) : placeholder || t("placeholder")}</span>
+        {value && (
+          <span
+            role="button"
+            aria-label={clearLabel || t("clear")}
+            tabIndex={0}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onChange(undefined);
+              setViewDate(new Date());
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                e.stopPropagation();
+                onChange(undefined);
+                setViewDate(new Date());
+              }
+            }}
+            className="absolute right-8 inline-flex items-center justify-center rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors cursor-pointer"
+            style={{ width: 20, height: 20 }}
+          >
+            <XIcon className="h-3.5 w-3.5" />
+          </span>
+        )}
         <Calendar className="h-4 w-4 text-muted-foreground ml-2" />
       </button>
 
@@ -539,8 +600,10 @@ export const DateRangePicker: React.FC<{
 
 export const CompactDatePicker: React.FC<{
   value?: Date;
-  onChange: (date: Date) => void;
+  onChange: (date?: Date) => void;
   className?: string;
 }> = ({ value, onChange, className }) => {
-  return <DatePicker value={value} onChange={onChange} size="sm" className={cn("max-w-[14rem]", className)} placeholder="Date" />;
+  return (
+    <DatePicker value={value} onChange={onChange as (d: Date | undefined) => void} size="sm" className={cn("max-w-[14rem]", className)} placeholder="Date" />
+  );
 };
