@@ -98,11 +98,6 @@ function DocsInner() {
 
       <div className="container mx-auto px-4 py-10">
         <div className="flex gap-8 max-w-7xl mx-auto">
-          {/* Sidebar - Table of Contents */}
-          <aside className="hidden lg:block w-64 shrink-0">
-            <TableOfContents />
-          </aside>
-
           {/* Main Content */}
           <main className="flex-1 min-w-0 max-w-4xl space-y-10">
             <h1 className="text-3xl font-bold tracking-tight">{t("pageTitle")}</h1>
@@ -309,7 +304,12 @@ function DocsInner() {
           <DocSection id="floating-contacts" title={t("sections.floatingContacts.title")}>
             <FloatingContactsExample />
           </DocSection>
-        </main>
+          </main>
+
+          {/* Sidebar - Table of Contents on the right */}
+          <aside className="hidden lg:block w-64 shrink-0">
+            <TableOfContents />
+          </aside>
       </div>
     </div>
     </div>

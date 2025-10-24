@@ -60,47 +60,47 @@ export default function TableOfContents() {
   const t = useTranslations("DocsUnderverse");
   const { activeId, setActiveId } = useActiveSection();
   const activeItemRef = useRef<HTMLButtonElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+  const lastUserScrollTs = useRef<number>(0);
+  const scrollPauseMs = 400;
 
-  // Auto-scroll to active item
+  // On first load: focus Install (or hash target if present)
   useEffect(() => {
-    if (activeId && activeItemRef.current) {
-      activeItemRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'nearest'
-      });
+    const hash = typeof window !== 'undefined' ? window.location.hash.replace('#', '') : '';
+    const target = hash || 'install';
+    setActiveId(target);
+    // If no hash, optionally align content to Install section
+    if (!hash) {
+      const el = document.getElementById('install');
+      el?.scrollIntoView({ behavior: 'auto', block: 'start' });
+    }
+  }, [setActiveId]);
+
+  // Auto-scroll to active item, but don't fight user scroll
+  useEffect(() => {
+    const item = activeItemRef.current;
+    const container = navRef.current;
+    if (!activeId || !item || !container) return;
+
+    // Skip if user scrolled the TOC recently
+    if (Date.now() - lastUserScrollTs.current < scrollPauseMs) return;
+
+    const cRect = container.getBoundingClientRect();
+    const iRect = item.getBoundingClientRect();
+    const padding = 8; // small viewport padding
+    const isAbove = iRect.top < cRect.top + padding;
+    const isBelow = iRect.bottom > cRect.bottom - padding;
+
+    if (isAbove || isBelow) {
+      item.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
     }
   }, [activeId]);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        // Find the entry that is most visible (highest intersection ratio)
-        const visibleEntries = entries.filter(entry => entry.isIntersecting);
-
-        if (visibleEntries.length > 0) {
-          // Sort by intersection ratio and get the most visible one
-          const mostVisible = visibleEntries.reduce((prev, current) => {
-            return current.intersectionRatio > prev.intersectionRatio ? current : prev;
-          });
-          setActiveId(mostVisible.target.id);
-        }
-      },
-      {
-        threshold: [0, 0.25, 0.5, 0.75, 1],
-        rootMargin: "-10% 0px -60% 0px",
-      }
-    );
-
-    sections.forEach(({ id }) => {
-      const element = document.getElementById(id);
-      if (element) observer.observe(element);
-    });
-
-    return () => observer.disconnect();
-  }, [setActiveId]);
+  // Note: intentionally removed IntersectionObserver auto-activating logic.
+  // Active item only changes when user clicks a TOC entry.
 
   const handleClick = (id: string) => {
+    setActiveId(id);
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -109,7 +109,11 @@ export default function TableOfContents() {
   };
 
   return (
-    <nav className="sticky top-20 h-[calc(100vh-6rem)] overflow-y-auto pb-4">
+    <nav
+      ref={navRef}
+      onScroll={() => { lastUserScrollTs.current = Date.now(); }}
+      className="sticky top-20 h-[calc(100vh-6rem)] overflow-y-auto pb-4"
+    >
       <div className="space-y-1">
         <h3 className="text-sm font-semibold mb-4 text-foreground/70">
           {t("tableOfContents")}

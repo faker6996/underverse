@@ -25,12 +25,12 @@ export default function DocSection({ id, title, children }: { id: string; title:
     >
       <div className={cn(
         "group flex items-center gap-3 -mx-4 px-4 py-2 rounded-lg transition-all duration-300",
-        isActive && "bg-primary/5 ring-2 ring-primary/20"
+        isActive && "bg-primary/10 ring-2 ring-primary/30 shadow-sm"
       )}>
         <h2 className={cn(
           "text-2xl font-semibold tracking-tight transition-all duration-300",
           isActive
-            ? "text-primary scale-105"
+            ? "text-primary scale-105 font-bold"
             : "bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text"
         )}>
           <a
@@ -67,4 +67,3 @@ export default function DocSection({ id, title, children }: { id: string; title:
     </section>
   );
 }
-

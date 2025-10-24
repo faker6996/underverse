@@ -7,6 +7,8 @@ import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import ColorThemeCustomizer from "@/components/ui/ColorThemeCustomizer";
 import { cn } from "@/lib/utils/cn";
+import { SearchInput } from "@/components/ui/Input";
+import { useActiveSection } from "./ActiveSectionContext";
 
 const NPM_PACKAGE = process.env.NEXT_PUBLIC_NPM_PACKAGE || "@underverse-ui/underverse";
 const NPM_VERSION = process.env.NEXT_PUBLIC_NPM_VERSION || "0.1.7";
@@ -14,6 +16,79 @@ const GITHUB_URL = "https://github.com/faker6996/underverse";
 
 export default function DocsHeader() {
   const t = useTranslations("DocsUnderverse");
+  const { setActiveId } = useActiveSection();
+
+  const sections: { id: string; labelKey: string }[] = [
+    { id: "install", labelKey: "sections.install.title" },
+    { id: "button", labelKey: "sections.button.title" },
+    { id: "badge", labelKey: "sections.badge.title" },
+    { id: "avatar", labelKey: "sections.avatar.title" },
+    { id: "breadcrumb", labelKey: "sections.breadcrumb.title" },
+    { id: "card", labelKey: "sections.card.title" },
+    { id: "checkbox", labelKey: "sections.checkbox.title" },
+    { id: "textarea", labelKey: "sections.textarea.title" },
+    { id: "modal", labelKey: "sections.modal.title" },
+    { id: "tabs", labelKey: "sections.tabs.title" },
+    { id: "toast", labelKey: "sections.toast.title" },
+    { id: "imports", labelKey: "sections.imports.title" },
+    { id: "alert", labelKey: "sections.alert.title" },
+    { id: "access-denied", labelKey: "sections.accessDenied.title" },
+    { id: "client-only", labelKey: "sections.clientOnly.title" },
+    { id: "loading", labelKey: "sections.loading.title" },
+    { id: "tooltip", labelKey: "sections.tooltip.title" },
+    { id: "popover", labelKey: "sections.popover.title" },
+    { id: "sheet", labelKey: "sections.sheet.title" },
+    { id: "switch", labelKey: "sections.switch.title" },
+    { id: "slider", labelKey: "sections.slider.title" },
+    { id: "radio-group", labelKey: "sections.radioGroup.title" },
+    { id: "scroll-area", labelKey: "sections.scrollArea.title" },
+    { id: "table", labelKey: "sections.table.title" },
+    { id: "progress", labelKey: "sections.progress.title" },
+    { id: "skeleton", labelKey: "sections.skeleton.title" },
+    { id: "carousel", labelKey: "sections.carousel.title" },
+    { id: "dropdown-menu", labelKey: "sections.dropdownMenu.title" },
+    { id: "combobox", labelKey: "sections.combobox.title" },
+    { id: "multi-combobox", labelKey: "sections.multiCombobox.title" },
+    { id: "section", labelKey: "sections.section.title" },
+    { id: "smart-image", labelKey: "sections.smartImage.title" },
+    { id: "category-tree-select", labelKey: "sections.categoryTreeSelect.title" },
+    { id: "image-upload", labelKey: "sections.imageUpload.title" },
+    { id: "notification-modal", labelKey: "sections.notificationModal.title" },
+    { id: "data-table", labelKey: "sections.dataTable.title" },
+    { id: "input", labelKey: "sections.input.title" },
+    { id: "date-picker", labelKey: "sections.datePicker.title" },
+    { id: "pagination", labelKey: "sections.pagination.title" },
+    { id: "form", labelKey: "sections.form.title" },
+    { id: "theme-toggle", labelKey: "sections.themeToggle.title" },
+    { id: "notification-bell", labelKey: "sections.notificationBell.title" },
+    { id: "floating-contacts", labelKey: "sections.floatingContacts.title" },
+  ];
+
+  const normalize = (s: string) =>
+    s
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+  const handleSearch = (value: string) => {
+    const q = normalize(value || "").trim();
+    if (!q) return;
+
+    const labeled = sections.map((s) => ({ id: s.id, label: t(s.labelKey) }));
+
+    // Exact id
+    let targetId = labeled.find((s) => s.id === q)?.id;
+    // Label includes query
+    if (!targetId) targetId = labeled.find((s) => normalize(s.label).includes(q))?.id;
+    // Id includes query
+    if (!targetId) targetId = labeled.find((s) => s.id.includes(q))?.id;
+
+    if (targetId) {
+      setActiveId(targetId);
+      document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.history.pushState(null, "", `#${targetId}`);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -72,8 +147,15 @@ export default function DocsHeader() {
             </div>
           </div>
 
-          {/* Actions */}
+          {/* Right: Search + Actions */}
           <div className="flex items-center gap-3">
+            <div className="hidden md:block w-64">
+              <SearchInput
+                size="sm"
+                placeholder="Search docs..."
+                onSearch={handleSearch}
+              />
+            </div>
             <ColorThemeCustomizer />
             <ThemeToggle />
             <LanguageSwitcher />
