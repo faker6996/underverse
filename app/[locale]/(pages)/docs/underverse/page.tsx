@@ -28,6 +28,7 @@ const PopoverExample = dynamicImport(() => import("./_examples/PopoverExample"),
 const SheetExample = dynamicImport(() => import("./_examples/SheetExample"), { ssr: false });
 const SwitchExample = dynamicImport(() => import("./_examples/SwitchExample"), { ssr: false });
 const SliderExample = dynamicImport(() => import("./_examples/SliderExample"), { ssr: false });
+const OverlayControlsExample = dynamicImport(() => import("./_examples/OverlayControlsExample"), { ssr: false });
 const RadioGroupExample = dynamicImport(() => import("./_examples/RadioGroupExample"), { ssr: false });
 const ScrollAreaExample = dynamicImport(() => import("./_examples/ScrollAreaExample"), { ssr: false });
 const TableExample = dynamicImport(() => import("./_examples/TableExample"), { ssr: false });
@@ -202,6 +203,10 @@ function DocsInner() {
 
           <DocSection id="slider" title={t("sections.slider.title")}>
             <SliderExample />
+          </DocSection>
+
+          <DocSection id="overlay-controls" title={t("sections.overlayControls.title")}> 
+            <OverlayControlsExample />
           </DocSection>
 
           <DocSection id="radio-group" title={t("sections.radioGroup.title")}>

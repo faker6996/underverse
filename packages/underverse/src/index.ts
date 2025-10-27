@@ -48,6 +48,7 @@ export { MultiCombobox } from "../../../components/ui/MultiCombobox";
 export type { MultiComboboxProps } from "../../../components/ui/MultiCombobox";
 export { RadioGroup, RadioGroupItem } from "../../../components/ui/RadioGroup";
 export { Slider } from "../../../components/ui/Slider";
+export { default as OverlayControls } from "../../../components/ui/OverlayControls";
 export { CategoryTreeSelect } from "../../../components/ui/CategoryTreeSelect";
 
 // Media

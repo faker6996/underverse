@@ -11,11 +11,11 @@ export default function SliderExample() {
   const code =
     `import { Slider } from '@underverse-ui/underverse'\n\n` +
     `const [val, setVal] = useState(30)\n\n` +
-    `<Slider value={val} onChange={setVal} showValue label="Âm lượng" />`;
+    `<Slider value={val} onValueChange={setVal} showValue label=\"Âm lượng\" />`;
 
   const demo = (
     <div>
-      <Slider value={val} onChange={setVal} showValue label="Âm lượng" />
+      <Slider value={val} onValueChange={setVal} showValue label="Âm lượng" />
     </div>
   );
 
@@ -30,4 +30,3 @@ export default function SliderExample() {
     />
   );
 }
-

@@ -137,6 +137,9 @@
       "slider": {
         "title": "Slider"
       },
+      "overlayControls": {
+        "title": "OverlayControls"
+      },
       "radioGroup": {
         "title": "RadioGroup"
       },

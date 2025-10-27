@@ -271,26 +271,26 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
                     <span className="truncate max-w-[120px]">
                       {option ? displayFormat(option) : itemValue}
                     </span>
-                     <span
-                       role="button"
-                       tabIndex={0}
-                       aria-label={`Remove ${option ? displayFormat(option) : itemValue}`}
-                       onClick={(e) => {
-                         e.preventDefault();
-                         e.stopPropagation();
-                         handleRemove(itemValue);
-                       }}
-                       onKeyDown={(e) => {
-                         if (e.key === 'Enter' || e.key === ' ') {
-                           e.preventDefault();
-                           e.stopPropagation();
-                           handleRemove(itemValue);
-                         }
-                       }}
-                       className="hover:text-destructive transition-colors cursor-pointer select-none"
-                     >
-                       ×
-                     </span>
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Remove ${option ? displayFormat(option) : itemValue}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleRemove(itemValue);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleRemove(itemValue);
+                        }
+                      }}
+                      className="hover:text-destructive transition-colors cursor-pointer select-none"
+                    >
+                      ×
+                    </span>
                   </span>
                 );
               })

@@ -11,6 +11,8 @@ interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 
   step?: number;
   onChange?: (value: number) => void;
   onValueChange?: (value: number) => void; // Alternative prop name for consistency
+  onMouseUp?: () => void; // Called when mouse is released
+  onTouchEnd?: () => void; // Called when touch ends
   label?: React.ReactNode;
   labelClassName?: string;
   containerClassName?: string;
@@ -54,6 +56,8 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
       step = 1,
       onChange,
       onValueChange,
+      onMouseUp,
+      onTouchEnd,
       label,
       labelClassName,
       containerClassName,
@@ -130,6 +134,8 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
             step={step}
             value={currentValue}
             onChange={handleChange}
+            onMouseUp={onMouseUp}
+            onTouchEnd={onTouchEnd}
             disabled={disabled}
             className={cn(
               // Base styles

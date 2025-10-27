@@ -101,6 +101,7 @@
       "sheet": { "title": "Sheet" },
       "switch": { "title": "Switch" },
       "slider": { "title": "Slider" },
+      "overlayControls": { "title": "OverlayControls" },
       "radioGroup": { "title": "RadioGroup" },
       "scrollArea": { "title": "ScrollArea" },
       "table": { "title": "Table" },
@@ -126,4 +127,3 @@
     }
   }
 }
-

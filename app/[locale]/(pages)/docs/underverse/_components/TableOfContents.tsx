@@ -32,6 +32,7 @@ const sections: TocSection[] = [
   { id: "sheet", labelKey: "sections.sheet.title" },
   { id: "switch", labelKey: "sections.switch.title" },
   { id: "slider", labelKey: "sections.slider.title" },
+  { id: "overlay-controls", labelKey: "sections.overlayControls.title" },
   { id: "radio-group", labelKey: "sections.radioGroup.title" },
   { id: "scroll-area", labelKey: "sections.scrollArea.title" },
   { id: "table", labelKey: "sections.table.title" },
