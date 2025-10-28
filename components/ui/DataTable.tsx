@@ -44,6 +44,7 @@ interface DataTableProps<T> {
   total?: number;
   page?: number;
   pageSize?: number;
+  pageSizeOptions?: number[]; // show page size selector if provided
   onQueryChange?: (q: DataTableQuery) => void; // server-side
   caption?: React.ReactNode;
   toolbar?: React.ReactNode;
@@ -77,6 +78,7 @@ export function DataTable<T extends Record<string, any>>({
   total = 0,
   page = 1,
   pageSize = 20,
+  pageSizeOptions,
   onQueryChange,
   caption,
   toolbar,
@@ -95,6 +97,15 @@ export function DataTable<T extends Record<string, any>>({
   const [curPageSize, setCurPageSize] = React.useState(pageSize);
 
   const debouncedFilters = useDebounced(filters, 350);
+
+  // Keep internal state in sync when parent controls page/pageSize
+  React.useEffect(() => {
+    setCurPage(page);
+  }, [page]);
+
+  React.useEffect(() => {
+    setCurPageSize(pageSize);
+  }, [pageSize]);
 
   // Emit query changes to parent (server-side mode)
   React.useEffect(() => {
@@ -257,6 +268,16 @@ export function DataTable<T extends Record<string, any>>({
     </TableRow>
   );
 
+  const isServerMode = Boolean(onQueryChange);
+  const displayedData = isServerMode
+    ? data
+    : React.useMemo(() => {
+        const start = (curPage - 1) * curPageSize;
+        return data.slice(start, start + curPageSize);
+      }, [data, curPage, curPageSize]);
+
+  const totalItems = isServerMode ? total : data.length;
+
   return (
     <div className={cn("space-y-2", className)}>
       <div className="flex items-center justify-between gap-4 mb-1">
@@ -335,14 +356,14 @@ export function DataTable<T extends Record<string, any>>({
                   </div>
                 </TableCell>
               </TableRow>
-            ) : !data || data.length === 0 ? (
+            ) : !displayedData || displayedData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={visibleColumns.length} className="text-center py-6 text-muted-foreground">
                   No data
                 </TableCell>
               </TableRow>
             ) : (
-              data.map((row, idx) => (
+              displayedData.map((row, idx) => (
                 <TableRow key={getRowKey(row, idx)} className={cn(densityRowClass, striped && idx % 2 === 0 && "bg-muted/30")}>
                   {visibleColumns.map((col) => {
                     const value = col.dataIndex ? row[col.dataIndex as keyof T] : undefined;
@@ -370,16 +391,21 @@ export function DataTable<T extends Record<string, any>>({
         </Table>
       </div>
 
-      {total > 0 && (
+      {totalItems > 0 && (
         <div className="border-t bg-muted/30 p-4 rounded-b-lg">
           <Pagination
             page={curPage}
-            totalPages={Math.ceil(total / curPageSize)}
+            totalPages={Math.ceil(totalItems / curPageSize)}
             onChange={(p) => setCurPage(p)}
             className=""
             showInfo
-            totalItems={total}
+            totalItems={totalItems}
             pageSize={curPageSize}
+            pageSizeOptions={pageSizeOptions}
+            onPageSizeChange={(s) => {
+              setCurPage(1);
+              setCurPageSize(s);
+            }}
           />
         </div>
       )}
