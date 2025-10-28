@@ -67,6 +67,7 @@ export default function DataTableServerExample() {
         page={lastQuery.page}
         pageSize={lastQuery.pageSize}
         onQueryChange={fetchServer}
+        pageSizeOptions={[10, 20, 50, 100]}
         striped
       />
       <CodeBlock code={`<DataTable columns={columns} data={rows} total={total}
@@ -74,4 +75,3 @@ export default function DataTableServerExample() {
     </div>
   );
 }
-

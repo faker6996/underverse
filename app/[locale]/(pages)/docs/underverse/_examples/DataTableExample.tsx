@@ -14,6 +14,8 @@ export default function DataTableExample() {
     { id: 1, name: "Alice", role: "Admin", created_at: "2024-10-01" },
     { id: 2, name: "Bob", role: "User", created_at: "2024-10-05" },
     { id: 3, name: "Charlie", role: "User", created_at: "2024-10-10" },
+    { id: 4, name: "Daisy", role: "Editor", created_at: "2024-10-12" },
+    { id: 5, name: "Evan", role: "User", created_at: "2024-10-15" },
   ];
   const columns = [
     { key: "name", title: "Name", dataIndex: "name", sortable: true, filter: { type: "text", placeholder: "Search name" } },
@@ -41,9 +43,9 @@ export default function DataTableExample() {
     `<DataTable<Row>\n` +
     `  columns={columns as any}\n` +
     `  data={rows}\n` +
-    `  total={rows.length}\n` +
     `  page={1}\n` +
-    `  pageSize={10}\n` +
+    `  pageSize={2}\n` +
+    `  pageSizeOptions={[2, 5, 10]}\n` +
     `  labels={{\n` +
     `    density: t('density'),\n` +
     `    columns: t('columns'),\n` +
@@ -58,9 +60,9 @@ export default function DataTableExample() {
       <DataTable<Row>
         columns={columns as any}
         data={rows}
-        total={rows.length}
         page={1}
-        pageSize={10}
+        pageSize={2}
+        pageSizeOptions={[2, 5, 10]}
         labels={{
           density: t('density'),
           columns: t('columns'),
