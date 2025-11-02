@@ -66,7 +66,7 @@
   },
   "DocsUnderverse": {
     "pageTitle": "Underverse UI – Usage Guide",
-    "pageDescription": "This page demonstrates how to use the available UI components in the project. You can import directly from <componentsPath>components/ui</componentsPath> in the project, or from the <packageName>@underverse-ui/underverse</packageName> package after publishing.",
+    "pageDescription": "This page demonstrates how to use the available UI components in the project, provided by the <packageName>@underverse-ui/underverse</packageName> package.",
     "tableOfContents": "Table of Contents",
     "sections": {
       "install": {
