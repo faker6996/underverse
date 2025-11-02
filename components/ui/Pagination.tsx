@@ -19,6 +19,7 @@ export interface PaginationProps {
   showPageNumbers?: boolean;
   showInfo?: boolean;
   disabled?: boolean;
+  alignment?: "left" | "center" | "right";
   // For page size selector
   pageSize?: number;
   pageSizeOptions?: number[];
@@ -52,6 +53,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   showPageNumbers = true,
   showInfo = false,
   disabled = false,
+  alignment = "left",
   pageSize,
   pageSizeOptions,
   onPageSizeChange,
@@ -59,6 +61,19 @@ export const Pagination: React.FC<PaginationProps> = ({
   labels,
 }) => {
   const t = useTranslations("Pagination");
+
+  const getTextAlignmentClass = (align: "left" | "center" | "right") => {
+    switch (align) {
+      case "left":
+        return "text-left";
+      case "center":
+        return "text-center";
+      case "right":
+        return "text-right";
+    }
+  };
+
+  const textAlignmentClass = getTextAlignmentClass(alignment);
 
   const createPageArray = () => {
     const delta = 2;
@@ -133,121 +148,124 @@ export const Pagination: React.FC<PaginationProps> = ({
     <nav className={cn("flex flex-col gap-4", className)} aria-label={labels?.navigationLabel || t("navigationLabel")}>
       {/* Info Display */}
       {showInfo && totalItems && (
-        <div className="text-sm text-muted-foreground text-center">
+        <div className={cn("text-sm text-muted-foreground", textAlignmentClass)}>
           {labels?.showingResults
             ? labels.showingResults({ startItem: startItem || 0, endItem: endItem || 0, totalItems })
             : t("showingResults", { startItem: startItem || 0, endItem: endItem || 0, totalItems })}
         </div>
       )}
 
-      {/* Main Pagination */}
-      <div className="flex items-center justify-center gap-1">
-        {/* First Page */}
-        {showFirstLast && (
-          <Button
-            variant={getButtonVariant(false)}
-            size={size}
-            icon={ChevronsLeft}
-            onClick={() => onChange(1)}
-            disabled={disabled || page === 1}
-            className="hidden sm:flex"
-            title={labels?.firstPage || t("firstPage")}
-            aria-label={labels?.firstPage || t("firstPage")}
-            aria-disabled={disabled || page === 1}
-          />
-        )}
+      <div className={cn("flex items-center justify-between", {
+        "flex-row-reverse": alignment === "right" || alignment === "center",
+      })}>
+        <div className={cn("flex items-center gap-1")}>
+          {/* First Page */}
+          {showFirstLast && (
+            <Button
+              variant={getButtonVariant(false)}
+              size={size}
+              icon={ChevronsLeft}
+              onClick={() => onChange(1)}
+              disabled={disabled || page === 1}
+              className="hidden sm:flex"
+              title={labels?.firstPage || t("firstPage")}
+              aria-label={labels?.firstPage || t("firstPage")}
+              aria-disabled={disabled || page === 1}
+            />
+          )}
 
-        {/* Previous Page */}
-        {showPrevNext && (
-          <Button
-            variant={getButtonVariant(false)}
-            size={size}
-            icon={ChevronLeft}
-            onClick={() => onChange(Math.max(1, page - 1))}
-            disabled={disabled || page === 1}
-            title={labels?.previousPage || t("previousPage")}
-            aria-label={labels?.previousPage || t("previousPage")}
-            aria-disabled={disabled || page === 1}
-          >
-            <span className="hidden sm:inline">{labels?.previous || t("previous")}</span>
-          </Button>
-        )}
+          {/* Previous Page */}
+          {showPrevNext && (
+            <Button
+              variant={getButtonVariant(false)}
+              size={size}
+              icon={ChevronLeft}
+              onClick={() => onChange(Math.max(1, page - 1))}
+              disabled={disabled || page === 1}
+              title={labels?.previousPage || t("previousPage")}
+              aria-label={labels?.previousPage || t("previousPage")}
+              aria-disabled={disabled || page === 1}
+            >
+              <span className="hidden sm:inline">{labels?.previous || t("previous")}</span>
+            </Button>
+          )}
 
-        {/* Page Numbers */}
-        {showPageNumbers &&
-          createPageArray().map((p, i) => {
-            if (p === "...") {
-              return <Button key={i} variant="ghost" size={size} disabled icon={MoreHorizontal} className="cursor-default" />;
-            }
+          {/* Page Numbers */}
+          {showPageNumbers &&
+            createPageArray().map((p, i) => {
+              if (p === "...") {
+                return <Button key={i} variant="ghost" size={size} disabled icon={MoreHorizontal} className="cursor-default" />;
+              }
 
-            const pageNumber = p as number;
-            const isActive = page === pageNumber;
+              const pageNumber = p as number;
+              const isActive = page === pageNumber;
 
-            return (
-              <Button
-                key={i}
-                variant={getButtonVariant(isActive)}
-                size={size}
-                onClick={() => onChange(pageNumber)}
+              return (
+                <Button
+                  key={i}
+                  variant={getButtonVariant(isActive)}
+                  size={size}
+                  onClick={() => onChange(pageNumber)}
+                  disabled={disabled}
+                  className={cn("min-w-[2.5rem]", isActive && "font-semibold")}
+                  aria-label={labels?.pageNumber ? labels.pageNumber(pageNumber) : t("pageNumber", { page: pageNumber })}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {pageNumber}
+                </Button>
+              );
+            })}
+
+          {/* Next Page */}
+          {showPrevNext && (
+            <Button
+              variant={getButtonVariant(false)}
+              size={size}
+              iconRight={ChevronRight}
+              onClick={() => onChange(Math.min(totalPages, page + 1))}
+              disabled={disabled || page === totalPages}
+              title={labels?.nextPage || t("nextPage")}
+              aria-label={labels?.nextPage || t("nextPage")}
+              aria-disabled={disabled || page === totalPages}
+            >
+              <span className="hidden sm:inline">{labels?.next || t("next")}</span>
+            </Button>
+          )}
+
+          {/* Last Page */}
+          {showFirstLast && (
+            <Button
+              variant={getButtonVariant(false)}
+              size={size}
+              icon={ChevronsRight}
+              onClick={() => onChange(totalPages)}
+              disabled={disabled || page === totalPages}
+              className="hidden sm:flex"
+              title={labels?.lastPage || t("lastPage")}
+              aria-label={labels?.lastPage || t("lastPage")}
+              aria-disabled={disabled || page === totalPages}
+            />
+          )}
+        </div>
+
+        {/* Page Size Selector */}
+        {pageSizeOptions && onPageSizeChange && (
+          <div className={cn("flex items-center gap-2 text-sm")}>
+            <span className="text-muted-foreground">{labels?.itemsPerPage || t("itemsPerPage")}:</span>
+            <div className="w-20">
+              <Combobox
+                options={pageSizeOptionsStrings}
+                value={pageSize?.toString() || "10"}
+                onChange={handlePageSizeChange}
+                placeholder="10"
+                searchPlaceholder={labels?.search || t("search")}
+                emptyText={labels?.noOptions || t("noOptions")}
                 disabled={disabled}
-                className={cn("min-w-[2.5rem]", isActive && "font-semibold")}
-                aria-label={labels?.pageNumber ? labels.pageNumber(pageNumber) : t("pageNumber", { page: pageNumber })}
-                aria-current={isActive ? "page" : undefined}
-              >
-                {pageNumber}
-              </Button>
-            );
-          })}
-
-        {/* Next Page */}
-        {showPrevNext && (
-          <Button
-            variant={getButtonVariant(false)}
-            size={size}
-            iconRight={ChevronRight}
-            onClick={() => onChange(Math.min(totalPages, page + 1))}
-            disabled={disabled || page === totalPages}
-            title={labels?.nextPage || t("nextPage")}
-            aria-label={labels?.nextPage || t("nextPage")}
-            aria-disabled={disabled || page === totalPages}
-          >
-            <span className="hidden sm:inline">{labels?.next || t("next")}</span>
-          </Button>
-        )}
-
-        {/* Last Page */}
-        {showFirstLast && (
-          <Button
-            variant={getButtonVariant(false)}
-            size={size}
-            icon={ChevronsRight}
-            onClick={() => onChange(totalPages)}
-            disabled={disabled || page === totalPages}
-            className="hidden sm:flex"
-            title={labels?.lastPage || t("lastPage")}
-            aria-label={labels?.lastPage || t("lastPage")}
-            aria-disabled={disabled || page === totalPages}
-          />
+              />
+            </div>
+          </div>
         )}
       </div>
-
-      {/* Page Size Selector */}
-      {pageSizeOptions && onPageSizeChange && (
-        <div className="flex items-center justify-center gap-2 text-sm">
-          <span className="text-muted-foreground">{labels?.itemsPerPage || t("itemsPerPage")}:</span>
-          <div className="w-20">
-            <Combobox
-              options={pageSizeOptionsStrings}
-              value={pageSize?.toString() || "10"}
-              onChange={handlePageSizeChange}
-              placeholder="10"
-              searchPlaceholder={labels?.search || t("search")}
-              emptyText={labels?.noOptions || t("noOptions")}
-              disabled={disabled}
-            />
-          </div>
-        </div>
-      )}
     </nav>
   );
 };
