@@ -25,20 +25,23 @@ export default function InputExample() {
     `const [description, setDescription] = useState("")\n` +
     `const [qty, setQty] = useState("10")\n\n` +
     `// Variants\n` +
-    `<Input label="Default" placeholder="Nhập tên" value={name} onChange={(e) => setName(e.target.value)} variant="default" />\n` +
-    `<Input label="Filled" placeholder="Nhập email" value={email} onChange={(e) => setEmail(e.target.value)} variant="filled" />\n` +
-    `<Input label="Outlined" placeholder="Tìm kiếm" value={query} onChange={(e) => setQuery(e.target.value)} variant="outlined" />\n` +
-    `<Input label="Minimal" placeholder="Mô tả ngắn" value={description} onChange={(e) => setDescription(e.target.value)} variant="minimal" />\n\n` +
+    `<Input label='Default' placeholder='Enter name' value={name} onChange={(e) => setName(e.target.value)} variant='default' />\n` +
+    `<Input label='Filled' placeholder='Enter email' value={email} onChange={(e) => setEmail(e.target.value)} variant='filled' />\n` +
+    `<Input label='Outlined' placeholder='Search' value={query} onChange={(e) => setQuery(e.target.value)} variant='outlined' />\n` +
+    `<Input label='Minimal' placeholder='Short description' value={description} onChange={(e) => setDescription(e.target.value)} variant='minimal' />\n\n` +
     `// Sizes & Icons\n` +
-    `<Input size="sm" label="Tìm kiếm (sm)" placeholder="Từ khóa" leftIcon={Search} value={query} onChange={(e) => setQuery(e.target.value)} />\n` +
-    `<Input size="md" label="Email (md)" placeholder="you@example.com" type="email" leftIcon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />\n` +
-    `<Input size="lg" label="Tên (lg)" placeholder="Họ tên" value={name} onChange={(e) => setName(e.target.value)} />\n\n` +
+    `<Input size='sm' label='Search (sm)' placeholder='Keyword' leftIcon={Search} value={query} onChange={(e) => setQuery(e.target.value)} />\n` +
+    `<Input size='md' label='Email (md)' placeholder='you@example.com' type='email' leftIcon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />\n` +
+    `<Input size='lg' label='Name (lg)' placeholder='Full name' value={name} onChange={(e) => setName(e.target.value)} />\n\n` +
     `// States\n` +
-    `<Input label="Bắt buộc" placeholder="Nhập giá trị" required clearable value={name} onChange={(e)=>setName(e.target.value)} hint="Trường này là bắt buộc" />\n` +
-    `<Input label="Giới hạn ký tự" placeholder="Tối đa 20" value={description} onChange={(e)=>setDescription(e.target.value)} counter maxLength={20} description="Mô tả hiển thị bên dưới" />\n\n` +
+    `<Input label='Required' placeholder='Enter value' required clearable value={name} onChange={(e)=>setName(e.target.value)} hint='This field is required' />\n` +
+    `<Input label='Char limit' placeholder='Max 20' value={description} onChange={(e)=>setDescription(e.target.value)} counter maxLength={20} description='Helper text shows below' />\n` +
+    `<Input label='Disabled' placeholder='Disabled' disabled />\n` +
+    `<Input label='Loading' placeholder='Loading...' loading />\n` +
+    `<Input label='Success' placeholder='Looks good' success />\n\n` +
     `// Specialized\n` +
-    `<PasswordInput label="Mật khẩu" placeholder="········" value={password} onChange={(e)=>setPassword(e.target.value)} showStrength />\n` +
-    `<NumberInput label="Số lượng" value={qty} onChange={(e)=>setQty(e.target.value)} min={0} max={99} showSteppers formatThousands />`;
+    `<PasswordInput label='Password' placeholder='••••••••' value={password} onChange={(e)=>setPassword(e.target.value)} showStrength />\n` +
+    `<NumberInput label='Quantity' value={qty} onChange={(e)=>setQty(e.target.value)} min={0} max={99} showSteppers formatThousands />`;
 
   const demo = (
     <div className="space-y-6 max-w-2xl">
@@ -46,10 +49,10 @@ export default function InputExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Variants</p>
         <div className="grid md:grid-cols-2 gap-3">
-          <Input label="Default" placeholder="Nhập tên" value={name} onChange={(e) => setName(e.target.value)} variant="default" />
-          <Input label="Filled" placeholder="Nhập email" value={email} onChange={(e) => setEmail(e.target.value)} variant="filled" />
-          <Input label="Outlined" placeholder="Tìm kiếm" value={query} onChange={(e) => setQuery(e.target.value)} variant="outlined" />
-          <Input label="Minimal" placeholder="Mô tả ngắn" value={description} onChange={(e) => setDescription(e.target.value)} variant="minimal" />
+          <Input label="Default" placeholder="Enter name" value={name} onChange={(e) => setName(e.target.value)} variant="default" />
+          <Input label="Filled" placeholder="Enter email" value={email} onChange={(e) => setEmail(e.target.value)} variant="filled" />
+          <Input label="Outlined" placeholder="Search" value={query} onChange={(e) => setQuery(e.target.value)} variant="outlined" />
+          <Input label="Minimal" placeholder="Short description" value={description} onChange={(e) => setDescription(e.target.value)} variant="minimal" />
         </div>
       </div>
 
@@ -57,9 +60,9 @@ export default function InputExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Sizes & Icons</p>
         <div className="grid md:grid-cols-3 gap-3">
-          <Input size="sm" label="Tìm kiếm (sm)" placeholder="Từ khóa" leftIcon={Search} value={query} onChange={(e) => setQuery(e.target.value)} />
+          <Input size="sm" label="Search (sm)" placeholder="Keyword" leftIcon={Search} value={query} onChange={(e) => setQuery(e.target.value)} />
           <Input size="md" label="Email (md)" placeholder="you@example.com" type="email" leftIcon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Input size="lg" label="Tên (lg)" placeholder="Họ tên" value={name} onChange={(e) => setName(e.target.value)} />
+          <Input size="lg" label="Name (lg)" placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
       </div>
 
@@ -67,8 +70,13 @@ export default function InputExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">States</p>
         <div className="grid md:grid-cols-2 gap-3">
-          <Input label="Bắt buộc" placeholder="Nhập giá trị" required clearable value={name} onChange={(e)=>setName(e.target.value)} hint="Trường này là bắt buộc" />
-          <Input label="Giới hạn ký tự" placeholder="Tối đa 20" value={description} onChange={(e)=>setDescription(e.target.value)} counter maxLength={20} description="Mô tả hiển thị bên dưới" />
+          <Input label="Required" placeholder="Enter value" required clearable value={name} onChange={(e)=>setName(e.target.value)} hint="This field is required" />
+          <Input label="Char limit" placeholder="Max 20" value={description} onChange={(e)=>setDescription(e.target.value)} counter maxLength={20} description="Helper text shows below" />
+        </div>
+        <div className="grid md:grid-cols-3 gap-3">
+          <Input label="Disabled" placeholder="Disabled" disabled />
+          <Input label="Loading" placeholder="Loading..." loading />
+          <Input label="Success" placeholder="Looks good" success />
         </div>
       </div>
 
@@ -76,8 +84,8 @@ export default function InputExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Specialized</p>
         <div className="grid md:grid-cols-2 gap-3">
-          <PasswordInput label="Mật khẩu" placeholder="········" value={password} onChange={(e)=>setPassword(e.target.value)} showStrength />
-          <NumberInput label="Số lượng" value={qty} onChange={(e)=>setQty(e.target.value)} min={0} max={99} showSteppers formatThousands />
+          <PasswordInput label="Password" placeholder="••••••••" value={password} onChange={(e)=>setPassword(e.target.value)} showStrength />
+          <NumberInput label="Quantity" value={qty} onChange={(e)=>setQty(e.target.value)} min={0} max={99} showSteppers formatThousands />
         </div>
       </div>
     </div>
@@ -96,3 +104,4 @@ export default function InputExample() {
     </IntlDemoProvider>
   );
 }
+

@@ -7,23 +7,76 @@ import { Tabs } from "@/components/ui/Tab";
 
 export default function SectionExample() {
   const demo = (
-    <div className="space-y-3">
-      <Section variant="muted" spacing="md">
-        <div className="p-3 border rounded-md">N?i dung section (muted, md)</div>
-      </Section>
-      <Section variant="primary" spacing="lg" fullWidth>
-        <div className="container mx-auto px-4">
-          <div className="p-3 border rounded-md">Full width section (primary, lg)</div>
+    <div className="space-y-8">
+      {/* Variants */}
+      <div className="space-y-3">
+        <p className="text-sm font-medium">Variants</p>
+        <div className="space-y-3">
+          <Section variant="default" spacing="md">
+            <div className="p-3 border rounded-md">Nội dung section (default, md)</div>
+          </Section>
+          <Section variant="muted" spacing="md">
+            <div className="p-3 border rounded-md">Nội dung section (muted, md)</div>
+          </Section>
+          <Section variant="primary" spacing="md">
+            <div className="p-3 border rounded-md">Nội dung section (primary, md)</div>
+          </Section>
+          <Section variant="accent" spacing="md">
+            <div className="p-3 border rounded-md">Nội dung section (accent, md)</div>
+          </Section>
         </div>
-      </Section>
+      </div>
+
+      {/* Spacing */}
+      <div className="space-y-3">
+        <p className="text-sm font-medium">Spacing</p>
+        <Section variant="muted" spacing="sm">
+          <div className="p-3 border rounded-md">Spacing sm</div>
+        </Section>
+        <Section variant="muted" spacing="md">
+          <div className="p-3 border rounded-md">Spacing md</div>
+        </Section>
+        <Section variant="muted" spacing="lg">
+          <div className="p-3 border rounded-md">Spacing lg</div>
+        </Section>
+        <Section variant="muted" spacing="xl">
+          <div className="p-3 border rounded-md">Spacing xl</div>
+        </Section>
+      </div>
+
+      {/* Full width */}
+      <div className="space-y-3">
+        <p className="text-sm font-medium">Full width</p>
+        <Section variant="primary" spacing="lg" fullWidth>
+          <div className="container mx-auto px-4">
+            <div className="p-3 border rounded-md">Full width section (primary, lg)</div>
+          </div>
+        </Section>
+      </div>
     </div>
   );
 
   const code =
     `import { Section } from '@underverse-ui/underverse'\n\n` +
-    `<Section variant='muted' spacing='md'>\n` +
-    `  <div className='p-3 border rounded-md'>N?i dung section (muted, md)</div>\n` +
+    `// Variants\n` +
+    `<Section variant='default' spacing='md'>\n` +
+    `  <div className='p-3 border rounded-md'>Nội dung section (default, md)</div>\n` +
     `</Section>\n` +
+    `<Section variant='muted' spacing='md'>\n` +
+    `  <div className='p-3 border rounded-md'>Nội dung section (muted, md)</div>\n` +
+    `</Section>\n` +
+    `<Section variant='primary' spacing='md'>\n` +
+    `  <div className='p-3 border rounded-md'>Nội dung section (primary, md)</div>\n` +
+    `</Section>\n` +
+    `<Section variant='accent' spacing='md'>\n` +
+    `  <div className='p-3 border rounded-md'>Nội dung section (accent, md)</div>\n` +
+    `</Section>\n\n` +
+    `// Spacing\n` +
+    `<Section variant='muted' spacing='sm'><div className='p-3 border rounded-md'>Spacing sm</div></Section>\n` +
+    `<Section variant='muted' spacing='md'><div className='p-3 border rounded-md'>Spacing md</div></Section>\n` +
+    `<Section variant='muted' spacing='lg'><div className='p-3 border rounded-md'>Spacing lg</div></Section>\n` +
+    `<Section variant='muted' spacing='xl'><div className='p-3 border rounded-md'>Spacing xl</div></Section>\n\n` +
+    `// Full width\n` +
     `<Section variant='primary' spacing='lg' fullWidth>\n` +
     `  <div className='container mx-auto px-4'>\n` +
     `    <div className='p-3 border rounded-md'>Full width section (primary, lg)</div>\n` +
@@ -41,4 +94,3 @@ export default function SectionExample() {
     />
   );
 }
-

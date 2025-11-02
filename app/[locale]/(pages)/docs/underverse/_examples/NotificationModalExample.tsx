@@ -8,8 +8,11 @@ import { Tabs } from "@/components/ui/Tab";
 import Button from "@/components/ui/Button";
 
 export default function NotificationModalExample() {
-  const [open, setOpen] = React.useState(false);
-  const notification = {
+  const [open1, setOpen1] = React.useState(false);
+  const [open2, setOpen2] = React.useState(false);
+  const [open3, setOpen3] = React.useState(false);
+
+  const notificationWithLink = {
     id: 1,
     title: "Cập nhật hệ thống",
     body: "Hệ thống sẽ bảo trì lúc 23:00 hôm nay.",
@@ -19,26 +22,44 @@ export default function NotificationModalExample() {
     metadata: { link: "https://example.com" }
   };
 
+  const notificationNoLink = {
+    id: 2,
+    title: "Lịch sử thanh toán",
+    body: "Đơn hàng #1234 đã được xử lý thành công.",
+    type: "success",
+    is_read: true,
+    created_at: new Date().toISOString(),
+    metadata: {}
+  };
+
   const code =
     `import NotificationModal from '@underverse-ui/underverse'\n` +
     `import Button from '@underverse-ui/underverse'\n\n` +
-    `const [open, setOpen] = useState(false)\n` +
-    `const notification = {\n` +
-    `  id: 1,\n` +
-    `  title: "Cập nhật hệ thống",\n` +
-    `  body: "Hệ thống sẽ bảo trì lúc 23:00 hôm nay.",\n` +
-    `  type: "info",\n` +
-    `  is_read: false,\n` +
-    `  created_at: new Date().toISOString(),\n` +
-    `  metadata: { link: "https://example.com" }\n` +
-    `}\n\n` +
-    `<Button onClick={() => setOpen(true)}>Xem thông báo</Button>\n` +
-    `<NotificationModal isOpen={open} onClose={() => setOpen(false)} notification={notification as any} />`;
+    `const [open1, setOpen1] = useState(false)\n` +
+    `const [open2, setOpen2] = useState(false)\n` +
+    `const [open3, setOpen3] = useState(false)\n\n` +
+    `const notificationWithLink = { id: 1, title: 'Cập nhật hệ thống', body: 'Hệ thống sẽ bảo trì lúc 23:00 hôm nay.', type: 'info', is_read: false, created_at: new Date().toISOString(), metadata: { link: 'https://example.com' } }\n` +
+    `const notificationNoLink = { id: 2, title: 'Lịch sử thanh toán', body: 'Đơn hàng #1234 đã được xử lý thành công.', type: 'success', is_read: true, created_at: new Date().toISOString(), metadata: {} }\n\n` +
+    `// 1) With link + unread\n` +
+    `<Button onClick={() => setOpen1(true)}>Mở modal (có link)</Button>\n` +
+    `<NotificationModal isOpen={open1} onClose={() => setOpen1(false)} notification={notificationWithLink as any} />\n\n` +
+    `// 2) No link + read\n` +
+    `<Button onClick={() => setOpen2(true)}>Mở modal (không link)</Button>\n` +
+    `<NotificationModal isOpen={open2} onClose={() => setOpen2(false)} notification={notificationNoLink as any} />\n\n` +
+    `// 3) Custom texts\n` +
+    `<Button onClick={() => setOpen3(true)}>Mở modal (custom texts)</Button>\n` +
+    `<NotificationModal isOpen={open3} onClose={() => setOpen3(false)} notification={notificationWithLink as any} titleText='Thông báo' openLinkText='Mở liên kết' closeText='Đóng' />`;
 
   const demo = (
-    <div>
-      <Button onClick={() => setOpen(true)}>Xem thông báo</Button>
-      <NotificationModal isOpen={open} onClose={() => setOpen(false)} notification={notification as any} />
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={() => setOpen1(true)}>Mở modal (có link)</Button>
+        <Button onClick={() => setOpen2(true)} variant="outline">Mở modal (không link)</Button>
+        <Button onClick={() => setOpen3(true)} variant="primary">Mở modal (custom texts)</Button>
+      </div>
+      <NotificationModal isOpen={open1} onClose={() => setOpen1(false)} notification={notificationWithLink as any} />
+      <NotificationModal isOpen={open2} onClose={() => setOpen2(false)} notification={notificationNoLink as any} />
+      <NotificationModal isOpen={open3} onClose={() => setOpen3(false)} notification={notificationWithLink as any} titleText="Thông báo" openLinkText="Mở liên kết" closeText="Đóng" />
     </div>
   );
 
