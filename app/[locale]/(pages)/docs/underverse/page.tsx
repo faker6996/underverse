@@ -122,10 +122,6 @@ function DocsInner() {
             </div>
           </DocSection>
 
-          <DocSection id="button_advanced" title={t("sections.badge.title")}>
-            <ButtonAdvancedExample />
-          </DocSection>
-
           <DocSection id="badge" title={t("sections.badge.title")}>
             <BadgeExample />
           </DocSection>

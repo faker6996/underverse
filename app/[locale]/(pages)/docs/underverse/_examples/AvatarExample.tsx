@@ -6,19 +6,77 @@ import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 
 export default function AvatarExample() {
+  const [clickedAvatar, setClickedAvatar] = React.useState<string>("");
+
   const code =
     `import { Avatar } from '@underverse-ui/underverse'\n\n` +
+    `// Sizes\n` +
     `<Avatar size="sm" fallback="AB" />\n` +
-    `<Avatar size="md" fallback="UV" />\n` +
-    `<Avatar size="lg" fallback="VU" />\n` +
-    `<Avatar size="md" src="https://picsum.photos/seed/uv/80" alt="Demo" />`;
+    `<Avatar size="md" fallback="CD" />\n` +
+    `<Avatar size="lg" fallback="EF" />\n\n` +
+    `// With Images\n` +
+    `<Avatar size="sm" src="https://picsum.photos/seed/user1/80" alt="User 1" />\n` +
+    `<Avatar size="md" src="https://picsum.photos/seed/user2/100" alt="User 2" />\n` +
+    `<Avatar size="lg" src="https://picsum.photos/seed/user3/120" alt="User 3" />\n\n` +
+    `// Fallback with Image Error\n` +
+    `<Avatar size="md" src="invalid-url.jpg" fallback="ER" alt="Error Demo" />\n\n` +
+    `// Interactive (with onClick)\n` +
+    `const [clicked, setClicked] = useState("")\n` +
+    `<Avatar size="md" fallback="JD" onClick={() => setClicked("John Doe")} />\n` +
+    `<Avatar size="md" src="https://picsum.photos/seed/user4/100" alt="Jane" onClick={() => setClicked("Jane")} />\n\n` +
+    `// Custom Styling\n` +
+    `<Avatar size="md" fallback="VIP" className="ring-2 ring-primary shadow-lg" />\n` +
+    `<Avatar size="md" src="https://picsum.photos/seed/user5/100" alt="Custom" className="border-4 border-success" />`;
 
   const demo = (
-    <div className="flex items-center gap-4">
-      <Avatar size="sm" fallback="AB" />
-      <Avatar size="md" fallback="UV" />
-      <Avatar size="lg" fallback="VU" />
-      <Avatar size="md" src="https://picsum.photos/seed/uv/80" alt="Demo" />
+    <div className="space-y-6">
+      {/* Sizes */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Sizes</p>
+        <div className="flex items-center gap-4">
+          <Avatar size="sm" fallback="AB" />
+          <Avatar size="md" fallback="CD" />
+          <Avatar size="lg" fallback="EF" />
+        </div>
+      </div>
+
+      {/* With Images */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">With Images</p>
+        <div className="flex items-center gap-4">
+          <Avatar size="sm" src="https://picsum.photos/seed/user1/80" alt="User 1" />
+          <Avatar size="md" src="https://picsum.photos/seed/user2/100" alt="User 2" />
+          <Avatar size="lg" src="https://picsum.photos/seed/user3/120" alt="User 3" />
+        </div>
+      </div>
+
+      {/* Fallback with Image Error */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Fallback (Image Error Handling)</p>
+        <div className="flex items-center gap-4">
+          <Avatar size="md" src="invalid-url.jpg" fallback="ER" alt="Error Demo" />
+          <span className="text-sm text-muted-foreground">← Shows fallback when image fails to load</span>
+        </div>
+      </div>
+
+      {/* Interactive */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Interactive (with onClick)</p>
+        <div className="flex items-center gap-4">
+          <Avatar size="md" fallback="JD" onClick={() => setClickedAvatar("John Doe")} />
+          <Avatar size="md" src="https://picsum.photos/seed/user4/100" alt="Jane" onClick={() => setClickedAvatar("Jane")} />
+          {clickedAvatar && <span className="text-sm text-muted-foreground">Clicked: <strong>{clickedAvatar}</strong></span>}
+        </div>
+      </div>
+
+      {/* Custom Styling */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Custom Styling</p>
+        <div className="flex items-center gap-4">
+          <Avatar size="md" fallback="VIP" className="ring-2 ring-primary shadow-lg" />
+          <Avatar size="md" src="https://picsum.photos/seed/user5/100" alt="Custom" className="border-4 border-success" />
+        </div>
+      </div>
     </div>
   );
 
