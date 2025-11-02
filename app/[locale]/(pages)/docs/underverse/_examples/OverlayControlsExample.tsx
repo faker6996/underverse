@@ -215,6 +215,7 @@ export default function OverlayControlsExample() {
             mode="live"
             value={0}
             max={0}
+            onChange={() => {}}
             playing={playing2}
             onTogglePlay={() => setPlaying2((p) => !p)}
             volume={volume2}
@@ -306,4 +307,3 @@ export default function OverlayControlsExample() {
     />
   );
 }
-
