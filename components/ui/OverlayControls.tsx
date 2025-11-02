@@ -230,8 +230,10 @@ export default function OverlayControls({
           break;
         case "f":
         case "F":
-          e.preventDefault();
-          onToggleFullscreen?.();
+          if (!e.ctrlKey && !e.metaKey) {
+            e.preventDefault();
+            onToggleFullscreen?.();
+          }
           break;
         case "m":
         case "M":
