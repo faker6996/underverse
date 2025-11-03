@@ -28,8 +28,8 @@ export default function DataTableExample() {
       title: "Actions",
       render: (_: any, record: Row) => (
         <div className="flex gap-2">
-          <Button size="xs" variant="outline">View</Button>
-          <Button size="xs" variant="ghost">Edit</Button>
+          <Button size="smx" variant="outline">View</Button>
+          <Button size="smx" variant="ghost">Edit</Button>
         </div>
       )
     },
