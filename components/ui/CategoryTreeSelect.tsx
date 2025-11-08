@@ -78,12 +78,19 @@ export function CategoryTreeSelect({ categories, value, onChange, placeholder = 
       <div key={category.id}>
         <div
           className={cn(
-            "flex items-center gap-2 px-3 py-2 cursor-pointer rounded-md transition-colors",
+            "relative flex items-center gap-2 px-3 py-2 cursor-pointer rounded-md transition-colors",
             "hover:bg-accent",
-            isSelected && "bg-primary/10 border-l-2 border-primary"
+            // Selected state: subtle bg + square left indicator, avoid left rounding
+            isSelected && "bg-primary/10 rounded-r-md"
           )}
           style={{ paddingLeft: `${level * 1.5 + 0.75}rem` }}
         >
+          {isSelected && (
+            <span
+              aria-hidden
+              className="absolute left-0 top-0 bottom-0 w-1 bg-primary"
+            />
+          )}
           {hasChildren ? (
             <button
               type="button"
@@ -135,10 +142,13 @@ export function CategoryTreeSelect({ categories, value, onChange, placeholder = 
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={cn(
-          "w-full flex items-center justify-between px-3 py-2 border rounded-md bg-background",
-          "hover:border-primary transition-colors",
+          // Match Combobox trigger outline + focus styles
+          "flex w-full items-center justify-between px-3 bg-background border border-input",
+          "rounded-md h-10 py-2 text-sm",
+          "hover:bg-accent/5 transition-colors hover:border-primary/40 focus:border-primary",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           disabled && "opacity-50 cursor-not-allowed",
-          isOpen && "border-primary ring-1 ring-primary"
+          isOpen && "border-primary"
         )}
       >
         <span className={cn("text-sm", selectedCount === 0 && "text-muted-foreground")}>{displayText}</span>
@@ -148,7 +158,13 @@ export function CategoryTreeSelect({ categories, value, onChange, placeholder = 
       {isOpen && !disabled && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div className="absolute z-20 mt-1 w-full max-h-80 overflow-auto bg-background border rounded-md shadow-lg">
+          <div
+            className={cn(
+              "absolute z-20 mt-1 w-full max-h-80 overflow-auto",
+              "rounded-md border bg-popover text-popover-foreground shadow-md",
+              "backdrop-blur-sm bg-popover/95 border-border/60"
+            )}
+          >
             <div className="p-1">
               {parentCategories.length === 0 ? (
                 <div className="px-3 py-2 text-sm text-muted-foreground">Không có danh mục nào</div>
