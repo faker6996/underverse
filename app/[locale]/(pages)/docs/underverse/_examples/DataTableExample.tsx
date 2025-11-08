@@ -52,8 +52,8 @@ export default function DataTableExample() {
     `  { key: 'actions', title: 'Actions', render: (_,_row) => (<div>...</div>) }\n` +
     `]\n\n` +
     `const t = useTranslations('Common')\n\n` +
-    `// 1) Basic with paging + density/columns toggles\n` +
-    `<DataTable<Row> columns={columns as any} data={rows} page={1} pageSize={2} pageSizeOptions={[2,5,10]} labels={{ density: t('density'), columns: t('columns'), compact: t('compact'), normal: t('normal'), comfortable: t('comfortable') }} />\n\n` +
+    `// 1) Basic with paging + density/columns toggles + column dividers\n` +
+    `<DataTable<Row> columns={columns as any} data={rows} page={1} pageSize={2} pageSizeOptions={[2,5,10]} columnDividers labels={{ density: t('density'), columns: t('columns'), compact: t('compact'), normal: t('normal'), comfortable: t('comfortable') }} />\n\n` +
     `// 2) With caption + toolbar\n` +
     `<DataTable<Row> columns={columns as any} data={rows} caption={<span>Users</span>} toolbar={<button>Add</button>} />\n\n` +
     `// 3) Server-side (onQueryChange)\n` +
@@ -70,6 +70,7 @@ export default function DataTableExample() {
         page={1}
         pageSize={2}
         pageSizeOptions={[2, 5, 10]}
+        columnDividers
         labels={{ density: t('density'), columns: t('columns'), compact: t('compact'), normal: t('normal'), comfortable: t('comfortable') }}
       />
 

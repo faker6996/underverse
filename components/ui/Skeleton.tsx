@@ -135,7 +135,7 @@ export const SkeletonCard: React.FC<{
   className
 }) => {
   return (
-    <div className={cn("p-4 space-y-4 rounded-lg border bg-card", className)}>
+    <div className={cn("p-4 space-y-4 rounded-lg bg-card outline-none focus:outline-none", className)}>
       {/* Header with avatar */}
       {showAvatar && (
         <div className="flex items-center space-x-3">
@@ -166,7 +166,7 @@ export const SkeletonCard: React.FC<{
 
 export const SkeletonPost: React.FC<{ className?: string }> = ({ className }) => {
   return (
-    <div className={cn("p-6 space-y-4 rounded-xl border bg-card", className)}>
+    <div className={cn("p-6 space-y-4 rounded-xl bg-card outline-none focus:outline-none", className)}>
       {/* Post header */}
       <div className="flex items-center space-x-3">
         <SkeletonAvatar size="lg" />
@@ -190,7 +190,7 @@ export const SkeletonPost: React.FC<{ className?: string }> = ({ className }) =>
       </div>
 
       {/* Post actions */}
-      <div className="flex items-center justify-between pt-2 border-t border-border">
+      <div className="flex items-center justify-between pt-2">
         <div className="flex space-x-4">
           <Skeleton className="h-8 w-16" />
           <Skeleton className="h-8 w-20" />
@@ -270,7 +270,7 @@ export const SkeletonTable: React.FC<{
   return (
     <div className={cn("space-y-3", className)}>
       {/* Header */}
-      <div className="flex space-x-4 p-3 border-b border-border">
+      <div className="flex space-x-4 p-3">
         {Array.from({ length: columns }).map((_, index) => (
           <Skeleton key={index} className="h-4 flex-1" />
         ))}

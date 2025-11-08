@@ -29,11 +29,16 @@ interface SmartImageProps {
   priority?: boolean;
   quality?: number;
   fit?: Fit;
+  /** Control object position, e.g. 'center', 'top', 'left', '50% 50%'. */
+  objectPosition?: React.CSSProperties["objectPosition"];
   /** Optional fallback src if original fails. */
   fallbackSrc?: string;
 }
 
 const DEFAULT_FALLBACK = "/images/products/hoa-hong-do.png";
+
+// Cache các URL đã lỗi để không gọi lại nhiều lần
+const FAILED_SRCS = new Set<string>();
 
 export default function SmartImage({
   src,
@@ -48,29 +53,63 @@ export default function SmartImage({
   priority = false,
   quality = 80,
   fit = "cover",
+  objectPosition,
   fallbackSrc = DEFAULT_FALLBACK,
 }: SmartImageProps) {
   const normalize = (input?: string | null) => {
     if (!input || input.length === 0) return fallbackSrc;
+    const raw = input.trim();
     // Proactively convert local product JPGs -> PNG to avoid 404s
-    if (input.startsWith("/images/products/") && /\.(jpg|jpeg)($|\?)/i.test(input)) {
-      return input.replace(/\.(jpg|jpeg)(?=$|\?)/i, ".png");
+    if (raw.startsWith("/images/products/") && /\.(jpg|jpeg)($|\?)/i.test(raw)) {
+      return raw.replace(/\.(jpg|jpeg)(?=$|\?)/i, ".png");
     }
-    return input;
+    // Hỗ trợ protocol-relative //host/path -> https://host/path
+    if (raw.startsWith("//")) {
+      return `https:${raw}`;
+    }
+    // Cho phép absolute http(s), data:, blob:
+    if (/^(https?:|data:|blob:)/i.test(raw)) {
+      return FAILED_SRCS.has(raw) ? fallbackSrc : raw;
+    }
+    // Cho phép path bắt đầu bằng /
+    if (raw.startsWith("/")) {
+      return FAILED_SRCS.has(raw) ? fallbackSrc : raw;
+    }
+    // Các đường dẫn tương đối (vd: "invalid-url.jpg") -> thêm leading slash để tránh lỗi Next Image
+    const normalized = `/${raw.replace(/^\.\/?/, "")}`;
+    return FAILED_SRCS.has(normalized) ? fallbackSrc : normalized;
   };
 
   const [resolvedSrc, setResolvedSrc] = React.useState<string>(() => normalize(src));
 
+  // Keep internal resolved source in sync when `src` prop changes
+  React.useEffect(() => {
+    setResolvedSrc(normalize(src));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [src]);
+
   const handleError: NonNullable<ImageProps["onError"]> = () => {
+    // Ghi nhớ URL lỗi để lần sau bỏ qua
+    if (resolvedSrc && resolvedSrc !== fallbackSrc) FAILED_SRCS.add(resolvedSrc);
     if (resolvedSrc.endsWith(".jpg")) {
-      setResolvedSrc(resolvedSrc.replace(/\.jpg($|\?)/, ".png$1"));
+      const next = resolvedSrc.replace(/\.jpg($|\?)/, ".png$1");
+      setResolvedSrc(next);
     } else if (resolvedSrc !== fallbackSrc) {
       setResolvedSrc(fallbackSrc);
     }
   };
 
   const Wrapper = ({ children }: { children: React.ReactNode }) => (
-    <div className={cn("relative overflow-hidden bg-muted/30", ratioClass, roundedClass, className)}>
+    <div
+      className={cn(
+        "relative overflow-hidden bg-muted/30",
+        // remove any default focus outline/ring for visual consistency with Card
+        "outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0",
+        ratioClass,
+        roundedClass,
+        className
+      )}
+    >
       {children}
     </div>
   );
@@ -86,14 +125,21 @@ export default function SmartImage({
           onError={handleError}
           priority={priority}
           quality={quality}
-          style={{ objectFit: fit }}
+          style={{ objectFit: fit, objectPosition }}
         />
       </Wrapper>
     );
   }
 
   return (
-    <div className={cn("relative overflow-hidden bg-muted/30", roundedClass, className)}>
+    <div
+      className={cn(
+        "relative overflow-hidden bg-muted/30",
+        "outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0",
+        roundedClass,
+        className
+      )}
+    >
       <Image
         src={resolvedSrc}
         alt={alt}
@@ -103,7 +149,7 @@ export default function SmartImage({
         onError={handleError}
         priority={priority}
         quality={quality}
-        style={{ objectFit: fit, width: "100%", height: "100%" }}
+        style={{ objectFit: fit, objectPosition, width: "100%", height: "100%" }}
       />
     </div>
   );

@@ -8,6 +8,8 @@ interface SectionProps extends React.HTMLAttributes<HTMLElement> {
   variant?: "default" | "muted" | "primary" | "accent";
   spacing?: "sm" | "md" | "lg" | "xl";
   fullWidth?: boolean;
+  /** Hiển thị viền mỏng xám nhạt giống Card */
+  outlined?: boolean;
 }
 
 const Section = React.forwardRef<HTMLElement, SectionProps>(
@@ -18,6 +20,7 @@ const Section = React.forwardRef<HTMLElement, SectionProps>(
       variant = "default",
       spacing = "lg",
       fullWidth = false,
+      outlined = false,
       ...props
     },
     ref
@@ -42,6 +45,7 @@ const Section = React.forwardRef<HTMLElement, SectionProps>(
         className={cn(
           variantClasses[variant],
           spacingClasses[spacing],
+          outlined && "rounded-lg border border-border/60",
           !fullWidth && "container mx-auto px-4 md:px-6",
           className
         )}

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils/cn";
+import SmartImage from "@/components/ui/SmartImage";
 
 interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   src?: string;
@@ -16,31 +17,8 @@ const sizeClasses: Record<NonNullable<AvatarProps["size"]>, string> = {
 };
 
 export const Avatar = ({ src, alt = "avatar", fallback = "?", size = "md", className, onClick, ...props }: AvatarProps) => {
-  const [loaded, setLoaded] = React.useState<boolean>(false);
-  const [isImageLoading, setIsImageLoading] = React.useState<boolean>(!!src);
-  const [imageError, setImageError] = React.useState<boolean>(false);
-
-  React.useEffect(() => {
-    if (src) {
-      setIsImageLoading(true);
-      setImageError(false);
-      setLoaded(false);
-    }
-  }, [src]);
-
-  const handleImageLoad = () => {
-    setLoaded(true);
-    setIsImageLoading(false);
-  };
-
-  const handleImageError = () => {
-    setLoaded(false);
-    setIsImageLoading(false);
-    setImageError(true);
-  };
-
   // Check if src is valid (not empty string, null, or undefined)
-  const hasValidSrc = src && src.trim().length > 0;
+  const hasValidSrc = !!(src && src.trim().length > 0);
 
   return (
     <div
@@ -53,30 +31,25 @@ export const Avatar = ({ src, alt = "avatar", fallback = "?", size = "md", class
       onClick={onClick}
       {...props}
     >
-      {/* Skeleton loading animation */}
-      {isImageLoading && <div className="absolute inset-0 bg-gradient-to-r from-muted via-muted-foreground/20 to-muted animate-pulse rounded-full" />}
-
-      {/* Shimmer effect during loading */}
-      {isImageLoading && (
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-foreground/30 to-transparent animate-shimmer rounded-full" />
-      )}
-
-      {hasValidSrc && !imageError && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={src}
-          alt={alt}
-          onLoad={handleImageLoad}
-          onError={handleImageError}
-          className={cn(
-            "absolute inset-0 h-full w-full object-cover rounded-full transition-all duration-300",
-            loaded ? "opacity-100 scale-100" : "opacity-0 scale-110"
-          )}
-        />
+      {hasValidSrc && (
+        <div className="absolute inset-0">
+          <SmartImage
+            src={src!}
+            alt={alt}
+            fill
+            // match container size instead of using aspect ratio padding
+            ratioClass={undefined}
+            className="h-full w-full"
+            roundedClass="rounded-full"
+            fit="cover"
+            objectPosition="center"
+            quality={80}
+          />
+        </div>
       )}
 
       {/* Fallback text with better styling */}
-      {(!hasValidSrc || imageError || !loaded) && !isImageLoading && (
+      {!hasValidSrc && (
         <span
           className={cn(
             "font-bold uppercase bg-gradient-to-br from-primary to-primary/80 bg-clip-text text-transparent",

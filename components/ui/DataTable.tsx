@@ -51,6 +51,8 @@ interface DataTableProps<T> {
   enableColumnVisibilityToggle?: boolean;
   enableDensityToggle?: boolean;
   striped?: boolean; // Bật/tắt màu nền sẽn kẽ cho các dòng
+  /** Hiển thị đường kẻ dọc ngăn cách giữa các cột */
+  columnDividers?: boolean;
   className?: string;
   labels?: {
     density?: string;
@@ -85,6 +87,7 @@ export function DataTable<T extends Record<string, any>>({
   enableColumnVisibilityToggle = true,
   enableDensityToggle = true,
   striped = true, // Mặc định bật màu nền sẽn kẽ cho các dòng
+  columnDividers = false,
   className,
   labels,
 }: DataTableProps<T>) {
@@ -177,11 +180,17 @@ export function DataTable<T extends Record<string, any>>({
 
   const renderHeader = (
     <TableRow>
-      {visibleColumns.map((col) => (
+      {visibleColumns.map((col, colIdx) => (
         <TableHead
           key={col.key}
           style={{ width: col.width }}
-          className={cn(col.align === "right" && "text-right", col.align === "center" && "text-center") as string}
+          className={
+            cn(
+              col.align === "right" && "text-right",
+              col.align === "center" && "text-center",
+              columnDividers && colIdx > 0 && "border-l border-border/60"
+            ) as string
+          }
         >
           <div className="flex items-center justify-between gap-2 select-none min-h-[2.5rem]">
             <div className="flex items-center gap-1 min-w-0 flex-1">
@@ -333,9 +342,9 @@ export function DataTable<T extends Record<string, any>>({
         </div>
       </div>
 
-      <div className={cn("relative rounded-lg border border-border/50 overflow-hidden", loading && "opacity-60 pointer-events-none")}>
+      <div className={cn("relative rounded-md border border-border/50 overflow-hidden", loading && "opacity-60 pointer-events-none")}>
         <Table
-          containerClassName="border-0 rounded-none shadow-none"
+          containerClassName="border-0 md:border-0 rounded-none md:rounded-none shadow-none bg-transparent"
           className="[&_thead]:sticky [&_thead]:top-0 [&_thead]:z-[5] [&_thead]:bg-background [&_thead]:backdrop-blur-sm"
         >
           <TableHeader>{renderHeader}</TableHeader>
@@ -365,7 +374,7 @@ export function DataTable<T extends Record<string, any>>({
             ) : (
               displayedData.map((row, idx) => (
                 <TableRow key={getRowKey(row, idx)} className={cn(densityRowClass, striped && idx % 2 === 0 && "bg-muted/30")}>
-                  {visibleColumns.map((col) => {
+                  {visibleColumns.map((col, colIdx) => {
                     const value = col.dataIndex ? row[col.dataIndex as keyof T] : undefined;
                     return (
                       <TableCell
@@ -375,8 +384,9 @@ export function DataTable<T extends Record<string, any>>({
                             cellPadding,
                             col.align === "right" && "text-right",
                             col.align === "center" && "text-center",
-                            idx === data.length - 1 && col === visibleColumns[0] && "rounded-bl-lg",
-                            idx === data.length - 1 && col === visibleColumns[visibleColumns.length - 1] && "rounded-br-lg"
+                            columnDividers && colIdx > 0 && "border-l border-border/60",
+                            idx === data.length - 1 && col === visibleColumns[0] && "rounded-bl-md",
+                            idx === data.length - 1 && col === visibleColumns[visibleColumns.length - 1] && "rounded-br-md"
                           ) as string
                         }
                       >
@@ -392,7 +402,7 @@ export function DataTable<T extends Record<string, any>>({
       </div>
 
       {totalItems > 0 && (
-        <div className="border-t bg-muted/30 p-4 rounded-b-lg">
+        <div className="border-t bg-muted/30 p-4 rounded-b-md">
           <Pagination
             page={curPage}
             totalPages={Math.ceil(totalItems / curPageSize)}

@@ -53,10 +53,16 @@ export default function DropdownMenuExample() {
 
       {/* 2) Children API */}
       <DropdownMenu trigger={<Button>Custom content</Button>}>
-        <DropdownMenuItem onClick={() => {}}><User className="w-4 h-4"/> Profile</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => {}}><Settings className="w-4 h-4"/> Settings</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => {}}>
+          <User className="w-4 h-4" /> Profile
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => {}}>
+          <Settings className="w-4 h-4" /> Settings
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem destructive onClick={() => {}}><Trash2 className="w-4 h-4"/> Delete</DropdownMenuItem>
+        <DropdownMenuItem destructive onClick={() => {}}>
+          <Trash2 className="w-4 h-4" /> Delete
+        </DropdownMenuItem>
       </DropdownMenu>
 
       {/* 3) Placements */}

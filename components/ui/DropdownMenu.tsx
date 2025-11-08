@@ -167,69 +167,68 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
     }
   };
 
-  const dropdownContent =
-    open ? (
+  const dropdownContent = open ? (
+    <div
+      data-dropdown-menu
+      ref={contentRef}
+      style={{
+        position: "absolute",
+        top: position?.top ?? -9999,
+        left: position?.left ?? -9999,
+        zIndex: 9999,
+        visibility: position ? "visible" : "hidden",
+      }}
+      data-state={open ? "open" : "closed"}
+      role="menu"
+      className={cn(
+        "z-[9999] min-w-40",
+        // shadcn-like enter/exit animations
+        "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+        "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
+        className
+      )}
+    >
       <div
-        data-dropdown-menu
-        ref={contentRef}
-        style={{
-          position: "absolute",
-          top: position?.top ?? -9999,
-          left: position?.left ?? -9999,
-          zIndex: 9999,
-          visibility: position ? "visible" : "hidden",
-        }}
-        data-state={open ? "open" : "closed"}
-        role="menu"
         className={cn(
-          "z-[9999] min-w-40",
-          // shadcn-like enter/exit animations
-          "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
-          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
-          className
+          "rounded-md border bg-popover text-popover-foreground shadow-md",
+          "backdrop-blur-sm bg-popover/95 border-border/60 p-1",
+          contentClassName
         )}
       >
-        <div
-          className={cn(
-            "rounded-md border bg-popover text-popover-foreground shadow-md",
-            "backdrop-blur-sm bg-popover/95 border-border/60 p-1",
-            contentClassName
-          )}
-        >
-          {items
-            ? items.map((item, index) => {
-                const IconComponent = item.icon;
-                return (
-                  <button
-                    key={index}
-                    ref={(el) => {
-                      if (el) itemsRef.current[index] = el;
-                    }}
-                    onClick={() => handleItemClick(item.onClick)}
-                    disabled={item.disabled}
-                    role="menuitem"
-                    tabIndex={-1}
-                    style={{
-                      animationDelay: open ? `${index * 25}ms` : "0ms",
-                    }}
-                    className={cn(
-                      "dropdown-item flex w-full items-center gap-2 px-2.5 py-1.5 text-sm rounded-sm",
-                      "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                      "hover:bg-accent hover:text-accent-foreground",
-                      "focus:bg-accent focus:text-accent-foreground",
-                      "disabled:opacity-50 disabled:cursor-not-allowed",
-                      item.destructive && "text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
-                    )}
-                  >
-                    {IconComponent && <IconComponent className="h-4 w-4" />}
-                    {item.label}
-                  </button>
-                );
-              })
-            : children}
-        </div>
+        {items
+          ? items.map((item, index) => {
+              const IconComponent = item.icon;
+              return (
+                <button
+                  key={index}
+                  ref={(el) => {
+                    if (el) itemsRef.current[index] = el;
+                  }}
+                  onClick={() => handleItemClick(item.onClick)}
+                  disabled={item.disabled}
+                  role="menuitem"
+                  tabIndex={-1}
+                  style={{
+                    animationDelay: open ? `${index * 25}ms` : "0ms",
+                  }}
+                  className={cn(
+                    "dropdown-item flex w-full items-center gap-2 px-2.5 py-1.5 text-sm rounded-sm",
+                    "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                    "hover:bg-accent hover:text-accent-foreground",
+                    "focus:bg-accent focus:text-accent-foreground",
+                    "disabled:opacity-50 disabled:cursor-not-allowed",
+                    item.destructive && "text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
+                  )}
+                >
+                  {IconComponent && <IconComponent className="h-4 w-4" />}
+                  {item.label}
+                </button>
+              );
+            })
+          : children}
       </div>
-    ) : null;
+    </div>
+  ) : null;
 
   return (
     <>
@@ -287,7 +286,7 @@ export const SelectDropdown: React.FC<{
     trigger={
       <button
         className={cn(
-          "inline-flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-md border bg-background",
+          "inline-flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-md border bg-background border-border/60",
           "hover:bg-accent/50",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           className
