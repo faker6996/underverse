@@ -12,9 +12,6 @@ export default function TextareaExample() {
 
   const code =
     `import { Textarea } from '@underverse-ui/underverse'\n\n` +
-    `// Basic Textarea\n` +
-    `const [value, setValue] = useState("")\n` +
-    `<Textarea label="Mô tả" placeholder="Nhập mô tả..." value={value} onChange={(e) => setValue(e.target.value)} />\n\n` +
     `// Variants\n` +
     `<Textarea label="Default variant" variant="default" placeholder="Default style..." />\n` +
     `<Textarea label="Filled variant" variant="filled" placeholder="Filled style..." />\n` +
@@ -34,12 +31,6 @@ export default function TextareaExample() {
 
   const demo = (
     <div className="space-y-6">
-      {/* Basic Textarea */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium">Basic Textarea</p>
-        <Textarea label="Mô tả" placeholder="Nhập mô tả..." value={value1} onChange={(e) => setValue1(e.target.value)} />
-      </div>
-
       {/* Variants */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Variants</p>
@@ -87,13 +78,11 @@ export default function TextareaExample() {
 
       {/* Required Field */}
       <div className="space-y-2">
-        <p className="text-sm font-medium">Required Field</p>
         <Textarea label="Required field" required placeholder="This field is required..." />
       </div>
 
       {/* Disabled */}
       <div className="space-y-2">
-        <p className="text-sm font-medium">Disabled</p>
         <Textarea label="Disabled" disabled value="This textarea is disabled" />
       </div>
     </div>

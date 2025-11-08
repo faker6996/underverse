@@ -12,6 +12,9 @@ export default function ModalExample() {
   const [open3, setOpen3] = React.useState(false);
   const [open4, setOpen4] = React.useState(false);
   const [open5, setOpen5] = React.useState(false);
+  const [open6, setOpen6] = React.useState(false);
+  const [open7, setOpen7] = React.useState(false);
+  const [open8, setOpen8] = React.useState(false);
 
   const code =
     `import { Button, Modal } from '@underverse-ui/underverse'\n\n` +
@@ -83,6 +86,9 @@ export default function ModalExample() {
           <Button size="sm" variant="outline" onClick={() => setOpen2(true)}>
             Small (sm)
           </Button>
+          <Button size="sm" variant="outline" onClick={() => setOpen6(true)}>
+            Medium (md)
+          </Button>
           <Button size="sm" variant="outline" onClick={() => setOpen3(true)}>
             Large (lg)
           </Button>
@@ -92,6 +98,9 @@ export default function ModalExample() {
         </div>
         <Modal isOpen={open2} onClose={() => setOpen2(false)} size="sm" title="Small Modal">
           <p className="text-sm">This is a small modal (sm)</p>
+        </Modal>
+        <Modal isOpen={open6} onClose={() => setOpen6(false)} size="md" title="Medium Modal">
+          <p className="text-sm">This is a medium modal (md)</p>
         </Modal>
         <Modal isOpen={open3} onClose={() => setOpen3(false)} size="lg" title="Large Modal">
           <p className="text-sm">This is a large modal (lg)</p>
@@ -124,17 +133,54 @@ export default function ModalExample() {
         </Modal>
       </div>
 
-      {/* Features List */}
+      {/* Without Close Button */}
       <div className="space-y-2">
-        <p className="text-sm font-medium">Additional Features</p>
-        <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
-          <li><code className="text-xs">showCloseButton</code> - Show/hide close button (default: true)</li>
-          <li><code className="text-xs">closeOnOverlayClick</code> - Close when clicking outside (default: true)</li>
-          <li><code className="text-xs">closeOnEsc</code> - Close on Escape key (default: true)</li>
-          <li>Smooth animations with scale and fade effects</li>
-          <li>Body scroll lock when modal is open</li>
-          <li>Backdrop blur effect</li>
-        </ul>
+        <p className="text-sm font-medium">Without Close Button</p>
+        <Button variant="outline" onClick={() => setOpen7(true)}>
+          Open No-Close-Button Modal
+        </Button>
+        <Modal
+          isOpen={open7}
+          onClose={() => setOpen7(false)}
+          title="No Close Button"
+          showCloseButton={false}
+        >
+          <div className="space-y-3">
+            <p>User must use the action buttons to close this modal.</p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setOpen7(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={() => setOpen7(false)}>
+                OK
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      </div>
+
+      {/* Disable Close on Overlay Click */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Disable Close on Overlay Click</p>
+        <Button variant="outline" onClick={() => setOpen8(true)}>
+          Open Protected Modal
+        </Button>
+        <Modal
+          isOpen={open8}
+          onClose={() => setOpen8(false)}
+          title="Protected Modal"
+          closeOnOverlayClick={false}
+          closeOnEsc={false}
+        >
+          <div className="space-y-3">
+            <p>Cannot close by clicking outside or pressing Esc.</p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setOpen8(false)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </Modal>
       </div>
     </div>
   );

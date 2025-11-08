@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { GlobalLoading, InlineLoading, ButtonLoading } from "@/components/ui/GlobalLoading";
-import { LoadingSpinner, LoadingDots, LoadingBar, InlineLoading as InlineLoadingComponent } from "@/components/ui/Loading";
+import { GlobalLoading, ButtonLoading } from "@/components/ui/GlobalLoading";
+import { LoadingSpinner, LoadingDots, LoadingBar, InlineLoading } from "@/components/ui/Loading";
 import Button from "@/components/ui/Button";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
@@ -10,7 +10,6 @@ import { loading } from "@/lib/utils/loading";
 
 export default function LoadingExample() {
   const [btnLoading, setBtnLoading] = React.useState(false);
-  const [inlineLoading, setInlineLoading] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
 
   const showGlobal = () => {
@@ -32,9 +31,9 @@ export default function LoadingExample() {
   };
 
   const code =
-    `import { GlobalLoading, InlineLoading, ButtonLoading } from '@underverse-ui/underverse'\n` +
-    `import { LoadingSpinner, LoadingDots, LoadingBar } from '@underverse-ui/underverse'\n` +
-    `import Button from '@underverse-ui/underverse'\n` +
+    `import { GlobalLoading, ButtonLoading } from '@underverse-ui/underverse'\n` +
+    `import { LoadingSpinner, LoadingDots, LoadingBar, InlineLoading } from '@underverse-ui/underverse'\n` +
+    `import { Button } from '@underverse-ui/underverse'\n` +
     `import { loading } from '@/lib/utils/loading'\n\n` +
     `const [btnLoading, setBtnLoading] = useState(false)\n` +
     `const [progress, setProgress] = useState(0)\n\n` +
@@ -67,14 +66,18 @@ export default function LoadingExample() {
     `<LoadingBar progress={100} label="Complete" />\n\n` +
     `// LoadingBar - Animated (No Progress)\n` +
     `<LoadingBar animated />\n\n` +
-    `// InlineLoading - Spinner Variant\n` +
-    `<InlineLoading message="Loading data..." variant="spinner" size="sm" />\n` +
-    `<InlineLoading message="Loading data..." variant="spinner" size="md" />\n` +
-    `<InlineLoading message="Loading data..." variant="spinner" size="lg" />\n\n` +
-    `// InlineLoading - Dots Variant\n` +
-    `<InlineLoading message="Loading data..." variant="dots" />\n\n` +
-    `// InlineLoading - Without Message\n` +
-    `<InlineLoading variant="spinner" />`;
+    `// LoadingBar - Interactive Progress\n` +
+    `const simulateProgress = () => {\n` +
+    `  setProgress(0)\n` +
+    `  const i = setInterval(() => {\n` +
+    `    setProgress(p => {\n` +
+    `      if (p >= 100) { clearInterval(i); return 100 }\n` +
+    `      return p + 10\n` +
+    `    })\n` +
+    `  }, 300)\n` +
+    `}\n` +
+    `<LoadingBar progress={progress} label={progress + '% complete'} />\n` +
+    `<Button size="sm" variant="outline" onClick={simulateProgress}>Simulate Progress</Button>\n\n`;
 
   const demo = (
     <div className="space-y-6">
@@ -156,38 +159,6 @@ export default function LoadingExample() {
         <Button size="sm" variant="outline" onClick={simulateProgress}>
           Simulate Progress
         </Button>
-      </div>
-
-      {/* InlineLoading - Spinner Variant */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium">InlineLoading - Spinner Variant (Sizes)</p>
-        <div className="space-y-2">
-          <InlineLoadingComponent message="Loading data..." variant="spinner" size="sm" />
-          <InlineLoadingComponent message="Loading data..." variant="spinner" size="md" />
-          <InlineLoadingComponent message="Loading data..." variant="spinner" size="lg" />
-        </div>
-      </div>
-
-      {/* InlineLoading - Dots Variant */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium">InlineLoading - Dots Variant</p>
-        <InlineLoadingComponent message="Loading data..." variant="dots" />
-      </div>
-
-      {/* InlineLoading - Without Message */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium">InlineLoading - Without Message</p>
-        <InlineLoadingComponent variant="spinner" />
-      </div>
-
-      {/* InlineLoading from GlobalLoading (Legacy) */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium">InlineLoading (GlobalLoading Component)</p>
-        <InlineLoading isLoading={inlineLoading} text="Loading data..." />
-        <div className="flex gap-2">
-          <Button size="sm" onClick={() => setInlineLoading(true)}>Start</Button>
-          <Button size="sm" variant="outline" onClick={() => setInlineLoading(false)}>Stop</Button>
-        </div>
       </div>
     </div>
   );

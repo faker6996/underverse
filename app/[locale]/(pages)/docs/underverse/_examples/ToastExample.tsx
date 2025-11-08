@@ -118,18 +118,6 @@ export default function ToastExample() {
           Non-dismissible Toast
         </Button>
       </div>
-
-      {/* Features */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium">Features</p>
-        <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
-          <li>Progress bar showing remaining time</li>
-          <li>Pause on hover</li>
-          <li>Configurable position (top-right, top-left, bottom-right, etc.)</li>
-          <li>Maximum toasts limit</li>
-          <li>Smooth slide-in animations</li>
-        </ul>
-      </div>
     </div>
   );
 

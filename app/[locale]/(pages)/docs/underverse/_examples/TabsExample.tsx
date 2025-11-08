@@ -21,13 +21,6 @@ export default function TabsExample() {
   const code =
     `import { Tabs } from '@underverse-ui/underverse'\n` +
     `import { Home, User, Settings } from 'lucide-react'\n\n` +
-    `// Basic Tabs\n` +
-    `<Tabs\n` +
-    `  tabs={[\n` +
-    `    { value: "a", label: "Tab A", content: <div>Content A</div> },\n` +
-    `    { value: "b", label: "Tab B", content: <div>Content B</div> },\n` +
-    `  ]}\n` +
-    `/>\n\n` +
     `// Variants\n` +
     `<Tabs tabs={tabs} variant="default" />\n` +
     `<Tabs tabs={tabs} variant="pills" />\n` +
@@ -56,12 +49,6 @@ export default function TabsExample() {
 
   const demo = (
     <div className="space-y-6">
-      {/* Basic Tabs */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium">Basic Tabs</p>
-        <Tabs tabs={basicTabs} />
-      </div>
-
       {/* Variants */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Variants</p>

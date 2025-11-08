@@ -9,10 +9,6 @@ import { Tabs } from "@/components/ui/Tab";
 export default function TooltipExample() {
   const code =
     `import { Tooltip, Button } from '@underverse-ui/underverse'\n\n` +
-    `// Basic Tooltip\n` +
-    `<Tooltip content="Default tooltip">\n` +
-    `  <Button variant="outline">Hover me</Button>\n` +
-    `</Tooltip>\n\n` +
     `// Placements\n` +
     `<Tooltip content="Top tooltip" placement="top">\n` +
     `  <Button variant="outline">Top</Button>\n` +
@@ -68,14 +64,6 @@ export default function TooltipExample() {
 
   const demo = (
     <div className="space-y-6">
-      {/* Basic Tooltip */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium">Basic Tooltip</p>
-        <Tooltip content="Default tooltip">
-          <Button variant="outline">Hover me</Button>
-        </Tooltip>
-      </div>
-
       {/* Placements */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Placements</p>

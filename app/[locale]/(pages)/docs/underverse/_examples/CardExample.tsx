@@ -38,10 +38,6 @@ export default function CardExample() {
     `>\n` +
     `  <p>Clicked {count} times</p>\n` +
     `</Card>\n\n` +
-    `// Card without Padding\n` +
-    `<Card title="No Padding" noPadding>\n` +
-    `  <img src="/image.jpg" alt="Full width" className="w-full" />\n` +
-    `</Card>\n\n` +
     `// Custom Styling\n` +
     `<Card\n` +
     `  title="Custom Styles"\n` +
@@ -96,16 +92,6 @@ export default function CardExample() {
           onClick={() => setClickCount(clickCount + 1)}
         >
           <p className="text-sm">Clicked <strong>{clickCount}</strong> times</p>
-        </Card>
-      </div>
-
-      {/* Card without Padding */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium">Card without Padding (noPadding)</p>
-        <Card title="No Padding for Content" noPadding>
-          <div className="bg-gradient-to-r from-primary/20 to-secondary/20 p-8 text-center">
-            <p className="text-sm">Content area has no default padding - useful for images or custom layouts</p>
-          </div>
         </Card>
       </div>
 

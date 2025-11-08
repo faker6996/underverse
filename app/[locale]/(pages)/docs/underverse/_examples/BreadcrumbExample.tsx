@@ -35,7 +35,6 @@ export default function BreadcrumbExample() {
     `import { Home, FileText, Folder } from 'lucide-react'\n\n` +
     `// Variants\n` +
     `<Breadcrumb items={items} variant="default" />\n` +
-    `<Breadcrumb items={items} variant="simple" />\n` +
     `<Breadcrumb items={items} variant="slash" />\n` +
     `<Breadcrumb items={items} variant="arrow" />\n` +
     `<Breadcrumb items={items} variant="pill" />\n\n` +
@@ -66,10 +65,6 @@ export default function BreadcrumbExample() {
           <div>
             <span className="text-xs text-muted-foreground">Default:</span>
             <Breadcrumb items={items} variant="default" />
-          </div>
-          <div>
-            <span className="text-xs text-muted-foreground">Simple:</span>
-            <Breadcrumb items={items} variant="simple" />
           </div>
           <div>
             <span className="text-xs text-muted-foreground">Slash:</span>
