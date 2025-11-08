@@ -1,85 +1,361 @@
 "use client";
 
 import * as React from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Button from "./Button";
+import { cn } from "@/lib/utils/cn";
+
+type AnimationVariant = "slide" | "fade" | "scale";
+type Orientation = "horizontal" | "vertical";
 
 interface CarouselProps {
   children: React.ReactNode[];
   autoScroll?: boolean;
   autoScrollInterval?: number;
+  animation?: AnimationVariant;
+  orientation?: Orientation;
+  showArrows?: boolean;
+  showDots?: boolean;
+  showProgress?: boolean;
+  showThumbnails?: boolean;
+  loop?: boolean;
+  slidesToShow?: number;
+  slidesToScroll?: number;
+  className?: string;
+  containerClassName?: string;
+  slideClassName?: string;
+  onSlideChange?: (index: number) => void;
+  thumbnailRenderer?: (child: React.ReactNode, index: number) => React.ReactNode;
+  ariaLabel?: string;
 }
 
-export function Carousel({ children, autoScroll = true, autoScrollInterval = 5000 }: CarouselProps) {
+export function Carousel({
+  children,
+  autoScroll = true,
+  autoScrollInterval = 5000,
+  animation = "slide",
+  orientation = "horizontal",
+  showArrows = true,
+  showDots = true,
+  showProgress = false,
+  showThumbnails = false,
+  loop = true,
+  slidesToShow = 1,
+  slidesToScroll = 1,
+  className,
+  containerClassName,
+  slideClassName,
+  onSlideChange,
+  thumbnailRenderer,
+  ariaLabel = "Carousel",
+}: CarouselProps) {
   const [currentIndex, setCurrentIndex] = React.useState(0);
-  const totalSlides = React.Children.count(children);
   const [isPaused, setIsPaused] = React.useState(false);
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [startPos, setStartPos] = React.useState(0);
+  const [currentTranslate, setCurrentTranslate] = React.useState(0);
+  const [prevTranslate, setPrevTranslate] = React.useState(0);
+  const [progress, setProgress] = React.useState(0);
+
+  const carouselRef = React.useRef<HTMLDivElement>(null);
+  const progressIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const totalSlides = React.Children.count(children);
+  const maxIndex = Math.max(0, totalSlides - slidesToShow);
+  const isHorizontal = orientation === "horizontal";
 
   const scrollPrev = React.useCallback(() => {
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : totalSlides - 1));
-  }, [totalSlides]);
+    setCurrentIndex((prev) => {
+      if (prev === 0) {
+        return loop ? maxIndex : 0;
+      }
+      return Math.max(0, prev - slidesToScroll);
+    });
+  }, [loop, maxIndex, slidesToScroll]);
 
   const scrollNext = React.useCallback(() => {
-    setCurrentIndex((prev) => (prev < totalSlides - 1 ? prev + 1 : 0));
-  }, [totalSlides]);
+    setCurrentIndex((prev) => {
+      if (prev >= maxIndex) {
+        return loop ? 0 : maxIndex;
+      }
+      return Math.min(maxIndex, prev + slidesToScroll);
+    });
+  }, [loop, maxIndex, slidesToScroll]);
 
-  // Auto scroll functionality
+  const scrollTo = React.useCallback(
+    (index: number) => {
+      setCurrentIndex(Math.min(maxIndex, Math.max(0, index)));
+    },
+    [maxIndex]
+  );
+
+  // Keyboard navigation
   React.useEffect(() => {
-    if (!autoScroll || isPaused || totalSlides <= 1) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        scrollPrev();
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        scrollNext();
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        scrollTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault();
+        scrollTo(maxIndex);
+      }
+    };
 
-    const interval = setInterval(() => {
+    const carousel = carouselRef.current;
+    if (carousel) {
+      carousel.addEventListener("keydown", handleKeyDown);
+      return () => carousel.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [scrollPrev, scrollNext, scrollTo, maxIndex]);
+
+  // Auto scroll with progress
+  React.useEffect(() => {
+    if (!autoScroll || isPaused || totalSlides <= slidesToShow) {
+      setProgress(0);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+      return;
+    }
+
+    setProgress(0);
+    const progressStep = 100 / (autoScrollInterval / 50);
+
+    progressIntervalRef.current = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          scrollNext();
+          return 0;
+        }
+        return prev + progressStep;
+      });
+    }, 50);
+
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+  }, [autoScroll, isPaused, totalSlides, slidesToShow, autoScrollInterval, scrollNext]);
+
+  // Touch/Mouse drag handlers
+  const getPositionX = (event: TouchEvent | MouseEvent) => {
+    return event.type.includes("mouse") ? (event as MouseEvent).pageX : (event as TouchEvent).touches[0].clientX;
+  };
+
+  const getPositionY = (event: TouchEvent | MouseEvent) => {
+    return event.type.includes("mouse") ? (event as MouseEvent).pageY : (event as TouchEvent).touches[0].clientY;
+  };
+
+  const touchStart = (event: React.TouchEvent | React.MouseEvent) => {
+    setIsDragging(true);
+    const pos = isHorizontal ? getPositionX(event.nativeEvent) : getPositionY(event.nativeEvent);
+    setStartPos(pos);
+    setPrevTranslate(currentTranslate);
+  };
+
+  const touchMove = (event: React.TouchEvent | React.MouseEvent) => {
+    if (!isDragging) return;
+    const pos = isHorizontal ? getPositionX(event.nativeEvent) : getPositionY(event.nativeEvent);
+    const currentPosition = pos;
+    setCurrentTranslate(prevTranslate + currentPosition - startPos);
+  };
+
+  const touchEnd = () => {
+    if (!isDragging) return;
+    setIsDragging(false);
+
+    const movedBy = currentTranslate - prevTranslate;
+    const threshold = 50;
+
+    if (movedBy < -threshold && currentIndex < maxIndex) {
       scrollNext();
-    }, autoScrollInterval);
+    } else if (movedBy > threshold && currentIndex > 0) {
+      scrollPrev();
+    }
 
-    return () => clearInterval(interval);
-  }, [autoScroll, isPaused, totalSlides, autoScrollInterval, scrollNext]);
+    setCurrentTranslate(0);
+    setPrevTranslate(0);
+  };
+
+  // Call onSlideChange callback
+  React.useEffect(() => {
+    onSlideChange?.(currentIndex);
+  }, [currentIndex, onSlideChange]);
+
+  const getAnimationStyles = (): React.CSSProperties => {
+    const baseTransform = isHorizontal
+      ? `translateX(-${currentIndex * (100 / slidesToShow)}%)`
+      : `translateY(-${currentIndex * (100 / slidesToShow)}%)`;
+
+    if (animation === "fade") {
+      return {
+        transition: "opacity 500ms ease-in-out",
+      };
+    }
+
+    if (animation === "scale") {
+      return {
+        transform: baseTransform,
+        transition: "transform 500ms ease-in-out, scale 500ms ease-in-out",
+      };
+    }
+
+    return {
+      transform: baseTransform,
+      transition: isDragging ? "none" : "transform 500ms ease-in-out",
+    };
+  };
+
+  const slideWidth = 100 / slidesToShow;
 
   return (
-    <div className="relative w-full overflow-hidden" onMouseEnter={() => setIsPaused(true)} onMouseLeave={() => setIsPaused(false)}>
-      <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
+    <div
+      ref={carouselRef}
+      className={cn("relative w-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg", className)}
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      role="region"
+      aria-label={ariaLabel}
+      aria-roledescription="carousel"
+      tabIndex={0}
+    >
+      {/* Progress bar */}
+      {showProgress && autoScroll && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-muted z-20">
+          <div className="h-full bg-primary transition-all duration-50 ease-linear" style={{ width: `${progress}%` }} />
+        </div>
+      )}
+
+      {/* Slides container */}
+      <div
+        className={cn("flex", isHorizontal ? "flex-row" : "flex-col", containerClassName)}
+        style={getAnimationStyles()}
+        onTouchStart={touchStart}
+        onTouchMove={touchMove}
+        onTouchEnd={touchEnd}
+        onMouseDown={touchStart}
+        onMouseMove={touchMove}
+        onMouseUp={touchEnd}
+        onMouseLeave={touchEnd}
+        role="group"
+        aria-atomic="false"
+        aria-live={autoScroll ? "off" : "polite"}
+      >
         {React.Children.map(children, (child, idx) => (
-          <div key={idx} className="flex-shrink-0 w-full h-full">
+          <div
+            key={idx}
+            className={cn(
+              "flex-shrink-0",
+              isHorizontal ? "h-full" : "w-full",
+              animation === "fade" && idx !== currentIndex && "opacity-0",
+              animation === "scale" && idx !== currentIndex && "scale-95",
+              slideClassName
+            )}
+            style={{
+              [isHorizontal ? "width" : "height"]: `${slideWidth}%`,
+            }}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`${idx + 1} of ${totalSlides}`}
+            aria-hidden={idx < currentIndex || idx >= currentIndex + slidesToShow}
+          >
             {child}
           </div>
         ))}
       </div>
 
       {/* Navigation arrows */}
-      {totalSlides > 1 && (
+      {showArrows && totalSlides > slidesToShow && (
         <>
           <Button
             onClick={scrollPrev}
-            variant="outline"
+            variant="ghost"
             size="icon"
-            icon={ArrowLeft}
-            className="absolute left-4 top-1/2 -translate-y-1/2 hover:-translate-y-1/2 z-10 rounded-full will-change-transform bg-background/80 hover:bg-background border-border/50 hover:border-border text-foreground"
+            icon={ChevronLeft}
+            noHoverOverlay
+            disabled={!loop && currentIndex === 0}
+            className={cn(
+              "absolute top-1/2 -translate-y-1/2 hover:-translate-y-1/2 active:-translate-y-1/2 z-10 rounded-full will-change-transform backdrop-blur-0 hover:backdrop-blur-0 hover:bg-transparent border-0",
+              isHorizontal ? "left-4" : "top-4 left-1/2 -translate-x-1/2 rotate-90"
+            )}
+            aria-label="Previous slide"
           />
 
           <Button
             onClick={scrollNext}
-            variant="outline"
+            variant="ghost"
             size="icon"
-            icon={ArrowRight}
-            className="absolute right-4 top-1/2 -translate-y-1/2 hover:-translate-y-1/2 z-10 rounded-full will-change-transform bg-background/80 hover:bg-background border-border/50 hover:border-border text-foreground"
+            icon={ChevronRight}
+            noHoverOverlay
+            disabled={!loop && currentIndex >= maxIndex}
+            className={cn(
+              "absolute top-1/2 -translate-y-1/2 hover:-translate-y-1/2 active:-translate-y-1/2 z-10 rounded-full will-change-transform backdrop-blur-0 hover:backdrop-blur-0 hover:bg-transparent border-0",
+              isHorizontal ? "right-4" : "bottom-4 left-1/2 -translate-x-1/2 rotate-90"
+            )}
+            aria-label="Next slide"
           />
         </>
       )}
 
       {/* Dots indicators */}
-      {totalSlides > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-          {Array.from({ length: totalSlides }, (_, idx) => (
+      {showDots && totalSlides > slidesToShow && (
+        <div
+          className={cn(
+            "absolute flex gap-2 z-10",
+            isHorizontal ? "bottom-4 left-1/2 -translate-x-1/2 flex-row" : "right-4 top-1/2 -translate-y-1/2 flex-col"
+          )}
+          role="tablist"
+          aria-label="Carousel pagination"
+        >
+          {Array.from({ length: maxIndex + 1 }, (_, idx) => (
             <button
               key={idx}
-              onClick={() => setCurrentIndex(idx)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                idx === currentIndex ? "bg-primary w-6" : "bg-muted-foreground/50 hover:bg-muted-foreground/75"
-              }`}
+              onClick={() => scrollTo(idx)}
+              className={cn(
+                "rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                isHorizontal ? "w-2 h-2" : "w-2 h-2",
+                idx === currentIndex ? `bg-primary ${isHorizontal ? "w-6" : "h-6"}` : "bg-muted-foreground/50 hover:bg-muted-foreground/75"
+              )}
               aria-label={`Go to slide ${idx + 1}`}
+              aria-selected={idx === currentIndex}
+              role="tab"
             />
+          ))}
+        </div>
+      )}
+
+      {/* Thumbnail navigation */}
+      {showThumbnails && totalSlides > slidesToShow && (
+        <div
+          className={cn(
+            "absolute bottom-0 left-0 right-0 flex gap-2 p-4 bg-gradient-to-t from-black/50 to-transparent overflow-x-auto",
+            isHorizontal ? "flex-row" : "flex-col"
+          )}
+        >
+          {React.Children.map(children, (child, idx) => (
+            <button
+              key={idx}
+              onClick={() => scrollTo(idx)}
+              className={cn(
+                "flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary",
+                idx === currentIndex ? "border-primary scale-110" : "border-transparent opacity-70 hover:opacity-100"
+              )}
+              aria-label={`Thumbnail ${idx + 1}`}
+            >
+              {thumbnailRenderer ? thumbnailRenderer(child, idx) : child}
+            </button>
           ))}
         </div>
       )}
     </div>
   );
 }
+
+export default Carousel;

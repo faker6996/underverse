@@ -31,6 +31,8 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   asContainer?: boolean; // cho phép children tự do layout (không force items-center)
   // Ngăn xuống dòng khiến icon nằm trên, text nằm dưới
   noWrap?: boolean; // mặc định: true
+  // Tắt overlay gradient hover mặc định
+  noHoverOverlay?: boolean;
 }
 
 // Sử dụng forwardRef để chuyển tiếp ref
@@ -58,6 +60,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       lockMs = 600,
       asContainer = false,
       noWrap = true,
+      noHoverOverlay = false,
       ...rest
     },
     ref
@@ -128,7 +131,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         aria-label={(rest as any)["aria-label"] || title}
         {...rest}
       >
-        <span className="absolute inset-0 bg-gradient-to-r from-primary-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+        {!noHoverOverlay && (
+          <span className="absolute inset-0 bg-gradient-to-r from-primary-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+        )}
         {loading ? (
           <>
             <SpinnerIcon className="w-4 h-4 animate-spin" />
