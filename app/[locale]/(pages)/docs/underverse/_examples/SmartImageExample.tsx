@@ -1,11 +1,14 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import SmartImage from "@/components/ui/SmartImage";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function SmartImageExample() {
+  const t = useTranslations("DocsUnderverse");
   const demo = (
     <div className="space-y-6">
       {/* 1) Fill + aspect ratio */}
@@ -85,11 +88,31 @@ export default function SmartImageExample() {
     `  <SmartImage src='/images/products/sample.jpg' alt='Auto-fix' fill ratioClass='aspect-square'/>\n` +
     `</div>`;
 
+  const rows: PropsRow[] = [
+    { property: "src", description: t("props.smartImage.src"), type: "string", default: "-" },
+    { property: "alt", description: t("props.smartImage.alt"), type: "string", default: "-" },
+    { property: "className", description: t("props.smartImage.className"), type: "string", default: "-" },
+    { property: "ratioClass", description: t("props.smartImage.ratioClass"), type: "string", default: "-" },
+    { property: "roundedClass", description: t("props.smartImage.roundedClass"), type: "string", default: '"rounded-lg"' },
+    { property: "fill", description: t("props.smartImage.fill"), type: "boolean", default: "true" },
+    { property: "width", description: t("props.smartImage.width"), type: "number", default: "-" },
+    { property: "height", description: t("props.smartImage.height"), type: "number", default: "-" },
+    { property: "sizes", description: t("props.smartImage.sizes"), type: "string", default: '"(max-width: 768px) 100vw, 33vw"' },
+    { property: "priority", description: t("props.smartImage.priority"), type: "boolean", default: "false" },
+    { property: "quality", description: t("props.smartImage.quality"), type: "number", default: "80" },
+    { property: "fit", description: t("props.smartImage.fit"), type: '"cover" | "contain"', default: '"cover"' },
+    { property: "objectPosition", description: t("props.smartImage.objectPosition"), type: "string", default: "-" },
+    { property: "fallbackSrc", description: t("props.smartImage.fallbackSrc"), type: "string", default: '"/images/products/hoa-hong-do.png"' },
+  ];
+  const order = rows.map(r => r.property);
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"

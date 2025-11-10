@@ -1,13 +1,16 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import AccessDenied from "@/components/ui/AccessDenied";
 import Button from "@/components/ui/Button";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { Lock } from "lucide-react";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function AccessDeniedExample() {
+  const t = useTranslations("DocsUnderverse");
   const code =
     `import { AccessDenied, Button } from '@underverse-ui/underverse'\n` +
     `import { Lock } from 'lucide-react'\n\n` +
@@ -99,15 +102,26 @@ export default function AccessDeniedExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "title", description: t("props.accessDenied.title"), type: "string", default: '"Access Restricted"' },
+    { property: "description", description: t("props.accessDenied.description"), type: "string", default: '"You do not have permission to access this area."' },
+    { property: "variant", description: t("props.accessDenied.variant"), type: '"destructive" | "warning" | "info"', default: '"destructive"' },
+    { property: "icon", description: t("props.accessDenied.icon"), type: "React.ComponentType<{ className?: string }>", default: "-" },
+    { property: "className", description: t("props.accessDenied.className"), type: "string", default: "-" },
+    { property: "children", description: t("props.accessDenied.children"), type: "React.ReactNode", default: "-" },
+  ];
+  const order = ["title","description","variant","icon","className","children"];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"
     />
   );
 }
-

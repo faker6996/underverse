@@ -1,13 +1,16 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { Sheet } from "@/components/ui/Sheet";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function SheetExample() {
+  const t = useTranslations("DocsUnderverse");
   const [open1, setOpen1] = React.useState(false);
   const [open2, setOpen2] = React.useState(false);
   const [open3, setOpen3] = React.useState(false);
@@ -141,15 +144,36 @@ export default function SheetExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "open", description: t("props.sheet.open"), type: "boolean", default: "-" },
+    { property: "onOpenChange", description: t("props.sheet.onOpenChange"), type: "(open: boolean) => void", default: "-" },
+    { property: "side", description: t("props.sheet.side"), type: '"left" | "right" | "top" | "bottom"', default: '"right"' },
+    { property: "size", description: t("props.sheet.size"), type: '"sm" | "md" | "lg" | "xl" | "full"', default: '"md"' },
+    { property: "variant", description: t("props.sheet.variant"), type: '"default" | "overlay" | "push"', default: '"default"' },
+    { property: "children", description: t("props.sheet.children"), type: "React.ReactNode", default: "-" },
+    { property: "title", description: t("props.sheet.title"), type: "React.ReactNode", default: "-" },
+    { property: "description", description: t("props.sheet.description"), type: "React.ReactNode", default: "-" },
+    { property: "className", description: t("props.sheet.className"), type: "string", default: "-" },
+    { property: "showClose", description: t("props.sheet.showClose"), type: "boolean", default: "true" },
+    { property: "closeOnOutsideClick", description: t("props.sheet.closeOnOutsideClick"), type: "boolean", default: "true" },
+    { property: "closeOnEscape", description: t("props.sheet.closeOnEscape"), type: "boolean", default: "true" },
+    { property: "header", description: t("props.sheet.header"), type: "React.ReactNode", default: "-" },
+    { property: "footer", description: t("props.sheet.footer"), type: "React.ReactNode", default: "-" },
+  ];
+  const order = [
+    "open","onOpenChange","side","size","variant","children","title","description","className","showClose","closeOnOutsideClick","closeOnEscape","header","footer"
+  ];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"
     />
   );
 }
-

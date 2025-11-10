@@ -1,14 +1,17 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import CodeBlock from "../_components/CodeBlock";
 import IntlDemoProvider from "../_components/IntlDemoProvider";
 import { Tabs } from "@/components/ui/Tab";
 import { Info, Rocket } from "lucide-react";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function AlertExample() {
+  const t = useTranslations("DocsUnderverse");
   const code =
     `import { Alert } from '@underverse-ui/underverse'\n` +
     `import Button from '@underverse-ui/underverse'\n` +
@@ -113,12 +116,29 @@ export default function AlertExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "title", description: t("props.alert.title"), type: "string", default: "-" },
+    { property: "description", description: t("props.alert.description"), type: "string | React.ReactNode", default: "-" },
+    { property: "variant", description: t("props.alert.variant"), type: '"default" | "info" | "success" | "warning" | "error"', default: '"default"' },
+    { property: "className", description: t("props.alert.className"), type: "string", default: "-" },
+    { property: "icon", description: t("props.alert.icon"), type: "React.ReactNode", default: "-" },
+    { property: "dismissible", description: t("props.alert.dismissible"), type: "boolean", default: "false" },
+    { property: "onClose", description: t("props.alert.onClose"), type: "() => void", default: "-" },
+    { property: "actions", description: t("props.alert.actions"), type: "React.ReactNode", default: "-" },
+    { property: "closeAriaLabel", description: t("props.alert.closeAriaLabel"), type: "string", default: "t('Common.closeAlert')" },
+  ];
+  const order = [
+    "title","description","variant","className","icon","dismissible","onClose","actions","closeAriaLabel"
+  ];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <IntlDemoProvider>
       <Tabs
         tabs={[
-          { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-          { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+          { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+          { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+          { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
         ]}
         variant="underline"
         size="sm"

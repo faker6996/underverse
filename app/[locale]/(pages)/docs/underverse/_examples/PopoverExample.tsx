@@ -1,13 +1,16 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { Popover } from "@/components/ui/Popover";
 import Button from "@/components/ui/Button";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import Input from "@/components/ui/Input";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function PopoverExample() {
+  const t = useTranslations("DocsUnderverse");
   const [open1, setOpen1] = React.useState(false);
   const [open2, setOpen2] = React.useState(false);
 
@@ -219,11 +222,30 @@ export default function PopoverExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "trigger", description: t("props.popover.trigger"), type: "React.ReactElement", default: "-" },
+    { property: "children", description: t("props.popover.children"), type: "React.ReactNode", default: "-" },
+    { property: "className", description: t("props.popover.className"), type: "string", default: "-" },
+    { property: "contentClassName", description: t("props.popover.contentClassName"), type: "string", default: "-" },
+    { property: "placement", description: t("props.popover.placement"), type: '"top" | "bottom" | "left" | "right" | "top-start" | "bottom-start" | "top-end" | "bottom-end"', default: '"bottom"' },
+    { property: "modal", description: t("props.popover.modal"), type: "boolean", default: "false" },
+    { property: "disabled", description: t("props.popover.disabled"), type: "boolean", default: "false" },
+    { property: "open", description: t("props.popover.open"), type: "boolean", default: "-" },
+    { property: "onOpenChange", description: t("props.popover.onOpenChange"), type: "(open: boolean) => void", default: "-" },
+    { property: "matchTriggerWidth", description: t("props.popover.matchTriggerWidth"), type: "boolean", default: "false" },
+    { property: "contentWidth", description: t("props.popover.contentWidth"), type: "number", default: "-" },
+  ];
+  const order = [
+    "trigger","children","className","contentClassName","placement","modal","disabled","open","onOpenChange","matchTriggerWidth","contentWidth"
+  ];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"

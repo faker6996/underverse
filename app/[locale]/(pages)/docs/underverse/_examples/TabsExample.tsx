@@ -1,11 +1,15 @@
 "use client";
 
+
 import React from "react";
+import { useTranslations } from "next-intl";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 import { Home, User, Settings } from "lucide-react";
 import CodeBlock from "../_components/CodeBlock";
 
 export default function TabsExample() {
+  const t = useTranslations("DocsUnderverse");
   const basicTabs = [
     { value: "a", label: "Tab A", content: <div className="p-3">Content A</div> },
     { value: "b", label: "Tab B", content: <div className="p-3">Content B</div> },
@@ -118,15 +122,27 @@ export default function TabsExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "tabs", description: t("props.tabs.tabs"), type: "Array<{ value: string; label: React.ReactNode; content: React.ReactNode; icon?: React.ComponentType; disabled?: boolean }>", default: "—" },
+    { property: "variant", description: t("props.tabs.variant"), type: '"default" | "pills" | "underline" | "card" | "underline-card"', default: '"default"' },
+    { property: "size", description: t("props.tabs.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "orientation", description: t("props.tabs.orientation"), type: '"horizontal" | "vertical"', default: '"horizontal"' },
+    { property: "stretch", description: t("props.tabs.stretch"), type: "boolean", default: "false" },
+  ];
+  const order = ["tabs","variant","size","orientation","stretch"];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"
     />
   );
 }
+
 

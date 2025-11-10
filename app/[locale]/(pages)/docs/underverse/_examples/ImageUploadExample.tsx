@@ -1,11 +1,14 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import ImageUpload from "@/components/ui/ImageUpload";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function ImageUploadExample() {
+  const t = useTranslations("DocsUnderverse");
   const [lastUploaded, setLastUploaded] = React.useState<string>("");
 
   const code =
@@ -63,15 +66,32 @@ export default function ImageUploadExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "onUpload", description: t("props.imageUpload.onUpload"), type: "(image: UploadedImage) => void", default: "-" },
+    { property: "onRemove", description: t("props.imageUpload.onRemove"), type: "(imageId: string) => void", default: "-" },
+    { property: "maxSize", description: t("props.imageUpload.maxSize"), type: "number (MB)", default: "process.env.NEXT_PUBLIC_MAX_FILE_SIZE / (1024*1024)" },
+    { property: "accept", description: t("props.imageUpload.accept"), type: "string", default: '"image/*"' },
+    { property: "multiple", description: t("props.imageUpload.multiple"), type: "boolean", default: "false" },
+    { property: "disabled", description: t("props.imageUpload.disabled"), type: "boolean", default: "false" },
+    { property: "className", description: t("props.imageUpload.className"), type: "string", default: "-" },
+    { property: "showPreview", description: t("props.imageUpload.showPreview"), type: "boolean", default: "true" },
+    { property: "previewSize", description: t("props.imageUpload.previewSize"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "dragDropText", description: t("props.imageUpload.dragDropText"), type: "string", default: "t('OCR.imageUpload.dragDropText')" },
+    { property: "browseText", description: t("props.imageUpload.browseText"), type: "string", default: "t('OCR.imageUpload.browseFiles')" },
+    { property: "supportedFormatsText", description: t("props.imageUpload.supportedFormatsText"), type: "string", default: "t('OCR.imageUpload.supportedFormats')" },
+  ];
+  const order = rows.map(r => r.property);
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"
     />
   );
 }
-

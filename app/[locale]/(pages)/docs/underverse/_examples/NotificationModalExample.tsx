@@ -1,13 +1,16 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import NotificationModal from "@/components/ui/NotificationModal";
 import CodeBlock from "../_components/CodeBlock";
 import IntlDemoProvider from "../_components/IntlDemoProvider";
 import { Tabs } from "@/components/ui/Tab";
 import Button from "@/components/ui/Button";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function NotificationModalExample() {
+  const t = useTranslations("DocsUnderverse");
   const [open1, setOpen1] = React.useState(false);
   const [open2, setOpen2] = React.useState(false);
   const [open3, setOpen3] = React.useState(false);
@@ -63,12 +66,24 @@ export default function NotificationModalExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "isOpen", description: t("props.notificationModal.isOpen"), type: "boolean", default: "false" },
+    { property: "onClose", description: t("props.notificationModal.onClose"), type: "() => void", default: "-" },
+    { property: "notification", description: t("props.notificationModal.notification"), type: "{ id:number; title?:string; body?:string; type?:string; is_read:boolean; created_at:string; metadata?:any }", default: "-" },
+    { property: "titleText", description: t("props.notificationModal.titleText"), type: "string", default: '"t(\'Common.notifications\')"' },
+    { property: "openLinkText", description: t("props.notificationModal.openLinkText"), type: "string", default: '"t(\'Common.openLink\')"' },
+    { property: "closeText", description: t("props.notificationModal.closeText"), type: "string", default: '"t(\'Common.close\')"' },
+  ];
+  const order = rows.map(r => r.property);
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <IntlDemoProvider>
       <Tabs
         tabs={[
-          { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-          { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+          { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+          { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+          { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
         ]}
         variant="underline"
         size="sm"
@@ -76,4 +91,3 @@ export default function NotificationModalExample() {
     </IntlDemoProvider>
   );
 }
-

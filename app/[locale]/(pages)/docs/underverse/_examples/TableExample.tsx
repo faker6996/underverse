@@ -1,11 +1,14 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableFooter, TableCaption } from "@/components/ui/Table";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function TableExample() {
+  const t = useTranslations("DocsUnderverse");
   const rows = [
     { name: "Alice", role: "Admin", email: "alice@example.com" },
     { name: "Bob", role: "User", email: "bob@example.com" },
@@ -208,11 +211,26 @@ export default function TableExample() {
     </div>
   );
 
+  const docsRows: PropsRow[] = [
+    { property: "Table.containerClassName", description: t("props.table.Table.containerClassName"), type: "string", default: "-" },
+    { property: "Table.className", description: t("props.table.Table.className"), type: "string", default: "-" },
+    { property: "TableHeader.filterRow", description: t("props.table.TableHeader.filterRow"), type: "React.ReactNode", default: "-" },
+    { property: "TableHeader.className", description: t("props.table.TableHeader.className"), type: "string", default: "-" },
+    { property: "TableBody.className", description: t("props.table.TableBody.className"), type: "string", default: "-" },
+    { property: "TableRow.className", description: t("props.table.TableRow.className"), type: "string", default: "-" },
+    { property: "TableHead.className", description: t("props.table.TableHead.className"), type: "string", default: "-" },
+    { property: "TableCell.className", description: t("props.table.TableCell.className"), type: "string", default: "-" },
+    { property: "TableCaption.className", description: t("props.table.TableCaption.className"), type: "string", default: "-" },
+  ];
+  const order = docsRows.map(r => r.property);
+  const docs = <PropsDocsTable rows={docsRows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"

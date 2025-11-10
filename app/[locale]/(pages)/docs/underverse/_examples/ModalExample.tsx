@@ -1,12 +1,15 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function ModalExample() {
+  const t = useTranslations("DocsUnderverse");
   const [open1, setOpen1] = React.useState(false);
   const [open2, setOpen2] = React.useState(false);
   const [open3, setOpen3] = React.useState(false);
@@ -185,11 +188,26 @@ export default function ModalExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "isOpen", description: t("props.modal.isOpen"), type: "boolean", default: "false" },
+    { property: "onClose", description: t("props.modal.onClose"), type: "() => void", default: "—" },
+    { property: "title", description: t("props.modal.title"), type: "string | React.ReactNode", default: "—" },
+    { property: "description", description: t("props.modal.description"), type: "string | React.ReactNode", default: "—" },
+    { property: "size", description: t("props.modal.size"), type: '"sm" | "md" | "lg" | "xl"', default: '"md"' },
+    { property: "showCloseButton", description: t("props.modal.showCloseButton"), type: "boolean", default: "true" },
+    { property: "closeOnOverlayClick", description: t("props.modal.closeOnOverlayClick"), type: "boolean", default: "true" },
+    { property: "closeOnEsc", description: t("props.modal.closeOnEsc"), type: "boolean", default: "true" },
+    { property: "children", description: t("props.modal.children"), type: "React.ReactNode", default: "—" },
+  ];
+  const order = ["isOpen","onClose","title","description","size","showCloseButton","closeOnOverlayClick","closeOnEsc","children"];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"

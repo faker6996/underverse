@@ -1,11 +1,14 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { CategoryTreeSelect } from "@/components/ui/CategoryTreeSelect";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function CategoryTreeSelectExample() {
+  const t = useTranslations("DocsUnderverse");
   const [selected, setSelected] = React.useState<number[]>([]);
   const [selectedInit, setSelectedInit] = React.useState<number[]>([1, 2]);
   const categories = [
@@ -60,15 +63,25 @@ export default function CategoryTreeSelectExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "categories", description: t("props.categoryTreeSelect.categories"), type: "Array<{ id: number; name: string; parent_id?: number | null }>", default: "[]" },
+    { property: "value", description: t("props.categoryTreeSelect.value"), type: "number[]", default: "[]" },
+    { property: "onChange", description: t("props.categoryTreeSelect.onChange"), type: "(selectedIds: number[]) => void", default: "-" },
+    { property: "placeholder", description: t("props.categoryTreeSelect.placeholder"), type: "string", default: '"Chọn danh mục"' },
+    { property: "disabled", description: t("props.categoryTreeSelect.disabled"), type: "boolean", default: "false" },
+  ];
+  const order = rows.map(r => r.property);
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"
     />
   );
 }
-

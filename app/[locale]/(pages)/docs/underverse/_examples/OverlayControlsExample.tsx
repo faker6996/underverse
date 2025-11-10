@@ -1,11 +1,14 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import OverlayControls from "@/components/ui/OverlayControls";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function OverlayControlsExample() {
+  const t = useTranslations("DocsUnderverse");
   // Review mode with auto-hide
   const [time1, setTime1] = React.useState(12);
   const [duration1] = React.useState(120);
@@ -296,11 +299,42 @@ export default function OverlayControlsExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "mode", description: t("props.overlayControls.mode"), type: '"live" | "review"', default: '"review"' },
+    { property: "value", description: t("props.overlayControls.value"), type: "number", default: "-" },
+    { property: "max", description: t("props.overlayControls.max"), type: "number", default: "-" },
+    { property: "step", description: t("props.overlayControls.step"), type: "number", default: "0.1" },
+    { property: "onChange", description: t("props.overlayControls.onChange"), type: "(v: number) => void", default: "-" },
+    { property: "onCommit", description: t("props.overlayControls.onCommit"), type: "(v: number) => void", default: "-" },
+    { property: "playing", description: t("props.overlayControls.playing"), type: "boolean", default: "false" },
+    { property: "onTogglePlay", description: t("props.overlayControls.onTogglePlay"), type: "() => void", default: "-" },
+    { property: "onGoLive", description: t("props.overlayControls.onGoLive"), type: "() => void", default: "-" },
+    { property: "volume", description: t("props.overlayControls.volume"), type: "number (0..1)", default: "-" },
+    { property: "muted", description: t("props.overlayControls.muted"), type: "boolean", default: "-" },
+    { property: "onVolumeChange", description: t("props.overlayControls.onVolumeChange"), type: "(v: number) => void", default: "-" },
+    { property: "onToggleMute", description: t("props.overlayControls.onToggleMute"), type: "() => void", default: "-" },
+    { property: "rate", description: t("props.overlayControls.rate"), type: "number", default: "1" },
+    { property: "onChangeRate", description: t("props.overlayControls.onChangeRate"), type: "(r: number) => void", default: "-" },
+    { property: "onToggleFullscreen", description: t("props.overlayControls.onToggleFullscreen"), type: "() => void", default: "-" },
+    { property: "showOnHover", description: t("props.overlayControls.showOnHover"), type: "boolean", default: "false" },
+    { property: "className", description: t("props.overlayControls.className"), type: "string", default: "-" },
+    { property: "showTime", description: t("props.overlayControls.showTime"), type: "boolean", default: "-" },
+    { property: "skipSeconds", description: t("props.overlayControls.skipSeconds"), type: "number", default: "10" },
+    { property: "onSkip", description: t("props.overlayControls.onSkip"), type: "(seconds: number) => void", default: "-" },
+    { property: "onSeekPreview", description: t("props.overlayControls.onSeekPreview"), type: "(time: number) => string", default: "-" },
+    { property: "autoHide", description: t("props.overlayControls.autoHide"), type: "boolean", default: "false" },
+    { property: "autoHideDelay", description: t("props.overlayControls.autoHideDelay"), type: "number", default: "3000" },
+    { property: "enableKeyboardShortcuts", description: t("props.overlayControls.enableKeyboardShortcuts"), type: "boolean", default: "true" },
+  ];
+  const order = rows.map(r => r.property);
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"

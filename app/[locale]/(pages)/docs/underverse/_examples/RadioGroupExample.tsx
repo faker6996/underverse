@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import RadioGroup, {
   RadioGroupItem,
   SimpleRadioGroup,
@@ -11,8 +12,10 @@ import RadioGroup, {
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { Home, Settings, User } from "lucide-react";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function RadioGroupExample() {
+  const t = useTranslations("DocsUnderverse");
   const code =
     `import RadioGroup, { RadioGroupItem, SimpleRadioGroup, RadioButtonGroup, SegmentedControl, ToggleGroup } from '@underverse-ui/underverse'\n` +
     `import { Home, Settings, User } from 'lucide-react'\n\n` +
@@ -255,15 +258,48 @@ export default function RadioGroupExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    // RadioGroup (container)
+    { property: "RadioGroup.value", description: t("props.radioGroup.RadioGroup.value"), type: "string", default: "-" },
+    { property: "RadioGroup.defaultValue", description: t("props.radioGroup.RadioGroup.defaultValue"), type: "string", default: "-" },
+    { property: "RadioGroup.onValueChange", description: t("props.radioGroup.RadioGroup.onValueChange"), type: "(value: string) => void", default: "-" },
+    { property: "RadioGroup.name", description: t("props.radioGroup.RadioGroup.name"), type: "string", default: '"radio-group-<id>"' },
+    { property: "RadioGroup.disabled", description: t("props.radioGroup.RadioGroup.disabled"), type: "boolean", default: "false" },
+    { property: "RadioGroup.orientation", description: t("props.radioGroup.RadioGroup.orientation"), type: '"horizontal" | "vertical"', default: '"vertical"' },
+    { property: "RadioGroup.size", description: t("props.radioGroup.RadioGroup.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "RadioGroup.variant", description: t("props.radioGroup.RadioGroup.variant"), type: '"default" | "card" | "button"', default: '"default"' },
+    { property: "RadioGroup.className", description: t("props.radioGroup.RadioGroup.className"), type: "string", default: "-" },
+    { property: "RadioGroup.required", description: t("props.radioGroup.RadioGroup.required"), type: "boolean", default: "false" },
+    { property: "RadioGroup.error", description: t("props.radioGroup.RadioGroup.error"), type: "boolean", default: "false" },
+    { property: "RadioGroup.errorMessage", description: t("props.radioGroup.RadioGroup.errorMessage"), type: "string", default: "-" },
+
+    // RadioGroupItem (single option)
+    { property: "RadioGroupItem.value", description: t("props.radioGroup.RadioGroupItem.value"), type: "string", default: "-" },
+    { property: "RadioGroupItem.label", description: t("props.radioGroup.RadioGroupItem.label"), type: "string", default: "-" },
+    { property: "RadioGroupItem.description", description: t("props.radioGroup.RadioGroupItem.description"), type: "string", default: "-" },
+    { property: "RadioGroupItem.icon", description: t("props.radioGroup.RadioGroupItem.icon"), type: "React.ComponentType<{ className?: string }>", default: "-" },
+    { property: "RadioGroupItem.disabled", description: t("props.radioGroup.RadioGroupItem.disabled"), type: "boolean", default: "false" },
+    { property: "RadioGroupItem.className", description: t("props.radioGroup.RadioGroupItem.className"), type: "string", default: "-" },
+
+    // Shortcut components
+    { property: "SimpleRadioGroup.items", description: t("props.radioGroup.SimpleRadioGroup.items"), type: "Array<{ value: string; label: string }>", default: "-" },
+    { property: "RadioButtonGroup.items", description: t("props.radioGroup.RadioButtonGroup.items"), type: "Array<{ value: string; label: string }>", default: "-" },
+    { property: "RadioButtonGroup.variant", description: t("props.radioGroup.RadioButtonGroup.variant"), type: '"default" | "outline" | "solid"', default: '"default"' },
+    { property: "SegmentedControl.items", description: t("props.radioGroup.SegmentedControl.items"), type: "Array<{ value: string; label: string }>", default: "-" },
+    { property: "ToggleGroup.items", description: t("props.radioGroup.ToggleGroup.items"), type: "Array<{ value: string; label: string }>", default: "-" },
+  ];
+  const order = rows.map(r => r.property);
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"
     />
   );
 }
-

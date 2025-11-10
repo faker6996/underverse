@@ -1,12 +1,15 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import { Home, FileText, Folder } from "lucide-react";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function BreadcrumbExample() {
+  const t = useTranslations("DocsUnderverse");
   const items = [
     { label: "Home", href: "/" },
     { label: "Docs", href: "/docs" },
@@ -127,11 +130,25 @@ export default function BreadcrumbExample() {
     </div>
   );
 
+  // Document tab (props) — basic rows
+  const rows: PropsRow[] = [
+    { property: "items", description: t("props.breadcrumb.items"), type: "Array<{ label: string; href?: string; icon?: React.ComponentType }>", default: "—" },
+    { property: "variant", description: t("props.breadcrumb.variant"), type: '"default" | "slash" | "arrow" | "pill"', default: '"default"' },
+    { property: "size", description: t("props.breadcrumb.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "separator", description: t("props.breadcrumb.separator"), type: "string | React.ReactNode", default: "—" },
+    { property: "showHome", description: t("props.breadcrumb.showHome"), type: "boolean", default: "false" },
+    { property: "homeHref", description: t("props.breadcrumb.homeHref"), type: "string", default: '"/"' },
+    { property: "className", description: t("props.breadcrumb.className"), type: "string", default: "—" },
+  ];
+  const order = ["items", "variant", "size", "separator", "showHome", "homeHref", "className"];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"

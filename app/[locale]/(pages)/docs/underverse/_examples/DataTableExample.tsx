@@ -7,6 +7,7 @@ import IntlDemoProvider from "../_components/IntlDemoProvider";
 import { Tabs } from "@/components/ui/Tab";
 import { useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 type Row = { id: number; name: string; role: string; created_at: string };
 
@@ -110,8 +111,29 @@ export default function DataTableExample() {
     <IntlDemoProvider>
       <Tabs
         tabs={[
-          { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-          { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+          { value: "preview", label: t("DocsUnderverse.tabs.preview"), content: <div className="p-1">{demo}</div> },
+          { value: "code", label: t("DocsUnderverse.tabs.code"), content: <CodeBlock code={code} /> },
+          { value: "docs", label: t("DocsUnderverse.tabs.document"), content: <div className="p-1">{(() => {
+            const rows: PropsRow[] = [
+              { property: "columns", description: t("DocsUnderverse.props.dataTable.columns"), type: "DataTableColumn<T>[]", default: "[]" },
+              { property: "data", description: t("DocsUnderverse.props.dataTable.data"), type: "T[]", default: "[]" },
+              { property: "rowKey", description: t("DocsUnderverse.props.dataTable.rowKey"), type: "(row: T) => string | number", default: "-" },
+              { property: "page", description: t("DocsUnderverse.props.dataTable.page"), type: "number", default: "1" },
+              { property: "pageSize", description: t("DocsUnderverse.props.dataTable.pageSize"), type: "number", default: "10" },
+              { property: "total", description: t("DocsUnderverse.props.dataTable.total"), type: "number", default: "0" },
+              { property: "onQueryChange", description: t("DocsUnderverse.props.dataTable.onQueryChange"), type: "(q: any) => void", default: "-" },
+              { property: "caption", description: t("DocsUnderverse.props.dataTable.caption"), type: "React.ReactNode", default: "-" },
+              { property: "toolbar", description: t("DocsUnderverse.props.dataTable.toolbar"), type: "React.ReactNode", default: "-" },
+              { property: "striped", description: t("DocsUnderverse.props.dataTable.striped"), type: "boolean", default: "true" },
+              { property: "columnDividers", description: t("DocsUnderverse.props.dataTable.columnDividers"), type: "boolean", default: "false" },
+              { property: "enableDensityToggle", description: t("DocsUnderverse.props.dataTable.enableDensityToggle"), type: "boolean", default: "true" },
+              { property: "enableColumnVisibilityToggle", description: t("DocsUnderverse.props.dataTable.enableColumnVisibilityToggle"), type: "boolean", default: "true" },
+              { property: "labels", description: t("DocsUnderverse.props.dataTable.labels"), type: "{ density:string; columns:string; compact:string; normal:string; comfortable:string }", default: "-" },
+              { property: "className", description: t("DocsUnderverse.props.dataTable.className"), type: "string", default: "-" },
+            ];
+            const order = rows.map(r => r.property);
+            return <PropsDocsTable rows={rows} order={order} />;
+          })()}</div> },
         ]}
         variant="underline"
         size="sm"

@@ -1,11 +1,14 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { MultiCombobox } from "@/components/ui/MultiCombobox";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function MultiComboboxExample() {
+  const t = useTranslations("DocsUnderverse");
   const [value, setValue] = React.useState<string[]>([]);
   const [valueSm, setValueSm] = React.useState<string[]>([]);
   const [valueLg, setValueLg] = React.useState<string[]>([]);
@@ -57,15 +60,36 @@ export default function MultiComboboxExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "id", description: t("props.multiCombobox.id"), type: "string", default: "-" },
+    { property: "options", description: t("props.multiCombobox.options"), type: "Array<string | { value: string; label: string }>", default: "-" },
+    { property: "value", description: t("props.multiCombobox.value"), type: "string[]", default: "[]" },
+    { property: "onChange", description: t("props.multiCombobox.onChange"), type: "(value: string[]) => void", default: "-" },
+    { property: "placeholder", description: t("props.multiCombobox.placeholder"), type: "string", default: '"Search..."' },
+    { property: "maxSelected", description: t("props.multiCombobox.maxSelected"), type: "number", default: "-" },
+    { property: "disabledOptions", description: t("props.multiCombobox.disabledOptions"), type: "string[]", default: "[]" },
+    { property: "showTags", description: t("props.multiCombobox.showTags"), type: "boolean", default: "true" },
+    { property: "showClear", description: t("props.multiCombobox.showClear"), type: "boolean", default: "true" },
+    { property: "className", description: t("props.multiCombobox.className"), type: "string", default: "-" },
+    { property: "disabled", description: t("props.multiCombobox.disabled"), type: "boolean", default: "false" },
+    { property: "size", description: t("props.multiCombobox.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "label", description: t("props.multiCombobox.label"), type: "string", default: "-" },
+    { property: "title", description: t("props.multiCombobox.title"), type: "string", default: "-" },
+    { property: "required", description: t("props.multiCombobox.required"), type: "boolean", default: "false" },
+    { property: "displayFormat", description: t("props.multiCombobox.displayFormat"), type: "(option: { value: string; label: string }) => string", default: "(o) => o.label" },
+  ];
+  const order = rows.map(r => r.property);
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"
     />
   );
 }
-

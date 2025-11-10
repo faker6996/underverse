@@ -1,11 +1,14 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { ScrollArea } from "@/components/ui/ScrollArea";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function ScrollAreaExample() {
+  const t = useTranslations("DocsUnderverse");
   const code =
     `import { ScrollArea } from '@underverse-ui/underverse'\n\n` +
     `// 1) Basic (fixed height)\n` +
@@ -107,15 +110,22 @@ export default function ScrollAreaExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "className", description: t("props.scrollArea.className"), type: "string", default: "-" },
+    { property: "children", description: t("props.scrollArea.children"), type: "React.ReactNode", default: "-" },
+  ];
+  const order = ["className","children"];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"
     />
   );
 }
-

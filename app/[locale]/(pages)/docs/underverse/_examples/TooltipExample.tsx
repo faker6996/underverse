@@ -1,12 +1,15 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { Tooltip } from "@/components/ui/Tooltip";
 import Button from "@/components/ui/Button";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function TooltipExample() {
+  const t = useTranslations("DocsUnderverse");
   const code =
     `import { Tooltip, Button } from '@underverse-ui/underverse'\n\n` +
     `// Placements\n` +
@@ -149,15 +152,27 @@ export default function TooltipExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "content", description: t("props.tooltip.content"), type: "React.ReactNode", default: "—" },
+    { property: "placement", description: t("props.tooltip.placement"), type: '"top" | "bottom" | "left" | "right"', default: '"top"' },
+    { property: "delay", description: t("props.tooltip.delay", { openBrace: "{", closeBrace: "}" }), type: "number | { open?: number; close?: number }", default: "700" },
+    { property: "variant", description: t("props.tooltip.variant"), type: '"default" | "info" | "success" | "warning" | "error"', default: '"default"' },
+    { property: "disabled", description: t("props.tooltip.disabled"), type: "boolean", default: "false" },
+  ];
+  const order = ["content","placement","delay","variant","disabled"];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"
     />
   );
 }
+
 

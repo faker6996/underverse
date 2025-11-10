@@ -13,7 +13,6 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 
 // Lazy-load interactive examples to avoid SSR side effects during build
 const ButtonExample = dynamicImport(() => import("./_examples/ButtonExample"), { ssr: false });
-const ButtonAdvancedExample = dynamicImport(() => import("./_examples/ButtonAdvancedExample"), { ssr: false });
 const BadgeExample = dynamicImport(() => import("./_examples/BadgeExample"), { ssr: false });
 const ModalExample = dynamicImport(() => import("./_examples/ModalExample"), { ssr: false });
 const TabsExample = dynamicImport(() => import("./_examples/TabsExample"), { ssr: false });
@@ -116,10 +115,6 @@ function DocsInner() {
 
           <DocSection id="button" title={t("sections.button.title")}>
             <ButtonExample />
-            <span className="">Button Advanced</span>
-            <div className="mt-4">
-              <ButtonAdvancedExample />
-            </div>
           </DocSection>
 
           <DocSection id="badge" title={t("sections.badge.title")}>
@@ -316,3 +311,4 @@ function DocsInner() {
     </div>
   );
 }
+

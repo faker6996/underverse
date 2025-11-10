@@ -65,6 +65,17 @@
     }
   },
   "DocsUnderverse": {
+    "propsTable": {
+      "property": "Thuộc tính",
+      "description": "Mô tả",
+      "type": "Kiểu",
+      "default": "Mặc định"
+    },
+    "tabs": {
+      "preview": "Xem trước",
+      "code": "Mã nguồn",
+      "document": "Tài liệu"
+    },
     "pageTitle": "Underverse UI – Hướng dẫn sử dụng",
     "pageDescription": "Trang này minh họa cách dùng các UI component có sẵn trong dự án, được cung cấp từ gói <packageName>@underverse-ui/underverse</packageName>.",
     "tableOfContents": "Mục lục",
@@ -211,6 +222,559 @@
       },
       "floatingContacts": {
         "title": "FloatingContacts"
+      }
+    },
+    "props": {
+      "button": {
+        "onClick": "Hàm xử lý khi click; có thể trả Promise (phù hợp với preventDoubleClick).",
+        "children": "Nội dung của nút.",
+        "type": "Kiểu nút trong form.",
+        "icon": "Icon bên trái.",
+        "iconRight": "Icon bên phải.",
+        "variant": "Kiểu giao diện của nút.",
+        "size": "Kích thước nút (bao gồm kiểu icon-only).",
+        "className": "Class tuỳ biến cho nút.",
+        "iConClassName": "Class tuỳ biến cho icon trái.",
+        "disabled": "Vô hiệu hoá nút.",
+        "loading": "Hiển thị trạng thái loading và khoá thao tác.",
+        "fullWidth": "Chiếm toàn bộ chiều ngang container.",
+        "title": "Tooltip/native title; dự phòng cho aria-label.",
+        "spinner": "Component spinner tuỳ biến khi loading.",
+        "loadingText": "Văn bản hiển thị khi loading.",
+        "preserveChildrenOnLoading": "Giữ nguyên children khi loading.",
+        "preventDoubleClick": "Chống double-click gửi lệnh liên tục.",
+        "lockMs": "Thời gian khoá (ms) cho chống double-click.",
+        "asContainer": "Tự do bố cục (không ép items-center).",
+        "noWrap": "Không xuống dòng nội dung.",
+        "noHoverOverlay": "Tắt overlay gradient khi hover.",
+        "aria-label": "Nhãn truy cập (đặc biệt cho nút chỉ có icon)."
+      },
+      "badge": {
+        "children": "Nội dung badge.",
+        "variant": "Kiểu giao diện của badge.",
+        "size": "Kích thước badge.",
+        "className": "Class tuỳ biến cho badge.",
+        "dot": "Hiển thị dạng chấm (không nội dung).",
+        "count": "Số đếm hiển thị.",
+        "maxCount": "Ngưỡng tối đa trước khi hiển thị 99+.",
+        "showZero": "Hiển thị khi count = 0.",
+        "pulse": "Bật hiệu ứng nhấp nháy.",
+        "removable": "Hiển thị nút xoá (×).",
+        "onRemove": "Callback khi xoá (nhấn ×).",
+        "icon": "Icon bên trái nội dung.",
+        "clickable": "Cho phép hover/click.",
+        "onClick": "Xử lý click (chỉ hiệu lực khi clickable = true)."
+      },
+      "avatar": {
+        "src": "Đường dẫn ảnh.",
+        "alt": "Mô tả ảnh (trợ năng).",
+        "fallback": "Chữ fallback khi không có ảnh.",
+        "size": "Kích thước avatar.",
+        "className": "Class tuỳ biến.",
+        "onClick": "Xử lý khi click avatar."
+      },
+      "breadcrumb": {
+        "items": "Danh sách breadcrumb (label, href, icon).",
+        "variant": "Kiểu hiển thị.",
+        "size": "Kích thước.",
+        "separator": "Ký tự/Node phân tách tuỳ chỉnh.",
+        "showHome": "Hiển thị Home ở đầu.",
+        "homeHref": "Đường dẫn cho Home.",
+        "className": "Class tuỳ biến."
+      },
+      "card": {
+        "title": "Tiêu đề thẻ.",
+        "description": "Mô tả ngắn dưới tiêu đề.",
+        "footer": "Khu vực footer (nút, văn bản...).",
+        "hoverable": "Bật hiệu ứng hover.",
+        "clickable": "Cho phép click toàn bộ thẻ.",
+        "onClick": "Xử lý click (khi clickable = true).",
+        "className": "Class ngoài tuỳ biến.",
+        "contentClassName": "Class vùng nội dung."
+      },
+      "textarea": {
+        "label": "Nhãn textarea.",
+        "variant": "Kiểu hiển thị.",
+        "size": "Kích thước.",
+        "description": "Mô tả ngắn bên dưới.",
+        "error": "Thông báo lỗi.",
+        "maxLength": "Giới hạn ký tự.",
+        "required": "Bắt buộc nhập.",
+        "disabled": "Vô hiệu hoá.",
+        "value": "Giá trị điều khiển.",
+        "onChange": "Xử lý khi thay đổi.",
+        "placeholder": "Gợi ý nội dung.",
+        "className": "Class tuỳ biến."
+      },
+      "modal": {
+        "isOpen": "Trạng thái mở/đóng modal.",
+        "onClose": "Hàm đóng modal.",
+        "title": "Tiêu đề modal.",
+        "description": "Mô tả ngắn trong header.",
+        "size": "Kích thước modal.",
+        "showCloseButton": "Hiển thị nút đóng (X).",
+        "closeOnOverlayClick": "Click ra ngoài sẽ đóng.",
+        "closeOnEsc": "Nhấn ESC để đóng.",
+        "children": "Nội dung modal."
+      },
+      "tabs": {
+        "tabs": "Danh sách tab (value, label, content, icon?, disabled?).",
+        "variant": "Kiểu hiển thị.",
+        "size": "Kích thước.",
+        "orientation": "Hướng hiển thị (ngang/dọc).",
+        "stretch": "Giãn đều độ rộng tab."
+      },
+      "toast": {
+        "ToastProvider": "Provider bọc ứng dụng để dùng toast.",
+        "useToast": "Hook trả về hàm addToast.",
+        "position": "Vị trí hiển thị toast.",
+        "maxToasts": "Số toast tối đa hiển thị."
+      },
+      "loading": {
+        "GlobalLoading": "Overlay toàn màn hình.",
+        "ButtonLoading": "Wrapper hiển thị loading cho nút.",
+        "LoadingSpinner": "Spinner với size/color.",
+        "LoadingDots": "Ba chấm động.",
+        "LoadingBar": "Thanh tiến trình."
+      },
+      "tooltip": {
+        "content": "Nội dung tooltip.",
+        "placement": "Vị trí hiển thị.",
+        "delay": "Độ trễ mở/đóng (ms) hoặc object {openBrace} open, close {closeBrace}.",
+        "variant": "Kiểu màu.",
+        "disabled": "Vô hiệu hoá tooltip."
+      },
+      "carousel": {
+        "children": "Danh sách slide hiển thị trong carousel.",
+        "autoScroll": "Tự động chuyển slide.",
+        "autoScrollInterval": "Khoảng thời gian (ms) giữa mỗi lần chuyển.",
+        "animation": "Hiệu ứng chuyển giữa các slide.",
+        "orientation": "Hướng hiển thị ngang/dọc.",
+        "showArrows": "Hiển thị nút mũi tên điều hướng.",
+        "showDots": "Hiển thị chấm phân trang.",
+        "showProgress": "Hiển thị thanh tiến trình khi tự động chuyển.",
+        "showThumbnails": "Hiển thị thumbnail để điều hướng.",
+        "loop": "Lặp lại khi đến đầu/cuối.",
+        "slidesToShow": "Số slide hiển thị cùng lúc.",
+        "slidesToScroll": "Số slide di chuyển mỗi lần.",
+        "className": "Class tùy chỉnh cho phần tử gốc.",
+        "containerClassName": "Class cho vùng chứa slides.",
+        "slideClassName": "Class cho từng slide.",
+        "onSlideChange": "Callback khi chỉ số slide thay đổi.",
+        "thumbnailRenderer": "Renderer thumbnail tùy chỉnh (child, index) => node.",
+        "ariaLabel": "Nhãn truy cập cho vùng carousel."
+      },
+      "skeleton": {
+        "className": "Class tuỳ chỉnh cho skeleton.",
+        "width": "Chiều rộng (px, %, ...).",
+        "height": "Chiều cao (px, %, ...).",
+        "variant": "Biến thể hiển thị (rectangular, circular, rounded, text).",
+        "animation": "Kiểu animation (pulse, wave, none).",
+        "lines": "Số dòng (áp dụng khi variant = text).",
+        "SkeletonAvatar": {
+          "className": "Class tuỳ chỉnh.",
+          "size": "Kích thước avatar skeleton."
+        },
+        "SkeletonButton": {
+          "className": "Class tuỳ chỉnh.",
+          "size": "Kích thước button skeleton."
+        },
+        "SkeletonText": {
+          "lines": "Số dòng văn bản.",
+          "className": "Class tuỳ chỉnh.",
+          "width": "Chiều rộng dòng."
+        },
+        "SkeletonCard": {
+          "showImage": "Hiển thị vùng ảnh.",
+          "showAvatar": "Hiển thị avatar trong header.",
+          "className": "Class tuỳ chỉnh.",
+          "textLines": "Số dòng văn bản."
+        },
+        "SkeletonPost": {
+          "className": "Class tuỳ chỉnh."
+        },
+        "SkeletonMessage": {
+          "showAvatar": "Hiển thị avatar.",
+          "className": "Class tuỳ chỉnh.",
+          "own": "Kiểu tin nhắn của chính mình."
+        },
+        "SkeletonList": {
+          "itemHeight": "Chiều cao mỗi mục (px).",
+          "showAvatar": "Hiển thị avatar trong mục.",
+          "items": "Số mục.",
+          "className": "Class tuỳ chỉnh."
+        },
+        "SkeletonTable": {
+          "columns": "Số cột.",
+          "className": "Class tuỳ chỉnh.",
+          "rows": "Số hàng."
+        }
+      },
+      "checkbox": {
+        "label": "Nội dung nhãn hiển thị cạnh ô chọn.",
+        "labelClassName": "Class tuỳ chỉnh cho label.",
+        "containerClassName": "Class tuỳ chỉnh cho bao ngoài.",
+        "checked": "Trạng thái được chọn (controlled).",
+        "defaultChecked": "Trạng thái ban đầu (uncontrolled).",
+        "onChange": "Hàm xử lý thay đổi, nhận sự kiện input.",
+        "disabled": "Vô hiệu hoá checkbox.",
+        "className": "Class tuỳ chỉnh cho input ẩn.",
+        "name": "Thuộc tính name của input.",
+        "value": "Thuộc tính value của input.",
+        "id": "Thuộc tính id của input."
+      },
+      "alert": {
+        "title": "Tiêu đề của alert.",
+        "description": "Thông điệp ngắn hoặc nội dung rich.",
+        "variant": "Biến thể hiển thị.",
+        "className": "Class tuỳ chỉnh cho wrapper.",
+        "icon": "Icon tuỳ chỉnh (ghi đè icon theo variant).",
+        "dismissible": "Hiển thị nút đóng và cho phép đóng.",
+        "onClose": "Callback sau khi đóng.",
+        "actions": "Khu vực hành động (nút, link...).",
+        "closeAriaLabel": "Nhãn ARIA cho nút đóng."
+      },
+      "accessDenied": {
+        "title": "Tiêu đề.",
+        "description": "Mô tả.",
+        "variant": "Biến thể hiển thị.",
+        "icon": "Icon cho phần đầu.",
+        "className": "Class tuỳ chỉnh cho thẻ.",
+        "children": "Khu vực hành động/nội dung bổ sung."
+      },
+      "popover": {
+        "trigger": "Phần tử trigger (nút/liên kết).",
+        "children": "Nội dung bên trong popover.",
+        "className": "Class tuỳ chỉnh cho wrapper.",
+        "contentClassName": "Class tuỳ chỉnh cho khung nội dung.",
+        "placement": "Vị trí quanh trigger.",
+        "modal": "Chế độ modal (aria-modal).",
+        "disabled": "Vô hiệu hoá mở.",
+        "open": "Trạng thái mở (controlled).",
+        "onOpenChange": "Callback khi trạng thái mở thay đổi.",
+        "matchTriggerWidth": "Khớp chiều rộng với trigger.",
+        "contentWidth": "Chiều rộng cố định (px)."
+      },
+      "sheet": {
+        "open": "Trạng thái mở/đóng.",
+        "onOpenChange": "Callback thay đổi trạng thái mở.",
+        "side": "Cạnh xuất hiện.",
+        "size": "Kích thước sheet.",
+        "variant": "Biến thể hiển thị.",
+        "children": "Nội dung thân sheet.",
+        "title": "Tiêu đề phần header.",
+        "description": "Mô tả ở header.",
+        "className": "Class tuỳ chỉnh cho panel.",
+        "showClose": "Hiển thị nút đóng ở header.",
+        "closeOnOutsideClick": "Click overlay để đóng.",
+        "closeOnEscape": "Nhấn Escape để đóng.",
+        "header": "Header tuỳ chỉnh (ghi đè).",
+        "footer": "Footer tuỳ chỉnh."
+      },
+      "switch": {
+        "checked": "Giá trị bật/tắt (controlled).",
+        "onCheckedChange": "Callback trả về trạng thái mới.",
+        "label": "Nhãn tuỳ chọn.",
+        "size": "Kích thước.",
+        "variant": "Biến thể màu/hiển thị.",
+        "disabled": "Vô hiệu hoá điều khiển.",
+        "className": "Class tuỳ chỉnh cho wrapper."
+      },
+      "slider": {
+        "value": "Giá trị (controlled).",
+        "defaultValue": "Giá trị ban đầu (uncontrolled).",
+        "min": "Giá trị nhỏ nhất.",
+        "max": "Giá trị lớn nhất.",
+        "step": "Bước nhảy.",
+        "onChange": "Hàm thay đổi (number).",
+        "onValueChange": "Hàm thay đổi alias (number).",
+        "onMouseUp": "Gọi khi thả chuột.",
+        "onTouchEnd": "Gọi khi kết thúc chạm.",
+        "label": "Nhãn.",
+        "labelClassName": "Class cho nhãn.",
+        "containerClassName": "Class cho wrapper.",
+        "trackClassName": "Class cho track.",
+        "thumbClassName": "Class cho thumb.",
+        "showValue": "Hiển thị giá trị.",
+        "valueClassName": "Class cho giá trị.",
+        "formatValue": "Định dạng hiển thị giá trị.",
+        "size": "Kích thước slider.",
+        "disabled": "Vô hiệu hoá.",
+        "orientation": "Hướng (ngang/dọc).",
+        "noFocus": "Bỏ hiệu ứng focus."
+      },
+      "overlayControls": {
+        "mode": "Chế độ: live/review.",
+        "value": "Thời điểm hiện tại.",
+        "max": "Tổng thời lượng.",
+        "step": "Bước seek.",
+        "onChange": "Hàm thay đổi vị trí.",
+        "onCommit": "Hàm khi kết thúc kéo.",
+        "playing": "Đang phát (review).",
+        "onTogglePlay": "Bật/tắt phát.",
+        "onGoLive": "Chuyển về live.",
+        "volume": "Âm lượng 0..1.",
+        "muted": "Tắt tiếng.",
+        "onVolumeChange": "Thay đổi âm lượng.",
+        "onToggleMute": "Bật/tắt tiếng.",
+        "rate": "Tốc độ phát.",
+        "onChangeRate": "Thay đổi tốc độ.",
+        "onToggleFullscreen": "Bật/tắt toàn màn hình.",
+        "showOnHover": "Chỉ hiển thị khi hover.",
+        "className": "Class tuỳ chỉnh.",
+        "showTime": "Hiển thị thời gian hiện/tổng.",
+        "skipSeconds": "Số giây tua (review).",
+        "onSkip": "Callback tua tiến/lùi.",
+        "onSeekPreview": "Trả về URL ảnh preview theo thời gian.",
+        "autoHide": "Tự ẩn sau khi không thao tác.",
+        "autoHideDelay": "Độ trễ ẩn (ms).",
+        "enableKeyboardShortcuts": "Bật phím tắt."
+      },
+      "radioGroup": {
+        "RadioGroup": {
+          "onValueChange": "Hàm thay đổi (string).",
+          "variant": "default | card | button.",
+          "value": "Giá trị được chọn.",
+          "size": "sm | md | lg.",
+          "name": "Tên nhóm input (tự sinh).",
+          "orientation": "Ngang/Dọc.",
+          "className": "Class tuỳ chỉnh.",
+          "error": "Trạng thái lỗi.",
+          "disabled": "Vô hiệu hoá cả nhóm.",
+          "required": "Bắt buộc.",
+          "errorMessage": "Thông báo lỗi.",
+          "defaultValue": "Giá trị ban đầu."
+        },
+        "RadioGroupItem": {
+          "description": "Mô tả.",
+          "value": "Giá trị item.",
+          "className": "Class tuỳ chỉnh.",
+          "label": "Nhãn.",
+          "disabled": "Vô hiệu hoá item.",
+          "icon": "Icon bên trái."
+        },
+        "SimpleRadioGroup": {
+          "items": "Mảng { value, label }."
+        },
+        "RadioButtonGroup": {
+          "items": "Mảng { value, label }.",
+          "variant": "default | outline | solid."
+        },
+        "SegmentedControl": {
+          "items": "Mảng { value, label }."
+        },
+        "ToggleGroup": {
+          "items": "Mảng { value, label }."
+        }
+      },
+      "scrollArea": {
+        "className": "Class tuỳ chỉnh cho wrapper (đặt chiều cao/rộng).",
+        "children": "Nội dung có thể cuộn."
+      },
+      "table": {
+        "Table": {
+          "className": "Class cho thẻ <table>.",
+          "containerClassName": "Class cho container ngoài."
+        },
+        "TableHeader": {
+          "filterRow": "Hàng filter tuỳ chọn bên dưới header.",
+          "className": "Class tuỳ chỉnh."
+        },
+        "TableBody": {
+          "className": "Class tuỳ chỉnh."
+        },
+        "TableRow": {
+          "className": "Class tuỳ chỉnh."
+        },
+        "TableHead": {
+          "className": "Class tuỳ chỉnh."
+        },
+        "TableCell": {
+          "className": "Class tuỳ chỉnh."
+        },
+        "TableCaption": {
+          "className": "Class tuỳ chỉnh."
+        }
+      },
+      "progress": {
+        "Progress": {
+          "max": "Giá trị tối đa.",
+          "size": "Kích thước.",
+          "status": "normal | error | complete.",
+          "animated": "Hiệu ứng chuyển động.",
+          "striped": "Nền kẻ sọc.",
+          "label": "Nhãn phía trên.",
+          "showValue": "Hiển thị %/giá trị.",
+          "value": "Giá trị 0..max.",
+          "description": "Mô tả.",
+          "className": "Class tuỳ chỉnh.",
+          "indeterminate": "Chế độ indeterminate.",
+          "variant": "Biến thể màu."
+        },
+        "CircularProgress": {
+          "variant": "Biến thể màu.",
+          "max": "Giá trị tối đa.",
+          "showValue": "Hiển thị %.",
+          "size": "Đường kính (px).",
+          "indeterminate": "Chế độ indeterminate.",
+          "value": "Giá trị 0..max."
+        },
+        "StepProgress": {
+          "size": "Kích thước.",
+          "currentStep": "Bước hiện tại (0-based).",
+          "className": "Class tuỳ chỉnh.",
+          "variant": "Biến thể màu.",
+          "steps": "Danh sách bước."
+        },
+        "MiniProgress": {
+          "showValue": "Hiển thị %.",
+          "variant": "Biến thể màu.",
+          "max": "Giá trị tối đa.",
+          "value": "Giá trị 0..max.",
+          "className": "Class tuỳ chỉnh."
+        },
+        "BatteryProgress": {
+          "showValue": "Hiển thị %.",
+          "charging": "Hiển thị đang sạc.",
+          "max": "Tối đa (100).",
+          "value": "Phần trăm pin.",
+          "className": "Class tuỳ chỉnh."
+        },
+        "SegmentedProgress": {
+          "segments": "Số đoạn.",
+          "variant": "Biến thể màu.",
+          "activeSegments": "Số đoạn kích hoạt.",
+          "className": "Class tuỳ chỉnh.",
+          "size": "Kích thước."
+        },
+        "LoadingProgress": {
+          "label": "Nhãn.",
+          "timeRemaining": "Thời gian còn lại.",
+          "speed": "Tốc độ.",
+          "value": "Giá trị 0..max.",
+          "variant": "Biến thể màu.",
+          "status": "loading | complete | error | paused.",
+          "className": "Class tuỳ chỉnh.",
+          "max": "Giá trị tối đa."
+        }
+      },
+      "dropdownMenu": {
+        "trigger": "Phần tử kích hoạt (nút/liên kết).",
+        "children": "Nội dung tuỳ chỉnh (children API).",
+        "className": "Class tuỳ chỉnh cho wrapper.",
+        "contentClassName": "Class tuỳ chỉnh cho panel nội dung.",
+        "placement": "Vị trí quanh trigger.",
+        "closeOnSelect": "Đóng sau khi chọn.",
+        "disabled": "Vô hiệu hoá mở.",
+        "isOpen": "Trạng thái mở (controlled).",
+        "onOpenChange": "Hàm thay đổi trạng thái mở.",
+        "items": "Danh sách item (label, icon?, onClick, disabled?, destructive?)."
+      },
+      "combobox": {
+        "id": "Id input (aria).",
+        "options": "Danh sách tuỳ chọn (string hoặc {label,value}).",
+        "value": "Giá trị đã chọn.",
+        "onChange": "Hàm thay đổi (value).",
+        "placeholder": "Placeholder của trigger.",
+        "className": "Class tuỳ chỉnh cho trigger.",
+        "disabled": "Vô hiệu hoá.",
+        "size": "Kích thước.",
+        "variant": "Biến thể hiển thị.",
+        "allowClear": "Hiển thị nút xoá lựa chọn.",
+        "searchPlaceholder": "Placeholder ô tìm kiếm (khi nhiều lựa chọn).",
+        "emptyText": "Văn bản khi không có kết quả.",
+        "usePortal": "Render dropdown bằng portal.",
+        "label": "Nhãn.",
+        "required": "Hiển thị dấu bắt buộc.",
+        "fontBold": "In đậm nhãn."
+      },
+      "multiCombobox": {
+        "id": "Id input (aria).",
+        "options": "Tuỳ chọn (string hoặc {value,label}).",
+        "value": "Các giá trị đã chọn (mảng).",
+        "onChange": "Hàm thay đổi (mảng).",
+        "placeholder": "Placeholder.",
+        "maxSelected": "Số mục tối đa.",
+        "disabledOptions": "Các giá trị không cho chọn.",
+        "showTags": "Hiển thị tag các lựa chọn.",
+        "showClear": "Hiển thị nút xoá.",
+        "className": "Class tuỳ chỉnh cho wrapper.",
+        "disabled": "Vô hiệu hoá.",
+        "size": "Kích thước.",
+        "label": "Nhãn.",
+        "title": "Tiêu đề phía trên control.",
+        "required": "Hiển thị bắt buộc.",
+        "displayFormat": "Định dạng label hiển thị."
+      },
+      "section": {
+        "children": "Nội dung trong section.",
+        "className": "Class tuỳ chỉnh cho <section>.",
+        "variant": "Biến thể hiển thị.",
+        "spacing": "Khoảng cách dọc (sm|md|lg|xl).",
+        "fullWidth": "Kéo dãn full-width (bỏ container).",
+        "outlined": "Hiển thị viền nhẹ giống Card."
+      },
+      "smartImage": {
+        "src": "URL ảnh.",
+        "alt": "Văn bản thay thế.",
+        "className": "Class tuỳ chỉnh cho wrapper.",
+        "ratioClass": "Class tỉ lệ khung hình.",
+        "roundedClass": "Class bo góc.",
+        "fill": "Dùng fill; nếu false dùng width/height.",
+        "width": "Chiều rộng khi fill=false.",
+        "height": "Chiều cao khi fill=false.",
+        "sizes": "Thuộc tính sizes responsive.",
+        "priority": "Cờ priority (Next/Image).",
+        "quality": "Chất lượng ảnh (1-100).",
+        "fit": "Object-fit (cover|contain).",
+        "objectPosition": "Giá trị object-position.",
+        "fallbackSrc": "Nguồn dự phòng khi lỗi."
+      },
+      "categoryTreeSelect": {
+        "categories": "Danh sách danh mục phẳng (id, name, parent_id).",
+        "value": "Các id danh mục được chọn.",
+        "onChange": "Hàm thay đổi (mảng id).",
+        "placeholder": "Văn bản khi chưa chọn.",
+        "disabled": "Vô hiệu hoá điều khiển."
+      },
+      "imageUpload": {
+        "onUpload": "Callback khi tải xong.",
+        "onRemove": "Callback khi xoá ảnh.",
+        "maxSize": "Kích thước tối đa (MB).",
+        "accept": "Kiểu file cho phép.",
+        "multiple": "Cho phép nhiều file.",
+        "disabled": "Vô hiệu hoá.",
+        "className": "Class tuỳ chỉnh.",
+        "showPreview": "Hiển thị danh sách xem trước.",
+        "previewSize": "Kích thước preview (sm|md|lg).",
+        "dragDropText": "Chuỗi hướng dẫn kéo & thả.",
+        "browseText": "Nút chọn tệp.",
+        "supportedFormatsText": "Chuỗi định dạng hỗ trợ."
+      },
+      "notificationModal": {
+        "isOpen": "Trạng thái mở/đóng.",
+        "onClose": "Hàm đóng.",
+        "notification": "Đối tượng thông báo {id,title,body,type,is_read,created_at,metadata}.",
+        "titleText": "Tiêu đề tuỳ chỉnh.",
+        "openLinkText": "Nút mở liên kết.",
+        "closeText": "Nút đóng."
+      },
+      "dataTable": {
+        "columns": "Định nghĩa cột.",
+        "data": "Dữ liệu hàng.",
+        "rowKey": "Hàm lấy khoá hàng.",
+        "page": "Trang hiện tại.",
+        "pageSize": "Số hàng/trang.",
+        "total": "Tổng số hàng (server).",
+        "onQueryChange": "Hàm thay đổi truy vấn (server).",
+        "caption": "Nội dung caption.",
+        "toolbar": "Thanh công cụ.",
+        "striped": "Hàng kẻ sọc.",
+        "columnDividers": "Đường chia cột.",
+        "enableDensityToggle": "Bật đổi density.",
+        "enableColumnVisibilityToggle": "Bật ẩn/hiện cột.",
+        "labels": "Nhãn i18n cho density tuỳ chọn.",
+        "className": "Class tuỳ chỉnh."
       }
     }
   }

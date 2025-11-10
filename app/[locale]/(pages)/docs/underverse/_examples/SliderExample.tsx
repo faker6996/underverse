@@ -1,11 +1,14 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { Slider } from "@/components/ui/Slider";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function SliderExample() {
+  const t = useTranslations("DocsUnderverse");
   const [value1, setValue1] = React.useState(30);
   const [value2, setValue2] = React.useState(50);
   const [value3, setValue3] = React.useState(25);
@@ -115,11 +118,38 @@ export default function SliderExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "value", description: t("props.slider.value"), type: "number", default: "-" },
+    { property: "defaultValue", description: t("props.slider.defaultValue"), type: "number", default: "0" },
+    { property: "min", description: t("props.slider.min"), type: "number", default: "0" },
+    { property: "max", description: t("props.slider.max"), type: "number", default: "100" },
+    { property: "step", description: t("props.slider.step"), type: "number", default: "1" },
+    { property: "onChange", description: t("props.slider.onChange"), type: "(value: number) => void", default: "-" },
+    { property: "onValueChange", description: t("props.slider.onValueChange"), type: "(value: number) => void", default: "-" },
+    { property: "onMouseUp", description: t("props.slider.onMouseUp"), type: "() => void", default: "-" },
+    { property: "onTouchEnd", description: t("props.slider.onTouchEnd"), type: "() => void", default: "-" },
+    { property: "label", description: t("props.slider.label"), type: "React.ReactNode", default: "-" },
+    { property: "labelClassName", description: t("props.slider.labelClassName"), type: "string", default: "-" },
+    { property: "containerClassName", description: t("props.slider.containerClassName"), type: "string", default: "-" },
+    { property: "trackClassName", description: t("props.slider.trackClassName"), type: "string", default: "-" },
+    { property: "thumbClassName", description: t("props.slider.thumbClassName"), type: "string", default: "-" },
+    { property: "showValue", description: t("props.slider.showValue"), type: "boolean", default: "false" },
+    { property: "valueClassName", description: t("props.slider.valueClassName"), type: "string", default: "-" },
+    { property: "formatValue", description: t("props.slider.formatValue"), type: "(value: number) => string", default: "-" },
+    { property: "size", description: t("props.slider.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "disabled", description: t("props.slider.disabled"), type: "boolean", default: "false" },
+    { property: "orientation", description: t("props.slider.orientation"), type: '"horizontal" | "vertical"', default: '"horizontal"' },
+    { property: "noFocus", description: t("props.slider.noFocus"), type: "boolean", default: "false" },
+  ];
+  const order = ["value","defaultValue","min","max","step","onChange","onValueChange","onMouseUp","onTouchEnd","label","labelClassName","containerClassName","trackClassName","thumbClassName","showValue","valueClassName","formatValue","size","disabled","orientation","noFocus"];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"

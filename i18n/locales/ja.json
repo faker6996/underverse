@@ -1,129 +1,778 @@
 {
-  "Common": {
-    "close": "閉じる",
-    "closeAlert": "アラートを閉じる",
-    "notifications": "通知",
-    "newNotification": "新規",
-    "readStatus": "既読",
-    "openLink": "リンクを開く",
-    "theme": "テーマ",
-    "lightTheme": "ライト",
-    "darkTheme": "ダーク",
-    "systemTheme": "システム",
-    "density": "密度",
-    "compact": "コンパクト",
-    "normal": "通常",
-    "comfortable": "快適",
-    "columns": "列",
-    "language": "言語"
-  },
-  "ValidationInput": {
-    "required": "必須項目です",
-    "typeMismatch": "形式が正しくありません",
-    "pattern": "パターンが正しくありません",
-    "tooShort": "短すぎます",
-    "tooLong": "長すぎます",
-    "rangeUnderflow": "最小値より小さいです",
-    "rangeOverflow": "最大値より大きいです",
-    "stepMismatch": "ステップが一致しません",
-    "badInput": "無効な入力",
-    "invalid": "無効な値"
-  },
-  "Loading": {
-    "loadingPage": "ページを読み込み中",
-    "pleaseWait": "しばらくお待ちください"
-  },
-  "DatePicker": {
-    "placeholder": "日付を選択",
-    "today": "今日",
-    "clear": "クリア"
-  },
-  "Pagination": {
-    "navigationLabel": "ページネーション",
-    "showingResults": "{totalItems}件中 {startItem}–{endItem} を表示",
-    "firstPage": "最初のページ",
-    "previousPage": "前のページ",
-    "previous": "前へ",
-    "nextPage": "次のページ",
-    "next": "次へ",
-    "lastPage": "最後のページ",
-    "pageNumber": "ページ {page}",
-    "itemsPerPage": "1ページあたり",
-    "search": "検索",
-    "noOptions": "選択肢なし"
-  },
-  "OCR": {
-    "imageUpload": {
-      "dragDropText": "ここにファイルをドラッグ＆ドロップ",
-      "browseFiles": "ファイルを選択",
-      "supportedFormats": "対応形式: 画像"
-    }
-  },
-  "Form": {
-    "validation": {
-      "mustBeUsedWithinForm": "useFormFieldはFormField内で使用する必要があります"
-    }
-  },
-  "DocsUnderverse": {
-    "pageTitle": "Underverse UI – 使用ガイド",
-    "pageDescription": "このページは、<packageName>@underverse-ui/underverse</packageName>パッケージから提供される、プロジェクトで利用可能なUIコンポーネントの使用方法を説明します。",
-    "tableOfContents": "目次",
-    "sections": {
-      "install": {
-        "title": "インストール",
-        "npmComment": "npmでインストール",
-        "peerDepsComment": "依存関係（まだインストールしていない場合）",
-        "usageComment": "プロジェクトでの使用"
-      },
-      "button": { "title": "Button" },
-      "badge": { "title": "Badge" },
-      "avatar": { "title": "Avatar" },
-      "breadcrumb": { "title": "Breadcrumb" },
-      "card": { "title": "Card" },
-      "checkbox": { "title": "Checkbox" },
-      "textarea": { "title": "Textarea" },
-      "modal": { "title": "Modal" },
-      "tabs": { "title": "Tabs" },
-      "toast": {
-        "title": "Toast",
-        "description": "以下のボタンをクリックするとトーストが表示されます。"
-      },
-      "imports": {
-        "title": "インポートパス",
-        "orInternalImport": "またはプロジェクト内部からインポート"
-      },
-      "alert": { "title": "Alert (with i18n)" },
-      "accessDenied": { "title": "AccessDenied" },
-      "clientOnly": { "title": "ClientOnly" },
-      "loading": { "title": "Loading / GlobalLoading" },
-      "tooltip": { "title": "Tooltip" },
-      "popover": { "title": "Popover" },
-      "sheet": { "title": "Sheet" },
-      "switch": { "title": "Switch" },
-      "slider": { "title": "Slider" },
-      "overlayControls": { "title": "OverlayControls" },
-      "radioGroup": { "title": "RadioGroup" },
-      "scrollArea": { "title": "ScrollArea" },
-      "table": { "title": "Table" },
-      "progress": { "title": "Progress" },
-      "skeleton": { "title": "Skeleton" },
-      "carousel": { "title": "Carousel" },
-      "dropdownMenu": { "title": "DropdownMenu" },
-      "combobox": { "title": "Combobox" },
-      "multiCombobox": { "title": "MultiCombobox" },
-      "section": { "title": "Section" },
-      "smartImage": { "title": "SmartImage" },
-      "categoryTreeSelect": { "title": "CategoryTreeSelect" },
-      "imageUpload": { "title": "ImageUpload" },
-      "notificationModal": { "title": "NotificationModal (with i18n)" },
-      "dataTable": { "title": "DataTable (with i18n)" },
-      "input": { "title": "Input (with i18n)" },
-      "datePicker": { "title": "DatePicker (with i18n)" },
-      "pagination": { "title": "Pagination (with i18n)" },
-      "form": { "title": "Form (with i18n)" },
-      "themeToggle": { "title": "ThemeToggle (with i18n)" },
-      "notificationBell": { "title": "NotificationBell (with i18n)" },
-      "floatingContacts": { "title": "FloatingContacts" }
-    }
-  }
+    "Common":  {
+                   "close":  "閉じる",
+                   "closeAlert":  "アラートを閉じる",
+                   "notifications":  "通知",
+                   "newNotification":  "新規",
+                   "readStatus":  "既読",
+                   "openLink":  "リンクを開く",
+                   "theme":  "テーマ",
+                   "lightTheme":  "ライト",
+                   "darkTheme":  "ダーク",
+                   "systemTheme":  "システム",
+                   "density":  "密度",
+                   "compact":  "コンパクト",
+                   "normal":  "通常",
+                   "comfortable":  "快適",
+                   "columns":  "列",
+                   "language":  "言語"
+               },
+    "ValidationInput":  {
+                            "required":  "必須項目です",
+                            "typeMismatch":  "形式が正しくありません",
+                            "pattern":  "パターンが正しくありません",
+                            "tooShort":  "短すぎます",
+                            "tooLong":  "長すぎます",
+                            "rangeUnderflow":  "最小値より小さいです",
+                            "rangeOverflow":  "最大値より大きいです",
+                            "stepMismatch":  "ステップが一致しません",
+                            "badInput":  "無効な入力",
+                            "invalid":  "無効な値"
+                        },
+    "Loading":  {
+                    "loadingPage":  "ページを読み込み中",
+                    "pleaseWait":  "しばらくお待ちください"
+                },
+    "DatePicker":  {
+                       "placeholder":  "日付を選択",
+                       "today":  "今日",
+                       "clear":  "クリア"
+                   },
+    "Pagination":  {
+                       "navigationLabel":  "ページネーション",
+                       "showingResults":  "{totalItems}件中 {startItem}–{endItem} を表示",
+                       "firstPage":  "最初のページ",
+                       "previousPage":  "前のページ",
+                       "previous":  "前へ",
+                       "nextPage":  "次のページ",
+                       "next":  "次へ",
+                       "lastPage":  "最後のページ",
+                       "pageNumber":  "ページ {page}",
+                       "itemsPerPage":  "1ページあたり",
+                       "search":  "検索",
+                       "noOptions":  "選択肢なし"
+                   },
+    "OCR":  {
+                "imageUpload":  {
+                                    "dragDropText":  "ここにファイルをドラッグ＆ドロップ",
+                                    "browseFiles":  "ファイルを選択",
+                                    "supportedFormats":  "対応形式: 画像"
+                                }
+            },
+    "Form":  {
+                 "validation":  {
+                                    "mustBeUsedWithinForm":  "useFormFieldはFormField内で使用する必要があります"
+                                }
+             },
+    "DocsUnderverse":  {
+                           "propsTable":  {
+                                              "property":  "プロパティ",
+                                              "description":  "説明",
+                                              "type":  "型",
+                                              "default":  "デフォルト"
+                                          },
+                           "tabs":  {
+                                        "preview":  "プレビュー",
+                                        "code":  "コード",
+                                        "document":  "ドキュメント"
+                                    },
+                           "pageTitle":  "Underverse UI - 使い方ガイド",
+                           "pageDescription":  "このページでは、\u003cpackageName\u003e@underverse-ui/underverse\u003c/packageName\u003e パッケージが提供するUIコンポーネントの使い方を示します。",
+                           "tableOfContents":  "目次",
+                           "sections":  {
+                                            "install":  {
+                                                            "title":  "インストール",
+                                                            "npmComment":  "npmでインストール",
+                                                            "peerDepsComment":  "依存関係（まだインストールしていない場合）",
+                                                            "usageComment":  "プロジェクトでの使用"
+                                                        },
+                                            "button":  {
+                                                           "title":  "Button"
+                                                       },
+                                            "badge":  {
+                                                          "title":  "Badge"
+                                                      },
+                                            "avatar":  {
+                                                           "title":  "Avatar"
+                                                       },
+                                            "breadcrumb":  {
+                                                               "title":  "Breadcrumb"
+                                                           },
+                                            "card":  {
+                                                         "title":  "Card"
+                                                     },
+                                            "checkbox":  {
+                                                             "title":  "Checkbox"
+                                                         },
+                                            "textarea":  {
+                                                             "title":  "Textarea"
+                                                         },
+                                            "modal":  {
+                                                          "title":  "Modal"
+                                                      },
+                                            "tabs":  {
+                                                         "title":  "Tabs"
+                                                     },
+                                            "toast":  {
+                                                          "title":  "Toast",
+                                                          "description":  "以下のボタンをクリックするとトーストが表示されます。"
+                                                      },
+                                            "imports":  {
+                                                            "title":  "Import paths",
+                                                            "orInternalImport":  "またはプロジェクト内部からインポート"
+                                                        },
+                                            "alert":  {
+                                                          "title":  "Alert (with i18n)"
+                                                      },
+                                            "accessDenied":  {
+                                                                 "title":  "AccessDenied"
+                                                             },
+                                            "clientOnly":  {
+                                                               "title":  "ClientOnly"
+                                                           },
+                                            "loading":  {
+                                                            "title":  "Loading / GlobalLoading"
+                                                        },
+                                            "tooltip":  {
+                                                            "title":  "Tooltip"
+                                                        },
+                                            "popover":  {
+                                                            "title":  "Popover"
+                                                        },
+                                            "sheet":  {
+                                                          "title":  "Sheet"
+                                                      },
+                                            "switch":  {
+                                                           "title":  "Switch"
+                                                       },
+                                            "slider":  {
+                                                           "title":  "Slider"
+                                                       },
+                                            "overlayControls":  {
+                                                                    "title":  "OverlayControls"
+                                                                },
+                                            "radioGroup":  {
+                                                               "title":  "RadioGroup"
+                                                           },
+                                            "scrollArea":  {
+                                                               "title":  "ScrollArea"
+                                                           },
+                                            "table":  {
+                                                          "title":  "Table"
+                                                      },
+                                            "progress":  {
+                                                             "title":  "Progress"
+                                                         },
+                                            "skeleton":  {
+                                                             "title":  "Skeleton"
+                                                         },
+                                            "carousel":  {
+                                                             "title":  "Carousel"
+                                                         },
+                                            "dropdownMenu":  {
+                                                                 "title":  "DropdownMenu"
+                                                             },
+                                            "combobox":  {
+                                                             "title":  "Combobox"
+                                                         },
+                                            "multiCombobox":  {
+                                                                  "title":  "MultiCombobox"
+                                                              },
+                                            "section":  {
+                                                            "title":  "Section"
+                                                        },
+                                            "smartImage":  {
+                                                               "title":  "SmartImage"
+                                                           },
+                                            "categoryTreeSelect":  {
+                                                                       "title":  "CategoryTreeSelect"
+                                                                   },
+                                            "imageUpload":  {
+                                                                "title":  "ImageUpload"
+                                                            },
+                                            "notificationModal":  {
+                                                                      "title":  "NotificationModal (with i18n)"
+                                                                  },
+                                            "dataTable":  {
+                                                              "title":  "DataTable (with i18n)"
+                                                          },
+                                            "input":  {
+                                                          "title":  "Input (with i18n)"
+                                                      },
+                                            "datePicker":  {
+                                                               "title":  "DatePicker (with i18n)"
+                                                           },
+                                            "pagination":  {
+                                                               "title":  "Pagination (with i18n)"
+                                                           },
+                                            "form":  {
+                                                         "title":  "Form (with i18n)"
+                                                     },
+                                            "themeToggle":  {
+                                                                "title":  "ThemeToggle (with i18n)"
+                                                            },
+                                            "languageSwitcherHeadless":  {
+                                                                             "title":  "言語スイッチャー（ヘッドレス）"
+                                                                         },
+                                            "notificationBell":  {
+                                                                     "title":  "NotificationBell (with i18n)"
+                                                                 },
+                                            "floatingContacts":  {
+                                                                     "title":  "FloatingContacts"
+                                                                 }
+                                        },
+                           "props":  {
+                                         "button":  {
+                                                        "onClick":  "クリック時のハンドラ。Promise を返すことも可能（preventDoubleClick と併用可）。",
+                                                        "children":  "ボタンの内容。",
+                                                        "type":  "フォーム用のボタンタイプ。",
+                                                        "icon":  "左側のアイコンコンポーネント。",
+                                                        "iconRight":  "右側のアイコンコンポーネント。",
+                                                        "variant":  "見た目のバリアント。",
+                                                        "size":  "サイズ（アイコン専用を含む）。",
+                                                        "className":  "ボタン要素のカスタムクラス。",
+                                                        "iConClassName":  "左アイコンのカスタムクラス。",
+                                                        "disabled":  "ボタンを無効化。",
+                                                        "loading":  "ローディング状態を表示し操作をロック。",
+                                                        "fullWidth":  "横幅いっぱいに広げる。",
+                                                        "title":  "ネイティブの title ツールチップ（aria-label の代替）。",
+                                                        "spinner":  "ローディング時のスピナーコンポーネント。",
+                                                        "loadingText":  "ローディング中に表示するテキスト。",
+                                                        "preserveChildrenOnLoading":  "ローディング中も children を保つ。",
+                                                        "preventDoubleClick":  "連続クリックを防止。",
+                                                        "lockMs":  "preventDoubleClick のロック時間(ms)。",
+                                                        "asContainer":  "自由なレイアウト（items-center を強制しない）。",
+                                                        "noWrap":  "内容の折り返しを防止する。",
+                                                        "noHoverOverlay":  "デフォルトのホバーグラデーションを無効化。",
+                                                        "aria-label":  "アクセシビリティ用ラベル（アイコンのみのボタンで有効）。"
+                                                    },
+                                         "badge":  {
+                                                       "children":  "バッジの内容。",
+                                                       "variant":  "バッジの見た目のバリアント。",
+                                                       "size":  "サイズ。",
+                                                       "className":  "バッジのカスタムクラス。",
+                                                       "dot":  "内容なしのドット表示。",
+                                                       "count":  "表示するカウント数。",
+                                                       "maxCount":  "99+ などを表示する閾値。",
+                                                       "showZero":  "count が 0 のときも表示する。",
+                                                       "pulse":  "鼓動アニメーションを有効化。",
+                                                       "removable":  "削除（×）ボタンを表示。",
+                                                       "onRemove":  "削除時に呼ばれるコールバック（× クリック）。",
+                                                       "icon":  "内容の左側アイコン。",
+                                                       "clickable":  "ホバー／クリック動作を有効化。",
+                                                       "onClick":  "クリック時のハンドラ（clickable=true のとき有効）。"
+                                                   },
+                                         "avatar":  {
+                                                        "src":  "画像 URL。",
+                                                        "alt":  "画像の代替テキスト（アクセシビリティ）。",
+                                                        "fallback":  "画像が無い場合の文字。",
+                                                        "size":  "アバターサイズ。",
+                                                        "className":  "カスタムクラス。",
+                                                        "onClick":  "クリック時のハンドラ。"
+                                                    },
+                                         "breadcrumb":  {
+                                                            "items":  "パンくずの項目（label、href、icon）。",
+                                                            "variant":  "表示バリアント。",
+                                                            "size":  "サイズ。",
+                                                            "separator":  "区切り文字／ノード。",
+                                                            "showHome":  "先頭に Home を表示。",
+                                                            "homeHref":  "Home のリンク先。",
+                                                            "className":  "カスタムクラス。"
+                                                        },
+                                         "card":  {
+                                                      "title":  "カードのタイトル。",
+                                                      "description":  "タイトル下の短い説明。",
+                                                      "footer":  "フッター領域（アクション等）。",
+                                                      "hoverable":  "ホバー効果を有効化。",
+                                                      "clickable":  "カード全体をクリック可能に。",
+                                                      "onClick":  "クリック時のハンドラ（clickable=true のとき有効）。",
+                                                      "className":  "ラッパーのカスタムクラス。",
+                                                      "contentClassName":  "コンテンツ領域のカスタムクラス。"
+                                                  },
+                                         "textarea":  {
+                                                          "label":  "ラベル。",
+                                                          "variant":  "表示バリアント。",
+                                                          "size":  "サイズ。",
+                                                          "description":  "補助テキスト。",
+                                                          "error":  "エラーメッセージ。",
+                                                          "maxLength":  "文字数上限。",
+                                                          "required":  "必須指定。",
+                                                          "disabled":  "入力を無効化。",
+                                                          "value":  "制御された値。",
+                                                          "onChange":  "変更ハンドラ。",
+                                                          "placeholder":  "プレースホルダー。",
+                                                          "className":  "カスタムクラス。"
+                                                      },
+                                         "modal":  {
+                                                       "isOpen":  "モーダルの開閉状態。",
+                                                       "onClose":  "クローズ時のハンドラ。",
+                                                       "title":  "モーダルのタイトル。",
+                                                       "description":  "ヘッダー内の短い説明。",
+                                                       "size":  "モーダルのサイズ。",
+                                                       "showCloseButton":  "閉じる（X）ボタンを表示。",
+                                                       "closeOnOverlayClick":  "外側クリックで閉じる。",
+                                                       "closeOnEsc":  "Esc キーで閉じる。",
+                                                       "children":  "モーダルの内容。"
+                                                   },
+                                         "tabs":  {
+                                                      "tabs":  "タブ一覧（value, label, content, icon?, disabled?）。",
+                                                      "variant":  "表示バリアント。",
+                                                      "size":  "サイズ。",
+                                                      "orientation":  "向き（横／縦）。",
+                                                      "stretch":  "タブ幅を均等に配分。"
+                                                  },
+                                         "toast":  {
+                                                       "ToastProvider":  "アプリ全体で toast を有効にする Provider。",
+                                                       "useToast":  "addToast を返すフック。",
+                                                       "position":  "画面上の表示位置。",
+                                                       "maxToasts":  "表示する最大トースト数。"
+                                                   },
+                                         "loading":  {
+                                                         "GlobalLoading":  "全画面のローディングオーバーレイ。",
+                                                         "ButtonLoading":  "ボタンのローディング状態を表示。",
+                                                         "LoadingSpinner":  "サイズ／色を指定できるスピナー。",
+                                                         "LoadingDots":  "3 つのドットアニメーション。",
+                                                         "LoadingBar":  "プログレスバー。"
+                                                     },
+                                         "tooltip":  {
+                                                         "content":  "ツールチップの内容。",
+                                                         "placement":  "トリガの周囲の位置。",
+                                                         "delay":  "開閉の遅延(ms) または {openBrace} open, close {closeBrace}。",
+                                                         "variant":  "カラーバリアント。",
+                                                         "disabled":  "ツールチップを無効化。"
+                                                     },
+                                         "carousel":  {
+                                                          "children":  "カルーセル内に表示するスライド。",
+                                                          "autoScroll":  "自動でスライドを進める。",
+                                                          "autoScrollInterval":  "自動進行の間隔 (ms)。",
+                                                          "animation":  "スライド間のアニメーション。",
+                                                          "orientation":  "横/縦の方向。",
+                                                          "showArrows":  "ナビゲーション矢印を表示。",
+                                                          "showDots":  "ドットインジケータを表示。",
+                                                          "showProgress":  "自動進行時の上部プログレスバー。",
+                                                          "showThumbnails":  "サムネイルでのナビゲーションを表示。",
+                                                          "loop":  "端に到達時にループする。",
+                                                          "slidesToShow":  "同時に表示するスライド数。",
+                                                          "slidesToScroll":  "1 回の移動で進むスライド数。",
+                                                          "className":  "ルート要素のクラス。",
+                                                          "containerClassName":  "スライドコンテナのクラス。",
+                                                          "slideClassName":  "各スライドラッパーのクラス。",
+                                                          "onSlideChange":  "スライドが変わった時のコールバック。",
+                                                          "thumbnailRenderer":  "サムネイルのカスタムレンダラー。",
+                                                          "ariaLabel":  "カルーセル領域のアクセシブルラベル。"
+                                                      },
+                                         "skeleton":  {
+                                                          "className":  "スケルトンのカスタムクラス。",
+                                                          "width":  "幅 (px, %, など)。",
+                                                          "height":  "高さ (px, %, など)。",
+                                                          "variant":  "表示バリアント (rectangular, circular, rounded, text)。",
+                                                          "animation":  "アニメーション (pulse, wave, none)。",
+                                                          "lines":  "テキスト時の行数 (variant = text)。",
+                                                          "SkeletonAvatar":  {
+                                                                                 "size":  "アバタースケルトンのサイズ。",
+                                                                                 "className":  "カスタムクラス。"
+                                                                             },
+                                                          "SkeletonButton":  {
+                                                                                 "size":  "ボタンスケルトンのサイズ。",
+                                                                                 "className":  "カスタムクラス。"
+                                                                             },
+                                                          "SkeletonText":  {
+                                                                               "lines":  "テキストの行数。",
+                                                                               "width":  "行の幅 (割合/px)。",
+                                                                               "className":  "カスタムクラス。"
+                                                                           },
+                                                          "SkeletonCard":  {
+                                                                               "className":  "カスタムクラス。",
+                                                                               "showImage":  "画像エリアを表示。",
+                                                                               "showAvatar":  "ヘッダーにアバターを表示。",
+                                                                               "textLines":  "テキスト行数。"
+                                                                           },
+                                                          "SkeletonPost":  {
+                                                                               "className":  "カスタムクラス。"
+                                                                           },
+                                                          "SkeletonMessage":  {
+                                                                                  "className":  "カスタムクラス。",
+                                                                                  "showAvatar":  "アバターを表示。",
+                                                                                  "own":  "自分のメッセージとして表示。"
+                                                                              },
+                                                          "SkeletonList":  {
+                                                                               "className":  "カスタムクラス。",
+                                                                               "itemHeight":  "アイテムの高さ (px)。",
+                                                                               "items":  "アイテム数。",
+                                                                               "showAvatar":  "各アイテムのアバターを表示。"
+                                                                           },
+                                                          "SkeletonTable":  {
+                                                                                "columns":  "列数。",
+                                                                                "className":  "カスタムクラス。",
+                                                                                "rows":  "行数。"
+                                                                            }
+                                                      },
+                                         "checkbox":  {
+                                                          "label":  "チェックボックスの右側に表示するラベル内容。",
+                                                          "labelClassName":  "ラベルのカスタムクラス。",
+                                                          "containerClassName":  "外側ラッパーのカスタムクラス。",
+                                                          "checked":  "制御されたチェック状態。",
+                                                          "defaultChecked":  "初期チェック状態（非制御）。",
+                                                          "onChange":  "変更ハンドラ（input イベントを受け取る）。",
+                                                          "disabled":  "チェックボックスを無効化。",
+                                                          "className":  "非表示 input のカスタムクラス。",
+                                                          "name":  "input の name 属性。",
+                                                          "value":  "input の value 属性。",
+                                                          "id":  "input の id 属性。"
+                                                      },
+                                         "alert":  {
+                                                       "title":  "アラートのタイトル。",
+                                                       "description":  "短いメッセージまたはリッチコンテンツ。",
+                                                       "variant":  "表示バリアント。",
+                                                       "className":  "ラッパーのカスタムクラス。",
+                                                       "icon":  "カスタムアイコン（バリアントアイコンを上書き）。",
+                                                       "dismissible":  "閉じるボタンを表示して閉じられるようにする。",
+                                                       "onClose":  "閉じた後のコールバック。",
+                                                       "actions":  "アクション領域（ボタンやリンクなど）。",
+                                                       "closeAriaLabel":  "閉じるボタンの ARIA ラベル。"
+                                                   },
+                                         "accessDenied":  {
+                                                              "title":  "タイトル。",
+                                                              "description":  "説明。",
+                                                              "variant":  "表示バリアント。",
+                                                              "icon":  "ヘッダーのアイコンコンポーネント。",
+                                                              "className":  "カードのカスタムクラス。",
+                                                              "children":  "フッターのアクション／追加内容。"
+                                                          },
+                                         "popover":  {
+                                                         "trigger":  "トリガー要素（ボタン/リンク）。",
+                                                         "children":  "ポップオーバー内の内容。",
+                                                         "className":  "ラッパーのカスタムクラス。",
+                                                         "contentClassName":  "コンテンツ領域のカスタムクラス。",
+                                                         "placement":  "トリガーの周囲の位置。",
+                                                         "modal":  "モーダル扱い（aria-modal）。",
+                                                         "disabled":  "開けないように無効化。",
+                                                         "open":  "制御された開閉状態。",
+                                                         "onOpenChange":  "開閉状態が変化したときのコールバック。",
+                                                         "matchTriggerWidth":  "トリガーの幅に合わせる。",
+                                                         "contentWidth":  "固定幅(px)。"
+                                                     },
+                                         "sheet":  {
+                                                       "open":  "開閉状態。",
+                                                       "onOpenChange":  "開閉を変更するコールバック。",
+                                                       "side":  "表示される方向。",
+                                                       "size":  "シートのサイズ。",
+                                                       "variant":  "表示バリアント。",
+                                                       "children":  "本文コンテンツ。",
+                                                       "title":  "ヘッダーのタイトル。",
+                                                       "description":  "ヘッダーの説明。",
+                                                       "className":  "パネルのカスタムクラス。",
+                                                       "showClose":  "ヘッダーに閉じるボタンを表示。",
+                                                       "closeOnOutsideClick":  "オーバーレイクリックで閉じる。",
+                                                       "closeOnEscape":  "Esc キーで閉じる。",
+                                                       "header":  "カスタムヘッダー（上書き）。",
+                                                       "footer":  "カスタムフッター。"
+                                                   },
+                                         "switch":  {
+                                                        "checked":  "制御されたオン/オフ値。",
+                                                        "onCheckedChange":  "新しいオン/オフ値を返すコールバック。",
+                                                        "label":  "任意のラベルテキスト。",
+                                                        "size":  "サイズ。",
+                                                        "variant":  "色/見た目のバリアント。",
+                                                        "disabled":  "コントロールを無効化。",
+                                                        "className":  "ラッパーのカスタムクラス。"
+                                                    },
+                                         "slider":  {
+                                                        "value":  "制御された値。",
+                                                        "defaultValue":  "初期値（非制御）。",
+                                                        "min":  "最小値。",
+                                                        "max":  "最大値。",
+                                                        "step":  "ステップ幅。",
+                                                        "onChange":  "変更ハンドラ（number）。",
+                                                        "onValueChange":  "別名の変更ハンドラ（number）。",
+                                                        "onMouseUp":  "マウス解放時に呼ばれる。",
+                                                        "onTouchEnd":  "タッチ終了時に呼ばれる。",
+                                                        "label":  "ラベル。",
+                                                        "labelClassName":  "ラベルのカスタムクラス。",
+                                                        "containerClassName":  "ラッパーのカスタムクラス。",
+                                                        "trackClassName":  "トラックのカスタムクラス。",
+                                                        "thumbClassName":  "つまみのカスタムクラス。",
+                                                        "showValue":  "値を表示。",
+                                                        "valueClassName":  "値テキストのカスタムクラス。",
+                                                        "formatValue":  "表示用に値を整形。",
+                                                        "size":  "サイズ。",
+                                                        "disabled":  "無効化。",
+                                                        "orientation":  "向き（横/縦）。",
+                                                        "noFocus":  "フォーカス装飾を無効化。"
+                                                    },
+                                         "overlayControls":  {
+                                                                 "mode":  "モード：live / review。",
+                                                                 "value":  "現在位置。",
+                                                                 "max":  "最大位置/時間。",
+                                                                 "step":  "シークのステップ。",
+                                                                 "onChange":  "位置の変更ハンドラ。",
+                                                                 "onCommit":  "ドラッグ終了時のハンドラ。",
+                                                                 "playing":  "再生中（review）。",
+                                                                 "onTogglePlay":  "再生/一時停止の切替。",
+                                                                 "onGoLive":  "ライブに戻る。",
+                                                                 "volume":  "音量 0..1。",
+                                                                 "muted":  "ミュート状態。",
+                                                                 "onVolumeChange":  "音量を変更。",
+                                                                 "onToggleMute":  "ミュート切替。",
+                                                                 "rate":  "再生速度。",
+                                                                 "onChangeRate":  "速度を変更。",
+                                                                 "onToggleFullscreen":  "フルスクリーン切替。",
+                                                                 "showOnHover":  "ホバー時のみ表示。",
+                                                                 "className":  "カスタムクラス。",
+                                                                 "showTime":  "現在/合計時間を表示。",
+                                                                 "skipSeconds":  "スキップ秒（review）。",
+                                                                 "onSkip":  "早送り/巻き戻しのコールバック。",
+                                                                 "onSeekPreview":  "プレビュー画像 URL を返す。",
+                                                                 "autoHide":  "無操作で自動的に隠す。",
+                                                                 "autoHideDelay":  "自動非表示の遅延(ms)。",
+                                                                 "enableKeyboardShortcuts":  "キーボードショートカットを有効化。"
+                                                             },
+                                         "radioGroup":  {
+                                                            "RadioGroup":  {
+                                                                               "onValueChange":  "変更ハンドラ（string）。",
+                                                                               "variant":  "default | card | button。",
+                                                                               "value":  "選択値。",
+                                                                               "size":  "sm | md | lg。",
+                                                                               "name":  "入力グループ名（自動）。",
+                                                                               "orientation":  "向き（横/縦）。",
+                                                                               "className":  "カスタムクラス。",
+                                                                               "error":  "エラー状態。",
+                                                                               "disabled":  "すべての項目を無効化。",
+                                                                               "required":  "必須。",
+                                                                               "errorMessage":  "エラーメッセージ。",
+                                                                               "defaultValue":  "初期選択値。"
+                                                                           },
+                                                            "RadioGroupItem":  {
+                                                                                   "description":  "補助テキスト。",
+                                                                                   "value":  "項目の値。",
+                                                                                   "className":  "カスタムクラス。",
+                                                                                   "label":  "ラベル。",
+                                                                                   "disabled":  "この項目を無効化。",
+                                                                                   "icon":  "左アイコンコンポーネント。"
+                                                                               },
+                                                            "SimpleRadioGroup":  {
+                                                                                     "items":  "value ? label ???????????"
+                                                                                 },
+                                                            "RadioButtonGroup":  {
+                                                                                     "items":  "value ? label ???????????",
+                                                                                     "variant":  "default | outline | solid。"
+                                                                                 },
+                                                            "SegmentedControl":  {
+                                                                                     "items":  "value ? label ???????????"
+                                                                                 },
+                                                            "ToggleGroup":  {
+                                                                                "items":  "value ? label ????????????"
+                                                                            }
+                                                        },
+                                         "scrollArea":  {
+                                                            "className":  "ラッパーのカスタムクラス（高さ/幅を指定）。",
+                                                            "children":  "スクロール可能な内容。"
+                                                        },
+                                         "table":  {
+                                                       "Table":  {
+                                                                     "className":  "table ??????????????",
+                                                                     "containerClassName":  "外側コンテナのカスタムクラス。"
+                                                                 },
+                                                       "TableHeader":  {
+                                                                           "filterRow":  "ヘッダー直下のフィルタ行（任意）。",
+                                                                           "className":  "カスタムクラス。"
+                                                                       },
+                                                       "TableBody":  {
+                                                                         "className":  "カスタムクラス。"
+                                                                     },
+                                                       "TableRow":  {
+                                                                        "className":  "カスタムクラス。"
+                                                                    },
+                                                       "TableHead":  {
+                                                                         "className":  "カスタムクラス。"
+                                                                     },
+                                                       "TableCell":  {
+                                                                         "className":  "カスタムクラス。"
+                                                                     },
+                                                       "TableCaption":  {
+                                                                            "className":  "カスタムクラス。"
+                                                                        }
+                                                   },
+                                         "progress":  {
+                                                          "Progress":  {
+                                                                           "max":  "最大値。",
+                                                                           "size":  "サイズ。",
+                                                                           "status":  "normal | error | complete。",
+                                                                           "animated":  "アニメーション。",
+                                                                           "striped":  "ストライプ背景。",
+                                                                           "label":  "ヘッダーのラベル。",
+                                                                           "showValue":  "パーセンテージ/値を表示。",
+                                                                           "value":  "値 0..max。",
+                                                                           "description":  "説明テキスト。",
+                                                                           "className":  "カスタムクラス。",
+                                                                           "indeterminate":  "不確定モード。",
+                                                                           "variant":  "カラーバリアント。"
+                                                                       },
+                                                          "CircularProgress":  {
+                                                                                   "variant":  "カラーバリアント。",
+                                                                                   "max":  "最大値。",
+                                                                                   "showValue":  "% を表示。",
+                                                                                   "size":  "直径(px)。",
+                                                                                   "indeterminate":  "不確定モード。",
+                                                                                   "value":  "値 0..max。"
+                                                                               },
+                                                          "StepProgress":  {
+                                                                               "size":  "サイズ。",
+                                                                               "currentStep":  "現在のステップ(0 始まり)。",
+                                                                               "className":  "カスタムクラス。",
+                                                                               "variant":  "カラーバリアント。",
+                                                                               "steps":  "ステップ一覧。"
+                                                                           },
+                                                          "MiniProgress":  {
+                                                                               "showValue":  "% を表示。",
+                                                                               "variant":  "カラーバリアント。",
+                                                                               "max":  "最大値。",
+                                                                               "value":  "値 0..max。",
+                                                                               "className":  "カスタムクラス。"
+                                                                           },
+                                                          "BatteryProgress":  {
+                                                                                  "showValue":  "% を表示。",
+                                                                                  "charging":  "充電中を表示。",
+                                                                                  "max":  "最大 (100)。",
+                                                                                  "value":  "バッテリーの% 。",
+                                                                                  "className":  "カスタムクラス。"
+                                                                              },
+                                                          "SegmentedProgress":  {
+                                                                                    "segments":  "セグメント数。",
+                                                                                    "variant":  "カラーバリアント。",
+                                                                                    "activeSegments":  "アクティブなセグメント数。",
+                                                                                    "className":  "カスタムクラス。",
+                                                                                    "size":  "サイズ。"
+                                                                                },
+                                                          "LoadingProgress":  {
+                                                                                  "label":  "ラベル。",
+                                                                                  "timeRemaining":  "残り時間テキスト。",
+                                                                                  "speed":  "速度テキスト。",
+                                                                                  "value":  "値 0..max。",
+                                                                                  "variant":  "カラーバリアント。",
+                                                                                  "status":  "loading | complete | error | paused。",
+                                                                                  "className":  "カスタムクラス。",
+                                                                                  "max":  "最大値。"
+                                                                              }
+                                                      },
+                                         "dropdownMenu":  {
+                                                              "trigger":  "トリガー要素（ボタン/リンク）。",
+                                                              "children":  "カスタム内容（children API）。",
+                                                              "className":  "ラッパーのカスタムクラス。",
+                                                              "contentClassName":  "コンテンツ領域のカスタムクラス。",
+                                                              "placement":  "トリガーの周囲の位置。",
+                                                              "closeOnSelect":  "選択後に閉じる。",
+                                                              "disabled":  "開けないように無効化。",
+                                                              "isOpen":  "制御された開閉状態。",
+                                                              "onOpenChange":  "開閉状態の変更ハンドラ。",
+                                                              "items":  "メニュー項目配列（label, icon?, onClick, disabled?, destructive?）。"
+                                                          },
+                                         "combobox":  {
+                                                          "id":  "入力の id（aria）。",
+                                                          "options":  "選択肢（string または {label,value}）。",
+                                                          "value":  "選択値。",
+                                                          "onChange":  "変更ハンドラ（value）。",
+                                                          "placeholder":  "トリガーのプレースホルダ。",
+                                                          "className":  "トリガーのカスタムクラス。",
+                                                          "disabled":  "無効化。",
+                                                          "size":  "サイズ。",
+                                                          "variant":  "見た目のバリアント。",
+                                                          "allowClear":  "選択をクリアするボタンを表示。",
+                                                          "searchPlaceholder":  "検索入力のプレースホルダ（選択肢が多い場合）。",
+                                                          "emptyText":  "該当なしテキスト。",
+                                                          "usePortal":  "ポータルでドロップダウンを描画。",
+                                                          "label":  "ラベル。",
+                                                          "required":  "必須を表示。",
+                                                          "fontBold":  "ラベルを太字に。"
+                                                      },
+                                         "multiCombobox":  {
+                                                               "id":  "入力の id（aria）。",
+                                                               "options":  "選択肢（string または {value,label}）。",
+                                                               "value":  "選択値の配列。",
+                                                               "onChange":  "変更ハンドラ（配列）。",
+                                                               "placeholder":  "プレースホルダ。",
+                                                               "maxSelected":  "最大選択数。",
+                                                               "disabledOptions":  "選択不可の値。",
+                                                               "showTags":  "選択タグを表示。",
+                                                               "showClear":  "クリアボタンを表示。",
+                                                               "className":  "ラッパーのカスタムクラス。",
+                                                               "disabled":  "無効化。",
+                                                               "size":  "サイズ。",
+                                                               "label":  "ラベル。",
+                                                               "title":  "コントロールの上のタイトル。",
+                                                               "required":  "必須を表示。",
+                                                               "displayFormat":  "選択肢のラベル表示を整形。"
+                                                           },
+                                         "section":  {
+                                                         "children":  "セクションの内容。",
+                                                         "className":  "section ??????????????",
+                                                         "variant":  "表示バリアント。",
+                                                         "spacing":  "上下の余白（sm|md|lg|xl）。",
+                                                         "fullWidth":  "横幅いっぱいに広げる（コンテナ無し）。",
+                                                         "outlined":  "Card 風の薄い枠線を表示。"
+                                                     },
+                                         "smartImage":  {
+                                                            "src":  "画像 URL。",
+                                                            "alt":  "代替テキスト。",
+                                                            "className":  "ラッパーのカスタムクラス。",
+                                                            "ratioClass":  "アスペクト比ユーティリティクラス。",
+                                                            "roundedClass":  "角丸クラス。",
+                                                            "fill":  "fill レイアウトを使用; false の場合は width/height。",
+                                                            "width":  "fill=false のときの幅。",
+                                                            "height":  "fill=false のときの高さ。",
+                                                            "sizes":  "レスポンシブ sizes 属性。",
+                                                            "priority":  "Next/Image の priority。",
+                                                            "quality":  "画像品質 (1-100)。",
+                                                            "fit":  "object-fit（cover|contain）。",
+                                                            "objectPosition":  "object-position CSS 値。",
+                                                            "fallbackSrc":  "失敗時のフォールバック画像。"
+                                                        },
+                                         "categoryTreeSelect":  {
+                                                                    "categories":  "カテゴリ一覧（id, name, parent_id）。",
+                                                                    "value":  "選択されたカテゴリ ID。",
+                                                                    "onChange":  "変更ハンドラ（ID 配列）。",
+                                                                    "placeholder":  "未選択時のテキスト。",
+                                                                    "disabled":  "コントロールを無効化。"
+                                                                },
+                                         "imageUpload":  {
+                                                             "onUpload":  "アップロード完了時のコールバック。",
+                                                             "onRemove":  "画像削除時のコールバック。",
+                                                             "maxSize":  "最大サイズ(MB)。",
+                                                             "accept":  "許可するファイルタイプ。",
+                                                             "multiple":  "複数ファイルを許可。",
+                                                             "disabled":  "無効化。",
+                                                             "className":  "カスタムクラス。",
+                                                             "showPreview":  "プレビュー一覧を表示。",
+                                                             "previewSize":  "プレビューサイズ(sm|md|lg)。",
+                                                             "dragDropText":  "ドラッグ\u0026ドロップ案内テキスト。",
+                                                             "browseText":  "ファイル選択ボタン文言。",
+                                                             "supportedFormatsText":  "対応形式のテキスト。"
+                                                         },
+                                         "notificationModal":  {
+                                                                   "isOpen":  "開閉状態。",
+                                                                   "onClose":  "クローズハンドラ。",
+                                                                   "notification":  "通知オブジェクト {id,title,body,type,is_read,created_at,metadata}。",
+                                                                   "titleText":  "カスタムタイトル。",
+                                                                   "openLinkText":  "リンクを開くボタン文言。",
+                                                                   "closeText":  "閉じるボタン文言。"
+                                                               },
+                                         "dataTable":  {
+                                                           "columns":  "列定義。",
+                                                           "data":  "行データ。",
+                                                           "rowKey":  "行キーの取得関数。",
+                                                           "page":  "現在ページ。",
+                                                           "pageSize":  "1ページの行数。",
+                                                           "total":  "合計行数(サーバーモード)。",
+                                                           "onQueryChange":  "クエリ変更ハンドラ(サーバー)。",
+                                                           "caption":  "キャプションノード。",
+                                                           "toolbar":  "ツールバーノード。",
+                                                           "striped":  "ストライプ行。",
+                                                           "columnDividers":  "列の区切り線。",
+                                                           "enableDensityToggle":  "密度切替を許可。",
+                                                           "enableColumnVisibilityToggle":  "列表示切替を許可。",
+                                                           "labels":  "密度/オプションのラベル。",
+                                                           "className":  "カスタムクラス。"
+                                                       }
+                                     }
+                       }
 }

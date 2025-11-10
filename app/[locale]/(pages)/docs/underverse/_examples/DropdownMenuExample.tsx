@@ -1,13 +1,16 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import DropdownMenu, { DropdownMenuItem, DropdownMenuSeparator, SelectDropdown } from "@/components/ui/DropdownMenu";
 import Button from "@/components/ui/Button";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { Edit, Trash2, Settings, User } from "lucide-react";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function DropdownMenuExample() {
+  const t = useTranslations("DocsUnderverse");
   const [openControlled, setOpenControlled] = React.useState(false);
 
   const code =
@@ -87,11 +90,27 @@ export default function DropdownMenuExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "trigger", description: t("props.dropdownMenu.trigger"), type: "React.ReactElement", default: "-" },
+    { property: "children", description: t("props.dropdownMenu.children"), type: "React.ReactNode", default: "-" },
+    { property: "className", description: t("props.dropdownMenu.className"), type: "string", default: "-" },
+    { property: "contentClassName", description: t("props.dropdownMenu.contentClassName"), type: "string", default: "-" },
+    { property: "placement", description: t("props.dropdownMenu.placement"), type: '"top" | "bottom" | "left" | "right" | "top-start" | "bottom-start" | "top-end" | "bottom-end"', default: '"bottom-start"' },
+    { property: "closeOnSelect", description: t("props.dropdownMenu.closeOnSelect"), type: "boolean", default: "true" },
+    { property: "disabled", description: t("props.dropdownMenu.disabled"), type: "boolean", default: "false" },
+    { property: "isOpen", description: t("props.dropdownMenu.isOpen"), type: "boolean", default: "-" },
+    { property: "onOpenChange", description: t("props.dropdownMenu.onOpenChange"), type: "(open: boolean) => void", default: "-" },
+    { property: "items", description: t("props.dropdownMenu.items"), type: "Array<{ label: string; icon?: React.ComponentType; onClick: () => void; disabled?: boolean; destructive?: boolean }>", default: "-" },
+  ];
+  const order = ["trigger","children","className","contentClassName","placement","closeOnSelect","disabled","isOpen","onOpenChange","items"];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"

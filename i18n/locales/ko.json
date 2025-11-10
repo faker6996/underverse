@@ -65,6 +65,17 @@
     }
   },
   "DocsUnderverse": {
+    "propsTable": {
+      "property": "속성",
+      "description": "설명",
+      "type": "타입",
+      "default": "기본값"
+    },
+    "tabs": {
+      "preview": "미리보기",
+      "code": "코드",
+      "document": "문서"
+    },
     "pageTitle": "Underverse UI – 사용 가이드",
     "pageDescription": "이 페이지는 <packageName>@underverse-ui/underverse</packageName> 패키지에서 제공하는 프로젝트에서 사용할 수 있는 UI 구성 요소의 사용법을 보여줍니다.",
     "tableOfContents": "목차",
@@ -75,55 +86,696 @@
         "peerDepsComment": "의존성 (아직 설치하지 않은 경우)",
         "usageComment": "프로젝트에서 사용"
       },
-      "button": { "title": "Button" },
-      "badge": { "title": "Badge" },
-      "avatar": { "title": "Avatar" },
-      "breadcrumb": { "title": "Breadcrumb" },
-      "card": { "title": "Card" },
-      "checkbox": { "title": "Checkbox" },
-      "textarea": { "title": "Textarea" },
-      "modal": { "title": "Modal" },
-      "tabs": { "title": "Tabs" },
+      "button": {
+        "title": "Button"
+      },
+      "badge": {
+        "title": "Badge"
+      },
+      "avatar": {
+        "title": "Avatar"
+      },
+      "breadcrumb": {
+        "title": "Breadcrumb"
+      },
+      "card": {
+        "title": "Card"
+      },
+      "checkbox": {
+        "title": "Checkbox"
+      },
+      "textarea": {
+        "title": "Textarea"
+      },
+      "modal": {
+        "title": "Modal"
+      },
+      "tabs": {
+        "title": "Tabs"
+      },
       "toast": {
-        "title": "Toast",
+        "title": "토스트",
         "description": "아래 버튼을 클릭하면 토스트가 표시됩니다."
       },
       "imports": {
-        "title": "가져오기 경로",
+        "title": "임포트 경로",
         "orInternalImport": "또는 프로젝트 내부에서 가져오기"
       },
-      "alert": { "title": "Alert (with i18n)" },
-      "accessDenied": { "title": "AccessDenied" },
-      "clientOnly": { "title": "ClientOnly" },
-      "loading": { "title": "Loading / GlobalLoading" },
-      "tooltip": { "title": "Tooltip" },
-      "popover": { "title": "Popover" },
-      "sheet": { "title": "Sheet" },
-      "switch": { "title": "Switch" },
-      "slider": { "title": "Slider" },
-      "overlayControls": { "title": "OverlayControls" },
-      "radioGroup": { "title": "RadioGroup" },
-      "scrollArea": { "title": "ScrollArea" },
-      "table": { "title": "Table" },
-      "progress": { "title": "Progress" },
-      "skeleton": { "title": "Skeleton" },
-      "carousel": { "title": "Carousel" },
-      "dropdownMenu": { "title": "DropdownMenu" },
-      "combobox": { "title": "Combobox" },
-      "multiCombobox": { "title": "MultiCombobox" },
-      "section": { "title": "Section" },
-      "smartImage": { "title": "SmartImage" },
-      "categoryTreeSelect": { "title": "CategoryTreeSelect" },
-      "imageUpload": { "title": "ImageUpload" },
-      "notificationModal": { "title": "NotificationModal (with i18n)" },
-      "dataTable": { "title": "DataTable (with i18n)" },
-      "input": { "title": "Input (with i18n)" },
-      "datePicker": { "title": "DatePicker (with i18n)" },
-      "pagination": { "title": "Pagination (with i18n)" },
-      "form": { "title": "Form (with i18n)" },
-      "themeToggle": { "title": "ThemeToggle (with i18n)" },
-      "notificationBell": { "title": "NotificationBell (with i18n)" },
-      "floatingContacts": { "title": "FloatingContacts" }
+      "alert": {
+        "title": "Alert (with i18n)"
+      },
+      "accessDenied": {
+        "title": "AccessDenied"
+      },
+      "clientOnly": {
+        "title": "ClientOnly"
+      },
+      "loading": {
+        "title": "Loading / GlobalLoading"
+      },
+      "tooltip": {
+        "title": "Tooltip"
+      },
+      "popover": {
+        "title": "Popover"
+      },
+      "sheet": {
+        "title": "Sheet"
+      },
+      "switch": {
+        "title": "Switch"
+      },
+      "slider": {
+        "title": "Slider"
+      },
+      "overlayControls": {
+        "title": "OverlayControls"
+      },
+      "radioGroup": {
+        "title": "RadioGroup"
+      },
+      "scrollArea": {
+        "title": "ScrollArea"
+      },
+      "table": {
+        "title": "Table"
+      },
+      "progress": {
+        "title": "Progress"
+      },
+      "skeleton": {
+        "title": "Skeleton"
+      },
+      "carousel": {
+        "title": "Carousel"
+      },
+      "dropdownMenu": {
+        "title": "DropdownMenu"
+      },
+      "combobox": {
+        "title": "Combobox"
+      },
+      "multiCombobox": {
+        "title": "MultiCombobox"
+      },
+      "section": {
+        "title": "Section"
+      },
+      "smartImage": {
+        "title": "SmartImage"
+      },
+      "categoryTreeSelect": {
+        "title": "CategoryTreeSelect"
+      },
+      "imageUpload": {
+        "title": "ImageUpload"
+      },
+      "notificationModal": {
+        "title": "NotificationModal (with i18n)"
+      },
+      "dataTable": {
+        "title": "DataTable (with i18n)"
+      },
+      "input": {
+        "title": "Input (with i18n)"
+      },
+      "datePicker": {
+        "title": "DatePicker (with i18n)"
+      },
+      "pagination": {
+        "title": "Pagination (with i18n)"
+      },
+      "form": {
+        "title": "Form (with i18n)"
+      },
+      "themeToggle": {
+        "title": "ThemeToggle (with i18n)"
+      },
+      "notificationBell": {
+        "title": "NotificationBell (with i18n)"
+      },
+      "floatingContacts": {
+        "title": "FloatingContacts"
+      },
+      "themeToggleHeadless": {
+        "title": "테마 토글(헤드리스)"
+      },
+      "languageSwitcherHeadless": {
+        "title": "언어 스위처(헤드리스)"
+      }
+    },
+    "props": {
+      "button": {
+        "onClick": "클릭 핸들러. Promise 반환 가능( preventDoubleClick 과 함께 사용 시 유용).",
+        "children": "버튼 내용.",
+        "type": "폼에서의 버튼 타입.",
+        "icon": "왼쪽 아이콘 컴포넌트.",
+        "iconRight": "오른쪽 아이콘 컴포넌트.",
+        "variant": "시각적 스타일 변형.",
+        "size": "버튼 크기(아이콘 전용 포함).",
+        "className": "버튼 커스텀 클래스.",
+        "iConClassName": "왼쪽 아이콘 클래스.",
+        "disabled": "버튼 비활성화.",
+        "loading": "로딩 상태 표시 및 입력 잠금.",
+        "fullWidth": "컨테이너 가로 폭을 가득 채움.",
+        "title": "네이티브 title(aria-label 대체).",
+        "spinner": "로딩 시 커스텀 스피너.",
+        "loadingText": "로딩 중 표시되는 텍스트.",
+        "preserveChildrenOnLoading": "로딩 중에도 children 유지.",
+        "preventDoubleClick": "더블클릭 방지.",
+        "lockMs": "더블클릭 방지 잠금 시간(ms).",
+        "asContainer": "자유 레이아웃(items-center 강제 안함).",
+        "noWrap": "줄바꿈 방지.",
+        "noHoverOverlay": "기본 호버 오버레이 비활성화.",
+        "aria-label": "접근성 레이블(아이콘 전용 버튼에서 유용)."
+      },
+      "badge": {
+        "children": "배지 내용.",
+        "variant": "배지 스타일 변형.",
+        "size": "크기.",
+        "className": "커스텀 클래스.",
+        "dot": "점 형태로 표시(내용 없음).",
+        "count": "표시할 숫자 카운트.",
+        "maxCount": "최대 임계값(초과 시 99+).",
+        "showZero": "0일 때도 표시.",
+        "pulse": "깜박임 애니메이션.",
+        "removable": "삭제 버튼(×) 표시.",
+        "onRemove": "삭제 시 콜백(× 클릭).",
+        "icon": "왼쪽 아이콘.",
+        "clickable": "호버/클릭 활성화.",
+        "onClick": "클릭 핸들러(clickable=true 일 때만 동작)."
+      },
+      "avatar": {
+        "src": "이미지 URL.",
+        "alt": "이미지 설명(접근성).",
+        "fallback": "이미지 없을 때의 대체 문자.",
+        "size": "아바타 크기.",
+        "className": "커스텀 클래스.",
+        "onClick": "아바타 클릭 핸들러."
+      },
+      "breadcrumb": {
+        "items": "빵부스러기 항목들(label, href, icon).",
+        "variant": "표시 스타일.",
+        "size": "크기.",
+        "separator": "사용자 정의 구분자.",
+        "showHome": "처음에 Home 표시.",
+        "homeHref": "Home 링크 경로.",
+        "className": "커스텀 클래스."
+      },
+      "card": {
+        "title": "카드 제목.",
+        "description": "제목 아래의 간단한 설명.",
+        "footer": "푸터 영역(버튼, 텍스트 등).",
+        "hoverable": "호버 효과 활성화.",
+        "clickable": "카드 전체를 클릭 가능하게.",
+        "onClick": "클릭 핸들러(clickable=true 일 때).",
+        "className": "랩퍼 커스텀 클래스.",
+        "contentClassName": "콘텐츠 영역 클래스."
+      },
+      "textarea": {
+        "label": "텍스트영역 라벨.",
+        "variant": "표시 스타일.",
+        "size": "크기.",
+        "description": "하단 보조 텍스트.",
+        "error": "오류 메시지.",
+        "maxLength": "최대 글자 수.",
+        "required": "필수 입력.",
+        "disabled": "비활성화.",
+        "value": "제어된 값.",
+        "onChange": "변경 핸들러.",
+        "placeholder": "플레이스홀더.",
+        "className": "커스텀 클래스."
+      },
+      "modal": {
+        "isOpen": "모달 열림/닫힘 상태.",
+        "onClose": "닫기 핸들러.",
+        "title": "모달 제목.",
+        "description": "헤더 내 짧은 설명.",
+        "size": "모달 크기.",
+        "showCloseButton": "닫기(X) 버튼 표시.",
+        "closeOnOverlayClick": "바깥 클릭 시 닫기.",
+        "closeOnEsc": "Esc 키로 닫기.",
+        "children": "모달 내용."
+      },
+      "tabs": {
+        "tabs": "탭 목록(value, label, content, icon?, disabled?).",
+        "variant": "표시 스타일.",
+        "size": "크기.",
+        "orientation": "방향(가로/세로).",
+        "stretch": "탭 너비를 균등 분배."
+      },
+      "toast": {
+        "ToastProvider": "앱 전역에서 토스트 사용을 가능하게 하는 Provider.",
+        "useToast": "addToast 함수를 반환하는 훅.",
+        "position": "토스트 위치.",
+        "maxToasts": "동시 표시 최대 개수."
+      },
+      "loading": {
+        "GlobalLoading": "전체 화면 로딩 오버레이.",
+        "ButtonLoading": "버튼 로딩용 래퍼.",
+        "LoadingSpinner": "사이즈/색 지정 가능한 스피너.",
+        "LoadingDots": "점 3개 애니메이션.",
+        "LoadingBar": "진행 바."
+      },
+      "tooltip": {
+        "content": "툴팁 내용.",
+        "placement": "트리거 주변의 위치.",
+        "delay": "열림/닫힘 지연(ms) 또는 {openBrace} open, close {closeBrace}.",
+        "variant": "색상 변형.",
+        "disabled": "툴팁 비활성화."
+      },
+      "carousel": {
+        "children": "캐러셀에 표시할 슬라이드 목록.",
+        "autoScroll": "슬라이드를 자동으로 전환.",
+        "autoScrollInterval": "자동 전환 간격(ms).",
+        "animation": "슬라이드 간 전환 애니메이션.",
+        "orientation": "가로/세로 방향.",
+        "showArrows": "이동 화살표 표시.",
+        "showDots": "페이지 네비게이션 점 표시.",
+        "showProgress": "자동 전환 시 상단 진행 바 표시.",
+        "showThumbnails": "썸네일 네비게이션 표시.",
+        "loop": "끝/처음에서 순환.",
+        "slidesToShow": "한 번에 표시할 슬라이드 수.",
+        "slidesToScroll": "한 번에 이동할 슬라이드 수.",
+        "className": "루트 요소 클래스.",
+        "containerClassName": "슬라이드 컨테이너 클래스.",
+        "slideClassName": "각 슬라이드 래퍼 클래스.",
+        "onSlideChange": "슬라이드 변경 시 콜백.",
+        "thumbnailRenderer": "커스텀 썸네일 렌더러.",
+        "ariaLabel": "캐러셀 영역 접근성 라벨."
+      },
+      "skeleton": {
+        "className": "스켈레톤 커스텀 클래스.",
+        "width": "너비 (px, %, 등).",
+        "height": "높이 (px, %, 등).",
+        "variant": "표시 타입 (rectangular, circular, rounded, text).",
+        "animation": "애니메이션 (pulse, wave, none).",
+        "lines": "텍스트일 때 줄 수 (variant = text).",
+        "SkeletonAvatar": {
+          "className": "커스텀 클래스.",
+          "size": "아바타 스켈레톤 크기."
+        },
+        "SkeletonButton": {
+          "className": "커스텀 클래스.",
+          "size": "버튼 스켈레톤 크기."
+        },
+        "SkeletonText": {
+          "lines": "텍스트 줄 수.",
+          "className": "커스텀 클래스.",
+          "width": "줄 너비."
+        },
+        "SkeletonCard": {
+          "showImage": "이미지 영역 표시.",
+          "showAvatar": "헤더에 아바타 표시.",
+          "className": "커스텀 클래스.",
+          "textLines": "텍스트 줄 수."
+        },
+        "SkeletonPost": {
+          "className": "커스텀 클래스."
+        },
+        "SkeletonMessage": {
+          "showAvatar": "아바타 표시.",
+          "className": "커스텀 클래스.",
+          "own": "내 메시지 레이아웃."
+        },
+        "SkeletonList": {
+          "itemHeight": "아이템 높이(px).",
+          "showAvatar": "아이템에 아바타 표시.",
+          "items": "아이템 수.",
+          "className": "커스텀 클래스."
+        },
+        "SkeletonTable": {
+          "columns": "열 수.",
+          "className": "커스텀 클래스.",
+          "rows": "행 수."
+        }
+      },
+      "checkbox": {
+        "label": "체크박스 옆에 표시되는 레이블 내용.",
+        "labelClassName": "레이블 커스텀 클래스.",
+        "containerClassName": "바깥 래퍼 커스텀 클래스.",
+        "checked": "제어되는 체크 상태.",
+        "defaultChecked": "초기 체크 상태(비제어).",
+        "onChange": "변경 핸들러(입력 이벤트 수신).",
+        "disabled": "체크박스를 비활성화.",
+        "className": "숨김 input 의 커스텀 클래스.",
+        "name": "input 의 name 속성.",
+        "value": "input 의 value 속성.",
+        "id": "input 의 id 속성."
+      },
+      "alert": {
+        "title": "알럿 제목.",
+        "description": "짧은 메시지 또는 리치 콘텐츠.",
+        "variant": "표시 변형.",
+        "className": "래퍼 커스텀 클래스.",
+        "icon": "커스텀 아이콘(변형 아이콘을 덮어씀).",
+        "dismissible": "닫기 버튼을 표시하고 닫을 수 있게 함.",
+        "onClose": "닫은 뒤 콜백.",
+        "actions": "동작 영역(버튼, 링크 등).",
+        "closeAriaLabel": "닫기 버튼 ARIA 라벨."
+      },
+      "accessDenied": {
+        "title": "제목.",
+        "description": "설명.",
+        "variant": "표시 변형.",
+        "icon": "헤더 아이콘 컴포넌트.",
+        "className": "카드 커스텀 클래스.",
+        "children": "풋터 동작/추가 내용."
+      },
+      "popover": {
+        "trigger": "트리거 요소(버튼/링크).",
+        "children": "팝오버 내부 콘텐츠.",
+        "className": "래퍼 커스텀 클래스.",
+        "contentClassName": "콘텐츠 영역 커스텀 클래스.",
+        "placement": "트리거 주변 위치.",
+        "modal": "모달로 처리(aria-modal).",
+        "disabled": "열지 못하게 비활성화.",
+        "open": "제어되는 열림 상태.",
+        "onOpenChange": "열림 상태 변경 콜백.",
+        "matchTriggerWidth": "트리거 너비에 맞춤.",
+        "contentWidth": "고정 폭(px)."
+      },
+      "sheet": {
+        "open": "열림/닫힘 상태.",
+        "onOpenChange": "열림 상태 변경 콜백.",
+        "side": "표시되는 방향.",
+        "size": "시트 크기.",
+        "variant": "표시 변형.",
+        "children": "본문 콘텐츠.",
+        "title": "헤더 제목.",
+        "description": "헤더 설명.",
+        "className": "패널 커스텀 클래스.",
+        "showClose": "헤더에 닫기 버튼 표시.",
+        "closeOnOutsideClick": "오버레이 클릭으로 닫기.",
+        "closeOnEscape": "Esc 키로 닫기.",
+        "header": "커스텀 헤더(오버라이드).",
+        "footer": "커스텀 푸터."
+      },
+      "switch": {
+        "checked": "제어되는 체크 값.",
+        "onCheckedChange": "새 체크 값을 반환하는 콜백.",
+        "label": "선택 라벨 텍스트.",
+        "size": "크기.",
+        "variant": "색/표시 변형.",
+        "disabled": "컨트롤 비활성화.",
+        "className": "래퍼 커스텀 클래스."
+      },
+      "slider": {
+        "value": "제어되는 값.",
+        "defaultValue": "초기 값(비제어).",
+        "min": "최소값.",
+        "max": "최대값.",
+        "step": "단계.",
+        "onChange": "변경 핸들러(number).",
+        "onValueChange": "별칭 변경 핸들러(number).",
+        "onMouseUp": "마우스 해제 시 호출.",
+        "onTouchEnd": "터치 종료 시 호출.",
+        "label": "레이블.",
+        "labelClassName": "레이블 커스텀 클래스.",
+        "containerClassName": "래퍼 커스텀 클래스.",
+        "trackClassName": "트랙 커스텀 클래스.",
+        "thumbClassName": "썸(핸들) 커스텀 클래스.",
+        "showValue": "값 표시.",
+        "valueClassName": "값 텍스트 커스텀 클래스.",
+        "formatValue": "표시용 값 포맷.",
+        "size": "크기.",
+        "disabled": "비활성화.",
+        "orientation": "방향(가로/세로).",
+        "noFocus": "포커스 링 제거."
+      },
+      "overlayControls": {
+        "mode": "모드: live/review.",
+        "value": "현재 위치.",
+        "max": "최대 위치/시간.",
+        "step": "시크 단계.",
+        "onChange": "위치 변경 핸들러.",
+        "onCommit": "드래그 종료 핸들러.",
+        "playing": "재생 중(review).",
+        "onTogglePlay": "재생/일시정지 전환.",
+        "onGoLive": "라이브로 이동.",
+        "volume": "볼륨 0..1.",
+        "muted": "음소거 상태.",
+        "onVolumeChange": "볼륨 변경.",
+        "onToggleMute": "음소거 전환.",
+        "rate": "재생 속도.",
+        "onChangeRate": "속도 변경.",
+        "onToggleFullscreen": "전체 화면 전환.",
+        "showOnHover": "호버 시에만 표시.",
+        "className": "커스텀 클래스.",
+        "showTime": "현재/전체 시간 표시.",
+        "skipSeconds": "건너뛰기 초(review).",
+        "onSkip": "앞뒤로 건너뛰기 콜백.",
+        "onSeekPreview": "시간에 따른 프리뷰 이미지 URL 반환.",
+        "autoHide": "무작동 시 자동 숨김.",
+        "autoHideDelay": "자동 숨김 지연(ms).",
+        "enableKeyboardShortcuts": "키보드 단축키 사용."
+      },
+      "radioGroup": {
+        "RadioGroup": {
+          "onValueChange": "변경 핸들러(string).",
+          "variant": "default | card | button.",
+          "value": "선택 값.",
+          "size": "sm | md | lg.",
+          "name": "입력 그룹 이름(자동).",
+          "orientation": "방향(가로/세로).",
+          "className": "커스텀 클래스.",
+          "error": "오류 상태.",
+          "disabled": "모든 항목 비활성화.",
+          "required": "필수.",
+          "errorMessage": "오류 메시지.",
+          "defaultValue": "초기 선택 값."
+        },
+        "RadioGroupItem": {
+          "description": "설명.",
+          "value": "항목 값.",
+          "className": "커스텀 클래스.",
+          "label": "레이블.",
+          "disabled": "이 항목 비활성화.",
+          "icon": "왼쪽 아이콘 컴포넌트."
+        },
+        "SimpleRadioGroup": {
+          "items": "{ value, label } 배열."
+        },
+        "RadioButtonGroup": {
+          "items": "{ value, label } 배열.",
+          "variant": "default | outline | solid."
+        },
+        "SegmentedControl": {
+          "items": "{ value, label } 배열."
+        },
+        "ToggleGroup": {
+          "items": "{ value, label } 배열."
+        }
+      },
+      "scrollArea": {
+        "className": "래퍼 커스텀 클래스(높이/너비 지정).",
+        "children": "스크롤 가능한 내용."
+      },
+      "table": {
+        "Table": {
+          "className": "<table> 커스텀 클래스.",
+          "containerClassName": "바깥 컨테이너 커스텀 클래스."
+        },
+        "TableHeader": {
+          "filterRow": "헤더 아래 필터 행(선택).",
+          "className": "커스텀 클래스."
+        },
+        "TableBody": {
+          "className": "커스텀 클래스."
+        },
+        "TableRow": {
+          "className": "커스텀 클래스."
+        },
+        "TableHead": {
+          "className": "커스텀 클래스."
+        },
+        "TableCell": {
+          "className": "커스텀 클래스."
+        },
+        "TableCaption": {
+          "className": "커스텀 클래스."
+        }
+      },
+      "progress": {
+        "Progress": {
+          "max": "최대값.",
+          "size": "크기.",
+          "status": "normal | error | complete.",
+          "animated": "애니메이션.",
+          "striped": "스트라이프 배경.",
+          "label": "헤더 라벨.",
+          "showValue": "퍼센트/값 표시.",
+          "value": "값 0..max.",
+          "description": "설명 텍스트.",
+          "className": "커스텀 클래스.",
+          "indeterminate": "불확정 모드.",
+          "variant": "색상 변형."
+        },
+        "CircularProgress": {
+          "variant": "색상 변형.",
+          "max": "최대값.",
+          "showValue": "% 표시.",
+          "size": "지름(px).",
+          "indeterminate": "불확정 모드.",
+          "value": "값 0..max."
+        },
+        "StepProgress": {
+          "size": "크기.",
+          "currentStep": "현재 단계(0 기준).",
+          "className": "커스텀 클래스.",
+          "variant": "색상 변형.",
+          "steps": "단계 목록."
+        },
+        "MiniProgress": {
+          "showValue": "% 표시.",
+          "variant": "색상 변형.",
+          "max": "최대값.",
+          "value": "값 0..max.",
+          "className": "커스텀 클래스."
+        },
+        "BatteryProgress": {
+          "showValue": "% 표시.",
+          "charging": "충전 중 표시.",
+          "max": "최대(100).",
+          "value": "배터리 %.",
+          "className": "커스텀 클래스."
+        },
+        "SegmentedProgress": {
+          "segments": "세그먼트 수.",
+          "variant": "색상 변형.",
+          "activeSegments": "활성 세그먼트 수.",
+          "className": "커스텀 클래스.",
+          "size": "크기."
+        },
+        "LoadingProgress": {
+          "label": "라벨.",
+          "timeRemaining": "남은 시간 텍스트.",
+          "speed": "속도 텍스트.",
+          "value": "값 0..max.",
+          "variant": "색상 변형.",
+          "status": "loading | complete | error | paused.",
+          "className": "커스텀 클래스.",
+          "max": "최대값."
+        }
+      },
+      "dropdownMenu": {
+        "trigger": "트리거 요소(버튼/링크).",
+        "children": "사용자 정의 내용(children API).",
+        "className": "래퍼 커스텀 클래스.",
+        "contentClassName": "콘텐츠 영역 커스텀 클래스.",
+        "placement": "트리거 주변 위치.",
+        "closeOnSelect": "선택 후 닫기.",
+        "disabled": "열지 못하게 비활성화.",
+        "isOpen": "제어되는 열림 상태.",
+        "onOpenChange": "열림 상태 변경 핸들러.",
+        "items": "메뉴 항목 배열(label, icon?, onClick, disabled?, destructive?)."
+      },
+      "combobox": {
+        "id": "입력 id(aria).",
+        "options": "옵션 목록(string 또는 {label,value}).",
+        "value": "선택된 값.",
+        "onChange": "변경 핸들러(value).",
+        "placeholder": "트리거 자리표시자.",
+        "className": "트리거 커스텀 클래스.",
+        "disabled": "비활성화.",
+        "size": "크기.",
+        "variant": "표시 변형.",
+        "allowClear": "선택 지우기 버튼 표시.",
+        "searchPlaceholder": "검색 입력 자리표시자(옵션이 많을 때).",
+        "emptyText": "결과 없음 텍스트.",
+        "usePortal": "포털로 드롭다운 렌더링.",
+        "label": "레이블.",
+        "required": "필수 표시.",
+        "fontBold": "레이블 굵게."
+      },
+      "multiCombobox": {
+        "id": "입력 id(aria).",
+        "options": "옵션(string 또는 {value,label}).",
+        "value": "선택 값 배열.",
+        "onChange": "변경 핸들러(배열).",
+        "placeholder": "자리표시자.",
+        "maxSelected": "최대 선택 수.",
+        "disabledOptions": "선택 불가 값.",
+        "showTags": "선택 태그 표시.",
+        "showClear": "지우기 버튼 표시.",
+        "className": "래퍼 커스텀 클래스.",
+        "disabled": "비활성화.",
+        "size": "크기.",
+        "label": "레이블.",
+        "title": "컨트롤 상단 제목.",
+        "required": "필수 표시.",
+        "displayFormat": "선택 라벨 표시 형식화."
+      },
+      "section": {
+        "children": "섹션 본문 내용.",
+        "className": "<section> 커스텀 클래스.",
+        "variant": "표시 변형.",
+        "spacing": "세로 간격 (sm|md|lg|xl).",
+        "fullWidth": "전체 너비로 확장(컨테이너 없음).",
+        "outlined": "Card와 유사한 얇은 테두리 표시."
+      },
+      "smartImage": {
+        "src": "이미지 URL.",
+        "alt": "대체 텍스트.",
+        "className": "래퍼 커스텀 클래스.",
+        "ratioClass": "종횡비 유틸리티 클래스.",
+        "roundedClass": "모서리 둥글기 클래스.",
+        "fill": "fill 레이아웃 사용; false면 width/height 사용.",
+        "width": "fill=false일 때 너비.",
+        "height": "fill=false일 때 높이.",
+        "sizes": "반응형 sizes 속성.",
+        "priority": "Next/Image priority.",
+        "quality": "이미지 품질 (1-100).",
+        "fit": "object-fit (cover|contain).",
+        "objectPosition": "object-position CSS 값.",
+        "fallbackSrc": "실패 시 대체 이미지."
+      },
+      "categoryTreeSelect": {
+        "categories": "카테고리 목록(id, name, parent_id).",
+        "value": "선택된 카테고리 ID.",
+        "onChange": "변경 핸들러(ID 배열).",
+        "placeholder": "선택 전 텍스트.",
+        "disabled": "컨트롤 비활성화."
+      },
+      "imageUpload": {
+        "onUpload": "업로드 완료 콜백.",
+        "onRemove": "이미지 삭제 콜백.",
+        "maxSize": "최대 크기(MB).",
+        "accept": "허용 파일 타입.",
+        "multiple": "여러 파일 허용.",
+        "disabled": "비활성화.",
+        "className": "커스텀 클래스.",
+        "showPreview": "미리보기 목록 표시.",
+        "previewSize": "미리보기 크기(sm|md|lg).",
+        "dragDropText": "드래그&드롭 안내 텍스트.",
+        "browseText": "파일 선택 버튼 문구.",
+        "supportedFormatsText": "지원 형식 텍스트."
+      },
+      "notificationModal": {
+        "isOpen": "열림/닫힘 상태.",
+        "onClose": "닫기 핸들러.",
+        "notification": "알림 객체 {id,title,body,type,is_read,created_at,metadata}.",
+        "titleText": "사용자 지정 제목.",
+        "openLinkText": "링크 열기 버튼 문구.",
+        "closeText": "닫기 버튼 문구."
+      },
+      "dataTable": {
+        "columns": "열 정의.",
+        "data": "행 데이터.",
+        "rowKey": "행 키 추출 함수.",
+        "page": "현재 페이지.",
+        "pageSize": "페이지당 행 수.",
+        "total": "총 행 수(서버).",
+        "onQueryChange": "쿼리 변경 핸들러(서버).",
+        "caption": "캡션 노드.",
+        "toolbar": "툴바 노드.",
+        "striped": "스트라이프 행.",
+        "columnDividers": "열 구분선.",
+        "enableDensityToggle": "밀도 토글 허용.",
+        "enableColumnVisibilityToggle": "열 표시 토글 허용.",
+        "labels": "밀도/옵션 라벨.",
+        "className": "커스텀 클래스."
+      }
     }
   }
 }

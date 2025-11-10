@@ -1,11 +1,14 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import Textarea from "@/components/ui/Textarea";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function TextareaExample() {
+  const t = useTranslations("DocsUnderverse");
   const [value1, setValue1] = React.useState("");
   const [value2, setValue2] = React.useState("");
   const [value3, setValue3] = React.useState("This textarea has an error");
@@ -88,11 +91,29 @@ export default function TextareaExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "label", description: t("props.textarea.label"), type: "string", default: "—" },
+    { property: "variant", description: t("props.textarea.variant"), type: '"default" | "filled" | "outlined"', default: '"default"' },
+    { property: "size", description: t("props.textarea.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "description", description: t("props.textarea.description"), type: "string", default: "—" },
+    { property: "error", description: t("props.textarea.error"), type: "string", default: "—" },
+    { property: "maxLength", description: t("props.textarea.maxLength"), type: "number", default: "—" },
+    { property: "required", description: t("props.textarea.required"), type: "boolean", default: "false" },
+    { property: "disabled", description: t("props.textarea.disabled"), type: "boolean", default: "false" },
+    { property: "value", description: t("props.textarea.value"), type: "string", default: "—" },
+    { property: "onChange", description: t("props.textarea.onChange"), type: "(e: React.ChangeEvent<HTMLTextAreaElement>) => void", default: "—" },
+    { property: "placeholder", description: t("props.textarea.placeholder"), type: "string", default: "—" },
+    { property: "className", description: t("props.textarea.className"), type: "string", default: "—" },
+  ];
+  const order = ["label","variant","size","description","error","maxLength","required","disabled","value","onChange","placeholder","className"];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"

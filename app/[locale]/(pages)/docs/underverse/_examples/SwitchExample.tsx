@@ -1,11 +1,14 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import Switch from "@/components/ui/Switch";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function SwitchExample() {
+  const t = useTranslations("DocsUnderverse");
   const [checked1, setChecked1] = React.useState(false);
   const [checked2, setChecked2] = React.useState(true);
   const [checked3, setChecked3] = React.useState(false);
@@ -92,11 +95,24 @@ export default function SwitchExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "checked", description: t("props.switch.checked"), type: "boolean", default: "-" },
+    { property: "onCheckedChange", description: t("props.switch.onCheckedChange"), type: "(checked: boolean) => void", default: "-" },
+    { property: "label", description: t("props.switch.label"), type: "string", default: "-" },
+    { property: "size", description: t("props.switch.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "variant", description: t("props.switch.variant"), type: '"default" | "success" | "warning" | "danger"', default: '"default"' },
+    { property: "disabled", description: t("props.switch.disabled"), type: "boolean", default: "false" },
+    { property: "className", description: t("props.switch.className"), type: "string", default: "-" },
+  ];
+  const order = ["checked","onCheckedChange","label","size","variant","disabled","className"];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"

@@ -1,12 +1,15 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function CardExample() {
+  const t = useTranslations("DocsUnderverse");
   const [clickCount, setClickCount] = React.useState(0);
 
   const code =
@@ -124,11 +127,25 @@ export default function CardExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "title", description: t("props.card.title"), type: "string", default: "—" },
+    { property: "description", description: t("props.card.description"), type: "string", default: "—" },
+    { property: "footer", description: t("props.card.footer"), type: "React.ReactNode", default: "—" },
+    { property: "hoverable", description: t("props.card.hoverable"), type: "boolean", default: "false" },
+    { property: "clickable", description: t("props.card.clickable"), type: "boolean", default: "false" },
+    { property: "onClick", description: t("props.card.onClick"), type: "() => void", default: "—" },
+    { property: "className", description: t("props.card.className"), type: "string", default: "—" },
+    { property: "contentClassName", description: t("props.card.contentClassName"), type: "string", default: "—" },
+  ];
+  const order = ["title", "description", "footer", "hoverable", "clickable", "onClick", "className", "contentClassName"];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"

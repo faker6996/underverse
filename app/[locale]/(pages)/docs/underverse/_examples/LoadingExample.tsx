@@ -1,14 +1,17 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { GlobalLoading, ButtonLoading } from "@/components/ui/GlobalLoading";
 import { LoadingSpinner, LoadingDots, LoadingBar, InlineLoading } from "@/components/ui/Loading";
 import Button from "@/components/ui/Button";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 import { loading } from "@/lib/utils/loading";
 
 export default function LoadingExample() {
+  const t = useTranslations("DocsUnderverse");
   const [btnLoading, setBtnLoading] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
 
@@ -163,14 +166,26 @@ export default function LoadingExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "GlobalLoading", description: t("props.loading.GlobalLoading"), type: "Component", default: "—" },
+    { property: "ButtonLoading", description: t("props.loading.ButtonLoading"), type: "Component", default: "—" },
+    { property: "LoadingSpinner", description: t("props.loading.LoadingSpinner"), type: "Component", default: "—" },
+    { property: "LoadingDots", description: t("props.loading.LoadingDots"), type: "Component", default: "—" },
+    { property: "LoadingBar", description: t("props.loading.LoadingBar"), type: "Component", default: "—" },
+  ];
+  const order = ["GlobalLoading","ButtonLoading","LoadingSpinner","LoadingDots","LoadingBar"];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"
     />
   );
 }
+

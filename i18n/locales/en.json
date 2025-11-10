@@ -65,6 +65,17 @@
     }
   },
   "DocsUnderverse": {
+    "propsTable": {
+      "property": "Property",
+      "description": "Description",
+      "type": "Type",
+      "default": "Default"
+    },
+    "tabs": {
+      "preview": "Preview",
+      "code": "Code",
+      "document": "Document"
+    },
     "pageTitle": "Underverse UI – Usage Guide",
     "pageDescription": "This page demonstrates how to use the available UI components in the project, provided by the <packageName>@underverse-ui/underverse</packageName> package.",
     "tableOfContents": "Table of Contents",
@@ -211,6 +222,559 @@
       },
       "floatingContacts": {
         "title": "FloatingContacts"
+      }
+    },
+    "props": {
+      "button": {
+        "onClick": "Click handler; may return a Promise (works with preventDoubleClick).",
+        "children": "Button content.",
+        "type": "Button type in forms.",
+        "icon": "Left icon component.",
+        "iconRight": "Right icon component.",
+        "variant": "Visual style variant.",
+        "size": "Button size (includes icon-only).",
+        "className": "Custom class for the button.",
+        "iConClassName": "Custom class for the left icon.",
+        "disabled": "Disable the button.",
+        "loading": "Show loading state and lock interactions.",
+        "fullWidth": "Expand to full width of container.",
+        "title": "Native title tooltip; fallback for aria-label.",
+        "spinner": "Custom spinner component when loading.",
+        "loadingText": "Text shown while loading.",
+        "preserveChildrenOnLoading": "Keep children visible during loading.",
+        "preventDoubleClick": "Debounce double-clicks to prevent rapid submissions.",
+        "lockMs": "Lock duration (ms) for preventDoubleClick.",
+        "asContainer": "Free layout (don’t force items-center).",
+        "noWrap": "Prevent line-wrapping for content.",
+        "noHoverOverlay": "Disable default hover gradient overlay.",
+        "aria-label": "Accessibility label (especially for icon-only buttons)."
+      },
+      "badge": {
+        "children": "Badge content.",
+        "variant": "Badge visual variant.",
+        "size": "Badge size.",
+        "className": "Custom class for the badge.",
+        "dot": "Show as a small dot (no content).",
+        "count": "Counter number to display.",
+        "maxCount": "Max threshold before showing 99+ style.",
+        "showZero": "Show when count is 0.",
+        "pulse": "Enable pulsing animation.",
+        "removable": "Show a remove (×) button.",
+        "onRemove": "Callback when removed (click ×).",
+        "icon": "Left icon component.",
+        "clickable": "Enable hover/click interactions.",
+        "onClick": "Click handler (effective when clickable = true)."
+      },
+      "avatar": {
+        "src": "Image source URL.",
+        "alt": "Accessible image description.",
+        "fallback": "Fallback letters when no image.",
+        "size": "Avatar size.",
+        "className": "Custom class.",
+        "onClick": "Click handler on avatar."
+      },
+      "breadcrumb": {
+        "items": "Breadcrumb items (label, href, icon).",
+        "variant": "Display variant.",
+        "size": "Size.",
+        "separator": "Custom separator character/node.",
+        "showHome": "Show Home item at the start.",
+        "homeHref": "Home link path.",
+        "className": "Custom class."
+      },
+      "card": {
+        "title": "Card title.",
+        "description": "Short description under title.",
+        "footer": "Footer area (actions, text...).",
+        "hoverable": "Enable hover effects.",
+        "clickable": "Make entire card clickable.",
+        "onClick": "Click handler (effective when clickable = true).",
+        "className": "Custom class for wrapper.",
+        "contentClassName": "Custom class for content area."
+      },
+      "textarea": {
+        "label": "Textarea label.",
+        "variant": "Display variant.",
+        "size": "Size.",
+        "description": "Helper text below.",
+        "error": "Error message.",
+        "maxLength": "Character limit.",
+        "required": "Mark as required.",
+        "disabled": "Disable the field.",
+        "value": "Controlled value.",
+        "onChange": "Change handler.",
+        "placeholder": "Placeholder text.",
+        "className": "Custom class."
+      },
+      "modal": {
+        "isOpen": "Open/close state of modal.",
+        "onClose": "Close handler.",
+        "title": "Modal title.",
+        "description": "Short description in header.",
+        "size": "Modal size.",
+        "showCloseButton": "Show close (X) button.",
+        "closeOnOverlayClick": "Close when clicking outside.",
+        "closeOnEsc": "Close on Escape key.",
+        "children": "Modal content."
+      },
+      "tabs": {
+        "tabs": "List of tabs (value, label, content, icon?, disabled?).",
+        "variant": "Display variant.",
+        "size": "Size.",
+        "orientation": "Orientation (horizontal/vertical).",
+        "stretch": "Evenly distribute tab widths."
+      },
+      "toast": {
+        "ToastProvider": "Provider that enables toasts across the app.",
+        "useToast": "Hook returning addToast function.",
+        "position": "Toast position on screen.",
+        "maxToasts": "Maximum number of toasts to display."
+      },
+      "loading": {
+        "GlobalLoading": "Full-screen loading overlay.",
+        "ButtonLoading": "Wrapper to show loading state for a button.",
+        "LoadingSpinner": "Spinner component with size/color.",
+        "LoadingDots": "Three animated dots.",
+        "LoadingBar": "Progress bar component."
+      },
+      "tooltip": {
+        "content": "Tooltip content.",
+        "placement": "Placement around the trigger.",
+        "delay": "Open/close delay (ms) or object {openBrace} open, close {closeBrace}.",
+        "variant": "Color variant.",
+        "disabled": "Disable tooltip."
+      },
+      "checkbox": {
+        "label": "Label content shown next to the box.",
+        "labelClassName": "Custom class for the label.",
+        "containerClassName": "Custom class for the outer wrapper.",
+        "checked": "Controlled checked state.",
+        "defaultChecked": "Initial checked state (uncontrolled).",
+        "onChange": "Change handler receiving input event.",
+        "disabled": "Disable the checkbox.",
+        "className": "Custom class for the hidden input.",
+        "name": "Input name attribute.",
+        "value": "Input value attribute.",
+        "id": "Input id attribute."
+      },
+      "carousel": {
+        "children": "Slides to render inside the carousel.",
+        "autoScroll": "Auto-advance slides.",
+        "autoScrollInterval": "Interval (ms) between auto-advance steps.",
+        "animation": "Transition animation between slides.",
+        "orientation": "Horizontal or vertical layout.",
+        "showArrows": "Show navigation arrows.",
+        "showDots": "Show pagination dots.",
+        "showProgress": "Show top progress bar when auto-scrolling.",
+        "showThumbnails": "Show clickable thumbnails for navigation.",
+        "loop": "Loop back to start/end when reaching limits.",
+        "slidesToShow": "Number of slides visible at once.",
+        "slidesToScroll": "Number of slides to move per step.",
+        "className": "Custom class for root.",
+        "containerClassName": "Custom class for slides container.",
+        "slideClassName": "Custom class for each slide wrapper.",
+        "onSlideChange": "Callback when current slide index changes.",
+        "thumbnailRenderer": "Custom renderer for thumbnails (child, index) => node.",
+        "ariaLabel": "Accessible label for the carousel region."
+      },
+      "skeleton": {
+        "className": "Custom class for the skeleton.",
+        "width": "Explicit width (px, %, etc.).",
+        "height": "Explicit height (px, %, etc.).",
+        "variant": "Display variant (rectangular, circular, rounded, text).",
+        "animation": "Animation style (pulse, wave, none).",
+        "lines": "Number of lines (effective when variant = text).",
+        "SkeletonAvatar": {
+          "size": "Avatar skeleton size.",
+          "className": "Custom class."
+        },
+        "SkeletonButton": {
+          "size": "Button skeleton size.",
+          "className": "Custom class."
+        },
+        "SkeletonText": {
+          "lines": "How many text lines.",
+          "className": "Custom class.",
+          "width": "Line width (percentage or px)."
+        },
+        "SkeletonCard": {
+          "showAvatar": "Show avatar header.",
+          "showImage": "Show image area.",
+          "textLines": "Number of text lines.",
+          "className": "Custom class."
+        },
+        "SkeletonPost": {
+          "className": "Custom class."
+        },
+        "SkeletonMessage": {
+          "own": "Render as own message layout.",
+          "showAvatar": "Show avatar bubble.",
+          "className": "Custom class."
+        },
+        "SkeletonList": {
+          "items": "Number of list items.",
+          "itemHeight": "Item height in px.",
+          "showAvatar": "Show avatar in items.",
+          "className": "Custom class."
+        },
+        "SkeletonTable": {
+          "rows": "Number of rows.",
+          "columns": "Number of columns.",
+          "className": "Custom class."
+        }
+      },
+      "alert": {
+        "title": "Alert title.",
+        "description": "Short message or rich content.",
+        "variant": "Visual variant.",
+        "className": "Custom class for wrapper.",
+        "icon": "Custom icon node (override variant icon).",
+        "dismissible": "Show a close button and allow dismiss.",
+        "onClose": "Callback after dismissed.",
+        "actions": "Optional action nodes (buttons, links).",
+        "closeAriaLabel": "ARIA label for close button."
+      },
+      "accessDenied": {
+        "title": "Title text.",
+        "description": "Description text.",
+        "variant": "Visual variant.",
+        "icon": "Icon component for header.",
+        "className": "Custom class for card.",
+        "children": "Optional actions/content in footer."
+      },
+      "popover": {
+        "trigger": "Trigger element (button/link).",
+        "children": "Content inside the popover.",
+        "className": "Custom class for wrapper.",
+        "contentClassName": "Custom class for content panel.",
+        "placement": "Placement around the trigger.",
+        "modal": "Treat as modal (aria-modal).",
+        "disabled": "Disable opening.",
+        "open": "Controlled open state.",
+        "onOpenChange": "Callback when open state changes.",
+        "matchTriggerWidth": "Match content width to trigger width.",
+        "contentWidth": "Fixed content width (px)."
+      },
+      "sheet": {
+        "open": "Open/close state.",
+        "onOpenChange": "Callback to change open state.",
+        "side": "Which side to appear from.",
+        "size": "Sheet size.",
+        "variant": "Display variant.",
+        "children": "Sheet body content.",
+        "title": "Title in header.",
+        "description": "Description in header.",
+        "className": "Custom class for panel.",
+        "showClose": "Show close button in header.",
+        "closeOnOutsideClick": "Close by clicking the overlay.",
+        "closeOnEscape": "Close with Escape key.",
+        "header": "Custom header node (override).",
+        "footer": "Custom footer node."
+      },
+      "switch": {
+        "checked": "Controlled checked value.",
+        "onCheckedChange": "Callback with new checked value.",
+        "label": "Optional label text.",
+        "size": "Switch size.",
+        "variant": "Color/visual variant.",
+        "disabled": "Disable the control.",
+        "className": "Custom class for wrapper."
+      },
+      "slider": {
+        "value": "Controlled value.",
+        "defaultValue": "Initial value (uncontrolled).",
+        "min": "Minimum value.",
+        "max": "Maximum value.",
+        "step": "Step size.",
+        "onChange": "Change handler (number).",
+        "onValueChange": "Alias change handler (number).",
+        "onMouseUp": "Called on mouse release.",
+        "onTouchEnd": "Called on touch end.",
+        "label": "Label content.",
+        "labelClassName": "Custom class for label.",
+        "containerClassName": "Custom class for wrapper.",
+        "trackClassName": "Custom class for track.",
+        "thumbClassName": "Custom class for thumb.",
+        "showValue": "Show value text.",
+        "valueClassName": "Custom class for value text.",
+        "formatValue": "Format value for display.",
+        "size": "Slider size.",
+        "disabled": "Disable slider.",
+        "orientation": "Orientation (horizontal/vertical).",
+        "noFocus": "Remove focus ring styling."
+      },
+      "overlayControls": {
+        "mode": "Mode: live or review.",
+        "value": "Current time/position.",
+        "max": "Max time/position.",
+        "step": "Seek step size.",
+        "onChange": "Change handler for position.",
+        "onCommit": "Handler when drag ends.",
+        "playing": "Is playing (review).",
+        "onTogglePlay": "Toggle play/pause.",
+        "onGoLive": "Go to live (review).",
+        "volume": "Volume 0..1.",
+        "muted": "Muted state.",
+        "onVolumeChange": "Change volume.",
+        "onToggleMute": "Toggle mute.",
+        "rate": "Playback rate.",
+        "onChangeRate": "Change rate.",
+        "onToggleFullscreen": "Toggle fullscreen.",
+        "showOnHover": "Show controls only on hover.",
+        "className": "Custom class for wrapper.",
+        "showTime": "Show current/total time text.",
+        "skipSeconds": "Skip seconds (review).",
+        "onSkip": "Skip forward/backward callback.",
+        "onSeekPreview": "Return preview image URL for time.",
+        "autoHide": "Auto-hide after inactivity.",
+        "autoHideDelay": "Auto-hide delay (ms).",
+        "enableKeyboardShortcuts": "Enable keyboard shortcuts."
+      },
+      "radioGroup": {
+        "RadioGroup": {
+          "onValueChange": "Change handler (string).",
+          "variant": "default | card | button.",
+          "value": "Selected value.",
+          "size": "sm | md | lg.",
+          "name": "Input group name (auto).",
+          "orientation": "horizontal/vertical.",
+          "className": "Custom class.",
+          "error": "Error state.",
+          "disabled": "Disable all items.",
+          "required": "Mark group as required.",
+          "errorMessage": "Error message text.",
+          "defaultValue": "Initial selected value."
+        },
+        "RadioGroupItem": {
+          "description": "Helper text.",
+          "value": "Item value.",
+          "className": "Custom class.",
+          "label": "Label text.",
+          "disabled": "Disable this item.",
+          "icon": "Left icon component."
+        },
+        "SimpleRadioGroup": {
+          "items": "Array of { value, label }."
+        },
+        "RadioButtonGroup": {
+          "items": "Array of { value, label }.",
+          "variant": "default | outline | solid."
+        },
+        "SegmentedControl": {
+          "items": "Array of { value, label }."
+        },
+        "ToggleGroup": {
+          "items": "Array of { value, label }."
+        }
+      },
+      "scrollArea": {
+        "className": "Custom class for wrapper (sets height/width).",
+        "children": "Scrollable content."
+      },
+      "table": {
+        "Table": {
+          "className": "Custom class for <table>.",
+          "containerClassName": "Custom class for outer container."
+        },
+        "TableHeader": {
+          "filterRow": "Optional filter row under header.",
+          "className": "Custom class."
+        },
+        "TableBody": {
+          "className": "Custom class."
+        },
+        "TableRow": {
+          "className": "Custom class."
+        },
+        "TableHead": {
+          "className": "Custom class."
+        },
+        "TableCell": {
+          "className": "Custom class."
+        },
+        "TableCaption": {
+          "className": "Custom class."
+        }
+      },
+      "progress": {
+        "Progress": {
+          "max": "Maximum value.",
+          "size": "Size.",
+          "status": "normal | error | complete.",
+          "animated": "Animate fill.",
+          "striped": "Striped background.",
+          "label": "Header label text.",
+          "showValue": "Show percentage/value.",
+          "value": "Value 0..max.",
+          "description": "Helper description.",
+          "className": "Custom class.",
+          "indeterminate": "Indeterminate mode.",
+          "variant": "Color variant."
+        },
+        "CircularProgress": {
+          "variant": "Color variant.",
+          "max": "Maximum value.",
+          "showValue": "Show percentage.",
+          "size": "Diameter in px.",
+          "indeterminate": "Indeterminate mode.",
+          "value": "Value 0..max."
+        },
+        "StepProgress": {
+          "size": "Size.",
+          "currentStep": "Current active step index (0-based).",
+          "className": "Custom class.",
+          "variant": "Color variant.",
+          "steps": "List of step labels."
+        },
+        "MiniProgress": {
+          "showValue": "Show percentage.",
+          "variant": "Color variant.",
+          "max": "Maximum value.",
+          "value": "Value 0..max.",
+          "className": "Custom class."
+        },
+        "BatteryProgress": {
+          "showValue": "Show percent text.",
+          "charging": "Show charging animation.",
+          "max": "Maximum (100).",
+          "value": "Battery percent.",
+          "className": "Custom class."
+        },
+        "SegmentedProgress": {
+          "segments": "Total segments.",
+          "variant": "Color variant.",
+          "activeSegments": "Active segments.",
+          "className": "Custom class.",
+          "size": "Size."
+        },
+        "LoadingProgress": {
+          "label": "Label text.",
+          "timeRemaining": "Time remaining text.",
+          "speed": "Speed text.",
+          "value": "Value 0..max.",
+          "variant": "Color variant.",
+          "status": "loading | complete | error | paused.",
+          "className": "Custom class.",
+          "max": "Maximum value."
+        }
+      },
+      "dropdownMenu": {
+        "trigger": "Trigger element (button/link).",
+        "children": "Custom content (children API).",
+        "className": "Custom class for wrapper.",
+        "contentClassName": "Custom class for content panel.",
+        "placement": "Placement around trigger.",
+        "closeOnSelect": "Close after selecting an item.",
+        "disabled": "Disable opening.",
+        "isOpen": "Controlled open state.",
+        "onOpenChange": "Open-state change handler.",
+        "items": "Menu items array (label, icon?, onClick, disabled?, destructive?)."
+      },
+      "combobox": {
+        "id": "Input id (aria).",
+        "options": "Options list (string or {label,value}).",
+        "value": "Selected value.",
+        "onChange": "Change handler (value).",
+        "placeholder": "Trigger placeholder text.",
+        "className": "Custom class for trigger.",
+        "disabled": "Disable the control.",
+        "size": "Control size.",
+        "variant": "Visual variant.",
+        "allowClear": "Show clear icon to reset.",
+        "searchPlaceholder": "Search input placeholder (when many options).",
+        "emptyText": "Text when no results.",
+        "usePortal": "Render dropdown via portal.",
+        "label": "Label text.",
+        "required": "Show required asterisk.",
+        "fontBold": "Bold label text."
+      },
+      "multiCombobox": {
+        "id": "Input id (aria).",
+        "options": "Options (string or {value,label}).",
+        "value": "Selected values (array).",
+        "onChange": "Change handler (values).",
+        "placeholder": "Placeholder text.",
+        "maxSelected": "Max items allowed.",
+        "disabledOptions": "Values not selectable.",
+        "showTags": "Show selection tags inside trigger.",
+        "showClear": "Show clear button.",
+        "className": "Custom class for wrapper.",
+        "disabled": "Disable the control.",
+        "size": "Control size.",
+        "label": "Label text.",
+        "title": "Title above control.",
+        "required": "Show required asterisk.",
+        "displayFormat": "Format selected option label."
+      },
+      "section": {
+        "children": "Section body content.",
+        "className": "Custom class for <section>.",
+        "variant": "Visual variant.",
+        "spacing": "Vertical padding (sm|md|lg|xl).",
+        "fullWidth": "Stretch to full width (no container).",
+        "outlined": "Show subtle border like Card."
+      },
+      "smartImage": {
+        "src": "Image source URL.",
+        "alt": "Alt text.",
+        "className": "Custom class for wrapper.",
+        "ratioClass": "Aspect-ratio utility class.",
+        "roundedClass": "Rounded-corners class.",
+        "fill": "Use fill layout; else use width/height.",
+        "width": "Width when fill=false.",
+        "height": "Height when fill=false.",
+        "sizes": "Responsive sizes attribute.",
+        "priority": "Next/Image priority flag.",
+        "quality": "Image quality (1-100).",
+        "fit": "Object-fit (cover|contain).",
+        "objectPosition": "Object-position CSS value.",
+        "fallbackSrc": "Fallback src when load fails."
+      },
+      "categoryTreeSelect": {
+        "categories": "Flat list of categories (id, name, parent_id).",
+        "value": "Selected category ids.",
+        "onChange": "Change handler (ids).",
+        "placeholder": "Trigger text when empty.",
+        "disabled": "Disable the control."
+      },
+      "imageUpload": {
+        "onUpload": "Callback when file uploaded.",
+        "onRemove": "Callback when image removed.",
+        "maxSize": "Max file size (MB).",
+        "accept": "Accept file types.",
+        "multiple": "Allow multiple files.",
+        "disabled": "Disable control.",
+        "className": "Custom class.",
+        "showPreview": "Show preview list.",
+        "previewSize": "Preview size (sm|md|lg).",
+        "dragDropText": "Drag & drop instruction text.",
+        "browseText": "Browse button text.",
+        "supportedFormatsText": "Supported formats text."
+      },
+      "notificationModal": {
+        "isOpen": "Open/close state.",
+        "onClose": "Close handler.",
+        "notification": "Notification item {id,title,body,type,is_read,created_at,metadata}.",
+        "titleText": "Custom title text.",
+        "openLinkText": "Open link button text.",
+        "closeText": "Close button text."
+      },
+      "dataTable": {
+        "columns": "Column definitions.",
+        "data": "Table rows.",
+        "rowKey": "Row key extractor.",
+        "page": "Current page.",
+        "pageSize": "Rows per page.",
+        "total": "Total rows for server mode.",
+        "onQueryChange": "Server-side query change handler.",
+        "caption": "Caption node.",
+        "toolbar": "Toolbar node.",
+        "striped": "Striped rows.",
+        "columnDividers": "Show vertical column dividers.",
+        "enableDensityToggle": "Allow density toggle.",
+        "enableColumnVisibilityToggle": "Allow column visibility toggle.",
+        "labels": "Localized labels for density/options.",
+        "className": "Custom class."
       }
     }
   }

@@ -1,11 +1,14 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { Carousel } from "@/components/ui/Carousel";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function CarouselExample() {
+  const t = useTranslations("DocsUnderverse");
   const code =
     `import { Carousel } from '@underverse-ui/underverse'\n\n` +
     `// 1) Basic Carousel\n` +
@@ -249,11 +252,37 @@ export default function CarouselExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "children", description: t("props.carousel.children"), type: "React.ReactNode[]", default: "-" },
+    { property: "autoScroll", description: t("props.carousel.autoScroll"), type: "boolean", default: "true" },
+    { property: "autoScrollInterval", description: t("props.carousel.autoScrollInterval"), type: "number", default: "5000" },
+    { property: "animation", description: t("props.carousel.animation"), type: '"slide" | "fade" | "scale"', default: '"slide"' },
+    { property: "orientation", description: t("props.carousel.orientation"), type: '"horizontal" | "vertical"', default: '"horizontal"' },
+    { property: "showArrows", description: t("props.carousel.showArrows"), type: "boolean", default: "true" },
+    { property: "showDots", description: t("props.carousel.showDots"), type: "boolean", default: "true" },
+    { property: "showProgress", description: t("props.carousel.showProgress"), type: "boolean", default: "false" },
+    { property: "showThumbnails", description: t("props.carousel.showThumbnails"), type: "boolean", default: "false" },
+    { property: "loop", description: t("props.carousel.loop"), type: "boolean", default: "true" },
+    { property: "slidesToShow", description: t("props.carousel.slidesToShow"), type: "number", default: "1" },
+    { property: "slidesToScroll", description: t("props.carousel.slidesToScroll"), type: "number", default: "1" },
+    { property: "className", description: t("props.carousel.className"), type: "string", default: "-" },
+    { property: "containerClassName", description: t("props.carousel.containerClassName"), type: "string", default: "-" },
+    { property: "slideClassName", description: t("props.carousel.slideClassName"), type: "string", default: "-" },
+    { property: "onSlideChange", description: t("props.carousel.onSlideChange"), type: "(index: number) => void", default: "-" },
+    { property: "thumbnailRenderer", description: t("props.carousel.thumbnailRenderer"), type: "(child: React.ReactNode, index: number) => React.ReactNode", default: "-" },
+    { property: "ariaLabel", description: t("props.carousel.ariaLabel"), type: "string", default: '"Carousel"' },
+  ];
+  const order = [
+    "children","autoScroll","autoScrollInterval","animation","orientation","showArrows","showDots","showProgress","showThumbnails","loop","slidesToShow","slidesToScroll","className","containerClassName","slideClassName","onSlideChange","thumbnailRenderer","ariaLabel"
+  ];
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"

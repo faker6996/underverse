@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import Skeleton, {
   SkeletonAvatar,
   SkeletonButton,
@@ -13,8 +14,10 @@ import Skeleton, {
 } from "@/components/ui/Skeleton";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function SkeletonExample() {
+  const t = useTranslations("DocsUnderverse");
   const demo = (
     <div className="space-y-8">
       {/* Variants */}
@@ -108,11 +111,76 @@ export default function SkeletonExample() {
     `<SkeletonList items={4} />\n` +
     `<SkeletonTable rows={3} columns={4} />`;
 
+  const rows: PropsRow[] = [
+    // Skeleton (base)
+    { property: "className", description: t("props.skeleton.className"), type: "string", default: "-" },
+    { property: "width", description: t("props.skeleton.width"), type: "string | number", default: "-" },
+    { property: "height", description: t("props.skeleton.height"), type: "string | number", default: "-" },
+    { property: "variant", description: t("props.skeleton.variant"), type: '"rectangular" | "circular" | "rounded" | "text"', default: '"rectangular"' },
+    { property: "animation", description: t("props.skeleton.animation"), type: '"pulse" | "wave" | "none"', default: '"pulse"' },
+    { property: "lines", description: t("props.skeleton.lines"), type: "number", default: "1" },
+
+    // SkeletonAvatar
+    { property: "SkeletonAvatar.size", description: t("props.skeleton.SkeletonAvatar.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "SkeletonAvatar.className", description: t("props.skeleton.SkeletonAvatar.className"), type: "string", default: "-" },
+
+    // SkeletonButton
+    { property: "SkeletonButton.size", description: t("props.skeleton.SkeletonButton.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "SkeletonButton.className", description: t("props.skeleton.SkeletonButton.className"), type: "string", default: "-" },
+
+    // SkeletonText
+    { property: "SkeletonText.lines", description: t("props.skeleton.SkeletonText.lines"), type: "number", default: "3" },
+    { property: "SkeletonText.className", description: t("props.skeleton.SkeletonText.className"), type: "string", default: "-" },
+    { property: "SkeletonText.width", description: t("props.skeleton.SkeletonText.width"), type: "string", default: '"100%"' },
+
+    // SkeletonCard
+    { property: "SkeletonCard.showAvatar", description: t("props.skeleton.SkeletonCard.showAvatar"), type: "boolean", default: "true" },
+    { property: "SkeletonCard.showImage", description: t("props.skeleton.SkeletonCard.showImage"), type: "boolean", default: "false" },
+    { property: "SkeletonCard.textLines", description: t("props.skeleton.SkeletonCard.textLines"), type: "number", default: "3" },
+    { property: "SkeletonCard.className", description: t("props.skeleton.SkeletonCard.className"), type: "string", default: "-" },
+
+    // SkeletonPost
+    { property: "SkeletonPost.className", description: t("props.skeleton.SkeletonPost.className"), type: "string", default: "-" },
+
+    // SkeletonMessage
+    { property: "SkeletonMessage.own", description: t("props.skeleton.SkeletonMessage.own"), type: "boolean", default: "false" },
+    { property: "SkeletonMessage.showAvatar", description: t("props.skeleton.SkeletonMessage.showAvatar"), type: "boolean", default: "true" },
+    { property: "SkeletonMessage.className", description: t("props.skeleton.SkeletonMessage.className"), type: "string", default: "-" },
+
+    // SkeletonList
+    { property: "SkeletonList.items", description: t("props.skeleton.SkeletonList.items"), type: "number", default: "5" },
+    { property: "SkeletonList.itemHeight", description: t("props.skeleton.SkeletonList.itemHeight"), type: "number", default: "60" },
+    { property: "SkeletonList.showAvatar", description: t("props.skeleton.SkeletonList.showAvatar"), type: "boolean", default: "true" },
+    { property: "SkeletonList.className", description: t("props.skeleton.SkeletonList.className"), type: "string", default: "-" },
+
+    // SkeletonTable
+    { property: "SkeletonTable.rows", description: t("props.skeleton.SkeletonTable.rows"), type: "number", default: "5" },
+    { property: "SkeletonTable.columns", description: t("props.skeleton.SkeletonTable.columns"), type: "number", default: "4" },
+    { property: "SkeletonTable.className", description: t("props.skeleton.SkeletonTable.className"), type: "string", default: "-" },
+  ];
+
+  const order = [
+    // Base first
+    "className","width","height","variant","animation","lines",
+    // Groups by component
+    "SkeletonAvatar.size","SkeletonAvatar.className",
+    "SkeletonButton.size","SkeletonButton.className",
+    "SkeletonText.lines","SkeletonText.className","SkeletonText.width",
+    "SkeletonCard.showAvatar","SkeletonCard.showImage","SkeletonCard.textLines","SkeletonCard.className",
+    "SkeletonPost.className",
+    "SkeletonMessage.own","SkeletonMessage.showAvatar","SkeletonMessage.className",
+    "SkeletonList.items","SkeletonList.itemHeight","SkeletonList.showAvatar","SkeletonList.className",
+    "SkeletonTable.rows","SkeletonTable.columns","SkeletonTable.className",
+  ];
+
+  const docs = <PropsDocsTable rows={rows} order={order} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"
