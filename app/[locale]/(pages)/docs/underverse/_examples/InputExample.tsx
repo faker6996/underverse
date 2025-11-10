@@ -6,8 +6,11 @@ import CodeBlock from "../_components/CodeBlock";
 import IntlDemoProvider from "../_components/IntlDemoProvider";
 import { Tabs } from "@/components/ui/Tab";
 import { Mail, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function InputExample() {
+  const t = useTranslations("DocsUnderverse");
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -91,12 +94,74 @@ export default function InputExample() {
     </div>
   );
 
+  const rowsInput: PropsRow[] = [
+    { property: "label", description: t("props.input.label"), type: "string", default: "-" },
+    { property: "error", description: t("props.input.error"), type: "string", default: "-" },
+    { property: "description", description: t("props.input.description"), type: "string", default: "-" },
+    { property: "variant", description: t("props.input.variant"), type: '"default" | "filled" | "outlined" | "minimal"', default: '"default"' },
+    { property: "size", description: t("props.input.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "leftIcon", description: t("props.input.leftIcon"), type: "React.ComponentType<{ className?: string }>", default: "-" },
+    { property: "rightIcon", description: t("props.input.rightIcon"), type: "React.ComponentType<{ className?: string }>", default: "-" },
+    { property: "clearable", description: t("props.input.clearable"), type: "boolean", default: "false" },
+    { property: "loading", description: t("props.input.loading"), type: "boolean", default: "false" },
+    { property: "success", description: t("props.input.success"), type: "boolean", default: "false" },
+    { property: "onClear", description: t("props.input.onClear"), type: "() => void", default: "-" },
+    { property: "hint", description: t("props.input.hint"), type: "string", default: "-" },
+    { property: "counter", description: t("props.input.counter"), type: "boolean", default: "false" },
+    { property: "maxLength", description: t("props.input.maxLength"), type: "number", default: "-" },
+    { property: "className", description: t("props.input.className"), type: "string", default: "-" },
+    { property: "required", description: t("props.input.required"), type: "boolean", default: "false" },
+    { property: "type", description: t("props.input.type"), type: "string", default: '"text"' },
+    { property: "value", description: t("props.input.value"), type: "string", default: "-" },
+    { property: "onChange", description: t("props.input.onChange"), type: "(e) => void", default: "-" },
+    { property: "placeholder", description: t("props.input.placeholder"), type: "string", default: "-" },
+  ];
+  const orderInput = rowsInput.map(r => r.property);
+
+  const rowsPassword: PropsRow[] = [
+    { property: "showStrength", description: t("props.passwordInput.showStrength"), type: "boolean", default: "false" },
+    { property: "strengthLabels", description: t("props.passwordInput.strengthLabels"), type: "string[]", default: "[\"Weak\",\"Fair\",\"Good\",\"Strong\"]" },
+  ];
+  const orderPassword = rowsPassword.map(r => r.property);
+
+  const rowsNumber: PropsRow[] = [
+    { property: "min", description: t("props.numberInput.min"), type: "number", default: "-" },
+    { property: "max", description: t("props.numberInput.max"), type: "number", default: "-" },
+    { property: "step", description: t("props.numberInput.step"), type: "number", default: "1" },
+    { property: "showSteppers", description: t("props.numberInput.showSteppers"), type: "boolean", default: "true" },
+    { property: "onIncrement", description: t("props.numberInput.onIncrement"), type: "() => void", default: "-" },
+    { property: "onDecrement", description: t("props.numberInput.onDecrement"), type: "() => void", default: "-" },
+    { property: "formatThousands", description: t("props.numberInput.formatThousands"), type: "boolean", default: "false" },
+    { property: "locale", description: t("props.numberInput.locale"), type: "string", default: '"vi-VN"' },
+    { property: "value", description: t("props.numberInput.value"), type: "number | string", default: "-" },
+    { property: "onChange", description: t("props.numberInput.onChange"), type: "(e) => void", default: "-" },
+  ];
+  const orderNumber = rowsNumber.map(r => r.property);
+
+  const docs = (
+    <div className="space-y-6">
+      <div>
+        <p className="text-sm font-medium">Input</p>
+        <PropsDocsTable rows={rowsInput} order={orderInput} />
+      </div>
+      <div>
+        <p className="text-sm font-medium">PasswordInput</p>
+        <PropsDocsTable rows={rowsPassword} order={orderPassword} />
+      </div>
+      <div>
+        <p className="text-sm font-medium">NumberInput</p>
+        <PropsDocsTable rows={rowsNumber} order={orderNumber} />
+      </div>
+    </div>
+  );
+
   return (
     <IntlDemoProvider>
       <Tabs
         tabs={[
-          { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-          { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+          { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+          { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+          { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
         ]}
         variant="underline"
         size="sm"

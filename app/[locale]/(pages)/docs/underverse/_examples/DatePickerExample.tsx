@@ -7,6 +7,7 @@ import IntlDemoProvider from "../_components/IntlDemoProvider";
 import { Tabs } from "@/components/ui/Tab";
 import { useTranslations } from "next-intl";
 import { useLocale } from "@/hooks/useLocale";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function DatePickerExample() {
   const [date1, setDate1] = React.useState<Date | undefined>();
@@ -14,6 +15,7 @@ export default function DatePickerExample() {
   const [rangeStart, setRangeStart] = React.useState<Date | undefined>();
   const [rangeEnd, setRangeEnd] = React.useState<Date | undefined>();
   const t = useTranslations('DatePicker');
+  const td = useTranslations('DocsUnderverse');
   const locale = useLocale();
   const weekdays = React.useMemo(() => {
     if (locale === 'vi') return ['CN','T2','T3','T4','T5','T6','T7'];
@@ -76,8 +78,47 @@ export default function DatePickerExample() {
     <IntlDemoProvider>
       <Tabs
         tabs={[
-          { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-          { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+          { value: "preview", label: td("tabs.preview"), content: <div className="p-1">{demo}</div> },
+          { value: "code", label: td("tabs.code"), content: <CodeBlock code={code} /> },
+          { value: "docs", label: td("tabs.document"), content: (
+            <div className="p-1 space-y-6">
+              <div>
+                <p className="text-sm font-medium">DatePicker</p>
+                <PropsDocsTable
+                  rows={[
+                    { property: 'id', description: td('props.datePicker.id'), type: 'string', default: '-' },
+                    { property: 'value', description: td('props.datePicker.value'), type: 'Date', default: '-' },
+                    { property: 'onChange', description: td('props.datePicker.onChange'), type: '(date: Date | undefined) => void', default: '-' },
+                    { property: 'placeholder', description: td('props.datePicker.placeholder'), type: 'string', default: '-' },
+                    { property: 'className', description: td('props.datePicker.className'), type: 'string', default: '-' },
+                    { property: 'disabled', description: td('props.datePicker.disabled'), type: 'boolean', default: 'false' },
+                    { property: 'size', description: td('props.datePicker.size'), type: '"sm" | "md"', default: '"md"' },
+                    { property: 'label', description: td('props.datePicker.label'), type: 'string', default: '-' },
+                    { property: 'required', description: td('props.datePicker.required'), type: 'boolean', default: 'false' },
+                    { property: 'todayLabel', description: td('props.datePicker.todayLabel'), type: 'string', default: '-' },
+                    { property: 'clearLabel', description: td('props.datePicker.clearLabel'), type: 'string', default: '-' },
+                    { property: 'weekdayLabels', description: td('props.datePicker.weekdayLabels'), type: 'string[]', default: '-' },
+                  ]}
+                  order={[
+                    'id','value','onChange','placeholder','className','disabled','size','label','required','todayLabel','clearLabel','weekdayLabels'
+                  ]}
+                />
+              </div>
+              <div>
+                <p className="text-sm font-medium">DateRangePicker</p>
+                <PropsDocsTable
+                  rows={[
+                    { property: 'startDate', description: td('props.dateRangePicker.startDate'), type: 'Date', default: '-' },
+                    { property: 'endDate', description: td('props.dateRangePicker.endDate'), type: 'Date', default: '-' },
+                    { property: 'onChange', description: td('props.dateRangePicker.onChange'), type: '(start: Date, end: Date) => void', default: '-' },
+                    { property: 'placeholder', description: td('props.dateRangePicker.placeholder'), type: 'string', default: '"Select date range..."' },
+                    { property: 'className', description: td('props.dateRangePicker.className'), type: 'string', default: '-' },
+                  ]}
+                  order={[ 'startDate','endDate','onChange','placeholder','className' ]}
+                />
+              </div>
+            </div>
+          ) },
         ]}
         variant="underline"
         size="sm"
@@ -85,4 +126,3 @@ export default function DatePickerExample() {
     </IntlDemoProvider>
   );
 }
-

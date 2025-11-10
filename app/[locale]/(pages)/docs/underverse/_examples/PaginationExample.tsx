@@ -7,6 +7,7 @@ import IntlDemoProvider from "../_components/IntlDemoProvider";
 import { Tabs } from "@/components/ui/Tab";
 import Button from "@/components/ui/Button";
 import { useTranslations } from "next-intl";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
 export default function PaginationExample() {
   const [page, setPage] = React.useState(1);
@@ -21,6 +22,7 @@ export default function PaginationExample() {
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
   const t = useTranslations("Pagination");
+  const td = useTranslations("DocsUnderverse");
 
   const code =
     `import { Pagination } from '@underverse-ui/underverse'\n` +
@@ -101,8 +103,36 @@ export default function PaginationExample() {
     <IntlDemoProvider>
       <Tabs
         tabs={[
-          { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-          { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+          { value: "preview", label: td("tabs.preview"), content: <div className="p-1">{demo}</div> },
+          { value: "code", label: td("tabs.code"), content: <CodeBlock code={code} /> },
+          { value: "docs", label: td("tabs.document"), content: (
+            <div className="p-1">
+              <PropsDocsTable
+                rows={[
+                  { property: 'page', description: td('props.pagination.page'), type: 'number', default: '-' },
+                  { property: 'totalPages', description: td('props.pagination.totalPages'), type: 'number', default: '-' },
+                  { property: 'onChange', description: td('props.pagination.onChange'), type: '(page: number) => void', default: '-' },
+                  { property: 'className', description: td('props.pagination.className'), type: 'string', default: '-' },
+                  { property: 'size', description: td('props.pagination.size'), type: '"sm" | "md" | "lg"', default: '"md"' },
+                  { property: 'variant', description: td('props.pagination.variant'), type: '"default" | "outline" | "ghost"', default: '"outline"' },
+                  { property: 'showFirstLast', description: td('props.pagination.showFirstLast'), type: 'boolean', default: 'true' },
+                  { property: 'showPrevNext', description: td('props.pagination.showPrevNext'), type: 'boolean', default: 'true' },
+                  { property: 'showPageNumbers', description: td('props.pagination.showPageNumbers'), type: 'boolean', default: 'true' },
+                  { property: 'showInfo', description: td('props.pagination.showInfo'), type: 'boolean', default: 'false' },
+                  { property: 'disabled', description: td('props.pagination.disabled'), type: 'boolean', default: 'false' },
+                  { property: 'alignment', description: td('props.pagination.alignment'), type: '"left" | "center" | "right"', default: '"left"' },
+                  { property: 'pageSize', description: td('props.pagination.pageSize'), type: 'number', default: '-' },
+                  { property: 'pageSizeOptions', description: td('props.pagination.pageSizeOptions'), type: 'number[]', default: '-' },
+                  { property: 'onPageSizeChange', description: td('props.pagination.onPageSizeChange'), type: '(size: number) => void', default: '-' },
+                  { property: 'totalItems', description: td('props.pagination.totalItems'), type: 'number', default: '-' },
+                  { property: 'labels', description: td('props.pagination.labels'), type: '{ ... }', default: '-' },
+                ]}
+                order={[
+                  'page','totalPages','onChange','className','size','variant','showFirstLast','showPrevNext','showPageNumbers','showInfo','disabled','alignment','pageSize','pageSizeOptions','onPageSizeChange','totalItems','labels'
+                ]}
+              />
+            </div>
+          ) },
         ]}
         variant="underline"
         size="sm"

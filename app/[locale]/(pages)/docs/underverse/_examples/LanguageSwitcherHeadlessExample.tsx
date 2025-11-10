@@ -5,6 +5,8 @@ import { LanguageSwitcher } from '@underverse-ui/underverse';
 import { useRouter, usePathname } from 'next/navigation';
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import { useTranslations } from "next-intl";
 
 const localesWithFlags = [
   { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
@@ -21,6 +23,7 @@ const localesNoFlags = [
 ];
 
 export default function LanguageSwitcherHeadlessExample() {
+  const td = useTranslations('DocsUnderverse');
   const router = useRouter();
   const pathname = usePathname();
   const currentLocale = React.useMemo(() => pathname.split('/')[1] || 'vi', [pathname]);
@@ -107,15 +110,24 @@ export default function LanguageSwitcherHeadlessExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: 'locales', description: td('props.languageSwitcher.locales'), type: '{ code: string; name: string; flag?: string; }[]', default: '-' },
+    { property: 'currentLocale', description: td('props.languageSwitcher.currentLocale'), type: 'string', default: '-' },
+    { property: 'onSwitch', description: td('props.languageSwitcher.onSwitch'), type: '(code: string) => void', default: '-' },
+    { property: 'labels.heading', description: td('props.languageSwitcher.labels.heading'), type: 'string', default: '"Language"' },
+    { property: 'className', description: td('props.languageSwitcher.className'), type: 'string', default: '-' },
+  ];
+  const docs = <PropsDocsTable rows={rows} order={rows.map(r=>r.property)} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: td('tabs.preview'), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: td('tabs.code'), content: <CodeBlock code={code} /> },
+        { value: "docs", label: td('tabs.document'), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"
     />
   );
 }
-

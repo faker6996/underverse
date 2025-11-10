@@ -792,7 +792,175 @@
         "enableColumnVisibilityToggle": "Bật ẩn/hiện cột.",
         "labels": "Nhãn i18n cho density tuỳ chọn.",
         "className": "Class tuỳ chỉnh."
+      },
+      "numberInput": {
+        "min": "Giá trị nhỏ nhất.",
+        "max": "Giá trị lớn nhất.",
+        "step": "Bước tăng/giảm.",
+        "showSteppers": "Hiển thị nút tăng/giảm +/–.",
+        "onIncrement": "Trình xử lý tăng tùy chỉnh (tùy chọn).",
+        "onDecrement": "Trình xử lý giảm tùy chỉnh (tùy chọn).",
+        "formatThousands": "Định dạng phân tách hàng nghìn để hiển thị.",
+        "locale": "Locale để định dạng số.",
+        "value": "Giá trị số/chuỗi điều khiển.",
+        "onChange": "Hàm xử lý thay đổi nhận sự kiện input."
+      },
+      "input": {
+        "label": "Nhãn hiển thị phía trên ô nhập.",
+        "error": "Thông báo lỗi hiển thị bên dưới.",
+        "description": "Mô tả/hỗ trợ hiển thị bên dưới.",
+        "variant": "Kiểu hiển thị (default, filled, outlined, minimal).",
+        "size": "Kích thước (sm, md, lg).",
+        "leftIcon": "Icon bên trái trong ô.",
+        "rightIcon": "Icon bên phải trong ô.",
+        "clearable": "Hiện nút xóa (X) khi có giá trị.",
+        "loading": "Hiển thị trạng thái đang tải.",
+        "success": "Hiển thị trạng thái thành công.",
+        "onClear": "Callback khi bấm nút xóa.",
+        "hint": "Gợi ý nhỏ bên dưới.",
+        "counter": "Hiển thị bộ đếm ký tự khi có maxLength.",
+        "maxLength": "Số lượng ký tự tối đa.",
+        "className": "Lớp tùy chỉnh cho vỏ ngoài.",
+        "required": "Đánh dấu là bắt buộc.",
+        "type": "Kiểu input gốc.",
+        "value": "Giá trị điều khiển (controlled).",
+        "onChange": "Hàm xử lý thay đổi nhận sự kiện input.",
+        "placeholder": "Văn bản gợi ý (placeholder)."
+      },
+      "passwordInput": {
+        "showStrength": "Hiển thị thanh đánh giá độ mạnh mật khẩu.",
+        "strengthLabels": "Nhãn cho các mức độ (Yếu, Trung bình, Tốt, Mạnh)."
+      },
+      "datePicker": {
+        "id": "Thuộc tính id cho nút kích hoạt.",
+        "value": "Giá trị ngày đã chọn.",
+        "onChange": "Hàm thay đổi nhận ngày được chọn hoặc undefined khi xoá.",
+        "placeholder": "Placeholder khi chưa có giá trị.",
+        "className": "Class tuỳ chỉnh cho nút kích hoạt.",
+        "disabled": "Vô hiệu hoá bộ chọn ngày.",
+        "size": "Kích thước hiển thị (sm, md).",
+        "label": "Nhãn hiển thị phía trên.",
+        "required": "Đánh dấu bắt buộc.",
+        "todayLabel": "Nhãn nút Today (nếu cung cấp).",
+        "clearLabel": "Nhãn nút Clear.",
+        "weekdayLabels": "Tuỳ chỉnh nhãn ngày trong tuần; mặc định Su..Sa."
+      },
+      "dateRangePicker": {
+        "startDate": "Ngày bắt đầu.",
+        "endDate": "Ngày kết thúc.",
+        "onChange": "Hàm thay đổi nhận (start, end).",
+        "placeholder": "Placeholder khi chưa chọn khoảng.",
+        "className": "Class tuỳ chỉnh cho nút kích hoạt."
+      },
+      "pagination": {
+        "page": "Trang hiện tại (bắt đầu từ 1).",
+        "totalPages": "Tổng số trang.",
+        "onChange": "Hàm thay đổi nhận trang mới.",
+        "className": "Class tuỳ chỉnh cho vỏ ngoài.",
+        "size": "Kích thước điều khiển (sm, md, lg).",
+        "variant": "Biến thể hiển thị (default, outline, ghost).",
+        "showFirstLast": "Hiện nút Đầu/Cuối.",
+        "showPrevNext": "Hiện nút Trước/Sau.",
+        "showPageNumbers": "Hiện các nút số trang.",
+        "showInfo": "Hiện thông tin phụ.",
+        "disabled": "Vô hiệu hoá toàn bộ điều khiển.",
+        "alignment": "Căn lề điều khiển (trái, giữa, phải).",
+        "pageSize": "Số mục mỗi trang hiện tại.",
+        "pageSizeOptions": "Danh sách tuỳ chọn số mục/trang.",
+        "onPageSizeChange": "Hàm thay đổi số mục mỗi trang.",
+        "totalItems": "Tổng số mục.",
+        "labels": "Ghi đè chuỗi i18n (chuỗi/hàm)."
+      },
+      "form": {
+        "Form": {
+          "onSubmit": "Hàm xử lý submit nhận dữ liệu form.",
+          "initialValues": "Giá trị khởi tạo cho form.",
+          "validationSchema": "Schema xác thực (tùy chọn).",
+          "className": "Class tuỳ chỉnh cho thẻ form.",
+          "size": "Kích thước chung cho control (sm, md, lg)."
+        },
+        "FormField": {
+          "name": "Tên trường được đăng ký.",
+          "rules": "Luật xác thực (react-hook-form).",
+          "render": "Hàm render nhận field và fieldState."
+        },
+        "FormItem": {
+          "className": "Class tuỳ chỉnh cho vùng field."
+        },
+        "FormLabel": {
+          "className": "Class tuỳ chỉnh cho nhãn."
+        },
+        "FormControl": {
+          "note": "Wrapper gắn kết id truy cập và trạng thái lỗi."
+        },
+        "FormMessage": {
+          "className": "Class tuỳ chỉnh cho thông báo."
+        },
+        "FormInput": {
+          "name": "Tên trường để bind."
+        },
+        "FormCheckbox": {
+          "name": "Tên trường để bind."
+        },
+        "FormActions": {
+          "className": "Class tuỳ chỉnh cho hàng action."
+        },
+        "FormSubmitButton": {
+          "loading": "Khoá và hiển thị bận khi submit."
+        }
+      },
+      "languageSwitcher": {
+        "locales": "Danh sách ngôn ngữ (code, name, flag?).",
+        "currentLocale": "Mã ngôn ngữ hiện tại.",
+        "onSwitch": "Callback nhận mã ngôn ngữ được chọn.",
+        "labels": {
+          "heading": "Tiêu đề trong dropdown."
+        },
+        "className": "Class tuỳ chỉnh cho wrapper."
+      },
+      "themeToggle": {
+        "noProps": "Component đọc/cập nhật ThemeContext; không có props công khai."
       }
+    },
+    "datePicker": {
+      "id": "Thuộc tính id cho nút kích hoạt.",
+      "value": "Giá trị ngày đã chọn.",
+      "onChange": "Hàm thay đổi nhận ngày được chọn hoặc undefined khi xóa.",
+      "placeholder": "Placeholder khi chưa có giá trị.",
+      "className": "Class tuỳ chỉnh cho nút kích hoạt.",
+      "disabled": "Vô hiệu hoá bộ chọn ngày.",
+      "size": "Kích thước hiển thị (sm, md).",
+      "label": "Nhãn hiển thị phía trên.",
+      "required": "Đánh dấu bắt buộc.",
+      "todayLabel": "Nhãn nút Today (nếu cung cấp).",
+      "clearLabel": "Nhãn nút Clear.",
+      "weekdayLabels": "Tùy chỉnh nhãn ngày trong tuần; mặc định Su..Sa."
+    },
+    "dateRangePicker": {
+      "startDate": "Ngày bắt đầu.",
+      "endDate": "Ngày kết thúc.",
+      "onChange": "Hàm thay đổi nhận (start, end).",
+      "placeholder": "Placeholder khi chưa chọn khoảng.",
+      "className": "Class tuỳ chỉnh cho nút kích hoạt."
+    },
+    "pagination": {
+      "page": "Trang hiện tại (bắt đầu từ 1).",
+      "totalPages": "Tổng số trang.",
+      "onChange": "Hàm thay đổi nhận trang mới.",
+      "className": "Class tuỳ chỉnh cho vỏ ngoài.",
+      "size": "Kích thước điều khiển (sm, md, lg).",
+      "variant": "Biến thể hiển thị (default, outline, ghost).",
+      "showFirstLast": "Hiện nút Đầu/Cuối.",
+      "showPrevNext": "Hiện nút Trước/Sau.",
+      "showPageNumbers": "Hiện các nút số trang.",
+      "showInfo": "Hiện thông tin phụ.",
+      "disabled": "Vô hiệu hoá toàn bộ điều khiển.",
+      "alignment": "Căn lề điều khiển (trái, giữa, phải).",
+      "pageSize": "Số mục mỗi trang hiện tại.",
+      "pageSizeOptions": "Danh sách tuỳ chọn số mục/trang.",
+      "onPageSizeChange": "Hàm thay đổi số mục mỗi trang.",
+      "totalItems": "Tổng số mục.",
+      "labels": "Ghi đè chuỗi i18n (chuỗi/hàm)."
     }
   }
 }

@@ -4,9 +4,12 @@ import React from "react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import { useTranslations } from "next-intl";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ThemeToggleExample() {
+  const td = useTranslations("DocsUnderverse");
   const { theme } = useTheme();
 
   const code =
@@ -96,11 +99,17 @@ export default function ThemeToggleExample() {
     </div>
   );
 
+  const rows: PropsRow[] = [
+    { property: "—", description: td("props.themeToggle.noProps"), type: "—", default: "—" },
+  ];
+  const docs = <PropsDocsTable rows={rows} order={["—"]} />;
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: td("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: td("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: td("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"

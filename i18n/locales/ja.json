@@ -77,7 +77,7 @@
       "document": "ドキュメント"
     },
     "pageTitle": "Underverse UI - 使い方ガイド",
-    "pageDescription": "このページでは、\u003cpackageName\u003e@underverse-ui/underverse\u003c/packageName\u003e パッケージが提供するUIコンポーネントの使い方を示します。",
+    "pageDescription": "このページでは、<packageName>@underverse-ui/underverse</packageName> パッケージが提供するUIコンポーネントの使い方を示します。",
     "tableOfContents": "目次",
     "sections": {
       "install": {
@@ -764,7 +764,7 @@
         "className": "カスタムクラス。",
         "showPreview": "プレビュー一覧を表示。",
         "previewSize": "プレビューサイズ(sm|md|lg)。",
-        "dragDropText": "ドラッグ\u0026ドロップ案内テキスト。",
+        "dragDropText": "ドラッグ&ドロップ案内テキスト。",
         "browseText": "ファイル選択ボタン文言。",
         "supportedFormatsText": "対応形式のテキスト。"
       },
@@ -792,6 +792,134 @@
         "enableColumnVisibilityToggle": "列表示切替を許可。",
         "labels": "密度/オプションのラベル。",
         "className": "カスタムクラス。"
+      },
+      "numberInput": {
+        "min": "最小値。",
+        "max": "最大値。",
+        "step": "増減のステップ。",
+        "showSteppers": "± のステッパーボタンを表示。",
+        "onIncrement": "増加のカスタムハンドラ（任意）。",
+        "onDecrement": "減少のカスタムハンドラ（任意）。",
+        "formatThousands": "表示用に桁区切りをフォーマット。",
+        "locale": "数値フォーマットに使うロケール。",
+        "value": "制御された数値/文字列。",
+        "onChange": "変更イベントを受け取るハンドラ。"
+      },
+      "input": {
+        "label": "入力欄の上に表示するラベル。",
+        "error": "下部に表示するエラーメッセージ。",
+        "description": "下部に表示する補助/説明テキスト。",
+        "variant": "見た目のバリアント（default, filled, outlined, minimal）。",
+        "size": "サイズ（sm, md, lg）。",
+        "leftIcon": "フィールド左側のアイコン。",
+        "rightIcon": "フィールド右側のアイコン。",
+        "clearable": "値がある時にクリア（X）ボタンを表示。",
+        "loading": "ローディング状態を表示。",
+        "success": "成功状態（アイコンとスタイル）を表示。",
+        "onClear": "クリアボタンを押した時のコールバック。",
+        "hint": "下部に表示する小さなヒント。",
+        "counter": "maxLength 指定時に文字数カウンターを表示。",
+        "maxLength": "最大文字数。",
+        "className": "ラッパーのカスタムクラス。",
+        "required": "必須としてマーク。",
+        "type": "ネイティブ input の type。",
+        "value": "制御された値（controlled）。",
+        "onChange": "変更イベントを受け取るハンドラ。",
+        "placeholder": "プレースホルダ。"
+      },
+      "passwordInput": {
+        "showStrength": "パスワードの強度メーターを表示。",
+        "strengthLabels": "強度レベルのラベル（Weak, Fair, Good, Strong）。"
+      },
+      "datePicker": {
+        "id": "トリガーボタンの id 属性。",
+        "value": "選択済みの日付値。",
+        "onChange": "選択した日付、またはクリア時 undefined を受け取るハンドラ。",
+        "placeholder": "未選択時に表示するプレースホルダ。",
+        "className": "トリガーのカスタムクラス。",
+        "disabled": "ピッカーを無効化。",
+        "size": "表示サイズ（sm, md）。",
+        "label": "トリガー上部のラベル。",
+        "required": "必須としてマーク。",
+        "todayLabel": "Today ボタンの文言（任意）。",
+        "clearLabel": "Clear ボタンの文言。",
+        "weekdayLabels": "曜日ラベルをカスタマイズ（既定は Su..Sa）。"
+      },
+      "dateRangePicker": {
+        "startDate": "開始日。",
+        "endDate": "終了日。",
+        "onChange": "(start, end) を受け取るハンドラ。",
+        "placeholder": "未選択時のプレースホルダ。",
+        "className": "トリガーのカスタムクラス。"
+      },
+      "pagination": {
+        "page": "現在のページ（1 始まり）。",
+        "totalPages": "総ページ数。",
+        "onChange": "次のページ番号を受け取るハンドラ。",
+        "className": "ラッパーのカスタムクラス。",
+        "size": "コントロールサイズ（sm, md, lg）。",
+        "variant": "見た目のバリアント（default, outline, ghost）。",
+        "showFirstLast": "先頭/末尾ボタンを表示。",
+        "showPrevNext": "前/次ボタンを表示。",
+        "showPageNumbers": "ページ番号ボタンを表示。",
+        "showInfo": "補助情報を表示。",
+        "disabled": "全体を無効化。",
+        "alignment": "配置（left, center, right）。",
+        "pageSize": "ページあたりの件数。",
+        "pageSizeOptions": "件数の選択肢。",
+        "onPageSizeChange": "ページあたり件数の変更ハンドラ。",
+        "totalItems": "総アイテム数。",
+        "labels": "i18n 文言の上書き（文字列/関数）。"
+      },
+      "form": {
+        "Form": {
+          "onSubmit": "送信時にフォームデータを受け取るハンドラ。",
+          "initialValues": "フォームの初期値。",
+          "validationSchema": "検証スキーマ（任意）。",
+          "className": "form 要素のカスタムクラス。",
+          "size": "コントロールの共通サイズ（sm, md, lg）。"
+        },
+        "FormField": {
+          "name": "登録するフィールド名。",
+          "rules": "検証ルール（react-hook-form）。",
+          "render": "field と fieldState を受け取るレンダラ。"
+        },
+        "FormItem": {
+          "className": "フィールドラッパーのカスタムクラス。"
+        },
+        "FormLabel": {
+          "className": "ラベルのカスタムクラス。"
+        },
+        "FormControl": {
+          "note": "アクセシビリティIDとエラー状態を連携するラッパー。"
+        },
+        "FormMessage": {
+          "className": "メッセージのカスタムクラス。"
+        },
+        "FormInput": {
+          "name": "バインドするフィールド名。"
+        },
+        "FormCheckbox": {
+          "name": "バインドするフィールド名。"
+        },
+        "FormActions": {
+          "className": "アクション行のカスタムクラス。"
+        },
+        "FormSubmitButton": {
+          "loading": "送信中は無効化してビジー表示。"
+        }
+      },
+      "languageSwitcher": {
+        "locales": "利用可能な言語（code, name, flag?）。",
+        "currentLocale": "現在の言語コード。",
+        "onSwitch": "選択した言語コードを受け取るコールバック。",
+        "labels": {
+          "heading": "ドロップダウンの見出し。"
+        },
+        "className": "ラッパーのカスタムクラス。"
+      },
+      "themeToggle": {
+        "noProps": "このコンポーネントは ThemeContext を参照・更新します。公開 props はありません。"
       }
     }
   }

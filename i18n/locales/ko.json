@@ -792,6 +792,134 @@
         "enableColumnVisibilityToggle": "열 표시 토글 허용.",
         "labels": "밀도/옵션 라벨.",
         "className": "커스텀 클래스."
+      },
+      "numberInput": {
+        "min": "최소값.",
+        "max": "최대값.",
+        "step": "증감 스텝.",
+        "showSteppers": "증가/감소(±) 버튼 표시.",
+        "onIncrement": "증가 커스텀 핸들러(선택).",
+        "onDecrement": "감소 커스텀 핸들러(선택).",
+        "formatThousands": "표시용 천 단위 구분 포맷.",
+        "locale": "숫자 형식에 사용하는 로케일.",
+        "value": "제어되는 숫자/문자열 값.",
+        "onChange": "입력 변경 이벤트 핸들러."
+      },
+      "input": {
+        "label": "입력 필드 위에 표시할 라벨입니다.",
+        "error": "아래에 표시되는 오류 메시지입니다.",
+        "description": "아래에 표시되는 도움/설명 텍스트입니다.",
+        "variant": "표시 형태( default, filled, outlined, minimal ).",
+        "size": "크기(sm, md, lg).",
+        "leftIcon": "필드 왼쪽 아이콘.",
+        "rightIcon": "필드 오른쪽 아이콘.",
+        "clearable": "값이 있을 때 지우기(X) 버튼 표시.",
+        "loading": "로딩 상태 표시.",
+        "success": "성공 상태(아이콘/스타일) 표시.",
+        "onClear": "지우기 버튼 클릭 시 콜백.",
+        "hint": "아래에 표시되는 작은 힌트.",
+        "counter": "maxLength 지정 시 문자 수 카운터 표시.",
+        "maxLength": "최대 문자 수.",
+        "className": "래퍼의 커스텀 클래스.",
+        "required": "필수로 표시.",
+        "type": "네이티브 input type.",
+        "value": "제어되는 값(controlled).",
+        "onChange": "입력 변경 이벤트 핸들러.",
+        "placeholder": "플레이스홀더."
+      },
+      "passwordInput": {
+        "showStrength": "비밀번호 강도 표시.",
+        "strengthLabels": "강도 레벨 라벨(Weak, Fair, Good, Strong)."
+      },
+      "datePicker": {
+        "id": "트리거 버튼의 id 속성.",
+        "value": "선택된 날짜 값.",
+        "onChange": "선택한 날짜 또는 지울 때 undefined 를 받는 핸들러.",
+        "placeholder": "값이 없을 때 표시할 플레이스홀더.",
+        "className": "트리거 커스텀 클래스.",
+        "disabled": "피커 비활성화.",
+        "size": "표시 크기(sm, md).",
+        "label": "트리거 위의 라벨.",
+        "required": "필수로 표시.",
+        "todayLabel": "Today 버튼 라벨(선택).",
+        "clearLabel": "Clear 버튼 라벨.",
+        "weekdayLabels": "요일 라벨 커스텀(기본 Su..Sa)."
+      },
+      "dateRangePicker": {
+        "startDate": "시작 날짜.",
+        "endDate": "종료 날짜.",
+        "onChange": "(start, end)을 받는 변경 핸들러.",
+        "placeholder": "선택하지 않았을 때의 플레이스홀더.",
+        "className": "트리거 커스텀 클래스."
+      },
+      "pagination": {
+        "page": "현재 페이지(1부터).",
+        "totalPages": "전체 페이지 수.",
+        "onChange": "다음 페이지 번호를 받는 변경 핸들러.",
+        "className": "랩퍼 커스텀 클래스.",
+        "size": "컨트롤 크기(sm, md, lg).",
+        "variant": "표시 형태(default, outline, ghost).",
+        "showFirstLast": "처음/마지막 버튼 표시.",
+        "showPrevNext": "이전/다음 버튼 표시.",
+        "showPageNumbers": "숫자 페이지 버튼 표시.",
+        "showInfo": "추가 정보 표시.",
+        "disabled": "전체 비활성화.",
+        "alignment": "정렬(left, center, right).",
+        "pageSize": "페이지당 개수.",
+        "pageSizeOptions": "개수 선택 옵션.",
+        "onPageSizeChange": "페이지당 개수 변경 핸들러.",
+        "totalItems": "총 항목 수.",
+        "labels": "i18n 문구 오버라이드(문자열/함수)."
+      },
+      "form": {
+        "Form": {
+          "onSubmit": "제출 시 폼 데이터를 받는 핸들러.",
+          "initialValues": "폼 초기값.",
+          "validationSchema": "검증 스키마(선택).",
+          "className": "form 요소의 커스텀 클래스.",
+          "size": "컨트롤 공통 크기(sm, md, lg)."
+        },
+        "FormField": {
+          "name": "등록할 필드 이름.",
+          "rules": "검증 규칙(react-hook-form).",
+          "render": "field, fieldState 를 받는 렌더러."
+        },
+        "FormItem": {
+          "className": "필드 래퍼 커스텀 클래스."
+        },
+        "FormLabel": {
+          "className": "라벨 커스텀 클래스."
+        },
+        "FormControl": {
+          "note": "접근성 ID와 오류 상태를 연결하는 래퍼."
+        },
+        "FormMessage": {
+          "className": "메시지 커스텀 클래스."
+        },
+        "FormInput": {
+          "name": "바인딩할 필드 이름."
+        },
+        "FormCheckbox": {
+          "name": "바인딩할 필드 이름."
+        },
+        "FormActions": {
+          "className": "액션 행 커스텀 클래스."
+        },
+        "FormSubmitButton": {
+          "loading": "제출 중 비활성화 및 busy 표시."
+        }
+      },
+      "languageSwitcher": {
+        "locales": "사용 가능한 언어 목록(code, name, flag?).",
+        "currentLocale": "현재 언어 코드.",
+        "onSwitch": "선택된 언어 코드를 받는 콜백.",
+        "labels": {
+          "heading": "드롭다운 제목."
+        },
+        "className": "래퍼 커스텀 클래스."
+      },
+      "themeToggle": {
+        "noProps": "이 컴포넌트는 ThemeContext를 사용합니다. 공개 props 가 없습니다."
       }
     }
   }

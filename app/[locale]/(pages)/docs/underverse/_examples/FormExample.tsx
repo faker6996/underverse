@@ -8,6 +8,8 @@ import { Checkbox } from "@/components/ui/CheckBox";
 import { useToast } from "@/components/ui/Toast";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import { useTranslations } from "next-intl";
 
 interface LoginFormData {
   email: string;
@@ -16,6 +18,7 @@ interface LoginFormData {
 }
 
 export default function FormExample() {
+  const td = useTranslations("DocsUnderverse");
   const { addToast } = useToast();
   const [loading, setLoading] = React.useState(false);
 
@@ -183,11 +186,52 @@ export default function FormExample() {
     </div>
   );
 
+  const rowsForm: PropsRow[] = [
+    { property: "onSubmit", description: td("props.form.Form.onSubmit"), type: "(data) => void", default: "-" },
+    { property: "initialValues", description: td("props.form.Form.initialValues"), type: "Partial<T>", default: "{}" },
+    { property: "validationSchema", description: td("props.form.Form.validationSchema"), type: "Record<string, any>", default: "-" },
+    { property: "className", description: td("props.form.Form.className"), type: "string", default: "-" },
+    { property: "size", description: td("props.form.Form.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+  ];
+  const rowsField: PropsRow[] = [
+    { property: "name", description: td("props.form.FormField.name"), type: "string", default: "-" },
+    { property: "rules", description: td("props.form.FormField.rules"), type: "Validator rules (react-hook-form)", default: "-" },
+    { property: "render", description: td("props.form.FormField.render"), type: "({ field, fieldState }) => ReactNode", default: "-" },
+  ];
+  const rowsOthers: PropsRow[] = [
+    { property: "FormItem.className", description: td("props.form.FormItem.className"), type: "string", default: "-" },
+    { property: "FormLabel.className", description: td("props.form.FormLabel.className"), type: "string", default: "-" },
+    { property: "FormControl", description: td("props.form.FormControl.note"), type: "wrapper", default: "-" },
+    { property: "FormMessage.className", description: td("props.form.FormMessage.className"), type: "string", default: "-" },
+    { property: "FormInput.name", description: td("props.form.FormInput.name"), type: "string", default: "-" },
+    { property: "FormCheckbox.name", description: td("props.form.FormCheckbox.name"), type: "string", default: "-" },
+    { property: "FormActions.className", description: td("props.form.FormActions.className"), type: "string", default: "-" },
+    { property: "FormSubmitButton.loading", description: td("props.form.FormSubmitButton.loading"), type: "boolean", default: "false" },
+  ];
+
+  const docs = (
+    <div className="space-y-6">
+      <div>
+        <p className="text-sm font-medium">Form</p>
+        <PropsDocsTable rows={rowsForm} order={rowsForm.map(r=>r.property)} />
+      </div>
+      <div>
+        <p className="text-sm font-medium">FormField</p>
+        <PropsDocsTable rows={rowsField} order={rowsField.map(r=>r.property)} />
+      </div>
+      <div>
+        <p className="text-sm font-medium">Others</p>
+        <PropsDocsTable rows={rowsOthers} order={rowsOthers.map(r=>r.property)} />
+      </div>
+    </div>
+  );
+
   return (
     <Tabs
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: td("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: td("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: td("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"
       size="sm"

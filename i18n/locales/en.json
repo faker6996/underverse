@@ -202,6 +202,13 @@
       "input": {
         "title": "Input (with i18n)"
       },
+      "dateRangePicker": {
+        "startDate": "Range start date.",
+        "endDate": "Range end date.",
+        "onChange": "Change handler receiving (start, end).",
+        "placeholder": "Placeholder when no range is selected.",
+        "className": "Custom class for the trigger."
+      },
       "datePicker": {
         "title": "DatePicker (with i18n)"
       },
@@ -792,6 +799,134 @@
         "enableColumnVisibilityToggle": "Allow column visibility toggle.",
         "labels": "Localized labels for density/options.",
         "className": "Custom class."
+      },
+      "input": {
+        "label": "Label text shown above the input.",
+        "error": "Error message shown below.",
+        "description": "Helper/description text below.",
+        "variant": "Visual style variant (default, filled, outlined, minimal).",
+        "size": "Input size (sm, md, lg).",
+        "leftIcon": "Left icon component inside the field.",
+        "rightIcon": "Right icon component inside the field.",
+        "clearable": "Show a clear (X) button when has value.",
+        "loading": "Show a loading spinner.",
+        "success": "Show success state (icon and styles).",
+        "onClear": "Callback when clicking the clear button.",
+        "hint": "Small hint text below the field.",
+        "counter": "Show character counter when maxLength is provided.",
+        "maxLength": "Maximum number of characters.",
+        "className": "Custom class for the wrapper.",
+        "required": "Mark the field as required.",
+        "type": "Native input type.",
+        "value": "Controlled value.",
+        "onChange": "Change handler receiving input event.",
+        "placeholder": "Placeholder text."
+      },
+      "passwordInput": {
+        "showStrength": "Show password strength meter.",
+        "strengthLabels": "Labels for strength levels (Weak, Fair, Good, Strong)."
+      },
+      "numberInput": {
+        "min": "Minimum value.",
+        "max": "Maximum value.",
+        "step": "Step when incrementing/decrementing.",
+        "showSteppers": "Show +/– stepper buttons.",
+        "onIncrement": "Custom increment handler (optional).",
+        "onDecrement": "Custom decrement handler (optional).",
+        "formatThousands": "Format thousands separators for display.",
+        "locale": "Locale for number formatting.",
+        "value": "Controlled numeric/string value.",
+        "onChange": "Change handler receiving input event."
+      },
+      "datePicker": {
+        "id": "Native id attribute for the trigger button.",
+        "value": "Selected date value.",
+        "onChange": "Change handler receiving selected date or undefined when cleared.",
+        "placeholder": "Placeholder text when no value.",
+        "className": "Custom class for the trigger.",
+        "disabled": "Disable the picker.",
+        "size": "Display size (sm, md).",
+        "label": "Field label above the trigger.",
+        "required": "Mark as required.",
+        "todayLabel": "Text for Today button (if provided).",
+        "clearLabel": "Text for Clear button.",
+        "weekdayLabels": "Custom weekday labels, falls back to Su..Sa."
+      },
+      "dateRangePicker": {
+        "startDate": "Range start date.",
+        "endDate": "Range end date.",
+        "onChange": "Change handler receiving (start, end).",
+        "placeholder": "Placeholder when no range is selected.",
+        "className": "Custom class for the trigger."
+      },
+      "pagination": {
+        "page": "Current page (1-based).",
+        "totalPages": "Total number of pages.",
+        "onChange": "Change handler receiving next page.",
+        "className": "Custom class for the wrapper.",
+        "size": "Control size (sm, md, lg).",
+        "variant": "Visual variant (default, outline, ghost).",
+        "showFirstLast": "Show First/Last buttons.",
+        "showPrevNext": "Show Previous/Next buttons.",
+        "showPageNumbers": "Show numeric page buttons.",
+        "showInfo": "Show extra info text.",
+        "disabled": "Disable all controls.",
+        "alignment": "Alignment of the control (left, center, right).",
+        "pageSize": "Current items per page.",
+        "pageSizeOptions": "Options for items per page selector.",
+        "onPageSizeChange": "Change handler for items per page.",
+        "totalItems": "Total number of items across all pages.",
+        "labels": "Override i18n texts (strings/functions)."
+      },
+      "form": {
+        "Form": {
+          "onSubmit": "Submit handler invoked with form data.",
+          "initialValues": "Initial values for the form.",
+          "validationSchema": "Optional validation schema (custom).",
+          "className": "Custom class for the form element.",
+          "size": "Form-wide control size (sm, md, lg)."
+        },
+        "FormField": {
+          "name": "Field name registered in the form.",
+          "rules": "Validation rules (react-hook-form).",
+          "render": "Render function receiving field and fieldState."
+        },
+        "FormItem": {
+          "className": "Custom class for field wrapper."
+        },
+        "FormLabel": {
+          "className": "Custom class for label."
+        },
+        "FormControl": {
+          "note": "Wrapper that wires accessibility ids and error states."
+        },
+        "FormMessage": {
+          "className": "Custom class for message."
+        },
+        "FormInput": {
+          "name": "Field name to bind."
+        },
+        "FormCheckbox": {
+          "name": "Field name to bind."
+        },
+        "FormActions": {
+          "className": "Custom class for actions row."
+        },
+        "FormSubmitButton": {
+          "loading": "Disable and show busy state while submitting."
+        }
+      },
+      "languageSwitcher": {
+        "locales": "Available language options (code, name, optional flag).",
+        "currentLocale": "Current active language code.",
+        "onSwitch": "Callback invoked with selected language code.",
+        "labels": {
+          "heading": "Heading text in the dropdown."
+        },
+        "className": "Custom class for the wrapper."
+      },
+      "themeToggle": {
+        "noProps": "This component reads and updates ThemeContext; it has no public props."
       }
     }
   }
