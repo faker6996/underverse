@@ -184,6 +184,9 @@
       "smartImage": {
         "title": "SmartImage"
       },
+      "fallingIcons": {
+        "title": "FallingIcons"
+      },
       "categoryTreeSelect": {
         "title": "CategoryTreeSelect"
       },
@@ -225,6 +228,20 @@
       }
     },
     "props": {
+      "fallingIcons": {
+        "icon": "Icon component rendered as falling particle.",
+        "count": "How many particles to render.",
+        "speedRange": "Fall duration range in seconds.",
+        "sizeRange": "Icon size range in px.",
+        "horizontalDrift": "Horizontal drift amplitude in px.",
+        "spin": "Rotate icons while falling.",
+        "pauseOnHover": "Pause animations on hover.",
+        "fullScreen": "Cover the entire viewport (fixed).",
+        "areaClassName": "Custom class for the outer area.",
+        "colorClassName": "Custom class for icon color.",
+        "zIndex": "Z-index of the effect layer.",
+        "className": "Custom class for inner animation layer."
+      },
       "button": {
         "onClick": "Click handler; may return a Promise (works with preventDoubleClick).",
         "children": "Button content.",

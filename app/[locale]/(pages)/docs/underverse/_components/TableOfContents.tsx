@@ -44,6 +44,7 @@ const sections: TocSection[] = [
   { id: "multi-combobox", labelKey: "sections.multiCombobox.title" },
   { id: "section", labelKey: "sections.section.title" },
   { id: "smart-image", labelKey: "sections.smartImage.title" },
+  { id: "falling-icons", labelKey: "sections.fallingIcons.title" },
   { id: "category-tree-select", labelKey: "sections.categoryTreeSelect.title" },
   { id: "image-upload", labelKey: "sections.imageUpload.title" },
   { id: "notification-modal", labelKey: "sections.notificationModal.title" },

@@ -55,10 +55,11 @@ export function Carousel({
   const [startPos, setStartPos] = React.useState(0);
   const [currentTranslate, setCurrentTranslate] = React.useState(0);
   const [prevTranslate, setPrevTranslate] = React.useState(0);
-  const [progress, setProgress] = React.useState(0);
+  // Progress bar handled via rAF to avoid frequent React state updates
+  const progressElRef = React.useRef<HTMLDivElement | null>(null);
 
   const carouselRef = React.useRef<HTMLDivElement>(null);
-  const progressIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+  const rafRef = React.useRef<number | null>(null);
 
   const totalSlides = React.Children.count(children);
   const maxIndex = Math.max(0, totalSlides - slidesToShow);
@@ -114,34 +115,39 @@ export function Carousel({
     }
   }, [scrollPrev, scrollNext, scrollTo, maxIndex]);
 
-  // Auto scroll with progress
+  // Auto scroll with progress (requestAnimationFrame)
   React.useEffect(() => {
-    if (!autoScroll || isPaused || totalSlides <= slidesToShow) {
-      setProgress(0);
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
+    // Cleanup helper
+    const stop = () => {
+      if (rafRef.current != null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
       }
+      if (progressElRef.current) progressElRef.current.style.width = '0%';
+    };
+
+    if (!autoScroll || isPaused || totalSlides <= slidesToShow) {
+      stop();
       return;
     }
 
-    setProgress(0);
-    const progressStep = 100 / (autoScrollInterval / 50);
-
-    progressIntervalRef.current = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          scrollNext();
-          return 0;
-        }
-        return prev + progressStep;
-      });
-    }, 50);
-
-    return () => {
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
+    let start = performance.now();
+    const tick = (now: number) => {
+      const elapsed = now - start;
+      const ratio = Math.min(1, elapsed / autoScrollInterval);
+      if (progressElRef.current) {
+        progressElRef.current.style.width = `${ratio * 100}%`;
       }
+      if (ratio >= 1) {
+        // Advance slide and restart cycle
+        scrollNext();
+        start = performance.now();
+      }
+      rafRef.current = requestAnimationFrame(tick);
     };
+    rafRef.current = requestAnimationFrame(tick);
+
+    return stop;
   }, [autoScroll, isPaused, totalSlides, slidesToShow, autoScrollInterval, scrollNext]);
 
   // Touch/Mouse drag handlers
@@ -229,7 +235,7 @@ export function Carousel({
       {/* Progress bar */}
       {showProgress && autoScroll && (
         <div className="absolute top-0 left-0 right-0 h-1 bg-muted z-20">
-          <div className="h-full bg-primary transition-all duration-50 ease-linear" style={{ width: `${progress}%` }} />
+          <div ref={progressElRef} className="h-full bg-primary" style={{ width: '0%' }} />
         </div>
       )}
 

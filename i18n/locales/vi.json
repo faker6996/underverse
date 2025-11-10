@@ -184,6 +184,9 @@
       "smartImage": {
         "title": "SmartImage"
       },
+      "fallingIcons": {
+        "title": "FallingIcons"
+      },
       "categoryTreeSelect": {
         "title": "CategoryTreeSelect"
       },
@@ -225,6 +228,20 @@
       }
     },
     "props": {
+      "fallingIcons": {
+        "icon": "Component icon hiển thị dạng hạt rơi.",
+        "count": "Số lượng hạt hiển thị.",
+        "speedRange": "Khoảng thời gian rơi (giây).",
+        "sizeRange": "Khoảng kích thước icon (px).",
+        "horizontalDrift": "Biên độ trôi ngang (px).",
+        "spin": "Xoay icon khi rơi.",
+        "pauseOnHover": "Tạm dừng hiệu ứng khi hover.",
+        "fullScreen": "Bao phủ toàn màn hình (fixed).",
+        "areaClassName": "Class cho vùng bao ngoài.",
+        "colorClassName": "Class màu cho icon.",
+        "zIndex": "Z-index của lớp hiệu ứng.",
+        "className": "Class cho lớp animation bên trong."
+      },
       "button": {
         "onClick": "Hàm xử lý khi click; có thể trả Promise (phù hợp với preventDoubleClick).",
         "children": "Nội dung của nút.",

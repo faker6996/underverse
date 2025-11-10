@@ -184,6 +184,9 @@
       "smartImage": {
         "title": "SmartImage"
       },
+      "fallingIcons": {
+        "title": "FallingIcons"
+      },
       "categoryTreeSelect": {
         "title": "CategoryTreeSelect"
       },
@@ -225,6 +228,20 @@
       }
     },
     "props": {
+      "fallingIcons": {
+        "icon": "落ちるパーティクルとして表示するアイコンコンポーネント。",
+        "count": "表示するパーティクルの数。",
+        "speedRange": "落下時間の範囲（秒）。",
+        "sizeRange": "アイコンサイズの範囲（px）。",
+        "horizontalDrift": "左右の揺れ幅（px）。",
+        "spin": "落下中に回転するか。",
+        "pauseOnHover": "ホバー時に一時停止。",
+        "fullScreen": "画面全体を覆う固定レイヤー。",
+        "areaClassName": "外側エリアのカスタムクラス。",
+        "colorClassName": "アイコン色のクラス。",
+        "zIndex": "エフェクト層の z-index。",
+        "className": "内側アニメーション層のクラス。"
+      },
       "button": {
         "onClick": "クリック時のハンドラ。Promise を返すことも可能（preventDoubleClick と併用可）。",
         "children": "ボタンの内容。",

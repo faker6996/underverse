@@ -55,6 +55,7 @@ export { CategoryTreeSelect } from "../../../components/ui/CategoryTreeSelect";
 export { default as SmartImage } from "../../../components/ui/SmartImage";
 export { default as ImageUpload } from "../../../components/ui/ImageUpload";
 export { Carousel } from "../../../components/ui/Carousel";
+export { default as FallingIcons } from "../../../components/ui/FallingIcons";
 
 // Misc
 export { default as ClientOnly } from "../../../components/ui/ClientOnly";

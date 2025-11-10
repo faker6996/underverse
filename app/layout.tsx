@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import React from "react";
 import Script from "next/script";
 import "./globals.css";
+import GlobalFallingIcons from "@/components/ui/GlobalFallingIcons";
 
 export const metadata: Metadata = {
   title: "Underverse UI",
@@ -26,6 +27,7 @@ export default function RootLayout({
             } catch {}
           `}
         </Script>
+        <GlobalFallingIcons />
         {children}
       </body>
     </html>

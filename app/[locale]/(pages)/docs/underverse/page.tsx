@@ -41,6 +41,7 @@ const ComboboxAdvancedExample = dynamicImport(() => import("./_examples/Combobox
 const MultiComboboxAdvancedExample = dynamicImport(() => import("./_examples/MultiComboboxAdvancedExample"), { ssr: false });
 const SectionExample = dynamicImport(() => import("./_examples/SectionExample"), { ssr: false });
 const SmartImageExample = dynamicImport(() => import("./_examples/SmartImageExample"), { ssr: false });
+const FallingIconsExample = dynamicImport(() => import("./_examples/FallingIconsExample"), { ssr: false });
 const CategoryTreeSelectExample = dynamicImport(() => import("./_examples/CategoryTreeSelectExample"), { ssr: false });
 const InputExample = dynamicImport(() => import("./_examples/InputExample"), { ssr: false });
 const DatePickerExample = dynamicImport(() => import("./_examples/DatePickerExample"), { ssr: false });
@@ -246,6 +247,10 @@ function DocsInner() {
             <SmartImageExample />
           </DocSection>
 
+          <DocSection id="falling-icons" title={t("sections.fallingIcons.title")}>
+            <FallingIconsExample />
+          </DocSection>
+
           <DocSection id="category-tree-select" title={t("sections.categoryTreeSelect.title")}>
             <CategoryTreeSelectExample />
           </DocSection>
@@ -311,4 +316,3 @@ function DocsInner() {
     </div>
   );
 }
-

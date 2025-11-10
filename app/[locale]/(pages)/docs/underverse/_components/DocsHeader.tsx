@@ -6,6 +6,7 @@ import { Package } from "lucide-react";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import ColorThemeCustomizer from "@/components/ui/ColorThemeCustomizer";
+import FallingIconsToggle from "@/components/ui/FallingIconsToggle";
 import { cn } from "@/lib/utils/cn";
 import { SearchInput } from "@/components/ui/Input";
 import { useActiveSection } from "./ActiveSectionContext";
@@ -164,6 +165,7 @@ export default function DocsHeader() {
             </div>
             <ColorThemeCustomizer />
             <ThemeToggle />
+            <FallingIconsToggle />
             <LanguageSwitcher />
           </div>
         </div>

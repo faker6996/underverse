@@ -184,6 +184,9 @@
       "smartImage": {
         "title": "SmartImage"
       },
+      "fallingIcons": {
+        "title": "FallingIcons"
+      },
       "categoryTreeSelect": {
         "title": "CategoryTreeSelect"
       },
@@ -225,6 +228,20 @@
       }
     },
     "props": {
+      "fallingIcons": {
+        "icon": "떨어지는 파티클로 렌더링할 아이콘 컴포넌트.",
+        "count": "렌더링할 파티클 수.",
+        "speedRange": "낙하 시간 범위(초).",
+        "sizeRange": "아이콘 크기 범위(px).",
+        "horizontalDrift": "가로 흔들림 진폭(px).",
+        "spin": "낙하 중 아이콘 회전.",
+        "pauseOnHover": "호버 시 애니메이션 일시정지.",
+        "fullScreen": "전체 화면을 덮는 고정 레이어.",
+        "areaClassName": "바깥 영역 커스텀 클래스.",
+        "colorClassName": "아이콘 색상 클래스.",
+        "zIndex": "효과 레이어의 z-index.",
+        "className": "내부 애니메이션 레이어 클래스."
+      },
       "button": {
         "onClick": "클릭 핸들러. Promise 반환 가능( preventDoubleClick 과 함께 사용 시 유용).",
         "children": "버튼 내용.",
