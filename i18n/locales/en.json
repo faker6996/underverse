@@ -554,17 +554,17 @@
           "icon": "Left icon component."
         },
         "SimpleRadioGroup": {
-          "items": "Array of { value, label }."
+          "items": "Array of (value, label)."
         },
         "RadioButtonGroup": {
-          "items": "Array of { value, label }.",
+          "items": "Array of (value, label).",
           "variant": "default | outline | solid."
         },
         "SegmentedControl": {
-          "items": "Array of { value, label }."
+          "items": "Array of (value, label)."
         },
         "ToggleGroup": {
-          "items": "Array of { value, label }."
+          "items": "Array of (value, label)."
         }
       },
       "scrollArea": {
@@ -573,7 +573,7 @@
       },
       "table": {
         "Table": {
-          "className": "Custom class for <table>.",
+          "className": "Custom class for &lt;table&gt;.",
           "containerClassName": "Custom class for outer container."
         },
         "TableHeader": {
@@ -672,7 +672,7 @@
       },
       "combobox": {
         "id": "Input id (aria).",
-        "options": "Options list (string or {label,value}).",
+        "options": "Options list (string or (label,value)).",
         "value": "Selected value.",
         "onChange": "Change handler (value).",
         "placeholder": "Trigger placeholder text.",
@@ -690,7 +690,7 @@
       },
       "multiCombobox": {
         "id": "Input id (aria).",
-        "options": "Options (string or {value,label}).",
+        "options": "Options (string or (value,label)).",
         "value": "Selected values (array).",
         "onChange": "Change handler (values).",
         "placeholder": "Placeholder text.",
@@ -708,7 +708,7 @@
       },
       "section": {
         "children": "Section body content.",
-        "className": "Custom class for <section>.",
+        "className": "Custom class for &lt;section&gt;.",
         "variant": "Visual variant.",
         "spacing": "Vertical padding (sm|md|lg|xl).",
         "fullWidth": "Stretch to full width (no container).",
@@ -754,7 +754,7 @@
       "notificationModal": {
         "isOpen": "Open/close state.",
         "onClose": "Close handler.",
-        "notification": "Notification item {id,title,body,type,is_read,created_at,metadata}.",
+        "notification": "Notification item (id,title,body,type,is_read,created_at,metadata).",
         "titleText": "Custom title text.",
         "openLinkText": "Open link button text.",
         "closeText": "Close button text."

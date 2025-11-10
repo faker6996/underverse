@@ -554,17 +554,17 @@
           "icon": "Icon bên trái."
         },
         "SimpleRadioGroup": {
-          "items": "Mảng { value, label }."
+          "items": "Mảng (value, label)."
         },
         "RadioButtonGroup": {
-          "items": "Mảng { value, label }.",
+          "items": "Mảng (value, label).",
           "variant": "default | outline | solid."
         },
         "SegmentedControl": {
-          "items": "Mảng { value, label }."
+          "items": "Mảng (value, label)."
         },
         "ToggleGroup": {
-          "items": "Mảng { value, label }."
+          "items": "Mảng (value, label)."
         }
       },
       "scrollArea": {
@@ -573,7 +573,7 @@
       },
       "table": {
         "Table": {
-          "className": "Class cho thẻ <table>.",
+          "className": "Class cho thẻ &lt;table&gt;.",
           "containerClassName": "Class cho container ngoài."
         },
         "TableHeader": {
@@ -672,7 +672,7 @@
       },
       "combobox": {
         "id": "Id input (aria).",
-        "options": "Danh sách tuỳ chọn (string hoặc {label,value}).",
+        "options": "Danh sách tuỳ chọn (string hoặc (label,value)).",
         "value": "Giá trị đã chọn.",
         "onChange": "Hàm thay đổi (value).",
         "placeholder": "Placeholder của trigger.",
@@ -690,7 +690,7 @@
       },
       "multiCombobox": {
         "id": "Id input (aria).",
-        "options": "Tuỳ chọn (string hoặc {value,label}).",
+        "options": "Tuỳ chọn (string hoặc (value,label)).",
         "value": "Các giá trị đã chọn (mảng).",
         "onChange": "Hàm thay đổi (mảng).",
         "placeholder": "Placeholder.",
@@ -708,7 +708,7 @@
       },
       "section": {
         "children": "Nội dung trong section.",
-        "className": "Class tuỳ chỉnh cho <section>.",
+        "className": "Class tuỳ chỉnh cho &lt;section&gt;.",
         "variant": "Biến thể hiển thị.",
         "spacing": "Khoảng cách dọc (sm|md|lg|xl).",
         "fullWidth": "Kéo dãn full-width (bỏ container).",
@@ -754,7 +754,7 @@
       "notificationModal": {
         "isOpen": "Trạng thái mở/đóng.",
         "onClose": "Hàm đóng.",
-        "notification": "Đối tượng thông báo {id,title,body,type,is_read,created_at,metadata}.",
+        "notification": "Đối tượng thông báo (id,title,body,type,is_read,created_at,metadata).",
         "titleText": "Tiêu đề tuỳ chỉnh.",
         "openLinkText": "Nút mở liên kết.",
         "closeText": "Nút đóng."

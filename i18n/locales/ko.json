@@ -554,17 +554,17 @@
           "icon": "왼쪽 아이콘 컴포넌트."
         },
         "SimpleRadioGroup": {
-          "items": "{ value, label } 배열."
+          "items": "(value, label) 배열."
         },
         "RadioButtonGroup": {
-          "items": "{ value, label } 배열.",
+          "items": "(value, label) 배열.",
           "variant": "default | outline | solid."
         },
         "SegmentedControl": {
-          "items": "{ value, label } 배열."
+          "items": "(value, label) 배열."
         },
         "ToggleGroup": {
-          "items": "{ value, label } 배열."
+          "items": "(value, label) 배열."
         }
       },
       "scrollArea": {
@@ -573,7 +573,7 @@
       },
       "table": {
         "Table": {
-          "className": "<table> 커스텀 클래스.",
+          "className": "&lt;table&gt; 커스텀 클래스.",
           "containerClassName": "바깥 컨테이너 커스텀 클래스."
         },
         "TableHeader": {
@@ -672,7 +672,7 @@
       },
       "combobox": {
         "id": "입력 id(aria).",
-        "options": "옵션 목록(string 또는 {label,value}).",
+        "options": "옵션 목록(string 또는 (label,value)).",
         "value": "선택된 값.",
         "onChange": "변경 핸들러(value).",
         "placeholder": "트리거 자리표시자.",
@@ -690,7 +690,7 @@
       },
       "multiCombobox": {
         "id": "입력 id(aria).",
-        "options": "옵션(string 또는 {value,label}).",
+        "options": "옵션(string 또는 (value,label)).",
         "value": "선택 값 배열.",
         "onChange": "변경 핸들러(배열).",
         "placeholder": "자리표시자.",
@@ -708,7 +708,7 @@
       },
       "section": {
         "children": "섹션 본문 내용.",
-        "className": "<section> 커스텀 클래스.",
+        "className": "&lt;section&gt; 커스텀 클래스.",
         "variant": "표시 변형.",
         "spacing": "세로 간격 (sm|md|lg|xl).",
         "fullWidth": "전체 너비로 확장(컨테이너 없음).",
@@ -754,7 +754,7 @@
       "notificationModal": {
         "isOpen": "열림/닫힘 상태.",
         "onClose": "닫기 핸들러.",
-        "notification": "알림 객체 {id,title,body,type,is_read,created_at,metadata}.",
+        "notification": "알림 객체 (id,title,body,type,is_read,created_at,metadata).",
         "titleText": "사용자 지정 제목.",
         "openLinkText": "링크 열기 버튼 문구.",
         "closeText": "닫기 버튼 문구."

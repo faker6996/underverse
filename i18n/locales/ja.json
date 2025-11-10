@@ -211,6 +211,9 @@
       "themeToggle": {
         "title": "ThemeToggle (with i18n)"
       },
+      "themeToggleHeadless": {
+        "title": "ThemeToggle（ヘッドレス）"
+      },
       "languageSwitcherHeadless": {
         "title": "言語スイッチャー（ヘッドレス）"
       },
@@ -551,17 +554,17 @@
           "icon": "左アイコンコンポーネント。"
         },
         "SimpleRadioGroup": {
-          "items": "value ? label ???????????"
+          "items": "value と label の配列。"
         },
         "RadioButtonGroup": {
-          "items": "value ? label ???????????",
+          "items": "value と label の配列。",
           "variant": "default | outline | solid。"
         },
         "SegmentedControl": {
-          "items": "value ? label ???????????"
+          "items": "value と label の配列。"
         },
         "ToggleGroup": {
-          "items": "value ? label ????????????"
+          "items": "value と label の配列。"
         }
       },
       "scrollArea": {
@@ -669,7 +672,7 @@
       },
       "combobox": {
         "id": "入力の id（aria）。",
-        "options": "選択肢（string または {label,value}）。",
+        "options": "選択肢（string または (label,value)）。",
         "value": "選択値。",
         "onChange": "変更ハンドラ（value）。",
         "placeholder": "トリガーのプレースホルダ。",
@@ -687,7 +690,7 @@
       },
       "multiCombobox": {
         "id": "入力の id（aria）。",
-        "options": "選択肢（string または {value,label}）。",
+        "options": "選択肢（string または (value,label)）。",
         "value": "選択値の配列。",
         "onChange": "変更ハンドラ（配列）。",
         "placeholder": "プレースホルダ。",
@@ -751,7 +754,7 @@
       "notificationModal": {
         "isOpen": "開閉状態。",
         "onClose": "クローズハンドラ。",
-        "notification": "通知オブジェクト {id,title,body,type,is_read,created_at,metadata}。",
+        "notification": "通知オブジェクト (id,title,body,type,is_read,created_at,metadata)。",
         "titleText": "カスタムタイトル。",
         "openLinkText": "リンクを開くボタン文言。",
         "closeText": "閉じるボタン文言。"
