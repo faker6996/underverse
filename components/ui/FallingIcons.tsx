@@ -183,7 +183,7 @@ export default function FallingIcons({
       )}
       style={{ zIndex }}
     >
-      <style jsx>{`
+      <style>{`
         @keyframes ${FallName} {
           0% { transform: translate3d(0, -10vh, 0); opacity: 0; }
           10% { opacity: 1; }
