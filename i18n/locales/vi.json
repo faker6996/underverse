@@ -181,6 +181,18 @@
       "section": {
         "title": "Section"
       },
+      "grid": {
+        "title": "Grid"
+      },
+      "list": {
+        "title": "List"
+      },
+      "watermark": {
+        "title": "Watermark"
+      },
+      "timeline": {
+        "title": "Timeline"
+      },
       "smartImage": {
         "title": "SmartImage"
       },
@@ -205,6 +217,15 @@
       "datePicker": {
         "title": "DatePicker (with i18n)"
       },
+      "calendar": {
+        "title": "Calendar"
+      },
+      "timePicker": {
+        "title": "TimePicker"
+      },
+      "colorPicker": {
+        "title": "ColorPicker"
+      },
       "pagination": {
         "title": "Pagination (with i18n)"
       },
@@ -228,6 +249,142 @@
       }
     },
     "props": {
+      "calendar": {
+        "month": "Tháng hiển thị (controlled).",
+        "defaultMonth": "Tháng ban đầu khi uncontrolled.",
+        "onMonthChange": "Gọi khi chuyển tháng.",
+        "value": "Giá trị ngày được chọn (phụ thuộc selectMode).",
+        "defaultValue": "Giá trị ban đầu khi uncontrolled.",
+        "onSelect": "Gọi với giá trị đã chọn.",
+        "selectMode": "Chế độ chọn: single/multiple/range.",
+        "weekStartsOn": "Ngày bắt đầu tuần (0-6).",
+        "showWeekdays": "Hiển thị tiêu đề ngày trong tuần.",
+        "showHeader": "Hiển thị header điều hướng tháng.",
+        "size": "Kích thước hiển thị.",
+        "events": "Danh sách sự kiện hiển thị dạng chấm màu.",
+        "renderDay": "Hàm custom render cho ô ngày.",
+        "labels": "Label bản địa hoá cho tiêu đề và ngày tuần.",
+        "display": "Chế độ hiển thị: theo tháng hoặc tuần.",
+        "months": "Số tháng hiển thị cạnh nhau (chỉ áp dụng chế độ tháng).",
+        "minDate": "Giới hạn dưới cho ngày có thể chọn.",
+        "maxDate": "Giới hạn trên cho ngày có thể chọn.",
+        "disabledDates": "Danh sách hoặc hàm để vô hiệu hoá các ngày cụ thể."
+      },
+      "list": {
+        "as": "Thẻ element để render (ul/ol/div).",
+        "ordered": "Dùng danh sách có thứ tự (ol).",
+        "variant": "Biến thể hiển thị (plain, outlined, soft).",
+        "size": "Kích thước item.",
+        "divided": "Thêm đường phân cách giữa các item.",
+        "inset": "Thêm padding bên trong quanh item.",
+        "hoverable": "Hiệu ứng hover cho item."
+      },
+      "listItem": {
+        "as": "Element render cho item (li/div/a/button).",
+        "selected": "Đánh dấu được chọn.",
+        "disabled": "Vô hiệu hoá tương tác.",
+        "href": "Đường dẫn (render thẻ a).",
+        "label": "Tiêu đề/chuỗi chính.",
+        "description": "Mô tả phụ phía dưới.",
+        "leftIcon": "Icon bên trái.",
+        "rightIcon": "Icon bên phải."
+      },
+      "timePicker": {
+        "value": "Giá trị thời gian điều khiển (ví dụ '14:30' hoặc '02:30 PM').",
+        "defaultValue": "Giá trị thời gian ban đầu khi uncontrolled.",
+        "onChange": "Gọi khi thời gian thay đổi (string) hoặc undefined.",
+        "placeholder": "Placeholder khi chưa chọn.",
+        "disabled": "Vô hiệu hoá điều khiển.",
+        "size": "Kích thước nút chọn.",
+        "label": "Nhãn hiển thị phía trên.",
+        "required": "Hiển thị dấu bắt buộc.",
+        "format": "Định dạng đồng hồ: 24 giờ hoặc 12 giờ.",
+        "includeSeconds": "Cho phép chọn giây.",
+        "minuteStep": "Bước tăng phút trong danh sách.",
+        "secondStep": "Bước tăng giây trong danh sách.",
+        "clearable": "Hiển thị nút Clear trong popover."
+      },
+      "colorPicker": {
+        "value": "Giá trị màu điều khiển (#RRGGBB hoặc rgba).",
+        "defaultValue": "Giá trị ban đầu khi uncontrolled.",
+        "onChange": "Hàm callback khi màu thay đổi.",
+        "disabled": "Vô hiệu hoá điều khiển.",
+        "withAlpha": "Bật tuỳ chọn kênh alpha (độ trong suốt).",
+        "format": "Định dạng xuất cho onChange (hex hoặc rgba).",
+        "presets": "Bảng màu mẫu để chọn nhanh.",
+        "clearable": "Hiển thị nút xoá để reset.",
+        "className": "Class tuỳ chỉnh cho wrapper."
+      },
+      "grid": {
+        "columns": "Số cột hoặc chuỗi template CSS.",
+        "rows": "Số hàng hoặc chuỗi template CSS.",
+        "gap": "Khoảng cách tổng (cả 2 chiều).",
+        "gapX": "Khoảng cách ngang (column-gap).",
+        "gapY": "Khoảng cách dọc (row-gap).",
+        "autoRows": "Giá trị cho grid-auto-rows.",
+        "minColumnWidth": "Dùng auto-fit với min width để tạo cột responsive.",
+        "areas": "Giá trị grid-template-areas (string hoặc mảng).",
+        "alignItems": "Căn phần tử trong ô lưới.",
+        "justifyItems": "Căn phần tử theo trục ngang trong ô lưới.",
+        "alignContent": "Căn toàn bộ nội dung lưới.",
+        "justifyContent": "Căn toàn bộ nội dung lưới theo trục ngang.",
+        "responsive": "Ghi đè theo breakpoint cho columns/rows/gap/minColumnWidth.",
+        "outlined": "Áp dụng viền bo tròn và nền giống Card."
+      },
+      "watermark": {
+        "text": "Chuỗi chữ watermark hiển thị (hỗ trợ đa dòng dạng mảng).",
+        "image": "URL ảnh dùng làm watermark.",
+        "preset": "Kiểu watermark có sẵn (confidential, draft, sample, copyright, doNotCopy, internal).",
+        "pattern": "Bố cục pattern (diagonal, grid, straight).",
+        "width": "Chiều rộng nội dung pattern (px).",
+        "height": "Chiều cao nội dung pattern (px).",
+        "gapX": "Khoảng cách ngang giữa các pattern (px).",
+        "gapY": "Khoảng cách dọc giữa các pattern (px).",
+        "rotate": "Góc xoay (độ).",
+        "fontSize": "Cỡ chữ cho watermark dạng text.",
+        "fontFamily": "Font chữ cho watermark dạng text.",
+        "fontWeight": "Độ đậm chữ (normal, bold, 600, v.v).",
+        "fontStyle": "Kiểu chữ (normal hoặc italic).",
+        "color": "Màu chữ (nên dùng RGBA).",
+        "gradient": "Màu gradient (phân cách bằng dấu phẩy cho đa màu).",
+        "opacity": "Độ mờ toàn lớp (0–1).",
+        "offsetLeft": "Độ lệch ngang điểm bắt đầu pattern (px).",
+        "offsetTop": "Độ lệch dọc điểm bắt đầu pattern (px).",
+        "zIndex": "Giá trị z-index của lớp phủ.",
+        "fullPage": "Phủ toàn trang (fixed overlay).",
+        "interactive": "Cho phép click để bật/tắt hiển thị.",
+        "animate": "Bật hiệu ứng fade cho chuyển đổi hiển thị.",
+        "overlayClassName": "Class tuỳ chỉnh cho lớp overlay.",
+        "className": "Class tuỳ chỉnh cho wrapper."
+      },
+      "timeline": {
+        "align": "Căn nội dung so với đường timeline.",
+        "variant": "Kiểu hiển thị cho item (default, outlined, card, minimal, modern, gradient).",
+        "size": "Kích thước marker và khoảng cách (sm, md, lg, xl).",
+        "mode": "Hướng bố trí (vertical hoặc horizontal).",
+        "lineColor": "Màu của đường nối.",
+        "lineStyle": "Kiểu đường nối (solid, dashed, dotted).",
+        "items": "Danh sách items (thay cho children).",
+        "itemClassName": "Class áp dụng cho mỗi item.",
+        "animate": "Hiệu ứng animate khi mount với slide-in.",
+        "dense": "Chế độ spacing gọn cho thông tin dày đặc.",
+        "showLine": "Hiển thị đường nối giữa các items."
+      },
+      "timelineItem": {
+        "title": "Tiêu đề chính của item.",
+        "description": "Mô tả phụ bên dưới tiêu đề.",
+        "time": "Nhãn thời gian hiển thị bên dưới.",
+        "icon": "Icon hiển thị cạnh nội dung.",
+        "status": "Trạng thái màu của marker.",
+        "color": "Màu sắc tuỳ chỉnh cho marker (đè status).",
+        "active": "Đánh dấu item đang hoạt động.",
+        "dot": "Nội dung dot tuỳ chỉnh (bất kỳ React node).",
+        "badge": "Nội dung badge/tag hiển thị bên tiêu đề.",
+        "collapsible": "Cho phép thu gọn/mở rộng item.",
+        "expanded": "Trạng thái mở rộng được kiểm soát.",
+        "onExpandChange": "Callback khi trạng thái mở rộng thay đổi.",
+        "expandContent": "Nội dung hiển thị khi mở rộng."
+      },
       "fallingIcons": {
         "icon": "Component icon hiển thị dạng hạt rơi.",
         "count": "Số lượng hạt hiển thị.",

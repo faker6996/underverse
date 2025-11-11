@@ -40,12 +40,19 @@ const MultiComboboxExample = dynamicImport(() => import("./_examples/MultiCombob
 const ComboboxAdvancedExample = dynamicImport(() => import("./_examples/ComboboxAdvancedExample"), { ssr: false });
 const MultiComboboxAdvancedExample = dynamicImport(() => import("./_examples/MultiComboboxAdvancedExample"), { ssr: false });
 const SectionExample = dynamicImport(() => import("./_examples/SectionExample"), { ssr: false });
+const GridExample = dynamicImport(() => import("./_examples/GridExample"), { ssr: false });
+const ListExample = dynamicImport(() => import("./_examples/ListExample"), { ssr: false });
+const WatermarkExample = dynamicImport(() => import("./_examples/WatermarkExample"), { ssr: false });
+const TimelineExample = dynamicImport(() => import("./_examples/TimelineExample"), { ssr: false });
 const SmartImageExample = dynamicImport(() => import("./_examples/SmartImageExample"), { ssr: false });
 const FallingIconsExample = dynamicImport(() => import("./_examples/FallingIconsExample"), { ssr: false });
 const CategoryTreeSelectExample = dynamicImport(() => import("./_examples/CategoryTreeSelectExample"), { ssr: false });
 const InputExample = dynamicImport(() => import("./_examples/InputExample"), { ssr: false });
 const DatePickerExample = dynamicImport(() => import("./_examples/DatePickerExample"), { ssr: false });
 const DatePickerAdvancedExample = dynamicImport(() => import("./_examples/DatePickerAdvancedExample"), { ssr: false });
+const ColorPickerExample = dynamicImport(() => import("./_examples/ColorPickerExample"), { ssr: false });
+const TimePickerExample = dynamicImport(() => import("./_examples/TimePickerExample"), { ssr: false });
+const CalendarExample = dynamicImport(() => import("./_examples/CalendarExample"), { ssr: false });
 const PaginationExample = dynamicImport(() => import("./_examples/PaginationExample"), { ssr: false });
 const PaginationAdvancedExample = dynamicImport(() => import("./_examples/PaginationAdvancedExample"), { ssr: false });
 const ImageUploadExample = dynamicImport(() => import("./_examples/ImageUploadExample"), { ssr: false });
@@ -243,6 +250,22 @@ function DocsInner() {
             <SectionExample />
           </DocSection>
 
+          <DocSection id="grid" title={t("sections.grid.title")}>
+            <GridExample />
+          </DocSection>
+
+          <DocSection id="list" title={t("sections.list.title")}>
+            <ListExample />
+          </DocSection>
+
+          <DocSection id="watermark" title={t("sections.watermark.title")}>
+            <WatermarkExample />
+          </DocSection>
+
+          <DocSection id="timeline" title={t("sections.timeline.title")}>
+            <TimelineExample />
+          </DocSection>
+
           <DocSection id="smart-image" title={t("sections.smartImage.title")}>
             <SmartImageExample />
           </DocSection>
@@ -276,6 +299,18 @@ function DocsInner() {
           <DocSection id="date-picker" title={t("sections.datePicker.title")}>
             <DatePickerExample />
             <div className="mt-3"><DatePickerAdvancedExample /></div>
+          </DocSection>
+
+          <DocSection id="calendar" title={t("sections.calendar.title")}>
+            <CalendarExample />
+          </DocSection>
+
+          <DocSection id="color-picker" title={t("sections.colorPicker.title")}>
+            <ColorPickerExample />
+          </DocSection>
+
+          <DocSection id="time-picker" title={t("sections.timePicker.title")}>
+            <TimePickerExample />
           </DocSection>
 
           <DocSection id="pagination" title={t("sections.pagination.title")}>

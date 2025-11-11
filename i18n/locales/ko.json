@@ -181,6 +181,18 @@
       "section": {
         "title": "Section"
       },
+      "grid": {
+        "title": "Grid"
+      },
+      "list": {
+        "title": "List"
+      },
+      "watermark": {
+        "title": "Watermark"
+      },
+      "timeline": {
+        "title": "Timeline"
+      },
       "smartImage": {
         "title": "SmartImage"
       },
@@ -205,6 +217,15 @@
       "datePicker": {
         "title": "DatePicker (with i18n)"
       },
+      "calendar": {
+        "title": "Calendar"
+      },
+      "timePicker": {
+        "title": "TimePicker"
+      },
+      "colorPicker": {
+        "title": "ColorPicker"
+      },
       "pagination": {
         "title": "Pagination (with i18n)"
       },
@@ -228,6 +249,124 @@
       }
     },
     "props": {
+      "calendar": {
+        "month": "표시되는 월(제어 모드).",
+        "defaultMonth": "비제어 모드의 초기 월.",
+        "onMonthChange": "월이 변경될 때 호출.",
+        "value": "선택된 날짜 값(선택 모드에 따라 다름).",
+        "defaultValue": "비제어 모드의 초기 값.",
+        "onSelect": "선택된 값을 전달.",
+        "selectMode": "선택 모드: single/multiple/range.",
+        "weekStartsOn": "주 시작 요일(0-6).",
+        "showWeekdays": "요일 헤더 표시.",
+        "showHeader": "월 탐색 헤더 표시.",
+        "size": "시각적 크기.",
+        "events": "색 점으로 표시할 이벤트 배열.",
+        "renderDay": "일자 셀 커스텀 렌더러.",
+        "labels": "요일/헤더에 대한 로컬라이즈 라벨.",
+        "display": "표시 모드: 월 그리드 또는 주 단위.",
+        "months": "월 모드에서 나란히 표시할 개월 수.",
+        "minDate": "선택 가능한 날짜의 하한.",
+        "maxDate": "선택 가능한 날짜의 상한.",
+        "disabledDates": "특정 날짜를 비활성화하는 목록 또는 함수."
+      },
+      "list": {
+        "as": "렌더링 엘리먼트(ul/ol/div).",
+        "ordered": "순서 목록(ol) 사용.",
+        "variant": "표시 변형(plain, outlined, soft).",
+        "size": "아이템 크기.",
+        "divided": "아이템 사이 구분선 추가.",
+        "inset": "아이템 주변 내부 패딩.",
+        "hoverable": "호버 시 하이라이트."
+      },
+      "listItem": {
+        "as": "아이템 렌더링 엘리먼트(li/div/a/button).",
+        "selected": "선택 상태 강조.",
+        "disabled": "상호작용 비활성화.",
+        "href": "링크 URL(a 태그 렌더링).",
+        "label": "주 텍스트.",
+        "description": "라벨 아래의 보조 텍스트.",
+        "leftIcon": "왼쪽 아이콘 컴포넌트.",
+        "rightIcon": "오른쪽 아이콘 컴포넌트."
+      },
+      "timePicker": {
+        "value": "제어되는 시간 값(예: '14:30' 또는 '02:30 PM').",
+        "defaultValue": "비제어 모드의 초기 시간.",
+        "onChange": "시간이 변경될 때 새로운 문자열 또는 undefined로 호출.",
+        "placeholder": "값이 없을 때의 플레이스홀더.",
+        "disabled": "컨트롤 비활성화.",
+        "size": "트리거 크기.",
+        "label": "컨트롤 상단의 라벨.",
+        "required": "필수 표시.",
+        "format": "24시간제 또는 12시간제.",
+        "includeSeconds": "초 선택 허용.",
+        "minuteStep": "분 리스트 증분.",
+        "secondStep": "초 리스트 증분.",
+        "clearable": "Popover 내부에 Clear 버튼 표시."
+      },
+      "colorPicker": {
+        "value": "제어되는 색상 값(#RRGGBB 또는 rgba).",
+        "defaultValue": "비제어 모드일 때 초기 색상.",
+        "onChange": "색상이 변경될 때 콜백.",
+        "disabled": "컨트롤 비활성화.",
+        "withAlpha": "알파 채널 선택 허용.",
+        "format": "onChange 출력 포맷(hex 또는 rgba).",
+        "presets": "빠른 선택을 위한 프리셋 스와치.",
+        "clearable": "초기화 버튼 표시.",
+        "className": "래퍼에 대한 커스텀 클래스."
+      },
+      "grid": {
+        "columns": "열 수 또는 전체 CSS 템플릿.",
+        "rows": "행 수 또는 전체 CSS 템플릿.",
+        "gap": "전체 간격 (양 축).",
+        "gapX": "가로 간격 (column-gap).",
+        "gapY": "세로 간격 (row-gap).",
+        "autoRows": "grid-auto-rows 값.",
+        "minColumnWidth": "auto-fit + 최소 너비로 반응형 컬럼 구성.",
+        "areas": "grid-template-areas (문자열 또는 배열).",
+        "alignItems": "셀 내부 아이템 정렬.",
+        "justifyItems": "셀 내부 아이템 가로 정렬.",
+        "alignContent": "그리드 전체 내용 정렬.",
+        "justifyContent": "그리드 전체 내용 가로 정렬.",
+        "responsive": "브레이크포인트별 columns/rows/gap/minColumnWidth 덮어쓰기.",
+        "outlined": "Card와 유사한 테두리와 배경 적용."
+      },
+      "watermark": {
+        "text": "워터마크로 표시할 텍스트.",
+        "image": "워터마크 패턴에 사용할 이미지 URL.",
+        "width": "패턴 콘텐츠 너비(px).",
+        "height": "패턴 콘텐츠 높이(px).",
+        "gapX": "타일 간 가로 간격(px).",
+        "gapY": "타일 간 세로 간격(px).",
+        "rotate": "회전 각도(도).",
+        "fontSize": "텍스트 워터마크 글꼴 크기.",
+        "fontFamily": "텍스트 워터마크 글꼴.",
+        "color": "텍스트 색상(RGBA 권장).",
+        "opacity": "레이어 전체 불투명도(0–1).",
+        "offsetLeft": "패턴 시작 가로 오프셋(px).",
+        "offsetTop": "패턴 시작 세로 오프셋(px).",
+        "zIndex": "오버레이 z-index.",
+        "fullPage": "전체 화면 고정 오버레이로 렌더링.",
+        "overlayClassName": "오버레이 레이어 커스텀 클래스.",
+        "className": "래퍼 커스텀 클래스."
+      },
+      "timeline": {
+        "align": "타임라인 선을 기준으로 내용 정렬.",
+        "variant": "아이템 표시 스타일 (default 또는 outlined).",
+        "size": "마커 크기와 간격.",
+        "lineColor": "연결 라인 색상.",
+        "items": "렌더링할 아이템 목록(Children 대안).",
+        "itemClassName": "각 아이템에 적용할 클래스."
+      },
+      "timelineItem": {
+        "title": "아이템의 제목.",
+        "description": "제목 아래 보조 텍스트.",
+        "time": "아래에 표시되는 시간 라벨.",
+        "icon": "내용 옆에 보이는 아이콘.",
+        "status": "마커의 상태 색상.",
+        "color": "마커 색상 직접 지정(상태보다 우선).",
+        "active": "활성 아이템 강조."
+      },
       "fallingIcons": {
         "icon": "떨어지는 파티클로 렌더링할 아이콘 컴포넌트.",
         "count": "렌더링할 파티클 수.",

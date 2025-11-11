@@ -181,6 +181,18 @@
       "section": {
         "title": "Section"
       },
+      "grid": {
+        "title": "Grid"
+      },
+      "list": {
+        "title": "List"
+      },
+      "watermark": {
+        "title": "Watermark"
+      },
+      "timeline": {
+        "title": "Timeline"
+      },
       "smartImage": {
         "title": "SmartImage"
       },
@@ -205,6 +217,15 @@
       "datePicker": {
         "title": "DatePicker (with i18n)"
       },
+      "calendar": {
+        "title": "Calendar"
+      },
+      "timePicker": {
+        "title": "TimePicker"
+      },
+      "colorPicker": {
+        "title": "ColorPicker"
+      },
       "pagination": {
         "title": "Pagination (with i18n)"
       },
@@ -228,6 +249,124 @@
       }
     },
     "props": {
+      "calendar": {
+        "month": "表示する月（制御時）。",
+        "defaultMonth": "非制御時の初期月。",
+        "onMonthChange": "月が切り替わったときに呼び出し。",
+        "value": "選択された日付の値（選択モードによる）。",
+        "defaultValue": "非制御時の初期値。",
+        "onSelect": "選択された値を返す。",
+        "selectMode": "選択モード: single/multiple/range。",
+        "weekStartsOn": "週の開始曜日（0-6）。",
+        "showWeekdays": "曜日ヘッダーを表示。",
+        "showHeader": "月ナビゲーションヘッダーを表示。",
+        "size": "表示サイズ。",
+        "events": "色付きドットで表示するイベント配列。",
+        "renderDay": "日セルのカスタムレンダラー。",
+        "labels": "曜日とヘッダーのラベル。",
+        "display": "表示モード：月グリッドまたは週。",
+        "months": "月モードで横に表示する月数。",
+        "minDate": "選択可能日付の下限。",
+        "maxDate": "選択可能日付の上限。",
+        "disabledDates": "特定の日付を無効化する配列または関数。"
+      },
+      "list": {
+        "as": "レンダー要素（ul/ol/div）。",
+        "ordered": "順序付きリスト(ol)を使用。",
+        "variant": "表示バリアント（plain/outlined/soft）。",
+        "size": "アイテムサイズ。",
+        "divided": "アイテム間に区切り線を追加。",
+        "inset": "アイテムの周囲に内側余白。",
+        "hoverable": "ホバー時にハイライト。"
+      },
+      "listItem": {
+        "as": "アイテムのレンダー要素（li/div/a/button）。",
+        "selected": "選択状態を強調。",
+        "disabled": "インタラクションを無効化。",
+        "href": "リンク URL（a タグでレンダー）。",
+        "label": "メインテキスト。",
+        "description": "ラベル下の補助テキスト。",
+        "leftIcon": "左アイコンコンポーネント。",
+        "rightIcon": "右アイコンコンポーネント。"
+      },
+      "timePicker": {
+        "value": "制御された時刻の値（例: '14:30' または '02:30 PM'）。",
+        "defaultValue": "非制御時の初期時刻。",
+        "onChange": "時刻が変更されたとき、新しい文字列または undefined で呼び出し。",
+        "placeholder": "未選択時のプレースホルダー。",
+        "disabled": "コントロールを無効化。",
+        "size": "トリガーのサイズ。",
+        "label": "コントロール上部のラベル。",
+        "required": "必須表示。",
+        "format": "24時間制または12時間制。",
+        "includeSeconds": "秒の選択を許可。",
+        "minuteStep": "分リストの増分。",
+        "secondStep": "秒リストの増分。",
+        "clearable": "Popover 内に Clear ボタンを表示。"
+      },
+      "colorPicker": {
+        "value": "制御された色の値（#RRGGBB または rgba）。",
+        "defaultValue": "非制御時の初期色。",
+        "onChange": "色が変更されたときのコールバック。",
+        "disabled": "コントロールを無効化。",
+        "withAlpha": "アルファチャンネル選択を有効化。",
+        "format": "onChange の出力形式（hex または rgba）。",
+        "presets": "クイック選択用のプリセットスウォッチ。",
+        "clearable": "リセット用クリアボタンを表示。",
+        "className": "ラッパー用のカスタムクラス。"
+      },
+      "grid": {
+        "columns": "列数またはCSSテンプレート文字列。",
+        "rows": "行数またはCSSテンプレート文字列。",
+        "gap": "全体の間隔（両軸）。",
+        "gapX": "水平方向の間隔（column-gap）。",
+        "gapY": "垂直方向の間隔（row-gap）。",
+        "autoRows": "grid-auto-rows の値。",
+        "minColumnWidth": "auto-fit と最小幅でレスポンシブ列を作成。",
+        "areas": "grid-template-areas（文字列または配列）。",
+        "alignItems": "セル内アイテムの整列。",
+        "justifyItems": "セル内アイテムの水平方向整列。",
+        "alignContent": "グリッド全体の内容整列。",
+        "justifyContent": "グリッド全体の水平方向整列。",
+        "responsive": "ブレークポイントごとの columns/rows/gap/minColumnWidth 上書き。",
+        "outlined": "Card風の角丸ボーダーと背景を適用。"
+      },
+      "watermark": {
+        "text": "表示するウォーターマークのテキスト。",
+        "image": "ウォーターマークパターンに使用する画像URL。",
+        "width": "パターンの内容幅（px）。",
+        "height": "パターンの内容高さ（px）。",
+        "gapX": "タイル間の水平方向の間隔（px）。",
+        "gapY": "タイル間の垂直方向の間隔（px）。",
+        "rotate": "回転角度（度）。",
+        "fontSize": "テキストウォーターマークのフォントサイズ。",
+        "fontFamily": "テキストウォーターマークのフォント。",
+        "color": "テキスト色（RGBA 推奨）。",
+        "opacity": "レイヤー全体の不透明度（0–1）。",
+        "offsetLeft": "パターン開始位置の水平オフセット（px）。",
+        "offsetTop": "パターン開始位置の垂直オフセット（px）。",
+        "zIndex": "オーバーレイの z-index。",
+        "fullPage": "ページ全体に固定オーバーレイとして表示。",
+        "overlayClassName": "オーバーレイレイヤーのカスタムクラス。",
+        "className": "ラッパーのカスタムクラス。"
+      },
+      "timeline": {
+        "align": "タイムラインの線に対する配置。",
+        "variant": "アイテムの表示スタイル（default / outlined）。",
+        "size": "マーカーのサイズと間隔。",
+        "lineColor": "接続ラインの色。",
+        "items": "レンダーするアイテム配列（childrenの代わり）。",
+        "itemClassName": "各アイテムに適用するクラス。"
+      },
+      "timelineItem": {
+        "title": "アイテムのタイトル。",
+        "description": "タイトル下の補足テキスト。",
+        "time": "下部に表示される時間ラベル。",
+        "icon": "内容の横に表示するアイコン。",
+        "status": "マーカーのステータス色。",
+        "color": "マーカーの色（ステータスより優先）。",
+        "active": "アクティブ項目として強調。"
+      },
       "fallingIcons": {
         "icon": "落ちるパーティクルとして表示するアイコンコンポーネント。",
         "count": "表示するパーティクルの数。",

@@ -181,6 +181,18 @@
       "section": {
         "title": "Section"
       },
+      "grid": {
+        "title": "Grid"
+      },
+      "list": {
+        "title": "List"
+      },
+      "watermark": {
+        "title": "Watermark"
+      },
+      "timeline": {
+        "title": "Timeline"
+      },
       "smartImage": {
         "title": "SmartImage"
       },
@@ -212,6 +224,15 @@
       "datePicker": {
         "title": "DatePicker (with i18n)"
       },
+      "calendar": {
+        "title": "Calendar"
+      },
+      "timePicker": {
+        "title": "TimePicker"
+      },
+      "colorPicker": {
+        "title": "ColorPicker"
+      },
       "pagination": {
         "title": "Pagination (with i18n)"
       },
@@ -235,6 +256,142 @@
       }
     },
     "props": {
+      "calendar": {
+        "month": "Controlled visible month.",
+        "defaultMonth": "Initial month when uncontrolled.",
+        "onMonthChange": "Called when month navigation occurs.",
+        "value": "Selected date(s) depending on selectMode.",
+        "defaultValue": "Initial value when uncontrolled.",
+        "onSelect": "Called with selected value.",
+        "selectMode": "Selection mode: single, multiple, or range.",
+        "weekStartsOn": "First day of the week (0-6).",
+        "showWeekdays": "Show weekday headers.",
+        "showHeader": "Show month navigation header.",
+        "size": "Visual size.",
+        "events": "Array of events to display as colored dots.",
+        "renderDay": "Custom renderer for a day cell.",
+        "labels": "Localization labels for weekdays and header.",
+        "display": "Display mode: month grid or a single week.",
+        "months": "Number of months to render side-by-side (month mode).",
+        "minDate": "Lower bound for selectable dates.",
+        "maxDate": "Upper bound for selectable dates.",
+        "disabledDates": "List or predicate to disable specific dates."
+      },
+      "list": {
+        "as": "Element to render as (ul/ol/div).",
+        "ordered": "Use ordered list (ol).",
+        "variant": "Visual variant (plain, outlined, soft).",
+        "size": "Item size.",
+        "divided": "Add separators between items.",
+        "inset": "Inner padding around items.",
+        "hoverable": "Highlight items on hover."
+      },
+      "listItem": {
+        "as": "Element to render as (li/div/a/button).",
+        "selected": "Highlight as selected.",
+        "disabled": "Disable interactions.",
+        "href": "Link URL (renders anchor).",
+        "label": "Primary text.",
+        "description": "Secondary text below label.",
+        "leftIcon": "Left icon component.",
+        "rightIcon": "Right icon component."
+      },
+      "timePicker": {
+        "value": "Controlled time value (e.g., '14:30' or '02:30 PM').",
+        "defaultValue": "Initial time when uncontrolled.",
+        "onChange": "Called with the new time string or undefined.",
+        "placeholder": "Placeholder text when empty.",
+        "disabled": "Disable the control.",
+        "size": "Size of the trigger.",
+        "label": "Label text above the control.",
+        "required": "Show required indicator.",
+        "format": "Clock format: 24-hour or 12-hour.",
+        "includeSeconds": "Allow picking seconds.",
+        "minuteStep": "Minute increment for the list.",
+        "secondStep": "Second increment for the list.",
+        "clearable": "Show Clear button inside popover."
+      },
+      "colorPicker": {
+        "value": "Controlled color value (#RRGGBB or rgba).",
+        "defaultValue": "Initial color when uncontrolled.",
+        "onChange": "Callback when color changes.",
+        "disabled": "Disable the control.",
+        "withAlpha": "Enable alpha channel selection.",
+        "format": "Output format for onChange (hex or rgba).",
+        "presets": "Preset swatches to pick from.",
+        "clearable": "Show clear button to reset.",
+        "className": "Custom class for the wrapper."
+      },
+      "grid": {
+        "columns": "Number of columns or full CSS template.",
+        "rows": "Number of rows or full CSS template.",
+        "gap": "Overall gap (applies to both axes).",
+        "gapX": "Horizontal gap (column-gap).",
+        "gapY": "Vertical gap (row-gap).",
+        "autoRows": "Value for grid-auto-rows.",
+        "minColumnWidth": "Use auto-fit with this min width to create responsive columns.",
+        "areas": "CSS grid-template-areas (string or array).",
+        "alignItems": "Align items inside grid cells.",
+        "justifyItems": "Justify items inside grid cells.",
+        "alignContent": "Align the grid content as a whole.",
+        "justifyContent": "Justify the grid content as a whole.",
+        "responsive": "Breakpoint overrides for columns/rows/gaps/minColumnWidth.",
+        "outlined": "Apply Card-like rounded border and background."
+      },
+      "watermark": {
+        "text": "Watermark text to render (supports multi-line as array).",
+        "image": "Image URL for watermark pattern.",
+        "preset": "Preset watermark style (confidential, draft, sample, copyright, doNotCopy, internal).",
+        "pattern": "Pattern layout (diagonal, grid, straight).",
+        "width": "Pattern content width (px).",
+        "height": "Pattern content height (px).",
+        "gapX": "Horizontal gap between tiles (px).",
+        "gapY": "Vertical gap between tiles (px).",
+        "rotate": "Rotation angle in degrees.",
+        "fontSize": "Font size for text watermark.",
+        "fontFamily": "Font family for text watermark.",
+        "fontWeight": "Font weight (normal, bold, 600, etc).",
+        "fontStyle": "Font style (normal or italic).",
+        "color": "Text color (RGBA recommended).",
+        "gradient": "Gradient colors (comma-separated for multi-color gradient).",
+        "opacity": "Overall layer opacity (0–1).",
+        "offsetLeft": "Horizontal offset for pattern start (px).",
+        "offsetTop": "Vertical offset for pattern start (px).",
+        "zIndex": "Overlay z-index.",
+        "fullPage": "Render as fixed overlay over the entire viewport.",
+        "interactive": "Enable click to toggle visibility.",
+        "animate": "Enable fade animation for visibility toggle.",
+        "overlayClassName": "Custom class for the overlay layer.",
+        "className": "Custom class for wrapper."
+      },
+      "timeline": {
+        "align": "Content alignment relative to the line.",
+        "variant": "Visual style for items (default, outlined, card, minimal, modern, gradient).",
+        "size": "Size of markers and spacing (sm, md, lg, xl).",
+        "mode": "Layout orientation (vertical or horizontal).",
+        "lineColor": "Color of the connecting line.",
+        "lineStyle": "Style of connecting line (solid, dashed, dotted).",
+        "items": "Items to render (alternative to children).",
+        "itemClassName": "Class applied to each item.",
+        "animate": "Animate items on mount with slide-in effect.",
+        "dense": "Compact spacing mode for dense information.",
+        "showLine": "Show connecting line between items."
+      },
+      "timelineItem": {
+        "title": "Primary title of the item.",
+        "description": "Secondary text under the title.",
+        "time": "Time label displayed under the content.",
+        "icon": "Icon component displayed near content.",
+        "status": "Status color for the marker.",
+        "color": "Explicit color for the marker (overrides status).",
+        "active": "Highlight the item as active.",
+        "dot": "Custom dot content (any React node).",
+        "badge": "Badge/tag content displayed next to title.",
+        "collapsible": "Make item collapsible with expand/collapse.",
+        "expanded": "Controlled expanded state.",
+        "onExpandChange": "Callback when expanded state changes.",
+        "expandContent": "Content to show when expanded."
+      },
       "fallingIcons": {
         "icon": "Icon component rendered as falling particle.",
         "count": "How many particles to render.",
