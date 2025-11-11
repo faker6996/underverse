@@ -253,16 +253,25 @@ export const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
 
           {/* Right Icon or Collapsible Icon */}
           {collapsible ? (
-            <button
-              type="button"
+            <span
+              role="button"
+              aria-label="Toggle"
+              tabIndex={0}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleExpanded();
               }}
-              className={cn("text-muted-foreground shrink-0 transition-transform", sz.icon, isExpanded && "rotate-90")}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleExpanded();
+                }
+              }}
+              className={cn("text-muted-foreground shrink-0 transition-transform cursor-pointer select-none", sz.icon, isExpanded && "rotate-90")}
             >
               <ChevronRight className={cn(sz.icon)} />
-            </button>
+            </span>
           ) : (
             Right && (
               <span className={cn("text-muted-foreground shrink-0", sz.icon)}>

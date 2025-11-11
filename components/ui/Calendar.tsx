@@ -376,7 +376,11 @@ export default function Calendar({
         </>
       ) : (
         <div className={cn(months > 1 ? "grid md:grid-cols-2 lg:grid-cols-3 gap-4" : "")}>
-          {Array.from({ length: Math.max(1, months) }, (_, i) => renderMonth(addMonths(view, i)))}
+          {Array.from({ length: Math.max(1, months) }, (_, i) => (
+            <React.Fragment key={`cal-month-${view.getFullYear()}-${view.getMonth()}-${i}`}>
+              {renderMonth(addMonths(view, i))}
+            </React.Fragment>
+          ))}
         </div>
       )}
     </div>

@@ -112,10 +112,53 @@ function useWatermarkDataURL(opts: {
 
         // Use gradient if provided
         if (gradient) {
+          const splitStops = (input: string) => {
+            const s = input.trim();
+            // Handle CSS like: linear-gradient(to bottom, rgba(...), #fff)
+            let inside = s;
+            const lg = s.toLowerCase();
+            if (lg.startsWith("linear-gradient")) {
+              const start = s.indexOf("(");
+              const end = s.lastIndexOf(")");
+              if (start >= 0 && end > start) inside = s.slice(start + 1, end);
+            }
+            const parts: string[] = [];
+            let buf = "";
+            let depth = 0;
+            for (let i = 0; i < inside.length; i++) {
+              const ch = inside[i];
+              if (ch === "(") depth++;
+              if (ch === ")") depth = Math.max(0, depth - 1);
+              if (ch === "," && depth === 0) {
+                parts.push(buf.trim());
+                buf = "";
+              } else {
+                buf += ch;
+              }
+            }
+            if (buf.trim()) parts.push(buf.trim());
+            // If first looks like direction/angle, drop it
+            if (parts.length > 0) {
+              const first = parts[0].toLowerCase();
+              if (first.startsWith("to ") || first.endsWith("deg") || first.endsWith("rad")) {
+                parts.shift();
+              }
+            }
+            return parts.filter(Boolean);
+          };
+
+          const stops = splitStops(gradient);
           const gradientObj = ctx.createLinearGradient(0, -height / 2, 0, height / 2);
-          const colors = gradient.split(",").map((c) => c.trim());
-          colors.forEach((c, i) => {
-            gradientObj.addColorStop(i / (colors.length - 1), c);
+          stops.forEach((c, i) => {
+            // Support optional "color percent" syntax
+            const tokens = c.split(/\s+/).filter(Boolean);
+            const col = tokens[0];
+            const pos = tokens[1] ? parseFloat(tokens[1]) / 100 : i / Math.max(1, (stops.length - 1));
+            try {
+              gradientObj.addColorStop(isFinite(pos) ? Math.min(Math.max(pos, 0), 1) : i / Math.max(1, (stops.length - 1)), col);
+            } catch {
+              // Fallback: ignore invalid stop
+            }
           });
           ctx.fillStyle = gradientObj;
         } else {
