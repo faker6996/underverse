@@ -17,27 +17,29 @@ export default function CalendarExample() {
   ], []);
 
   const demo = (
-    <div className="grid md:grid-cols-2 gap-6">
-      <div>
-        <p className="text-sm font-medium mb-2">Single select</p>
-        <Calendar
-          value={selected}
-          onSelect={(v) => typeof v === 'object' && v instanceof Date ? setSelected(v) : undefined}
-          events={events}
-        />
-        <div className="text-xs text-muted-foreground font-mono mt-2">{selected?.toDateString() || '—'}</div>
-      </div>
-      <div>
-        <p className="text-sm font-medium mb-2">Range select</p>
-        <Calendar
-          selectMode="range"
-          defaultValue={{ start: new Date(), end: undefined }}
-          events={events}
-        />
-      </div>
-      <div>
-        <p className="text-sm font-medium mb-2">Week view</p>
-        <Calendar display="week" events={events} />
+    <div className="space-y-6">
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <p className="text-sm font-medium mb-2">Single select</p>
+          <Calendar
+            value={selected}
+            onSelect={(v) => typeof v === 'object' && v instanceof Date ? setSelected(v) : undefined}
+            events={events}
+          />
+          <div className="text-xs text-muted-foreground font-mono mt-2">{selected?.toDateString() || '—'}</div>
+        </div>
+        <div>
+          <p className="text-sm font-medium mb-2">Range select</p>
+          <Calendar
+            selectMode="range"
+            defaultValue={{ start: new Date(), end: undefined }}
+            events={events}
+          />
+        </div>
+        <div>
+          <p className="text-sm font-medium mb-2">Week view</p>
+          <Calendar display="week" events={events} />
+        </div>
       </div>
       <div>
         <p className="text-sm font-medium mb-2">Multi-month (2)</p>
@@ -56,11 +58,40 @@ export default function CalendarExample() {
   );
 
   const code =
-    `import { Calendar } from '@underverse-ui/underverse'\n\n`+
-    `<Calendar value={date} onSelect={setDate} events={[{ date: new Date(), title: 'Today', color: '#f59e0b' }]} />\n\n`+
-    `<Calendar selectMode='range' />\n\n`+
-    `// Week view and multi-month\n<Calendar display='week' />\n<Calendar months={2} />\n\n`+
-    `// With constraints\n<Calendar months={2} minDate={new Date(2025, 0, 1)} maxDate={new Date(2025, 1, 28)} disabledDates={(d)=> d.getDay()===0} />`;
+    `import { Calendar } from '@underverse-ui/underverse'\n` +
+    `import { useState } from 'react'\n\n` +
+    `// Single select\n` +
+    `const [selected, setSelected] = useState<Date | undefined>(new Date())\n` +
+    `const events = [\n` +
+    `  { date: new Date(), title: 'Today', color: '#f59e0b' },\n` +
+    `  { date: new Date(new Date().setDate(new Date().getDate() + 1)), title: 'Tomorrow', color: '#10b981' },\n` +
+    `  { date: new Date(new Date().setDate(new Date().getDate() + 3)), title: 'Event', color: '#3b82f6' },\n` +
+    `]\n\n` +
+    `<Calendar\n` +
+    `  value={selected}\n` +
+    `  onSelect={(v) => typeof v === 'object' && v instanceof Date ? setSelected(v) : undefined}\n` +
+    `  events={events}\n` +
+    `/>\n` +
+    `<div className="text-xs text-muted-foreground font-mono mt-2">\n` +
+    `  {selected?.toDateString() || '—'}\n` +
+    `</div>\n\n` +
+    `// Range select\n` +
+    `<Calendar\n` +
+    `  selectMode='range'\n` +
+    `  defaultValue={{ start: new Date(), end: undefined }}\n` +
+    `  events={events}\n` +
+    `/>\n\n` +
+    `// Week view\n` +
+    `<Calendar display='week' events={events} />\n\n` +
+    `// Multi-month (2)\n` +
+    `<Calendar months={2} />\n\n` +
+    `// Min/Max + disabled dates\n` +
+    `<Calendar\n` +
+    `  months={2}\n` +
+    `  minDate={new Date(new Date().getFullYear(), new Date().getMonth(), 1)}\n` +
+    `  maxDate={new Date(new Date().getFullYear(), new Date().getMonth() + 1, 28)}\n` +
+    `  disabledDates={(d) => d.getDay() === 0}\n` +
+    `/>`;
 
   const rows: PropsRow[] = [
     { property: "month", description: t("props.calendar.month"), type: "Date", default: "-" },

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils/cn";
 
 type WatermarkPreset = "confidential" | "draft" | "sample" | "copyright" | "doNotCopy" | "internal";
 type WatermarkPattern = "diagonal" | "grid" | "straight";
+type AnimationVariant = "fade" | "slide" | "scale" | "pulse" | "none";
 
 export interface WatermarkProps extends React.HTMLAttributes<HTMLDivElement> {
   text?: string | string[]; // text watermark (support multi-line)
@@ -35,8 +36,22 @@ export interface WatermarkProps extends React.HTMLAttributes<HTMLDivElement> {
   interactive?: boolean;
   /** Animation effect */
   animate?: boolean;
+  /** Animation variant */
+  animationVariant?: AnimationVariant;
+  /** Enable backdrop blur */
+  blur?: boolean;
+  /** Blur amount in pixels */
+  blurAmount?: number;
+  /** Enable text shadow/glow */
+  textShadow?: boolean;
+  /** Text shadow color */
+  shadowColor?: string;
+  /** Enable dark mode auto-adjust */
+  darkMode?: boolean;
   /** Class for the overlay layer */
   overlayClassName?: string;
+  /** ARIA label for accessibility */
+  ariaLabel?: string;
 }
 
 // Preset configurations
@@ -64,6 +79,8 @@ function useWatermarkDataURL(opts: {
   color?: string;
   gradient?: string;
   pattern?: WatermarkPattern;
+  textShadow?: boolean;
+  shadowColor?: string;
 }) {
   const [url, setUrl] = React.useState<string | null>(null);
   React.useEffect(() => {
@@ -95,13 +112,19 @@ function useWatermarkDataURL(opts: {
     const drawText = () => {
       ctx.clearRect(0, 0, tileW, tileH);
       ctx.save();
-      ctx.translate(tileW / 2, tileH / 2);
+
+      // Grid pattern: no translate, draw at fixed positions
+      if (pattern === "grid") {
+        ctx.translate(width / 2, height / 2);
+      } else {
+        ctx.translate(tileW / 2, tileH / 2);
+      }
 
       // Apply rotation based on pattern
       if (pattern === "diagonal") {
         ctx.rotate((rotate * Math.PI) / 180);
-      } else if (pattern === "straight") {
-        // No rotation
+      } else if (pattern === "straight" || pattern === "grid") {
+        // No rotation for straight and grid patterns
       }
 
       if (text) {
@@ -109,6 +132,15 @@ function useWatermarkDataURL(opts: {
         ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+
+        // Add text shadow/glow if enabled
+        if (opts.textShadow) {
+          const shadowCol = opts.shadowColor || "rgba(255, 255, 255, 0.5)";
+          ctx.shadowColor = shadowCol;
+          ctx.shadowBlur = 8;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 0;
+        }
 
         // Use gradient if provided
         if (gradient) {
@@ -202,10 +234,24 @@ function useWatermarkDataURL(opts: {
     return () => {
       cancelled = true;
     };
-  }, [opts.text, opts.image, opts.width, opts.height, opts.gapX, opts.gapY, opts.rotate, opts.fontSize, opts.fontFamily, opts.fontWeight, opts.fontStyle, opts.color, opts.gradient, opts.pattern]);
+  }, [opts.text, opts.image, opts.width, opts.height, opts.gapX, opts.gapY, opts.rotate, opts.fontSize, opts.fontFamily, opts.fontWeight, opts.fontStyle, opts.color, opts.gradient, opts.pattern, opts.textShadow, opts.shadowColor]);
 
   return url;
 }
+
+// Animation variants CSS classes
+const getAnimationClass = (variant: AnimationVariant, visible: boolean) => {
+  if (variant === "none") return "";
+
+  const animations = {
+    fade: visible ? "animate-in fade-in duration-300" : "animate-out fade-out duration-300",
+    slide: visible ? "animate-in slide-in-from-top duration-500" : "animate-out slide-out-to-top duration-500",
+    scale: visible ? "animate-in zoom-in duration-300" : "animate-out zoom-out duration-300",
+    pulse: visible ? "animate-pulse" : "opacity-0",
+  };
+
+  return animations[variant] || "";
+};
 
 const Watermark: React.FC<WatermarkProps> = ({
   text: textProp,
@@ -230,13 +276,50 @@ const Watermark: React.FC<WatermarkProps> = ({
   pattern = "diagonal",
   interactive = false,
   animate = false,
+  animationVariant = "fade",
+  blur = false,
+  blurAmount = 4,
+  textShadow = false,
+  shadowColor,
+  darkMode = false,
   overlayClassName,
+  ariaLabel,
   className,
   style,
   children,
   ...rest
 }) => {
   const [visible, setVisible] = React.useState(true);
+  const [isDark, setIsDark] = React.useState(false);
+
+  // Detect dark mode
+  React.useEffect(() => {
+    if (!darkMode) return;
+
+    const checkDarkMode = () => {
+      const isDarkMode =
+        document.documentElement.classList.contains("dark") ||
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setIsDark(isDarkMode);
+    };
+
+    checkDarkMode();
+
+    // Listen for theme changes
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    mediaQuery.addEventListener("change", checkDarkMode);
+
+    return () => {
+      observer.disconnect();
+      mediaQuery.removeEventListener("change", checkDarkMode);
+    };
+  }, [darkMode]);
 
   // Apply preset if provided
   const presetConfig = preset ? PRESETS[preset] : null;
@@ -246,6 +329,9 @@ const Watermark: React.FC<WatermarkProps> = ({
   const fontSize = fontSizeProp ?? presetConfig?.fontSize ?? 14;
   const fontWeight = fontWeightProp ?? presetConfig?.fontWeight ?? "normal";
   const fontStyle = fontStyleProp ?? "normal";
+
+  // Adjust opacity for dark mode
+  const finalOpacity = darkMode && isDark ? opacity * 1.3 : opacity;
 
   const dataURL = useWatermarkDataURL({
     text,
@@ -262,6 +348,8 @@ const Watermark: React.FC<WatermarkProps> = ({
     color,
     gradient,
     pattern,
+    textShadow,
+    shadowColor,
   });
 
   const overlayStyle: React.CSSProperties = {
@@ -269,10 +357,10 @@ const Watermark: React.FC<WatermarkProps> = ({
     top: 0,
     left: 0,
     zIndex,
-    opacity: visible ? opacity : 0,
+    opacity: visible ? finalOpacity : 0,
     backgroundRepeat: "repeat",
     backgroundPosition: `${offsetLeft}px ${offsetTop}px`,
-    transition: animate ? "opacity 0.3s ease" : undefined,
+    transition: animate && animationVariant === "fade" ? "opacity 0.3s ease" : undefined,
   };
   if (fullPage) {
     (overlayStyle as any).right = 0;
@@ -283,12 +371,33 @@ const Watermark: React.FC<WatermarkProps> = ({
   }
   if (dataURL) overlayStyle.backgroundImage = `url(${dataURL})`;
 
+  const animationClass = animate ? getAnimationClass(animationVariant, visible) : "";
+  const blurClass = blur ? `backdrop-blur-[${blurAmount}px]` : "";
+
   const overlay = (
     <div
-      aria-hidden
-      className={cn("pointer-events-none", overlayClassName)}
+      role={interactive ? "button" : undefined}
+      aria-label={ariaLabel || (interactive ? "Toggle watermark visibility" : "Watermark overlay")}
+      aria-hidden={!interactive}
+      tabIndex={interactive ? 0 : undefined}
+      className={cn(
+        interactive ? "cursor-pointer" : "pointer-events-none",
+        blurClass,
+        animationClass,
+        overlayClassName
+      )}
       style={overlayStyle}
       onClick={interactive ? () => setVisible(!visible) : undefined}
+      onKeyDown={
+        interactive
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setVisible(!visible);
+              }
+            }
+          : undefined
+      }
     />
   );
 

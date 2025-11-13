@@ -253,9 +253,10 @@ export default function TimelineExample() {
 
   const code =
     `import { Timeline } from '@underverse-ui/underverse'\n` +
-    `import { Clock, CheckCircle2, Truck } from 'lucide-react'\n\n` +
-    `// Basic usage\n` +
-    `<Timeline>\n` +
+    `import { CheckCircle2, Clock, Truck, Rocket, Code, Users, Star, Award, Zap, Package, MapPin, Heart } from 'lucide-react'\n` +
+    `import Button from '@underverse-ui/underverse/Button'\n\n` +
+    `// Default variant\n` +
+    `<Timeline size='md'>\n` +
     `  <Timeline.Item\n` +
     `    title='Order placed'\n` +
     `    description='We have received your order'\n` +
@@ -270,51 +271,201 @@ export default function TimelineExample() {
     `    status='success'\n` +
     `    icon={CheckCircle2}\n` +
     `  />\n` +
+    `  <Timeline.Item\n` +
+    `    title='Shipped'\n` +
+    `    description='Carrier picked up the parcel'\n` +
+    `    time='2024-08-13 08:21'\n` +
+    `    status='info'\n` +
+    `    icon={Truck}\n` +
+    `  />\n` +
     `</Timeline>\n\n` +
-    `// Variants\n` +
+    `// Outlined variant\n` +
+    `<Timeline variant='outlined'>\n` +
+    `  <Timeline.Item\n` +
+    `    title='Project started'\n` +
+    `    description='Initial planning phase'\n` +
+    `    time='Week 1'\n` +
+    `    status='success'\n` +
+    `    icon={Rocket}\n` +
+    `  />\n` +
+    `  <Timeline.Item\n` +
+    `    title='Development'\n` +
+    `    description='Building core features'\n` +
+    `    time='Week 2-4'\n` +
+    `    status='primary'\n` +
+    `    icon={Code}\n` +
+    `  />\n` +
+    `</Timeline>\n\n` +
+    `// Card variant with badges\n` +
     `<Timeline variant='card'>\n` +
-    `  <Timeline.Item title='Event' badge='New' />\n` +
+    `  <Timeline.Item\n` +
+    `    title='Registration opened'\n` +
+    `    description='Sign up for the event'\n` +
+    `    time='Jan 1, 2024'\n` +
+    `    status='success'\n` +
+    `    icon={Users}\n` +
+    `    badge='Completed'\n` +
+    `  />\n` +
+    `  <Timeline.Item\n` +
+    `    title='Event day'\n` +
+    `    description='Join us for an amazing experience'\n` +
+    `    time='Mar 20, 2024'\n` +
+    `    status='primary'\n` +
+    `    icon={Award}\n` +
+    `    active\n` +
+    `  />\n` +
     `</Timeline>\n\n` +
+    `// Minimal variant\n` +
+    `<Timeline variant='minimal'>\n` +
+    `  <Timeline.Item title='Account created' time='5 minutes ago' status='success' />\n` +
+    `  <Timeline.Item title='Profile updated' time='3 minutes ago' status='info' />\n` +
+    `  <Timeline.Item title='Settings changed' time='1 minute ago' status='default' />\n` +
+    `</Timeline>\n\n` +
+    `// Modern variant\n` +
     `<Timeline variant='modern'>\n` +
-    `  <Timeline.Item title='Modern style' />\n` +
+    `  <Timeline.Item\n` +
+    `    title='AI Analysis Complete'\n` +
+    `    description='Model training finished successfully'\n` +
+    `    time='10:30 AM'\n` +
+    `    status='success'\n` +
+    `    icon={Zap}\n` +
+    `  />\n` +
+    `  <Timeline.Item\n` +
+    `    title='Deployment in Progress'\n` +
+    `    description='Rolling out to production'\n` +
+    `    time='10:45 AM'\n` +
+    `    status='primary'\n` +
+    `    icon={Rocket}\n` +
+    `    active\n` +
+    `  />\n` +
+    `</Timeline>\n\n` +
+    `// Gradient variant\n` +
+    `<Timeline variant='gradient'>\n` +
+    `  <Timeline.Item\n` +
+    `    title='Premium Plan'\n` +
+    `    description='Upgrade to unlock all features'\n` +
+    `    time='Now'\n` +
+    `    status='primary'\n` +
+    `    icon={Star}\n` +
+    `    badge='Popular'\n` +
+    `  />\n` +
+    `</Timeline>\n\n` +
+    `// Sizes\n` +
+    `<Timeline size='sm' variant='outlined'>\n` +
+    `  <Timeline.Item title='Task 1' description='Completed' time='10:00' status='success' />\n` +
+    `</Timeline>\n\n` +
+    `<Timeline size='lg' variant='card'>\n` +
+    `  <Timeline.Item\n` +
+    `    title='Major Milestone'\n` +
+    `    description='Project phase completed'\n` +
+    `    time='Today'\n` +
+    `    status='success'\n` +
+    `    icon={Award}\n` +
+    `  />\n` +
     `</Timeline>\n\n` +
     `// Alignments\n` +
-    `<Timeline align='alternate' variant='card'>\n` +
-    `  <Timeline.Item title='Step 1' />\n` +
-    `  <Timeline.Item title='Step 2' />\n` +
+    `<Timeline variant='outlined' align='right'>\n` +
+    `  <Timeline.Item title='Step 1' description='First step' time='10:00' status='success' />\n` +
+    `</Timeline>\n\n` +
+    `<Timeline variant='card' align='alternate'>\n` +
+    `  <Timeline.Item title='Phase 1' description='Planning' time='Q1 2024' status='success' icon={MapPin} />\n` +
+    `  <Timeline.Item title='Phase 2' description='Development' time='Q2 2024' status='primary' icon={Code} />\n` +
+    `  <Timeline.Item title='Phase 3' description='Launch' time='Q3 2024' status='info' icon={Rocket} />\n` +
     `</Timeline>\n\n` +
     `// Line styles\n` +
     `<Timeline lineStyle='dashed'>\n` +
-    `  <Timeline.Item title='Event' />\n` +
+    `  <Timeline.Item title='Event 1' time='10:00' status='success' />\n` +
+    `  <Timeline.Item title='Event 2' time='11:00' status='primary' />\n` +
     `</Timeline>\n\n` +
-    `// Animated\n` +
-    `<Timeline animate variant='card'>\n` +
-    `  <Timeline.Item title='Animated items' />\n` +
+    `<Timeline lineStyle='dotted'>\n` +
+    `  <Timeline.Item title='Event 1' time='10:00' status='success' />\n` +
+    `  <Timeline.Item title='Event 2' time='11:00' status='primary' />\n` +
+    `</Timeline>\n\n` +
+    `// Animated timeline\n` +
+    `<Timeline variant='card' animate>\n` +
+    `  <Timeline.Item\n` +
+    `    title='Initialized'\n` +
+    `    description='System boot complete'\n` +
+    `    time='00:01'\n` +
+    `    status='success'\n` +
+    `    icon={Zap}\n` +
+    `  />\n` +
+    `  <Timeline.Item\n` +
+    `    title='Loading modules'\n` +
+    `    description='Dependencies loaded'\n` +
+    `    time='00:02'\n` +
+    `    status='primary'\n` +
+    `    icon={Package}\n` +
+    `  />\n` +
     `</Timeline>\n\n` +
     `// Dense mode\n` +
-    `<Timeline dense>\n` +
-    `  <Timeline.Item title='Compact spacing' />\n` +
+    `<Timeline variant='outlined' dense>\n` +
+    `  <Timeline.Item title='Compact event 1' description='Less padding' time='10:00' status='success' />\n` +
+    `  <Timeline.Item title='Compact event 2' description='More items visible' time='11:00' status='primary' />\n` +
+    `  <Timeline.Item title='Compact event 3' description='Efficient use of space' time='12:00' status='info' />\n` +
     `</Timeline>\n\n` +
     `// Custom dots\n` +
     `<Timeline variant='card'>\n` +
     `  <Timeline.Item\n` +
-    `    title='Custom dot'\n` +
+    `    title='Custom emoji dot'\n` +
+    `    description='Use any React node as dot'\n` +
+    `    time='10:00'\n` +
     `    dot={<span className='text-2xl'>🎉</span>}\n` +
+    `  />\n` +
+    `  <Timeline.Item\n` +
+    `    title='Another custom dot'\n` +
+    `    description='Heart icon'\n` +
+    `    time='11:00'\n` +
+    `    dot={<Heart className='h-6 w-6 text-red-500 fill-red-500' />}\n` +
+    `  />\n` +
+    `  <Timeline.Item\n` +
+    `    title='Number dot'\n` +
+    `    description='Step indicator'\n` +
+    `    time='12:00'\n` +
+    `    dot={<div className='h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm'>3</div>}\n` +
     `  />\n` +
     `</Timeline>\n\n` +
     `// Collapsible items\n` +
     `<Timeline variant='card'>\n` +
     `  <Timeline.Item\n` +
     `    title='Order Details'\n` +
+    `    description='Click to view order information'\n` +
+    `    time='2024-08-12 09:12'\n` +
+    `    status='primary'\n` +
+    `    icon={Package}\n` +
     `    collapsible\n` +
-    `    expandContent={<div>Details here</div>}\n` +
+    `    expandContent={\n` +
+    `      <div className='space-y-2'>\n` +
+    `        <p className='text-sm'><strong>Order ID:</strong> #12345</p>\n` +
+    `        <p className='text-sm'><strong>Items:</strong> 3 products</p>\n` +
+    `        <p className='text-sm'><strong>Total:</strong> $299.99</p>\n` +
+    `        <Button size='sm' variant='outline'>View Full Details</Button>\n` +
+    `      </div>\n` +
+    `    }\n` +
     `  />\n` +
     `</Timeline>\n\n` +
     `// Horizontal mode\n` +
     `<Timeline mode='horizontal' variant='card'>\n` +
-    `  <Timeline.Item title='Step 1' />\n` +
-    `  <Timeline.Item title='Step 2' active />\n` +
-    `  <Timeline.Item title='Step 3' />\n` +
+    `  <Timeline.Item title='Step 1' description='Getting started' status='success' icon={MapPin} />\n` +
+    `  <Timeline.Item title='Step 2' description='In progress' status='primary' icon={Code} active />\n` +
+    `  <Timeline.Item title='Step 3' description='Coming soon' status='default' icon={Rocket} />\n` +
+    `</Timeline>\n\n` +
+    `// Without connecting line\n` +
+    `<Timeline variant='card' showLine={false}>\n` +
+    `  <Timeline.Item\n` +
+    `    title='Independent Event 1'\n` +
+    `    description='No connecting line'\n` +
+    `    time='10:00'\n` +
+    `    status='success'\n` +
+    `    icon={Star}\n` +
+    `  />\n` +
+    `  <Timeline.Item\n` +
+    `    title='Independent Event 2'\n` +
+    `    description='Standalone item'\n` +
+    `    time='11:00'\n` +
+    `    status='primary'\n` +
+    `    icon={Award}\n` +
+    `  />\n` +
     `</Timeline>`;
 
   const rows: PropsRow[] = [
