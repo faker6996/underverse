@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/Form";
-import Input from "@/components/ui/Input";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormActions, FormSubmitButton } from "@/components/ui/Form";
+import Input, { PasswordInput } from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/CheckBox";
 import { useToast } from "@/components/ui/Toast";
@@ -17,10 +17,18 @@ interface LoginFormData {
   rememberMe: boolean;
 }
 
+type AdvancedValues = {
+  name: string;
+  email: string;
+  password: string;
+};
+
 export default function FormExample() {
   const td = useTranslations("DocsUnderverse");
   const { addToast } = useToast();
   const [loading, setLoading] = React.useState(false);
+  const [advancedSize, setAdvancedSize] = React.useState<"sm" | "md" | "lg">("md");
+  const [advancedLoading, setAdvancedLoading] = React.useState(false);
 
   const handleSubmit = (data: LoginFormData) => {
     setLoading(true);
@@ -90,10 +98,37 @@ export default function FormExample() {
     `<fieldset disabled>\n` +
     `  <Input label='Email' placeholder='Readonly' disabled />\n` +
     `  <Button disabled>Submit</Button>\n` +
-    `</fieldset>`;
+    `</fieldset>\n\n` +
+    `// 4) Advanced form with size + FormActions / FormSubmitButton\n` +
+    `<Form<AdvancedValues> onSubmit={onSubmit} initialValues={{ name: '', email: '', password: '' }} size={advancedSize}>\n` +
+    `  <FormField name='name' rules={{ required: 'Name is required' }} render={({ field }) => (\n` +
+    `    <FormItem>\n` +
+    `      <FormLabel>Name</FormLabel>\n` +
+    `      <FormControl><Input {...field} placeholder='Your name' required /></FormControl>\n` +
+    `      <FormMessage />\n` +
+    `    </FormItem>\n` +
+    `  )} />\n` +
+    `  <FormField name='email' rules={{ required: 'Email is required' }} render={({ field }) => (\n` +
+    `    <FormItem>\n` +
+    `      <FormLabel>Email</FormLabel>\n` +
+    `      <FormControl><Input type='email' {...field} placeholder='you@example.com' required /></FormControl>\n` +
+    `      <FormMessage />\n` +
+    `    </FormItem>\n` +
+    `  )} />\n` +
+    `  <FormField name='password' rules={{ required: 'Password is required' }} render={({ field }) => (\n` +
+    `    <FormItem>\n` +
+    `      <FormLabel>Password</FormLabel>\n` +
+    `      <FormControl><PasswordInput {...field} placeholder='••••••' /></FormControl>\n` +
+    `      <FormMessage />\n` +
+    `    </FormItem>\n` +
+    `  )} />\n` +
+    `  <FormActions>\n` +
+    `    <FormSubmitButton loading={advancedLoading} variant='primary'>Submit</FormSubmitButton>\n` +
+    `  </FormActions>\n` +
+    `</Form>`;
 
   const demo = (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* 1) Basic with validation + loading */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Basic Form with Validation</h3>
@@ -183,6 +218,78 @@ export default function FormExample() {
           </div>
         </fieldset>
       </div>
+
+      {/* 4) Advanced form: size + FormActions / FormSubmitButton */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Advanced Form</h3>
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground">Form size:</span>
+          {(["sm", "md", "lg"] as const).map((s) => (
+            <Button key={s} variant={advancedSize === s ? "primary" : "outline"} size="sm" onClick={() => setAdvancedSize(s)}>
+              {s}
+            </Button>
+          ))}
+        </div>
+        <Form<AdvancedValues>
+          onSubmit={async (v) => {
+            setAdvancedLoading(true);
+            await new Promise((r) => setTimeout(r, 800));
+            setAdvancedLoading(false);
+            alert(`Submitted: ${JSON.stringify(v, null, 2)}`);
+          }}
+          initialValues={{ name: "", email: "", password: "" }}
+          size={advancedSize}
+          className="space-y-4 max-w-md"
+        >
+          <FormField
+            name="name"
+            rules={{ required: "Name is required" }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Your name" required />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            name="email"
+            rules={{ required: "Email is required", pattern: { value: /.+@.+\..+/, message: "Invalid email" } }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type="email" {...field} placeholder="you@example.com" required />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            name="password"
+            rules={{ required: "Password is required", minLength: { value: 6, message: "Min 6 characters" } }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <PasswordInput {...field} placeholder="••••••" showStrength />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormActions>
+            <FormSubmitButton loading={advancedLoading} variant="primary">
+              Submit
+            </FormSubmitButton>
+          </FormActions>
+        </Form>
+      </div>
     </div>
   );
 
@@ -238,4 +345,3 @@ export default function FormExample() {
     />
   );
 }
-

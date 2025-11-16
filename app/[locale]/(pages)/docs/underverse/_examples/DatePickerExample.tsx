@@ -14,6 +14,9 @@ export default function DatePickerExample() {
   const [date2, setDate2] = React.useState<Date | undefined>();
   const [rangeStart, setRangeStart] = React.useState<Date | undefined>();
   const [rangeEnd, setRangeEnd] = React.useState<Date | undefined>();
+  const [advancedDate, setAdvancedDate] = React.useState<Date | undefined>();
+  const [advancedRangeStart, setAdvancedRangeStart] = React.useState<Date | undefined>();
+  const [advancedRangeEnd, setAdvancedRangeEnd] = React.useState<Date | undefined>();
   const t = useTranslations('DatePicker');
   const td = useTranslations('DocsUnderverse');
   const locale = useLocale();
@@ -48,7 +51,18 @@ export default function DatePickerExample() {
     `// 3) Disabled\n` +
     `<DatePicker value={new Date()} onChange={()=>{}} label='Disabled' disabled />\n\n` +
     `// 4) DateRangePicker\n` +
-    `<DateRangePicker startDate={rangeStart} endDate={rangeEnd} onChange={(s,e)=>{ setRangeStart(s); setRangeEnd(e); }} />`;
+    `<DateRangePicker startDate={rangeStart} endDate={rangeEnd} onChange={(s,e)=>{ setRangeStart(s); setRangeEnd(e); }} />\n\n` +
+    `// 5) Advanced example: small DatePicker with custom weekdayLabels + required\n` +
+    `<DatePicker\n` +
+    `  value={advancedDate}\n` +
+    `  onChange={setAdvancedDate}\n` +
+    `  size='sm'\n` +
+    `  placeholder='Pick a date (sm)'\n` +
+    `  weekdayLabels={['Su','Mo','Tu','We','Th','Fr','Sa']}\n` +
+    `  label='Small date (sm)'\n` +
+    `  required\n` +
+    `/>\n` +
+    `<DateRangePicker startDate={advancedRangeStart} endDate={advancedRangeEnd} onChange={(s,e)=>{ setAdvancedRangeStart(s); setAdvancedRangeEnd(e); }} />`;
 
   const demo = (
     <div className="space-y-6">
@@ -70,6 +84,27 @@ export default function DatePickerExample() {
         <p className="text-sm font-medium">DateRangePicker</p>
         <DateRangePicker startDate={rangeStart} endDate={rangeEnd} onChange={(s,e)=>{ setRangeStart(s); setRangeEnd(e); }} />
         <div className="text-sm text-muted-foreground">Range: {rangeStart?.toLocaleDateString() || "(start)"} - {rangeEnd?.toLocaleDateString() || "(end)"}</div>
+      </div>
+
+      {/* 5) Advanced corner cases */}
+      <div className="space-y-3">
+        <p className="text-sm font-medium">Advanced</p>
+        <div className="grid md:grid-cols-2 gap-4">
+          <DatePicker
+            value={advancedDate}
+            onChange={setAdvancedDate}
+            size="sm"
+            placeholder="Pick a date (sm)"
+            weekdayLabels={["Su","Mo","Tu","We","Th","Fr","Sa"]}
+            label="Small date (sm)"
+            required
+          />
+          <DateRangePicker
+            startDate={advancedRangeStart as any}
+            endDate={advancedRangeEnd as any}
+            onChange={(s, e) => { setAdvancedRangeStart(s); setAdvancedRangeEnd(e); }}
+          />
+        </div>
       </div>
     </div>
   );

@@ -15,9 +15,26 @@ export default function MultiComboboxExample() {
   const [valueLimited, setValueLimited] = React.useState<string[]>([]);
   const [valueNoTags, setValueNoTags] = React.useState<string[]>(["React", "TypeScript"]);
   const [valueDisabled, setValueDisabled] = React.useState<string[]>(["React"]);
+  const [valueAdvanced, setValueAdvanced] = React.useState<string[]>(["react"]);
 
   const options = ["React", "Next.js", "Tailwind", "TypeScript", "Node.js"];
   const disabledOptions = ["Next.js"];
+
+  // Advanced options using objects (>10 items) to demonstrate displayFormat + search
+  const advancedOptions = [
+    { value: "react", label: "React" },
+    { value: "next", label: "Next.js" },
+    { value: "ts", label: "TypeScript" },
+    { value: "node", label: "Node" },
+    { value: "graphql", label: "GraphQL" },
+    { value: "tailwind", label: "Tailwind" },
+    { value: "vite", label: "Vite" },
+    { value: "webpack", label: "Webpack" },
+    { value: "esbuild", label: "esbuild" },
+    { value: "rollup", label: "Rollup" },
+    { value: "vitest", label: "Vitest" },
+    { value: "jest", label: "Jest" },
+  ];
 
   const code =
     `import { MultiCombobox } from '@underverse-ui/underverse'\n\n` +
@@ -34,7 +51,21 @@ export default function MultiComboboxExample() {
     `// 4) Disabled options\n` +
     `<MultiCombobox options={options} value={valueDisabled} onChange={setValueDisabled} disabledOptions={disabledOptions} label=\"Disabled option\" />\n\n` +
     `// 5) Hide tags and clear\n` +
-    `<MultiCombobox options={options} value={valueNoTags} onChange={setValueNoTags} showTags={false} showClear={false} label=\"No tags\" />`;
+    `<MultiCombobox options={options} value={valueNoTags} onChange={setValueNoTags} showTags={false} showClear={false} label=\"No tags\" />\n\n` +
+    `// 6) Advanced: object options, maxSelected, disabledOptions, displayFormat\n` +
+    `<MultiCombobox\n` +
+    `  options={advancedOptions}\n` +
+    `  value={value}\n` +
+    `  onChange={setValue}\n` +
+    `  maxSelected={3}\n` +
+    `  disabledOptions={['node']}\n` +
+    `  showClear\n` +
+    `  showTags\n` +
+    `  title=\"Tech stack\"\n` +
+    `  label=\"Select technologies\"\n` +
+    `  placeholder=\"Search technologies...\"\n` +
+    `  displayFormat={(opt) => '# ' + opt.label}\n` +
+    `/>`;
 
   const demo = (
     <div className="space-y-8">
@@ -57,6 +88,24 @@ export default function MultiComboboxExample() {
 
       {/* 5) Hide tags and clear */}
       <MultiCombobox options={options} value={valueNoTags} onChange={setValueNoTags} showTags={false} showClear={false} label="No tags" />
+
+      {/* 6) Advanced: object options + displayFormat */}
+      <div className="space-y-3">
+        <p className="text-sm font-medium">Advanced example</p>
+        <MultiCombobox
+          options={advancedOptions}
+          value={valueAdvanced}
+          onChange={setValueAdvanced}
+          maxSelected={3}
+          disabledOptions={["node"]}
+          showClear
+          showTags
+          title="Tech stack"
+          label="Select technologies"
+          placeholder="Search technologies..."
+          displayFormat={(opt) => `# ${opt.label}`}
+        />
+      </div>
     </div>
   );
 

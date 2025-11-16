@@ -13,6 +13,7 @@ export default function ComboboxExample() {
   const [valueOutline, setValueOutline] = React.useState<string | null>(null);
   const [valueGhost, setValueGhost] = React.useState<string | null>(null);
   const [valueDisabled] = React.useState<string | null>("banana");
+  const [valueAdvanced, setValueAdvanced] = React.useState<string | null>(null);
 
   const options = [
     { label: "Apple", value: "apple" },
@@ -22,6 +23,22 @@ export default function ComboboxExample() {
 
   // Many options to demonstrate search input (>10)
   const manyOptions = Array.from({ length: 20 }).map((_, i) => ({ label: `Option ${i + 1}`, value: `opt-${i + 1}` }));
+
+  // Advanced options example (explicit list to show rich props)
+  const advancedOptions = [
+    { label: "Apple", value: "apple" },
+    { label: "Banana", value: "banana" },
+    { label: "Cherry", value: "cherry" },
+    { label: "Dragonfruit", value: "dragonfruit" },
+    { label: "Elderberry", value: "elderberry" },
+    { label: "Fig", value: "fig" },
+    { label: "Grape", value: "grape" },
+    { label: "Honeydew", value: "honeydew" },
+    { label: "Jackfruit", value: "jackfruit" },
+    { label: "Kiwi", value: "kiwi" },
+    { label: "Lemon", value: "lemon" },
+    { label: "Mango", value: "mango" },
+  ];
 
   const code =
     `import { Combobox } from '@underverse-ui/underverse'\n\n` +
@@ -47,7 +64,20 @@ export default function ComboboxExample() {
     `// 5) Without portal\n` +
     `<Combobox options={manyOptions} value={value} onChange={setValue} usePortal={false} placeholder='Search enabled with many options' />\n\n` +
     `// 6) Bold font label\n` +
-    `<Combobox options={options} value={value} onChange={setValue} label='Category' fontBold />`;
+    `<Combobox options={options} value={value} onChange={setValue} label='Category' fontBold />\n\n` +
+    `// 7) Advanced example (many options, custom search placeholder, label, required)\n` +
+    `<Combobox\n` +
+    `  options={advancedOptions}\n` +
+    `  value={value}\n` +
+    `  onChange={setValue}\n` +
+    `  allowClear\n` +
+    `  placeholder='Select fruit'\n` +
+    `  searchPlaceholder='Search fruits...'\n` +
+    `  label='Fruit (advanced)'\n` +
+    `  required\n` +
+    `  size='md'\n` +
+    `  fontBold\n` +
+    `/>\n`;
 
   const demo = (
     <div className="space-y-6">
@@ -77,6 +107,24 @@ export default function ComboboxExample() {
 
       {/* 6) Bold label */}
       <Combobox options={options} value={value} onChange={setValue} label="Category" fontBold />
+
+      {/* 7) Advanced example */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Advanced example</p>
+        <Combobox
+          options={advancedOptions}
+          value={valueAdvanced}
+          onChange={setValueAdvanced}
+          allowClear
+          placeholder="Select fruit"
+          searchPlaceholder="Search fruits..."
+          label="Fruit (advanced)"
+          required
+          size="md"
+          usePortal
+          fontBold
+        />
+      </div>
     </div>
   );
 

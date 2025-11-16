@@ -19,7 +19,13 @@ export default function PaginationExample() {
   const [prevNext, setPrevNext] = React.useState(true);
   const [pageNumbers, setPageNumbers] = React.useState(true);
 
+  // Advanced example: independent state to demonstrate changing pageSize and keeping page in range
+  const [advancedPage, setAdvancedPage] = React.useState(1);
+  const [advancedPageSize, setAdvancedPageSize] = React.useState(10);
+  const advancedTotalItems = 237;
+
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const advancedTotalPages = Math.max(1, Math.ceil(advancedTotalItems / advancedPageSize));
 
   const t = useTranslations("Pagination");
   const td = useTranslations("DocsUnderverse");
@@ -47,54 +53,102 @@ export default function PaginationExample() {
     `  showPageNumbers={true}\n` +
     `  showInfo\n` +
     `  labels={{...}}\n` +
-    `/>`;
+    `/>\n\n` +
+    `// Advanced: keep page in range when pageSize changes\n` +
+    `const [advancedPage, setAdvancedPage] = useState(1)\n` +
+    `const [advancedPageSize, setAdvancedPageSize] = useState(10)\n` +
+    `const advancedTotalItems = 237\n` +
+    `const advancedTotalPages = Math.max(1, Math.ceil(advancedTotalItems / advancedPageSize))\n\n` +
+    `<Pagination\n` +
+    `  page={advancedPage}\n` +
+    `  totalPages={advancedTotalPages}\n` +
+    `  onChange={setAdvancedPage}\n` +
+    `  pageSize={advancedPageSize}\n` +
+    `  pageSizeOptions={[10, 20, 50]}\n` +
+    `  onPageSizeChange={(n) => {\n` +
+    `    setAdvancedPageSize(n)\n` +
+    `    setAdvancedPage(1)\n` +
+    `  }}\n` +
+    `  showInfo\n` +
+    `  totalItems={advancedTotalItems}\n` +
+    `  labels={{\n` +
+    `    navigationLabel: t('navigationLabel'),\n` +
+    `    showingResults: ({startItem, endItem, totalItems: ti}) =>\n` +
+    `      t('showingResults', { startItem: startItem ?? 0, endItem: endItem ?? 0, totalItems: ti ?? 0 }),\n` +
+    `    pageNumber: (p) => t('pageNumber', { page: p as number })\n` +
+    `  }}\n` +
+    `/>\n`;
 
   const demo = (
-    <div className="space-y-4">
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        onChange={setPage}
-        pageSize={pageSize}
-        onPageSizeChange={setPageSize}
-        pageSizeOptions={[5, 10, 20, 50]}
-        totalItems={totalItems}
-        size={size}
-        variant={variant}
-        showFirstLast={firstLast}
-        showPrevNext={prevNext}
-        showPageNumbers={pageNumbers}
-        showInfo
-        labels={{
-          navigationLabel: t('navigationLabel'),
-          showingResults: ({startItem,endItem,totalItems}) => t('showingResults', {startItem: startItem ?? 0, endItem: endItem ?? 0, totalItems: totalItems ?? 0}),
-          firstPage: t('firstPage'),
-          previousPage: t('previousPage'),
-          previous: t('previous'),
-          nextPage: t('nextPage'),
-          next: t('next'),
-          lastPage: t('lastPage'),
-          itemsPerPage: t('itemsPerPage'),
-          search: t('search'),
-          noOptions: t('noOptions'),
-          pageNumber: (p) => t('pageNumber', {page: p})
-        }}
-      />
+    <div className="space-y-8">
+      {/* 1) Interactive playground: size/variant/toggles */}
+      <div className="space-y-4">
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onChange={setPage}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[5, 10, 20, 50]}
+          totalItems={totalItems}
+          size={size}
+          variant={variant}
+          showFirstLast={firstLast}
+          showPrevNext={prevNext}
+          showPageNumbers={pageNumbers}
+          showInfo
+          labels={{
+            navigationLabel: t('navigationLabel'),
+            showingResults: ({startItem,endItem,totalItems}) => t('showingResults', {startItem: startItem ?? 0, endItem: endItem ?? 0, totalItems: totalItems ?? 0}),
+            firstPage: t('firstPage'),
+            previousPage: t('previousPage'),
+            previous: t('previous'),
+            nextPage: t('nextPage'),
+            next: t('next'),
+            lastPage: t('lastPage'),
+            itemsPerPage: t('itemsPerPage'),
+            search: t('search'),
+            noOptions: t('noOptions'),
+            pageNumber: (p) => t('pageNumber', {page: p})
+          }}
+        />
 
-      <div className="flex flex-wrap gap-2 items-center text-sm">
-        <span className="text-muted-foreground mr-2">Size:</span>
-        {(["sm","md","lg"] as const).map(s => (
-          <Button key={s} size="sm" variant={size===s?"primary":"outline"} onClick={()=>setSize(s)}>{s}</Button>
-        ))}
-        <span className="text-muted-foreground mx-2">Variant:</span>
-        {(["default","outline","ghost"] as const).map(v => (
-          <Button key={v} size="sm" variant={variant===v?"primary":"outline"} onClick={()=>setVariant(v)}>{v}</Button>
-        ))}
-        <Button size="sm" variant={firstLast?"primary":"outline"} onClick={()=>setFirstLast(v=>!v)}>First/Last</Button>
-        <Button size="sm" variant={prevNext?"primary":"outline"} onClick={()=>setPrevNext(v=>!v)}>Prev/Next</Button>
-        <Button size="sm" variant={pageNumbers?"primary":"outline"} onClick={()=>setPageNumbers(v=>!v)}>Numbers</Button>
-        <Button size="sm" variant="outline" onClick={()=>setTotalItems(n=>n+10)}>+10 items</Button>
-        <Button size="sm" variant="outline" onClick={()=>setTotalItems(n=>Math.max(0,n-10))}>-10 items</Button>
+        <div className="flex flex-wrap gap-2 items-center text-sm">
+          <span className="text-muted-foreground mr-2">Size:</span>
+          {(["sm","md","lg"] as const).map(s => (
+            <Button key={s} size="sm" variant={size===s?"primary":"outline"} onClick={()=>setSize(s)}>{s}</Button>
+          ))}
+          <span className="text-muted-foreground mx-2">Variant:</span>
+          {(["default","outline","ghost"] as const).map(v => (
+            <Button key={v} size="sm" variant={variant===v?"primary":"outline"} onClick={()=>setVariant(v)}>{v}</Button>
+          ))}
+          <Button size="sm" variant={firstLast?"primary":"outline"} onClick={()=>setFirstLast(v=>!v)}>First/Last</Button>
+          <Button size="sm" variant={prevNext?"primary":"outline"} onClick={()=>setPrevNext(v=>!v)}>Prev/Next</Button>
+          <Button size="sm" variant={pageNumbers?"primary":"outline"} onClick={()=>setPageNumbers(v=>!v)}>Numbers</Button>
+          <Button size="sm" variant="outline" onClick={()=>setTotalItems(n=>n+10)}>+10 items</Button>
+          <Button size="sm" variant="outline" onClick={()=>setTotalItems(n=>Math.max(0,n-10))}>-10 items</Button>
+        </div>
+      </div>
+
+      {/* 2) Advanced: pageSize selector with info text */}
+      <div className="space-y-3">
+        <p className="text-sm font-medium">Advanced example</p>
+        <Pagination
+          page={advancedPage}
+          totalPages={advancedTotalPages}
+          onChange={setAdvancedPage}
+          pageSize={advancedPageSize}
+          pageSizeOptions={[10, 20, 50]}
+          onPageSizeChange={(n) => { setAdvancedPageSize(n); setAdvancedPage(1); }}
+          showInfo
+          totalItems={advancedTotalItems}
+          labels={{
+            navigationLabel: t('navigationLabel'),
+            showingResults: ({startItem, endItem, totalItems: ti}) =>
+              t('showingResults', { startItem: startItem ?? 0, endItem: endItem ?? 0, totalItems: ti ?? 0 }),
+            pageNumber: (p) => t('pageNumber', { page: p as number })
+          }}
+        />
       </div>
     </div>
   );
