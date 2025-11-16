@@ -215,9 +215,27 @@ export const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
       }
     };
 
+    const headerProps = collapsible
+      ? {
+          role: "button" as const,
+          tabIndex: disabled ? -1 : 0,
+          onClick: disabled ? undefined : () => toggleExpanded(),
+          onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => {
+            if (disabled) return;
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              toggleExpanded();
+            }
+          },
+        }
+      : {};
+
     const inner = (
       <>
-        <div className={cn("flex items-center gap-3", padding, "group/item relative")}>
+        <div
+          className={cn("flex items-center gap-3", padding, "group/item relative")}
+          {...headerProps}
+        >
           {/* Avatar */}
           {avatar && (
             <div className={cn("shrink-0", sz.avatar)}>
@@ -254,21 +272,11 @@ export const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
           {/* Right Icon or Collapsible Icon */}
           {collapsible ? (
             <span
-              role="button"
-              aria-label="Toggle"
-              tabIndex={0}
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleExpanded();
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toggleExpanded();
-                }
-              }}
-              className={cn("text-muted-foreground shrink-0 transition-transform cursor-pointer select-none", sz.icon, isExpanded && "rotate-90")}
+              className={cn(
+                "text-muted-foreground shrink-0 transition-transform cursor-pointer select-none",
+                sz.icon,
+                isExpanded && "rotate-90"
+              )}
             >
               <ChevronRight className={cn(sz.icon)} />
             </span>
@@ -303,17 +311,30 @@ export const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
         </A>
       );
     }
-    if (as === "button" || collapsible) {
+    if (as === "button" && !collapsible) {
       return (
         <button
           ref={ref as any}
           type="button"
           className={cn(baseCls, "text-left block w-full")}
-          onClick={collapsible ? toggleExpanded : undefined}
           {...(rest as any)}
         >
           {inner}
         </button>
+      );
+    }
+    if (collapsible) {
+      // For collapsible items, only the chevron icon handles toggle.
+      // The container itself is non-clickable so clicking expandContent
+      // doesn't collapse the section.
+      return (
+        <div
+          ref={ref as any}
+          className={cn(baseCls, "text-left block w-full")}
+          {...(rest as any)}
+        >
+          {inner}
+        </div>
       );
     }
     const Comp: any = as;

@@ -156,7 +156,7 @@ export default function TimePicker({
   // Smooth scroll to selected time
   React.useEffect(() => {
     if (!open) return;
-    const scrollToSelected = (ref: React.RefObject<HTMLDivElement>, targetValue: number, step: number) => {
+    const scrollToSelected = (ref: React.RefObject<HTMLDivElement | null>, targetValue: number, step: number) => {
       if (!ref.current) return;
       const buttons = ref.current.querySelectorAll("button");
       const targetIndex = Math.floor(targetValue / step);
@@ -724,4 +724,3 @@ export default function TimePicker({
     </div>
   );
 }
-
