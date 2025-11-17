@@ -3,10 +3,9 @@
 import React from "react";
 export const dynamic = "force-dynamic";
 import dynamicImport from "next/dynamic";
-const IntlDemoProvider = dynamicImport(() => import("./_components/IntlDemoProvider"), { ssr: false });
-const CodeBlock = dynamicImport(() => import("./_components/CodeBlock"), { ssr: false });
-const DocSection = dynamicImport(() => import("./_components/DocSection"), { ssr: false });
-import ClientOnly from "@/components/ui/ClientOnly";
+const IntlDemoProvider = dynamicImport(() => import("./_components/IntlDemoProvider"));
+const CodeBlock = dynamicImport(() => import("./_components/CodeBlock"));
+const DocSection = dynamicImport(() => import("./_components/DocSection"));
 const ToastProvider = dynamicImport(() => import("@/components/ui/Toast"), { ssr: false });
 import { ActiveSectionProvider } from "./_components/ActiveSectionContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -70,11 +69,7 @@ const ThemeToggleHeadlessExample = dynamicImport(() => import("./_examples/Theme
 const LanguageSwitcherHeadlessExample = dynamicImport(() => import("./_examples/LanguageSwitcherHeadlessExample"), { ssr: false });
 
 export default function UnderverseGuidePage() {
-  return (
-    <ClientOnly fallback={<div className="max-w-5xl mx-auto px-6 py-10">Loading...</div>}>
-      <DocsContent />
-    </ClientOnly>
-  );
+  return <DocsContent />;
 }
 
 function DocsContent() {
