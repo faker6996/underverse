@@ -21,14 +21,18 @@
   --muted: oklch(96.1% 0 0); /* Very light gray - muted backgrounds */
   --muted-foreground: oklch(55% 0 0); /* Medium-dark gray - improved contrast for muted text */
 
-  --accent: oklch(96.1% 0 0); /* Very light gray - hover states */
-  --accent-foreground: oklch(20.5% 0 0); /* Dark charcoal - text on accents */
+  --accent: oklch(68% 0.2 45); /* Warm amber/orange - distinct accent color */
+  --accent-foreground: oklch(25% 0 0); /* Dark charcoal - text on accents */
+
+  --input-focus: var(--primary); /* Focus ring color for inputs */
+  --input-disabled: oklch(96% 0 0); /* Disabled input background */
+  --input-invalid: var(--destructive); /* Invalid input color */
 
   --destructive: oklch(70.4% 0.191 22.216); /* Vibrant red - error/delete actions */
   --destructive-foreground: oklch(98.5% 0 0); /* Near white - text on red buttons */
 
-  --border: oklch(20.5% 0 0 / 0.1); /* 10% transparent dark - subtle borders */
-  --input: oklch(20.5% 0 0 / 0.15); /* 15% transparent dark - input borders */
+  --border: oklch(20.5% 0 0 / 0.15); /* 15% transparent dark - visible borders */
+  --input: oklch(20.5% 0 0 / 0.2); /* 20% transparent dark - input borders */
   --ring: var(--primary); /* Match focus ring to primary */
 
   --radius: 0.5rem; /* 8px border radius */
@@ -79,14 +83,18 @@
   --muted: oklch(25% 0.03 255); /* Dark blue-gray - muted areas */
   --muted-foreground: oklch(65% 0.02 255); /* Light-medium gray - improved muted text contrast */
 
-  --accent: oklch(30% 0.04 255); /* Blue-tinted dark gray - hover/accent states */
-  --accent-foreground: oklch(98.5% 0.01 255); /* Near white - text on accents */
+  --accent: oklch(75% 0.2 45); /* Warm amber/orange - bright accent in dark mode */
+  --accent-foreground: oklch(18% 0.03 255); /* Dark - text on accent */
+
+  --input-focus: var(--primary); /* Focus ring color for inputs */
+  --input-disabled: oklch(25% 0.03 255); /* Disabled input background */
+  --input-invalid: var(--destructive); /* Invalid input color */
 
   --destructive: oklch(70.4% 0.191 22.216); /* Warm red-orange - errors/danger */
   --destructive-foreground: oklch(98.5% 0 0); /* Near white - text on red */
 
-  --border: oklch(100% 0.02 255 / 0.12); /* Subtle blue-tinted borders */
-  --input: oklch(100% 0.02 255 / 0.18); /* Blue-tinted input borders */
+  --border: oklch(100% 0.02 255 / 0.2); /* Visible blue-tinted borders */
+  --input: oklch(100% 0.02 255 / 0.25); /* Bright blue-tinted input borders */
   --ring: var(--primary); /* Match focus ring to primary */
 
   --success: oklch(60% 0.18 145); /* OKLCH Forest Green - brighter for dark mode */
@@ -141,6 +149,9 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
+  --color-input-focus: var(--input-focus);
+  --color-input-disabled: var(--input-disabled);
+  --color-input-invalid: var(--input-invalid);
   --color-surface-0: var(--surface-0);
   --color-surface-1: var(--surface-1);
   --color-surface-2: var(--surface-2);
@@ -190,7 +201,6 @@ body {
     @apply text-primary underline-offset-4 hover:underline;
   }
 }
-
 /* Pretty, theme-aware scrollbars for ScrollArea */
 .scroll-area-viewport {
   scrollbar-width: thin; /* Firefox */
