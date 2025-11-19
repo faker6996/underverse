@@ -21,7 +21,8 @@
   --muted: oklch(96.1% 0 0); /* Very light gray - muted backgrounds */
   --muted-foreground: oklch(55% 0 0); /* Medium-dark gray - improved contrast for muted text */
 
-  --accent: oklch(94% 0 0); /* Light gray - hover states */
+  /* Accent: soft tint of primary (~primary/20) */
+  --accent: color-mix(in oklch, var(--primary) 20%, var(--background) 80%);
   --accent-foreground: oklch(20.5% 0 0); /* Dark gray - text on accents */
 
   --input-focus: var(--primary); /* Focus ring color for inputs */
@@ -83,8 +84,9 @@
   --muted: oklch(25% 0.03 255); /* Dark blue-gray - muted areas */
   --muted-foreground: oklch(65% 0.02 255); /* Light-medium gray - improved muted text contrast */
 
-  --accent: oklch(96.1% 0 0); /* Very light gray - hover states */
-  --accent-foreground: oklch(20.5% 0 0); /* Dark gray - text on accents */
+  /* Accent: soft tint of primary on dark background (~primary/20) */
+  --accent: color-mix(in oklch, var(--primary) 20%, var(--background) 80%);
+  --accent-foreground: var(--primary-foreground); /* Light text on tinted accent */
 
   --input-focus: var(--primary); /* Focus ring color for inputs */
   --input-disabled: oklch(25% 0.03 255); /* Disabled input background */

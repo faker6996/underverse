@@ -183,10 +183,11 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           }}
           className={cn(
             size === "sm" ? "w-7 h-7 text-[12px]" : "w-8 h-8 text-sm",
-            "datepicker-day rounded-md hover:bg-accent hover:text-accent-foreground",
-            "focus:bg-accent focus:text-accent-foreground focus:outline-none",
+            "datepicker-day rounded-md focus:outline-none",
             "transition-colors",
-            isSelected && "bg-primary text-primary-foreground hover:bg-primary/90",
+            isSelected
+              ? "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary focus:text-primary-foreground"
+              : "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
             isToday && !isSelected && "bg-accent text-accent-foreground font-semibold"
           )}
         >

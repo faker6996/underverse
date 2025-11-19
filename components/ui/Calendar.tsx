@@ -267,7 +267,7 @@ export default function Calendar({
                   disabled && "opacity-40 cursor-not-allowed",
                   isToday && !selectedDay && "ring-1 ring-primary/50",
                   selectedDay && "bg-primary text-primary-foreground hover:bg-primary/90",
-                  !selectedDay && "hover:bg-accent"
+                  !selectedDay && "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                 )}
                 title={d.toDateString()}
               >
@@ -357,7 +357,7 @@ export default function Calendar({
                     disabled && "opacity-40 cursor-not-allowed",
                     isToday && !selectedDay && "ring-1 ring-primary/50",
                     selectedDay && "bg-primary text-primary-foreground hover:bg-primary/90",
-                    !selectedDay && "hover:bg-accent"
+                    !selectedDay && "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                   )}
                   title={d.toDateString()}
                 >
