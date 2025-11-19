@@ -33,6 +33,8 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   noWrap?: boolean; // mặc định: true
   // Tắt overlay gradient hover mặc định
   noHoverOverlay?: boolean;
+  // Bật nền gradient (alias cho variant="gradient")
+  gradient?: boolean;
 }
 
 // Sử dụng forwardRef để chuyển tiếp ref
@@ -61,6 +63,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       asContainer = false,
       noWrap = true,
       noHoverOverlay = false,
+      gradient = false,
       ...rest
     },
     ref
@@ -69,7 +72,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ? "relative inline-flex justify-center rounded-md font-medium transition-colors duration-150 ease-soft outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px"
       : "relative inline-flex items-center justify-center gap-2 rounded-md font-medium overflow-hidden transition-colors duration-150 ease-soft outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px";
 
-    const variantStyle = VARIANT_STYLES_BTN[variant] || VARIANT_STYLES_BTN.default;
+    const finalVariant = gradient ? "gradient" : variant;
+    const variantStyle = VARIANT_STYLES_BTN[finalVariant] || VARIANT_STYLES_BTN.default;
     const sizeStyle = SIZE_STYLES_BTN[size] || SIZE_STYLES_BTN.md;
 
     const SpinnerIcon = Spinner ?? Activity;
@@ -132,7 +136,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...rest}
       >
         {!noHoverOverlay && (
-          <span className="absolute inset-0 bg-gradient-to-r from-primary-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+          <span className="absolute inset-0 bg-gradient-to-r from-primary-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 dark:hidden" />
         )}
         {loading ? (
           <>

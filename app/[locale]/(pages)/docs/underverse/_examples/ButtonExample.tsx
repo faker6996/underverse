@@ -37,7 +37,8 @@ export default function ButtonExample() {
     `<Button variant=\"outline\">Outline</Button>\n` +
     `<Button variant=\"ghost\">Ghost</Button>\n` +
     `<Button variant=\"link\">Link</Button>\n` +
-    `<Button variant=\"gradient\">Gradient</Button>\n\n` +
+    `<Button variant=\"gradient\">Gradient (variant)</Button>\n` +
+    `<Button gradient>Gradient (prop)</Button>\n\n` +
     `// Sizes\n` +
     `<Button size=\"sm\">Small</Button>\n` +
     `<Button size=\"md\">Medium</Button>\n` +
@@ -73,7 +74,8 @@ export default function ButtonExample() {
           <Button variant="outline">Outline</Button>
           <Button variant="ghost">Ghost</Button>
           <Button variant="link" title="Link style">Link</Button>
-          <Button variant="gradient">Gradient</Button>
+          <Button variant="gradient">Gradient (variant)</Button>
+          <Button gradient>Gradient (prop)</Button>
         </div>
       </div>
 
@@ -143,6 +145,7 @@ export default function ButtonExample() {
     { property: "asContainer", description: t("props.button.asContainer"), type: "boolean", default: "false" },
     { property: "noWrap", description: t("props.button.noWrap"), type: "boolean", default: "true" },
     { property: "noHoverOverlay", description: t("props.button.noHoverOverlay"), type: "boolean", default: "false" },
+    { property: "gradient", description: t("props.button.gradient"), type: "boolean", default: "false" },
     { property: "aria-label", description: t("props.button.aria-label"), type: "string", default: "—" },
   ];
 
@@ -168,6 +171,7 @@ export default function ButtonExample() {
     "asContainer",
     "noWrap",
     "noHoverOverlay",
+    "gradient",
     "aria-label",
   ];
 
@@ -185,4 +189,3 @@ export default function ButtonExample() {
     />
   );
 }
-

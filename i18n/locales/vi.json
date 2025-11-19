@@ -421,6 +421,7 @@
         "asContainer": "Tự do bố cục (không ép items-center).",
         "noWrap": "Không xuống dòng nội dung.",
         "noHoverOverlay": "Tắt overlay gradient khi hover.",
+        "gradient": "Bật nền gradient (tương đương variant=\"gradient\").",
         "aria-label": "Nhãn truy cập (đặc biệt cho nút chỉ có icon)."
       },
       "badge": {

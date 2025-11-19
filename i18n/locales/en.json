@@ -428,6 +428,7 @@
         "asContainer": "Free layout (don’t force items-center).",
         "noWrap": "Prevent line-wrapping for content.",
         "noHoverOverlay": "Disable default hover gradient overlay.",
+        "gradient": "Enable gradient background (alias for variant=\"gradient\").",
         "aria-label": "Accessibility label (especially for icon-only buttons)."
       },
       "badge": {
