@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useTranslations } from "next-intl";
-import { Package } from "lucide-react";
+import { Package, Menu } from "lucide-react";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import ColorThemeCustomizer from "@/components/ui/ColorThemeCustomizer";
@@ -15,7 +15,11 @@ const NPM_PACKAGE = process.env.NEXT_PUBLIC_NPM_PACKAGE || "@underverse-ui/under
 const NPM_VERSION = process.env.NEXT_PUBLIC_NPM_VERSION || "0.1.7";
 const GITHUB_URL = "https://github.com/faker6996/underverse";
 
-export default function DocsHeader() {
+interface DocsHeaderProps {
+  onMobileMenuToggle?: () => void;
+}
+
+export default function DocsHeader({ onMobileMenuToggle }: DocsHeaderProps) {
   const t = useTranslations("DocsUnderverse");
   const { setActiveId } = useActiveSection();
   const searchInputRef = React.useRef<HTMLInputElement>(null);
@@ -112,6 +116,19 @@ export default function DocsHeader() {
         <div className="flex h-16 items-center justify-between max-w-7xl mx-auto">
           {/* Logo / Title */}
           <div className="flex items-center gap-4">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={onMobileMenuToggle}
+              className={cn(
+                "lg:hidden p-2 rounded-md transition-colors",
+                "hover:bg-accent hover:text-accent-foreground",
+                "focus:outline-none focus:ring-2 focus:ring-ring"
+              )}
+              aria-label="Toggle mobile menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
             <a href="#" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <svg className="w-8 h-8" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="512" cy="512" r="512" className="fill-background" />
