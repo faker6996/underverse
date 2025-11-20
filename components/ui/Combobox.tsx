@@ -4,7 +4,7 @@ import * as React from "react";
 import { useId } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils/cn";
-import { ChevronDown, Search, Check, X } from "lucide-react";
+import { ChevronDown, Search, SearchX, Check, X, Loader2 } from "lucide-react";
 import { useShadCNAnimations } from "@/lib/utils/shadcn-animations";
 
 // --- PROPS ---
@@ -27,6 +27,8 @@ export interface ComboboxProps {
   label?: string;
   required?: boolean;
   fontBold?: boolean;
+  loading?: boolean;
+  loadingText?: string;
 }
 
 // Helper functions
@@ -58,7 +60,9 @@ export const Combobox: React.FC<ComboboxProps> = ({
   usePortal = true,
   label,
   required,
-  fontBold = false
+  fontBold = false,
+  loading = false,
+  loadingText = "Loading..."
 }) => {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
@@ -87,6 +91,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   // Manual positioning
   const [dropdownPosition, setDropdownPosition] = React.useState<{ top: number; left: number; width: number } | null>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const dropdownRef = React.useRef<HTMLDivElement | null>(null);
 
   // Calculate positioning synchronously on open to avoid flicker
   const calculatePosition = React.useCallback(() => {
@@ -122,11 +127,15 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (triggerRef.current && !triggerRef.current.contains(target)) {
-        const dropdown = document.querySelector("[data-combobox-dropdown]") as Element;
-        if (dropdown && !dropdown.contains(target)) {
-          setOpen(false);
-        }
+      const triggerEl = triggerRef.current;
+      const dropdownEl = dropdownRef.current;
+      if (
+        triggerEl &&
+        !triggerEl.contains(target) &&
+        dropdownEl &&
+        !dropdownEl.contains(target)
+      ) {
+        setOpen(false);
       }
     };
 
@@ -180,6 +189,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const dropdownContent = (
     <div
       data-combobox-dropdown
+      ref={dropdownRef}
       style={{
         position: "absolute",
         top: dropdownPosition?.top || 0,
@@ -242,7 +252,16 @@ export const Combobox: React.FC<ComboboxProps> = ({
         {/* Options List */}
         <div className="max-h-64 overflow-y-auto overscroll-contain">
           <ul className="p-1 space-y-1">
-            {filteredOptions.length > 0 ? (
+            {loading ? (
+              <li className="px-3 py-8 text-center">
+                <div className="flex flex-col items-center gap-2 animate-in fade-in-0 zoom-in-95 duration-300">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  <span className="text-sm text-muted-foreground">
+                    {loadingText || "Loading..."}
+                  </span>
+                </div>
+              </li>
+            ) : filteredOptions.length > 0 ? (
               filteredOptions.map((item, index) => {
                 const itemValue = getOptionValue(item);
                 const itemLabel = getOptionLabel(item);
@@ -279,9 +298,18 @@ export const Combobox: React.FC<ComboboxProps> = ({
               })
             ) : (
               <li className="px-3 py-8 text-center text-muted-foreground text-sm">
-                <div className="flex flex-col items-center gap-2">
-                  <Search className="h-6 w-6 opacity-50" />
-                  <span>{emptyText}</span>
+                <div className="flex flex-col items-center gap-2 animate-in fade-in-0 zoom-in-95 duration-300">
+                  <SearchX className="h-8 w-8 opacity-40 text-muted-foreground" />
+                  <span className="text-sm">{emptyText}</span>
+                  {query && (
+                    <button
+                      type="button"
+                      onClick={() => setQuery("")}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Clear search
+                    </button>
+                  )}
                 </div>
               </li>
             )}
@@ -370,7 +398,12 @@ export const Combobox: React.FC<ComboboxProps> = ({
               <X className="h-3 w-3" />
             </div>
           )}
-          <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform duration-200", open && "rotate-180")} />
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 text-muted-foreground transition-all duration-200",
+              open && "rotate-180 scale-110 text-primary"
+            )}
+          />
         </div>
       </button>
 

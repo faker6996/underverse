@@ -278,14 +278,72 @@ export function DataTable<T extends Record<string, any>>({
   );
 
   const isServerMode = Boolean(onQueryChange);
+
+  const processedData = React.useMemo(() => {
+    if (isServerMode) return data;
+
+    let result = [...data];
+
+    // 1. Filter
+    if (Object.keys(filters).length > 0) {
+      result = result.filter((row) => {
+        return Object.entries(filters).every(([key, value]) => {
+          if (value === undefined || value === null || value === "") return true;
+
+          const col = columns.find((c) => c.key === key);
+          const rowValue = col?.dataIndex ? row[col.dataIndex as keyof T] : row[key];
+
+          // Handle Date objects or specific types if needed
+          if (col?.filter?.type === "date" && value instanceof Date) {
+            // Simple date comparison (ignoring time for now or exact match)
+            // For now, let's convert both to string or use a specific comparator
+            // This is a basic implementation
+            return new Date(rowValue).toDateString() === value.toDateString();
+          }
+
+          return String(rowValue ?? "")
+            .toLowerCase()
+            .includes(String(value).toLowerCase());
+        });
+      });
+    }
+
+    // 2. Sort
+    if (sort) {
+      result.sort((a, b) => {
+        const col = columns.find((c) => c.key === sort.key);
+        const aValue = col?.dataIndex ? a[col.dataIndex as keyof T] : a[sort.key];
+        const bValue = col?.dataIndex ? b[col.dataIndex as keyof T] : b[sort.key];
+
+        if (aValue === bValue) return 0;
+
+        // Handle numbers
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          return sort.order === "asc" ? aValue - bValue : bValue - aValue;
+        }
+
+        // Handle strings
+        const compare = String(aValue).localeCompare(String(bValue));
+        return sort.order === "asc" ? compare : -compare;
+      });
+    }
+
+    return result;
+  }, [data, isServerMode, filters, sort, columns]);
+
+  const totalItems = isServerMode ? total : processedData.length;
+
   const displayedData = isServerMode
     ? data
     : React.useMemo(() => {
         const start = (curPage - 1) * curPageSize;
-        return data.slice(start, start + curPageSize);
-      }, [data, curPage, curPageSize]);
-
-  const totalItems = isServerMode ? total : data.length;
+        // Ensure we don't slice out of bounds if page is too high for filtered results
+        if (start >= processedData.length && curPage > 1) {
+          // This effect will be handled by the pagination component or we should reset page here?
+          // Ideally setCurPage(1) should happen when filter changes, which is already done in renderFilterControl
+        }
+        return processedData.slice(start, start + curPageSize);
+      }, [processedData, curPage, curPageSize]);
 
   return (
     <div className={cn("space-y-2", className)}>
@@ -372,30 +430,33 @@ export function DataTable<T extends Record<string, any>>({
                 </TableCell>
               </TableRow>
             ) : (
-              displayedData.map((row, idx) => (
-                <TableRow key={getRowKey(row, idx)} className={cn(densityRowClass, striped && idx % 2 === 0 && "bg-muted/30")}>
-                  {visibleColumns.map((col, colIdx) => {
-                    const value = col.dataIndex ? row[col.dataIndex as keyof T] : undefined;
-                    return (
-                      <TableCell
-                        key={col.key}
-                        className={
-                          cn(
-                            cellPadding,
-                            col.align === "right" && "text-right",
-                            col.align === "center" && "text-center",
-                            columnDividers && colIdx > 0 && "border-l border-border/60",
-                            idx === data.length - 1 && col === visibleColumns[0] && "rounded-bl-md",
-                            idx === data.length - 1 && col === visibleColumns[visibleColumns.length - 1] && "rounded-br-md"
-                          ) as string
-                        }
-                      >
-                        {col.render ? col.render(value, row, idx) : String(value ?? "")}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))
+              displayedData.map((row, idx) => {
+                const isLastRow = idx === displayedData.length - 1;
+                return (
+                  <TableRow key={getRowKey(row, idx)} className={cn(densityRowClass, striped && idx % 2 === 0 && "bg-muted/30")}>
+                    {visibleColumns.map((col, colIdx) => {
+                      const value = col.dataIndex ? row[col.dataIndex as keyof T] : undefined;
+                      return (
+                        <TableCell
+                          key={col.key}
+                          className={
+                            cn(
+                              cellPadding,
+                              col.align === "right" && "text-right",
+                              col.align === "center" && "text-center",
+                              columnDividers && colIdx > 0 && "border-l border-border/60",
+                              isLastRow && col === visibleColumns[0] && "rounded-bl-md",
+                              isLastRow && col === visibleColumns[visibleColumns.length - 1] && "rounded-br-md"
+                            ) as string
+                          }
+                        >
+                          {col.render ? col.render(value, row, idx) : String(value ?? "")}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
