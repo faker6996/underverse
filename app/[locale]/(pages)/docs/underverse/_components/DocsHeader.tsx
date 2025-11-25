@@ -130,15 +130,17 @@ export default function DocsHeader({ onMobileMenuToggle }: DocsHeaderProps) {
             </button>
 
             <a href="#" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <svg className="w-8 h-8" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="512" cy="512" r="512" className="fill-background" />
-                <circle cx="512" cy="512" r="400" fill="none" className="stroke-primary" strokeWidth="80" />
+              <svg className="w-9 h-9" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="docsUvGradient" x1="0" x2="1" y1="0" y2="1">
+                    <stop offset="0%" stopColor="#4f46e5" />
+                    <stop offset="100%" stopColor="#06b6d4" />
+                  </linearGradient>
+                </defs>
+                <rect width="64" height="64" rx="18" fill="url(#docsUvGradient)" />
                 <path
-                  d="M365 352 L365 550 C365 650 420 705 512 705 C604 705 659 650 659 550 L659 352"
-                  className="stroke-primary"
-                  strokeWidth="80"
-                  strokeLinecap="round"
-                  fill="none"
+                  d="M22 18v20c0 7 4 10 10 10s10-3 10-10V18h-5v20c0 4-2 6-5 6s-5-2-5-6V18z"
+                  fill="#f9fafb"
                 />
               </svg>
               <span className="font-semibold text-lg hidden sm:inline-block">{t("pageTitle").split("–")[0].trim()}</span>
