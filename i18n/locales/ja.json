@@ -471,6 +471,9 @@
         "showCloseButton": "閉じる（X）ボタンを表示。",
         "closeOnOverlayClick": "外側クリックで閉じる。",
         "closeOnEsc": "Esc キーで閉じる。",
+        "contentClassName": "コンテンツ領域に適用するカスタムクラス。",
+        "noPadding": "デフォルトのパディングを除去（メディアに便利）。",
+        "fullWidth": "左右の余白なしで全幅に広げる。",
         "children": "モーダルの内容。"
       },
       "tabs": {

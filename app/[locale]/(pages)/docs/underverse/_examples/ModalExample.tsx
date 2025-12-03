@@ -18,6 +18,8 @@ export default function ModalExample() {
   const [open6, setOpen6] = React.useState(false);
   const [open7, setOpen7] = React.useState(false);
   const [open8, setOpen8] = React.useState(false);
+  const [open9, setOpen9] = React.useState(false);
+  const [open10, setOpen10] = React.useState(false);
 
   const code =
     `import { Button, Modal } from '@underverse-ui/underverse'\n\n` +
@@ -31,7 +33,8 @@ export default function ModalExample() {
     `<Modal isOpen={open} onClose={() => setOpen(false)} size="sm" title="Small">...</Modal>\n` +
     `<Modal isOpen={open} onClose={() => setOpen(false)} size="md" title="Medium">...</Modal>\n` +
     `<Modal isOpen={open} onClose={() => setOpen(false)} size="lg" title="Large">...</Modal>\n` +
-    `<Modal isOpen={open} onClose={() => setOpen(false)} size="xl" title="Extra Large">...</Modal>\n\n` +
+    `<Modal isOpen={open} onClose={() => setOpen(false)} size="xl" title="Extra Large">...</Modal>\n` +
+    `<Modal isOpen={open} onClose={() => setOpen(false)} size="full" fullWidth title="Full Width">...</Modal>\n\n` +
     `// With Description\n` +
     `<Modal\n` +
     `  isOpen={open}\n` +
@@ -57,6 +60,10 @@ export default function ModalExample() {
     `  closeOnEsc={false}\n` +
     `>\n` +
     `  <p>Cannot close by clicking outside or pressing Esc</p>\n` +
+    `</Modal>\n\n` +
+    `// Custom content padding\n` +
+    `<Modal isOpen={open} onClose={() => setOpen(false)} noPadding contentClassName="p-4">\n` +
+    `  <YourMediaComponent />\n` +
     `</Modal>`;
 
   const demo = (
@@ -98,6 +105,9 @@ export default function ModalExample() {
           <Button size="sm" variant="outline" onClick={() => setOpen4(true)}>
             Extra Large (xl)
           </Button>
+          <Button size="sm" variant="outline" onClick={() => setOpen9(true)}>
+            Full width
+          </Button>
         </div>
         <Modal isOpen={open2} onClose={() => setOpen2(false)} size="sm" title="Small Modal">
           <p className="text-sm">This is a small modal (sm)</p>
@@ -110,6 +120,18 @@ export default function ModalExample() {
         </Modal>
         <Modal isOpen={open4} onClose={() => setOpen4(false)} size="xl" title="Extra Large Modal">
           <p className="text-sm">This is an extra large modal (xl)</p>
+        </Modal>
+        <Modal isOpen={open9} onClose={() => setOpen9(false)} size="full" fullWidth title="Full Width Modal">
+          <div className="space-y-3">
+            <p className="text-sm">Full width modal stretches edge to edge for immersive layouts.</p>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <div key={idx} className="rounded-md border border-border bg-muted/30 p-3 text-sm">
+                  Panel {idx + 1}
+                </div>
+              ))}
+            </div>
+          </div>
         </Modal>
       </div>
 
@@ -185,6 +207,21 @@ export default function ModalExample() {
           </div>
         </Modal>
       </div>
+
+      {/* Custom content padding */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Custom content padding</p>
+        <Button variant="outline" onClick={() => setOpen10(true)}>
+          Open Media Modal
+        </Button>
+        <Modal isOpen={open10} onClose={() => setOpen10(false)} title="Media Lightbox" noPadding contentClassName="bg-black">
+          <div className="relative aspect-video w-full overflow-hidden rounded-b-lg">
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-white/10 to-white/5">
+              <span className="text-sm text-white/80">Embed your video or image here</span>
+            </div>
+          </div>
+        </Modal>
+      </div>
     </div>
   );
 
@@ -193,13 +230,16 @@ export default function ModalExample() {
     { property: "onClose", description: t("props.modal.onClose"), type: "() => void", default: "—" },
     { property: "title", description: t("props.modal.title"), type: "string | React.ReactNode", default: "—" },
     { property: "description", description: t("props.modal.description"), type: "string | React.ReactNode", default: "—" },
-    { property: "size", description: t("props.modal.size"), type: '"sm" | "md" | "lg" | "xl"', default: '"md"' },
+    { property: "size", description: t("props.modal.size"), type: '"sm" | "md" | "lg" | "xl" | "full"', default: '"md"' },
     { property: "showCloseButton", description: t("props.modal.showCloseButton"), type: "boolean", default: "true" },
     { property: "closeOnOverlayClick", description: t("props.modal.closeOnOverlayClick"), type: "boolean", default: "true" },
     { property: "closeOnEsc", description: t("props.modal.closeOnEsc"), type: "boolean", default: "true" },
+    { property: "contentClassName", description: t("props.modal.contentClassName"), type: "string", default: "—" },
+    { property: "noPadding", description: t("props.modal.noPadding"), type: "boolean", default: "false" },
+    { property: "fullWidth", description: t("props.modal.fullWidth"), type: "boolean", default: "false" },
     { property: "children", description: t("props.modal.children"), type: "React.ReactNode", default: "—" },
   ];
-  const order = ["isOpen","onClose","title","description","size","showCloseButton","closeOnOverlayClick","closeOnEsc","children"];
+  const order = ["isOpen","onClose","title","description","size","showCloseButton","closeOnOverlayClick","closeOnEsc","contentClassName","noPadding","fullWidth","children"];
   const docs = <PropsDocsTable rows={rows} order={order} />;
 
   return (
@@ -214,4 +254,3 @@ export default function ModalExample() {
     />
   );
 }
-

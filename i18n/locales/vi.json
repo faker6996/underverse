@@ -490,6 +490,9 @@
         "showCloseButton": "Hiển thị nút đóng (X).",
         "closeOnOverlayClick": "Click ra ngoài sẽ đóng.",
         "closeOnEsc": "Nhấn ESC để đóng.",
+        "contentClassName": "Class tuỳ biến cho vùng nội dung.",
+        "noPadding": "Tắt padding mặc định (hữu ích cho media).",
+        "fullWidth": "Kéo modal full width, không margin hai bên.",
         "children": "Nội dung modal."
       },
       "tabs": {

@@ -497,6 +497,9 @@
         "showCloseButton": "Show close (X) button.",
         "closeOnOverlayClick": "Close when clicking outside.",
         "closeOnEsc": "Close on Escape key.",
+        "contentClassName": "Custom class for content area.",
+        "noPadding": "Remove default body padding (useful for media).",
+        "fullWidth": "Stretch modal to full width without side margin.",
         "children": "Modal content."
       },
       "tabs": {

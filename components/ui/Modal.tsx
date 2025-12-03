@@ -12,11 +12,14 @@ interface ModalProps {
   title?: string;
   description?: string;
   className?: string;
+  contentClassName?: string;
   overlayClassName?: string;
   showCloseButton?: boolean;
   closeOnOverlayClick?: boolean;
   closeOnEsc?: boolean;
   size?: "sm" | "md" | "lg" | "xl" | "full";
+  noPadding?: boolean;
+  fullWidth?: boolean;
 }
 
 const sizeStyles = {
@@ -24,7 +27,7 @@ const sizeStyles = {
   md: "max-w-md",
   lg: "max-w-lg",
   xl: "max-w-xl",
-  full: "max-w-full mx-4",
+  full: "max-w-full",
 };
 
 const Modal: React.FC<ModalProps> = ({
@@ -34,11 +37,14 @@ const Modal: React.FC<ModalProps> = ({
   title,
   description,
   className,
+  contentClassName,
   overlayClassName,
   showCloseButton = true,
   closeOnOverlayClick = true,
   closeOnEsc = true,
   size = "md",
+  noPadding = false,
+  fullWidth = false,
 }) => {
   const [isMounted, setIsMounted] = React.useState(false);
   const [isVisible, setIsVisible] = React.useState(false);
@@ -120,7 +126,8 @@ const Modal: React.FC<ModalProps> = ({
         className={cn(
           "relative w-full rounded-lg  bg-card text-card-foreground shadow-xl",
           "transition-all duration-200 ease-out",
-          sizeStyles[size],
+          fullWidth ? "max-w-full" : sizeStyles[size],
+          fullWidth && "mx-0",
           className
         )}
         style={{
@@ -154,7 +161,7 @@ const Modal: React.FC<ModalProps> = ({
         )}
 
         {/* Content */}
-        <div className="p-6">{children}</div>
+        <div className={cn("p-6", noPadding && "p-0", contentClassName)}>{children}</div>
       </div>
     </div>
   );

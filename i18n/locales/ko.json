@@ -471,6 +471,9 @@
         "showCloseButton": "닫기(X) 버튼 표시.",
         "closeOnOverlayClick": "바깥 클릭 시 닫기.",
         "closeOnEsc": "Esc 키로 닫기.",
+        "contentClassName": "콘텐츠 영역에 적용할 커스텀 클래스.",
+        "noPadding": "기본 패딩 제거(미디어에 유용).",
+        "fullWidth": "좌우 여백 없이 전체 너비로 확장.",
         "children": "모달 내용."
       },
       "tabs": {
