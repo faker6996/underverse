@@ -468,6 +468,8 @@
         "title": "モーダルのタイトル。",
         "description": "ヘッダー内の短い説明。",
         "size": "モーダルのサイズ。",
+        "width": "明示的な CSS 幅（文字列または数値）。",
+        "height": "明示的な CSS 高さ（文字列または数値）。",
         "showCloseButton": "閉じる（X）ボタンを表示。",
         "closeOnOverlayClick": "外側クリックで閉じる。",
         "closeOnEsc": "Esc キーで閉じる。",

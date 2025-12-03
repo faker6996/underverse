@@ -487,6 +487,8 @@
         "title": "Tiêu đề modal.",
         "description": "Mô tả ngắn trong header.",
         "size": "Kích thước modal.",
+        "width": "Chiều rộng CSS (string hoặc number).",
+        "height": "Chiều cao CSS (string hoặc number).",
         "showCloseButton": "Hiển thị nút đóng (X).",
         "closeOnOverlayClick": "Click ra ngoài sẽ đóng.",
         "closeOnEsc": "Nhấn ESC để đóng.",

@@ -468,6 +468,8 @@
         "title": "모달 제목.",
         "description": "헤더 내 짧은 설명.",
         "size": "모달 크기.",
+        "width": "명시적 CSS 너비(문자열 또는 숫자).",
+        "height": "명시적 CSS 높이(문자열 또는 숫자).",
         "showCloseButton": "닫기(X) 버튼 표시.",
         "closeOnOverlayClick": "바깥 클릭 시 닫기.",
         "closeOnEsc": "Esc 키로 닫기.",

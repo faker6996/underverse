@@ -231,6 +231,8 @@ export default function ModalExample() {
     { property: "title", description: t("props.modal.title"), type: "string | React.ReactNode", default: "—" },
     { property: "description", description: t("props.modal.description"), type: "string | React.ReactNode", default: "—" },
     { property: "size", description: t("props.modal.size"), type: '"sm" | "md" | "lg" | "xl" | "full"', default: '"md"' },
+    { property: "width", description: t("props.modal.width"), type: "string | number", default: "—" },
+    { property: "height", description: t("props.modal.height"), type: "string | number", default: "—" },
     { property: "showCloseButton", description: t("props.modal.showCloseButton"), type: "boolean", default: "true" },
     { property: "closeOnOverlayClick", description: t("props.modal.closeOnOverlayClick"), type: "boolean", default: "true" },
     { property: "closeOnEsc", description: t("props.modal.closeOnEsc"), type: "boolean", default: "true" },
@@ -239,7 +241,7 @@ export default function ModalExample() {
     { property: "fullWidth", description: t("props.modal.fullWidth"), type: "boolean", default: "false" },
     { property: "children", description: t("props.modal.children"), type: "React.ReactNode", default: "—" },
   ];
-  const order = ["isOpen","onClose","title","description","size","showCloseButton","closeOnOverlayClick","closeOnEsc","contentClassName","noPadding","fullWidth","children"];
+  const order = ["isOpen","onClose","title","description","size","width","height","showCloseButton","closeOnOverlayClick","closeOnEsc","contentClassName","noPadding","fullWidth","children"];
   const docs = <PropsDocsTable rows={rows} order={order} />;
 
   return (

@@ -20,6 +20,8 @@ interface ModalProps {
   size?: "sm" | "md" | "lg" | "xl" | "full";
   noPadding?: boolean;
   fullWidth?: boolean;
+  width?: string | number;
+  height?: string | number;
 }
 
 const sizeStyles = {
@@ -45,6 +47,8 @@ const Modal: React.FC<ModalProps> = ({
   size = "md",
   noPadding = false,
   fullWidth = false,
+  width,
+  height,
 }) => {
   const [isMounted, setIsMounted] = React.useState(false);
   const [isVisible, setIsVisible] = React.useState(false);
@@ -135,6 +139,8 @@ const Modal: React.FC<ModalProps> = ({
           transform: isOpen && !isAnimating ? "scale(1)" : "scale(0.9)",
           // Thêm dòng này để tạo hiệu ứng nảy
           transition: "all 300ms cubic-bezier(0.34, 1.76, 0.64, 1)",
+          width,
+          height,
         }}
         onClick={(e) => e.stopPropagation()}
       >

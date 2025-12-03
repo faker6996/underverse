@@ -494,6 +494,8 @@
         "title": "Modal title.",
         "description": "Short description in header.",
         "size": "Modal size.",
+        "width": "Explicit CSS width (string or number).",
+        "height": "Explicit CSS height (string or number).",
         "showCloseButton": "Show close (X) button.",
         "closeOnOverlayClick": "Close when clicking outside.",
         "closeOnEsc": "Close on Escape key.",
