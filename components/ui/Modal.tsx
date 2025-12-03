@@ -115,6 +115,8 @@ const Modal: React.FC<ModalProps> = ({
     return null;
   }
 
+  const maxWidthClass = width ? "max-w-none" : fullWidth ? "max-w-full" : sizeStyles[size];
+
   const modalContent = (
     <div className={cn("fixed inset-0 z-[9999] flex items-center justify-center", overlayClassName)} onClick={handleOverlayClick}>
       {/* Overlay */}
@@ -128,9 +130,9 @@ const Modal: React.FC<ModalProps> = ({
       {/* Modal */}
       <div
         className={cn(
-          "relative w-full rounded-lg  bg-card text-card-foreground shadow-xl",
+          "relative w-full rounded-lg bg-card text-card-foreground shadow-xl",
           "transition-all duration-200 ease-out",
-          fullWidth ? "max-w-full" : sizeStyles[size],
+          maxWidthClass,
           fullWidth && "mx-0",
           className
         )}
