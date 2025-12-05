@@ -15,7 +15,11 @@
     "normal": "Normal",
     "comfortable": "Comfortable",
     "columns": "Columns",
-    "language": "Language"
+    "language": "Language",
+    "headerAlign": "Header Align",
+    "alignLeft": "Left",
+    "alignCenter": "Center",
+    "alignRight": "Right"
   },
   "ValidationInput": {
     "required": "This field is required",
@@ -950,8 +954,10 @@
         "columns": "Column definitions.",
         "data": "Table rows.",
         "rowKey": "Row key extractor.",
+        "loading": "Show loading state.",
         "page": "Current page.",
         "pageSize": "Rows per page.",
+        "pageSizeOptions": "List of page size options.",
         "total": "Total rows for server mode.",
         "onQueryChange": "Server-side query change handler.",
         "caption": "Caption node.",

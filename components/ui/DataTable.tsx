@@ -50,6 +50,7 @@ interface DataTableProps<T> {
   toolbar?: React.ReactNode;
   enableColumnVisibilityToggle?: boolean;
   enableDensityToggle?: boolean;
+  enableHeaderAlignToggle?: boolean;
   striped?: boolean; // Bật/tắt màu nền sẽn kẽ cho các dòng
   /** Hiển thị đường kẻ dọc ngăn cách giữa các cột */
   columnDividers?: boolean;
@@ -60,6 +61,10 @@ interface DataTableProps<T> {
     compact?: string;
     normal?: string;
     comfortable?: string;
+    headerAlign?: string;
+    alignLeft?: string;
+    alignCenter?: string;
+    alignRight?: string;
   };
 }
 
@@ -86,12 +91,14 @@ export function DataTable<T extends Record<string, any>>({
   toolbar,
   enableColumnVisibilityToggle = true,
   enableDensityToggle = true,
+  enableHeaderAlignToggle = false,
   striped = true, // Mặc định bật màu nền sẽn kẽ cho các dòng
   columnDividers = false,
   className,
   labels,
 }: DataTableProps<T>) {
   const t = useTranslations("Common");
+  const [headerAlign, setHeaderAlign] = React.useState<"left" | "center" | "right">("left");
   const [visibleCols, setVisibleCols] = React.useState<string[]>(() => columns.filter((c) => c.visible !== false).map((c) => c.key));
   const [filters, setFilters] = React.useState<Record<string, any>>({});
   const [sort, setSort] = React.useState<Sorter>(null);
@@ -186,56 +193,63 @@ export function DataTable<T extends Record<string, any>>({
           style={{ width: col.width }}
           className={
             cn(
-              col.align === "right" && "text-right",
-              col.align === "center" && "text-center",
+              // Use column-specific align if defined, otherwise use global headerAlign
+              (col.align === "right" || (!col.align && headerAlign === "right")) && "text-right",
+              (col.align === "center" || (!col.align && headerAlign === "center")) && "text-center",
               columnDividers && colIdx > 0 && "border-l border-border/60"
             ) as string
           }
         >
-          <div className="flex items-center justify-between gap-2 select-none min-h-[2.5rem]">
-            <div className="flex items-center gap-1 min-w-0 flex-1">
-              <span className="truncate font-medium text-sm">{col.title}</span>
-              {col.sortable && (
-                <button
-                  className={cn(
-                    "ml-1 p-1 rounded-sm transition-all duration-200 hover:bg-accent",
-                    sort?.key === col.key ? "opacity-100 bg-accent" : "opacity-60 hover:opacity-100"
-                  )}
-                  onClick={() => {
-                    setCurPage(1);
-                    setSort((s) => {
-                      if (!s || s.key !== col.key) return { key: col.key, order: "asc" };
-                      if (s.order === "asc") return { key: col.key, order: "desc" };
-                      return null;
-                    });
-                  }}
-                  aria-label="Sort"
-                  title={`Sort by ${String(col.title)}`}
-                >
-                  <svg width="14" height="14" viewBox="0 0 20 20" fill="none" className="inline-block">
-                    <path
-                      d="M7 8l3-3 3 3"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      opacity={sort?.key === col.key && sort.order === "asc" ? 1 : 0.4}
-                    />
-                    <path
-                      d="M7 12l3 3 3-3"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      opacity={sort?.key === col.key && sort.order === "desc" ? 1 : 0.4}
-                    />
-                  </svg>
-                </button>
-              )}
-            </div>
-            {col.filter && (
+          {(() => {
+            const isRightAlign = col.align === "right" || (!col.align && headerAlign === "right");
+            const isCenterAlign = col.align === "center" || (!col.align && headerAlign === "center");
+
+            const titleContent = (
+              <div className="flex items-center gap-1 min-w-0 flex-shrink">
+                <span className="truncate font-medium text-sm">{col.title}</span>
+                {col.sortable && (
+                  <button
+                    className={cn(
+                      "p-1 rounded-sm transition-all duration-200 hover:bg-accent",
+                      sort?.key === col.key ? "opacity-100 bg-accent" : "opacity-60 hover:opacity-100"
+                    )}
+                    onClick={() => {
+                      setCurPage(1);
+                      setSort((s) => {
+                        if (!s || s.key !== col.key) return { key: col.key, order: "asc" };
+                        if (s.order === "asc") return { key: col.key, order: "desc" };
+                        return null;
+                      });
+                    }}
+                    aria-label="Sort"
+                    title={`Sort by ${String(col.title)}`}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none" className="inline-block">
+                      <path
+                        d="M7 8l3-3 3 3"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        opacity={sort?.key === col.key && sort.order === "asc" ? 1 : 0.4}
+                      />
+                      <path
+                        d="M7 12l3 3 3-3"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        opacity={sort?.key === col.key && sort.order === "desc" ? 1 : 0.4}
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            );
+
+            const filterContent = col.filter && (
               <Popover
-                placement="bottom-start"
+                placement={isRightAlign ? "bottom-end" : "bottom-start"}
                 trigger={
                   <button
                     className={cn(
@@ -263,15 +277,39 @@ export function DataTable<T extends Record<string, any>>({
                           return newFilters;
                         });
                       }}
-                      className="text-xs text-muted-foreground hover:text-foreground underline mt-1"
+                      className="text-xs text-destructive hover:underline"
                     >
                       Clear filter
                     </button>
                   )}
                 </div>
               </Popover>
-            )}
-          </div>
+            );
+
+            return (
+              <div
+                className={cn(
+                  "flex items-center gap-2 select-none min-h-[2.5rem]",
+                  isRightAlign && "justify-end",
+                  isCenterAlign && "justify-center",
+                  !isRightAlign && !isCenterAlign && "justify-between"
+                )}
+              >
+                {/* Khi căn phải: filter trước, title sau (đối xứng với căn trái) */}
+                {isRightAlign ? (
+                  <>
+                    {filterContent}
+                    {titleContent}
+                  </>
+                ) : (
+                  <>
+                    {titleContent}
+                    {filterContent}
+                  </>
+                )}
+              </div>
+            );
+          })()}
         </TableHead>
       ))}
     </TableRow>
@@ -395,6 +433,23 @@ export function DataTable<T extends Record<string, any>>({
                 </DropdownMenuItem>
               ))}
             </DropdownMenu>
+          )}
+          {enableHeaderAlignToggle && (
+            <DropdownMenu
+              trigger={
+                <Button variant="ghost" size="sm" className="h-8 px-2">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h10M4 18h16" />
+                  </svg>
+                  {labels?.headerAlign || t("headerAlign")}
+                </Button>
+              }
+              items={[
+                { label: (labels?.alignLeft || t("alignLeft")) as string, onClick: () => setHeaderAlign("left") },
+                { label: (labels?.alignCenter || t("alignCenter")) as string, onClick: () => setHeaderAlign("center") },
+                { label: (labels?.alignRight || t("alignRight")) as string, onClick: () => setHeaderAlign("right") },
+              ]}
+            />
           )}
           {toolbar}
         </div>

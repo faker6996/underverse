@@ -1,111 +1,176 @@
 "use client";
 
 import React from "react";
-import DataTable from "@/components/ui/DataTable";
+import DataTable, { type DataTableColumn, type DataTableQuery } from "@/components/ui/DataTable";
+import { Checkbox } from "@/components/ui/CheckBox";
+import Button from "@/components/ui/Button";
 import CodeBlock from "../_components/CodeBlock";
 import IntlDemoProvider from "../_components/IntlDemoProvider";
 import { Tabs } from "@/components/ui/Tab";
 import { useTranslations } from "next-intl";
-import Button from "@/components/ui/Button";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
-type Row = { id: number; name: string; role: string; created_at: string };
+type Row = { id: number; name: string; role: string; amount: number; created_at: string };
+
+const ALL: Row[] = Array.from({ length: 25 }).map((_, i) => ({
+  id: i + 1,
+  name: `User ${i + 1}`,
+  role: i % 3 === 0 ? "Admin" : i % 2 === 0 ? "Editor" : "User",
+  amount: Math.floor(Math.random() * 2000) + 500,
+  created_at: new Date(2024, i % 12, (i % 28) + 1).toISOString().slice(0, 10),
+}));
 
 export default function DataTableExample() {
-  const rows: Row[] = [
-    { id: 1, name: "Alice", role: "Admin", created_at: "2024-10-01" },
-    { id: 2, name: "Bob", role: "User", created_at: "2024-10-05" },
-    { id: 3, name: "Charlie", role: "User", created_at: "2024-10-10" },
-    { id: 4, name: "Daisy", role: "Editor", created_at: "2024-10-12" },
-    { id: 5, name: "Evan", role: "User", created_at: "2024-10-15" },
-  ];
+  const t = useTranslations("Common");
+  const td = useTranslations("DocsUnderverse");
 
-  const columns = [
-    { key: "name", title: "Name", dataIndex: "name", sortable: true, filter: { type: "text", placeholder: "Search name" } },
-    { key: "role", title: "Role", dataIndex: "role", filter: { type: "select", options: ["Admin", "User", "Editor"] } },
+  const [rows, setRows] = React.useState<Row[]>([]);
+  const [total, setTotal] = React.useState(0);
+  const [loading, setLoading] = React.useState(false);
+  const [query, setQuery] = React.useState<DataTableQuery>({ filters: {}, page: 1, pageSize: 5 });
+  const [selected, setSelected] = React.useState<Set<number>>(new Set());
+
+  const allPageSelected = rows.length > 0 && rows.every((r) => selected.has(r.id));
+
+  const columns: DataTableColumn<Row>[] = [
+    {
+      key: "select",
+      title: (
+        <Checkbox
+          checked={allPageSelected}
+          onChange={(e) => {
+            const next = new Set(selected);
+            if (e.target.checked) rows.forEach((r) => next.add(r.id));
+            else rows.forEach((r) => next.delete(r.id));
+            setSelected(next);
+          }}
+          aria-label="Select all"
+        />
+      ),
+      width: 48,
+      render: (_, record) => (
+        <Checkbox
+          checked={selected.has(record.id)}
+          onChange={(e) => {
+            const next = new Set(selected);
+            if (e.target.checked) next.add(record.id);
+            else next.delete(record.id);
+            setSelected(next);
+          }}
+        />
+      ),
+    },
+    { key: "name", title: "Name", dataIndex: "name", sortable: true, filter: { type: "text" } },
+    { key: "role", title: "Role", dataIndex: "role", filter: { type: "select", options: ["Admin", "Editor", "User"] } },
+    { key: "amount", title: "Amount", dataIndex: "amount", sortable: true },
     { key: "created_at", title: "Created", dataIndex: "created_at", filter: { type: "date" } },
     {
       key: "actions",
       title: "Actions",
-      render: (_: any, record: Row) => (
-        <div className="flex gap-2">
-          <Button size="smx" variant="outline">View</Button>
-          <Button size="smx" variant="ghost">Edit</Button>
+      render: (_, record) => (
+        <div className="flex gap-1 justify-center">
+          <Button size="smx" variant="outline" onClick={() => alert(`View ${record.name}`)}>
+            View
+          </Button>
+          <Button size="smx" variant="ghost" onClick={() => alert(`Edit ${record.name}`)}>
+            Edit
+          </Button>
         </div>
-      )
+      ),
     },
   ];
 
-  const t = useTranslations('Common');
-  const td = useTranslations('DocsUnderverse');
+  const fetchData = React.useCallback((q: DataTableQuery) => {
+    setLoading(true);
+    setQuery(q);
+    setTimeout(() => {
+      let data = [...ALL];
+      if (q.filters?.name) data = data.filter((d) => d.name.toLowerCase().includes(String(q.filters.name).toLowerCase()));
+      if (q.filters?.role) data = data.filter((d) => d.role === q.filters.role);
+      if (q.sort) {
+        const { key, order } = q.sort;
+        data.sort((a: any, b: any) => {
+          const va = a[key];
+          const vb = b[key];
+          return (va > vb ? 1 : va < vb ? -1 : 0) * (order === "asc" ? 1 : -1);
+        });
+      }
+      const start = (q.page - 1) * q.pageSize;
+      setRows(data.slice(start, start + q.pageSize));
+      setTotal(data.length);
+      setLoading(false);
+    }, 300);
+  }, []);
 
-  const [serverQuery, setServerQuery] = React.useState<any>(null);
+  React.useEffect(() => {
+    fetchData(query);
+  }, []);
 
-  const code =
-    `import DataTable from '@underverse-ui/underverse'\n` +
-    `import Button from '@underverse-ui/underverse'\n` +
-    `import { useTranslations } from 'next-intl'\n\n` +
-    `type Row = { id: number; name: string; role: string; created_at: string }\n` +
-    `const rows: Row[] = [/* ... */]\n` +
-    `const columns = [\n` +
-    `  { key: 'name', title: 'Name', dataIndex: 'name', sortable: true, filter: { type: 'text', placeholder: 'Search name' } },\n` +
-    `  { key: 'role', title: 'Role', dataIndex: 'role', filter: { type: 'select', options: ['Admin','User','Editor'] } },\n` +
-    `  { key: 'created_at', title: 'Created', dataIndex: 'created_at', filter: { type: 'date' } },\n` +
-    `  { key: 'actions', title: 'Actions', render: (_,_row) => (<div>...</div>) }\n` +
-    `]\n\n` +
-    `const t = useTranslations('Common')\n\n` +
-    `// 1) Basic with paging + density/columns toggles + column dividers\n` +
-    `<DataTable<Row> columns={columns as any} data={rows} page={1} pageSize={2} pageSizeOptions={[2,5,10]} columnDividers labels={{ density: t('density'), columns: t('columns'), compact: t('compact'), normal: t('normal'), comfortable: t('comfortable') }} />\n\n` +
-    `// 2) With caption + toolbar\n` +
-    `<DataTable<Row> columns={columns as any} data={rows} caption={<span>Users</span>} toolbar={<button>Add</button>} />\n\n` +
-    `// 3) Server-side (onQueryChange)\n` +
-    `<DataTable<Row> columns={columns as any} data={rows} total={100} onQueryChange={(q)=>console.log(q)} />\n\n` +
-    `// 4) Without stripes + hide toggles\n` +
-    `<DataTable<Row> columns={columns as any} data={rows} striped={false} enableColumnVisibilityToggle={false} enableDensityToggle={false} />`;
+  const toolbar = (
+    <Button
+      variant="destructive"
+      size="sm"
+      disabled={selected.size === 0}
+      onClick={() => {
+        alert(`Delete ${selected.size} items`);
+        setSelected(new Set());
+      }}
+    >
+      Delete ({selected.size})
+    </Button>
+  );
+
+  const code = `const columns = [
+  { key: 'select', title: <Checkbox />, render: (_, r) => <Checkbox /> },
+  { key: 'name', title: 'Name', dataIndex: 'name', sortable: true, filter: { type: 'text' } },
+  { key: 'role', title: 'Role', dataIndex: 'role', filter: { type: 'select', options: [...] } },
+  { key: 'amount', title: 'Amount', dataIndex: 'amount', sortable: true },
+  { key: 'created_at', title: 'Created', filter: { type: 'date' } },
+  { key: 'actions', title: 'Actions', render: (_, r) => <Button>...</Button> },
+];
+
+<DataTable<Row>
+  columns={columns}
+  data={rows}
+  loading={loading}
+  total={total}
+  page={page}
+  pageSize={pageSize}
+  pageSizeOptions={[5, 10, 20]}
+  onQueryChange={fetchData}
+  toolbar={toolbar}
+  striped
+  columnDividers
+  enableHeaderAlignToggle  // New: toggle header alignment
+  labels={{ density: '...', columns: '...', headerAlign: '...' }}
+/>`;
 
   const demo = (
-    <div className="space-y-8">
-      {/* 1) Basic */}
-      <DataTable<Row>
-        columns={columns as any}
-        data={rows}
-        page={1}
-        pageSize={2}
-        pageSizeOptions={[2, 5, 10]}
-        columnDividers
-        labels={{ density: t('density'), columns: t('columns'), compact: t('compact'), normal: t('normal'), comfortable: t('comfortable') }}
-      />
-
-      {/* 2) With caption + toolbar */}
-      <DataTable<Row>
-        columns={columns as any}
-        data={rows}
-        caption={<span className="text-sm text-muted-foreground">Users</span>}
-        toolbar={<Button size="sm">Add</Button>}
-      />
-
-      {/* 3) Server-side: show query */}
-      <div className="space-y-2">
-        <DataTable<Row>
-          columns={columns as any}
-          data={rows}
-          total={100}
-          onQueryChange={(q) => setServerQuery(q)}
-        />
-        {serverQuery && (
-          <pre className="text-xs bg-muted p-2 rounded border border-border overflow-auto">{JSON.stringify(serverQuery, null, 2)}</pre>
-        )}
-      </div>
-
-      {/* 4) No stripes + no toggles */}
-      <DataTable<Row>
-        columns={columns as any}
-        data={rows}
-        striped={false}
-        enableColumnVisibilityToggle={false}
-        enableDensityToggle={false}
-      />
-    </div>
+    <DataTable<Row>
+      columns={columns}
+      data={rows}
+      loading={loading}
+      total={total}
+      page={query.page}
+      pageSize={query.pageSize}
+      pageSizeOptions={[5, 10, 20]}
+      onQueryChange={fetchData}
+      toolbar={toolbar}
+      striped
+      columnDividers
+      enableHeaderAlignToggle
+      labels={{
+        density: t("density"),
+        columns: t("columns"),
+        compact: t("compact"),
+        normal: t("normal"),
+        comfortable: t("comfortable"),
+        headerAlign: t("headerAlign"),
+        alignLeft: t("alignLeft"),
+        alignCenter: t("alignCenter"),
+        alignRight: t("alignRight"),
+      }}
+    />
   );
 
   return (
@@ -114,27 +179,47 @@ export default function DataTableExample() {
         tabs={[
           { value: "preview", label: td("tabs.preview"), content: <div className="p-1">{demo}</div> },
           { value: "code", label: td("tabs.code"), content: <CodeBlock code={code} /> },
-          { value: "docs", label: td("tabs.document"), content: <div className="p-1">{(() => {
-            const rows: PropsRow[] = [
-              { property: "columns", description: td("props.dataTable.columns"), type: "DataTableColumn<T>[]", default: "[]" },
-              { property: "data", description: td("props.dataTable.data"), type: "T[]", default: "[]" },
-              { property: "rowKey", description: td("props.dataTable.rowKey"), type: "(row: T) => string | number", default: "-" },
-              { property: "page", description: td("props.dataTable.page"), type: "number", default: "1" },
-              { property: "pageSize", description: td("props.dataTable.pageSize"), type: "number", default: "10" },
-              { property: "total", description: td("props.dataTable.total"), type: "number", default: "0" },
-              { property: "onQueryChange", description: td("props.dataTable.onQueryChange"), type: "(q: any) => void", default: "-" },
-              { property: "caption", description: td("props.dataTable.caption"), type: "React.ReactNode", default: "-" },
-              { property: "toolbar", description: td("props.dataTable.toolbar"), type: "React.ReactNode", default: "-" },
-              { property: "striped", description: td("props.dataTable.striped"), type: "boolean", default: "true" },
-              { property: "columnDividers", description: td("props.dataTable.columnDividers"), type: "boolean", default: "false" },
-              { property: "enableDensityToggle", description: td("props.dataTable.enableDensityToggle"), type: "boolean", default: "true" },
-              { property: "enableColumnVisibilityToggle", description: td("props.dataTable.enableColumnVisibilityToggle"), type: "boolean", default: "true" },
-              { property: "labels", description: td("props.dataTable.labels"), type: "{ density:string; columns:string; compact:string; normal:string; comfortable:string }", default: "-" },
-              { property: "className", description: td("props.dataTable.className"), type: "string", default: "-" },
-            ];
-            const order = rows.map(r => r.property);
-            return <PropsDocsTable rows={rows} order={order} />;
-          })()}</div> },
+          {
+            value: "docs",
+            label: td("tabs.document"),
+            content: (
+              <div className="p-1">
+                {(() => {
+                  const propsRows: PropsRow[] = [
+                    { property: "columns", description: td("props.dataTable.columns"), type: "DataTableColumn<T>[]", default: "[]" },
+                    { property: "data", description: td("props.dataTable.data"), type: "T[]", default: "[]" },
+                    { property: "rowKey", description: td("props.dataTable.rowKey"), type: "(row: T) => string | number", default: "-" },
+                    { property: "loading", description: td("props.dataTable.loading"), type: "boolean", default: "false" },
+                    { property: "page", description: td("props.dataTable.page"), type: "number", default: "1" },
+                    { property: "pageSize", description: td("props.dataTable.pageSize"), type: "number", default: "10" },
+                    { property: "pageSizeOptions", description: td("props.dataTable.pageSizeOptions"), type: "number[]", default: "-" },
+                    { property: "total", description: td("props.dataTable.total"), type: "number", default: "0" },
+                    {
+                      property: "onQueryChange",
+                      description: td("props.dataTable.onQueryChange"),
+                      type: "(q: DataTableQuery) => void",
+                      default: "-",
+                    },
+                    { property: "caption", description: td("props.dataTable.caption"), type: "React.ReactNode", default: "-" },
+                    { property: "toolbar", description: td("props.dataTable.toolbar"), type: "React.ReactNode", default: "-" },
+                    { property: "striped", description: td("props.dataTable.striped"), type: "boolean", default: "true" },
+                    { property: "columnDividers", description: td("props.dataTable.columnDividers"), type: "boolean", default: "false" },
+                    { property: "enableDensityToggle", description: td("props.dataTable.enableDensityToggle"), type: "boolean", default: "true" },
+                    {
+                      property: "enableColumnVisibilityToggle",
+                      description: td("props.dataTable.enableColumnVisibilityToggle"),
+                      type: "boolean",
+                      default: "true",
+                    },
+                    { property: "enableHeaderAlignToggle", description: "Bật nút căn header", type: "boolean", default: "false" },
+                    { property: "labels", description: td("props.dataTable.labels"), type: "{ density; columns; headerAlign; ... }", default: "-" },
+                    { property: "className", description: td("props.dataTable.className"), type: "string", default: "-" },
+                  ];
+                  return <PropsDocsTable rows={propsRows} order={propsRows.map((r) => r.property)} />;
+                })()}
+              </div>
+            ),
+          },
         ]}
         variant="underline"
         size="sm"

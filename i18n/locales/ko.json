@@ -15,7 +15,11 @@
     "normal": "보통",
     "comfortable": "편안함",
     "columns": "열",
-    "language": "언어"
+    "language": "언어",
+    "headerAlign": "헤더 정렬",
+    "alignLeft": "왼쪽",
+    "alignCenter": "가운데",
+    "alignRight": "오른쪽"
   },
   "ValidationInput": {
     "required": "필수 입력 항목입니다",

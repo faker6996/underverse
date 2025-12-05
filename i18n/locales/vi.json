@@ -15,7 +15,11 @@
     "normal": "Thường",
     "comfortable": "Thoải mái",
     "columns": "Cột",
-    "language": "Ngôn ngữ"
+    "language": "Ngôn ngữ",
+    "headerAlign": "Căn header",
+    "alignLeft": "Trái",
+    "alignCenter": "Giữa",
+    "alignRight": "Phải"
   },
   "ValidationInput": {
     "required": "Trường này là bắt buộc",
@@ -943,8 +947,10 @@
         "columns": "Định nghĩa cột.",
         "data": "Dữ liệu hàng.",
         "rowKey": "Hàm lấy khoá hàng.",
+        "loading": "Hiển thị trạng thái đang tải.",
         "page": "Trang hiện tại.",
         "pageSize": "Số hàng/trang.",
+        "pageSizeOptions": "Danh sách tuỳ chọn số mục/trang.",
         "total": "Tổng số hàng (server).",
         "onQueryChange": "Hàm thay đổi truy vấn (server).",
         "caption": "Nội dung caption.",

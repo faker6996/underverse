@@ -58,8 +58,6 @@ const ClientOnlyExample = dynamicImport(() => import("./_examples/ClientOnlyExam
 const LoadingExample = dynamicImport(() => import("./_examples/LoadingExample"), { ssr: false });
 const NotificationModalExample = dynamicImport(() => import("./_examples/NotificationModalExample"), { ssr: false });
 const DataTableExample = dynamicImport(() => import("./_examples/DataTableExample"), { ssr: false });
-const DataTableServerExample = dynamicImport(() => import("./_examples/DataTableServerExample"), { ssr: false });
-const DataTableSelectionExample = dynamicImport(() => import("./_examples/DataTableSelectionExample"), { ssr: false });
 const FormExample = dynamicImport(() => import("./_examples/FormExample"), { ssr: false });
 const ThemeToggleExample = dynamicImport(() => import("./_examples/ThemeToggleExample"), { ssr: false });
 const NotificationBellExample = dynamicImport(() => import("./_examples/NotificationBellExample"), { ssr: false });
@@ -288,12 +286,6 @@ function DocsInner() {
 
             <DocSection id="data-table" title={t("sections.dataTable.title")}>
               <DataTableExample />
-              <div className="mt-3">
-                <DataTableSelectionExample />
-              </div>
-              <div className="mt-3">
-                <DataTableServerExample />
-              </div>
             </DocSection>
 
             <DocSection id="input" title={t("sections.input.title")}>

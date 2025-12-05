@@ -15,7 +15,11 @@
     "normal": "通常",
     "comfortable": "快適",
     "columns": "列",
-    "language": "言語"
+    "language": "言語",
+    "headerAlign": "ヘッダー揃え",
+    "alignLeft": "左揃え",
+    "alignCenter": "中央揃え",
+    "alignRight": "右揃え"
   },
   "ValidationInput": {
     "required": "必須項目です",
