@@ -315,20 +315,17 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         ? createPortal(
             <div
               ref={dropdownRef}
-              data-dropdown="multicombobox"
+              data-combobox-dropdown
               style={{
                 position: "absolute",
                 top: dropdownPosition?.top || 0,
                 left: dropdownPosition?.left || 0,
                 width: dropdownPosition?.width || 200,
                 zIndex: 9999,
+                transformOrigin: "top center",
               }}
               data-state={open ? "open" : "closed"}
-              className={cn(
-                "z-[9999]",
-                "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
-                "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
-              )}
+              className="z-9999"
             >
               <div
                 className={cn("rounded-md border bg-popover text-popover-foreground shadow-md", "backdrop-blur-sm bg-popover/95 border-border/60")}
@@ -393,7 +390,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
                             inputRef.current?.focus();
                           }}
                           style={{
-                            animationDelay: open ? `${index * 25}ms` : "0ms",
+                            animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms",
                           }}
                           className={cn(
                             "dropdown-item flex cursor-pointer items-center justify-between rounded-sm transition-colors",
