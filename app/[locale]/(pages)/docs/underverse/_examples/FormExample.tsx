@@ -62,14 +62,14 @@ export default function FormExample() {
     `<Form<LoginFormData> onSubmit={handleSubmit} initialValues={{ email: '', password: '', rememberMe: false }} className='space-y-4 max-w-md'>\n` +
     `  <FormField name='email' rules={{ required: 'Email is required' }} render={({ field, fieldState }) => (\n` +
     `    <FormItem>\n` +
-    `      <FormLabel>Email</FormLabel>\n` +
+    `      <FormLabel required>Email</FormLabel>\n` +
     `      <FormControl><Input {...field} type='email' placeholder='Enter your email' error={fieldState.error?.message} /></FormControl>\n` +
     `      <FormMessage />\n` +
     `    </FormItem>\n` +
     `  )} />\n` +
     `  <FormField name='password' rules={{ required: 'Password is required', minLength: { value: 6, message: 'At least 6 chars' } }} render={({ field, fieldState }) => (\n` +
     `    <FormItem>\n` +
-    `      <FormLabel>Password</FormLabel>\n` +
+    `      <FormLabel required>Password</FormLabel>\n` +
     `      <FormControl><Input {...field} type='password' placeholder='Enter your password' error={fieldState.error?.message} /></FormControl>\n` +
     `      <FormMessage />\n` +
     `    </FormItem>\n` +
@@ -87,7 +87,7 @@ export default function FormExample() {
     `  <div className='flex items-end gap-2 max-w-md'>\n` +
     `    <FormField name='email' rules={{ required: 'Email is required' }} render={({field, fieldState}) => (\n` +
     `      <FormItem className='flex-1'>\n` +
-    `        <FormLabel>Email</FormLabel>\n` +
+    `        <FormLabel required>Email</FormLabel>\n` +
     `        <FormControl><Input {...field} type='email' placeholder='Your email' error={fieldState.error?.message} /></FormControl>\n` +
     `      </FormItem>\n` +
     `    )} />\n` +
@@ -103,14 +103,14 @@ export default function FormExample() {
     `<Form<AdvancedValues> onSubmit={onSubmit} initialValues={{ name: '', email: '', password: '' }} size={advancedSize}>\n` +
     `  <FormField name='name' rules={{ required: 'Name is required' }} render={({ field }) => (\n` +
     `    <FormItem>\n` +
-    `      <FormLabel>Name</FormLabel>\n` +
+    `      <FormLabel required>Name</FormLabel>\n` +
     `      <FormControl><Input {...field} placeholder='Your name' required /></FormControl>\n` +
     `      <FormMessage />\n` +
     `    </FormItem>\n` +
     `  )} />\n` +
     `  <FormField name='email' rules={{ required: 'Email is required' }} render={({ field }) => (\n` +
     `    <FormItem>\n` +
-    `      <FormLabel>Email</FormLabel>\n` +
+    `      <FormLabel required>Email</FormLabel>\n` +
     `      <FormControl><Input type='email' {...field} placeholder='you@example.com' required /></FormControl>\n` +
     `      <FormMessage />\n` +
     `    </FormItem>\n` +
@@ -142,7 +142,7 @@ export default function FormExample() {
             rules={{ required: "Email is required" }}
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel required>Email</FormLabel>
                 <FormControl>
                   <Input {...field} type="email" placeholder="Enter your email" error={fieldState.error?.message} />
                 </FormControl>
@@ -156,7 +156,7 @@ export default function FormExample() {
             rules={{ required: "Password is required", minLength: { value: 6, message: "At least 6 chars" } }}
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel required>Password</FormLabel>
                 <FormControl>
                   <Input {...field} type="password" placeholder="Enter your password" error={fieldState.error?.message} />
                 </FormControl>
@@ -196,7 +196,7 @@ export default function FormExample() {
               rules={{ required: "Email is required" }}
               render={({ field, fieldState }) => (
                 <FormItem className="flex-1">
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel required>Email</FormLabel>
                   <FormControl>
                     <Input {...field} type="email" placeholder="Your email" error={fieldState.error?.message} />
                   </FormControl>
@@ -246,7 +246,7 @@ export default function FormExample() {
             rules={{ required: "Name is required" }}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel required>Name</FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="Your name" required />
                 </FormControl>
@@ -260,7 +260,7 @@ export default function FormExample() {
             rules={{ required: "Email is required", pattern: { value: /.+@.+\..+/, message: "Invalid email" } }}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel required>Email</FormLabel>
                 <FormControl>
                   <Input type="email" {...field} placeholder="you@example.com" required />
                 </FormControl>

@@ -126,12 +126,25 @@ const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
 });
 FormItem.displayName = "FormItem";
 
-const FormLabel = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(({ className, ...props }, ref) => {
+const FormLabel = React.forwardRef<
+  HTMLLabelElement,
+  React.LabelHTMLAttributes<HTMLLabelElement> & { required?: boolean }
+>(({ className, children, required, ...props }, ref) => {
   const { error, formItemId } = useFormField();
   const config = React.useContext(FormConfigContext);
   const sizeClass = config.size === "sm" ? "text-xs" : config.size === "lg" ? "text-base" : "text-sm";
 
-  return <Label ref={ref} className={cn(sizeClass, error && "text-destructive", className)} htmlFor={formItemId} {...props} />;
+  return (
+    <Label
+      ref={ref}
+      className={cn(sizeClass, error && "text-destructive", className)}
+      htmlFor={formItemId}
+      {...props}
+    >
+      {children}
+      {required && <span className="text-destructive ml-1">*</span>}
+    </Label>
+  );
 });
 FormLabel.displayName = "FormLabel";
 
