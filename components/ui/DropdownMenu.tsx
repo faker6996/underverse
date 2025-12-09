@@ -170,6 +170,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   const dropdownContent = open ? (
     <div
       data-dropdown-menu
+      data-combobox-dropdown
       ref={contentRef}
       style={{
         position: "absolute",
@@ -177,16 +178,11 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
         left: position?.left ?? -9999,
         zIndex: 9999,
         visibility: position ? "visible" : "hidden",
+        transformOrigin: "top center",
       }}
       data-state={open ? "open" : "closed"}
       role="menu"
-      className={cn(
-        "z-[9999] min-w-40",
-        // shadcn-like enter/exit animations
-        "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
-        "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
-        className
-      )}
+      className={cn("z-9999 min-w-40", className)}
     >
       <div
         className={cn(
@@ -209,7 +205,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
                   role="menuitem"
                   tabIndex={-1}
                   style={{
-                    animationDelay: open ? `${index * 25}ms` : "0ms",
+                    animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms",
                   }}
                   className={cn(
                     "dropdown-item flex w-full items-center gap-2 px-2.5 py-1.5 text-sm rounded-sm",
@@ -292,7 +288,7 @@ export const SelectDropdown: React.FC<{
           className
         )}
       >
-        <span className="truncate max-w-[16rem] text-foreground/90">{value || placeholder}</span>
+        <span className="truncate max-w-64 text-foreground/90">{value || placeholder}</span>
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" className="opacity-70">
           <path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>

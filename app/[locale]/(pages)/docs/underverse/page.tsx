@@ -60,7 +60,6 @@ const NotificationModalExample = dynamicImport(() => import("./_examples/Notific
 const DataTableExample = dynamicImport(() => import("./_examples/DataTableExample"), { ssr: false });
 const FormExample = dynamicImport(() => import("./_examples/FormExample"), { ssr: false });
 const ThemeToggleExample = dynamicImport(() => import("./_examples/ThemeToggleExample"), { ssr: false });
-const NotificationBellExample = dynamicImport(() => import("./_examples/NotificationBellExample"), { ssr: false });
 const FloatingContactsExample = dynamicImport(() => import("./_examples/FloatingContactsExample"), { ssr: false });
 const TableOfContents = dynamicImport(() => import("./_components/TableOfContents"), { ssr: false });
 const DocsHeader = dynamicImport(() => import("./_components/DocsHeader"), { ssr: false });
@@ -324,10 +323,6 @@ function DocsInner() {
               <div className="mt-4">
                 <LanguageSwitcherHeadlessExample />
               </div>
-            </DocSection>
-
-            <DocSection id="notification-bell" title={t("sections.notificationBell.title")}>
-              <NotificationBellExample />
             </DocSection>
 
             <DocSection id="floating-contacts" title={t("sections.floatingContacts.title")}>

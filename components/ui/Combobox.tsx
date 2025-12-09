@@ -62,7 +62,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   required,
   fontBold = false,
   loading = false,
-  loadingText = "Loading..."
+  loadingText = "Loading...",
 }) => {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
@@ -129,12 +129,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
       const target = event.target as Node;
       const triggerEl = triggerRef.current;
       const dropdownEl = dropdownRef.current;
-      if (
-        triggerEl &&
-        !triggerEl.contains(target) &&
-        dropdownEl &&
-        !dropdownEl.contains(target)
-      ) {
+      if (triggerEl && !triggerEl.contains(target) && dropdownEl && !dropdownEl.contains(target)) {
         setOpen(false);
       }
     };
@@ -196,15 +191,12 @@ export const Combobox: React.FC<ComboboxProps> = ({
         left: dropdownPosition?.left || 0,
         width: dropdownPosition?.width || 200,
         zIndex: 9999,
+        transformOrigin: "top center",
       }}
       data-state={open ? "open" : "closed"}
       role="listbox"
       id={`${resolvedId}-listbox`}
-      className={cn(
-        "z-[9999]",
-        "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
-        "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
-      )}
+      className="z-9999"
     >
       <div className={cn("rounded-md border bg-popover text-popover-foreground shadow-md", "backdrop-blur-sm bg-popover/95 border-border/60")}>
         {/* Search Input (only when many options) */}
@@ -256,9 +248,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
               <li className="px-3 py-8 text-center">
                 <div className="flex flex-col items-center gap-2 animate-in fade-in-0 zoom-in-95 duration-300">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  <span className="text-sm text-muted-foreground">
-                    {loadingText || "Loading..."}
-                  </span>
+                  <span className="text-sm text-muted-foreground">{loadingText || "Loading..."}</span>
                 </div>
               </li>
             ) : filteredOptions.length > 0 ? (
@@ -279,7 +269,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
                     aria-selected={isSelected}
                     onClick={() => handleSelect(item)}
                     style={{
-                      animationDelay: open ? `${index * 25}ms` : "0ms",
+                      animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms",
                     }}
                     className={cn(
                       "dropdown-item group flex cursor-pointer items-center justify-between rounded-sm px-2.5 py-1.5 text-sm",
@@ -302,11 +292,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
                   <SearchX className="h-8 w-8 opacity-40 text-muted-foreground" />
                   <span className="text-sm">{emptyText}</span>
                   {query && (
-                    <button
-                      type="button"
-                      onClick={() => setQuery("")}
-                      className="text-xs text-primary hover:underline"
-                    >
+                    <button type="button" onClick={() => setQuery("")} className="text-xs text-primary hover:underline">
                       Clear search
                     </button>
                   )}
@@ -398,12 +384,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
               <X className="h-3 w-3" />
             </div>
           )}
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 text-muted-foreground transition-all duration-200",
-              open && "rotate-180 scale-110 text-primary"
-            )}
-          />
+          <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-all duration-200", open && "rotate-180 scale-110 text-primary")} />
         </div>
       </button>
 
