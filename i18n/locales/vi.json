@@ -572,7 +572,8 @@
           "showImage": "Hiển thị vùng ảnh.",
           "showAvatar": "Hiển thị avatar trong header.",
           "className": "Class tuỳ chỉnh.",
-          "textLines": "Số dòng văn bản."
+          "textLines": "Số dòng văn bản.",
+          "children": "Nội dung skeleton tuỳ chỉnh thay cho layout mặc định."
         },
         "SkeletonPost": {
           "className": "Class tuỳ chỉnh."

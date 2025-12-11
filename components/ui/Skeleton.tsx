@@ -128,12 +128,22 @@ export const SkeletonCard: React.FC<{
   showImage?: boolean;
   textLines?: number;
   className?: string;
+  children?: React.ReactNode;
 }> = ({ 
   showAvatar = true,
   showImage = false, 
   textLines = 3,
-  className
+  className,
+  children
 }) => {
+  if (children) {
+    return (
+      <div className={cn("p-4 space-y-4 rounded-lg bg-card outline-none focus:outline-none", className)}>
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div className={cn("p-4 space-y-4 rounded-lg bg-card outline-none focus:outline-none", className)}>
       {/* Header with avatar */}

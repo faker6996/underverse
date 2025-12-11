@@ -553,7 +553,8 @@
           "showImage": "이미지 영역 표시.",
           "showAvatar": "헤더에 아바타 표시.",
           "className": "커스텀 클래스.",
-          "textLines": "텍스트 줄 수."
+          "textLines": "텍스트 줄 수.",
+          "children": "기본 레이아웃 대신 사용할 커스텀 스켈레톤 콘텐츠."
         },
         "SkeletonPost": {
           "className": "커스텀 클래스."

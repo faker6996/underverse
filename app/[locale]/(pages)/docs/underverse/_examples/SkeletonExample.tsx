@@ -67,8 +67,13 @@ export default function SkeletonExample() {
       <div className="space-y-3">
         <p className="text-sm font-medium">SkeletonCard</p>
         <div className="grid md:grid-cols-2 gap-4">
+          {/* Default layout */}
           <SkeletonCard showAvatar showImage className="max-w-md" />
-          <SkeletonCard showAvatar={false} showImage className="max-w-md" />
+          {/* Custom children layout */}
+          <SkeletonCard className="max-w-md">
+            <Skeleton className="h-6 w-32 mb-4" />
+            <SkeletonTable rows={6} columns={6} />
+          </SkeletonCard>
         </div>
       </div>
 
@@ -105,7 +110,10 @@ export default function SkeletonExample() {
     `<SkeletonText lines={3}/>\n\n` +
     `// Layouts\n` +
     `<SkeletonCard showAvatar showImage />\n` +
-    `<SkeletonCard showAvatar={false} showImage />\n` +
+    `<SkeletonCard>\n` +
+    `  <Skeleton className='h-6 w-32 mb-4' />\n` +
+    `  <SkeletonTable rows={6} columns={6} />\n` +
+    `</SkeletonCard>\n` +
     `<SkeletonPost />\n` +
     `<SkeletonMessage /> <SkeletonMessage own />\n` +
     `<SkeletonList items={4} />\n` +

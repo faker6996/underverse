@@ -550,10 +550,11 @@
           "className": "カスタムクラス。"
         },
         "SkeletonCard": {
-          "className": "カスタムクラス。",
           "showImage": "画像エリアを表示。",
           "showAvatar": "ヘッダーにアバターを表示。",
-          "textLines": "テキスト行数。"
+          "textLines": "テキスト行数。",
+          "className": "カスタムクラス。",
+          "children": "デフォルトレイアウトの代わりに表示するカスタムスケルトンコンテンツ。"
         },
         "SkeletonPost": {
           "className": "カスタムクラス。"

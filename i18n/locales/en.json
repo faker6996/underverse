@@ -592,7 +592,8 @@
           "showAvatar": "Show avatar header.",
           "showImage": "Show image area.",
           "textLines": "Number of text lines.",
-          "className": "Custom class."
+          "className": "Custom class.",
+          "children": "Custom skeleton content instead of default layout."
         },
         "SkeletonPost": {
           "className": "Custom class."
