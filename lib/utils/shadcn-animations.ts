@@ -5,39 +5,36 @@ export const shadcnAnimationStyles = `
    * Uses spring-like cubic-bezier for natural feel
    * ============================================ */
   
+  /* Native-like Combobox Animation - Mimics browser default select */
   [data-state="open"][data-combobox-dropdown] {
-    animation: comboboxOpen 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: comboboxOpen 150ms cubic-bezier(0.2, 0, 0, 1);
     transform-origin: top center;
   }
-  
+
   [data-state="closed"][data-combobox-dropdown] {
-    animation: comboboxClose 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    animation: comboboxClose 120ms cubic-bezier(0.4, 0, 1, 1);
     transform-origin: top center;
   }
-  
+
   @keyframes comboboxOpen {
     0% {
       opacity: 0;
-      transform: translateY(-8px) scale(0.96);
-    }
-    50% {
-      opacity: 0.8;
-      transform: translateY(2px) scale(1.01);
+      transform: translateY(-4px) scaleY(0.9);
     }
     100% {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: translateY(0) scaleY(1);
     }
   }
-  
+
   @keyframes comboboxClose {
     0% {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: translateY(0) scaleY(1);
     }
     100% {
       opacity: 0;
-      transform: translateY(-6px) scale(0.97);
+      transform: translateY(-4px) scaleY(0.9);
     }
   }
 
@@ -73,41 +70,29 @@ export const shadcnAnimationStyles = `
   }
   
   /* ============================================
-   * DROPDOWN ITEMS - Staggered cascade effect
+   * DROPDOWN ITEMS - Native-like instant appearance
    * ============================================ */
-  
+
+  /* Fast staggered animation for native feel */
   .dropdown-item {
     opacity: 0;
-    animation: itemSlideIn 200ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    will-change: opacity, transform;
+    animation: itemFadeIn 120ms cubic-bezier(0.2, 0, 0, 1) forwards;
   }
-  
-  @keyframes itemSlideIn {
+
+  @keyframes itemFadeIn {
     0% {
       opacity: 0;
-      transform: translateX(-8px);
-    }
-    60% {
-      opacity: 0.9;
-      transform: translateX(2px);
+      transform: translateY(-2px);
     }
     100% {
       opacity: 1;
-      transform: translateX(0);
+      transform: translateY(0);
     }
   }
-  
-  /* Hover effect for items */
+
+  /* Subtle hover effect */
   .dropdown-item {
-    transition: background-color 150ms ease, transform 100ms ease;
-  }
-  
-  .dropdown-item:hover {
-    transform: translateX(2px);
-  }
-  
-  .dropdown-item:active {
-    transform: scale(0.98);
+    transition: background-color 100ms ease;
   }
   
   /* ============================================
