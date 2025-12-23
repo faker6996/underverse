@@ -106,6 +106,14 @@ export function DataTable<T extends Record<string, any>>({
   const [curPage, setCurPage] = React.useState(page);
   const [curPageSize, setCurPageSize] = React.useState(pageSize);
 
+  React.useEffect(() => {
+    const newColKeys = columns.filter((c) => c.visible !== false).map((c) => c.key);
+    setVisibleCols((prev) => {
+      const uniqueKeys = new Set([...prev, ...newColKeys]);
+      return [...uniqueKeys].filter((k) => columns.some((c) => c.key === k));
+    });
+  }, [columns]);
+
   const debouncedFilters = useDebounced(filters, 350);
 
   // Keep internal state in sync when parent controls page/pageSize
