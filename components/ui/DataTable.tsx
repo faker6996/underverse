@@ -496,7 +496,7 @@ export function DataTable<T extends Record<string, any>>({
               displayedData.map((row, idx) => {
                 const isLastRow = idx === displayedData.length - 1;
                 return (
-                  <TableRow key={getRowKey(row, idx)} className={cn(densityRowClass, striped && idx % 2 === 0 && "bg-muted/30")}>
+                  <TableRow key={getRowKey(row, idx)} className={cn(densityRowClass, striped && idx % 2 === 0 && "bg-muted/50")}>
                     {visibleColumns.map((col, colIdx) => {
                       const value = col.dataIndex ? row[col.dataIndex as keyof T] : undefined;
                       return (
