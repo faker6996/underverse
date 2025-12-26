@@ -186,7 +186,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             "datepicker-day rounded-md focus:outline-none",
             "transition-colors",
             isSelected
-              ? "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary focus:text-primary-foreground"
+              ? "!bg-primary text-primary-foreground font-bold ring-2 ring-primary-foreground/60 shadow-lg scale-105 z-10 hover:!bg-primary focus:!bg-primary focus:text-primary-foreground"
               : "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
             isToday && !isSelected && "bg-accent text-accent-foreground font-semibold"
           )}
@@ -232,9 +232,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             <Button variant="ghost" size="sm" onClick={() => navigateMonth("prev")} className="p-1 h-auto">
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <div className="text-sm font-semibold">
-              {viewDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-            </div>
+            <div className="text-sm font-semibold">{viewDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}</div>
             <Button variant="ghost" size="sm" onClick={() => navigateMonth("next")} className="p-1 h-auto">
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -321,7 +319,9 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           className
         )}
       >
-        <span className={cn("truncate", !value && "text-muted-foreground")}>{value ? formatDateDisplay(value) : placeholder || t("placeholder")}</span>
+        <span className={cn("truncate", !value && "text-muted-foreground")}>
+          {value ? formatDateDisplay(value) : placeholder || t("placeholder")}
+        </span>
         {value && (
           <span
             role="button"
@@ -605,6 +605,12 @@ export const CompactDatePicker: React.FC<{
   className?: string;
 }> = ({ value, onChange, className }) => {
   return (
-    <DatePicker value={value} onChange={onChange as (d: Date | undefined) => void} size="sm" className={cn("max-w-[14rem]", className)} placeholder="Date" />
+    <DatePicker
+      value={value}
+      onChange={onChange as (d: Date | undefined) => void}
+      size="sm"
+      className={cn("max-w-[14rem]", className)}
+      placeholder="Date"
+    />
   );
 };
