@@ -42,47 +42,46 @@ interface ToastProviderProps {
   maxToasts?: number;
 }
 
-export const ToastProvider: React.FC<ToastProviderProps> = ({ 
-  children, 
-  position = "top-right",
-  maxToasts = 5
-}) => {
+export const ToastProvider: React.FC<ToastProviderProps> = ({ children, position = "top-right", maxToasts = 5 }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const idRef = useRef(0);
 
   const removeToast = useCallback((id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 
-  const addToast = useCallback((toast: Omit<Toast, "id">) => {
-    const id = `toast-${++idRef.current}`;
-    const newToast = { ...toast, id };
+  const addToast = useCallback(
+    (toast: Omit<Toast, "id">) => {
+      const id = `toast-${++idRef.current}`;
+      const newToast = { ...toast, id };
 
-    setToasts(prev => {
-      const updated = [newToast, ...prev];
-      return updated.slice(0, maxToasts);
-    });
+      setToasts((prev) => {
+        const updated = [newToast, ...prev];
+        return updated.slice(0, maxToasts);
+      });
 
-    if (toast.duration !== 0) {
-      setTimeout(() => {
-        removeToast(id);
-      }, toast.duration || 5000);
-    }
-  }, [maxToasts, removeToast]);
+      if (toast.duration !== 0) {
+        setTimeout(() => {
+          removeToast(id);
+        }, toast.duration || 5000);
+      }
+    },
+    [maxToasts, removeToast]
+  );
 
   const positionClasses = {
     "top-right": "top-4 right-4",
-    "top-left": "top-4 left-4", 
+    "top-left": "top-4 left-4",
     "bottom-right": "bottom-4 right-4",
     "bottom-left": "bottom-4 left-4",
     "top-center": "top-4 left-1/2 transform -translate-x-1/2",
-    "bottom-center": "bottom-4 left-1/2 transform -translate-x-1/2"
+    "bottom-center": "bottom-4 left-1/2 transform -translate-x-1/2",
   };
 
   return (
     <ToastContext.Provider value={{ addToast, removeToast, toasts }}>
       {children}
-      <div className={cn("fixed z-50 flex flex-col gap-2 pointer-events-none", positionClasses[position])} aria-live="polite" aria-atomic>
+      <div className={cn("fixed z-[99999] flex flex-col gap-2 pointer-events-none", positionClasses[position])} aria-live="polite" aria-atomic>
         {toasts.map((toast) => (
           <ToastComponent key={toast.id} toast={toast} onRemove={removeToast} />
         ))}
@@ -123,7 +122,7 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRemove = () => {
@@ -135,23 +134,23 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
     success: {
       icon: CheckCircle,
       className: "bg-success/10 border-success/20 text-foreground",
-      iconClassName: "text-success"
+      iconClassName: "text-success",
     },
     error: {
-      icon: AlertCircle, 
+      icon: AlertCircle,
       className: "bg-destructive/10 border-destructive/20 text-foreground",
-      iconClassName: "text-destructive"
+      iconClassName: "text-destructive",
     },
     warning: {
       icon: AlertTriangle,
-      className: "bg-warning/10 border-warning/20 text-foreground", 
-      iconClassName: "text-warning"
+      className: "bg-warning/10 border-warning/20 text-foreground",
+      iconClassName: "text-warning",
     },
     info: {
       icon: Info,
       className: "bg-info/10 border-info/20 text-foreground",
-      iconClassName: "text-info"
-    }
+      iconClassName: "text-info",
+    },
   };
 
   const config = typeConfig[toast.type];
@@ -166,20 +165,16 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
         isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"
       )}
       role="status"
-      aria-live={toast.type === 'error' ? 'assertive' : 'polite'}
+      aria-live={toast.type === "error" ? "assertive" : "polite"}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
       <div className="flex items-start gap-3 p-4">
         <Icon className={cn("h-5 w-5 mt-0.5 shrink-0", config.iconClassName)} />
-        
+
         <div className="flex-1 space-y-1">
-          {toast.title && (
-            <h4 className="font-medium text-sm leading-none">{toast.title}</h4>
-          )}
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {toast.message}
-          </p>
+          {toast.title && <h4 className="font-medium text-sm leading-none">{toast.title}</h4>}
+          <p className="text-sm text-muted-foreground leading-relaxed">{toast.message}</p>
           {toast.action && (
             <button
               onClick={() => {
@@ -212,12 +207,12 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
           <div
             className={cn(
               "h-full bg-current/30",
-              toast.type === 'success' && 'bg-success',
-              toast.type === 'error' && 'bg-destructive',
-              toast.type === 'warning' && 'bg-warning',
-              toast.type === 'info' && 'bg-info'
+              toast.type === "success" && "bg-success",
+              toast.type === "error" && "bg-destructive",
+              toast.type === "warning" && "bg-warning",
+              toast.type === "info" && "bg-info"
             )}
-            style={{ width: `${progress}%`, transition: paused ? 'none' : 'width 100ms linear' }}
+            style={{ width: `${progress}%`, transition: paused ? "none" : "width 100ms linear" }}
           />
         </div>
       )}

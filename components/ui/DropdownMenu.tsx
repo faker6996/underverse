@@ -55,41 +55,39 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
     if (open && triggerRef.current && contentRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
       const menuRect = contentRef.current.getBoundingClientRect();
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
       const viewportHeight = window.innerHeight;
 
-      let top = rect.bottom + scrollTop + 4;
-      let left = rect.left + scrollLeft;
+      let top = rect.bottom + 4;
+      let left = rect.left;
 
       // Auto-flip to top if dropdown would go below viewport
       if (rect.bottom + menuRect.height > viewportHeight && rect.top > menuRect.height) {
-        top = rect.top + scrollTop - menuRect.height - 4;
+        top = rect.top - menuRect.height - 4;
       }
 
       switch (placement) {
         case "top":
         case "top-start":
-          top = rect.top + scrollTop - menuRect.height - 4;
+          top = rect.top - menuRect.height - 4;
           break;
         case "top-end":
-          top = rect.top + scrollTop - menuRect.height - 4;
-          left = rect.right + scrollLeft - menuRect.width;
+          top = rect.top - menuRect.height - 4;
+          left = rect.right - menuRect.width;
           break;
         case "bottom":
         case "bottom-start":
           // Auto-flip logic above already handles this
           break;
         case "bottom-end":
-          left = rect.right + scrollLeft - menuRect.width;
+          left = rect.right - menuRect.width;
           break;
         case "left":
-          top = rect.top + scrollTop;
-          left = rect.left + scrollLeft - menuRect.width - 4;
+          top = rect.top;
+          left = rect.left - menuRect.width - 4;
           break;
         case "right":
-          top = rect.top + scrollTop;
-          left = rect.right + scrollLeft + 4;
+          top = rect.top;
+          left = rect.right + 4;
           break;
       }
 
@@ -173,7 +171,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       data-combobox-dropdown
       ref={contentRef}
       style={{
-        position: "absolute",
+        position: "fixed",
         top: position?.top ?? -9999,
         left: position?.left ?? -9999,
         zIndex: 9999,
