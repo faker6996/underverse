@@ -136,7 +136,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...rest}
       >
         {!noHoverOverlay && (
-          <span className="absolute inset-0 bg-gradient-to-r from-primary-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 dark:hidden" />
+          <span className="absolute inset-0 bg-linear-to-r from-primary-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 dark:hidden" />
         )}
         {loading ? (
           <>

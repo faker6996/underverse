@@ -207,7 +207,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                   size={size}
                   onClick={() => onChange(pageNumber)}
                   disabled={disabled}
-                  className={cn("min-w-[2.5rem]", isActive && "font-semibold")}
+                  className={cn("min-w-10", isActive && "font-semibold")}
                   aria-label={labels?.pageNumber ? labels.pageNumber(pageNumber) : t("pageNumber", { page: pageNumber })}
                   aria-current={isActive ? "page" : undefined}
                 >
@@ -372,7 +372,7 @@ export const CompactPagination: React.FC<CompactPaginationProps> = ({
         title="Previous page"
       />
 
-      <div className="px-2 py-1 text-sm text-muted-foreground min-w-[4rem] text-center">
+      <div className="px-2 py-1 text-sm text-muted-foreground min-w-16 text-center">
         {page} / {totalPages}
       </div>
 

@@ -76,14 +76,14 @@ export default function LanguageSwitcher() {
       {isOpen && (
         <>
           {/* Backdrop via portal to escape header stacking/transform */}
-          {typeof window !== "undefined" && createPortal(<div className="fixed inset-0 z-[9998]" onClick={() => setIsOpen(false)} />, document.body)}
+          {typeof window !== "undefined" && createPortal(<div className="fixed inset-0 z-9998" onClick={() => setIsOpen(false)} />, document.body)}
 
           {/* Dropdown via portal with absolute positioning */}
           {typeof window !== "undefined" &&
             dropdownPosition &&
             createPortal(
               <div
-                className="z-[9999] bg-card border border-border rounded-lg shadow-lg overflow-hidden"
+                className="z-9999 bg-card border border-border rounded-lg shadow-lg overflow-hidden"
                 style={{ position: "absolute", top: dropdownPosition.top, left: dropdownPosition.left, width: dropdownPosition.width }}
                 onMouseDown={(e) => e.stopPropagation()}
               >

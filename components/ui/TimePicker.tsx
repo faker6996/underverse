@@ -708,13 +708,13 @@ export default function TimePicker({
         <div className={cn("mt-1.5 flex items-start gap-1.5", sz.label)}>
           {error && (
             <div className="flex items-center gap-1.5 text-destructive">
-              <X className="w-3.5 h-3.5 flex-shrink-0" />
+              <X className="w-3.5 h-3.5 shrink-0" />
               <span>{error}</span>
             </div>
           )}
           {success && !error && (
             <div className="flex items-center gap-1.5 text-green-600">
-              <Check className="w-3.5 h-3.5 flex-shrink-0" />
+              <Check className="w-3.5 h-3.5 shrink-0" />
               <span>Valid time selected</span>
             </div>
           )}

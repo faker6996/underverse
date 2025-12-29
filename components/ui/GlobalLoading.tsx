@@ -36,7 +36,7 @@ export const GlobalLoading: React.FC<GlobalLoadingProps> = ({
   return (
     <div
       className={cn(
-        'inset-0 z-[100000] flex items-center justify-center',
+        'inset-0 z-100000 flex items-center justify-center',
         position === 'fixed' ? 'fixed' : 'absolute',
         backdrop && 'bg-background/90 backdrop-blur-sm',
         className

@@ -42,7 +42,7 @@ export interface WatermarkProps extends React.HTMLAttributes<HTMLDivElement> {
   blur?: boolean;
   /** Blur amount in pixels */
   blurAmount?: number;
-  /** Enable text shadow/glow */
+  /** Enable text shadow */
   textShadow?: boolean;
   /** Text shadow color */
   shadowColor?: string;
@@ -133,7 +133,7 @@ function useWatermarkDataURL(opts: {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        // Add text shadow/glow if enabled
+        // Add text shadow if enabled
         if (opts.textShadow) {
           const shadowCol = opts.shadowColor || "rgba(255, 255, 255, 0.5)";
           ctx.shadowColor = shadowCol;

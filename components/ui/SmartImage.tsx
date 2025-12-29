@@ -11,7 +11,7 @@ interface SmartImageProps {
   alt: string;
   className?: string;
   /**
-   * Aspect ratio utility class, e.g. `aspect-square`, `aspect-[4/3]`.
+   * Aspect ratio utility class, e.g. `aspect-square`, `aspect-4/3`.
    * If provided with `fill`, the wrapper enforces the ratio.
    */
   ratioClass?: string;

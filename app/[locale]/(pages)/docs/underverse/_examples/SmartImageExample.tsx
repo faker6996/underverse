@@ -15,7 +15,7 @@ export default function SmartImageExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Fill + aspect ratio</p>
         <div className="w-72 rounded-md overflow-hidden">
-          <SmartImage src="https://picsum.photos/seed/uv123/600/400" alt="Demo cover" fill ratioClass="aspect-[4/3]" className="object-cover" />
+          <SmartImage src="https://picsum.photos/seed/uv123/600/400" alt="Demo cover" fill ratioClass="aspect-4/3" className="object-cover" />
         </div>
       </div>
 
@@ -39,7 +39,7 @@ export default function SmartImageExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Priority + quality</p>
         <div className="w-72 rounded-md overflow-hidden">
-          <SmartImage src="https://picsum.photos/seed/uvprio/800/480" alt="Priority" fill ratioClass="aspect-[16/9]" priority quality={90} />
+          <SmartImage src="https://picsum.photos/seed/uvprio/800/480" alt="Priority" fill ratioClass="aspect-video" priority quality={90} />
         </div>
       </div>
 
@@ -65,7 +65,7 @@ export default function SmartImageExample() {
     `import { SmartImage } from '@underverse-ui/underverse'\n\n` +
     `// 1) Fill + aspect ratio\n` +
     `<div className='w-72 rounded-md overflow-hidden'>\n` +
-    `  <SmartImage src='https://picsum.photos/seed/uv123/600/400' alt='Demo cover' fill ratioClass='aspect-[4/3]' className='object-cover'/>\n` +
+    `  <SmartImage src='https://picsum.photos/seed/uv123/600/400' alt='Demo cover' fill ratioClass='aspect-4/3' className='object-cover'/>\n` +
     `</div>\n\n` +
     `// 2) Fixed size (no fill) + contain\n` +
     `<div className='w-72 h-44 rounded-md overflow-hidden'>\n` +
@@ -77,7 +77,7 @@ export default function SmartImageExample() {
     `</div>\n\n` +
     `// 4) Priority + quality\n` +
     `<div className='w-72 rounded-md overflow-hidden'>\n` +
-    `  <SmartImage src='https://picsum.photos/seed/uvprio/800/480' alt='Priority' fill ratioClass='aspect-[16/9]' priority quality={90}/>\n` +
+    `  <SmartImage src='https://picsum.photos/seed/uvprio/800/480' alt='Priority' fill ratioClass='aspect-video' priority quality={90}/>\n` +
     `</div>\n\n` +
     `// 5) Fallback on error\n` +
     `<div className='w-40 rounded-md overflow-hidden'>\n` +

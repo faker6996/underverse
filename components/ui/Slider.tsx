@@ -109,7 +109,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
           <div className="flex items-center justify-between">
             {label && <label className={cn("text-sm font-medium text-foreground", labelClassName)}>{label}</label>}
             {showValue && (
-              <span className={cn("text-xs font-mono text-muted-foreground min-w-[2rem] text-right", valueClassName)}>{displayValue}</span>
+              <span className={cn("text-xs font-mono text-muted-foreground min-w-8 text-right", valueClassName)}>{displayValue}</span>
             )}
           </div>
         )}

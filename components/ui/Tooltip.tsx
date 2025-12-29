@@ -154,7 +154,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             }}
             className={cn(
               "px-3 py-2 text-sm font-medium rounded-lg shadow-lg border",
-              "max-w-xs break-words backdrop-blur-sm",
+              "max-w-xs wrap-break-word backdrop-blur-sm",
               variantStyles[variant],
               className
             )}

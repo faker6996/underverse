@@ -165,7 +165,7 @@ export const Popover: React.FC<PopoverProps> = ({
       role="dialog"
       aria-modal={modal || undefined}
       className={cn(
-        "z-[9999]",
+        "z-9999",
         // shadcn-like enter animation
         "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
         className

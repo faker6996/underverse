@@ -38,7 +38,7 @@ const Card = ({ title, description, children, footer, className, hoverable = fal
         {(hoverable || clickable) && (
           <div
             className={cn(
-              "absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent transition-opacity duration-300",
+              "absolute inset-0 bg-linear-to-br from-primary/5 to-transparent transition-opacity duration-300",
               isHovered ? "opacity-100" : "opacity-0"
             )}
           />

@@ -212,7 +212,7 @@ export const Sheet: React.FC<SheetProps> = ({
       >
         {/* Header */}
         {(title || description || header || showClose) && (
-          <div className="flex-shrink-0 border-b border-border">
+          <div className="shrink-0 border-b border-border">
             {header || (
               <div className="flex items-center justify-between p-4">
                 <div className="flex-1">
@@ -238,7 +238,7 @@ export const Sheet: React.FC<SheetProps> = ({
         </div>
 
         {/* Footer */}
-        {footer && <div className="flex-shrink-0 border-t border-border p-4">{footer}</div>}
+        {footer && <div className="shrink-0 border-t border-border p-4">{footer}</div>}
       </div>
     </div>
   );

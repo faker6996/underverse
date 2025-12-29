@@ -44,7 +44,7 @@ export default function CardExample() {
     `// Custom Styling\n` +
     `<Card\n` +
     `  title="Custom Styles"\n` +
-    `  className="bg-gradient-to-br from-primary/10 to-transparent"\n` +
+    `  className="bg-linear-to-br from-primary/10 to-transparent"\n` +
     `  contentClassName="text-center"\n` +
     `>\n` +
     `  <p>Centered content with gradient background</p>\n` +
@@ -104,7 +104,7 @@ export default function CardExample() {
         <Card
           title="Custom Styles"
           description="With gradient background and centered content"
-          className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20"
+          className="bg-linear-to-br from-primary/10 to-transparent border-primary/20"
           contentClassName="text-center"
         >
           <p className="text-sm">Centered content with gradient background</p>

@@ -19,11 +19,11 @@ interface ProgressProps {
 
 const variantStyles = {
   default: "bg-muted-foreground",
-  primary: "bg-gradient-to-r from-primary via-primary/90 to-primary",
-  success: "bg-gradient-to-r from-success via-success/90 to-success shadow-sm shadow-success/20", 
-  warning: "bg-gradient-to-r from-warning via-warning/90 to-warning shadow-sm shadow-warning/20",
-  danger: "bg-gradient-to-r from-destructive via-destructive/90 to-destructive shadow-sm shadow-destructive/20",
-  info: "bg-gradient-to-r from-info via-info/90 to-info shadow-sm shadow-info/20"
+  primary: "bg-linear-to-r from-primary via-primary/90 to-primary",
+  success: "bg-linear-to-r from-success via-success/90 to-success shadow-sm shadow-success/20", 
+  warning: "bg-linear-to-r from-warning via-warning/90 to-warning shadow-sm shadow-warning/20",
+  danger: "bg-linear-to-r from-destructive via-destructive/90 to-destructive shadow-sm shadow-destructive/20",
+  info: "bg-linear-to-r from-info via-info/90 to-info shadow-sm shadow-info/20"
 };
 
 const sizeStyles = {
@@ -106,12 +106,12 @@ export const Progress: React.FC<ProgressProps> = ({
             "before:absolute before:inset-0 before:rounded-full before:opacity-30",
             indeterminate && "animate-pulse",
             !indeterminate && variantStyles[variant],
-            isComplete && "bg-gradient-to-r from-success via-success/90 to-success shadow-sm shadow-success/20",
-            isError && "bg-gradient-to-r from-destructive via-destructive/90 to-destructive shadow-sm shadow-destructive/20",
-            striped && "bg-gradient-to-r from-transparent via-primary-foreground/20 to-transparent bg-[length:1rem_1rem]",
+            isComplete && "bg-linear-to-r from-success via-success/90 to-success shadow-sm shadow-success/20",
+            isError && "bg-linear-to-r from-destructive via-destructive/90 to-destructive shadow-sm shadow-destructive/20",
+            striped && "bg-linear-to-r from-transparent via-primary-foreground/20 to-transparent bg-size-[1rem_1rem]",
             animated && !indeterminate && "before:animate-pulse",
             // Shimmer effect for indeterminate
-            indeterminate && "bg-gradient-to-r from-muted via-primary/50 to-muted bg-[length:200%_100%] animate-[shimmer_2s_infinite]"
+            indeterminate && "bg-linear-to-r from-muted via-primary/50 to-muted bg-size-[200%_100%] animate-[shimmer_2s_infinite]"
           )}
           style={{ 
             width: indeterminate ? "100%" : `${percentage}%`,
@@ -375,7 +375,7 @@ export const MiniProgress: React.FC<MiniProgressProps> = ({
         />
       </div>
       {showValue && (
-        <span className="text-xs font-medium text-muted-foreground min-w-[2.5rem] text-right">
+        <span className="text-xs font-medium text-muted-foreground min-w-10 text-right">
           {Math.round(percentage)}%
         </span>
       )}

@@ -213,7 +213,7 @@ export function DataTable<T extends Record<string, any>>({
             const isCenterAlign = col.align === "center" || (!col.align && headerAlign === "center");
 
             const titleContent = (
-              <div className="flex items-center gap-1 min-w-0 flex-shrink">
+              <div className="flex items-center gap-1 min-w-0 shrink">
                 <span className="truncate font-medium text-sm">{col.title}</span>
                 {col.sortable && (
                   <button
@@ -297,7 +297,7 @@ export function DataTable<T extends Record<string, any>>({
             return (
               <div
                 className={cn(
-                  "flex items-center gap-2 select-none min-h-[2.5rem]",
+                  "flex items-center gap-2 select-none min-h-10",
                   isRightAlign && "justify-end",
                   isCenterAlign && "justify-center",
                   !isRightAlign && !isCenterAlign && "justify-between"
@@ -466,7 +466,7 @@ export function DataTable<T extends Record<string, any>>({
       <div className={cn("relative rounded-md border border-border/50 overflow-hidden", loading && "opacity-60 pointer-events-none")}>
         <Table
           containerClassName="border-0 md:border-0 rounded-none md:rounded-none shadow-none bg-transparent"
-          className="[&_thead]:sticky [&_thead]:top-0 [&_thead]:z-[5] [&_thead]:bg-background [&_thead]:backdrop-blur-sm"
+          className="[&_thead]:sticky [&_thead]:top-0 [&_thead]:z-5 [&_thead]:bg-background [&_thead]:backdrop-blur-sm"
         >
           <TableHeader>{renderHeader}</TableHeader>
           <TableBody>

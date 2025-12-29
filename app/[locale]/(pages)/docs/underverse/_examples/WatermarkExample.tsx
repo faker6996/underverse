@@ -448,7 +448,7 @@ export default function WatermarkExample() {
     { property: "animationVariant", description: "Animation variant type", type: "'fade' | 'slide' | 'scale' | 'pulse' | 'none'", default: "'fade'" },
     { property: "blur", description: "Enable backdrop blur effect", type: "boolean", default: "false" },
     { property: "blurAmount", description: "Blur amount in pixels", type: "number", default: "4" },
-    { property: "textShadow", description: "Enable text shadow/glow effect", type: "boolean", default: "false" },
+    { property: "textShadow", description: "Enable text shadow effect", type: "boolean", default: "false" },
     { property: "shadowColor", description: "Text shadow color", type: "string", default: "-" },
     { property: "darkMode", description: "Auto-adjust opacity for dark mode", type: "boolean", default: "false" },
     { property: "ariaLabel", description: "ARIA label for accessibility", type: "string", default: "-" },

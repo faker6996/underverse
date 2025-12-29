@@ -51,7 +51,7 @@ export default function GridExample() {
             <Grid.Item
               key={i}
               animationDelay={i * 50}
-              className="bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 rounded-lg h-20 flex items-center justify-center font-semibold"
+              className="bg-linear-to-br from-primary/20 to-primary/5 border border-primary/20 rounded-lg h-20 flex items-center justify-center font-semibold"
             >
               {i + 1}
             </Grid.Item>
@@ -67,7 +67,7 @@ export default function GridExample() {
             <Grid.Item
               key={i}
               hoverable
-              className="bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 rounded-lg p-6 flex flex-col items-center justify-center gap-2"
+              className="bg-linear-to-br from-accent/10 to-accent/5 border border-accent/20 rounded-lg p-6 flex flex-col items-center justify-center gap-2"
             >
               <div className="w-10 h-10 rounded-full bg-accent/20" />
               <p className="text-sm font-medium">{item}</p>
@@ -117,7 +117,7 @@ export default function GridExample() {
             <Grid.Item
               key={i}
               colSpan={span}
-              className="bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 rounded-lg flex items-center justify-center font-bold text-lg"
+              className="bg-linear-to-br from-primary/20 via-accent/20 to-secondary/20 rounded-lg flex items-center justify-center font-bold text-lg"
               style={{ height: `${60 + span * 30}px` }}
             >
               {span}x
@@ -143,7 +143,7 @@ export default function GridExample() {
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg h-24 flex items-center justify-center font-semibold"
+              className="bg-linear-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg h-24 flex items-center justify-center font-semibold"
             >
               Item {i + 1}
             </div>

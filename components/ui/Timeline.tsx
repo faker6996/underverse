@@ -225,8 +225,8 @@ export const TimelineItem = React.forwardRef<HTMLDivElement, TimelineItemProps>(
       outlined: "rounded-lg border border-border bg-card shadow-sm px-4 py-3",
       card: "rounded-xl border border-border bg-card shadow-md px-5 py-4",
       minimal: "border-l-2 pl-4 py-2",
-      modern: "rounded-lg bg-gradient-to-r from-card to-muted/20 border border-border/50 px-5 py-4 backdrop-blur-sm",
-      gradient: "rounded-xl bg-gradient-to-br from-primary/10 via-card to-accent/10 border border-primary/20 px-5 py-4 shadow-lg",
+      modern: "rounded-lg bg-linear-to-r from-card to-muted/20 border border-border/50 px-5 py-4 backdrop-blur-sm",
+      gradient: "rounded-xl bg-linear-to-br from-primary/10 via-card to-accent/10 border border-primary/20 px-5 py-4 shadow-lg",
     };
 
     const contentBox = (
@@ -264,7 +264,7 @@ export const TimelineItem = React.forwardRef<HTMLDivElement, TimelineItemProps>(
 
     const leftSide = (
       <div className={cn("flex items-stretch gap-4", padding, ctx.animate && "animate-in slide-in-from-left duration-500")} style={{ animationDelay: ctx.animate ? `${(idx ?? 0) * 100}ms` : undefined }}>
-        <div className={cn("flex-shrink-0 flex items-stretch", markerWidth)}>
+        <div className={cn("shrink-0 flex items-stretch", markerWidth)}>
           <Marker index={idx ?? 0} last={isLast} size={ctx.size} color={color} status={status} lineColor={ctx.lineColor} lineStyle={ctx.lineStyle} active={active} dot={dot} icon={Icon} showLine={ctx.showLine} />
         </div>
         <div className="flex-1">{contentBox}</div>
@@ -274,7 +274,7 @@ export const TimelineItem = React.forwardRef<HTMLDivElement, TimelineItemProps>(
     const rightSide = (
       <div className={cn("flex items-stretch gap-4", padding, ctx.animate && "animate-in slide-in-from-right duration-500")} style={{ animationDelay: ctx.animate ? `${(idx ?? 0) * 100}ms` : undefined }}>
         <div className="flex-1 flex justify-end">{contentBox}</div>
-        <div className={cn("flex-shrink-0 flex items-stretch", markerWidth)}>
+        <div className={cn("shrink-0 flex items-stretch", markerWidth)}>
           <Marker index={idx ?? 0} last={isLast} size={ctx.size} color={color} status={status} lineColor={ctx.lineColor} lineStyle={ctx.lineStyle} active={active} dot={dot} icon={Icon} showLine={ctx.showLine} />
         </div>
       </div>

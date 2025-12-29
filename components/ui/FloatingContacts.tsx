@@ -78,7 +78,7 @@ export default function FloatingContacts({ className }: FloatingContactsProps) {
   ];
 
   return (
-    <div className={cn("fixed bottom-6 right-4 z-[100000]", "flex flex-col items-end gap-3", className)} aria-label="Quick contacts">
+    <div className={cn("fixed bottom-6 right-4 z-100000", "flex flex-col items-end gap-3", className)} aria-label="Quick contacts">
       {/* Phone on top */}
       <Link
         href={`tel:${hotline.replace(/\D/g, "")}`}

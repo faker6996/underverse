@@ -261,7 +261,7 @@ export const VerticalTabs: React.FC<VerticalTabsProps> = ({
 }) => {
   return (
     <div className={cn("flex gap-6", className)}>
-      <div className={cn(sidebarWidth, "flex-shrink-0")}>
+      <div className={cn(sidebarWidth, "shrink-0")}>
         <Tabs 
           {...props}
           orientation="vertical"

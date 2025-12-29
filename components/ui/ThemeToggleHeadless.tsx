@@ -78,12 +78,12 @@ export default function ThemeToggleHeadless({
       {isOpen && (
         <>
           {typeof window !== "undefined" &&
-            createPortal(<div className="fixed inset-0 z-[9998]" onClick={() => setIsOpen(false)} />, document.body)}
+            createPortal(<div className="fixed inset-0 z-9998" onClick={() => setIsOpen(false)} />, document.body)}
 
           {typeof window !== "undefined" && dropdownPosition &&
             createPortal(
               <div
-                className="z-[9999] bg-card border border-border rounded-lg shadow-lg overflow-hidden"
+                className="z-9999 bg-card border border-border rounded-lg shadow-lg overflow-hidden"
                 style={{ position: "absolute", top: dropdownPosition.top, left: dropdownPosition.left, width: dropdownPosition.width }}
                 onMouseDown={(e) => e.stopPropagation()}
                 role="menu"

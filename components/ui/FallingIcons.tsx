@@ -331,10 +331,10 @@ export default function FallingIcons({
                 >
                   <span
                     className={cn(
-                      "block uv-spin hover:[animation:var(--popName)_0.35s_ease-out_forwards]",
+                      "block uv-spin hover:animate-[var(--popName)_0.35s_ease-out_forwards]",
                       physicsRotation
-                        ? "[animation:var(--physicsSpinName)_var(--spinDur)_ease-in-out_infinite]"
-                        : spin && "[animation:var(--spinName)_var(--spinDur)_linear_infinite]"
+                        ? "animate-[var(--physicsSpinName)_var(--spinDur)_ease-in-out_infinite]"
+                        : spin && "animate-[var(--spinName)_var(--spinDur)_linear_infinite]"
                     )}
                     style={{
                       width: p.size,

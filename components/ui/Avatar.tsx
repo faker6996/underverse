@@ -52,7 +52,7 @@ export const Avatar = ({ src, alt = "avatar", fallback = "?", size = "md", class
       {!hasValidSrc && (
         <span
           className={cn(
-            "font-bold uppercase bg-gradient-to-br from-primary to-primary/80 bg-clip-text text-transparent",
+            "font-bold uppercase bg-linear-to-br from-primary to-primary/80 bg-clip-text text-transparent",
             "transition-all duration-200 animate-fade-in"
           )}
         >

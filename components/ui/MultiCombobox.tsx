@@ -262,13 +262,13 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
           setOpen(next);
         }}
         className={cn(
-          "flex w-full items-center gap-2 rounded-lg border border-input bg-background shadow-sm min-h-[2.5rem]",
+          "flex w-full items-center gap-2 rounded-lg border border-input bg-background shadow-sm min-h-10",
           "px-3 py-2",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:cursor-not-allowed disabled:opacity-50"
         )}
       >
-        <div className="flex items-center gap-1 flex-wrap min-h-[1.5rem] flex-1">
+        <div className="flex items-center gap-1 flex-wrap min-h-6 flex-1">
           {value.length > 0 ? (
             showTags ? (
               value.map((itemValue) => {

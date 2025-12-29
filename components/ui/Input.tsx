@@ -319,7 +319,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           {variant === "minimal" && (
             <div
               className={cn(
-                "absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-primary to-primary/60 transition-all duration-300",
+                "absolute bottom-0 left-0 h-0.5 bg-linear-to-r from-primary to-primary/60 transition-all duration-300",
                 // default hidden
                 "w-0 opacity-0",
                 // expand underline when focused within input container
@@ -332,7 +332,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {/* Error Message */}
         {errMsg && (
           <div id={errorId} className="flex items-center gap-2 text-sm text-destructive animate-in slide-in-from-top-1 duration-200">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{errMsg}</span>
           </div>
         )}
@@ -574,7 +574,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
               )}
               aria-label="Increase value"
             >
-              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" className="flex-shrink-0">
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" className="shrink-0">
                 <path d="M4 2L6 6H2L4 2Z" fill="currentColor" />
               </svg>
             </button>
@@ -590,7 +590,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
               )}
               aria-label="Decrease value"
             >
-              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" className="flex-shrink-0">
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" className="shrink-0">
                 <path d="M4 6L2 2H6L4 6Z" fill="currentColor" />
               </svg>
             </button>
@@ -696,7 +696,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {/* Error Message */}
         {error && (
           <div className="flex items-center gap-2 text-sm text-destructive animate-in slide-in-from-top-1 duration-200">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}

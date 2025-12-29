@@ -355,7 +355,7 @@ export default function OverlayControls({
 
       <div
         className={cn(
-          "absolute bottom-0 left-0 right-0 pb-2 pt-8 bg-gradient-to-t from-black/40 to-transparent z-20 transition-opacity duration-200",
+          "absolute bottom-0 left-0 right-0 pb-2 pt-8 bg-linear-to-t from-black/40 to-transparent z-20 transition-opacity duration-200",
           hoverClasses,
           autoHide && !controlsVisible && "opacity-0 pointer-events-none",
           className

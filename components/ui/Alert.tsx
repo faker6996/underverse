@@ -50,9 +50,9 @@ const Alert = ({ title, description, variant = "default", className, icon, dismi
         {title && <p className="font-semibold text-sm leading-none mb-1 text-foreground">{title}</p>}
         {description &&
           (typeof description === "string" ? (
-            <p className="text-sm text-muted-foreground leading-relaxed break-words">{description}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed wrap-break-word">{description}</p>
           ) : (
-            <div className="text-sm text-muted-foreground leading-relaxed break-words">{description}</div>
+            <div className="text-sm text-muted-foreground leading-relaxed wrap-break-word">{description}</div>
           ))}
         {actions && <div className="mt-2 flex flex-wrap gap-2">{actions}</div>}
       </div>

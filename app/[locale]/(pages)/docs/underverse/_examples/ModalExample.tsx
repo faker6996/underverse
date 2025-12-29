@@ -216,7 +216,7 @@ export default function ModalExample() {
         </Button>
         <Modal isOpen={open10} onClose={() => setOpen10(false)} title="Media Lightbox" noPadding contentClassName="bg-black">
           <div className="relative aspect-video w-full overflow-hidden rounded-b-lg">
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-white/10 to-white/5">
+            <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-white/10 to-white/5">
               <span className="text-sm text-white/80">Embed your video or image here</span>
             </div>
           </div>

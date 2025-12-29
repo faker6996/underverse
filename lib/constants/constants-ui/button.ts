@@ -36,13 +36,13 @@ export const VARIANT_STYLES_BTN = {
   link: "text-primary bg-transparent underline-offset-4 hover:underline hover:text-primary/85 transition-colors",
 
   // Gradient: tuỳ chọn, giảm shadow
-  gradient: "bg-gradient-to-r from-primary via-secondary to-accent text-primary-foreground hover:opacity-90 shadow-sm border border-primary/10",
+  gradient: "bg-linear-to-r from-primary via-secondary to-accent text-primary-foreground hover:opacity-90 shadow-sm border border-primary/10",
 };
 
 export const SIZE_STYLES_BTN = {
-  sm: "px-3 py-1.5 text-sm h-8 min-w-[2rem] md:px-2.5 md:py-1 md:h-7 md:text-xs",
-  md: "px-4 py-2 text-sm h-10 min-w-[2.5rem] md:px-3 md:py-1.5 md:h-9",
-  lg: "px-6 py-3 text-base h-12 min-w-[3rem] md:px-4 md:py-2 md:h-10 md:text-sm",
-  smx: "px-3.5 py-1.5 text-[13px] h-9 min-w-[2.25rem] md:px-3 md:py-1 md:h-8 md:text-xs",
+  sm: "px-3 py-1.5 text-sm h-8 min-w-8 md:px-2.5 md:py-1 md:h-7 md:text-xs",
+  md: "px-4 py-2 text-sm h-10 min-w-10 md:px-3 md:py-1.5 md:h-9",
+  lg: "px-6 py-3 text-base h-12 min-w-12 md:px-4 md:py-2 md:h-10 md:text-sm",
+  smx: "px-3.5 py-1.5 text-[13px] h-9 min-w-9 md:px-3 md:py-1 md:h-8 md:text-xs",
   icon: "w-11 h-11 p-0 rounded-full flex items-center justify-center md:w-10 md:h-10",
 };

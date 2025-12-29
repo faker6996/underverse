@@ -276,7 +276,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
                       "outline-none focus:outline-none focus-visible:outline-none",
                       "hover:bg-accent hover:text-accent-foreground",
                       "focus:bg-accent focus:text-accent-foreground",
-                      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                      "data-disabled:pointer-events-none data-disabled:opacity-50",
                       index === activeIndex && "bg-accent text-accent-foreground",
                       isSelected && "bg-accent text-accent-foreground"
                     )}

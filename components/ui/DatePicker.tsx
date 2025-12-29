@@ -186,7 +186,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             "datepicker-day rounded-md focus:outline-none",
             "transition-colors",
             isSelected
-              ? "!bg-primary text-primary-foreground font-bold ring-2 ring-primary-foreground/60 shadow-lg scale-105 z-10 hover:!bg-primary focus:!bg-primary focus:text-primary-foreground"
+              ? "bg-primary! text-primary-foreground font-bold ring-2 ring-primary-foreground/60 shadow-lg scale-105 z-10 hover:bg-primary! focus:bg-primary! focus:text-primary-foreground"
               : "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
             isToday && !isSelected && "bg-accent text-accent-foreground font-semibold"
           )}
@@ -213,7 +213,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         }}
         data-state={isOpen ? "open" : "closed"}
         className={cn(
-          "z-[9999]",
+          "z-9999",
           "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
           "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
         )}
@@ -527,7 +527,7 @@ export const DateRangePicker: React.FC<{
         style={{ position: "absolute", top: dropdownPosition.top, left: dropdownPosition.left, width: dropdownPosition.width || 256, zIndex: 9999 }}
         data-state={isOpen ? "open" : "closed"}
         className={cn(
-          "z-[9999]",
+          "z-9999",
           "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
           "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
         )}
@@ -609,7 +609,7 @@ export const CompactDatePicker: React.FC<{
       value={value}
       onChange={onChange as (d: Date | undefined) => void}
       size="sm"
-      className={cn("max-w-[14rem]", className)}
+      className={cn("max-w-56", className)}
       placeholder="Date"
     />
   );

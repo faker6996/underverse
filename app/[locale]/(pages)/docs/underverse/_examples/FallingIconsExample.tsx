@@ -69,7 +69,7 @@ export default function FallingIconsExample() {
     `  return (\n` +
     `    <div className="space-y-4">\n` +
     `      {/* Demo Area */}\n` +
-    `      <div className="relative h-64 rounded-lg bg-gradient-to-b from-slate-900 to-slate-800">\n` +
+    `      <div className="relative h-64 rounded-lg bg-linear-to-b from-slate-900 to-slate-800">\n` +
     `        {active && (\n` +
     `          <FallingIcons\n` +
     `            icon={Star}\n` +
@@ -128,7 +128,7 @@ export default function FallingIconsExample() {
         </div>
 
         {/* Demo Area */}
-        <div className="relative h-64 rounded-lg bg-gradient-to-b from-slate-900 to-slate-800 overflow-hidden">
+        <div className="relative h-64 rounded-lg bg-linear-to-b from-slate-900 to-slate-800 overflow-hidden">
           {demoActive && (
             <FallingIcons
               icon={customImageUrl ? undefined : Star}

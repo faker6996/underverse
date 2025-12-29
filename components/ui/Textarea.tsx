@@ -84,7 +84,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           {/* Focus indicator line */}
           {variant === "default" && (
             <div className={cn(
-              "absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-primary to-primary/60 transition-all duration-300 ease-soft",
+              "absolute bottom-0 left-0 h-0.5 bg-linear-to-r from-primary to-primary/60 transition-all duration-300 ease-soft",
               isFocused ? "w-full opacity-100" : "w-0 opacity-0"
             )} />
           )}

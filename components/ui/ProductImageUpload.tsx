@@ -155,7 +155,7 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({ value, o
         <div
           className={cn(
             "w-full aspect-square max-w-md rounded-xl border-2 border-dashed transition-all duration-200",
-            "bg-gradient-to-br from-muted/30 to-muted/10",
+            "bg-linear-to-br from-muted/30 to-muted/10",
             "flex flex-col items-center justify-center cursor-pointer",
             "hover:border-primary/60 hover:bg-primary/5 hover:shadow-lg hover:scale-[1.02]",
             isDragging && "border-primary bg-primary/10 shadow-lg scale-[1.02]",
@@ -201,7 +201,7 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({ value, o
 
       {error && (
         <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
-          <X className="w-4 h-4 text-destructive flex-shrink-0" />
+          <X className="w-4 h-4 text-destructive shrink-0" />
           <p className="text-sm text-destructive">{error}</p>
         </div>
       )}

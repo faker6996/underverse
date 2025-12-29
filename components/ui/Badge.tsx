@@ -30,7 +30,7 @@ const variantStyles = {
   outline: "bg-transparent text-foreground border-border hover:bg-accent/50",
   ghost: "bg-transparent hover:bg-accent/20 hover:text-accent-foreground border-transparent transition-colors",
   transparent: "bg-transparent text-foreground border-transparent hover:bg-accent/30",
-  gradient: "bg-gradient-to-r from-primary to-secondary text-primary-foreground border-transparent hover:from-primary/90 hover:to-secondary/90",
+  gradient: "bg-linear-to-r from-primary to-secondary text-primary-foreground border-transparent hover:from-primary/90 hover:to-secondary/90",
 };
 
 const sizeStyles = {
@@ -113,12 +113,12 @@ export const Badge: React.FC<BadgeProps> = ({
         className={cn(
           baseClasses,
           "justify-center rounded-full",
-          "min-w-[1.5rem] h-6 px-1.5 text-xs font-bold",
-          size === "xs" && "min-w-[1.25rem] h-5 px-1 text-xs",
-          size === "sm" && "min-w-[1.5rem] h-6 px-1.5 text-xs",
-          size === "md" && "min-w-[1.75rem] h-7 px-2 text-xs",
-          size === "lg" && "min-w-[2rem] h-8 px-2.5 text-sm",
-          size === "xl" && "min-w-[2.25rem] h-9 px-3 text-sm",
+          "min-w-6 h-6 px-1.5 text-xs font-bold",
+          size === "xs" && "min-w-5 h-5 px-1 text-xs",
+          size === "sm" && "min-w-6 h-6 px-1.5 text-xs",
+          size === "md" && "min-w-7 h-7 px-2 text-xs",
+          size === "lg" && "min-w-8 h-8 px-2.5 text-sm",
+          size === "xl" && "min-w-9 h-9 px-3 text-sm",
           className
         )}
         onClick={handleClick}
@@ -135,7 +135,7 @@ export const Badge: React.FC<BadgeProps> = ({
       {Icon && (
         <Icon
           className={cn(
-            "flex-shrink-0",
+            "shrink-0",
             size === "xs" && "h-3 w-3",
             size === "sm" && "h-3 w-3",
             size === "md" && "h-4 w-4",
@@ -152,7 +152,7 @@ export const Badge: React.FC<BadgeProps> = ({
           onClick={handleRemove}
           className={cn(
             "ml-1 rounded-full hover:bg-accent focus:outline-none focus:bg-accent",
-            "transition-colors duration-150 flex-shrink-0",
+            "transition-colors duration-150 shrink-0",
             size === "xs" && "h-3 w-3",
             size === "sm" && "h-3 w-3",
             size === "md" && "h-4 w-4",
@@ -296,7 +296,7 @@ export const GradientBadge: React.FC<GradientBadgeProps> = ({ from = "from-prima
     <Badge
       {...props}
       variant="transparent"
-      className={cn(`bg-gradient-to-r ${from} ${to} text-primary-foreground border-transparent`, "hover:opacity-90", className)}
+      className={cn(`bg-linear-to-r ${from} ${to} text-primary-foreground border-transparent`, "hover:opacity-90", className)}
     />
   );
 };

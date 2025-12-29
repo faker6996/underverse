@@ -16,6 +16,7 @@ Workflow hoàn chỉnh:
   npm run release:underverse:major  # major version (0.1.7 → 1.0.0) + rebuild
   npm run release:underverse:beta   # beta tag + rebuild
 
+npx @tailwindcss/upgrade --force
 Hoặc trong package:
 cd packages/underverse
 npm run release (patch)

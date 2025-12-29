@@ -31,7 +31,7 @@ export default function DocSection({ id, title, children }: { id: string; title:
           "text-2xl font-semibold tracking-tight transition-all duration-300",
           isActive
             ? "text-primary scale-105 font-bold"
-            : "bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text"
+            : "bg-linear-to-r from-foreground to-foreground/70 bg-clip-text"
         )}>
           <a
             href={`#${id}`}

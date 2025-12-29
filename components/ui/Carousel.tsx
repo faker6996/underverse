@@ -258,7 +258,7 @@ export function Carousel({
           <div
             key={idx}
             className={cn(
-              "flex-shrink-0",
+              "shrink-0",
               isHorizontal ? "h-full" : "w-full",
               animation === "fade" && idx !== currentIndex && "opacity-0",
               animation === "scale" && idx !== currentIndex && "scale-95",
@@ -341,7 +341,7 @@ export function Carousel({
       {showThumbnails && totalSlides > slidesToShow && (
         <div
           className={cn(
-            "absolute bottom-0 left-0 right-0 flex gap-2 p-4 bg-gradient-to-t from-black/50 to-transparent overflow-x-auto",
+            "absolute bottom-0 left-0 right-0 flex gap-2 p-4 bg-linear-to-t from-black/50 to-transparent overflow-x-auto",
             isHorizontal ? "flex-row" : "flex-col"
           )}
         >
@@ -350,7 +350,7 @@ export function Carousel({
               key={idx}
               onClick={() => scrollTo(idx)}
               className={cn(
-                "flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary",
+                "shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary",
                 idx === currentIndex ? "border-primary scale-110" : "border-transparent opacity-70 hover:opacity-100"
               )}
               aria-label={`Thumbnail ${idx + 1}`}

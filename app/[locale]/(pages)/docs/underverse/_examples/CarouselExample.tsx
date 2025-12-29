@@ -14,7 +14,7 @@ export default function CarouselExample() {
     `// 1) Basic Carousel\n` +
     `<Carousel>\n` +
     `  {[1,2,3].map((i) => (\n` +
-    `    <div key={i} className="h-64 flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg">\n` +
+    `    <div key={i} className="h-64 flex items-center justify-center bg-linear-to-br from-primary/20 to-primary/5 rounded-lg">\n` +
     `      <span className="text-4xl font-bold">Slide {i}</span>\n` +
     `    </div>\n` +
     `  ))}\n` +
@@ -22,7 +22,7 @@ export default function CarouselExample() {
     `// 2) Fade Animation with Progress Bar\n` +
     `<Carousel animation="fade" showProgress>\n` +
     `  {[1,2,3,4].map((i) => (\n` +
-    `    <div key={i} className="h-64 flex items-center justify-center bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg">\n` +
+    `    <div key={i} className="h-64 flex items-center justify-center bg-linear-to-br from-blue-500/20 to-purple-500/20 rounded-lg">\n` +
     `      <span className="text-3xl font-semibold">Fade {i}</span>\n` +
     `    </div>\n` +
     `  ))}\n` +
@@ -30,7 +30,7 @@ export default function CarouselExample() {
     `// 3) Scale Animation - Manual Control\n` +
     `<Carousel animation="scale" autoScroll={false}>\n` +
     `  {[1,2,3,4].map((i) => (\n` +
-    `    <div key={i} className="h-64 flex items-center justify-center bg-gradient-to-br from-green-500/20 to-teal-500/20 rounded-lg">\n` +
+    `    <div key={i} className="h-64 flex items-center justify-center bg-linear-to-br from-green-500/20 to-teal-500/20 rounded-lg">\n` +
     `      <span className="text-3xl font-semibold">Scale {i}</span>\n` +
     `    </div>\n` +
     `  ))}\n` +
@@ -46,7 +46,7 @@ export default function CarouselExample() {
     `// 5) Vertical Carousel\n` +
     `<Carousel orientation="vertical" className="h-96">\n` +
     `  {[1,2,3,4].map((i) => (\n` +
-    `    <div key={i} className="h-full flex items-center justify-center bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-lg">\n` +
+    `    <div key={i} className="h-full flex items-center justify-center bg-linear-to-r from-orange-500/20 to-red-500/20 rounded-lg">\n` +
     `      <span className="text-3xl font-bold">Vertical {i}</span>\n` +
     `    </div>\n` +
     `  ))}\n` +
@@ -61,7 +61,7 @@ export default function CarouselExample() {
     `  ].map((item) => (\n` +
     `    <div key={item.id} className="h-96 rounded-lg overflow-hidden relative">\n` +
     `      <img src={item.img} alt={item.title} className="w-full h-full object-cover" />\n` +
-    `      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">\n` +
+    `      <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-6">\n` +
     `        <h3 className="text-white text-2xl font-bold">{item.title}</h3>\n` +
     `      </div>\n` +
     `    </div>\n` +
@@ -111,7 +111,7 @@ export default function CarouselExample() {
         <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Basic Carousel</h3>
         <Carousel>
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-64 flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg">
+            <div key={i} className="h-64 flex items-center justify-center bg-linear-to-br from-primary/20 to-primary/5 rounded-lg">
               <span className="text-4xl font-bold">Slide {i}</span>
             </div>
           ))}
@@ -123,7 +123,7 @@ export default function CarouselExample() {
         <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Fade Animation + Progress Bar</h3>
         <Carousel animation="fade" showProgress>
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-64 flex items-center justify-center bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg">
+            <div key={i} className="h-64 flex items-center justify-center bg-linear-to-br from-blue-500/20 to-purple-500/20 rounded-lg">
               <span className="text-3xl font-semibold">Fade {i}</span>
             </div>
           ))}
@@ -135,7 +135,7 @@ export default function CarouselExample() {
         <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Scale Animation (Manual - Use arrows or swipe)</h3>
         <Carousel animation="scale" autoScroll={false}>
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-64 flex items-center justify-center bg-gradient-to-br from-green-500/20 to-teal-500/20 rounded-lg">
+            <div key={i} className="h-64 flex items-center justify-center bg-linear-to-br from-green-500/20 to-teal-500/20 rounded-lg">
               <span className="text-3xl font-semibold">Scale {i}</span>
             </div>
           ))}
@@ -159,7 +159,7 @@ export default function CarouselExample() {
         <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Vertical Carousel</h3>
         <Carousel orientation="vertical" className="h-96">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-full flex items-center justify-center bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-lg">
+            <div key={i} className="h-full flex items-center justify-center bg-linear-to-r from-orange-500/20 to-red-500/20 rounded-lg">
               <span className="text-3xl font-bold">Vertical {i}</span>
             </div>
           ))}
@@ -178,7 +178,7 @@ export default function CarouselExample() {
           ].map((item) => (
             <div key={item.id} className="h-96 rounded-lg overflow-hidden relative">
               <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
+              <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-6">
                 <h3 className="text-white text-2xl font-bold">{item.title}</h3>
               </div>
             </div>
@@ -191,7 +191,7 @@ export default function CarouselExample() {
         <h3 className="text-sm font-semibold mb-3 text-muted-foreground">With Callback - Current: Slide {currentSlide + 1}</h3>
         <Carousel onSlideChange={(idx) => setCurrentSlide(idx)} showProgress>
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-64 flex items-center justify-center bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-lg">
+            <div key={i} className="h-64 flex items-center justify-center bg-linear-to-br from-pink-500/20 to-rose-500/20 rounded-lg">
               <div className="text-center">
                 <span className="text-4xl font-bold block">Slide {i}</span>
                 <span className="text-sm text-muted-foreground mt-2 block">Callback updates parent state</span>

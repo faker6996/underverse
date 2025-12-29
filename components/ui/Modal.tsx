@@ -118,7 +118,7 @@ const Modal: React.FC<ModalProps> = ({
   const maxWidthClass = width ? "max-w-none" : fullWidth ? "max-w-full" : sizeStyles[size];
 
   const modalContent = (
-    <div className={cn("fixed inset-0 z-[9999] flex items-center justify-center", overlayClassName)} onClick={handleOverlayClick}>
+    <div className={cn("fixed inset-0 z-9999 flex items-center justify-center", overlayClassName)} onClick={handleOverlayClick}>
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity duration-200 ease-out"

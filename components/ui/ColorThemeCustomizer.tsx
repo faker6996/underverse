@@ -189,7 +189,7 @@ export default function ColorThemeCustomizer() {
       {isOpen && dropdownPosition && typeof window !== "undefined" && createPortal(
         <div
           id="color-customizer-dropdown"
-          className="fixed z-[100] w-80 p-4 rounded-lg border bg-popover shadow-lg"
+          className="fixed z-100 w-80 p-4 rounded-lg border bg-popover shadow-lg"
           style={{
             top: `${dropdownPosition.top}px`,
             left: `${dropdownPosition.left}px`,

@@ -77,7 +77,7 @@ export default function FormExample() {
     `  <FormField name='rememberMe' render={({ field }) => (\n` +
     `    <FormItem className='flex items-center gap-2'>\n` +
     `      <FormControl><Checkbox checked={field.value} onChange={(e) => field.onChange(e.target.checked)} /></FormControl>\n` +
-    `      <FormLabel className='!mt-0'>Remember me</FormLabel>\n` +
+    `      <FormLabel className='mt-0!'>Remember me</FormLabel>\n` +
     `    </FormItem>\n` +
     `  )} />\n` +
     `  <Button type='submit' className='w-full' loading={loading} loadingText='Submitting...'>Submit</Button>\n` +
@@ -172,7 +172,7 @@ export default function FormExample() {
                 <FormControl>
                   <Checkbox checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />
                 </FormControl>
-                <FormLabel className="!mt-0">Remember me</FormLabel>
+                <FormLabel className="mt-0!">Remember me</FormLabel>
               </FormItem>
             )}
           />

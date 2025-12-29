@@ -81,7 +81,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children, position
   return (
     <ToastContext.Provider value={{ addToast, removeToast, toasts }}>
       {children}
-      <div className={cn("fixed z-[99999] flex flex-col gap-2 pointer-events-none", positionClasses[position])} aria-live="polite" aria-atomic>
+      <div className={cn("fixed z-99999 flex flex-col gap-2 pointer-events-none", positionClasses[position])} aria-live="polite" aria-atomic>
         {toasts.map((toast) => (
           <ToastComponent key={toast.id} toast={toast} onRemove={removeToast} />
         ))}
