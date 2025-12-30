@@ -55,6 +55,7 @@ const sections: TocSection[] = [
   { id: "data-table", labelKey: "sections.dataTable.title" },
   { id: "input", labelKey: "sections.input.title" },
   { id: "date-picker", labelKey: "sections.datePicker.title" },
+  { id: "tag-input", labelKey: "sections.tagInput.title" },
   { id: "calendar", labelKey: "sections.calendar.title" },
   { id: "color-picker", labelKey: "sections.colorPicker.title" },
   { id: "time-picker", labelKey: "sections.timePicker.title" },

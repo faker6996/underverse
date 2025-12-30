@@ -46,6 +46,7 @@ const SmartImageExample = dynamicImport(() => import("./_examples/SmartImageExam
 const FallingIconsExample = dynamicImport(() => import("./_examples/FallingIconsExample"), { ssr: false });
 const CategoryTreeSelectExample = dynamicImport(() => import("./_examples/CategoryTreeSelectExample"), { ssr: false });
 const InputExample = dynamicImport(() => import("./_examples/InputExample"), { ssr: false });
+const TagInputExample = dynamicImport(() => import("./_examples/TagInputExample"), { ssr: false });
 const DatePickerExample = dynamicImport(() => import("./_examples/DatePickerExample"), { ssr: false });
 const ColorPickerExample = dynamicImport(() => import("./_examples/ColorPickerExample"), { ssr: false });
 const TimePickerExample = dynamicImport(() => import("./_examples/TimePickerExample"), { ssr: false });
@@ -289,6 +290,10 @@ function DocsInner() {
 
             <DocSection id="input" title={t("sections.input.title")}>
               <InputExample />
+            </DocSection>
+
+            <DocSection id="tag-input" title="TagInput">
+              <TagInputExample />
             </DocSection>
 
             <DocSection id="date-picker" title={t("sections.datePicker.title")}>

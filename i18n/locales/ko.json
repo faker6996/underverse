@@ -19,7 +19,11 @@
     "headerAlign": "헤더 정렬",
     "alignLeft": "왼쪽",
     "alignCenter": "가운데",
-    "alignRight": "오른쪽"
+    "alignRight": "오른쪽",
+    "search": "검색",
+    "clearAll": "모두 지우기",
+    "tagInputPlaceholder": "값을 입력하고 Enter를 누르세요...",
+    "tagInputPlaceholderWithTags": "Ctrl+Enter로 검색"
   },
   "ValidationInput": {
     "required": "필수 입력 항목입니다",
@@ -217,6 +221,9 @@
       },
       "input": {
         "title": "Input (with i18n)"
+      },
+      "tagInput": {
+        "title": "TagInput"
       },
       "datePicker": {
         "title": "DatePicker (with i18n)"

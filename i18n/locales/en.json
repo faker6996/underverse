@@ -19,7 +19,11 @@
     "headerAlign": "Header Align",
     "alignLeft": "Left",
     "alignCenter": "Center",
-    "alignRight": "Right"
+    "alignRight": "Right",
+    "search": "Search",
+    "clearAll": "Clear all",
+    "tagInputPlaceholder": "Enter value and press Enter...",
+    "tagInputPlaceholderWithTags": "Ctrl+Enter to search"
   },
   "ValidationInput": {
     "required": "This field is required",
@@ -217,6 +221,9 @@
       },
       "input": {
         "title": "Input (with i18n)"
+      },
+      "tagInput": {
+        "title": "TagInput"
       },
       "dateRangePicker": {
         "startDate": "Range start date.",

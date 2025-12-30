@@ -19,7 +19,11 @@
     "headerAlign": "Căn header",
     "alignLeft": "Trái",
     "alignCenter": "Giữa",
-    "alignRight": "Phải"
+    "alignRight": "Phải",
+    "search": "Tìm kiếm",
+    "clearAll": "Xóa tất cả",
+    "tagInputPlaceholder": "Nhập giá trị và nhấn Enter...",
+    "tagInputPlaceholderWithTags": "Ctrl+Enter để tìm kiếm"
   },
   "ValidationInput": {
     "required": "Trường này là bắt buộc",
@@ -217,6 +221,9 @@
       },
       "input": {
         "title": "Input (with i18n)"
+      },
+      "tagInput": {
+        "title": "TagInput"
       },
       "datePicker": {
         "title": "DatePicker (with i18n)"

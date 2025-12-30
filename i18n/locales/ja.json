@@ -19,7 +19,11 @@
     "headerAlign": "ヘッダー揃え",
     "alignLeft": "左揃え",
     "alignCenter": "中央揃え",
-    "alignRight": "右揃え"
+    "alignRight": "右揃え",
+    "search": "検索",
+    "clearAll": "すべてクリア",
+    "tagInputPlaceholder": "値を入力してEnterを押してください...",
+    "tagInputPlaceholderWithTags": "Ctrl+Enterで検索"
   },
   "ValidationInput": {
     "required": "必須項目です",
@@ -217,6 +221,9 @@
       },
       "input": {
         "title": "Input (with i18n)"
+      },
+      "tagInput": {
+        "title": "TagInput"
       },
       "datePicker": {
         "title": "DatePicker (with i18n)"
