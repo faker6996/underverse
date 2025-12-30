@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
 import React from "react";
 import Script from "next/script";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import GlobalFallingIcons from "@/components/ui/GlobalFallingIcons";
 import { getOrganizationSchema, getSoftwareApplicationSchema } from "@/lib/seo/structured-data";
+
+// Configure Inter font with Vietnamese support
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://underverse-ui.com";
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "Underverse UI";
@@ -95,7 +103,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* SoftwareApplication Schema */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
       </head>
-      <body className="antialiased" suppressHydrationWarning={true}>
+      <body className={`${inter.variable} antialiased`} suppressHydrationWarning={true}>
         <Script id="theme-init" strategy="beforeInteractive">
           {`
             try {
