@@ -125,3 +125,4 @@ export type UnderverseLocale = keyof typeof underverseMessages;
 export function getUnderverseMessages(locale: UnderverseLocale = "en") {
   return underverseMessages[locale] || underverseMessages.en;
 }
+// Auto publish trigger
