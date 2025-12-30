@@ -11,13 +11,7 @@ export default defineConfig({
   alias: {
     "@": path.resolve(__dirname, "../../"),
   },
-  external: [
-    "react",
-    "react-dom",
-    "next",
-    "next-intl",
-    "lucide-react"
-  ],
+  external: ["react", "react-dom", "next", "next-intl", "lucide-react", "class-variance-authority", "react-hook-form", "@hookform/resolvers", "zod"],
   esbuildOptions(options) {
     options.jsx = "automatic";
     options.jsxImportSource = "react";
