@@ -1,0 +1,67 @@
+# Auto Publish @underverse-ui/underverse to npm using OIDC Trusted Publishing
+#
+# Setup (One-time):
+# 1. Go to npmjs.com > @underverse-ui/underverse > Settings > "Publishing access"
+# 2. Under "Configure trusted publishing", add:
+#    - Repository owner: faker6996 (hoặc username GitHub của bạn)
+#    - Repository name: underverse
+#    - Workflow filename: publish-package.yml
+#    - Environment: (để trống hoặc "production")
+# 3. Save
+#
+# NO NPM_TOKEN NEEDED! GitHub sẽ tự xác thực qua OIDC.
+
+name: Publish Package
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "components/ui/**"
+      - "packages/underverse/**"
+      - "lib/**"
+
+permissions:
+  contents: write
+  id-token: write # Required for OIDC trusted publishing
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: packages/underverse
+
+      - name: Build package
+        run: npm run build
+        working-directory: packages/underverse
+
+      - name: Bump version (patch)
+        run: npm version patch --no-git-tag-version
+        working-directory: packages/underverse
+
+      # OIDC Trusted Publishing - không cần NPM_TOKEN
+      - name: Publish to npm with provenance
+        run: npm publish --access public --provenance
+        working-directory: packages/underverse
+
+      - name: Commit version bump
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          cd packages/underverse
+          VERSION=$(node -p "require('./package.json').version")
+          git add package.json
+          git commit -m "chore: bump @underverse-ui/underverse to v$VERSION [skip ci]" || echo "No changes to commit"
+          git push
