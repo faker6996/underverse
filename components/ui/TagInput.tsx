@@ -172,13 +172,34 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       if (e.key === "Enter") {
         e.preventDefault();
 
-        // Check for Ctrl+Enter or Cmd+Enter
+        // Check for Ctrl+Enter or Cmd+Enter for search
         if (e.ctrlKey || e.metaKey) {
           triggerSearch();
-        } else {
-          // Just add tag
-          addTag(inputValue);
+          return; // Exit early to prevent other actions
         }
+
+        // Check for Shift+Enter for batch adding tags
+        if (e.shiftKey) {
+          const tagsToAdd = inputValue
+            .split(/\s+/) // Split by one or more whitespace
+            .map((t) => t.trim())
+            .filter((t) => t.length > 0 && !value.includes(t)); // Remove empty or duplicate
+
+          if (tagsToAdd.length > 0) {
+            // Check max tags limit
+            const availableSlots = maxTags !== undefined ? maxTags - value.length : Infinity;
+
+            if (availableSlots > 0) {
+              const tagsToInsert = tagsToAdd.slice(0, availableSlots);
+              onChange([...value, ...tagsToInsert]);
+              setInputValue("");
+            }
+          }
+          return;
+        }
+
+        // Default behavior: just add single tag
+        addTag(inputValue);
       } else if (e.key === "Backspace" && inputValue === "" && value.length > 0) {
         // Remove last tag when backspace on empty input
         removeTag(value.length - 1);
