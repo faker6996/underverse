@@ -32,11 +32,11 @@ jobs:
 
       # Install root dependencies first (needed for building)
       - name: Install root dependencies
-        run: npm ci
+        run: npm install
 
       # Install package dependencies
       - name: Install package dependencies
-        run: npm ci
+        run: npm install
         working-directory: packages/underverse
 
       - name: Build package
