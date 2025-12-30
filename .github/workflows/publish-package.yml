@@ -28,6 +28,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          registry-url: "https://registry.npmjs.org"
 
       # Install root dependencies first (needed for building)
       - name: Install root dependencies
@@ -46,10 +47,12 @@ jobs:
         run: npm version patch --no-git-tag-version
         working-directory: packages/underverse
 
-      # OIDC Trusted Publishing - không cần NPM_TOKEN
-      - name: Publish to npm with provenance
+      # Use Token Auth (Granular Token) + Provenance
+      - name: Publish to npm
         run: npm publish --access public --provenance
         working-directory: packages/underverse
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Commit version bump
         run: |
