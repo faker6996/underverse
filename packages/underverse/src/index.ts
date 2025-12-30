@@ -5,13 +5,23 @@
 export { default as Button } from "../../../components/ui/Button";
 export type { ButtonProps } from "../../../components/ui/Button";
 export { default as Badge } from "../../../components/ui/Badge";
-export { Badge as BadgeBase, NotificationBadge, StatusBadge, TagBadge, InteractiveBadge, GradientBadge, PulseBadge } from "../../../components/ui/Badge";
+export {
+  Badge as BadgeBase,
+  NotificationBadge,
+  StatusBadge,
+  TagBadge,
+  InteractiveBadge,
+  GradientBadge,
+  PulseBadge,
+} from "../../../components/ui/Badge";
 export { default as Card } from "../../../components/ui/Card";
 export { Checkbox } from "../../../components/ui/CheckBox";
 export type { CheckboxProps } from "../../../components/ui/CheckBox";
 export { default as Input } from "../../../components/ui/Input";
 export type { InputProps } from "../../../components/ui/Input";
 export { PasswordInput, NumberInput, SearchInput } from "../../../components/ui/Input";
+export { default as TagInput, TagInput as TagInputBase } from "../../../components/ui/TagInput";
+export type { TagInputProps } from "../../../components/ui/TagInput";
 export { default as Textarea } from "../../../components/ui/Textarea";
 export { default as Switch } from "../../../components/ui/Switch";
 export { Label } from "../../../components/ui/label";
@@ -112,6 +122,6 @@ import vi from "../locales/vi.json";
 
 export const underverseMessages = { en, vi } as const;
 export type UnderverseLocale = keyof typeof underverseMessages;
-export function getUnderverseMessages(locale: UnderverseLocale = 'en') {
+export function getUnderverseMessages(locale: UnderverseLocale = "en") {
   return underverseMessages[locale] || underverseMessages.en;
 }
