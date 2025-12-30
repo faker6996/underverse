@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
 import Card from "@/components/ui/Card";
 import { cn } from "@/lib/utils/cn";
-import { Lock, ShieldAlert, Ban } from "lucide-react";
+import { Ban, Lock, ShieldAlert } from "lucide-react";
+import React from "react";
 
 type Variant = "destructive" | "warning" | "info";
 
@@ -54,4 +54,3 @@ export default function AccessDenied({
     </Card>
   );
 }
-
