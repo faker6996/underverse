@@ -142,6 +142,7 @@ export default function DataTableExample() {
   striped
   columnDividers
   enableHeaderAlignToggle  // New: toggle header alignment
+  storageKey="example-table"  // Lưu pageSize vào localStorage
   labels={{ density: '...', columns: '...', headerAlign: '...' }}
 />`;
 
@@ -159,6 +160,7 @@ export default function DataTableExample() {
       striped
       columnDividers
       enableHeaderAlignToggle
+      storageKey="example-table"
       labels={{
         density: t("density"),
         columns: t("columns"),
@@ -212,6 +214,12 @@ export default function DataTableExample() {
                       default: "true",
                     },
                     { property: "enableHeaderAlignToggle", description: "Bật nút căn header", type: "boolean", default: "false" },
+                    {
+                      property: "storageKey",
+                      description: "Key để lưu pageSize vào localStorage. Nếu không cung cấp, pageSize sẽ không được persist",
+                      type: "string",
+                      default: "-",
+                    },
                     { property: "labels", description: td("props.dataTable.labels"), type: "{ density; columns; headerAlign; ... }", default: "-" },
                     { property: "className", description: td("props.dataTable.className"), type: "string", default: "-" },
                   ];

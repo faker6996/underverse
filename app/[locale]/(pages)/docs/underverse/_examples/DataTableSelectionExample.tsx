@@ -131,6 +131,7 @@ const columns = [
   loading={loading}
   onQueryChange={fetch}
   toolbar={toolbar}
+  storageKey="selection-example"  // Lưu pageSize vào localStorage
 />`;
 
   const demo = (
@@ -145,6 +146,7 @@ const columns = [
       toolbar={toolbar}
       enableColumnVisibilityToggle
       enableDensityToggle
+      storageKey="selection-example"
     />
   );
 

@@ -55,6 +55,8 @@ interface DataTableProps<T> {
   /** Hiển thị đường kẻ dọc ngăn cách giữa các cột */
   columnDividers?: boolean;
   className?: string;
+  /** Key để lưu pageSize vào localStorage. Nếu không cung cấp, pageSize sẽ không được persist */
+  storageKey?: string;
   labels?: {
     density?: string;
     columns?: string;
@@ -95,6 +97,7 @@ export function DataTable<T extends Record<string, any>>({
   striped = true, // Mặc định bật màu nền sẽn kẽ cho các dòng
   columnDividers = false,
   className,
+  storageKey,
   labels,
 }: DataTableProps<T>) {
   const t = useTranslations("Common");
@@ -104,7 +107,33 @@ export function DataTable<T extends Record<string, any>>({
   const [sort, setSort] = React.useState<Sorter>(null);
   const [density, setDensity] = React.useState<"compact" | "normal" | "comfortable">("normal");
   const [curPage, setCurPage] = React.useState(page);
-  const [curPageSize, setCurPageSize] = React.useState(pageSize);
+
+  // Đọc pageSize từ localStorage nếu có storageKey
+  const getInitialPageSize = React.useCallback(() => {
+    if (typeof window === "undefined" || !storageKey) return pageSize;
+    try {
+      const saved = localStorage.getItem(`datatable_${storageKey}_pageSize`);
+      if (saved) {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed > 0) return parsed;
+      }
+    } catch {
+      // localStorage không khả dụng
+    }
+    return pageSize;
+  }, [storageKey, pageSize]);
+
+  const [curPageSize, setCurPageSize] = React.useState(getInitialPageSize);
+
+  // Lưu pageSize vào localStorage khi thay đổi
+  React.useEffect(() => {
+    if (typeof window === "undefined" || !storageKey) return;
+    try {
+      localStorage.setItem(`datatable_${storageKey}_pageSize`, String(curPageSize));
+    } catch {
+      // localStorage không khả dụng
+    }
+  }, [curPageSize, storageKey]);
 
   React.useEffect(() => {
     const newColKeys = columns.filter((c) => c.visible !== false).map((c) => c.key);

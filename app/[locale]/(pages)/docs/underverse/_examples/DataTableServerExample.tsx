@@ -81,6 +81,7 @@ export default function DataTableServerExample() {
   pageSize={pageSize}
   pageSizeOptions={[10, 20, 50, 100]}
   onQueryChange={fetchServer}
+  storageKey="server-example"  // Lưu pageSize vào localStorage
 />`;
 
   const demo = (
@@ -93,6 +94,7 @@ export default function DataTableServerExample() {
       pageSize={lastQuery.pageSize}
       onQueryChange={fetchServer}
       pageSizeOptions={[10, 20, 50, 100]}
+      storageKey="server-example"
       striped
     />
   );
