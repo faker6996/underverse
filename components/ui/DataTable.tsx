@@ -108,6 +108,12 @@ export function DataTable<T extends Record<string, any>>({
   const [density, setDensity] = React.useState<"compact" | "normal" | "comfortable">("normal");
   const [curPage, setCurPage] = React.useState(page);
 
+  // Track if component has mounted to prevent initial onQueryChange trigger
+  const hasMounted = React.useRef(false);
+
+  // Track if we loaded from localStorage to prevent prop override
+  const loadedFromStorage = React.useRef(false);
+
   // Đọc pageSize từ localStorage nếu có storageKey
   const getInitialPageSize = React.useCallback(() => {
     if (typeof window === "undefined" || !storageKey) return pageSize;
@@ -115,7 +121,10 @@ export function DataTable<T extends Record<string, any>>({
       const saved = localStorage.getItem(`datatable_${storageKey}_pageSize`);
       if (saved) {
         const parsed = parseInt(saved, 10);
-        if (!isNaN(parsed) && parsed > 0) return parsed;
+        if (!isNaN(parsed) && parsed > 0) {
+          loadedFromStorage.current = true;
+          return parsed;
+        }
       }
     } catch {
       // localStorage không khả dụng
@@ -125,9 +134,10 @@ export function DataTable<T extends Record<string, any>>({
 
   const [curPageSize, setCurPageSize] = React.useState(getInitialPageSize);
 
-  // Lưu pageSize vào localStorage khi thay đổi
+  // Lưu pageSize vào localStorage khi thay đổi (chỉ sau khi đã mount)
   React.useEffect(() => {
     if (typeof window === "undefined" || !storageKey) return;
+    if (!hasMounted.current) return; // Không lưu khi mount lần đầu
     try {
       localStorage.setItem(`datatable_${storageKey}_pageSize`, String(curPageSize));
     } catch {
@@ -150,13 +160,27 @@ export function DataTable<T extends Record<string, any>>({
     setCurPage(page);
   }, [page]);
 
+  // Chỉ sync pageSize từ parent nếu KHÔNG có storageKey hoặc chưa load từ localStorage
   React.useEffect(() => {
+    if (storageKey && loadedFromStorage.current) {
+      // Đã load từ localStorage, không ghi đè bằng prop
+      return;
+    }
     setCurPageSize(pageSize);
-  }, [pageSize]);
+  }, [pageSize, storageKey]);
 
   // Emit query changes to parent (server-side mode)
+  // Sử dụng hasMounted để tránh trigger onQueryChange khi mount lần đầu với giá trị từ localStorage
   React.useEffect(() => {
     if (!onQueryChange) return;
+
+    // Không trigger onQueryChange lần đầu nếu đang dùng localStorage
+    // để tránh infinite loop khi parent re-render
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+
     onQueryChange({ filters: debouncedFilters, sort, page: curPage, pageSize: curPageSize });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedFilters, sort, curPage, curPageSize]);
