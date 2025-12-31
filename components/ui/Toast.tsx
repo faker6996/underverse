@@ -60,11 +60,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children, position
         return updated.slice(0, maxToasts);
       });
 
-      if (toast.duration !== 0) {
-        setTimeout(() => {
-          removeToast(id);
-        }, toast.duration || 5000);
-      }
+      // Auto-dismiss handled by ToastComponent so pause-on-hover works consistently.
     },
     [maxToasts, removeToast]
   );
@@ -99,36 +95,33 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [progress, setProgress] = useState(100);
   const [paused, setPaused] = useState(false);
-  const [startTs] = useState(() => Date.now());
   const total = toast.duration && toast.duration > 0 ? toast.duration : 5000;
-  const [remaining, setRemaining] = useState(total);
+  const endTsRef = useRef<number>(Date.now() + total);
+  const remainingRef = useRef<number>(total);
+  const pausedRef = useRef(false);
+
+  const handleRemove = useCallback(() => {
+    setIsVisible(false);
+    setTimeout(() => onRemove(toast.id), 150);
+  }, [onRemove, toast.id]);
 
   useEffect(() => {
     setIsVisible(true);
     if (toast.duration === 0) return;
-    let raf: number;
-    const tick = () => {
-      if (!paused) {
-        const elapsed = Date.now() - startTs;
-        const remain = Math.max(total - elapsed, 0);
-        setRemaining(remain);
+    remainingRef.current = total;
+    endTsRef.current = Date.now() + total;
+    const intervalId = window.setInterval(() => {
+      if (!pausedRef.current) {
+        const remain = Math.max(endTsRef.current - Date.now(), 0);
+        remainingRef.current = remain;
         setProgress((remain / total) * 100);
         if (remain === 0) {
           handleRemove();
-          return;
         }
       }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleRemove = () => {
-    setIsVisible(false);
-    setTimeout(() => onRemove(toast.id), 150);
-  };
+    }, 50);
+    return () => window.clearInterval(intervalId);
+  }, [handleRemove, toast.duration, total]);
 
   const typeConfig = {
     success: {
@@ -166,8 +159,18 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
       )}
       role="status"
       aria-live={toast.type === "error" ? "assertive" : "polite"}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseEnter={() => {
+        if (toast.duration === 0) return;
+        pausedRef.current = true;
+        remainingRef.current = Math.max(endTsRef.current - Date.now(), 0);
+        setPaused(true);
+      }}
+      onMouseLeave={() => {
+        if (toast.duration === 0) return;
+        pausedRef.current = false;
+        endTsRef.current = Date.now() + remainingRef.current;
+        setPaused(false);
+      }}
     >
       <div className="flex items-start gap-3 p-4">
         <Icon className={cn("h-5 w-5 mt-0.5 shrink-0", config.iconClassName)} />
