@@ -133,8 +133,12 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   };
 
   const formatDateDisplay = (date: Date): string => {
-    // Always include time for clarity
-    return formatDateUtil(date);
+    // Use locale for date formatting
+    return date.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
   };
 
   const getDaysInMonth = (date: Date): number => {
@@ -232,19 +236,22 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             <Button variant="ghost" size="sm" onClick={() => navigateMonth("prev")} className="p-1 h-auto">
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <div className="text-sm font-semibold">{viewDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}</div>
+            <div className="text-sm font-semibold">
+              {viewDate.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", { month: "long", year: "numeric" })}
+            </div>
             <Button variant="ghost" size="sm" onClick={() => navigateMonth("next")} className="p-1 h-auto">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
 
-          {/* Weekday headers */}
           <div className={cn("grid grid-cols-7 gap-1", size === "sm" ? "mb-1" : "mb-2")}>
-            {(weekdayLabels || ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]).map((day) => (
-              <div key={day} className={cn("text-muted-foreground text-center font-medium", size === "sm" ? "text-[10px] py-0.5" : "text-xs py-1")}>
-                {day}
-              </div>
-            ))}
+            {(weekdayLabels || (locale === "vi" ? ["CN", "T2", "T3", "T4", "T5", "T6", "T7"] : ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"])).map(
+              (day) => (
+                <div key={day} className={cn("text-muted-foreground text-center font-medium", size === "sm" ? "text-[10px] py-0.5" : "text-xs py-1")}>
+                  {day}
+                </div>
+              )
+            )}
           </div>
 
           {/* Calendar grid */}
@@ -363,6 +370,7 @@ export const DateRangePicker: React.FC<{
   placeholder?: string;
   className?: string;
 }> = ({ startDate, endDate, onChange, placeholder = "Select date range...", className }) => {
+  const locale = useLocale();
   const [isOpen, setIsOpen] = React.useState(false);
   const [dropdownPosition, setDropdownPosition] = React.useState<{ top: number; left: number; width: number } | null>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
@@ -545,7 +553,9 @@ export const DateRangePicker: React.FC<{
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <div className="text-sm font-semibold">{viewDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}</div>
+            <div className="text-sm font-semibold">
+              {viewDate.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", { month: "long", year: "numeric" })}
+            </div>
             <Button
               variant="ghost"
               size="sm"
@@ -556,7 +566,7 @@ export const DateRangePicker: React.FC<{
             </Button>
           </div>
           <div className="grid grid-cols-7 gap-1 mb-2">
-            {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
+            {(locale === "vi" ? ["CN", "T2", "T3", "T4", "T5", "T6", "T7"] : ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]).map((d) => (
               <div key={d} className="text-xs text-muted-foreground text-center py-1 font-medium">
                 {d}
               </div>

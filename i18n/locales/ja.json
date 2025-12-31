@@ -345,6 +345,8 @@
       "watermark": {
         "text": "表示するウォーターマークのテキスト。",
         "image": "ウォーターマークパターンに使用する画像URL。",
+        "preset": "プリセットウォーターマークスタイル (confidential, draft, sample, copyright, doNotCopy, internal)。",
+        "pattern": "パターンレイアウト (diagonal, grid, straight)。",
         "width": "パターンの内容幅（px）。",
         "height": "パターンの内容高さ（px）。",
         "gapX": "タイル間の水平方向の間隔（px）。",
@@ -352,22 +354,32 @@
         "rotate": "回転角度（度）。",
         "fontSize": "テキストウォーターマークのフォントサイズ。",
         "fontFamily": "テキストウォーターマークのフォント。",
+        "fontWeight": "フォントの太さ（normal、bold、600 など）。",
+        "fontStyle": "フォントスタイル（normal または italic）。",
         "color": "テキスト色（RGBA 推奨）。",
+        "gradient": "グラデーション色（カンマ区切りの複数色）。",
         "opacity": "レイヤー全体の不透明度（0–1）。",
         "offsetLeft": "パターン開始位置の水平オフセット（px）。",
         "offsetTop": "パターン開始位置の垂直オフセット（px）。",
         "zIndex": "オーバーレイの z-index。",
         "fullPage": "ページ全体に固定オーバーレイとして表示。",
+        "interactive": "クリックで表示切替を有効化。",
+        "animate": "表示切替にフェードアニメーションを有効化。",
         "overlayClassName": "オーバーレイレイヤーのカスタムクラス。",
         "className": "ラッパーのカスタムクラス。"
       },
       "timeline": {
         "align": "タイムラインの線に対する配置。",
-        "variant": "アイテムの表示スタイル（default / outlined）。",
-        "size": "マーカーのサイズと間隔。",
+        "variant": "アイテムの表示スタイル (default, outlined, card, minimal, modern, gradient)。",
+        "size": "マーカーのサイズと間隔 (sm, md, lg, xl)。",
+        "mode": "レイアウトの向き (vertical または horizontal)。",
         "lineColor": "接続ラインの色。",
-        "items": "レンダーするアイテム配列（childrenの代わり）。",
-        "itemClassName": "各アイテムに適用するクラス。"
+        "lineStyle": "接続ラインのスタイル (solid, dashed, dotted)。",
+        "items": "レンダーするアイテム配列 (childrenの代わり)。",
+        "itemClassName": "各アイテムに適用するクラス。",
+        "animate": "マウント時にスライドインでアニメーション。",
+        "dense": "密な情報用のコンパクトな間隔モード。",
+        "showLine": "アイテム間の接続ラインを表示。"
       },
       "timelineItem": {
         "title": "アイテムのタイトル。",
@@ -375,8 +387,14 @@
         "time": "下部に表示される時間ラベル。",
         "icon": "内容の横に表示するアイコン。",
         "status": "マーカーのステータス色。",
-        "color": "マーカーの色（ステータスより優先）。",
-        "active": "アクティブ項目として強調。"
+        "color": "マーカーの色 (ステータスより優先)。",
+        "active": "アクティブ項目として強調。",
+        "dot": "カスタムドット内容 (任意の React ノード)。",
+        "badge": "タイトル横に表示するバッジ/タグ内容。",
+        "collapsible": "折りたたみ/展開可能に設定。",
+        "expanded": "制御された展開状態。",
+        "onExpandChange": "展開状態変更時のコールバック。",
+        "expandContent": "展開時に表示するコンテンツ。"
       },
       "fallingIcons": {
         "icon": "落ちるパーティクルとして表示するアイコンコンポーネント。",
@@ -414,6 +432,7 @@
         "asContainer": "自由なレイアウト（items-center を強制しない）。",
         "noWrap": "内容の折り返しを防止する。",
         "noHoverOverlay": "デフォルトのホバーグラデーションを無効化。",
+        "gradient": "グラデーション背景を有効化（variant=\"gradient\" と同等）。",
         "aria-label": "アクセシビリティ用ラベル（アイコンのみのボタンで有効）。"
       },
       "badge": {
@@ -936,17 +955,19 @@
         "columns": "列定義。",
         "data": "行データ。",
         "rowKey": "行キーの取得関数。",
+        "loading": "ローディング状態を表示。",
         "page": "現在ページ。",
         "pageSize": "1ページの行数。",
+        "pageSizeOptions": "ページサイズオプションのリスト。",
         "total": "合計行数(サーバーモード)。",
-        "onQueryChange": "クエリ変更ハンドラ(サーバー)。",
+        "onQueryChange": "サーバー側クエリ変更ハンドラ。",
         "caption": "キャプションノード。",
         "toolbar": "ツールバーノード。",
         "striped": "ストライプ行。",
-        "columnDividers": "列の区切り線。",
+        "columnDividers": "垂直方向の列区切り線を表示。",
         "enableDensityToggle": "密度切替を許可。",
         "enableColumnVisibilityToggle": "列表示切替を許可。",
-        "labels": "密度/オプションのラベル。",
+        "labels": "密度/オプションのローカライズラベル。",
         "className": "カスタムクラス。"
       },
       "numberInput": {

@@ -69,7 +69,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
       size = "md",
       disabled = false,
       orientation = "horizontal",
-      noFocus = false,
+      noFocus = true,
       ...props
     },
     ref
@@ -108,9 +108,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
         {(label || showValue) && (
           <div className="flex items-center justify-between">
             {label && <label className={cn("text-sm font-medium text-foreground", labelClassName)}>{label}</label>}
-            {showValue && (
-              <span className={cn("text-xs font-mono text-muted-foreground min-w-8 text-right", valueClassName)}>{displayValue}</span>
-            )}
+            {showValue && <span className={cn("text-xs font-mono text-muted-foreground min-w-8 text-right", valueClassName)}>{displayValue}</span>}
           </div>
         )}
 
@@ -119,10 +117,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
           {/* Track background */}
           <div className={cn("w-full rounded-full bg-secondary relative overflow-hidden", sizeStyles.track, trackClassName)}>
             {/* Progress fill */}
-            <div
-              className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-150 ease-out"
-              style={{ width: `${percentage}%` }}
-            />
+            <div className="absolute left-0 top-0 h-full bg-primary rounded-full" style={{ width: `${percentage}%` }} />
           </div>
 
           {/* Actual input element */}
