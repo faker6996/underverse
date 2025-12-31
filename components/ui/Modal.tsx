@@ -53,6 +53,9 @@ const Modal: React.FC<ModalProps> = ({
   const [isMounted, setIsMounted] = React.useState(false);
   const [isVisible, setIsVisible] = React.useState(false);
   const [isAnimating, setIsAnimating] = React.useState(true);
+  // Track if mousedown started outside modal content
+  const mouseDownTarget = React.useRef<EventTarget | null>(null);
+  const modalContentRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     setIsMounted(true);
@@ -105,10 +108,21 @@ const Modal: React.FC<ModalProps> = ({
     };
   }, [isOpen]);
 
-  const handleOverlayClick = (event: React.MouseEvent) => {
-    if (closeOnOverlayClick) {
+  const handleOverlayMouseDown = (event: React.MouseEvent) => {
+    // Store the mousedown target
+    mouseDownTarget.current = event.target;
+  };
+
+  const handleOverlayMouseUp = (event: React.MouseEvent) => {
+    // Check if both mousedown and mouseup occurred outside modal content
+    const modalContent = modalContentRef.current;
+    const mouseDownOutside = modalContent && !modalContent.contains(mouseDownTarget.current as Node);
+    const mouseUpOutside = modalContent && !modalContent.contains(event.target as Node);
+
+    if (closeOnOverlayClick && mouseDownOutside && mouseUpOutside) {
       onClose();
     }
+    mouseDownTarget.current = null;
   };
 
   if (!isMounted || (!isOpen && !isVisible)) {
@@ -118,7 +132,11 @@ const Modal: React.FC<ModalProps> = ({
   const maxWidthClass = width ? "max-w-none" : fullWidth ? "max-w-full" : sizeStyles[size];
 
   const modalContent = (
-    <div className={cn("fixed inset-0 z-9999 flex items-center justify-center", overlayClassName)} onClick={handleOverlayClick}>
+    <div
+      className={cn("fixed inset-0 z-9999 flex items-center justify-center", overlayClassName)}
+      onMouseDown={handleOverlayMouseDown}
+      onMouseUp={handleOverlayMouseUp}
+    >
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity duration-200 ease-out"
@@ -129,6 +147,7 @@ const Modal: React.FC<ModalProps> = ({
 
       {/* Modal */}
       <div
+        ref={modalContentRef}
         className={cn(
           "relative w-full rounded-lg bg-card text-card-foreground shadow-xl",
           "transition-all duration-200 ease-out",
