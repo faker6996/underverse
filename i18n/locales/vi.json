@@ -901,10 +901,13 @@
       "section": {
         "children": "Nội dung trong section.",
         "className": "Class tuỳ chỉnh cho &lt;section&gt;.",
-        "variant": "Biến thể hiển thị.",
+        "variant": "Biến thể hiển thị (default|muted|primary|accent|gradient).",
         "spacing": "Khoảng cách dọc (sm|md|lg|xl).",
         "fullWidth": "Kéo dãn full-width (bỏ container).",
-        "outlined": "Hiển thị viền nhẹ giống Card."
+        "outlined": "Hiển thị viền nhẹ giống Card.",
+        "gradientFrom": "Màu bắt đầu gradient (Tailwind class, vd: from-purple-500/20).",
+        "gradientTo": "Màu kết thúc gradient (Tailwind class, vd: to-pink-500/20).",
+        "gradientDirection": "Hướng gradient (to-r|to-l|to-b|to-t|to-br|to-bl|to-tr|to-tl)."
       },
       "smartImage": {
         "src": "URL ảnh.",

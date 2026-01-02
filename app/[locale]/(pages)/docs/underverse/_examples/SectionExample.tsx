@@ -30,6 +30,22 @@ export default function SectionExample() {
         </div>
       </div>
 
+      {/* Gradient Variant */}
+      <div className="space-y-3">
+        <p className="text-sm font-medium">Gradient (Hero Section)</p>
+        <div className="space-y-3">
+          <Section variant="gradient" spacing="md">
+            <div className="p-3 border rounded-md bg-background/80 backdrop-blur-sm">Gradient mặc định (primary → accent)</div>
+          </Section>
+          <Section variant="gradient" gradientFrom="from-purple-500/20" gradientTo="to-pink-500/20" gradientDirection="to-r" spacing="md">
+            <div className="p-3 border rounded-md bg-background/80 backdrop-blur-sm">Custom gradient (purple → pink, to-r)</div>
+          </Section>
+          <Section variant="gradient" gradientFrom="from-blue-600/30" gradientTo="to-emerald-500/30" gradientDirection="to-br" spacing="md">
+            <div className="p-3 border rounded-md bg-background/80 backdrop-blur-sm">Custom gradient (blue → emerald, to-br)</div>
+          </Section>
+        </div>
+      </div>
+
       {/* Spacing */}
       <div className="space-y-3">
         <p className="text-sm font-medium">Spacing</p>
@@ -74,6 +90,19 @@ export default function SectionExample() {
     `<Section variant='accent' spacing='md'>\n` +
     `  <div className='p-3 border rounded-md'>Nội dung section (accent, md)</div>\n` +
     `</Section>\n\n` +
+    `// Gradient (Hero Section)\n` +
+    `<Section variant='gradient' spacing='xl'>\n` +
+    `  <h1>Hero với gradient mặc định</h1>\n` +
+    `</Section>\n\n` +
+    `<Section\n` +
+    `  variant='gradient'\n` +
+    `  gradientFrom='from-purple-500/20'\n` +
+    `  gradientTo='to-pink-500/20'\n` +
+    `  gradientDirection='to-r'\n` +
+    `  spacing='xl'\n` +
+    `>\n` +
+    `  <h1>Hero với custom gradient</h1>\n` +
+    `</Section>\n\n` +
     `// Spacing\n` +
     `<Section variant='muted' spacing='sm'><div className='p-3 border rounded-md'>Spacing sm</div></Section>\n` +
     `<Section variant='muted' spacing='md'><div className='p-3 border rounded-md'>Spacing md</div></Section>\n` +
@@ -89,12 +118,25 @@ export default function SectionExample() {
   const rows: PropsRow[] = [
     { property: "children", description: t("props.section.children"), type: "React.ReactNode", default: "-" },
     { property: "className", description: t("props.section.className"), type: "string", default: "-" },
-    { property: "variant", description: t("props.section.variant"), type: '"default" | "muted" | "primary" | "accent"', default: '"default"' },
+    {
+      property: "variant",
+      description: t("props.section.variant"),
+      type: '"default" | "muted" | "primary" | "accent" | "gradient"',
+      default: '"default"',
+    },
     { property: "spacing", description: t("props.section.spacing"), type: '"sm" | "md" | "lg" | "xl"', default: '"lg"' },
     { property: "fullWidth", description: t("props.section.fullWidth"), type: "boolean", default: "false" },
     { property: "outlined", description: t("props.section.outlined"), type: "boolean", default: "false" },
+    { property: "gradientFrom", description: t("props.section.gradientFrom"), type: "string", default: '"from-primary/20"' },
+    { property: "gradientTo", description: t("props.section.gradientTo"), type: "string", default: '"to-accent/20"' },
+    {
+      property: "gradientDirection",
+      description: t("props.section.gradientDirection"),
+      type: '"to-r" | "to-l" | "to-b" | "to-t" | "to-br" | "to-bl" | "to-tr" | "to-tl"',
+      default: '"to-br"',
+    },
   ];
-  const order = ["children","className","variant","spacing","fullWidth","outlined"];
+  const order = ["children", "className", "variant", "spacing", "fullWidth", "outlined", "gradientFrom", "gradientTo", "gradientDirection"];
   const docs = <PropsDocsTable rows={rows} order={order} />;
 
   return (

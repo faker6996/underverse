@@ -908,10 +908,13 @@
       "section": {
         "children": "Section body content.",
         "className": "Custom class for &lt;section&gt;.",
-        "variant": "Visual variant.",
+        "variant": "Visual variant (default|muted|primary|accent|gradient).",
         "spacing": "Vertical padding (sm|md|lg|xl).",
         "fullWidth": "Stretch to full width (no container).",
-        "outlined": "Show subtle border like Card."
+        "outlined": "Show subtle border like Card.",
+        "gradientFrom": "Gradient start color (Tailwind class, e.g. from-purple-500/20).",
+        "gradientTo": "Gradient end color (Tailwind class, e.g. to-pink-500/20).",
+        "gradientDirection": "Gradient direction (to-r|to-l|to-b|to-t|to-br|to-bl|to-tr|to-tl)."
       },
       "smartImage": {
         "src": "Image source URL.",

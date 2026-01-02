@@ -904,7 +904,10 @@
         "variant": "表示バリアント。",
         "spacing": "上下の余白（sm|md|lg|xl）。",
         "fullWidth": "横幅いっぱいに広げる（コンテナ無し）。",
-        "outlined": "Card 風の薄い枠線を表示。"
+        "outlined": "Card 風の薄い枠線を表示。",
+        "gradientFrom": "グラデーション開始色（Tailwindクラス、例: from-purple-500/20）。",
+        "gradientTo": "グラデーション終了色（Tailwindクラス、例: to-pink-500/20）。",
+        "gradientDirection": "グラデーション方向（to-r|to-l|to-b|to-t|to-br|to-bl|to-tr|to-tl）。"
       },
       "smartImage": {
         "src": "画像 URL。",
