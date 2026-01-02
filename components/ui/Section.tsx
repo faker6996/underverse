@@ -21,14 +21,14 @@ interface SectionProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 const gradientDirectionMap: Record<GradientDirection, string> = {
-  "to-r": "bg-gradient-to-r",
-  "to-l": "bg-gradient-to-l",
-  "to-b": "bg-gradient-to-b",
-  "to-t": "bg-gradient-to-t",
-  "to-br": "bg-gradient-to-br",
-  "to-bl": "bg-gradient-to-bl",
-  "to-tr": "bg-gradient-to-tr",
-  "to-tl": "bg-gradient-to-tl",
+  "to-r": "bg-linear-to-r",
+  "to-l": "bg-linear-to-l",
+  "to-b": "bg-linear-to-b",
+  "to-t": "bg-linear-to-t",
+  "to-br": "bg-linear-to-br",
+  "to-bl": "bg-linear-to-bl",
+  "to-tr": "bg-linear-to-tr",
+  "to-tl": "bg-linear-to-tl",
 };
 
 const Section = React.forwardRef<HTMLElement, SectionProps>(
