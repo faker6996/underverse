@@ -3,6 +3,22 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils/cn";
 
+// Helper to detect padding classes per direction
+const getPaddingInfo = (className?: string) => {
+  if (!className) return { hasAll: false, hasX: false, hasY: false };
+
+  // Check for all-direction padding (p-)
+  const hasAll = /\b(p)-\d+|\b(p)-\[/.test(className) || /\bmd:p-|lg:p-|sm:p-|xl:p-/.test(className);
+
+  // Check for X-axis padding (px-, pl-, pr-, ps-, pe-)
+  const hasX = /\b(px|pl|pr|ps|pe)-/.test(className);
+
+  // Check for Y-axis padding (py-, pt-, pb-)
+  const hasY = /\b(py|pt|pb)-/.test(className);
+
+  return { hasAll, hasX, hasY };
+};
+
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
   description?: string;
@@ -12,11 +28,24 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   hoverable?: boolean;
   clickable?: boolean;
   innerClassName?: string; // class for inner rounded wrapper
-  contentClassName?: string; // class for content wrapper
+  contentClassName?: string; // class for content wrapper (if padding class provided, overrides default)
   noPadding?: boolean; // remove default body padding
 }
 
-const Card = ({ title, description, children, footer, className, hoverable = false, clickable = false, innerClassName, contentClassName, noPadding = false, onClick, ...rest }: CardProps) => {
+const Card = ({
+  title,
+  description,
+  children,
+  footer,
+  className,
+  hoverable = false,
+  clickable = false,
+  innerClassName,
+  contentClassName,
+  noPadding = false,
+  onClick,
+  ...rest
+}: CardProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -60,12 +89,16 @@ const Card = ({ title, description, children, footer, className, hoverable = fal
           </div>
         )}
 
-        {children && (
-          <div className={cn("relative p-4 md:p-6 pt-0", noPadding && "p-0", contentClassName)}>
-            {children}
-          </div>
-        )}
+        {children &&
+          (() => {
+            const padding = getPaddingInfo(contentClassName);
+            const skipAllPadding = noPadding || padding.hasAll;
+            // Default X: px-4 md:px-6, Default Y: pt-0 pb-4 md:pb-6
+            const defaultPaddingX = !skipAllPadding && !padding.hasX ? "px-4 md:px-6" : "";
+            const defaultPaddingY = !skipAllPadding && !padding.hasY ? "pt-0 pb-4 md:pb-6" : "";
 
+            return <div className={cn("relative", defaultPaddingX, defaultPaddingY, contentClassName)}>{children}</div>;
+          })()}
         {footer && <div className="relative flex items-center p-4 md:p-6 pt-0 border-t border-border mt-4">{footer}</div>}
       </div>
     </div>

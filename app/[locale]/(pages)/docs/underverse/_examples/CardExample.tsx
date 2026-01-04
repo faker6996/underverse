@@ -41,13 +41,18 @@ export default function CardExample() {
     `>\n` +
     `  <p>Clicked {count} times</p>\n` +
     `</Card>\n\n` +
-    `// Custom Styling\n` +
-    `<Card\n` +
-    `  title="Custom Styles"\n` +
-    `  className="bg-linear-to-br from-primary/10 to-transparent"\n` +
-    `  contentClassName="text-center"\n` +
-    `>\n` +
-    `  <p>Centered content with gradient background</p>\n` +
+    `// Smart Padding Logic\n` +
+    `// 1. Only Horizontal Padding (Vertical keeps default)\n` +
+    `<Card title="Horizontal Only" contentClassName="px-8">\n` +
+    `  <p>px-8 applied, default py kept</p>\n` +
+    `</Card>\n\n` +
+    `// 2. Only Vertical Padding (Horizontal keeps default)\n` +
+    `<Card title="Vertical Only" contentClassName="py-12">\n` +
+    `  <p>py-12 applied, default px kept</p>\n` +
+    `</Card>\n\n` +
+    `// 3. Full Custom (Overrides all)\n` +
+    `<Card title="Full Custom" contentClassName="p-0">\n` +
+    `  <img src="/cover.jpg" className="w-full" />\n` +
     `</Card>`;
 
   const demo = (
@@ -68,8 +73,12 @@ export default function CardExample() {
           description="This card has a footer section"
           footer={
             <div className="flex gap-2">
-              <Button size="sm" variant="outline">Cancel</Button>
-              <Button size="sm" variant="primary">Save</Button>
+              <Button size="sm" variant="outline">
+                Cancel
+              </Button>
+              <Button size="sm" variant="primary">
+                Save
+              </Button>
             </div>
           }
         >
@@ -88,14 +97,24 @@ export default function CardExample() {
       {/* Clickable Card */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Clickable Card</p>
-        <Card
-          title="Clickable Card"
-          description="Click me!"
-          clickable
-          onClick={() => setClickCount(clickCount + 1)}
-        >
-          <p className="text-sm">Clicked <strong>{clickCount}</strong> times</p>
+        <Card title="Clickable Card" description="Click me!" clickable onClick={() => setClickCount(clickCount + 1)}>
+          <p className="text-sm">
+            Clicked <strong>{clickCount}</strong> times
+          </p>
         </Card>
+      </div>
+
+      {/* Smart Padding */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Smart Padding</p>
+        <div className="grid md:grid-cols-2 gap-4">
+          <Card title="Horizontal Only" contentClassName="px-8 border border-dashed">
+            <p className="text-sm bg-accent/10">px-8 applied, default py kept</p>
+          </Card>
+          <Card title="Vertical Only" contentClassName="py-12 border border-dashed">
+            <p className="text-sm bg-accent/10">py-12 applied, default px kept</p>
+          </Card>
+        </div>
       </div>
 
       {/* Custom Styling */}
@@ -118,7 +137,11 @@ export default function CardExample() {
           title="Feature Complete"
           description="Hoverable, with footer and custom styling"
           hoverable
-          footer={<Button size="sm" variant="gradient">Learn More</Button>}
+          footer={
+            <Button size="sm" variant="gradient">
+              Learn More
+            </Button>
+          }
           className="border-primary/30"
         >
           <p className="text-sm">This card combines multiple features: hoverable effect, footer section, and custom border color.</p>
@@ -152,4 +175,3 @@ export default function CardExample() {
     />
   );
 }
-

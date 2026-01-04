@@ -476,7 +476,7 @@
         "clickable": "Cho phép click toàn bộ thẻ.",
         "onClick": "Xử lý click (khi clickable = true).",
         "className": "Class ngoài tuỳ biến.",
-        "contentClassName": "Class vùng nội dung."
+        "contentClassName": "Class vùng nội dung. Hỗ trợ ghi đè padding thông minh (ví dụ: 'px-4' giữ nguyên 'py' mặc định)."
       },
       "textarea": {
         "label": "Nhãn textarea.",
