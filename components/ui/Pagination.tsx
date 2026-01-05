@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils/cn";
 import { ChevronLeft, ChevronRight, MoreHorizontal, ChevronsLeft, ChevronsRight } from "lucide-react";
 import Button from "./Button";
 import { Combobox } from "./Combobox";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/lib/i18n/translation-adapter";
 
 export interface PaginationProps {
   page: number;
@@ -155,9 +155,11 @@ export const Pagination: React.FC<PaginationProps> = ({
         </div>
       )}
 
-      <div className={cn("flex items-center justify-between", {
-        "flex-row-reverse": alignment === "right" || alignment === "center",
-      })}>
+      <div
+        className={cn("flex items-center justify-between", {
+          "flex-row-reverse": alignment === "right" || alignment === "center",
+        })}
+      >
         <div className={cn("flex items-center gap-1")}>
           {/* First Page */}
           {showFirstLast && (

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils/cn";
 import { Calendar, ChevronLeft, ChevronRight, X as XIcon } from "lucide-react";
 import Button from "./Button";
 import { useShadCNAnimations } from "@/lib/utils/shadcn-animations";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations, useLocale } from "@/lib/i18n/translation-adapter";
 import { LOCALE } from "@/lib/constants/enum";
 import { formatDate as formatDateUtil, formatDateShort } from "@/lib/utils/date";
 

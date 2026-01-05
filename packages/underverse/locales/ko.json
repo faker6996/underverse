@@ -1,0 +1,61 @@
+{
+  "Common": {
+    "close": "닫기",
+    "closeAlert": "알림 닫기",
+    "notifications": "알림",
+    "newNotification": "새로운",
+    "readStatus": "읽음",
+    "openLink": "링크 열기",
+    "theme": "테마",
+    "lightTheme": "라이트",
+    "darkTheme": "다크",
+    "systemTheme": "시스템",
+    "density": "밀도",
+    "compact": "컴팩트",
+    "normal": "보통",
+    "comfortable": "여유",
+    "columns": "열"
+  },
+  "ValidationInput": {
+    "required": "필수 입력 항목입니다",
+    "typeMismatch": "형식이 올바르지 않습니다",
+    "pattern": "패턴이 일치하지 않습니다",
+    "tooShort": "너무 짧습니다",
+    "tooLong": "너무 깁니다",
+    "rangeUnderflow": "최솟값보다 작습니다",
+    "rangeOverflow": "최댓값을 초과했습니다",
+    "stepMismatch": "단계가 일치하지 않습니다",
+    "badInput": "잘못된 입력입니다",
+    "invalid": "유효하지 않은 값입니다"
+  },
+  "Loading": {
+    "loadingPage": "페이지 로딩 중",
+    "pleaseWait": "잠시만 기다려 주세요"
+  },
+  "DatePicker": {
+    "placeholder": "날짜 선택",
+    "today": "오늘",
+    "clear": "지우기"
+  },
+  "Pagination": {
+    "navigationLabel": "페이지 네비게이션",
+    "showingResults": "{startItem}–{endItem} / 총 {totalItems}개",
+    "firstPage": "첫 페이지",
+    "previousPage": "이전 페이지",
+    "previous": "이전",
+    "nextPage": "다음 페이지",
+    "next": "다음",
+    "lastPage": "마지막 페이지",
+    "pageNumber": "{page}페이지",
+    "itemsPerPage": "페이지당 항목 수",
+    "search": "검색",
+    "noOptions": "옵션 없음"
+  },
+  "OCR": {
+    "imageUpload": {
+      "dragDropText": "여기에 파일을 드래그 앤 드롭하세요",
+      "browseFiles": "파일 찾아보기",
+      "supportedFormats": "지원 형식: 이미지"
+    }
+  }
+}

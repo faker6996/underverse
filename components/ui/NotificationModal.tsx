@@ -4,7 +4,7 @@ import { ExternalLink } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import { cn } from "@/lib/utils/cn";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/lib/i18n/translation-adapter";
 
 interface NotificationItem {
   id: number;
@@ -26,18 +26,18 @@ interface NotificationModalProps {
 }
 
 export function NotificationModal({ isOpen, onClose, notification, titleText, openLinkText, closeText }: NotificationModalProps) {
-  const t = useTranslations('Common');
-  
+  const t = useTranslations("Common");
+
   if (!notification) return null;
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString(undefined, {
-      year: 'numeric',
-      month: '2-digit', 
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -45,65 +45,36 @@ export function NotificationModal({ isOpen, onClose, notification, titleText, op
 
   const handleLinkClick = () => {
     if (hasLink) {
-      window.open(notification.metadata.link, '_blank');
+      window.open(notification.metadata.link, "_blank");
       onClose();
     }
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={titleText || t('notifications')}
-      size="md"
-    >
+    <Modal isOpen={isOpen} onClose={onClose} title={titleText || t("notifications")} size="md">
       <div className="space-y-4">
         {/* Status indicator */}
         <div className="flex items-center gap-2 pb-2 border-b border-border">
-          <div className={cn(
-            "w-2 h-2 rounded-full",
-            !notification.is_read ? "bg-primary" : "bg-border"
-          )} />
-          <span className="text-xs text-muted-foreground">
-            {!notification.is_read ? t('newNotification') : t('readStatus')}
-          </span>
+          <div className={cn("w-2 h-2 rounded-full", !notification.is_read ? "bg-primary" : "bg-border")} />
+          <span className="text-xs text-muted-foreground">{!notification.is_read ? t("newNotification") : t("readStatus")}</span>
         </div>
 
-        {notification.title && (
-          <h3 className="text-lg font-semibold text-foreground">
-            {notification.title}
-          </h3>
-        )}
-        
-        {notification.body && (
-          <div className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
-            {notification.body}
-          </div>
-        )}
+        {notification.title && <h3 className="text-lg font-semibold text-foreground">{notification.title}</h3>}
 
-        <div className="text-xs text-muted-foreground border-t border-border pt-2">
-          {formatTime(notification.created_at)}
-        </div>
+        {notification.body && <div className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">{notification.body}</div>}
+
+        <div className="text-xs text-muted-foreground border-t border-border pt-2">{formatTime(notification.created_at)}</div>
 
         {/* Actions */}
         <div className="flex gap-2 justify-end pt-2">
           {hasLink && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleLinkClick}
-              className="gap-2"
-            >
+            <Button variant="primary" size="sm" onClick={handleLinkClick} className="gap-2">
               <ExternalLink className="w-4 h-4" />
-              {openLinkText || t('openLink')}
+              {openLinkText || t("openLink")}
             </Button>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-          >
-            {closeText || t('close')}
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            {closeText || t("close")}
           </Button>
         </div>
       </div>

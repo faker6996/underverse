@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils/cn";
 import { ReactNode, useState } from "react";
 import { Info, AlertTriangle, CheckCircle, XCircle, X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/lib/i18n/translation-adapter";
 
 type AlertVariant = "default" | "info" | "success" | "warning" | "error";
 

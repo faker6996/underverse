@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Globe } from "lucide-react";
 import Button from "./Button";
 import { cn } from "@/lib/utils/cn";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/lib/i18n/translation-adapter";
 
 interface Language {
   code: string;
@@ -19,7 +19,7 @@ const languages: Language[] = [
   { code: "vi", name: "Tiếng Việt", flag: "🇻🇳" },
   { code: "en", name: "English", flag: "🇺🇸" },
   { code: "ko", name: "한국어", flag: "🇰🇷" },
-  { code: "ja", name: "日本語", flag: "🇯🇵" }
+  { code: "ja", name: "日本語", flag: "🇯🇵" },
 ];
 
 export default function LanguageSwitcher() {

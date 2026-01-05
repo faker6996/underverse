@@ -2,7 +2,7 @@
 "use client";
 
 import React, { forwardRef, InputHTMLAttributes, useId, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/lib/i18n/translation-adapter";
 import { cn } from "@/lib/utils/cn";
 import { Eye, EyeOff, Search, X, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 

@@ -6,7 +6,7 @@ import { Upload, X, Image as ImageIcon, Loader2, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import Button from "./Button";
 import { useToast } from "./Toast";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/lib/i18n/translation-adapter";
 
 // Upload interface for basic setup
 interface UploadedImage {

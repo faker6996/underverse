@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/utils/cn";
 import { Filter as FilterIcon } from "lucide-react";
 import React from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/lib/i18n/translation-adapter";
 
 type FilterType = "text" | "select" | "date";
 

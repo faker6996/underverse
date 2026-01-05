@@ -3,7 +3,7 @@
 import * as React from "react";
 // Remove radix-ui imports as they are no longer needed
 import { Controller, ControllerProps, FieldPath, FieldValues, FormProvider, useFormContext, useForm, SubmitHandler } from "react-hook-form";
-import { useTranslations } from "next-intl";
+import { useTranslations } from "@/lib/i18n/translation-adapter";
 
 import { cn } from "@/lib/utils/cn";
 import { Label } from "@/components/ui/label";
@@ -46,7 +46,7 @@ const FormWrapper = <T extends FieldValues = FieldValues>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(initialValues)]);
 
-  // Extract DOM-unsafe props  
+  // Extract DOM-unsafe props
   const { validationSchema: _, ...formProps } = props as any;
 
   return (
@@ -126,26 +126,20 @@ const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
 });
 FormItem.displayName = "FormItem";
 
-const FormLabel = React.forwardRef<
-  HTMLLabelElement,
-  React.LabelHTMLAttributes<HTMLLabelElement> & { required?: boolean }
->(({ className, children, required, ...props }, ref) => {
-  const { error, formItemId } = useFormField();
-  const config = React.useContext(FormConfigContext);
-  const sizeClass = config.size === "sm" ? "text-xs" : config.size === "lg" ? "text-base" : "text-sm";
+const FormLabel = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement> & { required?: boolean }>(
+  ({ className, children, required, ...props }, ref) => {
+    const { error, formItemId } = useFormField();
+    const config = React.useContext(FormConfigContext);
+    const sizeClass = config.size === "sm" ? "text-xs" : config.size === "lg" ? "text-base" : "text-sm";
 
-  return (
-    <Label
-      ref={ref}
-      className={cn(sizeClass, error && "text-destructive", className)}
-      htmlFor={formItemId}
-      {...props}
-    >
-      {children}
-      {required && <span className="text-destructive ml-1">*</span>}
-    </Label>
-  );
-});
+    return (
+      <Label ref={ref} className={cn(sizeClass, error && "text-destructive", className)} htmlFor={formItemId} {...props}>
+        {children}
+        {required && <span className="text-destructive ml-1">*</span>}
+      </Label>
+    );
+  }
+);
 FormLabel.displayName = "FormLabel";
 
 const FormControl = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ ...props }, ref) => {
@@ -187,10 +181,7 @@ const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<
 FormMessage.displayName = "FormMessage";
 
 // Additional form components for compatibility
-const FormInput = React.forwardRef<
-  HTMLInputElement,
-  React.ComponentProps<typeof Input> & { name: string }
->(({ name, ...props }, ref) => (
+const FormInput = React.forwardRef<HTMLInputElement, React.ComponentProps<typeof Input> & { name: string }>(({ name, ...props }, ref) => (
   <FormConfigContext.Consumer>
     {({ size }) => (
       <FormField
@@ -209,10 +200,7 @@ const FormInput = React.forwardRef<
 ));
 FormInput.displayName = "FormInput";
 
-const FormCheckbox = React.forwardRef<
-  HTMLInputElement,
-  React.ComponentProps<typeof Checkbox> & { name: string }
->(({ name, ...props }, ref) => (
+const FormCheckbox = React.forwardRef<HTMLInputElement, React.ComponentProps<typeof Checkbox> & { name: string }>(({ name, ...props }, ref) => (
   <FormConfigContext.Consumer>
     {({ size }) => (
       <FormField
@@ -241,39 +229,35 @@ const FormCheckbox = React.forwardRef<
 ));
 FormCheckbox.displayName = "FormCheckbox";
 
-const FormActions = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+const FormActions = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
   <div ref={ref} className={cn("flex gap-2 justify-end", className)} {...props} />
 ));
 FormActions.displayName = "FormActions";
 
-const FormSubmitButton = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<typeof Button> & { loading?: boolean }
->(({ children, loading, ...props }, ref) => (
-  <FormConfigContext.Consumer>
-    {({ size }) => (
-      <Button ref={ref} type="submit" size={(props.size as any) ?? size} disabled={loading} {...props}>
-        {children}
-      </Button>
-    )}
-  </FormConfigContext.Consumer>
-));
+const FormSubmitButton = React.forwardRef<HTMLButtonElement, React.ComponentProps<typeof Button> & { loading?: boolean }>(
+  ({ children, loading, ...props }, ref) => (
+    <FormConfigContext.Consumer>
+      {({ size }) => (
+        <Button ref={ref} type="submit" size={(props.size as any) ?? size} disabled={loading} {...props}>
+          {children}
+        </Button>
+      )}
+    </FormConfigContext.Consumer>
+  )
+);
 FormSubmitButton.displayName = "FormSubmitButton";
 
-export { 
-  useFormField, 
-  Form, 
-  FormItem, 
-  FormLabel, 
-  FormControl, 
-  FormDescription, 
-  FormField, 
+export {
+  useFormField,
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormField,
   FormMessage,
   FormInput,
   FormCheckbox,
   FormActions,
-  FormSubmitButton
+  FormSubmitButton,
 };

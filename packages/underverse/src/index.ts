@@ -107,11 +107,43 @@ export type { ThemeToggleHeadlessProps } from "../../../components/ui/ThemeToggl
 export { default as LanguageSwitcherHeadless } from "../../../components/ui/LanguageSwitcherHeadless";
 export type { LanguageSwitcherHeadlessProps } from "../../../components/ui/LanguageSwitcherHeadless";
 
-// Utilities needed by components (optional public re-exports)
+// ============================================================================
+// UTILITIES (standalone, no Next.js dependencies)
+// ============================================================================
+
+// Class name utility (cn)
 export { cn } from "../../../lib/utils/cn";
-export * as DateUtils from "../../../lib/utils/date";
+export { cn as cnLocal } from "./utils/cn";
+
+// Date utilities with locale support (standalone)
+export * as DateUtils from "./utils/date";
+export type { SupportedLocale } from "./utils/date";
+
+// Animation utilities
+export { shadcnAnimationStyles, useShadCNAnimations, injectAnimationStyles, getAnimationStyles } from "./utils/animations";
+
+// Constants for styling
 export { VARIANT_STYLES_BTN, SIZE_STYLES_BTN } from "../../../lib/constants/constants-ui/button";
 export { VARIANT_STYLES_ALERT } from "../../../lib/constants/constants-ui/alert";
+
+// ============================================================================
+// TRANSLATION SYSTEM (for React/Next.js without next-intl)
+// ============================================================================
+// TranslationProvider - Optional context for i18n support
+// When not wrapped in TranslationProvider, components use English fallback texts
+export { TranslationProvider, useUnderverseTranslations, useUnderverseLocale } from "./contexts/TranslationContext";
+export type { Locale, Translations, TranslationProviderProps } from "./contexts/TranslationContext";
+
+// UnderverseProvider - Alternative name for TranslationProvider (for standalone React usage)
+export {
+  UnderverseProvider,
+  useTranslations as useUnderverseI18n,
+  useLocale as useUnderverseI18nLocale,
+} from "../../../lib/i18n/translation-adapter";
+export type { UnderverseProviderProps } from "../../../lib/i18n/translation-adapter";
+
+// Smart hooks that auto-detect next-intl or fallback to internal translations
+export { useSmartTranslations, useSmartLocale, ForceInternalTranslationsProvider } from "./hooks/useSmartTranslations";
 
 // Excluded: NotificationBell (depends on project-specific API, auth, and sockets)
 
@@ -119,12 +151,11 @@ export { VARIANT_STYLES_ALERT } from "../../../lib/constants/constants-ui/alert"
 // Provide ready-to-merge messages so apps can easily integrate underverse UI texts.
 import en from "../locales/en.json";
 import vi from "../locales/vi.json";
+import ko from "../locales/ko.json";
+import ja from "../locales/ja.json";
 
-export const underverseMessages = { en, vi } as const;
+export const underverseMessages = { en, vi, ko, ja } as const;
 export type UnderverseLocale = keyof typeof underverseMessages;
 export function getUnderverseMessages(locale: UnderverseLocale = "en") {
   return underverseMessages[locale] || underverseMessages.en;
 }
-// Auto publish trigger
-// Trigger CI fix test
-// Trigger CI token fix
