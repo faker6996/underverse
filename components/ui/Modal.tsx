@@ -108,6 +108,31 @@ const Modal: React.FC<ModalProps> = ({
     };
   }, [isOpen]);
 
+  // Check if an element is inside a portal (datepicker, popover, dropdown, etc.)
+  const isInsidePortal = (element: Node | null): boolean => {
+    if (!element) return false;
+    let current = element as HTMLElement | null;
+    while (current) {
+      // Check for common portal indicators (data attributes, z-index patterns)
+      if (
+        current.hasAttribute?.("data-datepicker") ||
+        current.hasAttribute?.("data-popover") ||
+        current.hasAttribute?.("data-dropdown") ||
+        current.hasAttribute?.("data-dropdown-menu") ||
+        current.hasAttribute?.("data-radix-popper-content-wrapper") ||
+        current.hasAttribute?.("data-radix-portal") ||
+        current.getAttribute?.("role") === "listbox" ||
+        current.getAttribute?.("role") === "dialog" ||
+        current.classList?.contains("datepicker-portal") ||
+        current.classList?.contains("popover-portal")
+      ) {
+        return true;
+      }
+      current = current.parentElement;
+    }
+    return false;
+  };
+
   const handleOverlayMouseDown = (event: React.MouseEvent) => {
     // Store the mousedown target
     mouseDownTarget.current = event.target;
@@ -116,8 +141,17 @@ const Modal: React.FC<ModalProps> = ({
   const handleOverlayMouseUp = (event: React.MouseEvent) => {
     // Check if both mousedown and mouseup occurred outside modal content
     const modalContent = modalContentRef.current;
-    const mouseDownOutside = modalContent && !modalContent.contains(mouseDownTarget.current as Node);
-    const mouseUpOutside = modalContent && !modalContent.contains(event.target as Node);
+    const mouseDownTarget_ = mouseDownTarget.current as Node;
+    const mouseUpTarget = event.target as Node;
+
+    // Don't close if clicking inside a portal element (datepicker, popover, etc.)
+    if (isInsidePortal(mouseDownTarget_) || isInsidePortal(mouseUpTarget)) {
+      mouseDownTarget.current = null;
+      return;
+    }
+
+    const mouseDownOutside = modalContent && !modalContent.contains(mouseDownTarget_);
+    const mouseUpOutside = modalContent && !modalContent.contains(mouseUpTarget);
 
     if (closeOnOverlayClick && mouseDownOutside && mouseUpOutside) {
       onClose();
