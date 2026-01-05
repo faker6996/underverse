@@ -3,10 +3,20 @@
 Source: `components/ui/DatePicker.tsx`
 
 Exports:
+
 - DatePicker
 - DateRangePicker
 
-Note: Usage snippets are minimal; fill required props from the props type below.
+Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja). Tự động detect `next-intl` hoặc sử dụng `TranslationProvider`.
+
+## Supported Locales
+
+| Locale | Placeholder   | Today   | Clear  |
+| ------ | ------------- | ------- | ------ |
+| `en`   | Select a date | Today   | Clear  |
+| `vi`   | Chọn ngày     | Hôm nay | Xóa    |
+| `ko`   | 날짜 선택     | 오늘    | 지우기 |
+| `ja`   | 日付を選択    | 今日    | クリア |
 
 ## DatePicker
 
@@ -28,15 +38,31 @@ import { DatePicker } from "@underverse-ui/underverse";
 
 export function Example() {
   const [date, setDate] = React.useState();
+  return <DatePicker value={date} onChange={setDate} label="Ngay giao" placeholder="Chon ngay" />;
+}
+```
+
+### Với TranslationProvider (Standalone React):
+
+```tsx
+import React from "react";
+import { TranslationProvider, DatePicker } from "@underverse-ui/underverse";
+
+export function App() {
+  const [date, setDate] = React.useState();
   return (
-    <DatePicker
-      value={date}
-      onChange={setDate}
-      label="Ngay giao"
-      placeholder="Chon ngay"
-    />
+    <TranslationProvider locale="ko">
+      <DatePicker value={date} onChange={setDate} label="배송일" />
+      {/* Placeholder sẽ hiển thị: 날짜 선택 */}
+    </TranslationProvider>
   );
 }
+```
+
+### Override labels thủ công:
+
+```tsx
+<DatePicker value={date} onChange={setDate} todayLabel="今日 (custom)" clearLabel="クリア (custom)" placeholder="日付を選んでください" />
 ```
 
 ```ts
@@ -76,14 +102,7 @@ import { DateRangePicker } from "@underverse-ui/underverse";
 
 export function Example() {
   const [range, setRange] = React.useState({ start: undefined, end: undefined });
-  return (
-    <DateRangePicker
-      value={range}
-      onChange={setRange}
-      label="Khoang ngay"
-      placeholder="Chon khoang"
-    />
-  );
+  return <DateRangePicker value={range} onChange={setRange} label="Khoang ngay" placeholder="Chon khoang" />;
 }
 ```
 

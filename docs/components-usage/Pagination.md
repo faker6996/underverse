@@ -3,11 +3,21 @@
 Source: `components/ui/Pagination.tsx`
 
 Exports:
+
 - Pagination
 - SimplePagination
 - CompactPagination
 
-Note: Usage snippets are minimal; fill required props from the props type below.
+Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja). Tự động detect `next-intl` hoặc sử dụng `TranslationProvider`.
+
+## Supported Locales
+
+| Locale | First Page   | Previous | Next | Last Page     |
+| ------ | ------------ | -------- | ---- | ------------- |
+| `en`   | First page   | Previous | Next | Last page     |
+| `vi`   | Trang đầu    | Trước    | Tiếp | Trang cuối    |
+| `ko`   | 처음 페이지  | 이전     | 다음 | 마지막 페이지 |
+| `ja`   | 最初のページ | 前へ     | 次へ | 最後のページ  |
 
 ## Pagination
 
@@ -29,17 +39,42 @@ import { Pagination } from "@underverse-ui/underverse";
 
 export function Example() {
   const [page, setPage] = React.useState(1);
+  return <Pagination page={page} totalPages={8} onChange={setPage} showInfo totalItems={80} />;
+}
+```
+
+### Với TranslationProvider (Korean):
+
+```tsx
+import { TranslationProvider, Pagination } from "@underverse-ui/underverse";
+
+export function App() {
+  const [page, setPage] = React.useState(1);
   return (
-    <Pagination
-      page={page}
-      totalPages={8}
-      onChange={setPage}
-      showInfo
-      totalItems={80}
-    />
+    <TranslationProvider locale="ko">
+      <Pagination page={page} totalPages={10} onChange={setPage} showInfo totalItems={100} />
+      {/* Hiển thị: 1 - 10 / 100 항목 */}
+    </TranslationProvider>
   );
 }
 ```
+
+### Override labels thủ công:
+
+````tsx
+<Pagination
+  page={page}
+  totalPages={10}
+  onChange={setPage}
+  labels={{
+    firstPage: "最初 (custom)",
+    lastPage: "最後 (custom)",
+    previous: "前",
+    next: "次",
+    showingResults: ({ startItem, endItem, totalItems }) =>
+      `${startItem} ~ ${endItem} / ${totalItems} 件`,
+  }}
+/>
 
 ```ts
 export interface PaginationProps {
@@ -75,7 +110,7 @@ export interface PaginationProps {
     pageNumber?: (page: number) => string;
   };
 }
-```
+````
 
 ## SimplePagination
 

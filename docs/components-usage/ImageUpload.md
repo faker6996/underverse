@@ -3,9 +3,19 @@
 Source: `components/ui/ImageUpload.tsx`
 
 Exports:
+
 - ImageUpload
 
-Note: Usage snippets are minimal; fill required props from the props type below.
+Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja) cho drag & drop text.
+
+## i18n Support
+
+| Locale | Drag & Drop Text                | Browse Files   |
+| ------ | ------------------------------- | -------------- |
+| `en`   | Drag and drop images here       | Browse files   |
+| `vi`   | Kéo thả hình ảnh vào đây        | Chọn tệp       |
+| `ko`   | 여기에 이미지를 끌어다 놓으세요 | 파일 찾아보기  |
+| `ja`   | ここに画像をドラッグ＆ドロップ  | ファイルを参照 |
 
 ## ImageUpload
 
@@ -26,9 +36,7 @@ import React from "react";
 import { ImageUpload } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <ImageUpload />
-  );
+  return <ImageUpload />;
 }
 ```
 

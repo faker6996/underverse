@@ -3,9 +3,19 @@
 Source: `components/ui/DataTable.tsx`
 
 Exports:
+
 - DataTable
 
-Note: Usage snippets are minimal; fill required props from the props type below.
+Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja) cho các labels như density, columns, etc.
+
+## i18n Support
+
+| Locale | Columns | Density | Compact    | Normal      | Comfortable |
+| ------ | ------- | ------- | ---------- | ----------- | ----------- |
+| `en`   | Columns | Density | Compact    | Normal      | Comfortable |
+| `vi`   | Cột     | Mật độ  | Thu gọn    | Bình thường | Thoải mái   |
+| `ko`   | 열      | 밀도    | 컴팩트     | 보통        | 편안함      |
+| `ja`   | 列      | 密度    | コンパクト | 通常        | 快適        |
 
 ## DataTable
 
@@ -35,15 +45,7 @@ export function Example() {
     { name: "San pham B", price: "240.000d" },
   ];
 
-  return (
-    <DataTable
-      columns={columns}
-      data={data}
-      total={data.length}
-      page={1}
-      pageSize={10}
-    />
-  );
+  return <DataTable columns={columns} data={data} total={data.length} page={1} pageSize={10} />;
 }
 ```
 

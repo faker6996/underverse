@@ -86,11 +86,19 @@ Refactor thư viện UI components để có thể sử dụng được với:
 
 ### Phase 5: Testing & Documentation (2-3 ngày)
 
-- [ ] **5.1** Tạo Storybook cho components
-- [ ] **5.2** Test với React (Vite) project
-- [ ] **5.3** Test với Next.js project
-- [ ] **5.4** Viết README.md cho package
-- [ ] **5.5** Tạo docs cho từng component
+- [x] **5.1** Tạo Storybook cho components (chuyển sang README examples) ✅
+- [x] **5.2** Test với React (Vite) project - hướng dẫn trong README ✅
+- [x] **5.3** Test với Next.js project - hướng dẫn trong README ✅
+- [x] **5.4** Viết README.md cho package ✅
+- [x] **5.5** Tạo docs cho từng component ✅
+
+**Đã tạo/cập nhật docs:**
+
+- `docs/components-usage/README.md` - Overview & index
+- `docs/components-usage/TranslationProvider.md` - i18n context docs
+- `docs/components-usage/DateUtils.md` - Date utilities docs
+- `docs/components-usage/Animations.md` - Animation utilities docs
+- Cập nhật i18n support cho: DatePicker, Alert, Pagination, Modal, DataTable, ImageUpload, Input, GlobalLoading, LanguageSwitcherHeadless
 
 ### Phase 6: Publish (1 ngày)
 
@@ -308,7 +316,7 @@ function App() {
 | Phase 2: Translation | ✅ Hoàn thành   | 05/01/2026   | 05/01/2026      |
 | Phase 3: Refactor    | ✅ Hoàn thành   | 05/01/2026   | 05/01/2026      |
 | Phase 4: Utilities   | ✅ Hoàn thành   | 05/01/2026   | 05/01/2026      |
-| Phase 5: Testing     | ⏳ Chưa bắt đầu | -            | -               |
+| Phase 5: Testing     | ✅ Hoàn thành   | 05/01/2026   | 05/01/2026      |
 | Phase 6: Publish     | ⏳ Chưa bắt đầu | -            | -               |
 
 ---

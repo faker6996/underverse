@@ -66,6 +66,8 @@ const TableOfContents = dynamicImport(() => import("./_components/TableOfContent
 const DocsHeader = dynamicImport(() => import("./_components/DocsHeader"), { ssr: false });
 const ThemeToggleHeadlessExample = dynamicImport(() => import("./_examples/ThemeToggleHeadlessExample"), { ssr: false });
 const LanguageSwitcherHeadlessExample = dynamicImport(() => import("./_examples/LanguageSwitcherHeadlessExample"), { ssr: false });
+const TranslationProviderExample = dynamicImport(() => import("./_examples/TranslationProviderExample"), { ssr: false });
+const DateUtilsExample = dynamicImport(() => import("./_examples/DateUtilsExample"), { ssr: false });
 
 export default function UnderverseGuidePage() {
   return <DocsContent />;
@@ -328,6 +330,14 @@ function DocsInner() {
               <div className="mt-4">
                 <LanguageSwitcherHeadlessExample />
               </div>
+            </DocSection>
+
+            <DocSection id="translation-provider" title="TranslationProvider">
+              <TranslationProviderExample />
+            </DocSection>
+
+            <DocSection id="date-utils" title="DateUtils">
+              <DateUtilsExample />
             </DocSection>
 
             <DocSection id="floating-contacts" title={t("sections.floatingContacts.title")}>

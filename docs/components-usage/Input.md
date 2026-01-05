@@ -3,12 +3,22 @@
 Source: `components/ui/Input.tsx`
 
 Exports:
+
 - Input
 - PasswordInput
 - NumberInput
 - SearchInput
 
-Note: Usage snippets are minimal; fill required props from the props type below.
+Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja) cho validation messages.
+
+## i18n Support (ValidationInput namespace)
+
+| Locale | Required               | Too Short     | Too Long    |
+| ------ | ---------------------- | ------------- | ----------- |
+| `en`   | This field is required | Too short     | Too long    |
+| `vi`   | Trường này bắt buộc    | Quá ngắn      | Quá dài     |
+| `ko`   | 이 필드는 필수입니다   | 너무 짧습니다 | 너무 깁니다 |
+| `ja`   | この項目は必須です     | 短すぎます    | 長すぎます  |
 
 ## Input
 
@@ -29,15 +39,7 @@ import React from "react";
 import { Input } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <Input
-      label={"Nhan"}
-      description={"Mo ta ngan"}
-      variant={"default"}
-      size={"md"}
-      placeholder="Nhap..."
-     />
-  );
+  return <Input label={"Nhan"} description={"Mo ta ngan"} variant={"default"} size={"md"} placeholder="Nhap..." />;
 }
 ```
 
@@ -79,11 +81,7 @@ import React from "react";
 import { PasswordInput } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <PasswordInput
-      placeholder="Nhap..."
-     />
-  );
+  return <PasswordInput placeholder="Nhap..." />;
 }
 ```
 
@@ -116,13 +114,7 @@ import { NumberInput } from "@underverse-ui/underverse";
 export function Example() {
   const [value, setValue] = React.useState("");
 
-  return (
-    <NumberInput
-      value={value}
-      onChange={setValue}
-      placeholder="Nhap..."
-     />
-  );
+  return <NumberInput value={value} onChange={setValue} placeholder="Nhap..." />;
 }
 ```
 
@@ -161,11 +153,7 @@ import React from "react";
 import { SearchInput } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <SearchInput
-      placeholder="Nhap..."
-     />
-  );
+  return <SearchInput placeholder="Nhap..." />;
 }
 ```
 
