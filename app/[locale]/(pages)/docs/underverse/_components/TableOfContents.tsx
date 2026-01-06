@@ -221,15 +221,17 @@ export default function TableOfContents() {
     return () => observer.disconnect();
   }, [setActiveId]);
 
-  // On first load: focus Install (or hash target if present)
+  // On first load: clear hash and scroll to top (install section)
   useEffect(() => {
-    const hash = typeof window !== "undefined" ? window.location.hash.replace("#", "") : "";
-    const target = hash || "install";
-    setActiveId(target);
-    if (!hash) {
-      const el = document.getElementById("install");
-      el?.scrollIntoView({ behavior: "auto", block: "start" });
+    // Clear hash from URL on page load/refresh
+    if (typeof window !== "undefined" && window.location.hash) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
     }
+
+    // Always start at install section
+    setActiveId("install");
+    const el = document.getElementById("install");
+    el?.scrollIntoView({ behavior: "auto", block: "start" });
   }, [setActiveId]);
 
   // Auto-scroll to active item in TOC

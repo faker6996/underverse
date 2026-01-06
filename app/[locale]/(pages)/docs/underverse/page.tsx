@@ -128,10 +128,6 @@ function DocsInner() {
 
               <DocSection id="imports" title={t("sections.imports.title")}>
                 <CodeBlock code={`import { Button, Badge, Modal, Tabs, ToastProvider, useToast } from '@underverse-ui/underverse';`} />
-                <h3 className="text-lg font-medium">{t("sections.imports.orInternalImport")}</h3>
-                <CodeBlock
-                  code={`import Button from '@/components/ui/Button'\nimport Badge from '@/components/ui/Badge'\nimport Modal from '@/components/ui/Modal'\nimport { Tabs } from '@/components/ui/Tab'\nimport ToastProvider, { useToast } from '@/components/ui/Toast'`}
-                />
               </DocSection>
             </DocGroupSection>
 
