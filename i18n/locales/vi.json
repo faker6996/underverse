@@ -98,6 +98,7 @@
       "feedback": "Phản hồi & Overlay",
       "navigation": "Điều hướng",
       "dataDisplay": "Hiển thị dữ liệu",
+      "charts": "Biểu đồ",
       "layout": "Bố cục",
       "media": "Media & Hình ảnh",
       "utilities": "Tiện ích",
@@ -280,6 +281,9 @@
       },
       "dateUtils": {
         "title": "Tiện ích Ngày tháng"
+      },
+      "charts": {
+        "title": "Biểu đồ"
       }
     },
     "props": {

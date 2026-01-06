@@ -98,6 +98,7 @@
       "feedback": "피드백 & 오버레이",
       "navigation": "네비게이션",
       "dataDisplay": "데이터 표시",
+      "charts": "차트",
       "layout": "레이아웃",
       "media": "미디어 & 이미지",
       "utilities": "유틸리티",
@@ -280,6 +281,9 @@
       },
       "dateUtils": {
         "title": "날짜 유틸리티"
+      },
+      "charts": {
+        "title": "차트"
       }
     },
     "props": {

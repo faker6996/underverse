@@ -68,6 +68,7 @@ const ThemeToggleHeadlessExample = dynamicImport(() => import("./_examples/Theme
 const LanguageSwitcherHeadlessExample = dynamicImport(() => import("./_examples/LanguageSwitcherHeadlessExample"), { ssr: false });
 const TranslationProviderExample = dynamicImport(() => import("./_examples/TranslationProviderExample"), { ssr: false });
 const DateUtilsExample = dynamicImport(() => import("./_examples/DateUtilsExample"), { ssr: false });
+const ChartExample = dynamicImport(() => import("./_examples/ChartExample"), { ssr: false });
 const DocGroupSection = dynamicImport(() => import("./_components/DocGroupSection"), { ssr: false });
 const DonationCard = dynamicImport(() => import("./_components/DonationCard"), { ssr: false });
 
@@ -303,6 +304,13 @@ function DocsInner() {
 
               <DocSection id="timeline" title={t("sections.timeline.title")}>
                 <TimelineExample />
+              </DocSection>
+            </DocGroupSection>
+
+            {/* Charts */}
+            <DocGroupSection title={t("tocGroups.charts")}>
+              <DocSection id="charts" title={t("sections.charts.title")}>
+                <ChartExample />
               </DocSection>
             </DocGroupSection>
 

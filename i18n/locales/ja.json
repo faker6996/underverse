@@ -98,6 +98,7 @@
       "feedback": "フィードバック＆オーバーレイ",
       "navigation": "ナビゲーション",
       "dataDisplay": "データ表示",
+      "charts": "チャート",
       "layout": "レイアウト",
       "media": "メディア＆画像",
       "utilities": "ユーティリティ",
@@ -280,6 +281,9 @@
       },
       "dateUtils": {
         "title": "日付ユーティリティ"
+      },
+      "charts": {
+        "title": "チャート"
       }
     },
     "props": {
