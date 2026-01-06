@@ -48,10 +48,7 @@ export default function DocsHeader({ onMobileMenuToggle }: DocsHeaderProps) {
                   </linearGradient>
                 </defs>
                 <rect width="64" height="64" rx="18" fill="url(#docsUvGradient)" />
-                <path
-                  d="M22 18v20c0 7 4 10 10 10s10-3 10-10V18h-5v20c0 4-2 6-5 6s-5-2-5-6V18z"
-                  fill="#f9fafb"
-                />
+                <path d="M22 18v20c0 7 4 10 10 10s10-3 10-10V18h-5v20c0 4-2 6-5 6s-5-2-5-6V18z" fill="#f9fafb" />
               </svg>
               <span className="font-semibold text-lg hidden sm:inline-block">{t("pageTitle").split("–")[0].trim()}</span>
             </a>
