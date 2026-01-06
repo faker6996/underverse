@@ -69,6 +69,7 @@ const LanguageSwitcherHeadlessExample = dynamicImport(() => import("./_examples/
 const TranslationProviderExample = dynamicImport(() => import("./_examples/TranslationProviderExample"), { ssr: false });
 const DateUtilsExample = dynamicImport(() => import("./_examples/DateUtilsExample"), { ssr: false });
 const DocGroupSection = dynamicImport(() => import("./_components/DocGroupSection"), { ssr: false });
+const DonationCard = dynamicImport(() => import("./_components/DonationCard"), { ssr: false });
 
 export default function UnderverseGuidePage() {
   return <DocsContent />;
@@ -96,6 +97,9 @@ function DocsInner() {
   return (
     <div className="min-h-screen">
       <DocsHeader onMobileMenuToggle={() => setMobileMenuOpen(true)} />
+
+      {/* Fixed Donation Card - outside main flow */}
+      <DonationCard />
 
       <div className="container mx-auto px-4 py-10">
         <div className="flex gap-8 max-w-7xl mx-auto">
