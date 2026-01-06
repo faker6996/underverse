@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import { ChartTooltip } from "./ChartTooltip";
 
 export interface RadarChartDataPoint {
@@ -36,6 +36,7 @@ export function RadarChart({
   animated = true,
   className = "",
 }: RadarChartProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const center = size / 2;
   const radius = size / 2 - 40;
 
@@ -109,7 +110,7 @@ export function RadarChart({
   }, [series, center, radius, levels]);
 
   return (
-    <div className={`flex flex-col gap-4 ${className}`}>
+    <div ref={containerRef} className={`relative flex flex-col gap-4 ${className}`}>
       <svg width={size} height={size} className="overflow-visible" style={{ fontFamily: "inherit" }}>
         {/* Grid levels */}
         <g className="text-muted-foreground/20">
@@ -220,15 +221,6 @@ export function RadarChart({
           </g>
         )}
 
-        {/* Tooltip */}
-        <ChartTooltip
-          x={hoveredPoint?.x ?? 0}
-          y={hoveredPoint?.y ?? 0}
-          visible={!!hoveredPoint}
-          label={hoveredPoint?.axis}
-          items={hoveredPoint?.items}
-        />
-
         <style>{`
           @keyframes radarPop {
             from {
@@ -272,6 +264,16 @@ export function RadarChart({
           ))}
         </div>
       )}
+
+      {/* Tooltip with Portal */}
+      <ChartTooltip
+        x={hoveredPoint?.x ?? 0}
+        y={hoveredPoint?.y ?? 0}
+        visible={!!hoveredPoint}
+        label={hoveredPoint?.axis}
+        items={hoveredPoint?.items}
+        containerRef={containerRef}
+      />
     </div>
   );
 }

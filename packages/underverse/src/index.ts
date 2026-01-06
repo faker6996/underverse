@@ -83,24 +83,20 @@ export { GridItem } from "../../../components/ui/Grid";
 export type { GridProps, GridItemProps } from "../../../components/ui/Grid";
 
 // Charts (pure SVG, no external dependencies)
-export { LineChart, BarChart, PieChart, AreaChart, Sparkline, RadarChart, GaugeChart } from "./components/Chart";
-export type {
-  LineChartProps,
-  LineChartDataPoint,
-  BarChartProps,
-  BarChartDataPoint,
-  PieChartProps,
-  PieChartDataPoint,
-  AreaChartProps,
-  AreaChartDataPoint,
-  AreaChartSeries,
-  SparklineProps,
-  SparklineDataPoint,
-  RadarChartProps,
-  RadarChartDataPoint,
-  RadarChartSeries,
-  GaugeChartProps,
-} from "./components/Chart";
+export { LineChart } from "../../../components/ui/LineChart";
+export type { LineChartProps, LineChartDataPoint } from "../../../components/ui/LineChart";
+export { BarChart } from "../../../components/ui/BarChart";
+export type { BarChartProps, BarChartDataPoint } from "../../../components/ui/BarChart";
+export { PieChart } from "../../../components/ui/PieChart";
+export type { PieChartProps, PieChartDataPoint } from "../../../components/ui/PieChart";
+export { AreaChart } from "../../../components/ui/AreaChart";
+export type { AreaChartProps, AreaChartDataPoint, AreaChartSeries } from "../../../components/ui/AreaChart";
+export { Sparkline } from "../../../components/ui/Sparkline";
+export type { SparklineProps, SparklineDataPoint } from "../../../components/ui/Sparkline";
+export { RadarChart } from "../../../components/ui/RadarChart";
+export type { RadarChartProps, RadarChartDataPoint, RadarChartSeries } from "../../../components/ui/RadarChart";
+export { GaugeChart } from "../../../components/ui/GaugeChart";
+export type { GaugeChartProps } from "../../../components/ui/GaugeChart";
 
 // Misc
 export { default as ClientOnly } from "../../../components/ui/ClientOnly";

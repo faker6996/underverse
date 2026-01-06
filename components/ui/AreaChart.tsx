@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import { ChartTooltip } from "./ChartTooltip";
 
 export interface AreaChartDataPoint {
@@ -69,6 +69,7 @@ export function AreaChart({
   curved = true,
   className = "",
 }: AreaChartProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const padding = { top: 20, right: 20, bottom: 40, left: 50 };
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
@@ -169,7 +170,7 @@ export function AreaChart({
   }, [series, chartWidth, chartHeight, padding, stacked, curved]);
 
   return (
-    <div className={`flex flex-col gap-4 ${className}`}>
+    <div ref={containerRef} className={`relative flex flex-col gap-4 ${className}`}>
       <svg width={width} height={height} className="overflow-visible" style={{ fontFamily: "inherit" }}>
         {/* Grid */}
         {showGrid && (
@@ -301,15 +302,6 @@ export function AreaChart({
           </g>
         )}
 
-        {/* Tooltip */}
-        <ChartTooltip
-          x={hoveredPoint?.x ?? 0}
-          y={hoveredPoint?.y ?? 0}
-          visible={!!hoveredPoint}
-          label={hoveredPoint?.label}
-          items={hoveredPoint?.items}
-        />
-
         <style>{`
           @keyframes drawLine {
             to {
@@ -348,6 +340,16 @@ export function AreaChart({
           ))}
         </div>
       )}
+
+      {/* Tooltip with Portal */}
+      <ChartTooltip
+        x={hoveredPoint?.x ?? 0}
+        y={hoveredPoint?.y ?? 0}
+        visible={!!hoveredPoint}
+        label={hoveredPoint?.label}
+        items={hoveredPoint?.items}
+        containerRef={containerRef}
+      />
     </div>
   );
 }

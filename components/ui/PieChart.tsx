@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import { ChartTooltip } from "./ChartTooltip";
 
 export interface PieChartDataPoint {
@@ -34,6 +34,7 @@ export function PieChart({
   startAngle = -90,
   className = "",
 }: PieChartProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const center = size / 2;
   const radius = size / 2 - 10;
   const innerRadius = donut ? radius - donutWidth : 0;
@@ -99,9 +100,6 @@ export function PieChart({
     return { segments: segs, total: sum };
   }, [data, center, radius, innerRadius, donut, startAngle]);
 
-  const legendWidth = showLegend ? 120 : 0;
-  const totalWidth = size + legendWidth + 40;
-
   const [hoveredSegment, setHoveredSegment] = useState<{
     x: number;
     y: number;
@@ -112,7 +110,7 @@ export function PieChart({
   } | null>(null);
 
   return (
-    <div className={`flex items-center gap-6 ${className}`}>
+    <div ref={containerRef} className={`relative flex items-center gap-6 ${className}`}>
       <svg width={size + 40} height={size + 40} className="overflow-visible" style={{ fontFamily: "inherit" }}>
         <g transform={`translate(20, 20)`}>
           {segments.map((seg, i) => (
@@ -120,8 +118,8 @@ export function PieChart({
               key={i}
               onMouseEnter={() =>
                 setHoveredSegment({
-                  x: seg.labelX,
-                  y: seg.labelY,
+                  x: seg.labelX + 20,
+                  y: seg.labelY + 20,
                   label: seg.label,
                   value: seg.value,
                   percentage: seg.percentage,
@@ -176,16 +174,6 @@ export function PieChart({
           )}
         </g>
 
-        {/* Tooltip */}
-        <ChartTooltip
-          x={(hoveredSegment?.x ?? center) + 20}
-          y={(hoveredSegment?.y ?? center) + 20}
-          visible={!!hoveredSegment}
-          label={hoveredSegment?.label}
-          value={`${hoveredSegment?.value} (${((hoveredSegment?.percentage ?? 0) * 100).toFixed(1)}%)`}
-          color={hoveredSegment?.color}
-        />
-
         <style>{`
           @keyframes pieSlice {
             from {
@@ -220,6 +208,17 @@ export function PieChart({
           ))}
         </div>
       )}
+
+      {/* Tooltip with Portal */}
+      <ChartTooltip
+        x={hoveredSegment?.x ?? center}
+        y={hoveredSegment?.y ?? center}
+        visible={!!hoveredSegment}
+        label={hoveredSegment?.label}
+        value={`${hoveredSegment?.value} (${((hoveredSegment?.percentage ?? 0) * 100).toFixed(1)}%)`}
+        color={hoveredSegment?.color}
+        containerRef={containerRef}
+      />
     </div>
   );
 }
