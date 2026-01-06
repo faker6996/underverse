@@ -139,99 +139,80 @@ function MyPage() {
     { property: "children", type: "ReactNode", default: "-", description: "Child components that will use translations" },
   ];
 
-  const tabItems: { label: string; value: string; content: React.ReactNode }[] = [
-    {
-      label: td("tabs.demo"),
-      value: "demo",
-      content: (
-        <div className="space-y-8 p-4">
-          {/* Standalone React Usage */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Standalone React (Vite, CRA, etc.)</h3>
-            <p className="text-sm text-muted-foreground">Wrap your app with TranslationProvider to enable i18n for all underverse components.</p>
-            <CodeBlock code={standaloneReactCode} />
-          </div>
+  const demo = (
+    <div className="space-y-8 p-4">
+      {/* Standalone React Usage */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Standalone React (Vite, CRA, etc.)</h3>
+        <p className="text-sm text-muted-foreground">Wrap your app with TranslationProvider to enable i18n for all underverse components.</p>
+      </div>
 
-          {/* Dynamic Locale Switching */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Dynamic Locale Switching</h3>
-            <p className="text-sm text-muted-foreground">You can dynamically change the locale by updating the TranslationProvider's locale prop.</p>
-            <CodeBlock code={multiLocaleCode} />
-          </div>
+      {/* Next.js Usage */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Next.js with next-intl</h3>
+        <p className="text-sm text-muted-foreground">
+          In Next.js projects using next-intl, you don't need TranslationProvider. Components auto-detect and use next-intl's translations.
+        </p>
+      </div>
 
-          {/* Custom Translations */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Custom Translations</h3>
-            <p className="text-sm text-muted-foreground">Override default translations with your own via the translations prop.</p>
-            <CodeBlock code={customTranslationsCode} />
-          </div>
-
-          {/* Next.js Usage */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Next.js with next-intl</h3>
-            <p className="text-sm text-muted-foreground">
-              In Next.js projects using next-intl, you don't need TranslationProvider. Components auto-detect and use next-intl's translations.
-            </p>
-            <CodeBlock code={nextjsCode} />
-          </div>
-
-          {/* Supported Locales Table */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Supported Locales</h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm border rounded-lg">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="px-4 py-2 text-left">Locale</th>
-                    <th className="px-4 py-2 text-left">Language</th>
-                    <th className="px-4 py-2 text-left">Flag</th>
-                    <th className="px-4 py-2 text-left">Example: DatePicker Placeholder</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-t">
-                    <td className="px-4 py-2 font-mono">en</td>
-                    <td className="px-4 py-2">English</td>
-                    <td className="px-4 py-2">🇺🇸</td>
-                    <td className="px-4 py-2">Select a date</td>
-                  </tr>
-                  <tr className="border-t">
-                    <td className="px-4 py-2 font-mono">vi</td>
-                    <td className="px-4 py-2">Tiếng Việt</td>
-                    <td className="px-4 py-2">🇻🇳</td>
-                    <td className="px-4 py-2">Chọn ngày</td>
-                  </tr>
-                  <tr className="border-t">
-                    <td className="px-4 py-2 font-mono">ko</td>
-                    <td className="px-4 py-2">한국어</td>
-                    <td className="px-4 py-2">🇰🇷</td>
-                    <td className="px-4 py-2">날짜 선택</td>
-                  </tr>
-                  <tr className="border-t">
-                    <td className="px-4 py-2 font-mono">ja</td>
-                    <td className="px-4 py-2">日本語</td>
-                    <td className="px-4 py-2">🇯🇵</td>
-                    <td className="px-4 py-2">日付を選択</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+      {/* Supported Locales Table */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Supported Locales</h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm border rounded-lg">
+            <thead className="bg-muted">
+              <tr>
+                <th className="px-4 py-2 text-left">Locale</th>
+                <th className="px-4 py-2 text-left">Language</th>
+                <th className="px-4 py-2 text-left">Flag</th>
+                <th className="px-4 py-2 text-left">Example: DatePicker Placeholder</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-t">
+                <td className="px-4 py-2 font-mono">en</td>
+                <td className="px-4 py-2">English</td>
+                <td className="px-4 py-2">🇺🇸</td>
+                <td className="px-4 py-2">Select a date</td>
+              </tr>
+              <tr className="border-t">
+                <td className="px-4 py-2 font-mono">vi</td>
+                <td className="px-4 py-2">Tiếng Việt</td>
+                <td className="px-4 py-2">🇻🇳</td>
+                <td className="px-4 py-2">Chọn ngày</td>
+              </tr>
+              <tr className="border-t">
+                <td className="px-4 py-2 font-mono">ko</td>
+                <td className="px-4 py-2">한국어</td>
+                <td className="px-4 py-2">🇰🇷</td>
+                <td className="px-4 py-2">날짜 선택</td>
+              </tr>
+              <tr className="border-t">
+                <td className="px-4 py-2 font-mono">ja</td>
+                <td className="px-4 py-2">日本語</td>
+                <td className="px-4 py-2">🇯🇵</td>
+                <td className="px-4 py-2">日付を選択</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      ),
-    },
-    {
-      label: "Props",
-      value: "props",
-      content: <PropsDocsTable rows={propsRows} />,
-    },
-  ];
+      </div>
+    </div>
+  );
+
+  const code = `${standaloneReactCode}\n\n// =============================================\n\n${multiLocaleCode}\n\n// =============================================\n\n${customTranslationsCode}\n\n// =============================================\n\n${nextjsCode}`;
+
+  const docs = <PropsDocsTable rows={propsRows} />;
 
   return (
-    <section id="translation-provider" className="scroll-mt-20 space-y-4">
-      <h2 className="text-2xl font-bold tracking-tight">TranslationProvider</h2>
-      <p className="text-muted-foreground">Context provider for i18n in standalone React apps. For Next.js with next-intl, this is not needed.</p>
-      <Tabs tabs={tabItems} defaultValue="demo" />
-    </section>
+    <Tabs
+      tabs={[
+        { value: "preview", label: td("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: td("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "docs", label: td("tabs.document"), content: <div className="p-1">{docs}</div> },
+      ]}
+      variant="underline"
+      size="sm"
+    />
   );
 }
