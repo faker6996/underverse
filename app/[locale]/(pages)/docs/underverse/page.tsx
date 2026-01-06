@@ -68,6 +68,7 @@ const ThemeToggleHeadlessExample = dynamicImport(() => import("./_examples/Theme
 const LanguageSwitcherHeadlessExample = dynamicImport(() => import("./_examples/LanguageSwitcherHeadlessExample"), { ssr: false });
 const TranslationProviderExample = dynamicImport(() => import("./_examples/TranslationProviderExample"), { ssr: false });
 const DateUtilsExample = dynamicImport(() => import("./_examples/DateUtilsExample"), { ssr: false });
+const DocGroupSection = dynamicImport(() => import("./_components/DocGroupSection"), { ssr: false });
 
 export default function UnderverseGuidePage() {
   return <DocsContent />;
@@ -99,250 +100,288 @@ function DocsInner() {
       <div className="container mx-auto px-4 py-10">
         <div className="flex gap-8 max-w-7xl mx-auto">
           {/* Main Content */}
-          <main className="flex-1 min-w-0 max-w-4xl space-y-10">
-            <h1 className="text-3xl font-bold tracking-tight">{t("pageTitle")}</h1>
-            <p className="text-muted-foreground">
-              {t.rich("pageDescription", {
-                componentsPath: (chunks: React.ReactNode) => <code className="mx-1">{chunks}</code>,
-                packageName: (chunks: React.ReactNode) => <code className="mx-1">{chunks}</code>,
-              })}
-            </p>
+          <main className="flex-1 min-w-0 max-w-4xl space-y-14">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">{t("pageTitle")}</h1>
+              <p className="text-muted-foreground mt-2">
+                {t.rich("pageDescription", {
+                  componentsPath: (chunks: React.ReactNode) => <code className="mx-1">{chunks}</code>,
+                  packageName: (chunks: React.ReactNode) => <code className="mx-1">{chunks}</code>,
+                })}
+              </p>
+            </div>
 
-            <DocSection id="install" title={t("sections.install.title")}>
-              <CodeBlock
-                code={`# ${t("sections.install.npmComment")}\nnpm i @underverse-ui/underverse\n\n# ${t(
-                  "sections.install.peerDepsComment"
-                )}\nnpm i react react-dom next next-intl --save`}
-              />
-              <CodeBlock
-                code={`// ${t(
-                  "sections.install.usageComment"
-                )}\nimport { Button, Badge, Modal, Tabs, ToastProvider, useToast } from '@underverse-ui/underverse';`}
-              />
-            </DocSection>
+            {/* Getting Started */}
+            <DocGroupSection title={t("tocGroups.gettingStarted")}>
+              <DocSection id="install" title={t("sections.install.title")}>
+                <CodeBlock
+                  code={`# ${t("sections.install.npmComment")}\nnpm i @underverse-ui/underverse\n\n# ${t(
+                    "sections.install.peerDepsComment"
+                  )}\nnpm i react react-dom next next-intl --save`}
+                />
+                <CodeBlock
+                  code={`// ${t(
+                    "sections.install.usageComment"
+                  )}\nimport { Button, Badge, Modal, Tabs, ToastProvider, useToast } from '@underverse-ui/underverse';`}
+                />
+              </DocSection>
 
-            <DocSection id="button" title={t("sections.button.title")}>
-              <ButtonExample />
-            </DocSection>
+              <DocSection id="imports" title={t("sections.imports.title")}>
+                <CodeBlock code={`import { Button, Badge, Modal, Tabs, ToastProvider, useToast } from '@underverse-ui/underverse';`} />
+                <h3 className="text-lg font-medium">{t("sections.imports.orInternalImport")}</h3>
+                <CodeBlock
+                  code={`import Button from '@/components/ui/Button'\nimport Badge from '@/components/ui/Badge'\nimport Modal from '@/components/ui/Modal'\nimport { Tabs } from '@/components/ui/Tab'\nimport ToastProvider, { useToast } from '@/components/ui/Toast'`}
+                />
+              </DocSection>
+            </DocGroupSection>
 
-            <DocSection id="badge" title={t("sections.badge.title")}>
-              <BadgeExample />
-            </DocSection>
+            {/* Core Components */}
+            <DocGroupSection title={t("tocGroups.core")}>
+              <DocSection id="button" title={t("sections.button.title")}>
+                <ButtonExample />
+              </DocSection>
 
-            <DocSection id="avatar" title={t("sections.avatar.title")}>
-              <AvatarExample />
-            </DocSection>
+              <DocSection id="badge" title={t("sections.badge.title")}>
+                <BadgeExample />
+              </DocSection>
 
-            <DocSection id="breadcrumb" title={t("sections.breadcrumb.title")}>
-              <BreadcrumbExample />
-            </DocSection>
+              <DocSection id="avatar" title={t("sections.avatar.title")}>
+                <AvatarExample />
+              </DocSection>
 
-            <DocSection id="card" title={t("sections.card.title")}>
-              <CardExample />
-            </DocSection>
+              <DocSection id="card" title={t("sections.card.title")}>
+                <CardExample />
+              </DocSection>
 
-            <DocSection id="checkbox" title={t("sections.checkbox.title")}>
-              <CheckboxExample />
-            </DocSection>
+              <DocSection id="skeleton" title={t("sections.skeleton.title")}>
+                <SkeletonExample />
+              </DocSection>
 
-            <DocSection id="textarea" title={t("sections.textarea.title")}>
-              <TextareaExample />
-            </DocSection>
+              <DocSection id="progress" title={t("sections.progress.title")}>
+                <ProgressExample />
+              </DocSection>
+            </DocGroupSection>
 
-            <DocSection id="modal" title={t("sections.modal.title")}>
-              <ModalExample />
-            </DocSection>
+            {/* Form Inputs */}
+            <DocGroupSection title={t("tocGroups.formInputs")}>
+              <DocSection id="input" title={t("sections.input.title")}>
+                <InputExample />
+              </DocSection>
 
-            <DocSection id="tabs" title={t("sections.tabs.title")}>
-              <TabsExample />
-            </DocSection>
+              <DocSection id="textarea" title={t("sections.textarea.title")}>
+                <TextareaExample />
+              </DocSection>
 
-            <DocSection id="toast" title={t("sections.toast.title")}>
-              <p className="text-muted-foreground">{t("sections.toast.description")}</p>
-              <ToastExample />
-            </DocSection>
+              <DocSection id="checkbox" title={t("sections.checkbox.title")}>
+                <CheckboxExample />
+              </DocSection>
 
-            <DocSection id="imports" title={t("sections.imports.title")}>
-              <CodeBlock code={`import { Button, Badge, Modal, Tabs, ToastProvider, useToast } from '@underverse-ui/underverse';`} />
-              <h3 className="text-lg font-medium">{t("sections.imports.orInternalImport")}</h3>
-              <CodeBlock
-                code={`import Button from '@/components/ui/Button'\nimport Badge from '@/components/ui/Badge'\nimport Modal from '@/components/ui/Modal'\nimport { Tabs } from '@/components/ui/Tab'\nimport ToastProvider, { useToast } from '@/components/ui/Toast'`}
-              />
-            </DocSection>
+              <DocSection id="switch" title={t("sections.switch.title")}>
+                <SwitchExample />
+              </DocSection>
 
-            <DocSection id="alert" title={t("sections.alert.title")}>
-              <AlertExample />
-            </DocSection>
+              <DocSection id="radio-group" title={t("sections.radioGroup.title")}>
+                <RadioGroupExample />
+              </DocSection>
 
-            <DocSection id="access-denied" title={t("sections.accessDenied.title")}>
-              <AccessDeniedExample />
-            </DocSection>
+              <DocSection id="slider" title={t("sections.slider.title")}>
+                <SliderExample />
+              </DocSection>
 
-            <DocSection id="client-only" title={t("sections.clientOnly.title")}>
-              <ClientOnlyExample />
-            </DocSection>
+              <DocSection id="tag-input" title={t("sections.tagInput.title")}>
+                <TagInputExample />
+              </DocSection>
+            </DocGroupSection>
 
-            <DocSection id="loading" title={t("sections.loading.title")}>
-              <LoadingExample />
-            </DocSection>
+            {/* Pickers & Selects */}
+            <DocGroupSection title={t("tocGroups.pickers")}>
+              <DocSection id="date-picker" title={t("sections.datePicker.title")}>
+                <DatePickerExample />
+              </DocSection>
 
-            <DocSection id="tooltip" title={t("sections.tooltip.title")}>
-              <TooltipExample />
-            </DocSection>
+              <DocSection id="time-picker" title={t("sections.timePicker.title")}>
+                <TimePickerExample />
+              </DocSection>
 
-            <DocSection id="popover" title={t("sections.popover.title")}>
-              <PopoverExample />
-            </DocSection>
+              <DocSection id="calendar" title={t("sections.calendar.title")}>
+                <CalendarExample />
+              </DocSection>
 
-            <DocSection id="sheet" title={t("sections.sheet.title")}>
-              <SheetExample />
-            </DocSection>
+              <DocSection id="color-picker" title={t("sections.colorPicker.title")}>
+                <ColorPickerExample />
+              </DocSection>
 
-            <DocSection id="switch" title={t("sections.switch.title")}>
-              <SwitchExample />
-            </DocSection>
+              <DocSection id="combobox" title={t("sections.combobox.title")}>
+                <ComboboxExample />
+              </DocSection>
 
-            <DocSection id="slider" title={t("sections.slider.title")}>
-              <SliderExample />
-            </DocSection>
+              <DocSection id="multi-combobox" title={t("sections.multiCombobox.title")}>
+                <MultiComboboxExample />
+              </DocSection>
 
-            <DocSection id="overlay-controls" title={t("sections.overlayControls.title")}>
-              <OverlayControlsExample />
-            </DocSection>
+              <DocSection id="category-tree-select" title={t("sections.categoryTreeSelect.title")}>
+                <CategoryTreeSelectExample />
+              </DocSection>
+            </DocGroupSection>
 
-            <DocSection id="radio-group" title={t("sections.radioGroup.title")}>
-              <RadioGroupExample />
-            </DocSection>
+            {/* Feedback & Overlays */}
+            <DocGroupSection title={t("tocGroups.feedback")}>
+              <DocSection id="modal" title={t("sections.modal.title")}>
+                <ModalExample />
+              </DocSection>
 
-            <DocSection id="scroll-area" title={t("sections.scrollArea.title")}>
-              <ScrollAreaExample />
-            </DocSection>
+              <DocSection id="toast" title={t("sections.toast.title")}>
+                <p className="text-muted-foreground">{t("sections.toast.description")}</p>
+                <ToastExample />
+              </DocSection>
 
-            <DocSection id="table" title={t("sections.table.title")}>
-              <TableExample />
-            </DocSection>
+              <DocSection id="alert" title={t("sections.alert.title")}>
+                <AlertExample />
+              </DocSection>
 
-            <DocSection id="progress" title={t("sections.progress.title")}>
-              <ProgressExample />
-            </DocSection>
+              <DocSection id="tooltip" title={t("sections.tooltip.title")}>
+                <TooltipExample />
+              </DocSection>
 
-            <DocSection id="skeleton" title={t("sections.skeleton.title")}>
-              <SkeletonExample />
-            </DocSection>
+              <DocSection id="popover" title={t("sections.popover.title")}>
+                <PopoverExample />
+              </DocSection>
 
-            <DocSection id="carousel" title={t("sections.carousel.title")}>
-              <CarouselExample />
-            </DocSection>
+              <DocSection id="sheet" title={t("sections.sheet.title")}>
+                <SheetExample />
+              </DocSection>
 
-            <DocSection id="dropdown-menu" title={t("sections.dropdownMenu.title")}>
-              <DropdownMenuExample />
-            </DocSection>
+              <DocSection id="loading" title={t("sections.loading.title")}>
+                <LoadingExample />
+              </DocSection>
 
-            <DocSection id="combobox" title={t("sections.combobox.title")}>
-              <ComboboxExample />
-            </DocSection>
+              <DocSection id="notification-modal" title={t("sections.notificationModal.title")}>
+                <NotificationModalExample />
+              </DocSection>
+            </DocGroupSection>
 
-            <DocSection id="multi-combobox" title={t("sections.multiCombobox.title")}>
-              <MultiComboboxExample />
-            </DocSection>
+            {/* Navigation */}
+            <DocGroupSection title={t("tocGroups.navigation")}>
+              <DocSection id="breadcrumb" title={t("sections.breadcrumb.title")}>
+                <BreadcrumbExample />
+              </DocSection>
 
-            <DocSection id="section" title={t("sections.section.title")}>
-              <SectionExample />
-            </DocSection>
+              <DocSection id="tabs" title={t("sections.tabs.title")}>
+                <TabsExample />
+              </DocSection>
 
-            <DocSection id="grid" title={t("sections.grid.title")}>
-              <GridExample />
-            </DocSection>
+              <DocSection id="dropdown-menu" title={t("sections.dropdownMenu.title")}>
+                <DropdownMenuExample />
+              </DocSection>
 
-            <DocSection id="list" title={t("sections.list.title")}>
-              <ListExample />
-            </DocSection>
+              <DocSection id="pagination" title={t("sections.pagination.title")}>
+                <PaginationExample />
+              </DocSection>
 
-            <DocSection id="watermark" title={t("sections.watermark.title")}>
-              <WatermarkExample />
-            </DocSection>
+              <DocSection id="scroll-area" title={t("sections.scrollArea.title")}>
+                <ScrollAreaExample />
+              </DocSection>
+            </DocGroupSection>
 
-            <DocSection id="timeline" title={t("sections.timeline.title")}>
-              <TimelineExample />
-            </DocSection>
+            {/* Data Display */}
+            <DocGroupSection title={t("tocGroups.dataDisplay")}>
+              <DocSection id="table" title={t("sections.table.title")}>
+                <TableExample />
+              </DocSection>
 
-            <DocSection id="smart-image" title={t("sections.smartImage.title")}>
-              <SmartImageExample />
-            </DocSection>
+              <DocSection id="data-table" title={t("sections.dataTable.title")}>
+                <DataTableExample />
+              </DocSection>
 
-            <DocSection id="falling-icons" title={t("sections.fallingIcons.title")}>
-              <FallingIconsExample />
-            </DocSection>
+              <DocSection id="list" title={t("sections.list.title")}>
+                <ListExample />
+              </DocSection>
 
-            <DocSection id="category-tree-select" title={t("sections.categoryTreeSelect.title")}>
-              <CategoryTreeSelectExample />
-            </DocSection>
+              <DocSection id="grid" title={t("sections.grid.title")}>
+                <GridExample />
+              </DocSection>
 
-            <DocSection id="image-upload" title={t("sections.imageUpload.title")}>
-              <ImageUploadExample />
-            </DocSection>
+              <DocSection id="timeline" title={t("sections.timeline.title")}>
+                <TimelineExample />
+              </DocSection>
+            </DocGroupSection>
 
-            <DocSection id="notification-modal" title={t("sections.notificationModal.title")}>
-              <NotificationModalExample />
-            </DocSection>
+            {/* Layout */}
+            <DocGroupSection title={t("tocGroups.layout")}>
+              <DocSection id="section" title={t("sections.section.title")}>
+                <SectionExample />
+              </DocSection>
 
-            <DocSection id="data-table" title={t("sections.dataTable.title")}>
-              <DataTableExample />
-            </DocSection>
+              <DocSection id="carousel" title={t("sections.carousel.title")}>
+                <CarouselExample />
+              </DocSection>
 
-            <DocSection id="input" title={t("sections.input.title")}>
-              <InputExample />
-            </DocSection>
+              <DocSection id="overlay-controls" title={t("sections.overlayControls.title")}>
+                <OverlayControlsExample />
+              </DocSection>
+            </DocGroupSection>
 
-            <DocSection id="tag-input" title="TagInput">
-              <TagInputExample />
-            </DocSection>
+            {/* Media & Images */}
+            <DocGroupSection title={t("tocGroups.media")}>
+              <DocSection id="smart-image" title={t("sections.smartImage.title")}>
+                <SmartImageExample />
+              </DocSection>
 
-            <DocSection id="date-picker" title={t("sections.datePicker.title")}>
-              <DatePickerExample />
-            </DocSection>
+              <DocSection id="image-upload" title={t("sections.imageUpload.title")}>
+                <ImageUploadExample />
+              </DocSection>
 
-            <DocSection id="calendar" title={t("sections.calendar.title")}>
-              <CalendarExample />
-            </DocSection>
+              <DocSection id="watermark" title={t("sections.watermark.title")}>
+                <WatermarkExample />
+              </DocSection>
 
-            <DocSection id="color-picker" title={t("sections.colorPicker.title")}>
-              <ColorPickerExample />
-            </DocSection>
+              <DocSection id="falling-icons" title={t("sections.fallingIcons.title")}>
+                <FallingIconsExample />
+              </DocSection>
+            </DocGroupSection>
 
-            <DocSection id="time-picker" title={t("sections.timePicker.title")}>
-              <TimePickerExample />
-            </DocSection>
+            {/* Utilities */}
+            <DocGroupSection title={t("tocGroups.utilities")}>
+              <DocSection id="form" title={t("sections.form.title")}>
+                <FormExample />
+              </DocSection>
 
-            <DocSection id="pagination" title={t("sections.pagination.title")}>
-              <PaginationExample />
-            </DocSection>
+              <DocSection id="client-only" title={t("sections.clientOnly.title")}>
+                <ClientOnlyExample />
+              </DocSection>
 
-            <DocSection id="form" title={t("sections.form.title")}>
-              <FormExample />
-            </DocSection>
+              <DocSection id="access-denied" title={t("sections.accessDenied.title")}>
+                <AccessDeniedExample />
+              </DocSection>
 
-            <DocSection id="theme-toggle" title={t("sections.themeToggle.title")}>
-              <ThemeToggleExample />
-            </DocSection>
+              <DocSection id="floating-contacts" title={t("sections.floatingContacts.title")}>
+                <FloatingContactsExample />
+              </DocSection>
+            </DocGroupSection>
 
-            <DocSection id="language-switcher-headless" title={t("sections.languageSwitcherHeadless.title")}>
-              <div className="mt-4">
-                <LanguageSwitcherHeadlessExample />
-              </div>
-            </DocSection>
+            {/* Theming */}
+            <DocGroupSection title={t("tocGroups.theming")}>
+              <DocSection id="theme-toggle" title={t("sections.themeToggle.title")}>
+                <ThemeToggleExample />
+              </DocSection>
 
-            <DocSection id="translation-provider" title="TranslationProvider">
-              <TranslationProviderExample />
-            </DocSection>
+              <DocSection id="language-switcher-headless" title={t("sections.languageSwitcherHeadless.title")}>
+                <div className="mt-4">
+                  <LanguageSwitcherHeadlessExample />
+                </div>
+              </DocSection>
+            </DocGroupSection>
 
-            <DocSection id="date-utils" title="DateUtils">
-              <DateUtilsExample />
-            </DocSection>
+            {/* Internationalization */}
+            <DocGroupSection title={t("tocGroups.i18n")}>
+              <DocSection id="translation-provider" title={t("sections.translationProvider.title")}>
+                <TranslationProviderExample />
+              </DocSection>
 
-            <DocSection id="floating-contacts" title={t("sections.floatingContacts.title")}>
-              <FloatingContactsExample />
-            </DocSection>
+              <DocSection id="date-utils" title={t("sections.dateUtils.title")}>
+                <DateUtilsExample />
+              </DocSection>
+            </DocGroupSection>
           </main>
 
           {/* Mobile Sheet for Table of Contents */}

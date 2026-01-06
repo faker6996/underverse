@@ -82,11 +82,28 @@
     "tabs": {
       "preview": "Preview",
       "code": "Code",
-      "document": "Document"
+      "document": "Document",
+      "demo": "Demo"
     },
     "pageTitle": "Underverse UI – Usage Guide",
     "pageDescription": "This page demonstrates how to use the available UI components in the project, provided by the <packageName>@underverse-ui/underverse</packageName> package.",
     "tableOfContents": "Table of Contents",
+    "searchComponents": "Search components...",
+    "noResults": "No results found",
+    "tocGroups": {
+      "gettingStarted": "Getting Started",
+      "core": "Core Components",
+      "formInputs": "Form Inputs",
+      "pickers": "Pickers & Selects",
+      "feedback": "Feedback & Overlays",
+      "navigation": "Navigation",
+      "dataDisplay": "Data Display",
+      "layout": "Layout",
+      "media": "Media & Images",
+      "utilities": "Utilities",
+      "theming": "Theming",
+      "i18n": "Internationalization"
+    },
     "sections": {
       "install": {
         "title": "Installation",
@@ -264,6 +281,12 @@
       },
       "floatingContacts": {
         "title": "FloatingContacts"
+      },
+      "translationProvider": {
+        "title": "TranslationProvider"
+      },
+      "dateUtils": {
+        "title": "Date Utilities"
       }
     },
     "props": {

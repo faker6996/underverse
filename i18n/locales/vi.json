@@ -82,11 +82,28 @@
     "tabs": {
       "preview": "Xem trước",
       "code": "Mã nguồn",
-      "document": "Tài liệu"
+      "document": "Tài liệu",
+      "demo": "Demo"
     },
     "pageTitle": "Underverse UI – Hướng dẫn sử dụng",
     "pageDescription": "Trang này minh họa cách dùng các UI component có sẵn trong dự án, được cung cấp từ gói <packageName>@underverse-ui/underverse</packageName>.",
     "tableOfContents": "Mục lục",
+    "searchComponents": "Tìm component...",
+    "noResults": "Không tìm thấy kết quả",
+    "tocGroups": {
+      "gettingStarted": "Bắt đầu",
+      "core": "Component cơ bản",
+      "formInputs": "Form Input",
+      "pickers": "Picker & Select",
+      "feedback": "Phản hồi & Overlay",
+      "navigation": "Điều hướng",
+      "dataDisplay": "Hiển thị dữ liệu",
+      "layout": "Bố cục",
+      "media": "Media & Hình ảnh",
+      "utilities": "Tiện ích",
+      "theming": "Giao diện",
+      "i18n": "Đa ngôn ngữ"
+    },
     "sections": {
       "install": {
         "title": "Cài đặt",
@@ -257,6 +274,12 @@
       },
       "floatingContacts": {
         "title": "FloatingContacts"
+      },
+      "translationProvider": {
+        "title": "TranslationProvider"
+      },
+      "dateUtils": {
+        "title": "Tiện ích Ngày tháng"
       }
     },
     "props": {

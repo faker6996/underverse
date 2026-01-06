@@ -82,11 +82,28 @@
     "tabs": {
       "preview": "미리보기",
       "code": "코드",
-      "document": "문서"
+      "document": "문서",
+      "demo": "데모"
     },
     "pageTitle": "Underverse UI – 사용 가이드",
     "pageDescription": "이 페이지는 <packageName>@underverse-ui/underverse</packageName> 패키지에서 제공하는 프로젝트에서 사용할 수 있는 UI 구성 요소의 사용법을 보여줍니다.",
     "tableOfContents": "목차",
+    "searchComponents": "컴포넌트 검색...",
+    "noResults": "결과 없음",
+    "tocGroups": {
+      "gettingStarted": "시작하기",
+      "core": "기본 컴포넌트",
+      "formInputs": "폼 입력",
+      "pickers": "선택기 & 셀렉트",
+      "feedback": "피드백 & 오버레이",
+      "navigation": "네비게이션",
+      "dataDisplay": "데이터 표시",
+      "layout": "레이아웃",
+      "media": "미디어 & 이미지",
+      "utilities": "유틸리티",
+      "theming": "테마",
+      "i18n": "국제화"
+    },
     "sections": {
       "install": {
         "title": "설치",
@@ -257,6 +274,12 @@
       },
       "languageSwitcherHeadless": {
         "title": "언어 스위처(헤드리스)"
+      },
+      "translationProvider": {
+        "title": "TranslationProvider"
+      },
+      "dateUtils": {
+        "title": "날짜 유틸리티"
       }
     },
     "props": {

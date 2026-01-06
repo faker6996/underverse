@@ -82,11 +82,28 @@
     "tabs": {
       "preview": "プレビュー",
       "code": "コード",
-      "document": "ドキュメント"
+      "document": "ドキュメント",
+      "demo": "デモ"
     },
     "pageTitle": "Underverse UI - 使い方ガイド",
     "pageDescription": "このページでは、<packageName>@underverse-ui/underverse</packageName> パッケージが提供するUIコンポーネントの使い方を示します。",
     "tableOfContents": "目次",
+    "searchComponents": "コンポーネントを検索...",
+    "noResults": "結果が見つかりません",
+    "tocGroups": {
+      "gettingStarted": "はじめに",
+      "core": "基本コンポーネント",
+      "formInputs": "フォーム入力",
+      "pickers": "ピッカー＆セレクト",
+      "feedback": "フィードバック＆オーバーレイ",
+      "navigation": "ナビゲーション",
+      "dataDisplay": "データ表示",
+      "layout": "レイアウト",
+      "media": "メディア＆画像",
+      "utilities": "ユーティリティ",
+      "theming": "テーマ",
+      "i18n": "国際化"
+    },
     "sections": {
       "install": {
         "title": "インストール",
@@ -257,6 +274,12 @@
       },
       "floatingContacts": {
         "title": "FloatingContacts"
+      },
+      "translationProvider": {
+        "title": "TranslationProvider"
+      },
+      "dateUtils": {
+        "title": "日付ユーティリティ"
       }
     },
     "props": {

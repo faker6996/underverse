@@ -141,7 +141,7 @@ function MyPage() {
 
   const tabItems: { label: string; value: string; content: React.ReactNode }[] = [
     {
-      label: td("demo"),
+      label: td("tabs.demo"),
       value: "demo",
       content: (
         <div className="space-y-8 p-4">
