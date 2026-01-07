@@ -1,0 +1,33 @@
+# Production Docker Compose for Underverse
+# Used by GitHub Actions deploy workflow
+
+services:
+  underverse-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_CHAT_SERVER_URL: ${NEXT_PUBLIC_CHAT_SERVER_URL:-}
+        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-}
+        NEXT_IMAGE_UNOPTIMIZED: ${NEXT_IMAGE_UNOPTIMIZED:-false}
+    container_name: underverse-web
+    restart: unless-stopped
+    ports:
+      - "3007:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - underverse-net
+
+networks:
+  underverse-net:
+    driver: bridge

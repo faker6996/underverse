@@ -1,18 +1,17 @@
 import type { NextConfig } from "next";
-import createNextIntlPlugin from 'next-intl/plugin';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import createNextIntlPlugin from "next-intl/plugin";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 // Locales and defaultLocale are defined via `i18n/routing.ts` (next-intl v4)
-const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 // Read version from package.json
-const packageJson = JSON.parse(
-  readFileSync(join(process.cwd(), 'packages/underverse/package.json'), 'utf-8')
-);
+const packageJson = JSON.parse(readFileSync(join(process.cwd(), "packages/underverse/package.json"), "utf-8"));
 
 const nextConfig: NextConfig = {
   /* config options here */
+  output: "standalone",
   env: {
     NEXT_PUBLIC_NPM_VERSION: packageJson.version,
     NEXT_PUBLIC_NPM_PACKAGE: packageJson.name,
@@ -22,19 +21,19 @@ const nextConfig: NextConfig = {
     // a reverse proxy (nginx) serves images directly. Set env
     // NEXT_IMAGE_UNOPTIMIZED=true in production to avoid optimizer
     // fetching failures when files are missing or Content-Type issues occur.
-    unoptimized: process.env.NEXT_IMAGE_UNOPTIMIZED === 'true',
+    unoptimized: process.env.NEXT_IMAGE_UNOPTIMIZED === "true",
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'platform-lookaside.fbsbx.com',
+        protocol: "https",
+        hostname: "platform-lookaside.fbsbx.com",
       },
       {
-        protocol: 'https',
-        hostname: 'picsum.photos',
+        protocol: "https",
+        hostname: "picsum.photos",
       },
       {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
       },
     ],
     qualities: [50, 75, 80, 90, 100],
@@ -53,7 +52,7 @@ const nextConfig: NextConfig = {
     // Local alias to use the in-repo package during docs build
     config.resolve.alias = {
       ...config.resolve.alias,
-      ['@underverse-ui/underverse']: join(process.cwd(), 'packages/underverse/src/index.ts')
+      ["@underverse-ui/underverse"]: join(process.cwd(), "packages/underverse/src/index.ts"),
     };
 
     // Handle WASM files
@@ -69,29 +68,27 @@ const nextConfig: NextConfig = {
     return [
       {
         // Exclude static images from CORS restrictions
-        source: '/images/:path*',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-        ]
+        source: "/images/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
       {
-        source: '/((?!images).*)',
+        source: "/((?!images).*)",
         headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' }
-        ]
+          { key: "Cross-Origin-Embedder-Policy", value: "require-corp" },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+        ],
       },
       {
         // Long-cache FFmpeg WASM assets to reduce bandwidth
-        source: '/ffmpeg/:path*',
+        source: "/ffmpeg/:path*",
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
           // Explicit wasm mime is generally handled by Next, but safe to include CORP
-          { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' }
-        ]
-      }
+          { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
+        ],
+      },
     ];
-  }
+  },
 };
 
 export default withNextIntl(nextConfig);
