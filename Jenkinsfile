@@ -11,30 +11,12 @@ pipeline {
     DOCKER_IMAGE   = "${APP_NAME}:${IMAGE_TAG}"
     DEPLOY_PORT    = "3007"
     CONTAINER_NAME = "${APP_NAME}"
-    NEXT_TELEMETRY_DISABLED = "1"
-    NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
   }
 
   stages {
     stage('Checkout') {
       steps {
         checkout scm
-      }
-    }
-
-    stage('Install Dependencies') {
-      steps {
-        sh """
-          npm ci --prefer-offline
-        """
-      }
-    }
-
-    stage('Lint') {
-      steps {
-        sh """
-          npm run lint || true
-        """
       }
     }
 
