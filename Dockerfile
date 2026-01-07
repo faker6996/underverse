@@ -6,7 +6,7 @@ WORKDIR /app
 FROM base AS builder
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY package.json package-lock.json* ./
-RUN --mount=type=cache,target=/root/.npm npm ci --prefer-offline
+RUN npm install --legacy-peer-deps
 COPY . .
 RUN npm run build
 
