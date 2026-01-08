@@ -151,8 +151,8 @@ export default function CardExample() {
   );
 
   const rows: PropsRow[] = [
-    { property: "title", description: t("props.card.title"), type: "string", default: "—" },
-    { property: "description", description: t("props.card.description"), type: "string", default: "—" },
+    { property: "title", description: t("props.card.title"), type: "React.ReactNode", default: "—" },
+    { property: "description", description: t("props.card.description"), type: "React.ReactNode", default: "—" },
     { property: "footer", description: t("props.card.footer"), type: "React.ReactNode", default: "—" },
     { property: "hoverable", description: t("props.card.hoverable"), type: "boolean", default: "false" },
     { property: "clickable", description: t("props.card.clickable"), type: "boolean", default: "false" },

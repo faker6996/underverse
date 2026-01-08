@@ -3,6 +3,7 @@
 Source: `components/ui/Card.tsx`
 
 Exports:
+
 - Card
 
 Note: Usage snippets are minimal; fill required props from the props type below.
@@ -15,11 +16,7 @@ Props type: `CardProps`
 import { Card } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <Card>
-      Content
-    </Card>
-  );
+  return <Card>Content</Card>;
 }
 ```
 
@@ -44,9 +41,9 @@ export function Example() {
 ```
 
 ```ts
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  title?: string;
-  description?: string;
+interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
+  title?: React.ReactNode;
+  description?: React.ReactNode;
   footer?: React.ReactNode;
   className?: string;
   children?: React.ReactNode;

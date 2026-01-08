@@ -19,9 +19,9 @@ const getPaddingInfo = (className?: string) => {
   return { hasAll, hasX, hasY };
 };
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  title?: string;
-  description?: string;
+interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
+  title?: React.ReactNode;
+  description?: React.ReactNode;
   footer?: React.ReactNode;
   className?: string;
   children?: React.ReactNode;
