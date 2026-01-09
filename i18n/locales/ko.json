@@ -23,7 +23,10 @@
     "search": "검색",
     "clearAll": "모두 지우기",
     "tagInputPlaceholder": "값을 입력하고 Enter를 누르세요...",
-    "tagInputPlaceholderWithTags": "Ctrl+Enter로 검색"
+    "tagInputPlaceholderWithTags": "Ctrl+Enter로 검색",
+    "showingResults": "{totalItems}개 중 {startItem}–{endItem} 표시",
+    "itemsPerPage": "페이지당 항목",
+    "items": "개 항목"
   },
   "ValidationInput": {
     "required": "필수 입력 항목입니다",
@@ -1050,14 +1053,16 @@
         "required": "필수로 표시.",
         "todayLabel": "Today 버튼 라벨(선택).",
         "clearLabel": "Clear 버튼 라벨.",
-        "weekdayLabels": "요일 라벨 커스텀(기본 Su..Sa)."
+        "weekdayLabels": "요일 라벨 커스텀(기본 Su..Sa).",
+        "disablePastDates": "오늘 이전 날짜 선택 비활성화."
       },
       "dateRangePicker": {
         "startDate": "시작 날짜.",
         "endDate": "종료 날짜.",
         "onChange": "(start, end)을 받는 변경 핸들러.",
         "placeholder": "선택하지 않았을 때의 플레이스홀더.",
-        "className": "트리거 커스텀 클래스."
+        "className": "트리거 커스텀 클래스.",
+        "disablePastDates": "오늘 이전 날짜 선택 비활성화."
       },
       "pagination": {
         "page": "현재 페이지(1부터).",

@@ -23,7 +23,10 @@
     "search": "検索",
     "clearAll": "すべてクリア",
     "tagInputPlaceholder": "値を入力してEnterを押してください...",
-    "tagInputPlaceholderWithTags": "Ctrl+Enterで検索"
+    "tagInputPlaceholderWithTags": "Ctrl+Enterで検索",
+    "showingResults": "{totalItems}件中 {startItem}–{endItem} を表示",
+    "itemsPerPage": "1ページあたり",
+    "items": "件"
   },
   "ValidationInput": {
     "required": "必須項目です",
@@ -1050,14 +1053,16 @@
         "required": "必須としてマーク。",
         "todayLabel": "Today ボタンの文言（任意）。",
         "clearLabel": "Clear ボタンの文言。",
-        "weekdayLabels": "曜日ラベルをカスタマイズ（既定は Su..Sa）。"
+        "weekdayLabels": "曜日ラベルをカスタマイズ（既定は Su..Sa）。",
+        "disablePastDates": "今日より前の日付を選択不可にする。"
       },
       "dateRangePicker": {
         "startDate": "開始日。",
         "endDate": "終了日。",
         "onChange": "(start, end) を受け取るハンドラ。",
         "placeholder": "未選択時のプレースホルダ。",
-        "className": "トリガーのカスタムクラス。"
+        "className": "トリガーのカスタムクラス。",
+        "disablePastDates": "今日より前の日付を選択不可にする。"
       },
       "pagination": {
         "page": "現在のページ（1 始まり）。",

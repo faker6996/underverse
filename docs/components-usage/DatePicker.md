@@ -79,6 +79,27 @@ export interface DatePickerProps {
   todayLabel?: string;
   clearLabel?: string;
   weekdayLabels?: string[];
+  /** Disable selecting past dates (before today) */
+  disablePastDates?: boolean;
+}
+```
+
+### Disable Past Dates (Không cho chọn ngày quá khứ)
+
+```tsx
+import React from "react";
+import { DatePicker } from "@underverse-ui/underverse";
+
+export function Example() {
+  const [date, setDate] = React.useState<Date>();
+  return (
+    <DatePicker
+      value={date}
+      onChange={setDate}
+      label="Ngày hẹn"
+      disablePastDates={true} // Không cho phép chọn ngày quá khứ
+    />
+  );
 }
 ```
 
@@ -113,5 +134,32 @@ type DateRangePickerProps = {
   onChange: (start: Date, end: Date) => void;
   placeholder?: string;
   className?: string;
+  /** Disable selecting past dates (before today) */
+  disablePastDates?: boolean;
 };
+```
+
+### Disable Past Dates (DateRangePicker)
+
+```tsx
+import React from "react";
+import { DateRangePicker } from "@underverse-ui/underverse";
+
+export function Example() {
+  const [startDate, setStartDate] = React.useState<Date>();
+  const [endDate, setEndDate] = React.useState<Date>();
+
+  return (
+    <DateRangePicker
+      startDate={startDate}
+      endDate={endDate}
+      onChange={(start, end) => {
+        setStartDate(start);
+        setEndDate(end);
+      }}
+      placeholder="Chọn khoảng thời gian"
+      disablePastDates={true} // Không cho phép chọn ngày quá khứ
+    />
+  );
+}
 ```

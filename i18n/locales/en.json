@@ -23,7 +23,10 @@
     "search": "Search",
     "clearAll": "Clear all",
     "tagInputPlaceholder": "Enter value and press Enter...",
-    "tagInputPlaceholderWithTags": "Ctrl+Enter to search"
+    "tagInputPlaceholderWithTags": "Ctrl+Enter to search",
+    "showingResults": "Showing {startItem}–{endItem} of {totalItems}",
+    "itemsPerPage": "Items per page",
+    "items": "items"
   },
   "ValidationInput": {
     "required": "This field is required",
@@ -1057,7 +1060,8 @@
         "required": "Mark as required.",
         "todayLabel": "Text for Today button (if provided).",
         "clearLabel": "Text for Clear button.",
-        "weekdayLabels": "Custom weekday labels, falls back to Su..Sa."
+        "weekdayLabels": "Custom weekday labels, falls back to Su..Sa.",
+        "disablePastDates": "Disable selecting dates before today."
       },
       "dateRangePicker": {
         "startDate": "Range start date.",

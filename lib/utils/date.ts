@@ -4,6 +4,33 @@
  */
 
 /**
+ * Create a date in local timezone to avoid UTC offset issues
+ * This prevents the "1 day off" bug that occurs when creating dates from strings
+ * Example: createLocalDate(2024, 0, 25) creates Jan 25, 2024 at midnight local time (not UTC)
+ */
+export function createLocalDate(year: number, month: number, date: number, hours: number = 0, minutes: number = 0, seconds: number = 0): Date {
+  return new Date(year, month, date, hours, minutes, seconds);
+}
+
+/**
+ * Parse a date string and return local date object
+ * Handles "YYYY-MM-DD" format and ensures local timezone
+ */
+export function parseLocalDate(dateString: string): Date | null {
+  if (!dateString) return null;
+
+  // Match "YYYY-MM-DD" format
+  const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) {
+    const d = new Date(dateString);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  const [, year, month, day] = match;
+  return createLocalDate(parseInt(year), parseInt(month) - 1, parseInt(day));
+}
+
+/**
  * Format date to Vietnamese readable format
  * Example: "25 tháng 12, 2024"
  */
@@ -123,10 +150,7 @@ export function formatTimeAgo(date: string | Date | null | undefined): string {
  * Format date range
  * Example: "25/12/2024 - 31/12/2024"
  */
-export function formatDateRange(
-  startDate: string | Date | null | undefined,
-  endDate: string | Date | null | undefined
-): string {
+export function formatDateRange(startDate: string | Date | null | undefined, endDate: string | Date | null | undefined): string {
   const start = formatDateShort(startDate);
   const end = formatDateShort(endDate);
 
@@ -146,11 +170,7 @@ export function isToday(date: string | Date | null | undefined): boolean {
   if (isNaN(d.getTime())) return false;
 
   const today = new Date();
-  return (
-    d.getDate() === today.getDate() &&
-    d.getMonth() === today.getMonth() &&
-    d.getFullYear() === today.getFullYear()
-  );
+  return d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
 }
 
 /**
@@ -164,11 +184,7 @@ export function isYesterday(date: string | Date | null | undefined): boolean {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 
-  return (
-    d.getDate() === yesterday.getDate() &&
-    d.getMonth() === yesterday.getMonth() &&
-    d.getFullYear() === yesterday.getFullYear()
-  );
+  return d.getDate() === yesterday.getDate() && d.getMonth() === yesterday.getMonth() && d.getFullYear() === yesterday.getFullYear();
 }
 
 /**
@@ -223,8 +239,8 @@ export function formatDateForInput(date: string | Date | null | undefined): stri
   if (isNaN(d.getTime())) return "";
 
   const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
 }
@@ -239,8 +255,8 @@ export function formatDateTimeForInput(date: string | Date | null | undefined): 
   if (isNaN(d.getTime())) return "";
 
   const dateStr = formatDateForInput(date);
-  const hours = String(d.getHours()).padStart(2, '0');
-  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
 
   return `${dateStr}T${hours}:${minutes}`;
 }
@@ -254,15 +270,7 @@ export function getDayOfWeek(date: string | Date | null | undefined): string {
   const d = new Date(date);
   if (isNaN(d.getTime())) return "";
 
-  const days = [
-    "Chủ Nhật",
-    "Thứ Hai",
-    "Thứ Ba",
-    "Thứ Tư",
-    "Thứ Năm",
-    "Thứ Sáu",
-    "Thứ Bảy",
-  ];
+  const days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
 
   return days[d.getDay()];
 }

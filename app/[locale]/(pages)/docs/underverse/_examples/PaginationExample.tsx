@@ -92,23 +92,16 @@ export default function PaginationExample() {
           pageSizeOptions={[5, 10, 20, 50]}
           totalItems={totalItems}
           size={size}
-          variant={variant}
           showFirstLast={firstLast}
           showPrevNext={prevNext}
           showPageNumbers={pageNumbers}
           showInfo
           labels={{
             navigationLabel: t('navigationLabel'),
-            showingResults: ({startItem,endItem,totalItems}) => t('showingResults', {startItem: startItem ?? 0, endItem: endItem ?? 0, totalItems: totalItems ?? 0}),
             firstPage: t('firstPage'),
             previousPage: t('previousPage'),
-            previous: t('previous'),
             nextPage: t('nextPage'),
-            next: t('next'),
             lastPage: t('lastPage'),
-            itemsPerPage: t('itemsPerPage'),
-            search: t('search'),
-            noOptions: t('noOptions'),
             pageNumber: (p) => t('pageNumber', {page: p})
           }}
         />
@@ -144,8 +137,6 @@ export default function PaginationExample() {
           totalItems={advancedTotalItems}
           labels={{
             navigationLabel: t('navigationLabel'),
-            showingResults: ({startItem, endItem, totalItems: ti}) =>
-              t('showingResults', { startItem: startItem ?? 0, endItem: endItem ?? 0, totalItems: ti ?? 0 }),
             pageNumber: (p) => t('pageNumber', { page: p as number })
           }}
         />

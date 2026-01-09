@@ -17,6 +17,9 @@ export default function DatePickerExample() {
   const [advancedDate, setAdvancedDate] = React.useState<Date | undefined>();
   const [advancedRangeStart, setAdvancedRangeStart] = React.useState<Date | undefined>();
   const [advancedRangeEnd, setAdvancedRangeEnd] = React.useState<Date | undefined>();
+  const [futureOnlyDate, setFutureOnlyDate] = React.useState<Date | undefined>();
+  const [futureRangeStart, setFutureRangeStart] = React.useState<Date | undefined>();
+  const [futureRangeEnd, setFutureRangeEnd] = React.useState<Date | undefined>();
   const t = useTranslations('DatePicker');
   const td = useTranslations('DocsUnderverse');
   const locale = useLocale();
@@ -62,7 +65,10 @@ export default function DatePickerExample() {
     `  label='Small date (sm)'\n` +
     `  required\n` +
     `/>\n` +
-    `<DateRangePicker startDate={advancedRangeStart} endDate={advancedRangeEnd} onChange={(s,e)=>{ setAdvancedRangeStart(s); setAdvancedRangeEnd(e); }} />`;
+    `<DateRangePicker startDate={advancedRangeStart} endDate={advancedRangeEnd} onChange={(s,e)=>{ setAdvancedRangeStart(s); setAdvancedRangeEnd(e); }} />\n\n` +
+    `// 6) Disable Past Dates\n` +
+    `<DatePicker value={futureOnlyDate} onChange={setFutureOnlyDate} label='Future Only' disablePastDates />\n` +
+    `<DateRangePicker startDate={futureRangeStart} endDate={futureRangeEnd} onChange={(s,e)=>{ setFutureRangeStart(s); setFutureRangeEnd(e); }} disablePastDates />`;
 
   const demo = (
     <div className="space-y-6">
@@ -86,7 +92,17 @@ export default function DatePickerExample() {
         <div className="text-sm text-muted-foreground">Range: {rangeStart?.toLocaleDateString() || "(start)"} - {rangeEnd?.toLocaleDateString() || "(end)"}</div>
       </div>
 
-      {/* 5) Advanced corner cases */}
+      {/* 5) Disable Past Dates */}
+      <div className="space-y-3">
+        <p className="text-sm font-medium">Disable Past Dates</p>
+        <div className="grid md:grid-cols-2 gap-4">
+          <DatePicker value={futureOnlyDate} onChange={setFutureOnlyDate} label="Future Only" disablePastDates clearLabel={t('clear')} />
+          <DateRangePicker startDate={futureRangeStart} endDate={futureRangeEnd} onChange={(s,e)=>{ setFutureRangeStart(s); setFutureRangeEnd(e); }} disablePastDates />
+        </div>
+        <div className="text-sm text-muted-foreground">Future Date: {futureOnlyDate?.toLocaleDateString() || "(none)"} | Range: {futureRangeStart?.toLocaleDateString() || "(start)"} - {futureRangeEnd?.toLocaleDateString() || "(end)"}</div>
+      </div>
+
+      {/* 6) Advanced corner cases */}
       <div className="space-y-3">
         <p className="text-sm font-medium">Advanced</p>
         <div className="grid md:grid-cols-2 gap-4">
@@ -133,9 +149,10 @@ export default function DatePickerExample() {
                     { property: 'todayLabel', description: td('props.datePicker.todayLabel'), type: 'string', default: '-' },
                     { property: 'clearLabel', description: td('props.datePicker.clearLabel'), type: 'string', default: '-' },
                     { property: 'weekdayLabels', description: td('props.datePicker.weekdayLabels'), type: 'string[]', default: '-' },
+                    { property: 'disablePastDates', description: td('props.datePicker.disablePastDates'), type: 'boolean', default: 'false' },
                   ]}
                   order={[
-                    'id','value','onChange','placeholder','className','disabled','size','label','required','todayLabel','clearLabel','weekdayLabels'
+                    'id','value','onChange','placeholder','className','disabled','size','label','required','todayLabel','clearLabel','weekdayLabels','disablePastDates'
                   ]}
                 />
               </div>
@@ -148,8 +165,9 @@ export default function DatePickerExample() {
                     { property: 'onChange', description: td('props.dateRangePicker.onChange'), type: '(start: Date, end: Date) => void', default: '-' },
                     { property: 'placeholder', description: td('props.dateRangePicker.placeholder'), type: 'string', default: '"Select date range..."' },
                     { property: 'className', description: td('props.dateRangePicker.className'), type: 'string', default: '-' },
+                    { property: 'disablePastDates', description: td('props.dateRangePicker.disablePastDates'), type: 'boolean', default: 'false' },
                   ]}
-                  order={[ 'startDate','endDate','onChange','placeholder','className' ]}
+                  order={[ 'startDate','endDate','onChange','placeholder','className','disablePastDates' ]}
                 />
               </div>
             </div>

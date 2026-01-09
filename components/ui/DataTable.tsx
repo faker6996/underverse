@@ -5,7 +5,6 @@ import { Combobox } from "@/components/ui/Combobox";
 import { DatePicker } from "@/components/ui/DatePicker";
 import DropdownMenu, { DropdownMenuItem } from "@/components/ui/DropdownMenu";
 import Input from "@/components/ui/Input";
-import { Pagination } from "@/components/ui/Pagination";
 import { Popover } from "@/components/ui/Popover";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { cn } from "@/lib/utils/cn";
@@ -578,22 +577,85 @@ export function DataTable<T extends Record<string, any>>({
         </Table>
       </div>
 
-      {totalItems > 0 && (
-        <div className="border-t bg-muted/30 p-4 rounded-b-md">
-          <Pagination
-            page={curPage}
-            totalPages={Math.ceil(totalItems / curPageSize)}
-            onChange={(p) => setCurPage(p)}
-            className=""
-            showInfo
-            totalItems={totalItems}
-            pageSize={curPageSize}
-            pageSizeOptions={pageSizeOptions}
-            onPageSizeChange={(s) => {
-              setCurPage(1);
-              setCurPageSize(s);
-            }}
-          />
+      {totalItems > 0 && Math.ceil(totalItems / curPageSize) > 1 && (
+        <div className="flex items-center justify-between gap-2 px-1 pt-3 text-xs text-muted-foreground">
+          {/* Left: Compact info */}
+          <div className="tabular-nums">
+            {(curPage - 1) * curPageSize + 1}-{Math.min(curPage * curPageSize, totalItems)}/{totalItems}
+          </div>
+
+          {/* Center: Page numbers with prev/next */}
+          <div className="flex items-center gap-0.5">
+            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setCurPage(Math.max(1, curPage - 1))} disabled={curPage === 1}>
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </Button>
+
+            {(() => {
+              const totalPages = Math.ceil(totalItems / curPageSize);
+              const pages: (number | "...")[] = [];
+
+              if (totalPages <= 5) {
+                for (let i = 1; i <= totalPages; i++) pages.push(i);
+              } else {
+                pages.push(1);
+                if (curPage > 3) pages.push("...");
+
+                const start = Math.max(2, curPage - 1);
+                const end = Math.min(totalPages - 1, curPage + 1);
+                for (let i = start; i <= end; i++) pages.push(i);
+
+                if (curPage < totalPages - 2) pages.push("...");
+                pages.push(totalPages);
+              }
+
+              return pages.map((p, i) =>
+                p === "..." ? (
+                  <span key={`dots-${i}`} className="px-1 text-muted-foreground/60">
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => setCurPage(p)}
+                    className={cn(
+                      "h-7 min-w-7 px-1.5 rounded text-xs font-medium transition-colors",
+                      curPage === p ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"
+                    )}
+                  >
+                    {p}
+                  </button>
+                )
+              );
+            })()}
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              onClick={() => setCurPage(Math.min(Math.ceil(totalItems / curPageSize), curPage + 1))}
+              disabled={curPage === Math.ceil(totalItems / curPageSize)}
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Button>
+          </div>
+
+          {/* Right: Page size */}
+          {pageSizeOptions && (
+            <Combobox
+              options={pageSizeOptions.map(String)}
+              value={String(curPageSize)}
+              onChange={(v) => {
+                setCurPage(1);
+                setCurPageSize(Number(v));
+              }}
+              size="sm"
+              className="w-14 h-7"
+            />
+          )}
         </div>
       )}
     </div>
