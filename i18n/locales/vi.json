@@ -960,7 +960,10 @@
         "value": "Các id danh mục được chọn.",
         "onChange": "Hàm thay đổi (mảng id).",
         "placeholder": "Văn bản khi chưa chọn.",
-        "disabled": "Vô hiệu hoá điều khiển."
+        "disabled": "Vô hiệu hoá điều khiển.",
+        "viewOnly": "Hiển thị dạng cây chỉ đọc (không có chức năng chọn).",
+        "defaultExpanded": "Mở rộng tất cả các node mặc định trong chế độ viewOnly.",
+        "labels": "Nhãn i18n cho đa ngôn ngữ (emptyText, selectedText)."
       },
       "imageUpload": {
         "onUpload": "Callback khi tải xong.",

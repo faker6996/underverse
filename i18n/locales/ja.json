@@ -960,7 +960,10 @@
         "value": "選択されたカテゴリ ID。",
         "onChange": "変更ハンドラ（ID 配列）。",
         "placeholder": "未選択時のテキスト。",
-        "disabled": "コントロールを無効化。"
+        "disabled": "コントロールを無効化。",
+        "viewOnly": "読み取り専用ツリービューとしてレンダリング（選択機能なし）。",
+        "defaultExpanded": "viewOnly モードですべてのノードをデフォルトで展開。",
+        "labels": "ローカライゼーション用の i18n ラベル（emptyText, selectedText）。"
       },
       "imageUpload": {
         "onUpload": "アップロード完了時のコールバック。",

@@ -960,7 +960,10 @@
         "value": "선택된 카테고리 ID.",
         "onChange": "변경 핸들러(ID 배열).",
         "placeholder": "선택 전 텍스트.",
-        "disabled": "컨트롤 비활성화."
+        "disabled": "컨트롤 비활성화.",
+        "viewOnly": "읽기 전용 트리 뷰로 렌더링(선택 기능 없음).",
+        "defaultExpanded": "viewOnly 모드에서 모든 노드를 기본 확장.",
+        "labels": "로컬라이제이션용 i18n 라벨 (emptyText, selectedText)."
       },
       "imageUpload": {
         "onUpload": "업로드 완료 콜백.",

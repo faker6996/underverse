@@ -967,7 +967,10 @@
         "value": "Selected category ids.",
         "onChange": "Change handler (ids).",
         "placeholder": "Trigger text when empty.",
-        "disabled": "Disable the control."
+        "disabled": "Disable the control.",
+        "viewOnly": "Render as read-only tree view (no select functionality).",
+        "defaultExpanded": "Expand all nodes by default in viewOnly mode.",
+        "labels": "i18n labels for localization (emptyText, selectedText)."
       },
       "imageUpload": {
         "onUpload": "Callback when file uploaded.",

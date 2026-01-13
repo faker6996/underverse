@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronRight, ChevronDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -10,17 +10,47 @@ interface Category {
   parent_id?: number | null;
 }
 
-interface CategoryTreeSelectProps {
-  categories: Category[];
-  value: number[];
-  onChange: (selectedIds: number[]) => void;
-  placeholder?: string;
-  disabled?: boolean;
+interface CategoryTreeSelectLabels {
+  /** Text shown when no categories available */
+  emptyText?: string;
+  /** Text shown when categories are selected, receives count as parameter */
+  selectedText?: (count: number) => string;
 }
 
-export function CategoryTreeSelect({ categories, value, onChange, placeholder = "Chọn danh mục", disabled }: CategoryTreeSelectProps) {
+interface CategoryTreeSelectProps {
+  categories: Category[];
+  value?: number[];
+  onChange?: (selectedIds: number[]) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  /** When true, renders as a read-only tree view without select functionality */
+  viewOnly?: boolean;
+  /** Default expanded state for all nodes in viewOnly mode */
+  defaultExpanded?: boolean;
+  /** i18n labels for localization */
+  labels?: CategoryTreeSelectLabels;
+}
+
+const defaultLabels: Required<CategoryTreeSelectLabels> = {
+  emptyText: "No categories",
+  selectedText: (count) => `${count} selected`,
+};
+
+export function CategoryTreeSelect({
+  categories,
+  value = [],
+  onChange,
+  placeholder = "Select category",
+  disabled,
+  viewOnly = false,
+  defaultExpanded = false,
+  labels,
+}: CategoryTreeSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [expandedNodes, setExpandedNodes] = useState<Set<number>>(new Set());
+
+  // Merge user labels with defaults
+  const mergedLabels = { ...defaultLabels, ...labels };
 
   // Build tree structure
   const parentCategories = categories.filter((c) => !c.parent_id);
@@ -35,6 +65,14 @@ export function CategoryTreeSelect({ categories, value, onChange, placeholder = 
     }
   });
 
+  // Initialize expanded nodes for viewOnly mode
+  useEffect(() => {
+    if (viewOnly && defaultExpanded) {
+      const allParentIds = categories.filter((c) => childrenMap.has(c.id)).map((c) => c.id);
+      setExpandedNodes(new Set(allParentIds));
+    }
+  }, [viewOnly, defaultExpanded, categories]);
+
   const toggleExpand = (id: number) => {
     const newExpanded = new Set(expandedNodes);
     if (newExpanded.has(id)) {
@@ -46,6 +84,8 @@ export function CategoryTreeSelect({ categories, value, onChange, placeholder = 
   };
 
   const handleSelect = (categoryId: number, category: Category) => {
+    if (viewOnly || !onChange) return;
+
     const newSelected = new Set(value);
 
     if (newSelected.has(categoryId)) {
@@ -78,19 +118,14 @@ export function CategoryTreeSelect({ categories, value, onChange, placeholder = 
       <div key={category.id}>
         <div
           className={cn(
-            "relative flex items-center gap-2 px-3 py-2 cursor-pointer rounded-md transition-colors",
-            "hover:bg-accent",
-            // Selected state: subtle bg + square left indicator, avoid left rounding
-            isSelected && "bg-primary/10 rounded-r-md"
+            "relative flex items-center gap-2 px-3 py-2 rounded-md transition-colors",
+            !viewOnly && "cursor-pointer hover:bg-accent",
+            // Selected state: subtle bg + square left indicator (only in select mode)
+            !viewOnly && isSelected && "bg-primary/10 rounded-r-md"
           )}
           style={{ paddingLeft: `${level * 1.5 + 0.75}rem` }}
         >
-          {isSelected && (
-            <span
-              aria-hidden
-              className="absolute left-0 top-0 bottom-0 w-1 bg-primary"
-            />
-          )}
+          {!viewOnly && isSelected && <span aria-hidden className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />}
           {hasChildren ? (
             <button
               type="button"
@@ -106,34 +141,47 @@ export function CategoryTreeSelect({ categories, value, onChange, placeholder = 
             <span className="w-5" />
           )}
 
-          <div
-            onClick={() => handleSelect(category.id, category)}
-            className="flex items-center gap-2 flex-1"
-          >
-            <div
-              className={cn(
-                "w-4 h-4 border-2 rounded flex items-center justify-center transition-colors",
-                isSelected ? "bg-primary border-primary" : "border-muted-foreground/30"
-              )}
-            >
-              {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
-            </div>
+          {viewOnly ? (
+            // View-only mode: just display the name
+            <span className="text-sm">{category.name}</span>
+          ) : (
+            // Select mode: clickable with checkbox
+            <div onClick={() => handleSelect(category.id, category)} className="flex items-center gap-2 flex-1">
+              <div
+                className={cn(
+                  "w-4 h-4 border-2 rounded flex items-center justify-center transition-colors",
+                  isSelected ? "bg-primary border-primary" : "border-muted-foreground/30"
+                )}
+              >
+                {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+              </div>
 
-            <span className={cn("text-sm", isSelected && "font-medium text-primary")}>{category.name}</span>
-          </div>
+              <span className={cn("text-sm", isSelected && "font-medium text-primary")}>{category.name}</span>
+            </div>
+          )}
         </div>
 
-        {hasChildren && isExpanded && (
-          <div>
-            {children.map((child) => renderCategory(child, level + 1))}
-          </div>
-        )}
+        {hasChildren && isExpanded && <div>{children.map((child) => renderCategory(child, level + 1))}</div>}
       </div>
     );
   };
 
+  // View-only mode: render tree directly without dropdown
+  if (viewOnly) {
+    return (
+      <div className={cn("rounded-md border bg-background p-2", disabled && "opacity-50")}>
+        {parentCategories.length === 0 ? (
+          <div className="px-3 py-2 text-sm text-muted-foreground">{mergedLabels.emptyText}</div>
+        ) : (
+          parentCategories.map((cat) => renderCategory(cat))
+        )}
+      </div>
+    );
+  }
+
+  // Select mode: render dropdown
   const selectedCount = value.length;
-  const displayText = selectedCount > 0 ? `Đã chọn ${selectedCount} danh mục` : placeholder;
+  const displayText = selectedCount > 0 ? mergedLabels.selectedText(selectedCount) : placeholder;
 
   return (
     <div className="relative">
@@ -167,7 +215,7 @@ export function CategoryTreeSelect({ categories, value, onChange, placeholder = 
           >
             <div className="p-1">
               {parentCategories.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-muted-foreground">Không có danh mục nào</div>
+                <div className="px-3 py-2 text-sm text-muted-foreground">{mergedLabels.emptyText}</div>
               ) : (
                 parentCategories.map((cat) => renderCategory(cat))
               )}
