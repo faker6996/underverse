@@ -958,12 +958,16 @@
       "categoryTreeSelect": {
         "categories": "カテゴリ一覧（id, name, parent_id）。",
         "value": "選択されたカテゴリ ID。",
-        "onChange": "変更ハンドラ（ID 配列）。",
+        "onChange": "変更ハンドラ（ID 配列または単一 ID）。",
         "placeholder": "未選択時のテキスト。",
         "disabled": "コントロールを無効化。",
+        "singleSelect": "1つのノードのみ選択可能。",
+        "inline": "ツリーを直接レンダリング（ドロップダウンなし）。",
+        "onNodeClick": "ノードクリック時のコールバック（ナビゲーションに便利）。",
         "viewOnly": "読み取り専用ツリービューとしてレンダリング（選択機能なし）。",
-        "defaultExpanded": "viewOnly モードですべてのノードをデフォルトで展開。",
-        "labels": "ローカライゼーション用の i18n ラベル（emptyText, selectedText）。"
+        "defaultExpanded": "すべてのノードをデフォルトで展開。",
+        "labels": "ローカライゼーション用の i18n ラベル（emptyText, selectedText）。",
+        "className": "コンテナのカスタムクラス。"
       },
       "imageUpload": {
         "onUpload": "アップロード完了時のコールバック。",

@@ -958,12 +958,16 @@
       "categoryTreeSelect": {
         "categories": "Danh sách danh mục phẳng (id, name, parent_id).",
         "value": "Các id danh mục được chọn.",
-        "onChange": "Hàm thay đổi (mảng id).",
+        "onChange": "Hàm thay đổi (mảng id hoặc id đơn).",
         "placeholder": "Văn bản khi chưa chọn.",
         "disabled": "Vô hiệu hoá điều khiển.",
+        "singleSelect": "Chỉ cho phép chọn 1 node.",
+        "inline": "Hiển thị tree trực tiếp (không có dropdown).",
+        "onNodeClick": "Callback khi click vào node (hữu ích cho navigation).",
         "viewOnly": "Hiển thị dạng cây chỉ đọc (không có chức năng chọn).",
-        "defaultExpanded": "Mở rộng tất cả các node mặc định trong chế độ viewOnly.",
-        "labels": "Nhãn i18n cho đa ngôn ngữ (emptyText, selectedText)."
+        "defaultExpanded": "Mở rộng tất cả các node mặc định.",
+        "labels": "Nhãn i18n cho đa ngôn ngữ (emptyText, selectedText).",
+        "className": "Class tuỳ chỉnh cho container."
       },
       "imageUpload": {
         "onUpload": "Callback khi tải xong.",

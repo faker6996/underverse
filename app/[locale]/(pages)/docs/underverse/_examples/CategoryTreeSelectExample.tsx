@@ -11,6 +11,9 @@ export default function CategoryTreeSelectExample() {
   const t = useTranslations("DocsUnderverse");
   const [selected, setSelected] = React.useState<number[]>([]);
   const [selectedInit, setSelectedInit] = React.useState<number[]>([1, 2]);
+  const [singleSelected, setSingleSelected] = React.useState<number | null>(null);
+  const [inlineSingle, setInlineSingle] = React.useState<number | null>(1);
+
   const categories = [
     { id: 1, name: "Electronics" },
     { id: 2, name: "Phones", parent_id: 1 },
@@ -20,7 +23,7 @@ export default function CategoryTreeSelectExample() {
     { id: 6, name: "Furniture", parent_id: 4 },
   ];
 
-  // Example i18n labels - in real app, use useTranslations
+  // Example i18n labels
   const labels = {
     emptyText: "No categories available",
     selectedText: (count: number) => `${count} categories selected`,
@@ -28,87 +31,97 @@ export default function CategoryTreeSelectExample() {
 
   const code =
     `import { CategoryTreeSelect } from '@underverse-ui/underverse'\n\n` +
-    `const [selected, setSelected] = useState<number[]>([])\n` +
-    `const [selectedInit, setSelectedInit] = useState<number[]>([1, 2])\n` +
-    `const categories = [\n` +
-    `  { id: 1, name: 'Electronics' },\n` +
-    `  { id: 2, name: 'Phones', parent_id: 1 },\n` +
-    `  { id: 3, name: 'Laptops', parent_id: 1 },\n` +
-    `  { id: 4, name: 'Home' },\n` +
-    `  { id: 5, name: 'Kitchen', parent_id: 4 },\n` +
-    `  { id: 6, name: 'Furniture', parent_id: 4 },\n` +
-    `]\n\n` +
-    `// i18n labels\n` +
-    `const labels = {\n` +
-    `  emptyText: t('categoryTree.empty'),\n` +
-    `  selectedText: (count) => t('categoryTree.selected', { count }),\n` +
-    `}\n\n` +
-    `// 1) Basic\n` +
+    `// 1) Multi-select (default)\n` +
     `<CategoryTreeSelect\n` +
     `  categories={categories}\n` +
     `  value={selected}\n` +
     `  onChange={setSelected}\n` +
-    `  placeholder="Select category"\n` +
-    `  labels={labels}\n` +
+    `  placeholder="Select categories"\n` +
     `/>\n\n` +
-    `// 2) With initial selection\n` +
-    `<CategoryTreeSelect categories={categories} value={selectedInit} onChange={setSelectedInit} labels={labels} />\n\n` +
-    `// 3) Disabled\n` +
-    `<CategoryTreeSelect categories={categories} value={selected} onChange={setSelected} disabled labels={labels} />\n\n` +
-    `// 4) View Only (read-only tree)\n` +
-    `<CategoryTreeSelect categories={categories} viewOnly labels={labels} />\n\n` +
-    `// 5) View Only with default expanded\n` +
-    `<CategoryTreeSelect categories={categories} viewOnly defaultExpanded labels={labels} />`;
+    `// 2) Single-select mode\n` +
+    `<CategoryTreeSelect\n` +
+    `  categories={categories}\n` +
+    `  value={singleSelected}     // number | null\n` +
+    `  onChange={setSingleSelected}\n` +
+    `  singleSelect               // NEW: only one node\n` +
+    `/>\n\n` +
+    `// 3) Inline mode (always visible)\n` +
+    `<CategoryTreeSelect\n` +
+    `  categories={categories}\n` +
+    `  value={inlineSingle}\n` +
+    `  onChange={setInlineSingle}\n` +
+    `  singleSelect\n` +
+    `  inline                     // NEW: no dropdown\n` +
+    `  defaultExpanded\n` +
+    `/>\n\n` +
+    `// 4) With onNodeClick (navigation)\n` +
+    `<CategoryTreeSelect\n` +
+    `  categories={departments}\n` +
+    `  value={selectedId}\n` +
+    `  onChange={setSelectedId}\n` +
+    `  singleSelect\n` +
+    `  inline\n` +
+    `  onNodeClick={(node) => router.push(\`/dept/\${node.id}\`)}\n` +
+    `/>\n\n` +
+    `// 5) View Only\n` +
+    `<CategoryTreeSelect categories={categories} viewOnly defaultExpanded />`;
 
   const demo = (
     <div className="space-y-6">
-      {/* 1) Basic */}
+      {/* 1) Multi-select */}
       <div className="space-y-2">
-        <p className="text-sm font-medium">Basic</p>
-        <CategoryTreeSelect categories={categories} value={selected} onChange={setSelected} placeholder="Select category" labels={labels} />
+        <p className="text-sm font-medium">Multi-select (default)</p>
+        <CategoryTreeSelect categories={categories} value={selected} onChange={setSelected} placeholder="Select categories" labels={labels} />
         <div className="text-sm text-muted-foreground">Selected: {selected.join(", ") || "(none)"}</div>
       </div>
 
-      {/* 2) With initial selection */}
+      {/* 2) Single-select dropdown */}
       <div className="space-y-2">
-        <p className="text-sm font-medium">Initial selection</p>
-        <CategoryTreeSelect categories={categories} value={selectedInit} onChange={setSelectedInit} labels={labels} />
+        <p className="text-sm font-medium">Single-select (dropdown)</p>
+        <CategoryTreeSelect
+          categories={categories}
+          value={singleSelected}
+          onChange={setSingleSelected}
+          placeholder="Select one category"
+          singleSelect
+        />
+        <div className="text-sm text-muted-foreground">Selected: {singleSelected ?? "(none)"}</div>
       </div>
 
-      {/* 3) Disabled */}
+      {/* 3) Single-select inline */}
       <div className="space-y-2">
-        <p className="text-sm font-medium">Disabled</p>
-        <CategoryTreeSelect categories={categories} value={selected} onChange={setSelected} disabled labels={labels} />
+        <p className="text-sm font-medium">Single-select inline (always visible)</p>
+        <CategoryTreeSelect categories={categories} value={inlineSingle} onChange={setInlineSingle} singleSelect inline defaultExpanded />
+        <div className="text-sm text-muted-foreground">Selected: {inlineSingle ?? "(none)"}</div>
       </div>
 
       {/* 4) View Only */}
       <div className="space-y-2">
-        <p className="text-sm font-medium">View Only (read-only tree)</p>
-        <CategoryTreeSelect categories={categories} viewOnly labels={labels} />
+        <p className="text-sm font-medium">View Only</p>
+        <CategoryTreeSelect categories={categories} viewOnly defaultExpanded />
       </div>
 
-      {/* 5) View Only with default expanded */}
+      {/* 5) Disabled */}
       <div className="space-y-2">
-        <p className="text-sm font-medium">View Only (default expanded)</p>
-        <CategoryTreeSelect categories={categories} viewOnly defaultExpanded labels={labels} />
+        <p className="text-sm font-medium">Disabled</p>
+        <CategoryTreeSelect categories={categories} value={selectedInit} onChange={setSelectedInit} disabled />
       </div>
     </div>
   );
 
   const rows: PropsRow[] = [
-    {
-      property: "categories",
-      description: t("props.categoryTreeSelect.categories"),
-      type: "Array<{ id: number; name: string; parent_id?: number | null }>",
-      default: "[]",
-    },
-    { property: "value", description: t("props.categoryTreeSelect.value"), type: "number[]", default: "[]" },
-    { property: "onChange", description: t("props.categoryTreeSelect.onChange"), type: "(selectedIds: number[]) => void", default: "-" },
+    { property: "categories", description: t("props.categoryTreeSelect.categories"), type: "Category[]", default: "[]" },
+    { property: "value", description: t("props.categoryTreeSelect.value"), type: "number[] | number | null", default: "[]" },
+    { property: "onChange", description: t("props.categoryTreeSelect.onChange"), type: "(ids | id) => void", default: "-" },
     { property: "placeholder", description: t("props.categoryTreeSelect.placeholder"), type: "string", default: '"Select category"' },
     { property: "disabled", description: t("props.categoryTreeSelect.disabled"), type: "boolean", default: "false" },
+    { property: "singleSelect", description: t("props.categoryTreeSelect.singleSelect"), type: "boolean", default: "false" },
+    { property: "inline", description: t("props.categoryTreeSelect.inline"), type: "boolean", default: "false" },
+    { property: "onNodeClick", description: t("props.categoryTreeSelect.onNodeClick"), type: "(node: Category) => void", default: "-" },
     { property: "viewOnly", description: t("props.categoryTreeSelect.viewOnly"), type: "boolean", default: "false" },
     { property: "defaultExpanded", description: t("props.categoryTreeSelect.defaultExpanded"), type: "boolean", default: "false" },
     { property: "labels", description: t("props.categoryTreeSelect.labels"), type: "CategoryTreeSelectLabels", default: "-" },
+    { property: "className", description: t("props.categoryTreeSelect.className"), type: "string", default: "-" },
   ];
   const order = rows.map((r) => r.property);
   const docs = <PropsDocsTable rows={rows} order={order} />;

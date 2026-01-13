@@ -965,12 +965,16 @@
       "categoryTreeSelect": {
         "categories": "Flat list of categories (id, name, parent_id).",
         "value": "Selected category ids.",
-        "onChange": "Change handler (ids).",
+        "onChange": "Change handler (ids array or single id).",
         "placeholder": "Trigger text when empty.",
         "disabled": "Disable the control.",
+        "singleSelect": "Only allow selecting one node.",
+        "inline": "Render tree directly (no dropdown).",
+        "onNodeClick": "Callback when clicking a node (useful for navigation).",
         "viewOnly": "Render as read-only tree view (no select functionality).",
-        "defaultExpanded": "Expand all nodes by default in viewOnly mode.",
-        "labels": "i18n labels for localization (emptyText, selectedText)."
+        "defaultExpanded": "Expand all nodes by default.",
+        "labels": "i18n labels for localization (emptyText, selectedText).",
+        "className": "Custom class for container."
       },
       "imageUpload": {
         "onUpload": "Callback when file uploaded.",

@@ -6,108 +6,95 @@ Exports:
 
 - CategoryTreeSelect
 
-Note: Usage snippets are minimal; fill required props from the props type below.
+## Usage
 
-## CategoryTreeSelect
-
-Props type: `CategoryTreeSelectProps`
+### Multi-select (default)
 
 ```tsx
 import { CategoryTreeSelect } from "@underverse-ui/underverse";
 
-export function Example() {
-  return <CategoryTreeSelect categories={[]} />;
-}
+const [selected, setSelected] = useState<number[]>([]);
+
+<CategoryTreeSelect categories={categories} value={selected} onChange={setSelected} placeholder="Select categories" />;
 ```
 
-Ví dụ đầy đủ (Select mode với i18n):
+### Single-select mode
 
 ```tsx
-import React from "react";
-import { useTranslations } from "next-intl";
-import { CategoryTreeSelect } from "@underverse-ui/underverse";
+const [selected, setSelected] = useState<number | null>(null);
 
-export function Example() {
-  const t = useTranslations("common");
-  const [value, setValue] = React.useState<number[]>([]);
-  const categories = [
-    { id: 1, name: "Electronics" },
-    { id: 2, name: "Phones", parent_id: 1 },
-    { id: 3, name: "Laptops", parent_id: 1 },
-    { id: 4, name: "Home" },
-    { id: 5, name: "Kitchen", parent_id: 4 },
-  ];
-
-  // i18n labels
-  const labels = {
-    emptyText: t("categoryTree.empty"),
-    selectedText: (count: number) => t("categoryTree.selected", { count }),
-  };
-
-  return <CategoryTreeSelect categories={categories} value={value} onChange={setValue} placeholder={t("categoryTree.placeholder")} labels={labels} />;
-}
+<CategoryTreeSelect categories={categories} value={selected} onChange={setSelected} singleSelect />;
 ```
 
-Ví dụ View Only mode:
+### Inline mode (always visible, no dropdown)
 
 ```tsx
-import { CategoryTreeSelect } from "@underverse-ui/underverse";
+<CategoryTreeSelect categories={categories} value={selected} onChange={setSelected} singleSelect inline defaultExpanded />
+```
 
-export function TreeViewExample() {
-  const categories = [
-    { id: 1, name: "Electronics" },
-    { id: 2, name: "Phones", parent_id: 1 },
-    { id: 3, name: "Laptops", parent_id: 1 },
-    { id: 4, name: "Home" },
-    { id: 5, name: "Kitchen", parent_id: 4 },
-  ];
+### With onNodeClick (for navigation)
 
-  // Read-only tree view
-  return <CategoryTreeSelect categories={categories} viewOnly />;
+```tsx
+<CategoryTreeSelect
+  categories={departments}
+  value={selectedId}
+  onChange={setSelectedId}
+  singleSelect
+  inline
+  onNodeClick={(node) => router.push(`/departments/${node.id}`)}
+/>
+```
 
-  // With all nodes expanded by default
-  return <CategoryTreeSelect categories={categories} viewOnly defaultExpanded />;
-}
+### View Only (read-only tree)
+
+```tsx
+<CategoryTreeSelect categories={categories} viewOnly defaultExpanded />
 ```
 
 ## i18n Labels
 
-Component hỗ trợ i18n thông qua prop `labels`:
-
 ```tsx
 const labels = {
-  emptyText: "Không có danh mục nào", // Text khi không có data
-  selectedText: (count) => `Đã chọn ${count}`, // Text hiển thị số lượng đã chọn
+  emptyText: t("categoryTree.empty"),
+  selectedText: (count) => t("categoryTree.selected", { count }),
 };
 
 <CategoryTreeSelect categories={categories} labels={labels} />;
 ```
 
-```ts
-interface CategoryTreeSelectLabels {
-  /** Text shown when no categories available */
-  emptyText?: string;
-  /** Text shown when categories are selected, receives count as parameter */
-  selectedText?: (count: number) => string;
-}
+## Props
 
+```ts
 interface CategoryTreeSelectProps {
   categories: Category[];
+
+  // Multi-select mode (default)
   value?: number[];
   onChange?: (selectedIds: number[]) => void;
+
+  // OR Single-select mode
+  singleSelect?: boolean;
+  value?: number | null; // when singleSelect=true
+  onChange?: (id: number | null) => void; // when singleSelect=true
+
   placeholder?: string;
   disabled?: boolean;
-  /** When true, renders as a read-only tree view without select functionality */
-  viewOnly?: boolean;
-  /** Default expanded state for all nodes in viewOnly mode */
-  defaultExpanded?: boolean;
-  /** i18n labels for localization */
+  viewOnly?: boolean; // Read-only tree
+  defaultExpanded?: boolean; // Expand all nodes by default
+  inline?: boolean; // Always visible, no dropdown
+  onNodeClick?: (node: Category) => void; // Click callback
   labels?: CategoryTreeSelectLabels;
+  className?: string;
 }
 
 interface Category {
   id: number;
   name: string;
   parent_id?: number | null;
+}
+
+interface CategoryTreeSelectLabels {
+  emptyText?: string;
+  selectedText?: (count: number) => string;
 }
 ```
