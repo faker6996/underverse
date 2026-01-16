@@ -35,7 +35,9 @@ interface SmartImageProps {
   fallbackSrc?: string;
 }
 
-const DEFAULT_FALLBACK = "/images/products/hoa-hong-do.png";
+// SVG placeholder as data URL to avoid 404 errors
+const DEFAULT_FALLBACK =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect fill='%23f3f4f6' width='400' height='400'/%3E%3Cpath fill='%239ca3af' d='M160 150h80v60h-80z'/%3E%3Ccircle fill='%239ca3af' cx='180' cy='130' r='20'/%3E%3Cpath fill='%239ca3af' d='M120 240l60-60 40 40 40-30 60 50v40H120z'/%3E%3C/svg%3E";
 
 // Cache các URL đã lỗi để không gọi lại nhiều lần
 const FAILED_SRCS = new Set<string>();

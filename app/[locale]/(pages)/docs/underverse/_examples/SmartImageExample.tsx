@@ -23,7 +23,15 @@ export default function SmartImageExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Fixed size (contain)</p>
         <div className="w-72 h-44 rounded-md overflow-hidden">
-          <SmartImage src="https://picsum.photos/seed/uv456/400/300" alt="Contain" fill={false} width={300} height={180} className="bg-muted" fit="contain" />
+          <SmartImage
+            src="https://picsum.photos/seed/uv456/400/300"
+            alt="Contain"
+            fill={false}
+            width={300}
+            height={180}
+            className="bg-muted"
+            fit="contain"
+          />
         </div>
       </div>
 
@@ -31,7 +39,14 @@ export default function SmartImageExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Rounded</p>
         <div className="w-24">
-          <SmartImage src="https://picsum.photos/seed/uv789/200/200" alt="Rounded" fill ratioClass="aspect-square" roundedClass="rounded-full" className="object-cover" />
+          <SmartImage
+            src="https://picsum.photos/seed/uv789/200/200"
+            alt="Rounded"
+            fill
+            ratioClass="aspect-square"
+            roundedClass="rounded-full"
+            className="object-cover"
+          />
         </div>
       </div>
 
@@ -102,9 +117,9 @@ export default function SmartImageExample() {
     { property: "quality", description: t("props.smartImage.quality"), type: "number", default: "80" },
     { property: "fit", description: t("props.smartImage.fit"), type: '"cover" | "contain"', default: '"cover"' },
     { property: "objectPosition", description: t("props.smartImage.objectPosition"), type: "string", default: "-" },
-    { property: "fallbackSrc", description: t("props.smartImage.fallbackSrc"), type: "string", default: '"/images/products/hoa-hong-do.png"' },
+    { property: "fallbackSrc", description: t("props.smartImage.fallbackSrc"), type: "string", default: '"data:image/svg+xml,..."' },
   ];
-  const order = rows.map(r => r.property);
+  const order = rows.map((r) => r.property);
   const docs = <PropsDocsTable rows={rows} order={order} />;
 
   return (
