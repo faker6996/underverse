@@ -21,8 +21,8 @@ export default function AvatarExample() {
     `<Avatar size="sm" src="https://picsum.photos/seed/user1/80" alt="User 1" />\n` +
     `<Avatar size="md" src="https://picsum.photos/seed/user2/100" alt="User 2" />\n` +
     `<Avatar size="lg" src="https://picsum.photos/seed/user3/120" alt="User 3" />\n\n` +
-    `// Fallback with Image Error\n` +
-    `<Avatar size="md" src="invalid-url.jpg" fallback="ER" alt="Error Demo" />\n\n` +
+    `// Fallback (shown when no src or when image fails to load)\n` +
+    `<Avatar size="md" fallback="ER" alt="Fallback Demo" />\n\n` +
     `// Interactive (with onClick)\n` +
     `const [clicked, setClicked] = useState("")\n` +
     `<Avatar size="md" fallback="JD" onClick={() => setClicked("John Doe")} />\n` +
@@ -53,12 +53,12 @@ export default function AvatarExample() {
         </div>
       </div>
 
-      {/* Fallback with Image Error */}
+      {/* Fallback Demo */}
       <div className="space-y-2">
-        <p className="text-sm font-medium">Fallback (Image Error Handling)</p>
+        <p className="text-sm font-medium">Fallback (shown when no src or when image fails)</p>
         <div className="flex items-center gap-4">
-          <Avatar size="md" src="invalid-url.jpg" fallback="ER" alt="Error Demo" />
-          <span className="text-sm text-muted-foreground">← Shows fallback when image fails to load</span>
+          <Avatar size="md" fallback="ER" alt="Fallback Demo" />
+          <span className="text-sm text-muted-foreground">← Shows fallback text when no image provided</span>
         </div>
       </div>
 
@@ -68,7 +68,11 @@ export default function AvatarExample() {
         <div className="flex items-center gap-4">
           <Avatar size="md" fallback="JD" onClick={() => setClickedAvatar("John Doe")} />
           <Avatar size="md" src="https://picsum.photos/seed/user4/100" alt="Jane" onClick={() => setClickedAvatar("Jane")} />
-          {clickedAvatar && <span className="text-sm text-muted-foreground">Clicked: <strong>{clickedAvatar}</strong></span>}
+          {clickedAvatar && (
+            <span className="text-sm text-muted-foreground">
+              Clicked: <strong>{clickedAvatar}</strong>
+            </span>
+          )}
         </div>
       </div>
 
@@ -107,4 +111,3 @@ export default function AvatarExample() {
     />
   );
 }
-
