@@ -186,7 +186,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
         className={cn(
           "rounded-md border bg-popover text-popover-foreground shadow-md",
           "backdrop-blur-sm bg-popover/95 border-border/60 p-1",
-          contentClassName
+          contentClassName,
         )}
       >
         {items
@@ -211,7 +211,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
                     "hover:bg-accent hover:text-accent-foreground",
                     "focus:bg-accent focus:text-accent-foreground",
                     "disabled:opacity-50 disabled:cursor-not-allowed",
-                    item.destructive && "text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
+                    item.destructive && "text-destructive hover:bg-destructive/10 focus:bg-destructive/10",
                   )}
                 >
                   {IconComponent && <IconComponent className="h-4 w-4" />}
@@ -235,7 +235,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
           // keep original classes on trigger
           (trigger.props as any)?.className,
           // ensure focus-visible ring for trigger too
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         ),
       } as any)}
       {dropdownContent && typeof window !== "undefined" && createPortal(dropdownContent, document.body)}
@@ -260,7 +260,7 @@ export const DropdownMenuItem: React.FC<{
       "focus:bg-accent focus:text-accent-foreground focus:outline-none",
       "disabled:opacity-50 disabled:cursor-not-allowed",
       destructive && "text-destructive hover:bg-destructive/10 focus:bg-destructive/10",
-      className
+      className,
     )}
   >
     {children}
@@ -283,7 +283,7 @@ export const SelectDropdown: React.FC<{
           "inline-flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-md border bg-background border-border/60",
           "hover:bg-accent/50",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-          className
+          className,
         )}
       >
         <span className="truncate max-w-64 text-foreground/90">{value || placeholder}</span>
