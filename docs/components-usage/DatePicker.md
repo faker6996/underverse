@@ -9,6 +9,16 @@ Exports:
 
 Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja). Tự động detect `next-intl` hoặc sử dụng `TranslationProvider`.
 
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                                              | Status |
+| ---------------------------------------------------- | ------ |
+| Label `htmlFor` attribute                            | ✅     |
+| `aria-labelledby` on trigger                         | ✅     |
+| ESC to close                                         | ✅     |
+| `focus-visible` ring                                 | ✅     |
+| Locale-aware date formatting (`Intl.DateTimeFormat`) | ✅     |
+
 ## Supported Locales
 
 | Locale | Placeholder   | Today   | Clear  |

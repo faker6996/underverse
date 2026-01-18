@@ -6,16 +6,24 @@ Exports:
 
 - DataTable
 
-Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja) cho các labels như density, columns, etc.
+Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja) cho các labels như density, columns, loading, etc.
 
 ## i18n Support
 
-| Locale | Columns | Density | Compact    | Normal      | Comfortable |
-| ------ | ------- | ------- | ---------- | ----------- | ----------- |
-| `en`   | Columns | Density | Compact    | Normal      | Comfortable |
-| `vi`   | Cột     | Mật độ  | Thu gọn    | Bình thường | Thoải mái   |
-| `ko`   | 열      | 밀도    | 컴팩트     | 보통        | 편안함      |
-| `ja`   | 列      | 密度    | コンパクト | 通常        | 快適        |
+| Key           | EN               | VI                | KO          | JA                 |
+| ------------- | ---------------- | ----------------- | ----------- | ------------------ |
+| `columns`     | Columns          | Cột               | 열          | 列                 |
+| `density`     | Density          | Mật độ            | 밀도        | 密度               |
+| `compact`     | Compact          | Gọn               | 컴팩트      | コンパクト         |
+| `normal`      | Normal           | Thường            | 보통        | 通常               |
+| `comfortable` | Comfortable      | Thoải mái         | 여유        | ゆったり           |
+| `loading`     | Loading          | Đang tải          | 로딩 중     | 読み込み中         |
+| `noData`      | No data          | Không có dữ liệu  | 데이터 없음 | データがありません |
+| `clearFilter` | Clear filter     | Xóa bộ lọc        | 필터 지우기 | フィルターをクリア |
+| `headerAlign` | Header alignment | Căn chỉnh tiêu đề | 헤더 정렬   | ヘッダー配置       |
+| `alignLeft`   | Align left       | Căn trái          | 왼쪽 정렬   | 左揃え             |
+| `alignCenter` | Align center     | Căn giữa          | 가운데 정렬 | 中央揃え           |
+| `alignRight`  | Align right      | Căn phải          | 오른쪽 정렬 | 右揃え             |
 
 ## DataTable
 

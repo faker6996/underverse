@@ -256,7 +256,7 @@ export function DataTable<T extends Record<string, any>>({
               // Use column-specific align if defined, otherwise use global headerAlign
               (col.align === "right" || (!col.align && headerAlign === "right")) && "text-right",
               (col.align === "center" || (!col.align && headerAlign === "center")) && "text-center",
-              columnDividers && colIdx > 0 && "border-l border-border/60"
+              columnDividers && colIdx > 0 && "border-l border-border/60",
             ) as string
           }
         >
@@ -271,7 +271,7 @@ export function DataTable<T extends Record<string, any>>({
                   <button
                     className={cn(
                       "p-1 rounded-sm transition-all duration-200 hover:bg-accent",
-                      sort?.key === col.key ? "opacity-100 bg-accent" : "opacity-60 hover:opacity-100"
+                      sort?.key === col.key ? "opacity-100 bg-accent" : "opacity-60 hover:opacity-100",
                     )}
                     onClick={() => {
                       setCurPage(1);
@@ -315,7 +315,7 @@ export function DataTable<T extends Record<string, any>>({
                     className={cn(
                       "p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                      filters[col.key] && "bg-accent text-foreground"
+                      filters[col.key] && "bg-accent text-foreground",
                     )}
                     aria-label="Filter"
                     title="Filter"
@@ -339,7 +339,7 @@ export function DataTable<T extends Record<string, any>>({
                       }}
                       className="text-xs text-destructive hover:underline"
                     >
-                      Clear filter
+                      {t("clearFilter")}
                     </button>
                   )}
                 </div>
@@ -352,7 +352,7 @@ export function DataTable<T extends Record<string, any>>({
                   "flex items-center gap-2 select-none min-h-10",
                   isRightAlign && "justify-end",
                   isCenterAlign && "justify-center",
-                  !isRightAlign && !isCenterAlign && "justify-between"
+                  !isRightAlign && !isCenterAlign && "justify-between",
                 )}
               >
                 {/* Khi căn phải: filter trước, title sau (đối xứng với căn trái) */}
@@ -534,14 +534,14 @@ export function DataTable<T extends Record<string, any>>({
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    <span className="text-sm">Loading...</span>
+                    <span className="text-sm">{t("loading")}…</span>
                   </div>
                 </TableCell>
               </TableRow>
             ) : !displayedData || displayedData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={visibleColumns.length} className="text-center py-6 text-muted-foreground">
-                  No data
+                  {t("noData")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -561,7 +561,7 @@ export function DataTable<T extends Record<string, any>>({
                               col.align === "center" && "text-center",
                               columnDividers && colIdx > 0 && "border-l border-border/60",
                               isLastRow && col === visibleColumns[0] && "rounded-bl-md",
-                              isLastRow && col === visibleColumns[visibleColumns.length - 1] && "rounded-br-md"
+                              isLastRow && col === visibleColumns[visibleColumns.length - 1] && "rounded-br-md",
                             ) as string
                           }
                         >
@@ -621,12 +621,12 @@ export function DataTable<T extends Record<string, any>>({
                     onClick={() => setCurPage(p)}
                     className={cn(
                       "h-7 min-w-7 px-1.5 rounded text-xs font-medium transition-colors",
-                      curPage === p ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"
+                      curPage === p ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground",
                     )}
                   >
                     {p}
                   </button>
-                )
+                ),
               );
             })()}
 

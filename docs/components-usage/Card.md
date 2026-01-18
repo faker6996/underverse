@@ -4,10 +4,17 @@ Source: `components/ui/Card.tsx`
 
 Exports:
 
-
 - Card
 
 Note: Usage snippets are minimal; fill required props from the props type below.
+
+## Animation (Web Interface Guidelines Compliant)
+
+Card sử dụng **explicit transition properties** thay vì `transition: all` để tối ưu hiệu suất:
+
+```css
+transition-property: transform, box-shadow, border-color, background-color;
+```
 
 ## Card
 

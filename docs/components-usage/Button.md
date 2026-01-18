@@ -3,9 +3,20 @@
 Source: `components/ui/Button.tsx`
 
 Exports:
+
 - Button
 
 Note: Usage snippets are minimal; fill required props from the props type below.
+
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                            | Status |
+| ---------------------------------- | ------ |
+| `aria-disabled` for disabled state | ✅     |
+| `aria-busy` for loading state      | ✅     |
+| Loading spinner `aria-hidden`      | ✅     |
+| `focus-visible` ring               | ✅     |
+| Double-click prevention            | ✅     |
 
 ## Button
 
@@ -15,11 +26,7 @@ Props type: `ButtonProps`
 import { Button } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <Button>
-      Content
-    </Button>
-  );
+  return <Button>Content</Button>;
 }
 ```
 

@@ -133,6 +133,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
         position &&
         createPortal(
           <div
+            role="tooltip"
             style={{
               position: "fixed",
               top: position.top,
@@ -141,12 +142,12 @@ export const Tooltip: React.FC<TooltipProps> = ({
                 placement === "top"
                   ? "translate(-50%, -100%)"
                   : placement === "bottom"
-                  ? "translateX(-50%)"
-                  : placement === "left"
-                  ? "translate(-100%, -50%)"
-                  : placement === "right"
-                  ? "translateY(-50%)"
-                  : "none",
+                    ? "translateX(-50%)"
+                    : placement === "left"
+                      ? "translate(-100%, -50%)"
+                      : placement === "right"
+                        ? "translateY(-50%)"
+                        : "none",
               zIndex: 99999,
               opacity: 1,
               transition: "opacity 150ms",
@@ -156,12 +157,12 @@ export const Tooltip: React.FC<TooltipProps> = ({
               "px-3 py-2 text-sm font-medium rounded-lg shadow-lg border",
               "max-w-xs wrap-break-word backdrop-blur-sm",
               variantStyles[variant],
-              className
+              className,
             )}
           >
             {content}
           </div>,
-          document.body
+          document.body,
         )}
     </>
   );

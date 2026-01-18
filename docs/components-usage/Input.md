@@ -11,6 +11,16 @@ Exports:
 
 Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja) cho validation messages.
 
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                             | Status |
+| ----------------------------------- | ------ |
+| Label `htmlFor` attribute           | ✅     |
+| `aria-invalid` for errors           | ✅     |
+| `aria-describedby` for descriptions | ✅     |
+| `focus-visible` ring                | ✅     |
+| Proper `autocomplete`               | ✅     |
+
 ## i18n Support (ValidationInput namespace)
 
 | Locale | Required               | Too Short     | Too Long    |

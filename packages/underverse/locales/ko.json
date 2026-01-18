@@ -14,7 +14,14 @@
     "compact": "컴팩트",
     "normal": "보통",
     "comfortable": "여유",
-    "columns": "열"
+    "columns": "열",
+    "loading": "로딩 중",
+    "noData": "데이터 없음",
+    "clearFilter": "필터 지우기",
+    "headerAlign": "헤더 정렬",
+    "alignLeft": "왼쪽 정렬",
+    "alignCenter": "가운데 정렬",
+    "alignRight": "오른쪽 정렬"
   },
   "ValidationInput": {
     "required": "필수 입력 항목입니다",

@@ -3,9 +3,18 @@
 Source: `components/ui/Tooltip.tsx`
 
 Exports:
+
 - Tooltip
 
 Note: Usage snippets are minimal; fill required props from the props type below.
+
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                                  | Status |
+| ---------------------------------------- | ------ |
+| `role="tooltip"`                         | ✅     |
+| Keyboard accessible (`onFocus`/`onBlur`) | ✅     |
+| `focus-visible` ring on trigger          | ✅     |
 
 ## Tooltip
 

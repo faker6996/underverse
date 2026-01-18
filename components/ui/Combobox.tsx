@@ -50,8 +50,8 @@ export const Combobox: React.FC<ComboboxProps> = ({
   options,
   value,
   onChange,
-  placeholder = "Select...",
-  searchPlaceholder = "Search...",
+  placeholder = "Select…",
+  searchPlaceholder = "Search…",
   emptyText = "No results found",
   className,
   disabled = false,
@@ -85,7 +85,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   // Filter options based on query (only when search enabled)
   const filteredOptions = React.useMemo(
     () => (enableSearch ? options.filter((o) => getOptionLabel(o).toLowerCase().includes(query.toLowerCase())) : options),
-    [options, query, enableSearch]
+    [options, query, enableSearch],
   );
 
   // Manual positioning
@@ -248,7 +248,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
               <li className="px-3 py-8 text-center">
                 <div className="flex flex-col items-center gap-2 animate-in fade-in-0 zoom-in-95 duration-300">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  <span className="text-sm text-muted-foreground">{loadingText || "Loading..."}</span>
+                  <span className="text-sm text-muted-foreground">{loadingText || "Loading…"}</span>
                 </div>
               </li>
             ) : filteredOptions.length > 0 ? (
@@ -278,7 +278,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
                       "focus:bg-accent focus:text-accent-foreground",
                       "data-disabled:pointer-events-none data-disabled:opacity-50",
                       index === activeIndex && "bg-accent text-accent-foreground",
-                      isSelected && "bg-accent text-accent-foreground"
+                      isSelected && "bg-accent text-accent-foreground",
                     )}
                   >
                     <span className="truncate">{itemLabel}</span>
@@ -293,7 +293,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
                   <span className="text-sm">{emptyText}</span>
                   {query && (
                     <button type="button" onClick={() => setQuery("")} className="text-xs text-primary hover:underline">
-                      Clear search
+                      Clear
                     </button>
                   )}
                 </div>
@@ -326,12 +326,13 @@ export const Combobox: React.FC<ComboboxProps> = ({
         <div className="flex items-center justify-between">
           <label
             id={labelId}
+            htmlFor={resolvedId}
             // Clicking the label should focus/open the trigger
             onClick={() => triggerRef.current?.focus()}
             className={cn(
               labelSize,
               "font-medium transition-colors duration-200",
-              disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary"
+              disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary",
             )}
           >
             {label}
@@ -365,7 +366,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:cursor-not-allowed disabled:opacity-50",
           "hover:bg-accent/5 transition-colors hover:border-primary/40 focus:border-primary",
-          className
+          className,
         )}
       >
         <span className={cn("truncate", !displayValue && "text-muted-foreground", fontBold && "font-bold")}>{displayValue || placeholder}</span>

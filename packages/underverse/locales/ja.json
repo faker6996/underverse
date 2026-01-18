@@ -14,7 +14,14 @@
     "compact": "コンパクト",
     "normal": "通常",
     "comfortable": "ゆったり",
-    "columns": "列"
+    "columns": "列",
+    "loading": "読み込み中",
+    "noData": "データがありません",
+    "clearFilter": "フィルターをクリア",
+    "headerAlign": "ヘッダー配置",
+    "alignLeft": "左揃え",
+    "alignCenter": "中央揃え",
+    "alignRight": "右揃え"
   },
   "ValidationInput": {
     "required": "この項目は必須です",

@@ -3,9 +3,22 @@
 Source: `components/ui/Combobox.tsx`
 
 Exports:
+
 - Combobox
 
 Note: Usage snippets are minimal; fill required props from the props type below.
+
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                          | Status |
+| -------------------------------- | ------ |
+| Label `htmlFor` attribute        | ✅     |
+| `role="combobox"` on trigger     | ✅     |
+| `role="listbox"` on dropdown     | ✅     |
+| `aria-expanded` state            | ✅     |
+| Keyboard navigation (Arrow keys) | ✅     |
+| ESC to close                     | ✅     |
+| `focus-visible` ring             | ✅     |
 
 ## Combobox
 
@@ -28,15 +41,7 @@ import { Combobox } from "@underverse-ui/underverse";
 export function Example() {
   const [value, setValue] = React.useState("");
 
-  return (
-    <Combobox
-      value={value}
-      onChange={setValue}
-      options={undefined}
-      label={"Nhan"}
-      placeholder={"Nhap..."}
-     />
-  );
+  return <Combobox value={value} onChange={setValue} options={undefined} label={"Nhan"} placeholder={"Nhap..."} />;
 }
 ```
 

@@ -66,7 +66,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       gradient = false,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const baseStyles = asContainer
       ? "relative inline-flex justify-center rounded-md font-medium transition-colors duration-150 ease-soft outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px"
@@ -80,30 +80,33 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const [locked, setLocked] = useState(false);
     const lockTimer = useRef<NodeJS.Timeout | null>(null);
 
-    const handleClick = useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (disabled || loading) return;
+    const handleClick = useCallback(
+      async (e: React.MouseEvent<HTMLButtonElement>) => {
+        if (disabled || loading) return;
 
-      if (preventDoubleClick) {
-        if (locked) return;
-        setLocked(true);
-        try {
-          const result = onClick?.(e) as unknown;
-          if (result && typeof (result as any) === "object" && typeof (result as any).then === "function") {
-            await (result as any);
+        if (preventDoubleClick) {
+          if (locked) return;
+          setLocked(true);
+          try {
+            const result = onClick?.(e) as unknown;
+            if (result && typeof (result as any) === "object" && typeof (result as any).then === "function") {
+              await (result as any);
+              setLocked(false);
+            } else {
+              const ms = lockMs ?? 600;
+              if (lockTimer.current) clearTimeout(lockTimer.current);
+              lockTimer.current = setTimeout(() => setLocked(false), ms);
+            }
+          } catch (err) {
             setLocked(false);
-          } else {
-            const ms = lockMs ?? 600;
-            if (lockTimer.current) clearTimeout(lockTimer.current);
-            lockTimer.current = setTimeout(() => setLocked(false), ms);
+            throw err;
           }
-        } catch (err) {
-          setLocked(false);
-          throw err;
+        } else {
+          onClick?.(e);
         }
-      } else {
-        onClick?.(e);
-      }
-    }, [disabled, loading, onClick, locked, preventDoubleClick, lockMs]);
+      },
+      [disabled, loading, onClick, locked, preventDoubleClick, lockMs],
+    );
 
     const computedDisabled = disabled || loading || (preventDoubleClick ? locked : false);
 
@@ -124,7 +127,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             "opacity-50 cursor-not-allowed": computedDisabled,
             "w-full": fullWidth,
           },
-          className
+          className,
         )}
         disabled={computedDisabled}
         aria-disabled={computedDisabled}
@@ -140,7 +143,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         {loading ? (
           <>
-            <SpinnerIcon className="w-4 h-4 animate-spin" />
+            <SpinnerIcon className="w-4 h-4 animate-spin" aria-hidden="true" />
             {loadingText && (
               <span className="ml-2" aria-live="polite">
                 {loadingText}
@@ -161,7 +164,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";
