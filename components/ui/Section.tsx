@@ -8,8 +8,12 @@ interface SectionProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
   className?: string;
   variant?: "default" | "muted" | "primary" | "accent" | "gradient";
-  spacing?: "sm" | "md" | "lg" | "xl";
-  fullWidth?: boolean;
+  /** Vertical padding (py). Default: "none" - không thêm padding dọc */
+  spacing?: "none" | "sm" | "md" | "lg" | "xl";
+  /** Horizontal padding (px). Default: "none" - không thêm padding ngang */
+  paddingX?: "none" | "sm" | "md" | "lg" | "xl";
+  /** Thêm container wrapper với mx-auto. Default: false */
+  contained?: boolean;
   /** Hiển thị viền mỏng xám nhạt giống Card */
   outlined?: boolean;
   /** Gradient start color (Tailwind class like 'from-purple-500') */
@@ -31,21 +35,38 @@ const gradientDirectionMap: Record<GradientDirection, string> = {
   "to-tl": "bg-linear-to-tl",
 };
 
+const spacingClasses = {
+  none: "",
+  sm: "py-6",
+  md: "py-8",
+  lg: "py-12",
+  xl: "py-16",
+};
+
+const paddingXClasses = {
+  none: "",
+  sm: "px-2 md:px-4",
+  md: "px-4 md:px-6",
+  lg: "px-6 md:px-8",
+  xl: "px-8 md:px-12",
+};
+
 const Section = React.forwardRef<HTMLElement, SectionProps>(
   (
     {
       children,
       className,
       variant = "default",
-      spacing = "lg",
-      fullWidth = false,
+      spacing = "none",
+      paddingX = "none",
+      contained = false,
       outlined = false,
       gradientFrom = "from-primary/20",
       gradientTo = "to-accent/20",
       gradientDirection = "to-br",
       ...props
     },
-    ref
+    ref,
   ) => {
     const variantClasses = {
       default: "bg-background",
@@ -53,13 +74,6 @@ const Section = React.forwardRef<HTMLElement, SectionProps>(
       primary: "bg-primary/5",
       accent: "bg-accent/10",
       gradient: "",
-    };
-
-    const spacingClasses = {
-      sm: "py-6",
-      md: "py-8",
-      lg: "py-12",
-      xl: "py-16",
     };
 
     const getGradientClasses = () => {
@@ -73,16 +87,17 @@ const Section = React.forwardRef<HTMLElement, SectionProps>(
         className={cn(
           variant === "gradient" ? getGradientClasses() : variantClasses[variant],
           spacingClasses[spacing],
+          paddingXClasses[paddingX],
           outlined && "rounded-lg border border-border/60",
-          !fullWidth && "container mx-auto px-4 md:px-6",
-          className
+          contained && "container mx-auto",
+          className,
         )}
         {...props}
       >
         {children}
       </section>
     );
-  }
+  },
 );
 
 Section.displayName = "Section";
