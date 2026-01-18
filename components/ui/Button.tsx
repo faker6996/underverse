@@ -138,28 +138,28 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         aria-label={(rest as any)["aria-label"] || title}
         {...rest}
       >
-        {!noHoverOverlay && (
+        {!noHoverOverlay ? (
           <span className="absolute inset-0 bg-linear-to-r from-primary-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 dark:hidden" />
-        )}
+        ) : null}
         {loading ? (
           <>
             <SpinnerIcon className="w-4 h-4 animate-spin" aria-hidden="true" />
-            {loadingText && (
+            {loadingText ? (
               <span className="ml-2" aria-live="polite">
                 {loadingText}
               </span>
-            )}
-            {preserveChildrenOnLoading && !loadingText && (
+            ) : null}
+            {preserveChildrenOnLoading && !loadingText ? (
               <span className="ml-2 opacity-70" aria-hidden>
                 {children}
               </span>
-            )}
+            ) : null}
           </>
         ) : (
           <>
-            {Icon && <Icon className={cn("transition-transform duration-200", iConClassName ? iConClassName : "w-5 h-5")} />}
+            {Icon ? <Icon className={cn("transition-transform duration-200", iConClassName ? iConClassName : "w-5 h-5")} /> : null}
             {children}
-            {IconRight && <IconRight className="w-4 h-4 transition-transform duration-200" />}
+            {IconRight ? <IconRight className="w-4 h-4 transition-transform duration-200" /> : null}
           </>
         )}
       </button>

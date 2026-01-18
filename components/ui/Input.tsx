@@ -331,12 +331,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         </div>
 
         {/* Error Message */}
-        {errMsg && (
+        {errMsg ? (
           <div id={errorId} className="flex items-center gap-2 text-sm text-destructive animate-in slide-in-from-top-1 duration-200">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{errMsg}</span>
           </div>
-        )}
+        ) : null}
 
         {/* Description/Hint */}
         {(description || hint) && !errMsg && (

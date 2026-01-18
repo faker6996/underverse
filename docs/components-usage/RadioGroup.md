@@ -3,10 +3,21 @@
 Source: `components/ui/RadioGroup.tsx`
 
 Exports:
+
 - RadioGroup
 - RadioGroupItem
 
 Note: Usage snippets are minimal; fill required props from the props type below.
+
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                          | Status |
+| -------------------------------- | ------ |
+| Native `<input type="radio">`    | ✅     |
+| `focus-visible:ring-2`           | ✅     |
+| Label with `htmlFor` attribute   | ✅     |
+| Keyboard navigation (Arrow keys) | ✅     |
+| `role="radiogroup"`              | ✅     |
 
 ## RadioGroup
 
@@ -16,11 +27,7 @@ Props type: `RadioGroupProps`
 import { RadioGroup } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <RadioGroup>
-      Content
-    </RadioGroup>
-  );
+  return <RadioGroup>Content</RadioGroup>;
 }
 ```
 
@@ -67,11 +74,7 @@ Props type: `RadioGroupItemProps`
 import { RadioGroupItem } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <RadioGroupItem>
-      Content
-    </RadioGroupItem>
-  );
+  return <RadioGroupItem>Content</RadioGroupItem>;
 }
 ```
 

@@ -3,9 +3,19 @@
 Source: `components/ui/Slider.tsx`
 
 Exports:
+
 - Slider
 
 Note: Usage snippets are minimal; fill required props from the props type below.
+
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                                       | Status |
+| --------------------------------------------- | ------ |
+| Native `<input type="range">`                 | ✅     |
+| Label support                                 | ✅     |
+| `focus-visible` ring (optional via `noFocus`) | ✅     |
+| Keyboard navigation (Arrow keys)              | ✅     |
 
 ## Slider
 
@@ -28,14 +38,7 @@ import { Slider } from "@underverse-ui/underverse";
 export function Example() {
   const [value, setValue] = React.useState("");
 
-  return (
-    <Slider
-      value={value}
-      onChange={setValue}
-      label={"Nhan"}
-      size={"md"}
-     />
-  );
+  return <Slider value={value} onChange={setValue} label={"Nhan"} size={"md"} />;
 }
 ```
 

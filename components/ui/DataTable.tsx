@@ -113,8 +113,8 @@ export function DataTable<T extends Record<string, any>>({
   // Track if we loaded from localStorage to prevent prop override
   const loadedFromStorage = React.useRef(false);
 
-  // Đọc pageSize từ localStorage nếu có storageKey
-  const getInitialPageSize = React.useCallback(() => {
+  // Đọc pageSize từ localStorage nếu có storageKey (lazy state initialization)
+  const [curPageSize, setCurPageSize] = React.useState(() => {
     if (typeof window === "undefined" || !storageKey) return pageSize;
     try {
       const saved = localStorage.getItem(`datatable_${storageKey}_pageSize`);
@@ -129,9 +129,7 @@ export function DataTable<T extends Record<string, any>>({
       // localStorage không khả dụng
     }
     return pageSize;
-  }, [storageKey, pageSize]);
-
-  const [curPageSize, setCurPageSize] = React.useState(getInitialPageSize);
+  });
 
   // Lưu pageSize vào localStorage khi thay đổi (chỉ sau khi đã mount)
   React.useEffect(() => {
@@ -187,7 +185,9 @@ export function DataTable<T extends Record<string, any>>({
   const densityRowClass = density === "compact" ? "h-9" : density === "comfortable" ? "h-14" : "h-12";
   const cellPadding = density === "compact" ? "py-1.5 px-3" : density === "comfortable" ? "py-3 px-4" : "py-2.5 px-4";
 
-  const visibleColumns = columns.filter((c) => visibleCols.includes(c.key));
+  // Use Set for O(1) lookup instead of O(n) includes
+  const visibleColsSet = React.useMemo(() => new Set(visibleCols), [visibleCols]);
+  const visibleColumns = columns.filter((c) => visibleColsSet.has(c.key));
 
   const getRowKey = (row: T, idx: number) => {
     if (!rowKey) return String(idx);
@@ -548,7 +548,15 @@ export function DataTable<T extends Record<string, any>>({
               displayedData.map((row, idx) => {
                 const isLastRow = idx === displayedData.length - 1;
                 return (
-                  <TableRow key={getRowKey(row, idx)} className={cn(densityRowClass, striped && idx % 2 === 0 && "bg-muted/50")}>
+                  <TableRow
+                    key={getRowKey(row, idx)}
+                    className={cn(densityRowClass, striped && idx % 2 === 0 && "bg-muted/50")}
+                    style={{
+                      // content-visibility: auto for rendering performance (skip off-screen rows)
+                      contentVisibility: "auto",
+                      containIntrinsicSize: density === "compact" ? "0 36px" : density === "comfortable" ? "0 56px" : "0 48px",
+                    }}
+                  >
                     {visibleColumns.map((col, colIdx) => {
                       const value = col.dataIndex ? row[col.dataIndex as keyof T] : undefined;
                       return (

@@ -25,6 +25,28 @@ Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja) cho các labels như
 | `alignCenter` | Align center     | Căn giữa          | 가운데 정렬 | 中央揃え           |
 | `alignRight`  | Align right      | Căn phải          | 오른쪽 정렬 | 右揃え             |
 
+## Performance Optimizations
+
+DataTable được tối ưu hiệu suất theo **Vercel React Best Practices**:
+
+| Optimization           | Description                                   |
+| ---------------------- | --------------------------------------------- |
+| **Lazy State Init**    | `useState(() => {...})` cho localStorage read |
+| **Set Lookup**         | `O(1)` column visibility check thay vì `O(n)` |
+| **content-visibility** | Auto skip rendering off-screen rows           |
+
+### content-visibility
+
+Table rows sử dụng CSS `content-visibility: auto` để browser có thể skip rendering các rows nằm ngoài viewport:
+
+```css
+/* Applied automatically to each <tr> */
+content-visibility: auto;
+contain-intrinsic-size: 0 48px; /* Estimated row height */
+```
+
+Hiệu quả nhất khi table có **50+ rows**.
+
 ## DataTable
 
 Props type: `DataTableProps<T>`

@@ -3,12 +3,24 @@
 Source: `components/ui/DropdownMenu.tsx`
 
 Exports:
+
 - DropdownMenu
 - DropdownMenuItem
 - DropdownMenuSeparator
 - SelectDropdown
 
 Note: Usage snippets are minimal; fill required props from the props type below.
+
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                          | Status |
+| -------------------------------- | ------ |
+| `role="menu"` on dropdown        | ✅     |
+| `role="menuitem"` on items       | ✅     |
+| Keyboard navigation (Arrow keys) | ✅     |
+| ESC to close                     | ✅     |
+| `focus-visible` ring             | ✅     |
+| Portal rendering                 | ✅     |
 
 ## DropdownMenu
 
@@ -18,11 +30,7 @@ Props type: `DropdownMenuProps`
 import { DropdownMenu } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <DropdownMenu>
-      Content
-    </DropdownMenu>
-  );
+  return <DropdownMenu>Content</DropdownMenu>;
 }
 ```
 
@@ -75,11 +83,7 @@ Props type: `DropdownMenuItemProps`
 import { DropdownMenuItem } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <DropdownMenuItem>
-      Content
-    </DropdownMenuItem>
-  );
+  return <DropdownMenuItem>Content</DropdownMenuItem>;
 }
 ```
 
@@ -90,11 +94,7 @@ import React from "react";
 import { DropdownMenuItem } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <DropdownMenuItem>
-      Noi dung
-    </DropdownMenuItem>
-  );
+  return <DropdownMenuItem>Noi dung</DropdownMenuItem>;
 }
 ```
 
@@ -127,9 +127,7 @@ import React from "react";
 import { DropdownMenuSeparator } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <DropdownMenuSeparator />
-  );
+  return <DropdownMenuSeparator />;
 }
 ```
 
@@ -158,14 +156,7 @@ import { SelectDropdown } from "@underverse-ui/underverse";
 export function Example() {
   const [value, setValue] = React.useState("");
 
-  return (
-    <SelectDropdown
-      value={value}
-      onChange={setValue}
-      options={"Gia tri"}
-      placeholder={"Nhap..."}
-     />
-  );
+  return <SelectDropdown value={value} onChange={setValue} options={"Gia tri"} placeholder={"Nhap..."} />;
 }
 ```
 
