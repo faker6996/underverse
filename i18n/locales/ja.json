@@ -791,6 +791,11 @@
       },
       "scrollArea": {
         "className": "ラッパーのカスタムクラス（高さ/幅を指定）。",
+        "contentClassName": "内部ビューポートのカスタムクラス。",
+        "variant": "背景色バリアント（default|muted|primary|accent）。",
+        "spacing": "コンテンツのパディング（none|sm|md|lg|xl）。",
+        "fullWidth": "フル幅モード（コンテナ制約なし）。",
+        "outlined": "Card風の薄い枠線を表示。",
         "children": "スクロール可能な内容。"
       },
       "table": {

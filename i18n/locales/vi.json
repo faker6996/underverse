@@ -791,6 +791,11 @@
       },
       "scrollArea": {
         "className": "Class tuỳ chỉnh cho wrapper (đặt chiều cao/rộng).",
+        "contentClassName": "Class tuỳ chỉnh cho viewport bên trong.",
+        "variant": "Biến thể màu nền (default|muted|primary|accent).",
+        "spacing": "Padding nội dung (none|sm|md|lg|xl).",
+        "fullWidth": "Chế độ full width (không có container constraints).",
+        "outlined": "Hiển thị viền nhẹ giống Card.",
         "children": "Nội dung có thể cuộn."
       },
       "table": {
