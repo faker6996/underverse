@@ -486,6 +486,9 @@
         "alt": "Mô tả ảnh (trợ năng).",
         "fallback": "Chữ fallback khi không có ảnh.",
         "size": "Kích thước avatar.",
+        "showStatus": "Hiển thị chấm trạng thái.",
+        "status": "Loại trạng thái: online, offline, busy, away, none.",
+        "hideStatusOnHover": "Ẩn chấm trạng thái khi hover.",
         "className": "Class tuỳ biến.",
         "onClick": "Xử lý khi click avatar."
       },

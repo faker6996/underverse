@@ -121,7 +121,7 @@ Props type: `InlineLoadingProps`
 import { InlineLoading } from "@underverse-ui/underverse";
 
 export function Example() {
-  return <InlineLoading />;
+  return <InlineLoading isLoading={true} />;
 }
 ```
 
@@ -134,7 +134,8 @@ import { InlineLoading } from "@underverse-ui/underverse";
 export function Example() {
   return (
     <InlineLoading
-      variant={"default"}
+      isLoading={true}
+      text={"Loading..."}
       size={"md"}
      />
   );
@@ -143,9 +144,9 @@ export function Example() {
 
 ```ts
 interface InlineLoadingProps {
-  message?: string;
-  size?: 'sm' | 'md' | 'lg';
-  variant?: 'spinner' | 'dots';
+  isLoading: boolean;
+  text?: string;
+  size?: "sm" | "md" | "lg";
   className?: string;
 }
 ```

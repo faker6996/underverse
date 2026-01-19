@@ -486,6 +486,9 @@
         "alt": "画像の代替テキスト（アクセシビリティ）。",
         "fallback": "画像が無い場合の文字。",
         "size": "アバターサイズ。",
+        "showStatus": "ステータス表示ドットを表示。",
+        "status": "ステータス種類: online, offline, busy, away, none。",
+        "hideStatusOnHover": "ホバー時にステータスドットを非表示。",
         "className": "カスタムクラス。",
         "onClick": "クリック時のハンドラ。"
       },

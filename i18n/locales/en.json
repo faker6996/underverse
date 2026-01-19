@@ -493,6 +493,9 @@
         "alt": "Accessible image description.",
         "fallback": "Fallback letters when no image.",
         "size": "Avatar size.",
+        "showStatus": "Show status indicator dot.",
+        "status": "Status type: online, offline, busy, away, none.",
+        "hideStatusOnHover": "Hide status dot on hover.",
         "className": "Custom class.",
         "onClick": "Click handler on avatar."
       },

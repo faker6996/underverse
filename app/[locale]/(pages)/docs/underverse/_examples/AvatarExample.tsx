@@ -21,15 +21,17 @@ export default function AvatarExample() {
     `<Avatar size="sm" src="https://picsum.photos/seed/user1/80" alt="User 1" />\n` +
     `<Avatar size="md" src="https://picsum.photos/seed/user2/100" alt="User 2" />\n` +
     `<Avatar size="lg" src="https://picsum.photos/seed/user3/120" alt="User 3" />\n\n` +
-    `// Fallback (shown when no src or when image fails to load)\n` +
-    `<Avatar size="md" fallback="ER" alt="Fallback Demo" />\n\n` +
+    `// With Status Indicator\n` +
+    `<Avatar size="sm" src="..." showStatus status="online" />\n` +
+    `<Avatar size="md" src="..." showStatus status="busy" />\n` +
+    `<Avatar size="lg" src="..." showStatus status="away" />\n` +
+    `<Avatar size="md" src="..." showStatus status="offline" />\n\n` +
+    `// Status - always visible (no hide on hover)\n` +
+    `<Avatar size="md" src="..." showStatus status="online" hideStatusOnHover={false} />\n\n` +
     `// Interactive (with onClick)\n` +
-    `const [clicked, setClicked] = useState("")\n` +
-    `<Avatar size="md" fallback="JD" onClick={() => setClicked("John Doe")} />\n` +
-    `<Avatar size="md" src="https://picsum.photos/seed/user4/100" alt="Jane" onClick={() => setClicked("Jane")} />\n\n` +
+    `<Avatar size="md" fallback="JD" onClick={() => setClicked("John")} />\n\n` +
     `// Custom Styling\n` +
-    `<Avatar size="md" fallback="VIP" className="ring-2 ring-primary shadow-lg" />\n` +
-    `<Avatar size="md" src="https://picsum.photos/seed/user5/100" alt="Custom" className="border-4 border-success" />`;
+    `<Avatar size="md" fallback="VIP" className="ring-2 ring-primary shadow-lg" />`;
 
   const demo = (
     <div className="space-y-6">
@@ -53,12 +55,45 @@ export default function AvatarExample() {
         </div>
       </div>
 
+      {/* With Status Indicator */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">With Status Indicator (hover to hide)</p>
+        <div className="flex items-center gap-4">
+          <div className="text-center">
+            <Avatar size="sm" src="https://picsum.photos/seed/status1/80" alt="Online" showStatus status="online" />
+            <p className="text-xs text-muted-foreground mt-1">online</p>
+          </div>
+          <div className="text-center">
+            <Avatar size="md" src="https://picsum.photos/seed/status2/100" alt="Busy" showStatus status="busy" />
+            <p className="text-xs text-muted-foreground mt-1">busy</p>
+          </div>
+          <div className="text-center">
+            <Avatar size="lg" src="https://picsum.photos/seed/status3/120" alt="Away" showStatus status="away" />
+            <p className="text-xs text-muted-foreground mt-1">away</p>
+          </div>
+          <div className="text-center">
+            <Avatar size="md" src="https://picsum.photos/seed/status4/100" alt="Offline" showStatus status="offline" />
+            <p className="text-xs text-muted-foreground mt-1">offline</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Status always visible */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Status always visible (hideStatusOnHover=false)</p>
+        <div className="flex items-center gap-4">
+          <Avatar size="md" src="https://picsum.photos/seed/always1/100" alt="Always visible" showStatus status="online" hideStatusOnHover={false} />
+          <span className="text-sm text-muted-foreground">← Hover - dot stays visible</span>
+        </div>
+      </div>
+
       {/* Fallback Demo */}
       <div className="space-y-2">
-        <p className="text-sm font-medium">Fallback (shown when no src or when image fails)</p>
+        <p className="text-sm font-medium">Fallback with Status</p>
         <div className="flex items-center gap-4">
-          <Avatar size="md" fallback="ER" alt="Fallback Demo" />
-          <span className="text-sm text-muted-foreground">← Shows fallback text when no image provided</span>
+          <Avatar size="md" fallback="ER" showStatus status="online" />
+          <Avatar size="md" fallback="BZ" showStatus status="busy" />
+          <Avatar size="md" fallback="AW" showStatus status="away" />
         </div>
       </div>
 
@@ -66,8 +101,8 @@ export default function AvatarExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Interactive (with onClick)</p>
         <div className="flex items-center gap-4">
-          <Avatar size="md" fallback="JD" onClick={() => setClickedAvatar("John Doe")} />
-          <Avatar size="md" src="https://picsum.photos/seed/user4/100" alt="Jane" onClick={() => setClickedAvatar("Jane")} />
+          <Avatar size="md" fallback="JD" showStatus status="online" onClick={() => setClickedAvatar("John Doe")} />
+          <Avatar size="md" src="https://picsum.photos/seed/user4/100" alt="Jane" showStatus status="busy" onClick={() => setClickedAvatar("Jane")} />
           {clickedAvatar && (
             <span className="text-sm text-muted-foreground">
               Clicked: <strong>{clickedAvatar}</strong>
@@ -80,23 +115,25 @@ export default function AvatarExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Custom Styling</p>
         <div className="flex items-center gap-4">
-          <Avatar size="md" fallback="VIP" className="ring-2 ring-primary shadow-lg" />
-          <Avatar size="md" src="https://picsum.photos/seed/user5/100" alt="Custom" className="border-4 border-success" />
+          <Avatar size="md" fallback="VIP" showStatus status="online" className="ring-2 ring-primary shadow-lg" />
+          <Avatar size="md" src="https://picsum.photos/seed/user5/100" alt="Custom" showStatus status="online" className="border-4 border-success" />
         </div>
       </div>
     </div>
   );
 
-  // Document tab (props) — placeholder rows; fill later
   const rows: PropsRow[] = [
     { property: "src", description: t("props.avatar.src"), type: "string", default: "—" },
     { property: "alt", description: t("props.avatar.alt"), type: "string", default: "—" },
     { property: "fallback", description: t("props.avatar.fallback"), type: "string", default: "—" },
     { property: "size", description: t("props.avatar.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "showStatus", description: t("props.avatar.showStatus"), type: "boolean", default: "false" },
+    { property: "status", description: t("props.avatar.status"), type: '"online" | "offline" | "busy" | "away" | "none"', default: '"online"' },
+    { property: "hideStatusOnHover", description: t("props.avatar.hideStatusOnHover"), type: "boolean", default: "true" },
     { property: "className", description: t("props.avatar.className"), type: "string", default: "—" },
     { property: "onClick", description: t("props.avatar.onClick"), type: "() => void", default: "—" },
   ];
-  const order = ["src", "alt", "fallback", "size", "className", "onClick"];
+  const order = ["src", "alt", "fallback", "size", "showStatus", "status", "hideStatusOnHover", "className", "onClick"];
   const docs = <PropsDocsTable rows={rows} order={order} />;
 
   return (

@@ -486,6 +486,9 @@
         "alt": "이미지 설명(접근성).",
         "fallback": "이미지 없을 때의 대체 문자.",
         "size": "아바타 크기.",
+        "showStatus": "상태 표시 점 표시.",
+        "status": "상태 유형: online, offline, busy, away, none.",
+        "hideStatusOnHover": "호버 시 상태 점 숨김.",
         "className": "커스텀 클래스.",
         "onClick": "아바타 클릭 핸들러."
       },
