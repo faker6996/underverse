@@ -65,6 +65,195 @@ const WHEEL_ITEM_HEIGHT = {
 
 const WHEEL_VISIBLE_ITEMS = 5;
 
+type WheelColumnKind = "hour" | "minute" | "second";
+
+function WheelColumn({
+  labelText,
+  column,
+  items,
+  valueIndex,
+  onSelect,
+  scrollRef,
+  itemHeight,
+  animate,
+  focused,
+  setFocusedColumn,
+  onKeyDown,
+}: {
+  labelText: string;
+  column: WheelColumnKind;
+  items: number[];
+  valueIndex: number;
+  onSelect: (value: number) => void;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+  itemHeight: number;
+  animate: boolean;
+  focused: boolean;
+  setFocusedColumn: (col: WheelColumnKind) => void;
+  onKeyDown: (e: React.KeyboardEvent, column: WheelColumnKind) => void;
+}) {
+  const height = itemHeight * WHEEL_VISIBLE_ITEMS;
+  const paddingY = (height - itemHeight) / 2;
+  const rafRef = React.useRef(0);
+  const lastIndexRef = React.useRef<number | null>(null);
+  const wheelDeltaRef = React.useRef(0);
+  const scrollEndTimeoutRef = React.useRef<number | null>(null);
+  const suppressScrollSelectUntilRef = React.useRef(0);
+
+  React.useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const nextTop = Math.max(0, valueIndex) * itemHeight;
+    if (Math.abs(el.scrollTop - nextTop) > 1) {
+      el.scrollTo({ top: nextTop, behavior: animate ? "smooth" : "auto" });
+    }
+    lastIndexRef.current = valueIndex;
+    return () => {
+      if (scrollEndTimeoutRef.current != null) {
+        window.clearTimeout(scrollEndTimeoutRef.current);
+        scrollEndTimeoutRef.current = null;
+      }
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [animate, itemHeight, scrollRef, valueIndex]);
+
+  React.useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const lastWheelSignRef = { current: 0 };
+    const lastStepAtRef = { current: 0 };
+    const lastStepSignRef = { current: 0 };
+
+    const onWheel = (event: WheelEvent) => {
+      if (!el.contains(event.target as Node)) return;
+      if (event.ctrlKey) return;
+      event.preventDefault();
+      event.stopPropagation();
+      setFocusedColumn(column);
+      if (document.activeElement !== el) el.focus({ preventScroll: true });
+
+      const sign = Math.sign(event.deltaY);
+      if (sign === 0) return;
+      if (lastWheelSignRef.current !== 0 && sign !== lastWheelSignRef.current) {
+        if (Date.now() - lastStepAtRef.current < 180 && lastStepSignRef.current !== 0) return;
+        wheelDeltaRef.current = 0;
+      }
+      lastWheelSignRef.current = sign;
+
+      let step = 0;
+      if (event.deltaMode !== 0 || Math.abs(event.deltaY) >= 40) {
+        step = sign;
+        wheelDeltaRef.current = 0;
+      } else {
+        wheelDeltaRef.current += event.deltaY;
+        const threshold = Math.min(12, Math.max(4, Math.round(itemHeight * 0.12)));
+        if (Math.abs(wheelDeltaRef.current) < threshold) return;
+        step = Math.sign(wheelDeltaRef.current);
+        wheelDeltaRef.current = 0;
+      }
+
+      const fromIndex = lastIndexRef.current ?? valueIndex;
+      const nextIndex = Math.max(0, Math.min(items.length - 1, fromIndex + step));
+      if (nextIndex === fromIndex) return;
+
+      lastStepAtRef.current = Date.now();
+      lastStepSignRef.current = step;
+      lastIndexRef.current = nextIndex;
+      suppressScrollSelectUntilRef.current = Date.now() + 350;
+      el.scrollTo({ top: nextIndex * itemHeight, behavior: animate ? "smooth" : "auto" });
+      onSelect(items[nextIndex]);
+    };
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [animate, column, itemHeight, items, onSelect, scrollRef, setFocusedColumn, valueIndex]);
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    if (Date.now() < suppressScrollSelectUntilRef.current) return;
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = window.requestAnimationFrame(() => {
+      if (scrollEndTimeoutRef.current != null) {
+        window.clearTimeout(scrollEndTimeoutRef.current);
+      }
+      scrollEndTimeoutRef.current = window.setTimeout(() => {
+        const idx = Math.max(0, Math.min(items.length - 1, Math.round(el.scrollTop / itemHeight)));
+        if (lastIndexRef.current === idx) return;
+        lastIndexRef.current = idx;
+        suppressScrollSelectUntilRef.current = Date.now() + 350;
+        el.scrollTo({ top: idx * itemHeight, behavior: animate ? "smooth" : "auto" });
+        onSelect(items[idx]);
+      }, 120);
+    });
+  };
+
+  return (
+    <div className="flex-1 min-w-[70px] max-w-[90px]">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-3 text-center">{labelText}</div>
+      <div className="relative rounded-xl bg-muted/30 overflow-hidden" style={{ height }}>
+        <div
+          className="pointer-events-none absolute inset-x-2 top-1/2 -translate-y-1/2 rounded-lg bg-gradient-to-r from-primary/20 via-primary/15 to-primary/20 border border-primary/30 shadow-sm shadow-primary/10"
+          style={{ height: itemHeight }}
+        />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-background/95 via-background/60 to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background/95 via-background/60 to-transparent z-10" />
+
+        <div
+          ref={scrollRef as any}
+          className={cn(
+            "h-full overflow-y-auto overscroll-contain snap-y snap-mandatory scroll-smooth",
+            "scrollbar-none",
+            "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xl",
+          )}
+          style={{ paddingTop: paddingY, paddingBottom: paddingY }}
+          role="listbox"
+          aria-label={`Select ${labelText.toLowerCase()}`}
+          tabIndex={focused ? 0 : -1}
+          onKeyDown={(e) => onKeyDown(e, column)}
+          onFocus={() => setFocusedColumn(column)}
+          onScroll={handleScroll}
+        >
+          <div>
+            {items.map((n, index) => {
+              const dist = Math.abs(index - valueIndex);
+              const scale = 1 - Math.min(dist * 0.12, 0.36);
+              const opacity = 1 - Math.min(dist * 0.22, 0.75);
+              const isSelected = index === valueIndex;
+
+              return (
+                <button
+                  key={n}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  className={cn(
+                    "w-full snap-center flex items-center justify-center rounded-lg transition-all duration-200 font-bold tabular-nums",
+                    isSelected ? "text-primary text-lg" : "text-muted-foreground hover:text-foreground/70",
+                  )}
+                  style={{
+                    height: itemHeight,
+                    transform: `scale(${scale})`,
+                    opacity,
+                  }}
+                  onClick={() => {
+                    const el = scrollRef.current;
+                    suppressScrollSelectUntilRef.current = Date.now() + 350;
+                    el?.scrollTo({ top: index * itemHeight, behavior: animate ? "smooth" : "auto" });
+                    onSelect(n);
+                  }}
+                >
+                  {pad(n)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function parseTime(input?: string, fmt: TimeFormat = "24", includeSeconds?: boolean): Parts | null {
   if (!input) return null;
   try {
@@ -388,13 +577,7 @@ export default function TimePicker({
     );
 
   const contentWidth = variant === "compact" ? 240 : variant === "inline" ? 320 : includeSeconds ? 340 : 300;
-
-  const itemSizeClasses = {
-    sm: { padding: "px-2 py-1", text: "text-xs" },
-    md: { padding: "px-3 py-2", text: "text-sm" },
-    lg: { padding: "px-4 py-3", text: "text-base" },
-  };
-  const itemSz = itemSizeClasses[size];
+  const itemHeight = WHEEL_ITEM_HEIGHT[size];
 
   const setHourFromDisplay = (hourDisplay: number) => {
     const period = parts.p ?? (parts.h >= 12 ? "PM" : "AM");
@@ -408,175 +591,6 @@ export default function TimePicker({
     const next: Parts = { ...parts, h: nextH, p: format === "12" ? period : parts.p };
     setParts(next);
     emit(next);
-  };
-
-  const WheelColumn = ({
-    labelText,
-    column,
-    items,
-    valueIndex,
-    onSelect,
-    scrollRef,
-  }: {
-    labelText: string;
-    column: "hour" | "minute" | "second";
-    items: number[];
-    valueIndex: number;
-    onSelect: (value: number) => void;
-    scrollRef: React.RefObject<HTMLDivElement | null>;
-  }) => {
-    const itemHeight = WHEEL_ITEM_HEIGHT[size];
-    const height = itemHeight * WHEEL_VISIBLE_ITEMS;
-    const paddingY = (height - itemHeight) / 2;
-    const rafRef = React.useRef(0);
-    const lastIndexRef = React.useRef<number | null>(null);
-    const wheelDeltaRef = React.useRef(0);
-    const scrollEndTimeoutRef = React.useRef<number | null>(null);
-
-    React.useEffect(() => {
-      const el = scrollRef.current;
-      if (!el) return;
-      const nextTop = Math.max(0, valueIndex) * itemHeight;
-      if (Math.abs(el.scrollTop - nextTop) > 1) {
-        el.scrollTo({ top: nextTop, behavior: animate ? "smooth" : "auto" });
-      }
-      lastIndexRef.current = valueIndex;
-      return () => {
-        if (scrollEndTimeoutRef.current != null) {
-          window.clearTimeout(scrollEndTimeoutRef.current);
-          scrollEndTimeoutRef.current = null;
-        }
-        cancelAnimationFrame(rafRef.current);
-      };
-    }, [valueIndex, itemHeight, scrollRef]);
-
-    // Ensure wheel/trackpad always advances the selection (even if scroll snapping or padding confuses scrollTop math).
-    React.useEffect(() => {
-      const el = scrollRef.current;
-      if (!el) return;
-      const lastWheelSignRef = { current: 0 };
-      const lastStepAtRef = { current: 0 };
-      const lastStepSignRef = { current: 0 };
-
-      const onWheel = (event: WheelEvent) => {
-        if (!el.contains(event.target as Node)) return;
-        if (event.ctrlKey) return;
-        event.preventDefault();
-
-        const sign = Math.sign(event.deltaY);
-        if (sign !== 0 && lastWheelSignRef.current !== 0 && sign !== lastWheelSignRef.current) {
-          // Prevent trackpad "bounce" from immediately stepping back.
-          if (Date.now() - lastStepAtRef.current < 180 && lastStepSignRef.current !== 0) return;
-          wheelDeltaRef.current = 0;
-        }
-        if (sign !== 0) lastWheelSignRef.current = sign;
-
-        wheelDeltaRef.current += event.deltaY;
-        const threshold = 24;
-        if (Math.abs(wheelDeltaRef.current) < threshold) return;
-
-        const step = Math.sign(wheelDeltaRef.current);
-        wheelDeltaRef.current = 0;
-
-        const fromIndex = lastIndexRef.current ?? valueIndex;
-        const nextIndex = Math.max(0, Math.min(items.length - 1, fromIndex + step));
-        if (nextIndex === fromIndex) return;
-
-        lastStepAtRef.current = Date.now();
-        lastStepSignRef.current = step;
-        lastIndexRef.current = nextIndex;
-        el.scrollTo({ top: nextIndex * itemHeight, behavior: animate ? "smooth" : "auto" });
-        onSelect(items[nextIndex]);
-      };
-
-      el.addEventListener("wheel", onWheel, { passive: false });
-      return () => el.removeEventListener("wheel", onWheel);
-    }, [animate, itemHeight, items, onSelect, scrollRef, valueIndex]);
-
-    const handleScroll = () => {
-      const el = scrollRef.current;
-      if (!el) return;
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = window.requestAnimationFrame(() => {
-        if (scrollEndTimeoutRef.current != null) {
-          window.clearTimeout(scrollEndTimeoutRef.current);
-        }
-        scrollEndTimeoutRef.current = window.setTimeout(() => {
-          const idx = Math.max(0, Math.min(items.length - 1, Math.round(el.scrollTop / itemHeight)));
-          if (lastIndexRef.current === idx) return;
-          lastIndexRef.current = idx;
-          el.scrollTo({ top: idx * itemHeight, behavior: animate ? "smooth" : "auto" });
-          onSelect(items[idx]);
-        }, 90);
-      });
-    };
-
-    return (
-      <div className="flex-1 min-w-[70px] max-w-[90px]">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-3 text-center">{labelText}</div>
-        <div className="relative rounded-xl bg-muted/30 overflow-hidden" style={{ height }}>
-          {/* Selected item highlight */}
-          <div
-            className="pointer-events-none absolute inset-x-2 top-1/2 -translate-y-1/2 rounded-lg bg-gradient-to-r from-primary/20 via-primary/15 to-primary/20 border border-primary/30 shadow-sm shadow-primary/10"
-            style={{ height: itemHeight }}
-          />
-          {/* Top gradient fade */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-background/95 via-background/60 to-transparent z-10" />
-          {/* Bottom gradient fade */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background/95 via-background/60 to-transparent z-10" />
-
-          <div
-            ref={scrollRef as any}
-            className={cn(
-              "h-full overflow-y-auto overscroll-contain snap-y snap-mandatory scroll-smooth",
-              "scrollbar-none",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xl",
-            )}
-            style={{ paddingTop: paddingY, paddingBottom: paddingY }}
-            role="listbox"
-            aria-label={`Select ${labelText.toLowerCase()}`}
-            tabIndex={focusedColumn === column ? 0 : -1}
-            onKeyDown={(e) => handleKeyDown(e, column)}
-            onFocus={() => setFocusedColumn(column)}
-            onScroll={handleScroll}
-          >
-            <div>
-              {items.map((n, index) => {
-                const dist = Math.abs(index - valueIndex);
-                const scale = 1 - Math.min(dist * 0.1, 0.3);
-                const opacity = 1 - Math.min(dist * 0.25, 0.8);
-                const isSelected = index === valueIndex;
-
-                return (
-                  <button
-                    key={n}
-                    type="button"
-                    role="option"
-                    aria-selected={isSelected}
-                    className={cn(
-                      "w-full snap-center flex items-center justify-center rounded-lg transition-all duration-200 font-bold tabular-nums",
-                      isSelected ? "text-primary text-lg" : "text-muted-foreground hover:text-foreground/70",
-                    )}
-                    style={{
-                      height: itemHeight,
-                      transform: `scale(${scale})`,
-                      opacity,
-                    }}
-                    onClick={() => {
-                      const el = scrollRef.current;
-                      el?.scrollTo({ top: index * itemHeight, behavior: animate ? "smooth" : "auto" });
-                      onSelect(n);
-                    }}
-                  >
-                    {pad(n)}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
   };
 
   const timePickerContent = (
@@ -669,6 +683,11 @@ export default function TimePicker({
               valueIndex={hourIndex}
               onSelect={setHourFromDisplay}
               scrollRef={hourScrollRef}
+              itemHeight={itemHeight}
+              animate={animate}
+              focused={focusedColumn === "hour"}
+              setFocusedColumn={(col) => setFocusedColumn(col)}
+              onKeyDown={(e, col) => handleKeyDown(e, col)}
             />
           );
         })()}
@@ -696,6 +715,11 @@ export default function TimePicker({
                 emit(next);
               }}
               scrollRef={minuteScrollRef}
+              itemHeight={itemHeight}
+              animate={animate}
+              focused={focusedColumn === "minute"}
+              setFocusedColumn={(col) => setFocusedColumn(col)}
+              onKeyDown={(e, col) => handleKeyDown(e, col)}
             />
           );
         })()}
@@ -724,6 +748,11 @@ export default function TimePicker({
                     emit(next);
                   }}
                   scrollRef={secondScrollRef}
+                  itemHeight={itemHeight}
+                  animate={animate}
+                  focused={focusedColumn === "second"}
+                  setFocusedColumn={(col) => setFocusedColumn(col)}
+                  onKeyDown={(e, col) => handleKeyDown(e, col)}
                 />
               );
             })()}

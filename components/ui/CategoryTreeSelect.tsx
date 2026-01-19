@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ChevronRight, ChevronDown, Check } from "lucide-react";
+import { ChevronRight, ChevronDown, Check, FolderTree, Layers } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 interface Category {
@@ -168,17 +168,26 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     const isSelected = valueArray.includes(category.id);
 
     return (
-      <div key={category.id}>
+      <div key={category.id} className="animate-in fade-in-50 duration-200" style={{ animationDelay: `${level * 30}ms` }}>
         <div
           className={cn(
-            "relative flex items-center gap-2 px-3 py-2 rounded-md transition-colors",
-            !viewOnly && "cursor-pointer hover:bg-accent",
-            // Selected state: subtle bg + square left indicator (only in select mode)
-            !viewOnly && isSelected && "bg-primary/10 rounded-r-md"
+            "relative flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200",
+            !viewOnly && "cursor-pointer",
+            !viewOnly && !isSelected && "hover:bg-accent/60 hover:shadow-sm",
+            // Selected state
+            !viewOnly && isSelected && "bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 shadow-sm",
           )}
-          style={{ paddingLeft: `${level * 1.5 + 0.75}rem` }}
+          style={{ paddingLeft: `${level * 1.25 + 0.75}rem` }}
         >
-          {!viewOnly && isSelected && <span aria-hidden className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />}
+          {/* Left indicator for selected items */}
+          {!viewOnly && isSelected && (
+            <span
+              aria-hidden
+              className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-gradient-to-b from-primary to-primary/70 shadow-sm shadow-primary/30"
+            />
+          )}
+
+          {/* Expand/Collapse button */}
           {hasChildren ? (
             <button
               type="button"
@@ -186,73 +195,133 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
                 e.stopPropagation();
                 toggleExpand(category.id);
               }}
-              className="p-0.5 hover:bg-accent rounded"
+              className={cn(
+                "p-1.5 rounded-lg transition-all duration-200",
+                "hover:bg-accent hover:scale-110 active:scale-95",
+                "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+                isExpanded && "bg-accent/50 text-primary",
+              )}
             >
-              {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              <div className={cn("transition-transform duration-200", isExpanded && "rotate-90")}>
+                <ChevronRight className="w-4 h-4" />
+              </div>
             </button>
           ) : (
-            <span className="w-5" />
+            <span className="w-7" />
           )}
 
           {viewOnly ? (
-            // View-only mode: just display the name
-            <span className="text-sm">{category.name}</span>
+            // View-only mode: just display the name with folder icon
+            <div className="flex items-center gap-2.5">
+              {hasChildren ? (
+                <FolderTree className="w-4 h-4 text-muted-foreground/60" />
+              ) : (
+                <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />
+              )}
+              <span className="text-sm font-medium">{category.name}</span>
+            </div>
           ) : singleSelect ? (
             // Single select mode: radio-style indicator
-            <div onClick={() => handleSelect(category.id, category)} className="flex items-center gap-2 flex-1">
+            <div onClick={() => handleSelect(category.id, category)} className="flex items-center gap-2.5 flex-1">
               <div
                 className={cn(
-                  "w-4 h-4 border-2 rounded-full flex items-center justify-center transition-colors",
-                  isSelected ? "border-primary" : "border-muted-foreground/30"
+                  "w-5 h-5 border-2 rounded-full flex items-center justify-center transition-all duration-200",
+                  isSelected ? "border-primary bg-primary/10 shadow-sm shadow-primary/20" : "border-muted-foreground/30 hover:border-primary/50",
                 )}
               >
-                {isSelected && <div className="w-2 h-2 rounded-full bg-primary" />}
+                {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-primary to-primary/80 shadow-sm" />}
               </div>
-
-              <span className={cn("text-sm", isSelected && "font-medium text-primary")}>{category.name}</span>
+              <span
+                className={cn(
+                  "text-sm transition-all duration-200",
+                  isSelected ? "font-semibold text-primary" : "text-foreground/80 hover:text-foreground",
+                )}
+              >
+                {category.name}
+              </span>
+              {hasChildren && !isSelected && (
+                <span className="ml-auto text-[10px] font-medium text-muted-foreground/50 bg-muted/50 px-1.5 py-0.5 rounded-md">
+                  {children.length}
+                </span>
+              )}
             </div>
           ) : (
             // Multi select mode: checkbox-style indicator
-            <div onClick={() => handleSelect(category.id, category)} className="flex items-center gap-2 flex-1">
+            <div onClick={() => handleSelect(category.id, category)} className="flex items-center gap-2.5 flex-1">
               <div
                 className={cn(
-                  "w-4 h-4 border-2 rounded flex items-center justify-center transition-colors",
-                  isSelected ? "bg-primary border-primary" : "border-muted-foreground/30"
+                  "w-5 h-5 border-2 rounded-lg flex items-center justify-center transition-all duration-200",
+                  isSelected
+                    ? "bg-gradient-to-br from-primary to-primary/80 border-primary shadow-sm shadow-primary/25"
+                    : "border-muted-foreground/30 hover:border-primary/50 hover:bg-primary/5",
                 )}
               >
-                {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+                {isSelected && <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />}
               </div>
-
-              <span className={cn("text-sm", isSelected && "font-medium text-primary")}>{category.name}</span>
+              <span
+                className={cn(
+                  "text-sm transition-all duration-200",
+                  isSelected ? "font-semibold text-primary" : "text-foreground/80 hover:text-foreground",
+                )}
+              >
+                {category.name}
+              </span>
+              {hasChildren && !isSelected && (
+                <span className="ml-auto text-[10px] font-medium text-muted-foreground/50 bg-muted/50 px-1.5 py-0.5 rounded-md">
+                  {children.length}
+                </span>
+              )}
             </div>
           )}
         </div>
 
-        {hasChildren && isExpanded && <div>{children.map((child) => renderCategory(child, level + 1))}</div>}
+        {/* Children with animated container */}
+        {hasChildren && isExpanded && (
+          <div className={cn("ml-2 pl-2 border-l-2 border-dashed border-border/50", "animate-in slide-in-from-top-2 fade-in-50 duration-200")}>
+            {children.map((child) => renderCategory(child, level + 1))}
+          </div>
+        )}
       </div>
     );
   };
 
   // Render tree content
   const renderTreeContent = () => (
-    <>
+    <div className="space-y-0.5">
       {parentCategories.length === 0 ? (
-        <div className="px-3 py-2 text-sm text-muted-foreground">{mergedLabels.emptyText}</div>
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center mb-3">
+            <Layers className="w-6 h-6 text-muted-foreground/50" />
+          </div>
+          <span className="text-sm text-muted-foreground">{mergedLabels.emptyText}</span>
+        </div>
       ) : (
         parentCategories.map((cat) => renderCategory(cat))
       )}
-    </>
+    </div>
   );
 
   // View-only mode: render tree directly without interactivity
   if (viewOnly) {
-    return <div className={cn("rounded-md border bg-background p-2", disabled && "opacity-50", className)}>{renderTreeContent()}</div>;
+    return (
+      <div className={cn("rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-3 shadow-sm", disabled && "opacity-50", className)}>
+        {renderTreeContent()}
+      </div>
+    );
   }
 
   // Inline mode: render tree directly with selection capability
   if (inline) {
     return (
-      <div className={cn("rounded-md border bg-background p-2", disabled && "opacity-50 pointer-events-none", className)}>{renderTreeContent()}</div>
+      <div
+        className={cn(
+          "rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-3 shadow-sm",
+          disabled && "opacity-50 pointer-events-none",
+          className,
+        )}
+      >
+        {renderTreeContent()}
+      </div>
     );
   }
 
@@ -263,8 +332,8 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
       ? categories.find((c) => c.id === valueArray[0])?.name || placeholder
       : placeholder
     : selectedCount > 0
-    ? mergedLabels.selectedText(selectedCount)
-    : placeholder;
+      ? mergedLabels.selectedText(selectedCount)
+      : placeholder;
 
   return (
     <div className={cn("relative", className)}>
@@ -273,17 +342,36 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={cn(
-          // Match Combobox trigger outline + focus styles
-          "flex w-full items-center justify-between px-3 bg-background border border-input",
-          "rounded-md h-10 py-2 text-sm",
-          "hover:bg-accent/5 transition-colors hover:border-primary/40 focus:border-primary",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-          disabled && "opacity-50 cursor-not-allowed",
-          isOpen && "border-primary"
+          // Modern trigger button styling
+          "group flex w-full items-center justify-between px-3 py-2.5",
+          "bg-background/80 backdrop-blur-sm border border-border/60",
+          "rounded-xl h-11 text-sm",
+          "hover:bg-accent/10 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
+          "transition-all duration-300 ease-out",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          disabled && "opacity-50 cursor-not-allowed hover:transform-none hover:shadow-none",
+          isOpen && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
         )}
       >
-        <span className={cn("text-sm", selectedCount === 0 && "text-muted-foreground")}>{displayText}</span>
-        <ChevronDown className={cn("w-4 h-4 transition-transform", isOpen && "transform rotate-180")} />
+        <div className="flex items-center gap-2.5">
+          <div
+            className={cn(
+              "flex items-center justify-center rounded-lg p-1.5 transition-all duration-300",
+              isOpen ? "bg-primary/15 text-primary" : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+            )}
+          >
+            <FolderTree className={cn("w-4 h-4 transition-transform duration-300", isOpen && "scale-110")} />
+          </div>
+          <span className={cn("font-medium transition-colors duration-200", selectedCount === 0 ? "text-muted-foreground" : "text-foreground")}>
+            {displayText}
+          </span>
+          {selectedCount > 0 && !singleSelect && (
+            <span className="ml-1 px-2 py-0.5 text-xs font-bold rounded-full bg-primary/15 text-primary">{selectedCount}</span>
+          )}
+        </div>
+        <span className={cn("transition-all duration-300 text-muted-foreground group-hover:text-foreground", isOpen && "rotate-180 text-primary")}>
+          <ChevronDown className="w-4 h-4" />
+        </span>
       </button>
 
       {isOpen && !disabled && (
@@ -291,12 +379,14 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
           <div
             className={cn(
-              "absolute z-20 mt-1 w-full max-h-80 overflow-auto",
-              "rounded-md border bg-popover text-popover-foreground shadow-md",
-              "backdrop-blur-sm bg-popover/95 border-border/60"
+              "absolute z-20 mt-2 w-full max-h-80 overflow-auto",
+              "rounded-2xl border border-border/40 bg-popover/95 text-popover-foreground",
+              "shadow-2xl backdrop-blur-xl",
+              "p-2",
+              "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
             )}
           >
-            <div className="p-1">{renderTreeContent()}</div>
+            {renderTreeContent()}
           </div>
         </>
       )}
