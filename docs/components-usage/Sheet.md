@@ -3,6 +3,7 @@
 Source: `components/ui/Sheet.tsx`
 
 Exports:
+
 - Sheet
 - Drawer
 - SlideOver
@@ -10,6 +11,16 @@ Exports:
 - SidebarSheet
 
 Note: Usage snippets are minimal; fill required props from the props type below.
+
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                        | Status |
+| ------------------------------ | ------ |
+| ESC to close (`closeOnEscape`) | ✅     |
+| Close button with title        | ✅     |
+| `focus-visible` ring           | ✅     |
+| Body scroll lock               | ✅     |
+| Portal rendering               | ✅     |
 
 ## Sheet
 
@@ -19,11 +30,7 @@ Props type: `SheetProps`
 import { Sheet } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <Sheet>
-      Content
-    </Sheet>
-  );
+  return <Sheet>Content</Sheet>;
 }
 ```
 
@@ -37,7 +44,9 @@ export function Example() {
   const [open, setOpen] = React.useState(false);
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)}>Mo Sheet</button>
+      <button type="button" onClick={() => setOpen(true)}>
+        Mo Sheet
+      </button>
       <Sheet open={open} onOpenChange={setOpen} title="Gio hang">
         <div className="text-sm">Noi dung gio hang</div>
       </Sheet>
@@ -87,7 +96,9 @@ export function Example() {
   const [open, setOpen] = React.useState(false);
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)}>Mo Drawer</button>
+      <button type="button" onClick={() => setOpen(true)}>
+        Mo Drawer
+      </button>
       <Drawer open={open} onOpenChange={setOpen} title="Bo loc">
         <div className="text-sm">Noi dung bo loc</div>
       </Drawer>
@@ -125,7 +136,9 @@ export function Example() {
   const [open, setOpen] = React.useState(false);
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)}>Mo SlideOver</button>
+      <button type="button" onClick={() => setOpen(true)}>
+        Mo SlideOver
+      </button>
       <SlideOver open={open} onOpenChange={setOpen} title="Thong tin">
         <div className="text-sm">Noi dung chi tiet</div>
       </SlideOver>
@@ -160,7 +173,9 @@ export function Example() {
   const [open, setOpen] = React.useState(false);
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)}>Mo BottomSheet</button>
+      <button type="button" onClick={() => setOpen(true)}>
+        Mo BottomSheet
+      </button>
       <BottomSheet open={open} onOpenChange={setOpen} title="Lua chon">
         <div className="text-sm">Noi dung tuy chon</div>
       </BottomSheet>
@@ -198,7 +213,9 @@ export function Example() {
   const [open, setOpen] = React.useState(false);
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)}>Mo Sidebar</button>
+      <button type="button" onClick={() => setOpen(true)}>
+        Mo Sidebar
+      </button>
       <SidebarSheet open={open} onOpenChange={setOpen} title="Menu">
         <div className="text-sm">Noi dung menu</div>
       </SidebarSheet>

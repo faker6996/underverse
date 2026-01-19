@@ -16,16 +16,16 @@ export default function SectionExample() {
         <p className="text-sm font-medium">Variants</p>
         <div className="space-y-3">
           <Section variant="default" spacing="md">
-            <div className="p-3 border rounded-md">Nội dung section (default, md)</div>
+            <div className="p-3 border rounded-md">Nội dung section (default)</div>
           </Section>
           <Section variant="muted" spacing="md">
-            <div className="p-3 border rounded-md">Nội dung section (muted, md)</div>
+            <div className="p-3 border rounded-md">Nội dung section (muted)</div>
           </Section>
           <Section variant="primary" spacing="md">
-            <div className="p-3 border rounded-md">Nội dung section (primary, md)</div>
+            <div className="p-3 border rounded-md">Nội dung section (primary)</div>
           </Section>
           <Section variant="accent" spacing="md">
-            <div className="p-3 border rounded-md">Nội dung section (accent, md)</div>
+            <div className="p-3 border rounded-md">Nội dung section (accent)</div>
           </Section>
         </div>
       </div>
@@ -34,42 +34,61 @@ export default function SectionExample() {
       <div className="space-y-3">
         <p className="text-sm font-medium">Gradient (Hero Section)</p>
         <div className="space-y-3">
-          <Section variant="gradient" spacing="md">
+          <Section variant="gradient" spacing="md" paddingX="md">
             <div className="p-3 border rounded-md bg-background/80 backdrop-blur-sm">Gradient mặc định (primary → accent)</div>
           </Section>
-          <Section variant="gradient" gradientFrom="from-purple-500/20" gradientTo="to-pink-500/20" gradientDirection="to-r" spacing="md">
+          <Section
+            variant="gradient"
+            gradientFrom="from-purple-500/20"
+            gradientTo="to-pink-500/20"
+            gradientDirection="to-r"
+            spacing="md"
+            paddingX="md"
+          >
             <div className="p-3 border rounded-md bg-background/80 backdrop-blur-sm">Custom gradient (purple → pink, to-r)</div>
-          </Section>
-          <Section variant="gradient" gradientFrom="from-blue-600/30" gradientTo="to-emerald-500/30" gradientDirection="to-br" spacing="md">
-            <div className="p-3 border rounded-md bg-background/80 backdrop-blur-sm">Custom gradient (blue → emerald, to-br)</div>
           </Section>
         </div>
       </div>
 
       {/* Spacing */}
       <div className="space-y-3">
-        <p className="text-sm font-medium">Spacing</p>
+        <p className="text-sm font-medium">Spacing (vertical padding)</p>
+        <Section variant="muted" spacing="none">
+          <div className="p-3 border rounded-md">spacing: none (default)</div>
+        </Section>
         <Section variant="muted" spacing="sm">
-          <div className="p-3 border rounded-md">Spacing sm</div>
+          <div className="p-3 border rounded-md">spacing: sm</div>
         </Section>
         <Section variant="muted" spacing="md">
-          <div className="p-3 border rounded-md">Spacing md</div>
+          <div className="p-3 border rounded-md">spacing: md</div>
         </Section>
         <Section variant="muted" spacing="lg">
-          <div className="p-3 border rounded-md">Spacing lg</div>
-        </Section>
-        <Section variant="muted" spacing="xl">
-          <div className="p-3 border rounded-md">Spacing xl</div>
+          <div className="p-3 border rounded-md">spacing: lg</div>
         </Section>
       </div>
 
-      {/* Full width */}
+      {/* Horizontal Padding */}
       <div className="space-y-3">
-        <p className="text-sm font-medium">Full width</p>
-        <Section variant="primary" spacing="lg" fullWidth>
-          <div className="container mx-auto px-4">
-            <div className="p-3 border rounded-md">Full width section (primary, lg)</div>
-          </div>
+        <p className="text-sm font-medium">Horizontal Padding (paddingX)</p>
+        <Section variant="muted" spacing="sm" paddingX="none">
+          <div className="p-3 border rounded-md">paddingX: none (default)</div>
+        </Section>
+        <Section variant="muted" spacing="sm" paddingX="sm">
+          <div className="p-3 border rounded-md">paddingX: sm</div>
+        </Section>
+        <Section variant="muted" spacing="sm" paddingX="md">
+          <div className="p-3 border rounded-md">paddingX: md</div>
+        </Section>
+        <Section variant="muted" spacing="sm" paddingX="lg">
+          <div className="p-3 border rounded-md">paddingX: lg</div>
+        </Section>
+      </div>
+
+      {/* Contained */}
+      <div className="space-y-3">
+        <p className="text-sm font-medium">Contained (thêm container mx-auto)</p>
+        <Section variant="primary" spacing="md" contained>
+          <div className="p-3 border rounded-md">Section với contained={"{true}"} - có container mx-auto</div>
         </Section>
       </div>
     </div>
@@ -77,42 +96,37 @@ export default function SectionExample() {
 
   const code =
     `import { Section } from '@underverse-ui/underverse'\n\n` +
+    `// Mặc định: không có spacing và paddingX\n` +
+    `<Section>\n` +
+    `  <div>Nội dung không padding</div>\n` +
+    `</Section>\n\n` +
     `// Variants\n` +
-    `<Section variant='default' spacing='md'>\n` +
-    `  <div className='p-3 border rounded-md'>Nội dung section (default, md)</div>\n` +
-    `</Section>\n` +
     `<Section variant='muted' spacing='md'>\n` +
-    `  <div className='p-3 border rounded-md'>Nội dung section (muted, md)</div>\n` +
-    `</Section>\n` +
-    `<Section variant='primary' spacing='md'>\n` +
-    `  <div className='p-3 border rounded-md'>Nội dung section (primary, md)</div>\n` +
-    `</Section>\n` +
-    `<Section variant='accent' spacing='md'>\n` +
-    `  <div className='p-3 border rounded-md'>Nội dung section (accent, md)</div>\n` +
+    `  Nội dung section (muted)\n` +
     `</Section>\n\n` +
     `// Gradient (Hero Section)\n` +
-    `<Section variant='gradient' spacing='xl'>\n` +
-    `  <h1>Hero với gradient mặc định</h1>\n` +
-    `</Section>\n\n` +
     `<Section\n` +
     `  variant='gradient'\n` +
     `  gradientFrom='from-purple-500/20'\n` +
     `  gradientTo='to-pink-500/20'\n` +
     `  gradientDirection='to-r'\n` +
     `  spacing='xl'\n` +
+    `  paddingX='md'\n` +
     `>\n` +
     `  <h1>Hero với custom gradient</h1>\n` +
     `</Section>\n\n` +
-    `// Spacing\n` +
-    `<Section variant='muted' spacing='sm'><div className='p-3 border rounded-md'>Spacing sm</div></Section>\n` +
-    `<Section variant='muted' spacing='md'><div className='p-3 border rounded-md'>Spacing md</div></Section>\n` +
-    `<Section variant='muted' spacing='lg'><div className='p-3 border rounded-md'>Spacing lg</div></Section>\n` +
-    `<Section variant='muted' spacing='xl'><div className='p-3 border rounded-md'>Spacing xl</div></Section>\n\n` +
-    `// Full width\n` +
-    `<Section variant='primary' spacing='lg' fullWidth>\n` +
-    `  <div className='container mx-auto px-4'>\n` +
-    `    <div className='p-3 border rounded-md'>Full width section (primary, lg)</div>\n` +
-    `  </div>\n` +
+    `// Spacing (vertical padding)\n` +
+    `<Section variant='muted' spacing='sm'>py-6</Section>\n` +
+    `<Section variant='muted' spacing='md'>py-8</Section>\n` +
+    `<Section variant='muted' spacing='lg'>py-12</Section>\n` +
+    `<Section variant='muted' spacing='xl'>py-16</Section>\n\n` +
+    `// Horizontal Padding (paddingX)\n` +
+    `<Section variant='muted' paddingX='sm'>px-2 md:px-4</Section>\n` +
+    `<Section variant='muted' paddingX='md'>px-4 md:px-6</Section>\n` +
+    `<Section variant='muted' paddingX='lg'>px-6 md:px-8</Section>\n\n` +
+    `// Contained (thêm container mx-auto)\n` +
+    `<Section variant='primary' spacing='md' contained>\n` +
+    `  Section với container mx-auto\n` +
     `</Section>`;
 
   const rows: PropsRow[] = [
@@ -124,8 +138,9 @@ export default function SectionExample() {
       type: '"default" | "muted" | "primary" | "accent" | "gradient"',
       default: '"default"',
     },
-    { property: "spacing", description: t("props.section.spacing"), type: '"sm" | "md" | "lg" | "xl"', default: '"lg"' },
-    { property: "fullWidth", description: t("props.section.fullWidth"), type: "boolean", default: "false" },
+    { property: "spacing", description: t("props.section.spacing"), type: '"none" | "sm" | "md" | "lg" | "xl"', default: '"none"' },
+    { property: "paddingX", description: t("props.section.paddingX"), type: '"none" | "sm" | "md" | "lg" | "xl"', default: '"none"' },
+    { property: "contained", description: t("props.section.contained"), type: "boolean", default: "false" },
     { property: "outlined", description: t("props.section.outlined"), type: "boolean", default: "false" },
     { property: "gradientFrom", description: t("props.section.gradientFrom"), type: "string", default: '"from-primary/20"' },
     { property: "gradientTo", description: t("props.section.gradientTo"), type: "string", default: '"to-accent/20"' },
@@ -136,7 +151,18 @@ export default function SectionExample() {
       default: '"to-br"',
     },
   ];
-  const order = ["children", "className", "variant", "spacing", "fullWidth", "outlined", "gradientFrom", "gradientTo", "gradientDirection"];
+  const order = [
+    "children",
+    "className",
+    "variant",
+    "spacing",
+    "paddingX",
+    "contained",
+    "outlined",
+    "gradientFrom",
+    "gradientTo",
+    "gradientDirection",
+  ];
   const docs = <PropsDocsTable rows={rows} order={order} />;
 
   return (

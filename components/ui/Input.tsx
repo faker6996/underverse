@@ -46,7 +46,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       maxLength,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const [localError, setLocalError] = useState<string | undefined>(error);
     const [showPassword, setShowPassword] = useState(false);
@@ -178,13 +178,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <div className="flex items-center justify-between">
             <label
+              htmlFor={resolvedId}
               className={cn(
                 // Label size follows input size
                 size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
                 "font-medium transition-colors duration-200",
                 // default color and highlight while any descendant focused
                 disabled ? "text-muted-foreground" : cn("text-foreground group-focus-within:text-primary", success && "text-primary"),
-                errMsg && "text-destructive"
+                errMsg && "text-destructive",
               )}
             >
               {label}
@@ -196,7 +197,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 className={cn(
                   "text-xs transition-colors duration-200",
                   charCount > maxLength * 0.9 ? "text-warning" : "text-muted-foreground",
-                  charCount >= maxLength && "text-destructive"
+                  charCount >= maxLength && "text-destructive",
                 )}
               >
                 {charCount}/{maxLength}
@@ -214,7 +215,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 "absolute left-3 top-1/2 -translate-y-1/2 z-10",
                 "text-muted-foreground transition-colors duration-200",
                 // highlight icon when input (or controls) focused
-                "group-focus-within:text-primary"
+                "group-focus-within:text-primary",
               )}
             >
               <LeftIcon className={sizeStyles[size].icon} />
@@ -261,7 +262,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               size !== "sm" && variant !== "minimal" && "shadow-sm",
               size !== "sm" && isFocused && "shadow-md",
 
-              className
+              className,
             )}
             disabled={disabled}
             {...restInput}
@@ -287,7 +288,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                   "flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-sm",
                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
                   "active:bg-accent active:text-accent-foreground",
-                  sizeStyles[size].button
+                  sizeStyles[size].button,
                 )}
                 tabIndex={0}
                 aria-label="Clear input"
@@ -305,7 +306,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                   "flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-full",
                   "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring/40",
                   "active:bg-accent/50 active:text-accent-foreground",
-                  sizeStyles[size].button
+                  sizeStyles[size].button,
                 )}
                 tabIndex={0}
                 aria-label={showPassword ? "Hide password" : "Show password"}
@@ -323,19 +324,19 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 // default hidden
                 "w-0 opacity-0",
                 // expand underline when focused within input container
-                "group-focus-within:w-full group-focus-within:opacity-100"
+                "group-focus-within:w-full group-focus-within:opacity-100",
               )}
             />
           )}
         </div>
 
         {/* Error Message */}
-        {errMsg && (
+        {errMsg ? (
           <div id={errorId} className="flex items-center gap-2 text-sm text-destructive animate-in slide-in-from-top-1 duration-200">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{errMsg}</span>
           </div>
-        )}
+        ) : null}
 
         {/* Description/Hint */}
         {(description || hint) && !errMsg && (
@@ -344,7 +345,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             className={cn(
               "text-xs transition-colors duration-200",
               // follow focus state of the whole field area
-              "text-muted-foreground group-focus-within:text-primary/70"
+              "text-muted-foreground group-focus-within:text-primary/70",
             )}
           >
             {hint || description}
@@ -352,7 +353,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = "Input";
@@ -364,7 +365,7 @@ interface SearchInputProps extends Omit<InputProps, "leftIcon" | "type"> {
 }
 
 export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
-  ({ onSearch, searchDelay = 300, placeholder = "Search...", ...props }, ref) => {
+  ({ onSearch, searchDelay = 300, placeholder = "Search…", ...props }, ref) => {
     const [searchValue, setSearchValue] = useState(props.value || "");
 
     // Debounced search
@@ -391,7 +392,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 SearchInput.displayName = "SearchInput";
@@ -430,7 +431,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
                   key={level}
                   className={cn(
                     "h-1 flex-1 rounded-full transition-colors duration-300",
-                    level <= strength ? strengthColors[strength - 1] : "bg-muted"
+                    level <= strength ? strengthColors[strength - 1] : "bg-muted",
                   )}
                 />
               ))}
@@ -439,7 +440,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
               <p
                 className={cn(
                   "text-xs font-medium",
-                  strength <= 1 ? "text-destructive" : strength <= 2 ? "text-warning" : strength <= 3 ? "text-warning" : "text-success"
+                  strength <= 1 ? "text-destructive" : strength <= 2 ? "text-warning" : strength <= 3 ? "text-warning" : "text-success",
                 )}
               >
                 {strengthLabel}
@@ -449,7 +450,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 PasswordInput.displayName = "PasswordInput";
@@ -471,7 +472,7 @@ interface NumberInputProps extends Omit<InputProps, "type" | "value" | "onChange
 export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
   (
     { min, max, step = 1, showSteppers = true, onIncrement, onDecrement, formatThousands = false, locale = "vi-VN", value, onChange, ...props },
-    ref
+    ref,
   ) => {
     const toNumber = (v: any): number => {
       if (v === "" || v === undefined || v === null) return 0;
@@ -488,7 +489,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
     };
 
     const [displayValue, setDisplayValue] = React.useState<string>(
-      formatThousands ? (value !== undefined && value !== null && value !== "" ? format(toNumber(value)) : "") : String(value ?? "")
+      formatThousands ? (value !== undefined && value !== null && value !== "" ? format(toNumber(value)) : "") : String(value ?? ""),
     );
 
     const currentValue = toNumber(value);
@@ -557,7 +558,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
               "[&::-webkit-inner-spin-button]:m-0",
               "appearance-none",
             ],
-            props.className
+            props.className,
           )}
         />
         {showSteppers && (
@@ -570,7 +571,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
                 "flex items-center justify-center w-4 h-4 rounded-sm transition-colors",
                 "hover:bg-accent focus:outline-none focus:bg-accent",
                 "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent",
-                "text-muted-foreground hover:text-foreground"
+                "text-muted-foreground hover:text-foreground",
               )}
               aria-label="Increase value"
             >
@@ -586,7 +587,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
                 "flex items-center justify-center w-4 h-4 rounded-sm transition-colors",
                 "hover:bg-accent focus:outline-none focus:bg-accent",
                 "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent",
-                "text-muted-foreground hover:text-foreground"
+                "text-muted-foreground hover:text-foreground",
               )}
               aria-label="Decrease value"
             >
@@ -598,7 +599,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 NumberInput.displayName = "NumberInput";
@@ -616,7 +617,7 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
     { label, error, description, variant = "default", resize = "vertical", counter = false, className, required, value, maxLength, ...props },
-    ref
+    ref,
   ) => {
     const [isFocused, setIsFocused] = useState(false);
     const charCount = typeof value === "string" ? value.length : 0;
@@ -648,7 +649,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
               className={cn(
                 "text-sm font-medium transition-colors duration-200",
                 isFocused ? "text-primary" : "text-foreground",
-                error && "text-destructive"
+                error && "text-destructive",
               )}
             >
               {label}
@@ -660,7 +661,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                 className={cn(
                   "text-xs transition-colors duration-200",
                   charCount > maxLength * 0.9 ? "text-warning" : "text-muted-foreground",
-                  charCount >= maxLength && "text-destructive"
+                  charCount >= maxLength && "text-destructive",
                 )}
               >
                 {charCount}/{maxLength}
@@ -679,7 +680,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           onBlur={() => setIsFocused(false)}
           className={cn(
             "w-full rounded-lg px-4 py-3 text-sm text-foreground transition-all duration-200",
-            "placeholder:text-muted-foreground focus:outline-none min-h-[80px]",
+            "placeholder:text-muted-foreground focus:outline-none min-h-20",
             "disabled:cursor-not-allowed disabled:opacity-50",
             variantStyles[variant],
             // DÒNG NÀY ĐÃ ĐƯỢC CẬP NHẬT:
@@ -688,7 +689,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             resizeClasses[resize],
             isFocused && "shadow-md",
             variant !== "minimal" && "shadow-sm",
-            className
+            className,
           )}
           {...props}
         />
@@ -707,7 +708,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Textarea.displayName = "Textarea";

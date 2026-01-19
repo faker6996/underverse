@@ -10,6 +10,16 @@ Exports:
 
 Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja). Tự động detect `next-intl` hoặc sử dụng `TranslationProvider`.
 
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                                  | Status |
+| ---------------------------------------- | ------ |
+| `nav` element with `aria-label`          | ✅     |
+| `aria-current="page"` for active page    | ✅     |
+| Button labels (First/Previous/Next/Last) | ✅     |
+| `focus-visible` ring                     | ✅     |
+| Disabled state styling                   | ✅     |
+
 ## Supported Locales
 
 | Locale | First Page   | Previous | Next | Last Page     |

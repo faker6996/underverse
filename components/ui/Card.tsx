@@ -51,12 +51,12 @@ const Card = ({
   return (
     <div
       className={cn(
-        "rounded-lg md:rounded-xl bg-card text-card-foreground transition-all duration-300 ease-soft",
+        "rounded-lg md:rounded-xl bg-card text-card-foreground transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft",
         "shadow-sm md:hover:shadow-md mx-2 md:mx-0 border border-border",
         hoverable && "md:hover:-translate-y-0.5 md:hover:border-primary/15",
         clickable && "cursor-pointer active:translate-y-px md:hover:bg-accent/5",
         "backdrop-blur-sm",
-        className
+        className,
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -68,7 +68,7 @@ const Card = ({
           <div
             className={cn(
               "absolute inset-0 bg-linear-to-br from-primary/5 to-transparent transition-opacity duration-300",
-              isHovered ? "opacity-100" : "opacity-0"
+              isHovered ? "opacity-100" : "opacity-0",
             )}
           />
         )}
@@ -79,7 +79,7 @@ const Card = ({
               <h3
                 className={cn(
                   "text-base md:text-lg font-semibold leading-none tracking-tight transition-colors duration-200",
-                  isHovered && hoverable && "text-primary"
+                  isHovered && hoverable && "text-primary",
                 )}
               >
                 {title}

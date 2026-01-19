@@ -3,9 +3,19 @@
 Source: `components/ui/CheckBox.tsx`
 
 Exports:
+
 - Checkbox
 
 Note: Usage snippets are minimal; fill required props from the props type below.
+
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                          | Status |
+| -------------------------------- | ------ |
+| Native `<input type="checkbox">` | ✅     |
+| Label wraps control              | ✅     |
+| `focus-visible` ring             | ✅     |
+| Disabled state styling           | ✅     |
 
 ## Checkbox
 
@@ -26,11 +36,7 @@ import React from "react";
 import { Checkbox } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <Checkbox
-      label={"Nhan"}
-     />
-  );
+  return <Checkbox label={"Nhan"} />;
 }
 ```
 

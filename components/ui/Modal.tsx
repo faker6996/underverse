@@ -168,6 +168,7 @@ const Modal: React.FC<ModalProps> = ({
   const modalContent = (
     <div
       className={cn("fixed inset-0 z-9999 flex items-center justify-center", overlayClassName)}
+      style={{ overscrollBehavior: "contain" }}
       onMouseDown={handleOverlayMouseDown}
       onMouseUp={handleOverlayMouseUp}
     >
@@ -187,7 +188,7 @@ const Modal: React.FC<ModalProps> = ({
           "transition-all duration-200 ease-out",
           maxWidthClass,
           fullWidth && "mx-0",
-          className
+          className,
         )}
         style={{
           opacity: isOpen && !isAnimating ? 1 : 0,
@@ -209,13 +210,14 @@ const Modal: React.FC<ModalProps> = ({
             {showCloseButton && (
               <button
                 onClick={onClose}
+                aria-label="Close modal"
                 className={cn(
                   "rounded-sm opacity-70 ring-offset-background transition-opacity",
                   "hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                  "disabled:pointer-events-none "
+                  "disabled:pointer-events-none ",
                 )}
               >
-                <X className="h-4 w-4 cursor-pointer" />
+                <X className="h-4 w-4 cursor-pointer" aria-hidden="true" />
               </button>
             )}
           </div>

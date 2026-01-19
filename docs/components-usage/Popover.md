@@ -3,9 +3,19 @@
 Source: `components/ui/Popover.tsx`
 
 Exports:
+
 - Popover
 
 Note: Usage snippets are minimal; fill required props from the props type below.
+
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                | Status |
+| ---------------------- | ------ |
+| ESC to close           | ✅     |
+| Click outside to close | ✅     |
+| `focus-visible` ring   | ✅     |
+| Portal rendering       | ✅     |
 
 ## Popover
 
@@ -15,11 +25,7 @@ Props type: `PopoverProps`
 import { Popover } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <Popover>
-      Content
-    </Popover>
-  );
+  return <Popover>Content</Popover>;
 }
 ```
 

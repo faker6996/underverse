@@ -8,6 +8,16 @@ Exports:
 
 Note: Modal đã được cải tiến để hỗ trợ các portal components (DatePicker, Popover, DropdownMenu) bên trong mà không bị đóng khi click.
 
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                        | Status      |
+| ------------------------------ | ----------- |
+| Close button `aria-label`      | ✅          |
+| ESC key to close               | ✅          |
+| `overscroll-behavior: contain` | ✅          |
+| Focus trap (recommended)       | ⚠️ Optional |
+| Decorative icons `aria-hidden` | ✅          |
+
 ## Portal Detection
 
 Modal tự động detect khi click vào các portal elements:

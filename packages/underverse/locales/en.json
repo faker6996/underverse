@@ -14,7 +14,14 @@
     "compact": "Compact",
     "normal": "Normal",
     "comfortable": "Comfortable",
-    "columns": "Columns"
+    "columns": "Columns",
+    "loading": "Loading",
+    "noData": "No data",
+    "clearFilter": "Clear filter",
+    "headerAlign": "Header alignment",
+    "alignLeft": "Align left",
+    "alignCenter": "Align center",
+    "alignRight": "Align right"
   },
   "ValidationInput": {
     "required": "This field is required",
@@ -59,4 +66,3 @@
     }
   }
 }
-

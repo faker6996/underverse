@@ -3,12 +3,23 @@
 Source: `components/ui/Tab.tsx`
 
 Exports:
+
 - Tabs
 - SimpleTabs
 - PillTabs
 - VerticalTabs
 
 Note: Usage snippets are minimal; fill required props from the props type below.
+
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                       | Status |
+| ----------------------------- | ------ |
+| `role="tablist"` on container | ✅     |
+| `role="tab"` on buttons       | ✅     |
+| `aria-selected` state         | ✅     |
+| `focus-visible` ring          | ✅     |
+| Keyboard navigation           | ✅     |
 
 ## Tabs
 

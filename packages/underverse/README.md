@@ -49,6 +49,51 @@ Components use color variables like `primary`, `secondary`, `destructive`, etc. 
 
 ---
 
+## ⚡ Performance Optimization
+
+### Optimize Package Imports (Next.js)
+
+For best performance, add `optimizePackageImports` to your Next.js config:
+
+```js
+// next.config.js
+module.exports = {
+  experimental: {
+    optimizePackageImports: ["lucide-react", "@underverse-ui/underverse"],
+  },
+};
+```
+
+This provides:
+
+- ✅ 15-70% faster dev boot
+- ✅ 28% faster builds
+- ✅ 40% faster cold starts
+- ✅ Automatic tree-shaking for barrel imports
+
+### Dynamic Imports for Heavy Components
+
+For pages that conditionally show DataTable or DatePicker:
+
+```tsx
+import dynamic from "next/dynamic";
+
+const DataTable = dynamic(() => import("@underverse-ui/underverse").then((m) => m.DataTable), { ssr: false, loading: () => <Skeleton /> });
+```
+
+### Web Interface Guidelines Compliant
+
+All components follow [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines):
+
+- ✅ `focus-visible` ring (not `:focus`)
+- ✅ Label `htmlFor` attribute
+- ✅ ARIA attributes for accessibility
+- ✅ `overscroll-behavior: contain` for modals
+- ✅ Proper ellipsis (`…`) typography
+- ✅ Locale-aware date formatting with `Intl.DateTimeFormat`
+
+---
+
 ## 🚀 Quick Start
 
 ### Standalone React (Vite, CRA, etc.)

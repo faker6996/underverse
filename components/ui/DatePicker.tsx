@@ -206,11 +206,11 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             isSelected
               ? "bg-primary! text-primary-foreground font-bold ring-2 ring-primary-foreground/60 shadow-lg scale-105 z-10 hover:bg-primary! focus:bg-primary! focus:text-primary-foreground"
               : !isPastDate && "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-            isToday && !isSelected && "bg-accent text-accent-foreground font-semibold"
+            isToday && !isSelected && "bg-accent text-accent-foreground font-semibold",
           )}
         >
           {day}
-        </button>
+        </button>,
       );
     }
 
@@ -233,7 +233,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         className={cn(
           "z-9999",
           "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
-          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
+          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
         )}
       >
         <div
@@ -241,7 +241,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           className={cn(
             "rounded-md border bg-popover text-popover-foreground shadow-md",
             "backdrop-blur-sm bg-popover/95 border-border/60",
-            size === "sm" ? "p-3 w-56" : "p-4 w-64"
+            size === "sm" ? "p-3 w-56" : "p-4 w-64",
           )}
           style={{ pointerEvents: "auto" }}
         >
@@ -264,7 +264,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 <div key={day} className={cn("text-muted-foreground text-center font-medium", size === "sm" ? "text-[10px] py-0.5" : "text-xs py-1")}>
                   {day}
                 </div>
-              )
+              ),
             )}
           </div>
 
@@ -302,11 +302,12 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         <div className="flex items-center justify-between">
           <label
             id={labelId}
+            htmlFor={resolvedId}
             onClick={() => triggerRef.current?.focus()}
             className={cn(
               labelSize,
               "font-medium transition-colors duration-200",
-              disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary"
+              disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary",
             )}
           >
             {label}
@@ -332,12 +333,12 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           cn(
             "flex w-full items-center justify-between border border-input bg-background",
             radiusClass,
-            size === "sm" ? "px-2.5 py-1.5 text-sm h-8 md:h-7 md:text-xs md:py-1" : "px-3 py-2 text-sm h-10"
+            size === "sm" ? "px-2.5 py-1.5 text-sm h-8 md:h-7 md:text-xs md:py-1" : "px-3 py-2 text-sm h-10",
           ),
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           "hover:bg-accent/5 transition-colors",
-          className
+          className,
         )}
       >
         <span className={cn("truncate", !value && "text-muted-foreground")}>
@@ -547,11 +548,11 @@ export const DateRangePicker: React.FC<{
             // Hover effects for range
             isInRange && !isPastDate && "hover:bg-primary/25",
 
-            !isPastDate && "focus:bg-accent focus:text-accent-foreground focus:z-10 focus:shadow-md"
+            !isPastDate && "focus:bg-accent focus:text-accent-foreground focus:z-10 focus:shadow-md",
           )}
         >
           {d}
-        </button>
+        </button>,
       );
     }
     return nodes;
@@ -565,7 +566,7 @@ export const DateRangePicker: React.FC<{
         className={cn(
           "z-9999",
           "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
-          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
+          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
         )}
       >
         <div
@@ -626,7 +627,7 @@ export const DateRangePicker: React.FC<{
         className={cn(
           "flex w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-          className
+          className,
         )}
       >
         <span className={cn("truncate", !tempStart && !tempEnd && "text-muted-foreground")}>{label}</span>

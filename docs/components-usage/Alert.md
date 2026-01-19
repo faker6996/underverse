@@ -8,6 +8,15 @@ Exports:
 
 Note: Component hỗ trợ đa ngôn ngữ cho nút đóng (en, vi, ko, ja).
 
+## Accessibility (Web Interface Guidelines Compliant)
+
+| Feature                              | Status |
+| ------------------------------------ | ------ |
+| `role="alert"`                       | ✅     |
+| Dismissible with `aria-label`        | ✅     |
+| `focus-visible` ring on close button | ✅     |
+| Visual variant icons                 | ✅     |
+
 ## i18n Support
 
 | Locale | Close Button Aria Label |
