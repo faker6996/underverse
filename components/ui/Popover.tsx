@@ -24,6 +24,26 @@ interface PopoverProps {
 type Side = "top" | "bottom" | "left" | "right";
 type Align = "start" | "end";
 
+function assignRef<T>(ref: React.Ref<T> | undefined, value: T) {
+  if (!ref) return;
+  if (typeof ref === "function") {
+    ref(value);
+    return;
+  }
+  try {
+    (ref as React.MutableRefObject<T>).current = value;
+  } catch {
+    // ignore
+  }
+}
+
+function getTransformOrigin(side: Side, align: Align) {
+  if (side === "top") return `${align === "end" ? "right" : "left"} bottom`;
+  if (side === "bottom") return `${align === "end" ? "right" : "left"} top`;
+  if (side === "left") return "right top";
+  return "left top";
+}
+
 function normalizePlacement(placement: PopoverPlacement): { side: Side; align: Align } {
   switch (placement) {
     case "top":
@@ -135,10 +155,19 @@ export const Popover: React.FC<PopoverProps> = ({
 }) => {
   const isControlled = open !== undefined;
   const [internalOpen, setInternalOpen] = React.useState(false);
-  const [dropdownPosition, setDropdownPosition] = React.useState<{ top: number; left: number; side: Side; align: Align } | null>(null);
-  const [lastTriggerRect, setLastTriggerRect] = React.useState<Pick<DOMRect, "width"> | null>(null);
   const triggerRef = React.useRef<HTMLElement>(null);
-  const popoverRef = React.useRef<HTMLDivElement>(null);
+  const positionerRef = React.useRef<HTMLDivElement>(null);
+  const panelRef = React.useRef<HTMLDivElement>(null);
+  const lastAppliedRef = React.useRef<
+    | {
+        top: number;
+        left: number;
+        side: Side;
+        align: Align;
+        width?: number;
+      }
+    | null
+  >(null);
 
   // Inject ShadCN animations
   useShadCNAnimations();
@@ -155,32 +184,61 @@ export const Popover: React.FC<PopoverProps> = ({
   const offset = 4;
   const padding = 8;
 
-  const renderedWidth = matchTriggerWidth ? lastTriggerRect?.width : contentWidth;
+  const initialPlacement = React.useMemo(() => normalizePlacement(placement), [placement]);
 
   const updatePosition = React.useCallback(() => {
     const triggerEl = triggerRef.current;
-    const popoverEl = popoverRef.current;
-    if (!triggerEl || !popoverEl) return;
+    const positionerEl = positionerRef.current;
+    const panelEl = panelRef.current;
+    if (!triggerEl || !positionerEl || !panelEl) return;
 
     const triggerRect = triggerEl.getBoundingClientRect();
+
+    const widthWanted = matchTriggerWidth ? triggerRect.width : contentWidth;
+    const widthPx = widthWanted == null ? undefined : Math.max(0, Math.round(widthWanted));
+
+    if (widthPx == null) {
+      if (positionerEl.style.width) positionerEl.style.width = "";
+    } else if (positionerEl.style.width !== `${widthPx}px`) {
+      positionerEl.style.width = `${widthPx}px`;
+    }
+
     // Use offset sizes to avoid transform-based measurement jitter during open animations.
-    const measuredWidth = popoverEl.offsetWidth;
-    const measuredHeight = popoverEl.offsetHeight;
-    const contentRect = popoverEl.getBoundingClientRect();
-    const contentWidth = measuredWidth || contentRect.width;
-    const contentHeight = measuredHeight || contentRect.height;
+    const prevApplied = lastAppliedRef.current;
+    const measuredWidth = positionerEl.offsetWidth;
+    const measuredHeight = positionerEl.offsetHeight;
+    const contentRect = positionerEl.getBoundingClientRect();
+    const contentBoxWidth = measuredWidth || contentRect.width;
+    const contentBoxHeight = measuredHeight || contentRect.height;
 
     const next = computePopoverPosition({
       triggerRect,
-      contentSize: { width: contentWidth, height: contentHeight },
+      contentSize: { width: contentBoxWidth, height: contentBoxHeight },
       placement,
       offset,
       padding,
       viewport: { width: window.innerWidth, height: window.innerHeight },
     });
 
-    setDropdownPosition(next);
-  }, [placement]);
+    const top = Math.round(next.top);
+    const left = Math.round(next.left);
+
+    const applied =
+      prevApplied &&
+      Math.abs(prevApplied.top - top) < 0.5 &&
+      Math.abs(prevApplied.left - left) < 0.5 &&
+      prevApplied.side === next.side &&
+      prevApplied.align === next.align &&
+      prevApplied.width === widthPx;
+    if (applied) return;
+
+    lastAppliedRef.current = { top, left, side: next.side, align: next.align, width: widthPx };
+
+    positionerEl.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+    panelEl.style.transformOrigin = getTransformOrigin(next.side, next.align);
+    if (positionerEl.style.visibility !== "visible") positionerEl.style.visibility = "visible";
+    if (positionerEl.style.pointerEvents !== "auto") positionerEl.style.pointerEvents = "auto";
+  }, [placement, matchTriggerWidth, contentWidth]);
 
   // Compute a stable position before the first paint when opening.
   React.useLayoutEffect(() => {
@@ -196,7 +254,19 @@ export const Popover: React.FC<PopoverProps> = ({
       cancelAnimationFrame(raf1);
       cancelAnimationFrame(raf2);
     };
-  }, [isOpen, updatePosition, renderedWidth]);
+  }, [isOpen, updatePosition]);
+
+  // Follow trigger movement even when the page uses transform-based scrolling (no scroll events).
+  React.useEffect(() => {
+    if (!isOpen) return;
+    let raf = 0;
+    const tick = () => {
+      updatePosition();
+      raf = window.requestAnimationFrame(tick);
+    };
+    raf = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(raf);
+  }, [isOpen, updatePosition]);
 
   // Reposition on resize/scroll while open
   React.useEffect(() => {
@@ -208,33 +278,33 @@ export const Popover: React.FC<PopoverProps> = ({
     };
     handler();
     window.addEventListener("resize", handler);
-    // Listen to scroll in capture phase to support nested scrolling containers.
+    // Listen to scroll in capture phase to support both window scrolling and nested scrolling containers.
     window.addEventListener("scroll", handler, true);
+    document.addEventListener("scroll", handler, true);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", handler);
       window.removeEventListener("scroll", handler, true);
+      document.removeEventListener("scroll", handler, true);
     };
   }, [isOpen, updatePosition]);
 
   // Track content size changes to avoid late "jump" after first render.
   React.useEffect(() => {
     if (!isOpen) return;
-    if (!popoverRef.current) return;
     if (typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver(() => updatePosition());
-    ro.observe(popoverRef.current);
+    if (positionerRef.current) ro.observe(positionerRef.current);
+    if (triggerRef.current) ro.observe(triggerRef.current);
     return () => ro.disconnect();
   }, [isOpen, updatePosition]);
 
-  // Reset position on open/close and snapshot trigger width early.
+  // Reset last applied state on open/close.
   React.useLayoutEffect(() => {
     if (!isOpen) {
-      setDropdownPosition(null);
+      lastAppliedRef.current = null;
       return;
     }
-    const rect = triggerRef.current?.getBoundingClientRect();
-    if (rect) setLastTriggerRect({ width: rect.width });
   }, [isOpen]);
 
   // Handle clicks outside
@@ -244,7 +314,7 @@ export const Popover: React.FC<PopoverProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       const triggerEl = triggerRef.current;
-      const popoverEl = popoverRef.current;
+      const popoverEl = positionerRef.current;
       if (!triggerEl || !popoverEl) return;
       if (triggerEl.contains(target)) return;
       if (popoverEl.contains(target)) return;
@@ -270,13 +340,7 @@ export const Popover: React.FC<PopoverProps> = ({
 
   const handleTriggerClick = () => {
     if (!disabled) {
-      const next = !isOpen;
-      if (next) {
-        const rect = triggerRef.current?.getBoundingClientRect();
-        if (rect) setLastTriggerRect({ width: rect.width });
-        setDropdownPosition(null);
-      }
-      setIsOpen(next);
+      setIsOpen(!isOpen);
     }
   };
 
@@ -284,43 +348,44 @@ export const Popover: React.FC<PopoverProps> = ({
     isOpen && typeof window !== "undefined"
       ? createPortal(
           <div
-            ref={popoverRef}
+            ref={positionerRef}
             data-popover
             style={{
               position: "fixed",
-              top: dropdownPosition?.top ?? 0,
-              left: dropdownPosition?.left ?? 0,
-              width: renderedWidth ?? undefined,
+              top: 0,
+              left: 0,
+              transform: "translate3d(0, 0, 0)",
               zIndex: 9999,
-              visibility: dropdownPosition ? "visible" : "hidden",
-              pointerEvents: dropdownPosition ? "auto" : "none",
-              transformOrigin: (() => {
-                const { side, align } = dropdownPosition ?? normalizePlacement(placement);
-                if (side === "top") return `${align === "end" ? "right" : "left"} bottom`;
-                if (side === "bottom") return `${align === "end" ? "right" : "left"} top`;
-                if (side === "left") return "right top";
-                return "left top";
-              })(),
+              visibility: "hidden",
+              pointerEvents: "none",
+              willChange: "transform",
             }}
-            data-state="open"
-            role="dialog"
-            aria-modal={modal || undefined}
-            className={cn(
-              "z-9999",
-              // shadcn-like enter animation
-              "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
-              className,
-            )}
+            className="z-9999"
           >
             <div
+              ref={panelRef}
+              data-state="open"
+              role="dialog"
+              aria-modal={modal || undefined}
+              style={{
+                transformOrigin: getTransformOrigin(initialPlacement.side, initialPlacement.align),
+              }}
               className={cn(
-                "rounded-md border bg-popover text-popover-foreground shadow-md",
-                "backdrop-blur-sm bg-popover/95 border-border/60 p-4",
-                contentClassName,
+                // shadcn-like enter animation
+                "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+                className,
               )}
-              tabIndex={-1}
             >
-              {children}
+              <div
+                className={cn(
+                  "rounded-md border bg-popover text-popover-foreground shadow-md",
+                  "backdrop-blur-sm bg-popover/95 border-border/60 p-4",
+                  contentClassName,
+                )}
+                tabIndex={-1}
+              >
+                {children}
+              </div>
             </div>
           </div>,
           document.body,
@@ -332,15 +397,19 @@ export const Popover: React.FC<PopoverProps> = ({
       {(() => {
         const triggerEl = trigger as React.ReactElement<any>;
         return React.cloneElement(triggerEl, {
-          ref: triggerRef,
+          ref: (node: HTMLElement | null) => {
+            triggerRef.current = node;
+            // React 19: `ref` is a regular prop (access via props).
+            assignRef((triggerEl.props as any)?.ref, node);
+          },
           onClick: (e: React.MouseEvent) => {
-          e.preventDefault();
-          e.stopPropagation();
-          handleTriggerClick();
-          // Call original onClick if exists
-          if (triggerEl.props && typeof triggerEl.props.onClick === 'function') {
-            triggerEl.props.onClick(e);
-          }
+            e.preventDefault();
+            e.stopPropagation();
+            handleTriggerClick();
+            // Call original onClick if exists
+            if (triggerEl.props && typeof triggerEl.props.onClick === "function") {
+              triggerEl.props.onClick(e);
+            }
           },
           'aria-expanded': isOpen,
           'aria-haspopup': 'dialog',

@@ -3,7 +3,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils/cn";
 import { Popover } from "./Popover";
-import { Clock, X, Check } from "lucide-react";
+import { Clock, X, Check, Sun, Moon, Sunset, Coffee } from "lucide-react";
 import Input from "./Input";
 
 type TimeFormat = "24" | "12";
@@ -57,6 +57,14 @@ type Parts = { h: number; m: number; s: number; p?: "AM" | "PM" };
 
 const pad = (n: number) => n.toString().padStart(2, "0");
 
+const WHEEL_ITEM_HEIGHT = {
+  sm: 30,
+  md: 34,
+  lg: 40,
+} as const;
+
+const WHEEL_VISIBLE_ITEMS = 5;
+
 function parseTime(input?: string, fmt: TimeFormat = "24", includeSeconds?: boolean): Parts | null {
   if (!input) return null;
   try {
@@ -90,12 +98,12 @@ function formatTime({ h, m, s, p }: Parts, fmt: TimeFormat, includeSeconds?: boo
   return includeSeconds ? `${base}:${pad(s)}` : base;
 }
 
-// Time presets
+// Time presets with icons
 const PRESETS = {
-  morning: { h: 9, m: 0, s: 0 },
-  afternoon: { h: 14, m: 0, s: 0 },
-  evening: { h: 18, m: 0, s: 0 },
-  night: { h: 21, m: 0, s: 0 },
+  morning: { h: 9, m: 0, s: 0, icon: Coffee, label: "Morning", color: "from-amber-400 to-orange-400" },
+  afternoon: { h: 14, m: 0, s: 0, icon: Sun, label: "Afternoon", color: "from-yellow-400 to-amber-400" },
+  evening: { h: 18, m: 0, s: 0, icon: Sunset, label: "Evening", color: "from-orange-400 to-rose-400" },
+  night: { h: 21, m: 0, s: 0, icon: Moon, label: "Night", color: "from-indigo-400 to-purple-400" },
 };
 
 export default function TimePicker({
@@ -152,26 +160,6 @@ export default function TimePicker({
       if (parsed) setParts(parsed);
     }
   }, [value, isControlled, format, includeSeconds]);
-
-  // Smooth scroll to selected time
-  React.useEffect(() => {
-    if (!open) return;
-    const scrollToSelected = (ref: React.RefObject<HTMLDivElement | null>, targetValue: number, step: number) => {
-      if (!ref.current) return;
-      const buttons = ref.current.querySelectorAll("button");
-      const targetIndex = Math.floor(targetValue / step);
-      const targetButton = buttons[targetIndex];
-      if (targetButton) {
-        targetButton.scrollIntoView({ behavior: animate ? "smooth" : "auto", block: "center" });
-      }
-    };
-
-    setTimeout(() => {
-      scrollToSelected(hourScrollRef, parts.h, 1);
-      scrollToSelected(minuteScrollRef, parts.m, minuteStep);
-      if (includeSeconds) scrollToSelected(secondScrollRef, parts.s, secondStep);
-    }, 50);
-  }, [open, parts.h, parts.m, parts.s, minuteStep, secondStep, includeSeconds, animate]);
 
   // Check if time is disabled
   const isTimeDisabled = React.useCallback(
@@ -350,28 +338,50 @@ export default function TimePicker({
         aria-haspopup="dialog"
         aria-expanded={open}
         className={cn(
-          "flex w-full items-center justify-between border bg-background",
+          "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
           sz.height,
           sz.padding,
           sz.text,
           radiusClass,
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:opacity-50 disabled:cursor-not-allowed",
-          "transition-all duration-200",
-          error && "border-destructive focus-visible:ring-destructive",
-          success && "border-green-500 focus-visible:ring-green-500",
-          !error && !success && "border-input hover:bg-accent/5",
-          animate && !disabled && "hover:shadow-md",
+          "transition-all duration-300 ease-out",
+          error && "border-destructive/60 focus-visible:ring-destructive/50 bg-destructive/5",
+          success && "border-green-500/60 focus-visible:ring-green-500/50 bg-green-500/5",
+          !error && !success && "border-border/60 hover:border-primary/40 hover:bg-accent/10",
+          animate && !disabled && "hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
+          open && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
           className,
         )}
       >
-        <div className="flex items-center gap-2">
-          <Clock className={cn(sz.icon, error ? "text-destructive" : success ? "text-green-500" : "text-muted-foreground")} />
-          <span className={cn("truncate", !value && !defaultValue && "text-muted-foreground")}>{value || defaultValue ? display : placeholder}</span>
+        <div className="flex items-center gap-2.5">
+          <div
+            className={cn(
+              "flex items-center justify-center rounded-md p-1.5 transition-all duration-300",
+              error
+                ? "bg-destructive/10 text-destructive"
+                : success
+                  ? "bg-green-500/10 text-green-500"
+                  : open
+                    ? "bg-primary/15 text-primary"
+                    : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+            )}
+          >
+            <Clock className={cn(sz.icon, "transition-transform duration-300", open && "rotate-12")} />
+          </div>
+          <span
+            className={cn(
+              "truncate font-medium transition-colors duration-200",
+              !value && !defaultValue && "text-muted-foreground",
+              value || defaultValue ? "text-foreground" : "",
+            )}
+          >
+            {value || defaultValue ? display : placeholder}
+          </span>
         </div>
-        <span className={cn("ml-2 transition-transform duration-200", open && "rotate-180")}>
-          <svg className={sz.icon} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        <span className={cn("ml-2 transition-all duration-300 text-muted-foreground group-hover:text-foreground", open && "rotate-180 text-primary")}>
+          <svg className={sz.icon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
         </span>
       </button>
@@ -386,38 +396,240 @@ export default function TimePicker({
   };
   const itemSz = itemSizeClasses[size];
 
+  const setHourFromDisplay = (hourDisplay: number) => {
+    const period = parts.p ?? (parts.h >= 12 ? "PM" : "AM");
+    const nextH =
+      format === "24"
+        ? hourDisplay
+        : (() => {
+            const base = hourDisplay % 12; // 12 -> 0
+            return period === "PM" ? base + 12 : base;
+          })();
+    const next: Parts = { ...parts, h: nextH, p: format === "12" ? period : parts.p };
+    setParts(next);
+    emit(next);
+  };
+
+  const WheelColumn = ({
+    labelText,
+    column,
+    items,
+    valueIndex,
+    onSelect,
+    scrollRef,
+  }: {
+    labelText: string;
+    column: "hour" | "minute" | "second";
+    items: number[];
+    valueIndex: number;
+    onSelect: (value: number) => void;
+    scrollRef: React.RefObject<HTMLDivElement | null>;
+  }) => {
+    const itemHeight = WHEEL_ITEM_HEIGHT[size];
+    const height = itemHeight * WHEEL_VISIBLE_ITEMS;
+    const paddingY = (height - itemHeight) / 2;
+    const rafRef = React.useRef(0);
+    const lastIndexRef = React.useRef<number | null>(null);
+    const wheelDeltaRef = React.useRef(0);
+    const scrollEndTimeoutRef = React.useRef<number | null>(null);
+
+    React.useEffect(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+      const nextTop = Math.max(0, valueIndex) * itemHeight;
+      if (Math.abs(el.scrollTop - nextTop) > 1) {
+        el.scrollTo({ top: nextTop, behavior: animate ? "smooth" : "auto" });
+      }
+      lastIndexRef.current = valueIndex;
+      return () => {
+        if (scrollEndTimeoutRef.current != null) {
+          window.clearTimeout(scrollEndTimeoutRef.current);
+          scrollEndTimeoutRef.current = null;
+        }
+        cancelAnimationFrame(rafRef.current);
+      };
+    }, [valueIndex, itemHeight, scrollRef]);
+
+    // Ensure wheel/trackpad always advances the selection (even if scroll snapping or padding confuses scrollTop math).
+    React.useEffect(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+      const lastWheelSignRef = { current: 0 };
+      const lastStepAtRef = { current: 0 };
+      const lastStepSignRef = { current: 0 };
+
+      const onWheel = (event: WheelEvent) => {
+        if (!el.contains(event.target as Node)) return;
+        if (event.ctrlKey) return;
+        event.preventDefault();
+
+        const sign = Math.sign(event.deltaY);
+        if (sign !== 0 && lastWheelSignRef.current !== 0 && sign !== lastWheelSignRef.current) {
+          // Prevent trackpad "bounce" from immediately stepping back.
+          if (Date.now() - lastStepAtRef.current < 180 && lastStepSignRef.current !== 0) return;
+          wheelDeltaRef.current = 0;
+        }
+        if (sign !== 0) lastWheelSignRef.current = sign;
+
+        wheelDeltaRef.current += event.deltaY;
+        const threshold = 24;
+        if (Math.abs(wheelDeltaRef.current) < threshold) return;
+
+        const step = Math.sign(wheelDeltaRef.current);
+        wheelDeltaRef.current = 0;
+
+        const fromIndex = lastIndexRef.current ?? valueIndex;
+        const nextIndex = Math.max(0, Math.min(items.length - 1, fromIndex + step));
+        if (nextIndex === fromIndex) return;
+
+        lastStepAtRef.current = Date.now();
+        lastStepSignRef.current = step;
+        lastIndexRef.current = nextIndex;
+        el.scrollTo({ top: nextIndex * itemHeight, behavior: animate ? "smooth" : "auto" });
+        onSelect(items[nextIndex]);
+      };
+
+      el.addEventListener("wheel", onWheel, { passive: false });
+      return () => el.removeEventListener("wheel", onWheel);
+    }, [animate, itemHeight, items, onSelect, scrollRef, valueIndex]);
+
+    const handleScroll = () => {
+      const el = scrollRef.current;
+      if (!el) return;
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = window.requestAnimationFrame(() => {
+        if (scrollEndTimeoutRef.current != null) {
+          window.clearTimeout(scrollEndTimeoutRef.current);
+        }
+        scrollEndTimeoutRef.current = window.setTimeout(() => {
+          const idx = Math.max(0, Math.min(items.length - 1, Math.round(el.scrollTop / itemHeight)));
+          if (lastIndexRef.current === idx) return;
+          lastIndexRef.current = idx;
+          el.scrollTo({ top: idx * itemHeight, behavior: animate ? "smooth" : "auto" });
+          onSelect(items[idx]);
+        }, 90);
+      });
+    };
+
+    return (
+      <div className="flex-1 min-w-[70px] max-w-[90px]">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-3 text-center">{labelText}</div>
+        <div className="relative rounded-xl bg-muted/30 overflow-hidden" style={{ height }}>
+          {/* Selected item highlight */}
+          <div
+            className="pointer-events-none absolute inset-x-2 top-1/2 -translate-y-1/2 rounded-lg bg-gradient-to-r from-primary/20 via-primary/15 to-primary/20 border border-primary/30 shadow-sm shadow-primary/10"
+            style={{ height: itemHeight }}
+          />
+          {/* Top gradient fade */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-background/95 via-background/60 to-transparent z-10" />
+          {/* Bottom gradient fade */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background/95 via-background/60 to-transparent z-10" />
+
+          <div
+            ref={scrollRef as any}
+            className={cn(
+              "h-full overflow-y-auto overscroll-contain snap-y snap-mandatory scroll-smooth",
+              "scrollbar-none",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xl",
+            )}
+            style={{ paddingTop: paddingY, paddingBottom: paddingY }}
+            role="listbox"
+            aria-label={`Select ${labelText.toLowerCase()}`}
+            tabIndex={focusedColumn === column ? 0 : -1}
+            onKeyDown={(e) => handleKeyDown(e, column)}
+            onFocus={() => setFocusedColumn(column)}
+            onScroll={handleScroll}
+          >
+            <div>
+              {items.map((n, index) => {
+                const dist = Math.abs(index - valueIndex);
+                const scale = 1 - Math.min(dist * 0.1, 0.3);
+                const opacity = 1 - Math.min(dist * 0.25, 0.8);
+                const isSelected = index === valueIndex;
+
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    className={cn(
+                      "w-full snap-center flex items-center justify-center rounded-lg transition-all duration-200 font-bold tabular-nums",
+                      isSelected ? "text-primary text-lg" : "text-muted-foreground hover:text-foreground/70",
+                    )}
+                    style={{
+                      height: itemHeight,
+                      transform: `scale(${scale})`,
+                      opacity,
+                    }}
+                    onClick={() => {
+                      const el = scrollRef.current;
+                      el?.scrollTo({ top: index * itemHeight, behavior: animate ? "smooth" : "auto" });
+                      onSelect(n);
+                    }}
+                  >
+                    {pad(n)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const timePickerContent = (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      {/* Current Time Display */}
+      <div className="flex items-center justify-center py-2 px-3 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20">
+        <span className="text-2xl font-bold tabular-nums tracking-wide text-foreground">{display}</span>
+      </div>
+
       {/* Manual Input */}
       {allowManualInput && (
-        <div>
+        <div className="relative">
           <Input
             placeholder={format === "12" ? "02:30 PM" : "14:30"}
             value={manualInput || display}
             onChange={(e) => handleManualInput(e.target.value)}
             size="sm"
             variant="outlined"
+            className="pl-9"
           />
+          <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         </div>
       )}
 
       {/* Presets */}
       {showPresets && (
         <div className="grid grid-cols-2 gap-2">
-          {Object.keys(PRESETS).map((preset) => (
-            <button
-              key={preset}
-              type="button"
-              className={cn(
-                "px-2 py-1.5 text-xs rounded-md border border-border hover:bg-accent/10 capitalize transition-all",
-                animate && "hover:scale-105 active:scale-95",
-              )}
-              onClick={() => setPreset(preset as keyof typeof PRESETS)}
-              aria-label={`Set time to ${preset}`}
-            >
-              {preset}
-            </button>
-          ))}
+          {(Object.keys(PRESETS) as Array<keyof typeof PRESETS>).map((preset) => {
+            const { icon: Icon, label, color } = PRESETS[preset];
+            return (
+              <button
+                key={preset}
+                type="button"
+                className={cn(
+                  "group relative px-3 py-2.5 text-xs font-medium rounded-xl border border-border/50 overflow-hidden",
+                  "bg-gradient-to-br from-background to-muted/30",
+                  "hover:border-primary/40 hover:shadow-md transition-all duration-300",
+                  animate && "hover:scale-[1.02] active:scale-[0.98]",
+                )}
+                onClick={() => setPreset(preset)}
+                aria-label={`Set time to ${label}`}
+              >
+                <div
+                  className={cn("absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300", "bg-gradient-to-r", color)}
+                  style={{ opacity: 0.08 }}
+                />
+                <div className="relative flex items-center gap-2">
+                  <Icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <span className="text-foreground/80 group-hover:text-foreground transition-colors">{label}</span>
+                </div>
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -429,8 +641,10 @@ export default function TimePicker({
               key={idx}
               type="button"
               className={cn(
-                "px-2 py-1.5 text-xs rounded-md border border-border hover:bg-accent/10 transition-all",
-                animate && "hover:scale-105 active:scale-95",
+                "px-3 py-2.5 text-xs font-medium rounded-xl border border-border/50",
+                "bg-gradient-to-br from-background to-muted/30",
+                "hover:border-primary/40 hover:bg-primary/5 hover:shadow-md transition-all duration-300",
+                animate && "hover:scale-[1.02] active:scale-[0.98]",
               )}
               onClick={() => handleCustomPreset(preset.time)}
               aria-label={`Set time to ${preset.label}`}
@@ -442,152 +656,86 @@ export default function TimePicker({
       )}
 
       {/* Time Selector */}
-      <div className="flex gap-3 w-fit max-w-full">
+      <div className="flex gap-2 justify-center items-stretch">
         {/* Hours */}
-        <div className="w-20">
-          <div className="text-xs font-semibold text-muted-foreground mb-2 text-center">Hour</div>
-          <div
-            ref={hourScrollRef}
-            className="max-h-48 overflow-y-auto pr-1 space-y-1 scrollbar-thin scroll-smooth"
-            role="listbox"
-            aria-label="Select hour"
-            tabIndex={focusedColumn === "hour" ? 0 : -1}
-            onKeyDown={(e) => handleKeyDown(e, "hour")}
-            onFocus={() => setFocusedColumn("hour")}
-          >
-            {hours.map((h) => {
-              const isSelected = (format === "24" && parts.h === h) || (format === "12" && (parts.h % 12 || 12) === (h % 12 || 12));
-              return (
-                <button
-                  key={h}
-                  type="button"
-                  role="option"
-                  aria-selected={isSelected}
-                  className={cn(
-                    "w-full text-center rounded-md transition-all font-medium",
-                    itemSz.padding,
-                    itemSz.text,
-                    "hover:bg-accent hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-                    isSelected && "bg-primary text-primary-foreground shadow-md",
-                    !isSelected && "text-foreground/80",
-                    animate && "transition-transform duration-150",
-                  )}
-                  onClick={() => {
-                    const nextH = format === "24" ? h : (parts.p === "PM" ? (h % 12) + 12 : h % 12) % 24;
-                    const next = { ...parts, h: format === "24" ? h : nextH === 0 && parts.p === "AM" ? 0 : nextH || (parts.p === "PM" ? 12 : 0) };
-                    setParts(next);
-                    emit(next);
-                  }}
-                >
-                  {pad(h)}
-                </button>
-              );
-            })}
+        {(() => {
+          const hourDisplay = format === "24" ? parts.h : parts.h % 12 || 12;
+          const hourIndex = Math.max(0, hours.indexOf(hourDisplay));
+          return (
+            <WheelColumn
+              labelText="Hour"
+              column="hour"
+              items={hours}
+              valueIndex={hourIndex}
+              onSelect={setHourFromDisplay}
+              scrollRef={hourScrollRef}
+            />
+          );
+        })()}
+
+        {/* Separator */}
+        <div className="flex flex-col items-center justify-center pt-8">
+          <div className="flex flex-col gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
+            <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
           </div>
         </div>
-
-        {/* Visual separator */}
-        <div className="w-px bg-border/50 self-stretch my-8" />
 
         {/* Minutes */}
-        <div className="w-20">
-          <div className="text-xs font-semibold text-muted-foreground mb-2 text-center">Min</div>
-          <div
-            ref={minuteScrollRef}
-            className="max-h-48 overflow-y-auto pr-1 space-y-1 scrollbar-thin scroll-smooth"
-            role="listbox"
-            aria-label="Select minute"
-            tabIndex={focusedColumn === "minute" ? 0 : -1}
-            onKeyDown={(e) => handleKeyDown(e, "minute")}
-            onFocus={() => setFocusedColumn("minute")}
-          >
-            {minutes.map((m) => {
-              const isSelected = parts.m === m;
-              return (
-                <button
-                  key={m}
-                  type="button"
-                  role="option"
-                  aria-selected={isSelected}
-                  className={cn(
-                    "w-full text-center rounded-md transition-all font-medium",
-                    itemSz.padding,
-                    itemSz.text,
-                    "hover:bg-accent hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-                    isSelected && "bg-primary text-primary-foreground shadow-md",
-                    !isSelected && "text-foreground/80",
-                    animate && "transition-transform duration-150",
-                  )}
-                  onClick={() => {
-                    const next = { ...parts, m };
-                    setParts(next);
-                    emit(next);
-                  }}
-                >
-                  {pad(m)}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Visual separator */}
-        <div className="w-px bg-border/50 self-stretch my-8" />
+        {(() => {
+          const minuteIndex = Math.max(0, Math.min(minutes.length - 1, Math.round(parts.m / minuteStep)));
+          return (
+            <WheelColumn
+              labelText="Min"
+              column="minute"
+              items={minutes}
+              valueIndex={minuteIndex}
+              onSelect={(m) => {
+                const next = { ...parts, m };
+                setParts(next);
+                emit(next);
+              }}
+              scrollRef={minuteScrollRef}
+            />
+          );
+        })()}
 
         {/* Seconds */}
         {includeSeconds && (
           <>
-            <div className="w-20">
-              <div className="text-xs font-semibold text-muted-foreground mb-2 text-center">Sec</div>
-              <div
-                ref={secondScrollRef}
-                className="max-h-48 overflow-y-auto pr-1 space-y-1 scrollbar-thin scroll-smooth"
-                role="listbox"
-                aria-label="Select second"
-                tabIndex={focusedColumn === "second" ? 0 : -1}
-                onKeyDown={(e) => handleKeyDown(e, "second")}
-                onFocus={() => setFocusedColumn("second")}
-              >
-                {seconds.map((s) => {
-                  const isSelected = parts.s === s;
-                  return (
-                    <button
-                      key={s}
-                      type="button"
-                      role="option"
-                      aria-selected={isSelected}
-                      className={cn(
-                        "w-full text-center rounded-md transition-all font-medium",
-                        itemSz.padding,
-                        itemSz.text,
-                        "hover:bg-accent hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-                        isSelected && "bg-primary text-primary-foreground shadow-md",
-                        !isSelected && "text-foreground/80",
-                        animate && "transition-transform duration-150",
-                      )}
-                      onClick={() => {
-                        const next = { ...parts, s };
-                        setParts(next);
-                        emit(next);
-                      }}
-                    >
-                      {pad(s)}
-                    </button>
-                  );
-                })}
+            {/* Separator */}
+            <div className="flex flex-col items-center justify-center pt-8">
+              <div className="flex flex-col gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
+                <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
               </div>
             </div>
-            {/* Visual separator */}
-            <div className="w-px bg-border/50 self-stretch my-8" />
+            {(() => {
+              const secondIndex = Math.max(0, Math.min(seconds.length - 1, Math.round(parts.s / secondStep)));
+              return (
+                <WheelColumn
+                  labelText="Sec"
+                  column="second"
+                  items={seconds}
+                  valueIndex={secondIndex}
+                  onSelect={(s) => {
+                    const next = { ...parts, s };
+                    setParts(next);
+                    emit(next);
+                  }}
+                  scrollRef={secondScrollRef}
+                />
+              );
+            })()}
           </>
         )}
 
         {/* AM/PM */}
         {format === "12" && (
-          <div className="w-20">
-            <div className="text-xs font-semibold text-muted-foreground mb-2 text-center">Period</div>
+          <div className="flex-1 min-w-[70px] max-w-[90px]">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-3 text-center">Period</div>
             <div
-              className="flex flex-col gap-2"
+              className="flex flex-col gap-2 p-1 rounded-xl bg-muted/30"
               role="radiogroup"
               aria-label="Select AM or PM"
               tabIndex={focusedColumn === "period" ? 0 : -1}
@@ -603,11 +751,11 @@ export default function TimePicker({
                     role="radio"
                     aria-checked={isSelected}
                     className={cn(
-                      "px-4 py-3 rounded-md transition-all text-sm font-semibold",
-                      "hover:bg-accent hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-                      isSelected && "bg-primary text-primary-foreground shadow-md",
-                      !isSelected && "text-foreground/80 border border-border",
-                      animate && "transition-transform duration-150",
+                      "relative px-4 py-3 rounded-lg transition-all duration-300 text-sm font-bold overflow-hidden",
+                      "focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1",
+                      isSelected && "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25",
+                      !isSelected && "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                      animate && "hover:scale-[1.02] active:scale-[0.98]",
                     )}
                     onClick={() => {
                       const pVal = p as "AM" | "PM";
@@ -619,7 +767,8 @@ export default function TimePicker({
                       emit(next);
                     }}
                   >
-                    {p}
+                    {isSelected && <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent" />}
+                    <span className="relative">{p}</span>
                   </button>
                 );
               })}
@@ -630,13 +779,16 @@ export default function TimePicker({
 
       {/* Action Buttons */}
       {(showNow || clearable) && (
-        <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
+        <div className="flex items-center gap-2 pt-3 border-t border-border/50">
           {showNow && (
             <button
               type="button"
               className={cn(
-                "px-3 py-2 text-xs rounded-md border border-border hover:bg-accent/10 transition-all flex items-center gap-2 font-medium",
-                animate && "hover:scale-105 active:scale-95",
+                "flex-1 px-4 py-2.5 text-xs font-semibold rounded-xl",
+                "bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/30",
+                "text-primary hover:from-primary/20 hover:to-primary/10 hover:border-primary/50",
+                "transition-all duration-300 flex items-center justify-center gap-2",
+                animate && "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:shadow-primary/10",
               )}
               onClick={() => {
                 setNow();
@@ -648,13 +800,15 @@ export default function TimePicker({
               Now
             </button>
           )}
-          <div className="flex-1" />
           {clearable && (
             <button
               type="button"
               className={cn(
-                "px-3 py-2 text-xs rounded-md border border-border hover:bg-destructive/10 hover:text-destructive transition-all flex items-center gap-2 font-medium",
-                animate && "hover:scale-105 active:scale-95",
+                "flex-1 px-4 py-2.5 text-xs font-semibold rounded-xl",
+                "bg-gradient-to-r from-destructive/10 to-destructive/5 border border-destructive/30",
+                "text-destructive hover:from-destructive/20 hover:to-destructive/10 hover:border-destructive/50",
+                "transition-all duration-300 flex items-center justify-center gap-2",
+                animate && "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:shadow-destructive/10",
               )}
               onClick={() => {
                 setParts(initial);
@@ -677,14 +831,14 @@ export default function TimePicker({
     return (
       <div className="w-fit max-w-full" {...rest}>
         {label && (
-          <div className="flex items-center justify-between mb-2">
-            <label className={cn(sz.label, "font-medium", disabled ? "text-muted-foreground" : "text-foreground")}>
+          <div className="flex items-center justify-between mb-3">
+            <label className={cn(sz.label, "font-semibold", disabled ? "text-muted-foreground" : "text-foreground")}>
               {label}
               {required && <span className="text-destructive ml-1">*</span>}
             </label>
           </div>
         )}
-        <div className={cn("p-3 rounded-lg border border-border bg-card shadow-sm", className)}>{timePickerContent}</div>
+        <div className={cn("p-5 rounded-2xl border border-border/60 bg-card/95 backdrop-blur-sm shadow-xl", className)}>{timePickerContent}</div>
       </div>
     );
   }
@@ -692,9 +846,14 @@ export default function TimePicker({
   return (
     <div className="w-full" {...rest}>
       {label && (
-        <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center justify-between mb-2">
           <label
-            className={cn(sz.label, "font-medium", disabled ? "text-muted-foreground" : "text-foreground", "cursor-pointer")}
+            className={cn(
+              sz.label,
+              "font-semibold",
+              disabled ? "text-muted-foreground" : "text-foreground",
+              "cursor-pointer transition-colors hover:text-primary",
+            )}
             onClick={() => !disabled && handleOpenChange(true)}
           >
             {label}
@@ -708,14 +867,13 @@ export default function TimePicker({
         open={open}
         onOpenChange={handleOpenChange}
         placement="bottom-start"
-        matchTriggerWidth={variant === "compact"}
         contentWidth={contentWidth}
         contentClassName={cn(
-          "p-4 rounded-lg border bg-popover shadow-xl backdrop-blur-md",
-          error && "border-destructive",
-          success && "border-green-500",
-          !error && !success && "border-border",
-          animate && "animate-in fade-in-0 zoom-in-95 duration-200",
+          "p-5 rounded-2xl border bg-popover/95 backdrop-blur-xl shadow-2xl",
+          error && "border-destructive/40",
+          success && "border-green-500/40",
+          !error && !success && "border-border/60",
+          animate && "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
         )}
       >
         {timePickerContent}
@@ -723,20 +881,20 @@ export default function TimePicker({
 
       {/* Validation and Helper Text */}
       {(error || success || helperText) && (
-        <div className={cn("mt-1.5 flex items-start gap-1.5", sz.label)}>
+        <div className={cn("mt-2 flex items-start gap-2", sz.label)}>
           {error && (
-            <div className="flex items-center gap-1.5 text-destructive">
+            <div className="flex items-center gap-2 text-destructive bg-destructive/10 px-3 py-1.5 rounded-lg">
               <X className="w-3.5 h-3.5 shrink-0" />
-              <span>{error}</span>
+              <span className="font-medium">{error}</span>
             </div>
           )}
           {success && !error && (
-            <div className="flex items-center gap-1.5 text-green-600">
+            <div className="flex items-center gap-2 text-green-600 bg-green-500/10 px-3 py-1.5 rounded-lg">
               <Check className="w-3.5 h-3.5 shrink-0" />
-              <span>Valid time selected</span>
+              <span className="font-medium">Valid time selected</span>
             </div>
           )}
-          {helperText && !error && !success && <span className="text-muted-foreground">{helperText}</span>}
+          {helperText && !error && !success && <span className="text-muted-foreground/80 italic">{helperText}</span>}
         </div>
       )}
     </div>

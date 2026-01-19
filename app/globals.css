@@ -232,6 +232,15 @@ body {
   background: transparent; /* Avoid dark square at bottom-right */
 }
 
+/* Hide native scrollbars (still scrollable) */
+.scrollbar-none {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge legacy */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
 /* (Removed unused keyframes: gradient-shift, float, shimmer-call, ripple) */
 
 /* Smooth interactions */
