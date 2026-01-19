@@ -801,10 +801,8 @@
       },
       "scrollArea": {
         "className": "Custom class for wrapper (sets height/width).",
-        "contentClassName": "Custom class for inner viewport.",
+        "contentClassName": "Custom class for inner viewport (set padding here).",
         "variant": "Background color variant (default|muted|primary|accent).",
-        "spacing": "Content padding (none|sm|md|lg|xl).",
-        "fullWidth": "Full width mode (no container constraints).",
         "outlined": "Show subtle border like Card.",
         "children": "Scrollable content."
       },

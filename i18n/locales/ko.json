@@ -794,10 +794,8 @@
       },
       "scrollArea": {
         "className": "래퍼 커스텀 클래스(높이/너비 지정).",
-        "contentClassName": "내부 뷰포트의 커스텀 클래스.",
+        "contentClassName": "내부 뷰포트의 커스텀 클래스(패딩 지정).",
         "variant": "배경색 변형(default|muted|primary|accent).",
-        "spacing": "콘텐츠 패딩(none|sm|md|lg|xl).",
-        "fullWidth": "전체 너비 모드(컨테이너 제약 없음).",
         "outlined": "Card와 유사한 얇은 테두리 표시.",
         "children": "스크롤 가능한 내용."
       },

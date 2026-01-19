@@ -6,8 +6,6 @@ Exports:
 
 - ScrollArea
 
-Note: Usage snippets are minimal; fill required props from the props type below.
-
 ## ScrollArea
 
 Props type: `ScrollAreaProps`
@@ -16,34 +14,29 @@ Props type: `ScrollAreaProps`
 import { ScrollArea } from "@underverse-ui/underverse";
 
 export function Example() {
-  return <ScrollArea />;
+  return <ScrollArea className="h-64">{/* content */}</ScrollArea>;
 }
 ```
 
 Ví dụ đầy đủ:
 
 ```tsx
-import React from "react";
 import { ScrollArea } from "@underverse-ui/underverse";
 
-export function Example() {
-  return (
-    // Basic - no padding by default
-    <ScrollArea className="h-32">
-      <div>Content here...</div>
-    </ScrollArea>
+// Basic - no default padding
+<ScrollArea className="h-48">
+  <div className="p-4">Content here...</div>
+</ScrollArea>
 
-    // With spacing and outlined
-    <ScrollArea spacing="md" outlined className="h-48">
-      <div>Content with padding...</div>
-    </ScrollArea>
+// With padding via contentClassName
+<ScrollArea className="h-48" contentClassName="p-4">
+  Content with padding...
+</ScrollArea>
 
-    // With variant
-    <ScrollArea variant="muted" spacing="lg" outlined>
-      <div>Muted background content...</div>
-    </ScrollArea>
-  );
-}
+// With variant and outlined
+<ScrollArea variant="muted" outlined className="h-48">
+  <div className="p-4">Muted with border</div>
+</ScrollArea>
 ```
 
 ```ts
@@ -52,9 +45,6 @@ interface ScrollAreaProps extends HTMLAttributes<HTMLDivElement> {
   /** Content area class name */
   contentClassName?: string;
   variant?: "default" | "muted" | "primary" | "accent";
-  spacing?: "none" | "sm" | "md" | "lg" | "xl";
-  /** Full width mode (no container constraints) */
-  fullWidth?: boolean;
   /** Show thin border like Card */
   outlined?: boolean;
 }
@@ -62,11 +52,11 @@ interface ScrollAreaProps extends HTMLAttributes<HTMLDivElement> {
 
 ## Props
 
-| Prop               | Type                                            | Default     | Description                                |
-| ------------------ | ----------------------------------------------- | ----------- | ------------------------------------------ |
-| `className`        | `string`                                        | -           | CSS class for outer container              |
-| `contentClassName` | `string`                                        | -           | CSS class for inner scrollable viewport    |
-| `variant`          | `"default" \| "muted" \| "primary" \| "accent"` | `"default"` | Background color variant                   |
-| `spacing`          | `"none" \| "sm" \| "md" \| "lg" \| "xl"`        | `"none"`    | Inner padding size                         |
-| `fullWidth`        | `boolean`                                       | `true`      | Full width mode (no container constraints) |
-| `outlined`         | `boolean`                                       | `false`     | Show thin border with rounded corners      |
+| Prop               | Type                                            | Default     | Description                                                |
+| ------------------ | ----------------------------------------------- | ----------- | ---------------------------------------------------------- |
+| `className`        | `string`                                        | -           | CSS class for outer container (set height here)            |
+| `contentClassName` | `string`                                        | -           | CSS class for inner scrollable viewport (set padding here) |
+| `variant`          | `"default" \| "muted" \| "primary" \| "accent"` | `"default"` | Background color variant                                   |
+| `outlined`         | `boolean`                                       | `false`     | Show thin border with rounded corners                      |
+
+> **Note**: ScrollArea không có padding mặc định. Thêm padding qua `contentClassName` hoặc wrap content trong div với padding.
