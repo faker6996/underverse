@@ -318,7 +318,8 @@
         "size": "Kích thước item.",
         "divided": "Thêm đường phân cách giữa các item.",
         "inset": "Thêm padding bên trong quanh item.",
-        "hoverable": "Hiệu ứng hover cho item."
+        "hoverable": "Hiệu ứng hover cho item.",
+        "itemClassName": "Class áp dụng cho tất cả item (dùng để chỉnh padding)."
       },
       "listItem": {
         "as": "Element render cho item (li/div/a/button).",
@@ -328,7 +329,8 @@
         "label": "Tiêu đề/chuỗi chính.",
         "description": "Mô tả phụ phía dưới.",
         "leftIcon": "Icon bên trái.",
-        "rightIcon": "Icon bên phải."
+        "rightIcon": "Icon bên phải.",
+        "contentClassName": "Class cho nội dung bên trong (dùng để chỉnh padding)."
       },
       "timePicker": {
         "value": "Giá trị thời gian điều khiển (ví dụ '14:30' hoặc '02:30 PM').",

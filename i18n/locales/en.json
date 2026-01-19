@@ -325,7 +325,8 @@
         "size": "Item size.",
         "divided": "Add separators between items.",
         "inset": "Inner padding around items.",
-        "hoverable": "Highlight items on hover."
+        "hoverable": "Highlight items on hover.",
+        "itemClassName": "Class applied to all list items (useful for padding)."
       },
       "listItem": {
         "as": "Element to render as (li/div/a/button).",
@@ -335,7 +336,8 @@
         "label": "Primary text.",
         "description": "Secondary text below label.",
         "leftIcon": "Left icon component.",
-        "rightIcon": "Right icon component."
+        "rightIcon": "Right icon component.",
+        "contentClassName": "Class for inner content (useful for padding)."
       },
       "timePicker": {
         "value": "Controlled time value (e.g., '14:30' or '02:30 PM').",

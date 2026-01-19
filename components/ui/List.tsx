@@ -23,6 +23,8 @@ export interface ListProps extends React.HTMLAttributes<HTMLUListElement> {
   emptyText?: string;
   /** Make items more compact */
   dense?: boolean;
+  /** Class name customization for all list items */
+  itemClassName?: string;
 }
 
 export interface ListItemProps extends React.HTMLAttributes<HTMLLIElement> {
@@ -50,13 +52,16 @@ export interface ListItemProps extends React.HTMLAttributes<HTMLLIElement> {
   onExpandChange?: (expanded: boolean) => void;
   /** Content to show when expanded */
   expandContent?: React.ReactNode;
+  /** Custom class for inner content container (use for padding) */
+  contentClassName?: string;
 }
 
-const SIZE_STYLES: Record<Size, { itemPad: string; densePad: string; label: string; desc: string; icon: string; avatar: string }> = {
-  xs: { itemPad: "px-2 py-1.5", densePad: "px-2 py-1", label: "text-xs", desc: "text-[11px]", icon: "h-3.5 w-3.5", avatar: "h-6 w-6" },
-  sm: { itemPad: "px-3 py-2", densePad: "px-3 py-1.5", label: "text-[13px]", desc: "text-[12px]", icon: "h-4 w-4", avatar: "h-8 w-8" },
-  md: { itemPad: "px-4 py-2.5", densePad: "px-4 py-2", label: "text-sm", desc: "text-xs", icon: "h-5 w-5", avatar: "h-10 w-10" },
-  lg: { itemPad: "px-5 py-3", densePad: "px-5 py-2.5", label: "text-base", desc: "text-sm", icon: "h-5 w-5", avatar: "h-12 w-12" },
+// REMOVED 'itemPad' and 'densePad' to allow custom padding
+const SIZE_STYLES: Record<Size, { label: string; desc: string; icon: string; avatar: string }> = {
+  xs: { label: "text-xs", desc: "text-[11px]", icon: "h-3.5 w-3.5", avatar: "h-6 w-6" },
+  sm: { label: "text-[13px]", desc: "text-[12px]", icon: "h-4 w-4", avatar: "h-8 w-8" },
+  md: { label: "text-sm", desc: "text-xs", icon: "h-5 w-5", avatar: "h-10 w-10" },
+  lg: { label: "text-base", desc: "text-sm", icon: "h-5 w-5", avatar: "h-12 w-12" },
 };
 
 const BADGE_VARIANTS = {
@@ -70,8 +75,11 @@ const BADGE_VARIANTS = {
 // Skeleton component for loading state
 const ListItemSkeleton: React.FC<{ size: Size }> = ({ size }) => {
   const sz = SIZE_STYLES[size];
+  // Re-added padding for skeleton to look decent, or should we remove it too?
+  // Let's keep minimal padding for skeleton or user has to style it?
+  // Let's use a default padding for skeleton just so it's visible.
   return (
-    <div className={cn("flex items-center gap-3 animate-pulse", sz.itemPad)}>
+    <div className={cn("flex items-center gap-3 animate-pulse p-2")}>
       <div className={cn("rounded-full bg-muted shrink-0", sz.avatar)} />
       <div className="flex-1 space-y-2">
         <div className="h-4 bg-muted rounded w-3/4" />
@@ -96,10 +104,11 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
       emptyText,
       dense = false,
       className,
+      itemClassName, // New prop
       children,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const Comp: any = ordered ? "ol" : as;
     const childCount = React.Children.count(children);
@@ -119,7 +128,11 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
     // Loading state
     if (loading) {
       return (
-        <Comp ref={ref} className={cn("group/list", variantClasses[variant], inset && "p-1.5 md:p-2", divided && "divide-y divide-border/60", className)} {...rest}>
+        <Comp
+          ref={ref}
+          className={cn("group/list", variantClasses[variant], inset && "p-1.5 md:p-2", divided && "divide-y divide-border/60", className)}
+          {...rest}
+        >
           {Array.from({ length: loadingCount }).map((_, i) => (
             <ListItemSkeleton key={i} size={size} />
           ))}
@@ -145,7 +158,7 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
           inset && "p-1.5 md:p-2",
           divided && "divide-y divide-border/60",
           variant === "striped" && "[&>*:nth-child(even)]:bg-muted/30",
-          className
+          className,
         )}
         {...rest}
       >
@@ -154,10 +167,19 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
           const childClass = cn(
             (child.props as any)?.className,
             hoverable && variant !== "flush" && "hover:bg-accent/50 focus:bg-accent/60 focus:outline-none transition-colors",
-            variant === "flush" && "hover:bg-accent/30"
+            variant === "flush" && "hover:bg-accent/30",
           );
+
+          // Pass itemClassName to children as contentClassName if it's a ListItem?
+          // No, ListItem expects contentClassName for inner.
+          // If we pass className to ListItem, it goes to wrapper.
+          // Let's assume itemClassName is for the inner content mostly?
+          // Or let's pass it as contentClassName to ListItem.
+
           return React.cloneElement(child as any, {
             className: childClass,
+            // Pass global item class to contentClassName of ListItem
+            contentClassName: cn(itemClassName, (child.props as any)?.contentClassName),
             "data-first": idx === 0 ? "true" : undefined,
             "data-last": idx === childCount - 1 ? "true" : undefined,
             "data-size": size,
@@ -166,7 +188,7 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
         })}
       </Comp>
     );
-  }
+  },
 );
 
 ListRoot.displayName = "List";
@@ -191,20 +213,21 @@ export const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
       onExpandChange,
       expandContent,
       className,
+      contentClassName,
       children,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const [internalExpanded, setInternalExpanded] = React.useState(false);
     const isExpanded = controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
 
     const sizeAttr = (rest as any)["data-size"] as Size | undefined;
-    const denseAttr = (rest as any)["data-dense"] as string | undefined;
-    const isDense = denseAttr === "true";
-    const resolvedSize: Size = sizeAttr && (sizeAttr === "xs" || sizeAttr === "sm" || sizeAttr === "md" || sizeAttr === "lg") ? sizeAttr : "md";
+    const resolvedSize: Size = sizeAttr && ["xs", "sm", "md", "lg"].includes(sizeAttr) ? sizeAttr : "md";
     const sz = SIZE_STYLES[resolvedSize];
-    const padding = isDense ? sz.densePad : sz.itemPad;
+
+    // No default padding anymore!
+    // User must provide padding via contentClassName
 
     const toggleExpanded = () => {
       const newExpanded = !isExpanded;
@@ -232,18 +255,11 @@ export const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
 
     const inner = (
       <>
-        <div
-          className={cn("flex items-center gap-3", padding, "group/item relative")}
-          {...headerProps}
-        >
+        <div className={cn("flex items-center gap-3", contentClassName, "group/item relative")} {...headerProps}>
           {/* Avatar */}
           {avatar && (
             <div className={cn("shrink-0", sz.avatar)}>
-              {typeof avatar === "string" ? (
-                <img src={avatar} alt="" className={cn("rounded-full object-cover", sz.avatar)} />
-              ) : (
-                avatar
-              )}
+              {typeof avatar === "string" ? <img src={avatar} alt="" className={cn("rounded-full object-cover", sz.avatar)} /> : avatar}
             </div>
           )}
 
@@ -272,11 +288,7 @@ export const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
           {/* Right Icon or Collapsible Icon */}
           {collapsible ? (
             <span
-              className={cn(
-                "text-muted-foreground shrink-0 transition-transform cursor-pointer select-none",
-                sz.icon,
-                isExpanded && "rotate-90"
-              )}
+              className={cn("text-muted-foreground shrink-0 transition-transform cursor-pointer select-none", sz.icon, isExpanded && "rotate-90")}
             >
               <ChevronRight className={cn(sz.icon)} />
             </span>
@@ -289,19 +301,14 @@ export const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
           )}
         </div>
 
-        {/* Expanded Content */}
+        {/* Expanded Content - padding also removed here? */}
         {collapsible && isExpanded && expandContent && (
-          <div className={cn("border-t border-border/50 bg-muted/20", padding, "pt-3")}>{expandContent}</div>
+          <div className={cn("border-t border-border/50 bg-muted/20", contentClassName, "pt-3")}>{expandContent}</div>
         )}
       </>
     );
 
-    const baseCls = cn(
-      "relative w-full",
-      selected && "bg-primary/10 ring-1 ring-primary/30",
-      disabled && "opacity-60 cursor-not-allowed",
-      className
-    );
+    const baseCls = cn("relative w-full", selected && "bg-primary/10 ring-1 ring-primary/30", disabled && "opacity-60 cursor-not-allowed", className);
 
     if (href) {
       const A: any = as === "a" ? "a" : "a";
@@ -313,26 +320,14 @@ export const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
     }
     if (as === "button" && !collapsible) {
       return (
-        <button
-          ref={ref as any}
-          type="button"
-          className={cn(baseCls, "text-left block w-full")}
-          {...(rest as any)}
-        >
+        <button ref={ref as any} type="button" className={cn(baseCls, "text-left block w-full")} {...(rest as any)}>
           {inner}
         </button>
       );
     }
     if (collapsible) {
-      // For collapsible items, only the chevron icon handles toggle.
-      // The container itself is non-clickable so clicking expandContent
-      // doesn't collapse the section.
       return (
-        <div
-          ref={ref as any}
-          className={cn(baseCls, "text-left block w-full")}
-          {...(rest as any)}
-        >
+        <div ref={ref as any} className={cn(baseCls, "text-left block w-full")} {...(rest as any)}>
           {inner}
         </div>
       );
@@ -343,7 +338,7 @@ export const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
         {inner}
       </Comp>
     );
-  }
+  },
 );
 
 ListItem.displayName = "List.Item";

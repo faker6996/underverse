@@ -17,32 +17,32 @@ export default function ListExample() {
     <div className="space-y-8">
       {/* Variants */}
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-foreground/90">Variants</p>
+        <p className="text-sm font-semibold text-foreground/90">Variants (Custom padding applied via itemClassName)</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">Card</p>
-            <List variant="card" inset divided>
+            <p className="text-xs text-muted-foreground">Card (p-3)</p>
+            <List variant="card" inset divided itemClassName="p-3">
               <List.Item leftIcon={User} label="Jane Cooper" description="Product Manager" />
               <List.Item leftIcon={Mail} label="jane@company.com" />
             </List>
           </div>
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">Bordered</p>
-            <List variant="bordered" divided>
+            <p className="text-xs text-muted-foreground">Bordered (px-4 py-2)</p>
+            <List variant="bordered" divided itemClassName="px-4 py-2">
               <List.Item leftIcon={Settings} label="Settings" />
               <List.Item leftIcon={Bell} label="Notifications" />
             </List>
           </div>
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">Soft</p>
-            <List variant="soft" inset divided>
+            <p className="text-xs text-muted-foreground">Soft (p-2)</p>
+            <List variant="soft" inset divided itemClassName="p-2">
               <List.Item label="Profile" description="View and edit your profile" />
               <List.Item label="Security" description="Manage your security settings" />
             </List>
           </div>
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">Striped</p>
-            <List variant="striped" inset>
+            <p className="text-xs text-muted-foreground">Striped (py-2 px-3)</p>
+            <List variant="striped" inset itemClassName="py-2 px-3">
               <List.Item label="Row 1" description="Striped row" />
               <List.Item label="Row 2" description="Striped row" />
               <List.Item label="Row 3" description="Striped row" />
@@ -51,20 +51,20 @@ export default function ListExample() {
         </div>
       </div>
 
-      {/* Sizes */}
+      {/* Sizes - simulating sizes with custom padding */}
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-foreground/90">Sizes</p>
+        <p className="text-sm font-semibold text-foreground/90">Sizes (Manual Padding)</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">Extra Small</p>
-            <List variant="bordered" size="xs" divided>
+            <p className="text-xs text-muted-foreground">Small Padding (p-1)</p>
+            <List variant="bordered" size="xs" divided itemClassName="p-1">
               <List.Item leftIcon={User} label="Compact item" />
               <List.Item leftIcon={Mail} label="Another item" />
             </List>
           </div>
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">Large</p>
-            <List variant="bordered" size="lg" divided>
+            <p className="text-xs text-muted-foreground">Large Padding (p-6)</p>
+            <List variant="bordered" size="lg" divided itemClassName="p-6">
               <List.Item leftIcon={User} label="Large item" description="With more spacing" />
             </List>
           </div>
@@ -74,7 +74,7 @@ export default function ListExample() {
       {/* With Avatars */}
       <div className="space-y-3">
         <p className="text-sm font-semibold text-foreground/90">With Avatars</p>
-        <List variant="card" inset divided>
+        <List variant="card" inset divided itemClassName="p-4">
           <List.Item
             avatar="https://i.pravatar.cc/150?img=1"
             label="Eleanor Pena"
@@ -102,7 +102,7 @@ export default function ListExample() {
       {/* With Actions */}
       <div className="space-y-3">
         <p className="text-sm font-semibold text-foreground/90">With Action Buttons</p>
-        <List variant="bordered" inset divided>
+        <List variant="bordered" inset divided itemClassName="p-2">
           <List.Item
             leftIcon={User}
             label="User Profile"
@@ -131,10 +131,19 @@ export default function ListExample() {
         </List>
       </div>
 
+      {/* Custom Item Padding */}
+      <div className="space-y-3">
+        <p className="text-sm font-semibold text-foreground/90">Mixed Padding</p>
+        <List variant="bordered" divided itemClassName="p-2">
+          <List.Item label="Standard Item" description="Uses list-level padding (p-2)" />
+          <List.Item label="Custom Item" description="Uses contentClassName='p-6 bg-muted/10'" contentClassName="p-6 bg-muted/10" />
+        </List>
+      </div>
+
       {/* Collapsible Items */}
       <div className="space-y-3">
         <p className="text-sm font-semibold text-foreground/90">Collapsible Items</p>
-        <List variant="card" inset divided>
+        <List variant="card" inset divided itemClassName="p-4">
           <List.Item
             leftIcon={Settings}
             label="Account Settings"
@@ -174,7 +183,7 @@ export default function ListExample() {
       {/* Selectable List */}
       <div className="space-y-3">
         <p className="text-sm font-semibold text-foreground/90">Selectable List</p>
-        <List variant="outlined" inset divided>
+        <List variant="outlined" inset divided itemClassName="p-3">
           <List.Item
             as="button"
             onClick={() => setSelected(1)}
@@ -205,98 +214,51 @@ export default function ListExample() {
         </List>
       </div>
 
-      {/* Dense Mode */}
-      <div className="space-y-3">
-        <p className="text-sm font-semibold text-foreground/90">Dense Mode</p>
-        <List variant="bordered" dense divided>
-          <List.Item label="Compact Item 1" description="Less padding" />
-          <List.Item label="Compact Item 2" description="More items visible" />
-          <List.Item label="Compact Item 3" description="Efficient use of space" />
-          <List.Item label="Compact Item 4" description="Perfect for lists" />
-        </List>
-      </div>
-
       {/* Loading State */}
       <div className="space-y-3">
         <p className="text-sm font-semibold text-foreground/90">Loading State</p>
-        <List variant="card" inset loading loadingCount={4} />
+        <List variant="card" inset loading loadingCount={4} itemClassName="p-2" />
       </div>
 
       {/* Empty State */}
       <div className="space-y-3">
         <p className="text-sm font-semibold text-foreground/90">Empty State</p>
-        <List variant="bordered" emptyText="No items found" />
+        <List variant="bordered" emptyText="No items found" itemClassName="p-4" />
       </div>
     </div>
   );
 
   const code =
     `import { List } from '@underverse-ui/underverse'\n\n` +
-    `// Basic usage\n` +
-    `<List divided>\n` +
+    `// Basic usage with custom padding\n` +
+    `<List divided itemClassName="p-3">\n` +
     `  <List.Item leftIcon={User} label='Jane Cooper' description='Product Manager'/>\n` +
     `  <List.Item leftIcon={Mail} label='jane@company.com'/>\n` +
     `</List>\n\n` +
-    `// With avatars and badges\n` +
-    `<List variant='card' inset divided>\n` +
-    `  <List.Item\n` +
-    `    avatar='https://i.pravatar.cc/150?img=1'\n` +
-    `    label='Eleanor Pena'\n` +
-    `    description='Product Designer'\n` +
-    `    badge='Online'\n` +
-    `    badgeVariant='success'\n` +
+    `// Mixed padding\n` +
+    `<List divided itemClassName="p-2">\n` +
+    `  <List.Item label='Normal Item' />\n` +
+    `  <List.Item \n` +
+    `    label='Special Item' \n` +
+    `    contentClassName="p-6 bg-muted/10" \n` +
     `  />\n` +
-    `</List>\n\n` +
-    `// Collapsible items\n` +
-    `<List variant='card' inset>\n` +
-    `  <List.Item\n` +
-    `    label='Account Settings'\n` +
-    `    collapsible\n` +
-    `    expandContent={<div>Expanded content here</div>}\n` +
-    `  />\n` +
-    `</List>\n\n` +
-    `// With actions\n` +
-    `<List variant='bordered'>\n` +
-    `  <List.Item\n` +
-    `    label='Item'\n` +
-    `    action={<Button size='sm'>Edit</Button>}\n` +
-    `  />\n` +
-    `</List>\n\n` +
-    `// Loading state\n` +
-    `<List loading loadingCount={5} />\n\n` +
-    `// Empty state\n` +
-    `<List emptyText='No items found' />`;
+    `</List>\n\n`;
 
   const rows: PropsRow[] = [
     { property: "as", description: t("props.list.as"), type: "'ul' | 'ol' | 'div'", default: "'ul'" },
-    { property: "ordered", description: t("props.list.ordered"), type: "boolean", default: "false" },
-    { property: "variant", description: t("props.list.variant"), type: "'plain' | 'outlined' | 'soft' | 'bordered' | 'card' | 'flush' | 'striped'", default: "'plain'" },
-    { property: "size", description: t("props.list.size"), type: "'xs' | 'sm' | 'md' | 'lg'", default: "'md'" },
+    { property: "variant", description: t("props.list.variant"), type: "'plain' | 'outlined' | ...", default: "'plain'" },
+    { property: "itemClassName", description: "Class for all list items padding", type: "string", default: "-" },
     { property: "divided", description: t("props.list.divided"), type: "boolean", default: "false" },
-    { property: "inset", description: t("props.list.inset"), type: "boolean", default: "false" },
-    { property: "hoverable", description: t("props.list.hoverable"), type: "boolean", default: "true" },
     { property: "loading", description: "Show loading skeleton", type: "boolean", default: "false" },
-    { property: "loadingCount", description: "Number of skeleton items", type: "number", default: "3" },
     { property: "emptyText", description: "Empty state text", type: "string", default: "-" },
-    { property: "dense", description: "Compact mode with less padding", type: "boolean", default: "false" },
   ];
   const itemRows: PropsRow[] = [
-    { property: "as", description: t("props.listItem.as"), type: "'li' | 'div' | 'a' | 'button'", default: "'li'" },
-    { property: "selected", description: t("props.listItem.selected"), type: "boolean", default: "false" },
-    { property: "disabled", description: t("props.listItem.disabled"), type: "boolean", default: "false" },
-    { property: "href", description: t("props.listItem.href"), type: "string", default: "-" },
     { property: "label", description: t("props.listItem.label"), type: "ReactNode", default: "-" },
-    { property: "description", description: t("props.listItem.description"), type: "ReactNode", default: "-" },
+    { property: "contentClassName", description: "Class for inner content container", type: "string", default: "-" },
     { property: "leftIcon", description: t("props.listItem.leftIcon"), type: "React.ComponentType", default: "-" },
-    { property: "rightIcon", description: t("props.listItem.rightIcon"), type: "React.ComponentType", default: "-" },
     { property: "avatar", description: "Avatar image URL or ReactNode", type: "string | ReactNode", default: "-" },
-    { property: "badge", description: "Badge/tag content", type: "ReactNode", default: "-" },
-    { property: "badgeVariant", description: "Badge color variant", type: "'default' | 'success' | 'warning' | 'error' | 'info'", default: "'default'" },
     { property: "action", description: "Action button(s) shown on hover", type: "ReactNode", default: "-" },
     { property: "collapsible", description: "Make item collapsible", type: "boolean", default: "false" },
-    { property: "expanded", description: "Controlled expanded state", type: "boolean", default: "-" },
-    { property: "onExpandChange", description: "Callback when expanded changes", type: "(expanded: boolean) => void", default: "-" },
-    { property: "expandContent", description: "Content to show when expanded", type: "ReactNode", default: "-" },
   ];
   const docs = (
     <div className="space-y-6">

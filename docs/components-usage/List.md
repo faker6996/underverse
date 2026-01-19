@@ -3,10 +3,11 @@
 Source: `components/ui/List.tsx`
 
 Exports:
+
 - List
 - ListItem
 
-Note: Usage snippets are minimal; fill required props from the props type below.
+Note: List items now have **no default padding**. You must provide padding via `itemClassName` on `List` or `contentClassName` on `ListItem`.
 
 ## List
 
@@ -16,11 +17,12 @@ Props type: `ListProps`
 import { List } from "@underverse-ui/underverse";
 
 export function Example() {
-  return <List />;
+  // Add padding via itemClassName
+  return <List itemClassName="p-4" />;
 }
 ```
 
-Vi du day du:
+Ví dụ đầy đủ:
 
 ```tsx
 import React from "react";
@@ -28,7 +30,8 @@ import { List, ListItem } from "@underverse-ui/underverse";
 
 export function Example() {
   return (
-    <List variant="card" divided>
+    // Custom padding using itemClassName
+    <List variant="card" divided itemClassName="px-4 py-3">
       <ListItem label="Don hang #1024" description="Dang xu ly" />
       <ListItem label="Don hang #1025" description="Da giao" />
     </List>
@@ -53,6 +56,8 @@ export interface ListProps extends React.HTMLAttributes<HTMLUListElement> {
   emptyText?: string;
   /** Make items more compact */
   dense?: boolean;
+  /** Class name customization for all list items padding */
+  itemClassName?: string;
 }
 ```
 
@@ -64,11 +69,11 @@ Props type: `ListItemProps`
 import { ListItem } from "@underverse-ui/underverse";
 
 export function Example() {
-  return <ListItem />;
+  return <ListItem contentClassName="p-4" />;
 }
 ```
 
-Vi du day du:
+Ví dụ đầy đủ:
 
 ```tsx
 import React from "react";
@@ -76,8 +81,10 @@ import { List, ListItem } from "@underverse-ui/underverse";
 
 export function Example() {
   return (
-    <List>
+    <List itemClassName="p-4">
       <ListItem label="Thanh toan" description="Da xac nhan" />
+      {/* Override padding for specific item */}
+      <ListItem label="Special Item" contentClassName="p-8 bg-muted" />
     </List>
   );
 }
@@ -109,5 +116,7 @@ export interface ListItemProps extends React.HTMLAttributes<HTMLLIElement> {
   onExpandChange?: (expanded: boolean) => void;
   /** Content to show when expanded */
   expandContent?: React.ReactNode;
+  /** Custom class for inner content container (use for padding) */
+  contentClassName?: string;
 }
 ```

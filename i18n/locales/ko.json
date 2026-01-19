@@ -318,7 +318,8 @@
         "size": "아이템 크기.",
         "divided": "아이템 사이 구분선 추가.",
         "inset": "아이템 주변 내부 패딩.",
-        "hoverable": "호버 시 하이라이트."
+        "hoverable": "호버 시 하이라이트.",
+        "itemClassName": "모든 항목에 적용되는 클래스(패딩 조정용)."
       },
       "listItem": {
         "as": "아이템 렌더링 엘리먼트(li/div/a/button).",
@@ -328,7 +329,8 @@
         "label": "주 텍스트.",
         "description": "라벨 아래의 보조 텍스트.",
         "leftIcon": "왼쪽 아이콘 컴포넌트.",
-        "rightIcon": "오른쪽 아이콘 컴포넌트."
+        "rightIcon": "오른쪽 아이콘 컴포넌트.",
+        "contentClassName": "내부 콘텐츠 클래스(패딩 조정용)."
       },
       "timePicker": {
         "value": "제어되는 시간 값(예: '14:30' 또는 '02:30 PM').",
