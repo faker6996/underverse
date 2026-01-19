@@ -1,6 +1,8 @@
 {
   "Common": {
     "close": "Đóng",
+    "noData": "Không có dữ liệu",
+    "loading": "Đang tải...",
     "closeAlert": "Đóng cảnh báo",
     "notifications": "Thông báo",
     "newNotification": "Mới",
@@ -48,6 +50,11 @@
     "placeholder": "Chọn ngày",
     "today": "Hôm nay",
     "clear": "Xóa"
+  },
+  "DateTimePicker": {
+    "time": "Thời gian",
+    "clear": "Xóa",
+    "done": "Xong"
   },
   "Pagination": {
     "navigationLabel": "Điều hướng phân trang",
@@ -245,6 +252,9 @@
       },
       "tagInput": {
         "title": "TagInput"
+      },
+      "dateTimePicker": {
+        "title": "DateTimePicker"
       },
       "datePicker": {
         "title": "DatePicker (with i18n)"

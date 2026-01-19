@@ -44,6 +44,11 @@
     "today": "Hôm nay",
     "clear": "Xóa"
   },
+  "DateTimePicker": {
+    "time": "Thời gian",
+    "clear": "Xóa",
+    "done": "Xong"
+  },
   "Pagination": {
     "navigationLabel": "Điều hướng phân trang",
     "showingResults": "Hiển thị {startItem}–{endItem} trong tổng {totalItems}",

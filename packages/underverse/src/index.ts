@@ -52,6 +52,8 @@ export { ScrollArea } from "../../../components/ui/ScrollArea";
 // Pickers / inputs
 export { DatePicker, DateRangePicker } from "../../../components/ui/DatePicker";
 export type { DatePickerProps } from "../../../components/ui/DatePicker";
+export { DateTimePicker } from "../../../components/ui/DateTimePicker";
+export type { DateTimePickerProps } from "../../../components/ui/DateTimePicker";
 export { default as TimePicker } from "../../../components/ui/TimePicker";
 export type { TimePickerProps } from "../../../components/ui/TimePicker";
 export { default as Calendar } from "../../../components/ui/Calendar";

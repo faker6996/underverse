@@ -60,6 +60,7 @@ const tocGroups: TocGroup[] = [
     labelKey: "tocGroups.pickers",
     sections: [
       { id: "date-picker", labelKey: "sections.datePicker.title" },
+      { id: "date-time-picker", labelKey: "sections.dateTimePicker.title" },
       { id: "time-picker", labelKey: "sections.timePicker.title" },
       { id: "calendar", labelKey: "sections.calendar.title" },
       { id: "color-picker", labelKey: "sections.colorPicker.title" },
@@ -215,7 +216,7 @@ export default function TableOfContents() {
           setActiveId(visible[0].target.id);
         }
       },
-      { rootMargin: "-80px 0px -70% 0px", threshold: 0 }
+      { rootMargin: "-80px 0px -70% 0px", threshold: 0 },
     );
 
     allSections.forEach(({ id }) => {
@@ -267,7 +268,7 @@ export default function TableOfContents() {
         window.history.pushState(null, "", `#${id}`);
       }
     },
-    [setActiveId]
+    [setActiveId],
   );
 
   const toggleGroup = useCallback((key: string) => {
@@ -323,7 +324,7 @@ export default function TableOfContents() {
                   className={cn(
                     "flex items-center gap-1.5 w-full text-left text-xs font-medium py-1.5 px-2 -ml-px border-l-2 transition-all",
                     "hover:text-foreground",
-                    hasActiveItem ? "border-primary/50 text-foreground" : "border-transparent text-muted-foreground"
+                    hasActiveItem ? "border-primary/50 text-foreground" : "border-transparent text-muted-foreground",
                   )}
                 >
                   {!isSearching && (isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />)}
@@ -342,7 +343,7 @@ export default function TableOfContents() {
                           className={cn(
                             "block w-full text-left text-xs py-1 px-2 -ml-px border-l-2 transition-all rounded-r-sm",
                             "hover:text-primary hover:border-primary/50 hover:bg-primary/5",
-                            activeId === id ? "border-primary text-primary font-medium bg-primary/10" : "border-transparent text-muted-foreground"
+                            activeId === id ? "border-primary text-primary font-medium bg-primary/10" : "border-transparent text-muted-foreground",
                           )}
                         >
                           {t(labelKey)}

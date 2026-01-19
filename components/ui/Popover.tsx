@@ -5,18 +5,119 @@ import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils/cn";
 import { useShadCNAnimations } from "@/lib/utils/shadcn-animations";
 
+type PopoverPlacement = "top" | "bottom" | "left" | "right" | "top-start" | "bottom-start" | "top-end" | "bottom-end";
+
 interface PopoverProps {
   trigger: React.ReactElement;
   children: React.ReactNode;
   className?: string;
   contentClassName?: string;
-  placement?: "top" | "bottom" | "left" | "right" | "top-start" | "bottom-start" | "top-end" | "bottom-end";
+  placement?: PopoverPlacement;
   modal?: boolean;
   disabled?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   matchTriggerWidth?: boolean;
   contentWidth?: number; // optional fixed width
+}
+
+type Side = "top" | "bottom" | "left" | "right";
+type Align = "start" | "end";
+
+function normalizePlacement(placement: PopoverPlacement): { side: Side; align: Align } {
+  switch (placement) {
+    case "top":
+      return { side: "top", align: "start" };
+    case "bottom":
+      return { side: "bottom", align: "start" };
+    case "left":
+      return { side: "left", align: "start" };
+    case "right":
+      return { side: "right", align: "start" };
+    default: {
+      const [side, align] = placement.split("-") as [Side, Align];
+      return { side, align };
+    }
+  }
+}
+
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+
+function overflowAmount(left: number, width: number, viewportWidth: number, padding: number) {
+  const min = padding;
+  const max = viewportWidth - padding;
+  const overflowLeft = Math.max(0, min - left);
+  const overflowRight = Math.max(0, left + width - max);
+  return overflowLeft + overflowRight;
+}
+
+function computePopoverPosition(args: {
+  triggerRect: DOMRect;
+  contentSize: { width: number; height: number };
+  placement: PopoverPlacement;
+  offset: number;
+  padding: number;
+  viewport: { width: number; height: number };
+}): { top: number; left: number; side: Side; align: Align } {
+  const { triggerRect, contentSize, placement, offset, padding, viewport } = args;
+  let { side, align } = normalizePlacement(placement);
+
+  // Flip side if the preferred side doesn't fit.
+  if (side === "bottom") {
+    const bottomTop = triggerRect.bottom + offset;
+    const overflowsBottom = bottomTop + contentSize.height > viewport.height - padding;
+    const topTop = triggerRect.top - offset - contentSize.height;
+    const fitsTop = topTop >= padding;
+    if (overflowsBottom && fitsTop) side = "top";
+  } else if (side === "top") {
+    const topTop = triggerRect.top - offset - contentSize.height;
+    const overflowsTop = topTop < padding;
+    const bottomTop = triggerRect.bottom + offset;
+    const fitsBottom = bottomTop + contentSize.height <= viewport.height - padding;
+    if (overflowsTop && fitsBottom) side = "bottom";
+  } else if (side === "right") {
+    const rightLeft = triggerRect.right + offset;
+    const overflowsRight = rightLeft + contentSize.width > viewport.width - padding;
+    const leftLeft = triggerRect.left - offset - contentSize.width;
+    const fitsLeft = leftLeft >= padding;
+    if (overflowsRight && fitsLeft) side = "left";
+  } else if (side === "left") {
+    const leftLeft = triggerRect.left - offset - contentSize.width;
+    const overflowsLeft = leftLeft < padding;
+    const rightLeft = triggerRect.right + offset;
+    const fitsRight = rightLeft + contentSize.width <= viewport.width - padding;
+    if (overflowsLeft && fitsRight) side = "right";
+  }
+
+  let top = 0;
+  let left = 0;
+
+  if (side === "top" || side === "bottom") {
+    const leftStart = triggerRect.left;
+    const leftEnd = triggerRect.right - contentSize.width;
+
+    // If requested align overflows, choose the alternative align if it fits better.
+    const startOverflow = overflowAmount(leftStart, contentSize.width, viewport.width, padding);
+    const endOverflow = overflowAmount(leftEnd, contentSize.width, viewport.width, padding);
+    if (align === "start" && startOverflow > 0 && endOverflow < startOverflow) align = "end";
+    if (align === "end" && endOverflow > 0 && startOverflow < endOverflow) align = "start";
+
+    left = align === "end" ? leftEnd : leftStart;
+    top = side === "top" ? triggerRect.top - offset - contentSize.height : triggerRect.bottom + offset;
+
+    left = clamp(left, padding, viewport.width - contentSize.width - padding);
+    top = clamp(top, padding, viewport.height - contentSize.height - padding);
+
+    return { top, left, side, align };
+  }
+
+  // Left/right placements: align to trigger top by default and clamp to viewport.
+  top = triggerRect.top;
+  left = side === "left" ? triggerRect.left - offset - contentSize.width : triggerRect.right + offset;
+  left = clamp(left, padding, viewport.width - contentSize.width - padding);
+  top = clamp(top, padding, viewport.height - contentSize.height - padding);
+
+  return { top, left, side, align };
 }
 
 export const Popover: React.FC<PopoverProps> = ({
@@ -32,81 +133,109 @@ export const Popover: React.FC<PopoverProps> = ({
   matchTriggerWidth = false,
   contentWidth
 }) => {
+  const isControlled = open !== undefined;
   const [internalOpen, setInternalOpen] = React.useState(false);
-  const [dropdownPosition, setDropdownPosition] = React.useState<{top: number, left: number, width?: number, alignEnd?: boolean} | null>(null);
+  const [dropdownPosition, setDropdownPosition] = React.useState<{ top: number; left: number; side: Side; align: Align } | null>(null);
+  const [lastTriggerRect, setLastTriggerRect] = React.useState<Pick<DOMRect, "width"> | null>(null);
   const triggerRef = React.useRef<HTMLElement>(null);
+  const popoverRef = React.useRef<HTMLDivElement>(null);
 
   // Inject ShadCN animations
   useShadCNAnimations();
-  
-  const isOpen = open !== undefined ? open : internalOpen;
-  const setIsOpen = onOpenChange || setInternalOpen;
 
-  // Calculate positioning synchronously on open to avoid flicker
-  const calculatePosition = React.useCallback(() => {
-    if (!triggerRef.current) return null;
-    const rect = triggerRef.current.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+  const isOpen = isControlled ? (open as boolean) : internalOpen;
+  const setIsOpen = React.useCallback(
+    (next: boolean) => {
+      if (!isControlled) setInternalOpen(next);
+      onOpenChange?.(next);
+    },
+    [isControlled, onOpenChange],
+  );
 
-    let top = rect.bottom + scrollTop + 4;
-    let left = rect.left + scrollLeft;
-    let alignEnd = false;
-    const width = matchTriggerWidth ? rect.width : contentWidth;
+  const offset = 4;
+  const padding = 8;
 
-    switch (placement) {
-      case 'top':
-      case 'top-start':
-        top = rect.top + scrollTop - 4;
-        break;
-      case 'top-end':
-        top = rect.top + scrollTop - 4;
-        left = rect.right + scrollLeft;
-        alignEnd = true;
-        break;
-      case 'bottom':
-      case 'bottom-start':
-        top = rect.bottom + scrollTop + 4;
-        break;
-      case 'bottom-end':
-        top = rect.bottom + scrollTop + 4;
-        left = rect.right + scrollLeft;
-        alignEnd = true;
-        break;
-      case 'left':
-        top = rect.top + scrollTop;
-        left = rect.left + scrollLeft - 4;
-        break;
-      case 'right':
-        top = rect.top + scrollTop;
-        left = rect.right + scrollLeft + 4;
-        break;
-    }
+  const renderedWidth = matchTriggerWidth ? lastTriggerRect?.width : contentWidth;
 
-    return {
-      top,
-      left,
-      width,
-      alignEnd,
+  const updatePosition = React.useCallback(() => {
+    const triggerEl = triggerRef.current;
+    const popoverEl = popoverRef.current;
+    if (!triggerEl || !popoverEl) return;
+
+    const triggerRect = triggerEl.getBoundingClientRect();
+    // Use offset sizes to avoid transform-based measurement jitter during open animations.
+    const measuredWidth = popoverEl.offsetWidth;
+    const measuredHeight = popoverEl.offsetHeight;
+    const contentRect = popoverEl.getBoundingClientRect();
+    const contentWidth = measuredWidth || contentRect.width;
+    const contentHeight = measuredHeight || contentRect.height;
+
+    const next = computePopoverPosition({
+      triggerRect,
+      contentSize: { width: contentWidth, height: contentHeight },
+      placement,
+      offset,
+      padding,
+      viewport: { width: window.innerWidth, height: window.innerHeight },
+    });
+
+    setDropdownPosition(next);
+  }, [placement]);
+
+  // Compute a stable position before the first paint when opening.
+  React.useLayoutEffect(() => {
+    if (!isOpen) return;
+    updatePosition();
+    let raf1 = 0;
+    let raf2 = 0;
+    raf1 = window.requestAnimationFrame(() => {
+      updatePosition();
+      raf2 = window.requestAnimationFrame(() => updatePosition());
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
     };
-  }, [placement, matchTriggerWidth, contentWidth]);
+  }, [isOpen, updatePosition, renderedWidth]);
 
   // Reposition on resize/scroll while open
   React.useEffect(() => {
     if (!isOpen) return;
+    let raf = 0;
     const handler = () => {
-      const pos = calculatePosition();
-      if (pos) setDropdownPosition(pos);
+      cancelAnimationFrame(raf);
+      raf = window.requestAnimationFrame(() => updatePosition());
     };
-    window.addEventListener('resize', handler);
-    // With absolute positioning, scrolling the page moves the popover along.
-    // Still, listen to scroll to adjust for nested scrolling containers.
-    window.addEventListener('scroll', handler, true);
+    handler();
+    window.addEventListener("resize", handler);
+    // Listen to scroll in capture phase to support nested scrolling containers.
+    window.addEventListener("scroll", handler, true);
     return () => {
-      window.removeEventListener('resize', handler);
-      window.removeEventListener('scroll', handler, true);
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", handler);
+      window.removeEventListener("scroll", handler, true);
     };
-  }, [isOpen, calculatePosition]);
+  }, [isOpen, updatePosition]);
+
+  // Track content size changes to avoid late "jump" after first render.
+  React.useEffect(() => {
+    if (!isOpen) return;
+    if (!popoverRef.current) return;
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => updatePosition());
+    ro.observe(popoverRef.current);
+    return () => ro.disconnect();
+  }, [isOpen, updatePosition]);
+
+  // Reset position on open/close and snapshot trigger width early.
+  React.useLayoutEffect(() => {
+    if (!isOpen) {
+      setDropdownPosition(null);
+      return;
+    }
+    const rect = triggerRef.current?.getBoundingClientRect();
+    if (rect) setLastTriggerRect({ width: rect.width });
+  }, [isOpen]);
 
   // Handle clicks outside
   React.useEffect(() => {
@@ -114,12 +243,12 @@ export const Popover: React.FC<PopoverProps> = ({
 
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (triggerRef.current && !triggerRef.current.contains(target)) {
-        const dropdown = document.querySelector('[data-popover]') as Element;
-        if (dropdown && !dropdown.contains(target)) {
-          setIsOpen(false);
-        }
-      }
+      const triggerEl = triggerRef.current;
+      const popoverEl = popoverRef.current;
+      if (!triggerEl || !popoverEl) return;
+      if (triggerEl.contains(target)) return;
+      if (popoverEl.contains(target)) return;
+      setIsOpen(false);
     };
 
     const handleEscape = (event: KeyboardEvent) => {
@@ -143,46 +272,60 @@ export const Popover: React.FC<PopoverProps> = ({
     if (!disabled) {
       const next = !isOpen;
       if (next) {
-        const pos = calculatePosition();
-        if (pos) setDropdownPosition(pos);
+        const rect = triggerRef.current?.getBoundingClientRect();
+        if (rect) setLastTriggerRect({ width: rect.width });
+        setDropdownPosition(null);
       }
       setIsOpen(next);
     }
   };
 
-  const popoverContent = isOpen && dropdownPosition ? (
-    <div
-      data-popover
-      style={{
-        position: 'absolute',
-        top: dropdownPosition?.top || 0,
-        left: dropdownPosition?.left || 0,
-        width: dropdownPosition?.width || undefined,
-        transform: dropdownPosition?.alignEnd ? 'translateX(-100%)' : undefined,
-        zIndex: 9999,
-      }}
-      data-state="open"
-      role="dialog"
-      aria-modal={modal || undefined}
-      className={cn(
-        "z-9999",
-        // shadcn-like enter animation
-        "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
-        className
-      )}
-    >
-      <div
-        className={cn(
-          "rounded-md border bg-popover text-popover-foreground shadow-md",
-          "backdrop-blur-sm bg-popover/95 border-border/60 p-4",
-          contentClassName
-        )}
-        tabIndex={-1}
-      >
-        {children}
-      </div>
-    </div>
-  ) : null;
+  const popoverContent =
+    isOpen && typeof window !== "undefined"
+      ? createPortal(
+          <div
+            ref={popoverRef}
+            data-popover
+            style={{
+              position: "fixed",
+              top: dropdownPosition?.top ?? 0,
+              left: dropdownPosition?.left ?? 0,
+              width: renderedWidth ?? undefined,
+              zIndex: 9999,
+              visibility: dropdownPosition ? "visible" : "hidden",
+              pointerEvents: dropdownPosition ? "auto" : "none",
+              transformOrigin: (() => {
+                const { side, align } = dropdownPosition ?? normalizePlacement(placement);
+                if (side === "top") return `${align === "end" ? "right" : "left"} bottom`;
+                if (side === "bottom") return `${align === "end" ? "right" : "left"} top`;
+                if (side === "left") return "right top";
+                return "left top";
+              })(),
+            }}
+            data-state="open"
+            role="dialog"
+            aria-modal={modal || undefined}
+            className={cn(
+              "z-9999",
+              // shadcn-like enter animation
+              "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+              className,
+            )}
+          >
+            <div
+              className={cn(
+                "rounded-md border bg-popover text-popover-foreground shadow-md",
+                "backdrop-blur-sm bg-popover/95 border-border/60 p-4",
+                contentClassName,
+              )}
+              tabIndex={-1}
+            >
+              {children}
+            </div>
+          </div>,
+          document.body,
+        )
+      : null;
 
   return (
     <>
@@ -207,7 +350,7 @@ export const Popover: React.FC<PopoverProps> = ({
           )
         } as any);
       })()}
-      {isOpen && dropdownPosition && typeof window !== 'undefined' && createPortal(popoverContent, document.body)}
+      {popoverContent}
     </>
   );
 };

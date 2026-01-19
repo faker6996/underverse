@@ -44,6 +44,11 @@
     "today": "Today",
     "clear": "Clear"
   },
+  "DateTimePicker": {
+    "time": "Time",
+    "clear": "Clear",
+    "done": "Done"
+  },
   "Pagination": {
     "navigationLabel": "Pagination navigation",
     "showingResults": "Showing {startItem}–{endItem} of {totalItems}",

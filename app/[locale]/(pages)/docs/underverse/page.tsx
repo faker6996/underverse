@@ -50,6 +50,7 @@ const TagInputExample = dynamicImport(() => import("./_examples/TagInputExample"
 const DatePickerExample = dynamicImport(() => import("./_examples/DatePickerExample"), { ssr: false });
 const ColorPickerExample = dynamicImport(() => import("./_examples/ColorPickerExample"), { ssr: false });
 const TimePickerExample = dynamicImport(() => import("./_examples/TimePickerExample"), { ssr: false });
+const DateTimePickerExample = dynamicImport(() => import("./_examples/DateTimePickerExample"), { ssr: false });
 const CalendarExample = dynamicImport(() => import("./_examples/CalendarExample"), { ssr: false });
 const PaginationExample = dynamicImport(() => import("./_examples/PaginationExample"), { ssr: false });
 const ImageUploadExample = dynamicImport(() => import("./_examples/ImageUploadExample"), { ssr: false });
@@ -121,12 +122,12 @@ function DocsInner() {
               <DocSection id="install" title={t("sections.install.title")}>
                 <CodeBlock
                   code={`# ${t("sections.install.npmComment")}\nnpm i @underverse-ui/underverse\n\n# ${t(
-                    "sections.install.peerDepsComment"
+                    "sections.install.peerDepsComment",
                   )}\nnpm i react react-dom next next-intl --save`}
                 />
                 <CodeBlock
                   code={`// ${t(
-                    "sections.install.usageComment"
+                    "sections.install.usageComment",
                   )}\nimport { Button, Badge, Modal, Tabs, ToastProvider, useToast } from '@underverse-ui/underverse';`}
                 />
               </DocSection>
@@ -202,6 +203,10 @@ function DocsInner() {
 
               <DocSection id="time-picker" title={t("sections.timePicker.title")}>
                 <TimePickerExample />
+              </DocSection>
+
+              <DocSection id="date-time-picker" title={t("sections.dateTimePicker.title")}>
+                <DateTimePickerExample />
               </DocSection>
 
               <DocSection id="calendar" title={t("sections.calendar.title")}>

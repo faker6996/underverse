@@ -134,7 +134,7 @@ export default function TimePicker({
   const initial: Parts =
     parseTime(isControlled ? value : defaultValue, format, includeSeconds) ||
     (format === "12"
-      ? { h: ((now.getHours() % 12) || 12), m: now.getMinutes(), s: now.getSeconds(), p: now.getHours() >= 12 ? "PM" : "AM" }
+      ? { h: now.getHours() % 12 || 12, m: now.getMinutes(), s: now.getSeconds(), p: now.getHours() >= 12 ? "PM" : "AM" }
       : { h: now.getHours(), m: now.getMinutes(), s: now.getSeconds() });
 
   const [open, setOpen] = React.useState(false);
@@ -174,38 +174,44 @@ export default function TimePicker({
   }, [open, parts.h, parts.m, parts.s, minuteStep, secondStep, includeSeconds, animate]);
 
   // Check if time is disabled
-  const isTimeDisabled = React.useCallback((timeStr: string): boolean => {
-    if (!disabledTimes) return false;
-    if (typeof disabledTimes === "function") return disabledTimes(timeStr);
-    return disabledTimes.includes(timeStr);
-  }, [disabledTimes]);
+  const isTimeDisabled = React.useCallback(
+    (timeStr: string): boolean => {
+      if (!disabledTimes) return false;
+      if (typeof disabledTimes === "function") return disabledTimes(timeStr);
+      return disabledTimes.includes(timeStr);
+    },
+    [disabledTimes],
+  );
 
   // Check if time is within range
-  const isTimeInRange = React.useCallback((timeStr: string): boolean => {
-    if (!minTime && !maxTime) return true;
-    const parsed = parseTime(timeStr, format, includeSeconds);
-    if (!parsed) return true;
+  const isTimeInRange = React.useCallback(
+    (timeStr: string): boolean => {
+      if (!minTime && !maxTime) return true;
+      const parsed = parseTime(timeStr, format, includeSeconds);
+      if (!parsed) return true;
 
-    if (minTime) {
-      const min = parseTime(minTime, format, includeSeconds);
-      if (min) {
-        const currentMinutes = parsed.h * 60 + parsed.m;
-        const minMinutes = min.h * 60 + min.m;
-        if (currentMinutes < minMinutes) return false;
+      if (minTime) {
+        const min = parseTime(minTime, format, includeSeconds);
+        if (min) {
+          const currentMinutes = parsed.h * 60 + parsed.m;
+          const minMinutes = min.h * 60 + min.m;
+          if (currentMinutes < minMinutes) return false;
+        }
       }
-    }
 
-    if (maxTime) {
-      const max = parseTime(maxTime, format, includeSeconds);
-      if (max) {
-        const currentMinutes = parsed.h * 60 + parsed.m;
-        const maxMinutes = max.h * 60 + max.m;
-        if (currentMinutes > maxMinutes) return false;
+      if (maxTime) {
+        const max = parseTime(maxTime, format, includeSeconds);
+        if (max) {
+          const currentMinutes = parsed.h * 60 + parsed.m;
+          const maxMinutes = max.h * 60 + max.m;
+          if (currentMinutes > maxMinutes) return false;
+        }
       }
-    }
 
-    return true;
-  }, [minTime, maxTime, format, includeSeconds]);
+      return true;
+    },
+    [minTime, maxTime, format, includeSeconds],
+  );
 
   const emit = (next: Parts | undefined) => {
     const timeStr = next ? formatTime(next, format, includeSeconds) : undefined;
@@ -320,7 +326,7 @@ export default function TimePicker({
     }
   };
 
-  const hours: number[] = format === "24" ? Array.from({ length: 24 }, (_, i) => i) : Array.from({ length: 12 }, (_, i) => (i + 1));
+  const hours: number[] = format === "24" ? Array.from({ length: 24 }, (_, i) => i) : Array.from({ length: 12 }, (_, i) => i + 1);
   const minutes: number[] = Array.from({ length: Math.ceil(60 / minuteStep) }, (_, i) => Math.min(59, i * minuteStep));
   const seconds: number[] = Array.from({ length: Math.ceil(60 / secondStep) }, (_, i) => Math.min(59, i * secondStep));
 
@@ -335,44 +341,50 @@ export default function TimePicker({
 
   const display = formatTime(parts, format, includeSeconds);
 
-  const trigger = variant === "inline" ? null : (
-    <button
-      type="button"
-      disabled={disabled}
-      aria-label="Select time"
-      aria-haspopup="dialog"
-      aria-expanded={open}
-      className={cn(
-        "flex w-full items-center justify-between border bg-background",
-        sz.height,
-        sz.padding,
-        sz.text,
-        radiusClass,
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-        "disabled:opacity-50 disabled:cursor-not-allowed",
-        "transition-all duration-200",
-        error && "border-destructive focus-visible:ring-destructive",
-        success && "border-green-500 focus-visible:ring-green-500",
-        !error && !success && "border-input hover:bg-accent/5",
-        animate && !disabled && "hover:shadow-md",
-        className
-      )}
-    >
-      <div className="flex items-center gap-2">
-        <Clock className={cn(sz.icon, error ? "text-destructive" : success ? "text-green-500" : "text-muted-foreground")} />
-        <span className={cn("truncate", !value && !defaultValue && "text-muted-foreground")}>
-          {value || defaultValue ? display : placeholder}
+  const trigger =
+    variant === "inline" ? null : (
+      <button
+        type="button"
+        disabled={disabled}
+        aria-label="Select time"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        className={cn(
+          "flex w-full items-center justify-between border bg-background",
+          sz.height,
+          sz.padding,
+          sz.text,
+          radiusClass,
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "disabled:opacity-50 disabled:cursor-not-allowed",
+          "transition-all duration-200",
+          error && "border-destructive focus-visible:ring-destructive",
+          success && "border-green-500 focus-visible:ring-green-500",
+          !error && !success && "border-input hover:bg-accent/5",
+          animate && !disabled && "hover:shadow-md",
+          className,
+        )}
+      >
+        <div className="flex items-center gap-2">
+          <Clock className={cn(sz.icon, error ? "text-destructive" : success ? "text-green-500" : "text-muted-foreground")} />
+          <span className={cn("truncate", !value && !defaultValue && "text-muted-foreground")}>{value || defaultValue ? display : placeholder}</span>
+        </div>
+        <span className={cn("ml-2 transition-transform duration-200", open && "rotate-180")}>
+          <svg className={sz.icon} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
         </span>
-      </div>
-      <span className={cn("ml-2 transition-transform duration-200", open && "rotate-180")}>
-        <svg className={sz.icon} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </span>
-    </button>
-  );
+      </button>
+    );
 
   const contentWidth = variant === "compact" ? 240 : variant === "inline" ? 320 : includeSeconds ? 340 : 300;
+
+  const itemSizeClasses = {
+    sm: { padding: "px-2 py-1", text: "text-xs" },
+    md: { padding: "px-3 py-2", text: "text-sm" },
+    lg: { padding: "px-4 py-3", text: "text-base" },
+  };
+  const itemSz = itemSizeClasses[size];
 
   const timePickerContent = (
     <div className="space-y-3">
@@ -398,7 +410,7 @@ export default function TimePicker({
               type="button"
               className={cn(
                 "px-2 py-1.5 text-xs rounded-md border border-border hover:bg-accent/10 capitalize transition-all",
-                animate && "hover:scale-105 active:scale-95"
+                animate && "hover:scale-105 active:scale-95",
               )}
               onClick={() => setPreset(preset as keyof typeof PRESETS)}
               aria-label={`Set time to ${preset}`}
@@ -418,7 +430,7 @@ export default function TimePicker({
               type="button"
               className={cn(
                 "px-2 py-1.5 text-xs rounded-md border border-border hover:bg-accent/10 transition-all",
-                animate && "hover:scale-105 active:scale-95"
+                animate && "hover:scale-105 active:scale-95",
               )}
               onClick={() => handleCustomPreset(preset.time)}
               aria-label={`Set time to ${preset.label}`}
@@ -430,9 +442,9 @@ export default function TimePicker({
       )}
 
       {/* Time Selector */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 w-fit max-w-full">
         {/* Hours */}
-        <div className="flex-1 min-w-[70px]">
+        <div className="w-20">
           <div className="text-xs font-semibold text-muted-foreground mb-2 text-center">Hour</div>
           <div
             ref={hourScrollRef}
@@ -452,15 +464,17 @@ export default function TimePicker({
                   role="option"
                   aria-selected={isSelected}
                   className={cn(
-                    "w-full text-center px-3 py-2 rounded-md transition-all text-sm font-medium",
+                    "w-full text-center rounded-md transition-all font-medium",
+                    itemSz.padding,
+                    itemSz.text,
                     "hover:bg-accent hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
                     isSelected && "bg-primary text-primary-foreground shadow-md",
                     !isSelected && "text-foreground/80",
-                    animate && "transition-transform duration-150"
+                    animate && "transition-transform duration-150",
                   )}
                   onClick={() => {
-                    const nextH = format === "24" ? h : ((parts.p === "PM" ? (h % 12) + 12 : (h % 12))) % 24;
-                    const next = { ...parts, h: format === "24" ? h : (nextH === 0 && parts.p === "AM" ? 0 : nextH || (parts.p === "PM" ? 12 : 0)) };
+                    const nextH = format === "24" ? h : (parts.p === "PM" ? (h % 12) + 12 : h % 12) % 24;
+                    const next = { ...parts, h: format === "24" ? h : nextH === 0 && parts.p === "AM" ? 0 : nextH || (parts.p === "PM" ? 12 : 0) };
                     setParts(next);
                     emit(next);
                   }}
@@ -476,7 +490,7 @@ export default function TimePicker({
         <div className="w-px bg-border/50 self-stretch my-8" />
 
         {/* Minutes */}
-        <div className="flex-1 min-w-[70px]">
+        <div className="w-20">
           <div className="text-xs font-semibold text-muted-foreground mb-2 text-center">Min</div>
           <div
             ref={minuteScrollRef}
@@ -496,11 +510,13 @@ export default function TimePicker({
                   role="option"
                   aria-selected={isSelected}
                   className={cn(
-                    "w-full text-center px-3 py-2 rounded-md transition-all text-sm font-medium",
+                    "w-full text-center rounded-md transition-all font-medium",
+                    itemSz.padding,
+                    itemSz.text,
                     "hover:bg-accent hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
                     isSelected && "bg-primary text-primary-foreground shadow-md",
                     !isSelected && "text-foreground/80",
-                    animate && "transition-transform duration-150"
+                    animate && "transition-transform duration-150",
                   )}
                   onClick={() => {
                     const next = { ...parts, m };
@@ -521,7 +537,7 @@ export default function TimePicker({
         {/* Seconds */}
         {includeSeconds && (
           <>
-            <div className="flex-1 min-w-[70px]">
+            <div className="w-20">
               <div className="text-xs font-semibold text-muted-foreground mb-2 text-center">Sec</div>
               <div
                 ref={secondScrollRef}
@@ -541,11 +557,13 @@ export default function TimePicker({
                       role="option"
                       aria-selected={isSelected}
                       className={cn(
-                        "w-full text-center px-3 py-2 rounded-md transition-all text-sm font-medium",
+                        "w-full text-center rounded-md transition-all font-medium",
+                        itemSz.padding,
+                        itemSz.text,
                         "hover:bg-accent hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
                         isSelected && "bg-primary text-primary-foreground shadow-md",
                         !isSelected && "text-foreground/80",
-                        animate && "transition-transform duration-150"
+                        animate && "transition-transform duration-150",
                       )}
                       onClick={() => {
                         const next = { ...parts, s };
@@ -589,7 +607,7 @@ export default function TimePicker({
                       "hover:bg-accent hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
                       isSelected && "bg-primary text-primary-foreground shadow-md",
                       !isSelected && "text-foreground/80 border border-border",
-                      animate && "transition-transform duration-150"
+                      animate && "transition-transform duration-150",
                     )}
                     onClick={() => {
                       const pVal = p as "AM" | "PM";
@@ -618,7 +636,7 @@ export default function TimePicker({
               type="button"
               className={cn(
                 "px-3 py-2 text-xs rounded-md border border-border hover:bg-accent/10 transition-all flex items-center gap-2 font-medium",
-                animate && "hover:scale-105 active:scale-95"
+                animate && "hover:scale-105 active:scale-95",
               )}
               onClick={() => {
                 setNow();
@@ -636,7 +654,7 @@ export default function TimePicker({
               type="button"
               className={cn(
                 "px-3 py-2 text-xs rounded-md border border-border hover:bg-destructive/10 hover:text-destructive transition-all flex items-center gap-2 font-medium",
-                animate && "hover:scale-105 active:scale-95"
+                animate && "hover:scale-105 active:scale-95",
               )}
               onClick={() => {
                 setParts(initial);
@@ -657,7 +675,7 @@ export default function TimePicker({
   // Inline variant renders content directly without popover
   if (variant === "inline") {
     return (
-      <div className="w-full" {...rest}>
+      <div className="w-fit max-w-full" {...rest}>
         {label && (
           <div className="flex items-center justify-between mb-2">
             <label className={cn(sz.label, "font-medium", disabled ? "text-muted-foreground" : "text-foreground")}>
@@ -697,7 +715,7 @@ export default function TimePicker({
           error && "border-destructive",
           success && "border-green-500",
           !error && !success && "border-border",
-          animate && "animate-in fade-in-0 zoom-in-95 duration-200"
+          animate && "animate-in fade-in-0 zoom-in-95 duration-200",
         )}
       >
         {timePickerContent}

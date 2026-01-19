@@ -7,6 +7,11 @@ Exports:
 
 Note: Usage snippets are minimal; fill required props from the props type below.
 
+## Behavior
+
+- `variant="inline"` renders content directly (no popover) and keeps a compact width (doesn’t force full-width layout).
+- Time columns (hour/min/sec) use fixed widths to avoid overly wide pickers inside popovers.
+
 ## TimePicker
 
 Props type: `TimePickerProps`

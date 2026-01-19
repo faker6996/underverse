@@ -1,6 +1,8 @@
 {
   "Common": {
     "close": "닫기",
+    "noData": "데이터 없음",
+    "loading": "로딩 중...",
     "closeAlert": "알림 닫기",
     "notifications": "알림",
     "newNotification": "새로",
@@ -48,6 +50,11 @@
     "placeholder": "날짜 선택",
     "today": "오늘",
     "clear": "지우기"
+  },
+  "DateTimePicker": {
+    "time": "시간",
+    "clear": "지우기",
+    "done": "완료"
   },
   "Pagination": {
     "navigationLabel": "페이지 네비게이션",
@@ -245,6 +252,9 @@
       },
       "tagInput": {
         "title": "TagInput"
+      },
+      "dateTimePicker": {
+        "title": "DateTimePicker"
       },
       "datePicker": {
         "title": "DatePicker (with i18n)"

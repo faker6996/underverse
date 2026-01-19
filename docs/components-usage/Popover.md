@@ -6,7 +6,11 @@ Exports:
 
 - Popover
 
-Note: Usage snippets are minimal; fill required props from the props type below.
+## Behavior
+
+- Renders in a portal (`document.body`) using `position: fixed` (stable when scrolling).
+- Auto-adjusts placement to stay within the viewport (flip/clamp when near edges).
+- Supports controlled (`open`/`onOpenChange`) and uncontrolled modes.
 
 ## Accessibility (Web Interface Guidelines Compliant)
 
@@ -25,7 +29,7 @@ Props type: `PopoverProps`
 import { Popover } from "@underverse-ui/underverse";
 
 export function Example() {
-  return <Popover>Content</Popover>;
+  return <Popover trigger={<button type="button">Open</button>}>Content</Popover>;
 }
 ```
 
@@ -62,3 +66,8 @@ interface PopoverProps {
   contentWidth?: number; // optional fixed width
 }
 ```
+
+### Sizing tips
+
+- Use `contentWidth` to set a fixed width, or `matchTriggerWidth` to match the trigger.
+- Use `contentClassName` for constraints like `max-w-[calc(100vw-1rem)]` / `max-h-[calc(100vh-6rem)] overflow-auto`.

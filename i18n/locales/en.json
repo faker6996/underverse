@@ -1,6 +1,8 @@
 {
   "Common": {
     "close": "Close",
+    "noData": "No data",
+    "loading": "Loading...",
     "closeAlert": "Close alert",
     "notifications": "Notifications",
     "newNotification": "New",
@@ -48,6 +50,11 @@
     "placeholder": "Select date",
     "today": "Today",
     "clear": "Clear"
+  },
+  "DateTimePicker": {
+    "time": "Time",
+    "clear": "Clear",
+    "done": "Done"
   },
   "Pagination": {
     "navigationLabel": "Pagination navigation",
@@ -255,6 +262,9 @@
       },
       "datePicker": {
         "title": "DatePicker (with i18n)"
+      },
+      "dateTimePicker": {
+        "title": "DateTimePicker"
       },
       "calendar": {
         "title": "Calendar"

@@ -44,6 +44,11 @@
     "today": "오늘",
     "clear": "지우기"
   },
+  "DateTimePicker": {
+    "time": "시간",
+    "clear": "지우기",
+    "done": "완료"
+  },
   "Pagination": {
     "navigationLabel": "페이지 네비게이션",
     "showingResults": "{startItem}–{endItem} / 총 {totalItems}개",

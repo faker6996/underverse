@@ -1,6 +1,8 @@
 {
   "Common": {
     "close": "閉じる",
+    "noData": "データなし",
+    "loading": "読み込み中...",
     "closeAlert": "アラートを閉じる",
     "notifications": "通知",
     "newNotification": "新規",
@@ -48,6 +50,11 @@
     "placeholder": "日付を選択",
     "today": "今日",
     "clear": "クリア"
+  },
+  "DateTimePicker": {
+    "time": "時間",
+    "clear": "クリア",
+    "done": "完了"
   },
   "Pagination": {
     "navigationLabel": "ページネーション",
@@ -245,6 +252,9 @@
       },
       "tagInput": {
         "title": "TagInput"
+      },
+      "dateTimePicker": {
+        "title": "DateTimePicker"
       },
       "datePicker": {
         "title": "DatePicker (with i18n)"
