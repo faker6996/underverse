@@ -27,7 +27,7 @@ export interface TimelineProps extends React.HTMLAttributes<HTMLDivElement> {
   showLine?: boolean;
 }
 
-export interface TimelineItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
+export interface TimelineItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
   title?: React.ReactNode;
   description?: React.ReactNode;
   time?: React.ReactNode;
@@ -51,11 +51,50 @@ export interface TimelineItemProps extends Omit<React.HTMLAttributes<HTMLDivElem
   badge?: React.ReactNode;
 }
 
-const SIZE_STYLE: Record<Size, { dot: string; iconDot: string; padY: string; densePadY: string; title: string; desc: string; time: string; icon: string }> = {
-  sm: { dot: "h-2.5 w-2.5", iconDot: "h-6 w-6", padY: "py-3", densePadY: "py-2", title: "text-sm", desc: "text-xs", time: "text-[11px]", icon: "h-3.5 w-3.5" },
-  md: { dot: "h-3 w-3", iconDot: "h-8 w-8", padY: "py-4", densePadY: "py-2.5", title: "text-base", desc: "text-sm", time: "text-xs", icon: "h-4 w-4" },
-  lg: { dot: "h-3.5 w-3.5", iconDot: "h-10 w-10", padY: "py-5", densePadY: "py-3", title: "text-lg", desc: "text-sm", time: "text-xs", icon: "h-5 w-5" },
-  xl: { dot: "h-4 w-4", iconDot: "h-12 w-12", padY: "py-6", densePadY: "py-3.5", title: "text-xl", desc: "text-base", time: "text-sm", icon: "h-6 w-6" },
+const SIZE_STYLE: Record<
+  Size,
+  { dot: string; iconDot: string; padY: string; densePadY: string; title: string; desc: string; time: string; icon: string }
+> = {
+  sm: {
+    dot: "h-2.5 w-2.5",
+    iconDot: "h-6 w-6",
+    padY: "py-3",
+    densePadY: "py-2",
+    title: "text-sm",
+    desc: "text-xs",
+    time: "text-[11px]",
+    icon: "h-3.5 w-3.5",
+  },
+  md: {
+    dot: "h-3 w-3",
+    iconDot: "h-8 w-8",
+    padY: "py-4",
+    densePadY: "py-2.5",
+    title: "text-base",
+    desc: "text-sm",
+    time: "text-xs",
+    icon: "h-4 w-4",
+  },
+  lg: {
+    dot: "h-3.5 w-3.5",
+    iconDot: "h-10 w-10",
+    padY: "py-5",
+    densePadY: "py-3",
+    title: "text-lg",
+    desc: "text-sm",
+    time: "text-xs",
+    icon: "h-5 w-5",
+  },
+  xl: {
+    dot: "h-4 w-4",
+    iconDot: "h-12 w-12",
+    padY: "py-6",
+    densePadY: "py-3.5",
+    title: "text-xl",
+    desc: "text-base",
+    time: "text-sm",
+    icon: "h-6 w-6",
+  },
 };
 
 const STATUS_COLOR: Record<NonNullable<TimelineItemProps["status"]>, string> = {
@@ -123,10 +162,7 @@ const Marker: React.FC<{
       )}
       {/* Line */}
       {!last && showLine && (
-        <div
-          className={cn("flex-1 border-l-2", LINE_STYLE_MAP[lineStyle])}
-          style={{ borderColor: lineColor || "hsl(var(--border))" }}
-        />
+        <div className={cn("flex-1 border-l-2", LINE_STYLE_MAP[lineStyle])} style={{ borderColor: lineColor || "hsl(var(--border))" }} />
       )}
     </div>
   );
@@ -150,7 +186,7 @@ const TimelineRoot = React.forwardRef<HTMLDivElement, TimelineProps>(
       children,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const content = items
       ? items.map((it, i) => (
@@ -162,19 +198,14 @@ const TimelineRoot = React.forwardRef<HTMLDivElement, TimelineProps>(
       <TimelineContext.Provider value={{ align, variant, size, mode, lineColor, lineStyle, itemClassName, animate, dense, showLine }}>
         <div
           ref={ref}
-          className={cn(
-            "relative",
-            mode === "horizontal" && "flex gap-4 overflow-x-auto",
-            mode === "vertical" && "space-y-0",
-            className
-          )}
+          className={cn("relative", mode === "horizontal" && "flex gap-4 overflow-x-auto", mode === "vertical" && "space-y-0", className)}
           {...rest}
         >
           {mode === "vertical" ? <div className="space-y-0">{content}</div> : content}
         </div>
       </TimelineContext.Provider>
     );
-  }
+  },
 );
 
 TimelineRoot.displayName = "Timeline";
@@ -199,7 +230,7 @@ export const TimelineItem = React.forwardRef<HTMLDivElement, TimelineItemProps>(
       children,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const ctx = React.useContext(TimelineContext)!;
     const idx = (rest as any)["data-index"] as number | undefined;
@@ -222,11 +253,11 @@ export const TimelineItem = React.forwardRef<HTMLDivElement, TimelineItemProps>(
     // Variant styles for content box
     const variantClasses = {
       default: "",
-      outlined: "rounded-lg border border-border bg-card shadow-sm px-4 py-3",
-      card: "rounded-xl border border-border bg-card shadow-md px-5 py-4",
+      outlined: "rounded-xl border border-border bg-card shadow-sm px-4 py-3",
+      card: "rounded-2xl border border-border bg-card shadow-md px-5 py-4",
       minimal: "border-l-2 pl-4 py-2",
-      modern: "rounded-lg bg-linear-to-r from-card to-muted/20 border border-border/50 px-5 py-4 backdrop-blur-sm",
-      gradient: "rounded-xl bg-linear-to-br from-primary/10 via-card to-accent/10 border border-primary/20 px-5 py-4 shadow-lg",
+      modern: "rounded-xl bg-linear-to-r from-card to-muted/20 border border-border/50 px-5 py-4 backdrop-blur-sm",
+      gradient: "rounded-2xl bg-linear-to-br from-primary/10 via-card to-accent/10 border border-primary/20 px-5 py-4 shadow-lg",
     };
 
     const contentBox = (
@@ -254,43 +285,83 @@ export const TimelineItem = React.forwardRef<HTMLDivElement, TimelineItemProps>(
         </div>
         {time && <div className={cn("mt-2 text-muted-foreground flex items-center gap-1", sz.time)}>{time}</div>}
         {/* Expanded Content */}
-        {collapsible && isExpanded && expandContent && (
-          <div className="mt-3 pt-3 border-t border-border/50 text-sm">{expandContent}</div>
-        )}
+        {collapsible && isExpanded && expandContent && <div className="mt-3 pt-3 border-t border-border/50 text-sm">{expandContent}</div>}
       </div>
     );
 
     const markerWidth = Icon || dot ? "w-auto" : "w-6";
 
     const leftSide = (
-      <div className={cn("flex items-stretch gap-4", padding, ctx.animate && "animate-in slide-in-from-left duration-500")} style={{ animationDelay: ctx.animate ? `${(idx ?? 0) * 100}ms` : undefined }}>
+      <div
+        className={cn("flex items-stretch gap-4", padding, ctx.animate && "animate-in slide-in-from-left duration-500")}
+        style={{ animationDelay: ctx.animate ? `${(idx ?? 0) * 100}ms` : undefined }}
+      >
         <div className={cn("shrink-0 flex items-stretch", markerWidth)}>
-          <Marker index={idx ?? 0} last={isLast} size={ctx.size} color={color} status={status} lineColor={ctx.lineColor} lineStyle={ctx.lineStyle} active={active} dot={dot} icon={Icon} showLine={ctx.showLine} />
+          <Marker
+            index={idx ?? 0}
+            last={isLast}
+            size={ctx.size}
+            color={color}
+            status={status}
+            lineColor={ctx.lineColor}
+            lineStyle={ctx.lineStyle}
+            active={active}
+            dot={dot}
+            icon={Icon}
+            showLine={ctx.showLine}
+          />
         </div>
         <div className="flex-1">{contentBox}</div>
       </div>
     );
 
     const rightSide = (
-      <div className={cn("flex items-stretch gap-4", padding, ctx.animate && "animate-in slide-in-from-right duration-500")} style={{ animationDelay: ctx.animate ? `${(idx ?? 0) * 100}ms` : undefined }}>
+      <div
+        className={cn("flex items-stretch gap-4", padding, ctx.animate && "animate-in slide-in-from-right duration-500")}
+        style={{ animationDelay: ctx.animate ? `${(idx ?? 0) * 100}ms` : undefined }}
+      >
         <div className="flex-1 flex justify-end">{contentBox}</div>
         <div className={cn("shrink-0 flex items-stretch", markerWidth)}>
-          <Marker index={idx ?? 0} last={isLast} size={ctx.size} color={color} status={status} lineColor={ctx.lineColor} lineStyle={ctx.lineStyle} active={active} dot={dot} icon={Icon} showLine={ctx.showLine} />
+          <Marker
+            index={idx ?? 0}
+            last={isLast}
+            size={ctx.size}
+            color={color}
+            status={status}
+            lineColor={ctx.lineColor}
+            lineStyle={ctx.lineStyle}
+            active={active}
+            dot={dot}
+            icon={Icon}
+            showLine={ctx.showLine}
+          />
         </div>
       </div>
     );
 
     const horizontalItem = (
       <div
-        className={cn(
-          "flex flex-col items-center gap-2 min-w-[200px]",
-          ctx.animate && "animate-in fade-in-50 zoom-in-95 duration-500"
-        )}
+        className={cn("flex flex-col items-center gap-2 min-w-[200px]", ctx.animate && "animate-in fade-in-50 zoom-in-95 duration-500")}
         style={{ animationDelay: ctx.animate ? `${(idx ?? 0) * 100}ms` : undefined }}
       >
-        <Marker index={idx ?? 0} last={isLast} size={ctx.size} color={color} status={status} lineColor={ctx.lineColor} lineStyle={ctx.lineStyle} active={active} dot={dot} icon={Icon} showLine={false} />
+        <Marker
+          index={idx ?? 0}
+          last={isLast}
+          size={ctx.size}
+          color={color}
+          status={status}
+          lineColor={ctx.lineColor}
+          lineStyle={ctx.lineStyle}
+          active={active}
+          dot={dot}
+          icon={Icon}
+          showLine={false}
+        />
         {!isLast && ctx.showLine && (
-          <div className={cn("h-px w-full border-t-2", LINE_STYLE_MAP[ctx.lineStyle])} style={{ borderColor: ctx.lineColor || "hsl(var(--border))" }} />
+          <div
+            className={cn("h-px w-full border-t-2", LINE_STYLE_MAP[ctx.lineStyle])}
+            style={{ borderColor: ctx.lineColor || "hsl(var(--border))" }}
+          />
         )}
         {contentBox}
       </div>
@@ -313,7 +384,7 @@ export const TimelineItem = React.forwardRef<HTMLDivElement, TimelineItemProps>(
         {row}
       </div>
     );
-  }
+  },
 );
 
 TimelineItem.displayName = "Timeline.Item";

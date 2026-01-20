@@ -3,7 +3,19 @@ import { cn } from "@/lib/utils/cn";
 
 interface BadgeProps {
   children?: React.ReactNode;
-  variant?: "default" | "primary" | "secondary" | "success" | "warning" | "danger" | "destructive" | "info" | "outline" | "ghost" | "transparent" | "gradient";
+  variant?:
+    | "default"
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "danger"
+    | "destructive"
+    | "info"
+    | "outline"
+    | "ghost"
+    | "transparent"
+    | "gradient";
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   className?: string;
   dot?: boolean;
@@ -88,7 +100,7 @@ export const Badge: React.FC<BadgeProps> = ({
     "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
     clickable && "cursor-pointer hover:shadow-sm active:scale-95",
     pulse && "animate-pulse",
-    variantStyles[variant]
+    variantStyles[variant],
   );
 
   if (dot) {
@@ -100,7 +112,7 @@ export const Badge: React.FC<BadgeProps> = ({
           variantStyles[variant],
           pulse && "animate-pulse",
           clickable && "cursor-pointer hover:scale-110",
-          className
+          className,
         )}
         onClick={handleClick}
       />
@@ -119,7 +131,7 @@ export const Badge: React.FC<BadgeProps> = ({
           size === "md" && "min-w-7 h-7 px-2 text-xs",
           size === "lg" && "min-w-8 h-8 px-2.5 text-sm",
           size === "xl" && "min-w-9 h-9 px-3 text-sm",
-          className
+          className,
         )}
         onClick={handleClick}
         role="status"
@@ -131,7 +143,7 @@ export const Badge: React.FC<BadgeProps> = ({
   }
 
   return (
-    <span className={cn(baseClasses, "rounded-md gap-1", sizeStyles[size], className)} onClick={handleClick} role="status">
+    <span className={cn(baseClasses, "rounded-lg gap-1", sizeStyles[size], className)} onClick={handleClick} role="status">
       {Icon && (
         <Icon
           className={cn(
@@ -140,7 +152,7 @@ export const Badge: React.FC<BadgeProps> = ({
             size === "sm" && "h-3 w-3",
             size === "md" && "h-4 w-4",
             size === "lg" && "h-4 w-4",
-            size === "xl" && "h-5 w-5"
+            size === "xl" && "h-5 w-5",
           )}
         />
       )}
@@ -157,7 +169,7 @@ export const Badge: React.FC<BadgeProps> = ({
             size === "sm" && "h-3 w-3",
             size === "md" && "h-4 w-4",
             size === "lg" && "h-4 w-4",
-            size === "xl" && "h-5 w-5"
+            size === "xl" && "h-5 w-5",
           )}
           aria-label="Remove badge"
         >

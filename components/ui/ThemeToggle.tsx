@@ -83,7 +83,7 @@ export default function ThemeToggle() {
             dropdownPosition &&
             createPortal(
               <div
-                className="z-9999 bg-card border border-border rounded-lg shadow-lg overflow-hidden"
+                className="z-9999 bg-card border border-border rounded-xl shadow-lg overflow-hidden"
                 style={{ position: "absolute", top: dropdownPosition.top, left: dropdownPosition.left, width: dropdownPosition.width }}
                 onMouseDown={(e) => e.stopPropagation()}
               >
@@ -111,7 +111,7 @@ export default function ThemeToggle() {
                   })}
                 </div>
               </div>,
-              document.body
+              document.body,
             )}
         </>
       )}

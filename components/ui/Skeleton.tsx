@@ -10,25 +10,18 @@ interface SkeletonProps {
   lines?: number;
 }
 
-export const Skeleton: React.FC<SkeletonProps> = ({
-  className,
-  width,
-  height,
-  variant = "rectangular",
-  animation = "pulse",
-  lines = 1
-}) => {
+export const Skeleton: React.FC<SkeletonProps> = ({ className, width, height, variant = "rectangular", animation = "pulse", lines = 1 }) => {
   const variantClasses = {
     rectangular: "rounded-md",
     circular: "rounded-full",
-    rounded: "rounded-lg", 
-    text: "rounded"
+    rounded: "rounded-lg",
+    text: "rounded",
   };
 
   const animationClasses = {
     pulse: "animate-pulse",
     wave: "animate-shimmer bg-linear-to-r from-muted via-muted/50 to-muted bg-size-[200%_100%]",
-    none: ""
+    none: "",
   };
 
   if (variant === "text" && lines > 1) {
@@ -41,11 +34,11 @@ export const Skeleton: React.FC<SkeletonProps> = ({
               "h-4 bg-muted",
               variantClasses[variant],
               animationClasses[animation],
-              index === lines - 1 && "w-3/4" // Last line is shorter
+              index === lines - 1 && "w-3/4", // Last line is shorter
             )}
             style={{
               width: index === lines - 1 ? undefined : width,
-              height: height
+              height: height,
             }}
           />
         ))}
@@ -53,99 +46,52 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     );
   }
 
-  return (
-    <div
-      className={cn(
-        "bg-muted",
-        variantClasses[variant],
-        animationClasses[animation],
-        className
-      )}
-      style={{ width, height }}
-    />
-  );
+  return <div className={cn("bg-muted", variantClasses[variant], animationClasses[animation], className)} style={{ width, height }} />;
 };
 
 // Pre-built skeleton components for common use cases
-export const SkeletonAvatar: React.FC<{ size?: "sm" | "md" | "lg"; className?: string }> = ({ 
-  size = "md", 
-  className 
-}) => {
+export const SkeletonAvatar: React.FC<{ size?: "sm" | "md" | "lg"; className?: string }> = ({ size = "md", className }) => {
   const sizeClasses = {
     sm: "w-8 h-8",
     md: "w-10 h-10",
-    lg: "w-12 h-12"
+    lg: "w-12 h-12",
   };
 
-  return (
-    <Skeleton
-      variant="circular"
-      className={cn(sizeClasses[size], className)}
-    />
-  );
+  return <Skeleton variant="circular" className={cn(sizeClasses[size], className)} />;
 };
 
-export const SkeletonButton: React.FC<{ size?: "sm" | "md" | "lg"; className?: string }> = ({ 
-  size = "md", 
-  className 
-}) => {
+export const SkeletonButton: React.FC<{ size?: "sm" | "md" | "lg"; className?: string }> = ({ size = "md", className }) => {
   const sizeClasses = {
     sm: "h-8 w-20",
     md: "h-10 w-24",
-    lg: "h-12 w-28"
+    lg: "h-12 w-28",
   };
 
-  return (
-    <Skeleton
-      variant="rounded"
-      className={cn(sizeClasses[size], className)}
-    />
-  );
+  return <Skeleton variant="rounded" className={cn(sizeClasses[size], className)} />;
 };
 
-export const SkeletonText: React.FC<{ 
-  lines?: number; 
+export const SkeletonText: React.FC<{
+  lines?: number;
   className?: string;
   width?: string;
-}> = ({ 
-  lines = 3, 
-  className,
-  width = "100%"
-}) => {
-  return (
-    <Skeleton
-      variant="text"
-      lines={lines}
-      width={width}
-      className={className}
-    />
-  );
+}> = ({ lines = 3, className, width = "100%" }) => {
+  return <Skeleton variant="text" lines={lines} width={width} className={className} />;
 };
 
 // Complex skeleton layouts
-export const SkeletonCard: React.FC<{ 
+export const SkeletonCard: React.FC<{
   showAvatar?: boolean;
   showImage?: boolean;
   textLines?: number;
   className?: string;
   children?: React.ReactNode;
-}> = ({ 
-  showAvatar = true,
-  showImage = false, 
-  textLines = 3,
-  className,
-  children
-}) => {
+}> = ({ showAvatar = true, showImage = false, textLines = 3, className, children }) => {
   if (children) {
-    return (
-      <div className={cn("p-4 space-y-4 rounded-lg bg-card outline-none focus:outline-none", className)}>
-        {children}
-      </div>
-    );
+    return <div className={cn("p-4 space-y-4 rounded-lg bg-card outline-none focus:outline-none", className)}>{children}</div>;
   }
 
   return (
-    <div className={cn("p-4 space-y-4 rounded-lg bg-card outline-none focus:outline-none", className)}>
+    <div className={cn("p-4 space-y-4 rounded-2xl bg-card outline-none focus:outline-none", className)}>
       {/* Header with avatar */}
       {showAvatar && (
         <div className="flex items-center space-x-3">
@@ -158,9 +104,7 @@ export const SkeletonCard: React.FC<{
       )}
 
       {/* Image */}
-      {showImage && (
-        <Skeleton className="h-48 w-full rounded-md" />
-      )}
+      {showImage && <Skeleton className="h-48 w-full rounded-xl" />}
 
       {/* Text content */}
       <SkeletonText lines={textLines} />
@@ -176,7 +120,7 @@ export const SkeletonCard: React.FC<{
 
 export const SkeletonPost: React.FC<{ className?: string }> = ({ className }) => {
   return (
-    <div className={cn("p-6 space-y-4 rounded-xl bg-card outline-none focus:outline-none", className)}>
+    <div className={cn("p-6 space-y-4 rounded-3xl bg-card outline-none focus:outline-none", className)}>
       {/* Post header */}
       <div className="flex items-center space-x-3">
         <SkeletonAvatar size="lg" />
@@ -190,7 +134,7 @@ export const SkeletonPost: React.FC<{ className?: string }> = ({ className }) =>
       <SkeletonText lines={2} />
 
       {/* Post image */}
-      <Skeleton className="h-64 w-full rounded-lg" />
+      <Skeleton className="h-64 w-full rounded-2xl" />
 
       {/* Post stats */}
       <div className="flex items-center space-x-4">
@@ -211,51 +155,32 @@ export const SkeletonPost: React.FC<{ className?: string }> = ({ className }) =>
   );
 };
 
-export const SkeletonMessage: React.FC<{ 
-  own?: boolean; 
+export const SkeletonMessage: React.FC<{
+  own?: boolean;
   showAvatar?: boolean;
   className?: string;
-}> = ({ 
-  own = false, 
-  showAvatar = true,
-  className 
-}) => {
+}> = ({ own = false, showAvatar = true, className }) => {
   return (
-    <div className={cn(
-      "flex items-end space-x-2",
-      own && "flex-row-reverse space-x-reverse",
-      className
-    )}>
+    <div className={cn("flex items-end space-x-2", own && "flex-row-reverse space-x-reverse", className)}>
       {showAvatar && !own && <SkeletonAvatar size="sm" />}
-      <div className={cn(
-        "max-w-xs space-y-1",
-        own ? "items-end" : "items-start"
-      )}>
-        <Skeleton className={cn(
-          "h-10 rounded-2xl",
-          own ? "w-32 bg-primary/20" : "w-40 bg-muted"
-        )} />
+      <div className={cn("max-w-xs space-y-1", own ? "items-end" : "items-start")}>
+        <Skeleton className={cn("h-10 rounded-3xl", own ? "w-32 bg-primary/20" : "w-40 bg-muted")} />
         <Skeleton className="h-3 w-12" />
       </div>
     </div>
   );
 };
 
-export const SkeletonList: React.FC<{ 
+export const SkeletonList: React.FC<{
   items?: number;
   itemHeight?: number;
   showAvatar?: boolean;
   className?: string;
-}> = ({ 
-  items = 5, 
-  itemHeight = 60,
-  showAvatar = true,
-  className 
-}) => {
+}> = ({ items = 5, itemHeight = 60, showAvatar = true, className }) => {
   return (
     <div className={cn("space-y-3", className)}>
       {Array.from({ length: items }).map((_, index) => (
-        <div key={index} className="flex items-center space-x-3 p-3 rounded-lg">
+        <div key={index} className="flex items-center space-x-3 p-3 rounded-xl">
           {showAvatar && <SkeletonAvatar />}
           <div className="flex-1 space-y-2">
             <Skeleton className="h-4 w-3/4" />
@@ -268,15 +193,11 @@ export const SkeletonList: React.FC<{
   );
 };
 
-export const SkeletonTable: React.FC<{ 
+export const SkeletonTable: React.FC<{
   rows?: number;
   columns?: number;
   className?: string;
-}> = ({ 
-  rows = 5, 
-  columns = 4,
-  className 
-}) => {
+}> = ({ rows = 5, columns = 4, className }) => {
   return (
     <div className={cn("space-y-3", className)}>
       {/* Header */}
@@ -285,7 +206,7 @@ export const SkeletonTable: React.FC<{
           <Skeleton key={index} className="h-4 flex-1" />
         ))}
       </div>
-      
+
       {/* Rows */}
       {Array.from({ length: rows }).map((_, rowIndex) => (
         <div key={rowIndex} className="flex space-x-4 p-3">

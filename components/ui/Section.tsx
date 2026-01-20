@@ -88,7 +88,7 @@ const Section = React.forwardRef<HTMLElement, SectionProps>(
           variant === "gradient" ? getGradientClasses() : variantClasses[variant],
           spacingClasses[spacing],
           paddingXClasses[paddingX],
-          outlined && "rounded-lg border border-border/60",
+          outlined && "rounded-2xl md:rounded-3xl border border-border/60",
           contained && "container mx-auto",
           className,
         )}

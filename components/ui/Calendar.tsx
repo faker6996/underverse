@@ -16,7 +16,7 @@ export interface CalendarEvent {
   badge?: string; // badge text
 }
 
-export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'defaultValue' | 'value' | 'onSelect'> {
+export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "value" | "onSelect"> {
   month?: Date; // visible month
   defaultMonth?: Date;
   onMonthChange?: (next: Date) => void;
@@ -56,12 +56,28 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   highlightWeekends?: boolean;
 }
 
-function startOfMonth(d: Date) { return new Date(d.getFullYear(), d.getMonth(), 1); }
-function endOfMonth(d: Date) { return new Date(d.getFullYear(), d.getMonth() + 1, 0); }
-function addMonths(d: Date, n: number) { const nd = new Date(d); nd.setMonth(d.getMonth() + n); return nd; }
-function isSameDay(a: Date, b: Date) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
-function toDate(x: Date | string) { return x instanceof Date ? x : new Date(x); }
-function addDays(d: Date, n: number) { const nd = new Date(d); nd.setDate(d.getDate() + n); return nd; }
+function startOfMonth(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+function endOfMonth(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0);
+}
+function addMonths(d: Date, n: number) {
+  const nd = new Date(d);
+  nd.setMonth(d.getMonth() + n);
+  return nd;
+}
+function isSameDay(a: Date, b: Date) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+function toDate(x: Date | string) {
+  return x instanceof Date ? x : new Date(x);
+}
+function addDays(d: Date, n: number) {
+  const nd = new Date(d);
+  nd.setDate(d.getDate() + n);
+  return nd;
+}
 function startOfWeek(d: Date, weekStartsOn: number) {
   const day = d.getDay();
   const diff = (day - weekStartsOn + 7) % 7;
@@ -127,7 +143,9 @@ export default function Calendar({
 }: CalendarProps) {
   const isControlledMonth = month != null;
   const [view, setView] = React.useState<Date>(() => month ?? defaultMonth ?? new Date());
-  React.useEffect(() => { if (isControlledMonth && month) setView(month); }, [isControlledMonth, month]);
+  React.useEffect(() => {
+    if (isControlledMonth && month) setView(month);
+  }, [isControlledMonth, month]);
 
   const isControlledValue = value !== undefined;
   const [internal, setInternal] = React.useState<CalendarProps["value"] | undefined>(defaultValue);
@@ -139,7 +157,7 @@ export default function Calendar({
     if (display === "month") onMonthChange?.(next);
   };
 
-  const weekNames = labels?.weekdays ?? ["Su","Mo","Tu","We","Th","Fr","Sa"];
+  const weekNames = labels?.weekdays ?? ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
   const rotate = (arr: string[], n: number) => arr.slice(n).concat(arr.slice(0, n));
   const weekdays = rotate(weekNames, weekStartsOn);
 
@@ -189,28 +207,32 @@ export default function Calendar({
       return;
     }
     if (selectMode === "range") {
-      const cur = (!Array.isArray(selected) && typeof selected === "object") ? (selected as any) : {};
+      const cur = !Array.isArray(selected) && typeof selected === "object" ? (selected as any) : {};
       const s = cur.start as Date | undefined;
       const e = cur.end as Date | undefined;
       if (!s || (s && e)) {
         commit({ start: d, end: undefined });
       } else if (s && !e) {
-        if (d < s) commit({ start: d, end: s }); else commit({ start: s, end: d });
+        if (d < s) commit({ start: d, end: s });
+        else commit({ start: s, end: d });
       }
     }
   };
 
-  const isDateDisabled = React.useCallback((d: Date): boolean => {
-    if (minDate && d < new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate())) return true;
-    if (maxDate && d > new Date(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate())) return true;
-    if (Array.isArray(disabledDates)) {
-      return disabledDates.some((dd) => isSameDay(dd, d));
-    }
-    if (typeof disabledDates === "function") {
-      return disabledDates(d);
-    }
-    return false;
-  }, [minDate, maxDate, disabledDates]);
+  const isDateDisabled = React.useCallback(
+    (d: Date): boolean => {
+      if (minDate && d < new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate())) return true;
+      if (maxDate && d > new Date(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate())) return true;
+      if (Array.isArray(disabledDates)) {
+        return disabledDates.some((dd) => isSameDay(dd, d));
+      }
+      if (typeof disabledDates === "function") {
+        return disabledDates(d);
+      }
+      return false;
+    },
+    [minDate, maxDate, disabledDates],
+  );
 
   const SIZE_STYLES = {
     sm: { day: "w-8 h-8 text-[12px]", grid: dense ? "gap-0.5" : "gap-1", head: "text-[11px]", header: "text-sm" },
@@ -221,9 +243,9 @@ export default function Calendar({
   const sz = SIZE_STYLES[size];
 
   const VARIANT_STYLES = {
-    default: "border border-border rounded-lg bg-card",
-    bordered: "border-2 border-border rounded-xl bg-card shadow-sm",
-    card: "border border-border rounded-xl bg-card shadow-lg",
+    default: "border border-border rounded-2xl bg-card",
+    bordered: "border-2 border-border rounded-2xl bg-card shadow-sm",
+    card: "border border-border rounded-3xl bg-card shadow-lg",
     minimal: "bg-transparent",
   };
 
@@ -237,13 +259,13 @@ export default function Calendar({
     const monthLabel = labels?.month ? labels.month(monthDate) : monthDate.toLocaleDateString("en-US", { month: "long", year: "numeric" });
     return (
       <div>
-        {months > 1 && (
-          <div className="flex items-center justify-center mb-2 text-sm font-semibold">{monthLabel}</div>
-        )}
+        {months > 1 && <div className="flex items-center justify-center mb-2 text-sm font-semibold">{monthLabel}</div>}
         {showWeekdays && (
-          <div className={cn("grid grid-cols-7", sz.grid, "mb-1 text-center text-muted-foreground font-medium")}> 
+          <div className={cn("grid grid-cols-7", sz.grid, "mb-1 text-center text-muted-foreground font-medium")}>
             {weekdays.map((w) => (
-              <div key={`${monthLabel}-${w}`} className={cn(sz.head)}>{w}</div>
+              <div key={`${monthLabel}-${w}`} className={cn(sz.head)}>
+                {w}
+              </div>
             ))}
           </div>
         )}
@@ -261,20 +283,20 @@ export default function Calendar({
                 onClick={() => handleClickDay(d)}
                 disabled={disabled}
                 className={cn(
-                  "rounded-md flex items-center justify-center relative",
+                  "rounded-lg flex items-center justify-center relative",
                   sz.day,
                   !inMonth && "text-muted-foreground/60",
                   disabled && "opacity-40 cursor-not-allowed",
                   isToday && !selectedDay && "ring-1 ring-primary/50",
                   selectedDay && "bg-primary text-primary-foreground hover:bg-primary/90",
-                  !selectedDay && "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  !selectedDay && "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
                 )}
                 title={d.toDateString()}
               >
                 {d.getDate()}
                 {dayEvents.length > 0 && (
                   <span className="absolute -bottom-1 inline-flex gap-0.5">
-                    {dayEvents.slice(0,3).map((e, i) => (
+                    {dayEvents.slice(0, 3).map((e, i) => (
                       <span key={i} className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: e.color || "hsl(var(--primary))" }} />
                     ))}
                   </span>
@@ -292,7 +314,7 @@ export default function Calendar({
   const maxBound = React.useMemo(() => (maxDate ? new Date(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate()) : undefined), [maxDate]);
   const prevDisabled = React.useMemo(() => {
     if (!minBound) return false;
-    if (display === 'week') {
+    if (display === "week") {
       const start = startOfWeek(view, weekStartsOn);
       const prevEnd = addDays(start, -1);
       return prevEnd < minBound;
@@ -302,7 +324,7 @@ export default function Calendar({
   }, [display, view, weekStartsOn, minBound]);
   const nextDisabled = React.useMemo(() => {
     if (!maxBound) return false;
-    if (display === 'week') {
+    if (display === "week") {
       const start = startOfWeek(view, weekStartsOn);
       const nextStart = addDays(start, 7);
       return nextStart > maxBound;
@@ -315,26 +337,40 @@ export default function Calendar({
     <div className={cn("w-full", className)} {...rest}>
       {showHeader && (
         <div className="flex items-center justify-between mb-2">
-          <button onClick={() => goByView(-1)} disabled={prevDisabled} className={cn("p-1 rounded-md hover:bg-accent", prevDisabled && "opacity-40 cursor-not-allowed hover:bg-transparent")} aria-label={labels?.prev || (display === 'week' ? "Previous week" : "Previous month")}>
+          <button
+            onClick={() => goByView(-1)}
+            disabled={prevDisabled}
+            className={cn("p-1 rounded-lg hover:bg-accent", prevDisabled && "opacity-40 cursor-not-allowed hover:bg-transparent")}
+            aria-label={labels?.prev || (display === "week" ? "Previous week" : "Previous month")}
+          >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <div className="text-sm font-semibold">
-            {display === 'week'
-              ? `${(labels?.month ? labels.month(weekDays[0]) : weekDays[0].toLocaleDateString("en-US", { month: "short" }))} ${weekDays[0].getDate()} – ${(labels?.month ? labels.month(weekDays[6]) : weekDays[6].toLocaleDateString("en-US", { month: "short" }))} ${weekDays[6].getDate()}`
-              : (labels?.month ? labels.month(view) : view.toLocaleDateString("en-US", { month: "long", year: "numeric" }))}
+            {display === "week"
+              ? `${labels?.month ? labels.month(weekDays[0]) : weekDays[0].toLocaleDateString("en-US", { month: "short" })} ${weekDays[0].getDate()} – ${labels?.month ? labels.month(weekDays[6]) : weekDays[6].toLocaleDateString("en-US", { month: "short" })} ${weekDays[6].getDate()}`
+              : labels?.month
+                ? labels.month(view)
+                : view.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
           </div>
-          <button onClick={() => goByView(1)} disabled={nextDisabled} className={cn("p-1 rounded-md hover:bg-accent", nextDisabled && "opacity-40 cursor-not-allowed hover:bg-transparent")} aria-label={labels?.next || (display === 'week' ? "Next week" : "Next month")}>
+          <button
+            onClick={() => goByView(1)}
+            disabled={nextDisabled}
+            className={cn("p-1 rounded-lg hover:bg-accent", nextDisabled && "opacity-40 cursor-not-allowed hover:bg-transparent")}
+            aria-label={labels?.next || (display === "week" ? "Next week" : "Next month")}
+          >
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>
       )}
 
-      {display === 'week' ? (
+      {display === "week" ? (
         <>
           {showWeekdays && (
             <div className={cn("grid grid-cols-7", sz.grid, "mb-1 text-center text-muted-foreground font-medium")}>
               {weekdays.map((w) => (
-                <div key={`w-${w}`} className={cn(sz.head)}>{w}</div>
+                <div key={`w-${w}`} className={cn(sz.head)}>
+                  {w}
+                </div>
               ))}
             </div>
           )}
@@ -352,19 +388,19 @@ export default function Calendar({
                   onClick={() => handleClickDay(d)}
                   disabled={disabled}
                   className={cn(
-                    "rounded-md flex items-center justify-center relative",
+                    "rounded-lg flex items-center justify-center relative",
                     sz.day,
                     disabled && "opacity-40 cursor-not-allowed",
                     isToday && !selectedDay && "ring-1 ring-primary/50",
                     selectedDay && "bg-primary text-primary-foreground hover:bg-primary/90",
-                    !selectedDay && "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                    !selectedDay && "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
                   )}
                   title={d.toDateString()}
                 >
                   {d.getDate()}
                   {dayEvents.length > 0 && (
                     <span className="absolute -bottom-1 inline-flex gap-0.5">
-                      {dayEvents.slice(0,3).map((e, i) => (
+                      {dayEvents.slice(0, 3).map((e, i) => (
                         <span key={i} className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: e.color || "hsl(var(--primary))" }} />
                       ))}
                     </span>
@@ -377,9 +413,7 @@ export default function Calendar({
       ) : (
         <div className={cn(months > 1 ? "grid md:grid-cols-2 lg:grid-cols-3 gap-4" : "")}>
           {Array.from({ length: Math.max(1, months) }, (_, i) => (
-            <React.Fragment key={`cal-month-${view.getFullYear()}-${view.getMonth()}-${i}`}>
-              {renderMonth(addMonths(view, i))}
-            </React.Fragment>
+            <React.Fragment key={`cal-month-${view.getFullYear()}-${view.getMonth()}-${i}`}>{renderMonth(addMonths(view, i))}</React.Fragment>
           ))}
         </div>
       )}

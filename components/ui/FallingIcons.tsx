@@ -101,7 +101,7 @@ export default function FallingIcons({
       size: rnd(sizeRange[0], sizeRange[1]),
       fallDur: rnd(speedRange[0], speedRange[1]) / gravity, // Apply gravity to speed
       delay: rnd(-10, 0),
-      driftAmp: rnd(horizontalDrift * 0.5, horizontalDrift) + (windDirection * windStrength * 50), // Apply wind
+      driftAmp: rnd(horizontalDrift * 0.5, horizontalDrift) + windDirection * windStrength * 50, // Apply wind
       spinDur: rnd(2, 6),
       key: idRef.current++,
     };
@@ -154,33 +154,26 @@ export default function FallingIcons({
   }, [glow, glowColor, glowIntensity]);
 
   // Provide a minimal fallback icon (circle) if none is passed
-  const FallbackIcon = React.useMemo<IconComponent>(() => (props) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-      <circle cx="12" cy="12" r="10" />
-    </svg>
-  ), []);
+  const FallbackIcon = React.useMemo<IconComponent>(
+    () => (props) => (
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+        <circle cx="12" cy="12" r="10" />
+      </svg>
+    ),
+    [],
+  );
 
   // Use custom image if provided, otherwise use icon
   const TheIcon = imageUrl
     ? ({ className: imgClassName }: { className?: string }) => (
-        <img
-          src={imageUrl}
-          alt=""
-          className={cn("w-full h-full object-cover rounded-sm", imgClassName)}
-          draggable={false}
-        />
+        <img src={imageUrl} alt="" className={cn("w-full h-full object-cover rounded-lg", imgClassName)} draggable={false} />
       )
-    : (Icon || FallbackIcon);
+    : Icon || FallbackIcon;
 
   return (
     <div
       ref={containerRef}
-      className={cn(
-        fullScreen
-          ? "fixed inset-0 overflow-hidden pointer-events-none"
-          : "relative w-full h-full overflow-hidden",
-        areaClassName
-      )}
+      className={cn(fullScreen ? "fixed inset-0 overflow-hidden pointer-events-none" : "relative w-full h-full overflow-hidden", areaClassName)}
       style={{ zIndex }}
     >
       <style>{`
@@ -217,13 +210,7 @@ export default function FallingIcons({
         }
       `}</style>
 
-      <div
-        className={cn(
-          "absolute inset-0 pointer-events-none",
-          className
-        )}
-        aria-hidden
-      >
+      <div className={cn("absolute inset-0 pointer-events-none", className)} aria-hidden>
         {particles.map((p, i) => {
           const swayDuration = p.fallDur * (0.8 + (i % 5) * 0.05);
           const spinDuration = Math.max(1, p.spinDur);
@@ -244,64 +231,73 @@ export default function FallingIcons({
           return (
             <React.Fragment key={p.key}>
               {/* Trail particles */}
-              {trail && trailParticles.map((_, trailIndex) => {
-                const trailDelay = p.delay - (trailIndex + 1) * 0.15;
-                const trailOpacity = 1 - (trailIndex + 1) * (1 / (trailParticles.length + 1));
-                const trailScale = 1 - (trailIndex + 1) * 0.15;
+              {trail &&
+                trailParticles.map((_, trailIndex) => {
+                  const trailDelay = p.delay - (trailIndex + 1) * 0.15;
+                  const trailOpacity = 1 - (trailIndex + 1) * (1 / (trailParticles.length + 1));
+                  const trailScale = 1 - (trailIndex + 1) * 0.15;
 
-                return (
-                  <span
-                    key={`${p.key}-trail-${trailIndex}`}
-                    className={cn("absolute top-0 will-change-transform pointer-events-none uv-falling-particle", colorClassName)}
-                    style={{
-                      left: `${p.leftPct}%`,
-                      animationDelay: `${trailDelay}s`,
-                      animationDuration: `${p.fallDur}s`,
-                      animationName: FallName,
-                      animationTimingFunction: easingMap[easingFunction] || "linear",
-                      animationIterationCount: "infinite",
-                      opacity: trailOpacity * 0.4,
-                      ["--fall" as any]: `${fallDist ?? (typeof window !== 'undefined' ? window.innerHeight + 200 : 1200)}px`,
-                    } as React.CSSProperties}
-                  >
+                  return (
                     <span
-                      className="inline-block uv-sway"
-                      style={{
-                        transform: `translateX(-50%) scale(${trailScale})`,
-                        animationName: SwayName,
-                        animationDuration: `${swayDuration}s`,
-                        animationTimingFunction: "ease-in-out",
-                        animationIterationCount: "infinite",
-                        ["--amp" as any]: `${Math.round(p.driftAmp)}px`,
-                      } as React.CSSProperties}
+                      key={`${p.key}-trail-${trailIndex}`}
+                      className={cn("absolute top-0 will-change-transform pointer-events-none uv-falling-particle", colorClassName)}
+                      style={
+                        {
+                          left: `${p.leftPct}%`,
+                          animationDelay: `${trailDelay}s`,
+                          animationDuration: `${p.fallDur}s`,
+                          animationName: FallName,
+                          animationTimingFunction: easingMap[easingFunction] || "linear",
+                          animationIterationCount: "infinite",
+                          opacity: trailOpacity * 0.4,
+                          ["--fall" as any]: `${fallDist ?? (typeof window !== "undefined" ? window.innerHeight + 200 : 1200)}px`,
+                        } as React.CSSProperties
+                      }
                     >
                       <span
-                        className="block"
-                        style={{
-                          width: p.size,
-                          height: p.size,
-                          ...glowStyles,
-                        } as React.CSSProperties}
+                        className="inline-block uv-sway"
+                        style={
+                          {
+                            transform: `translateX(-50%) scale(${trailScale})`,
+                            animationName: SwayName,
+                            animationDuration: `${swayDuration}s`,
+                            animationTimingFunction: "ease-in-out",
+                            animationIterationCount: "infinite",
+                            ["--amp" as any]: `${Math.round(p.driftAmp)}px`,
+                          } as React.CSSProperties
+                        }
                       >
-                        <TheIcon className={cn("w-full h-full text-primary/70", colorClassName)} />
+                        <span
+                          className="block"
+                          style={
+                            {
+                              width: p.size,
+                              height: p.size,
+                              ...glowStyles,
+                            } as React.CSSProperties
+                          }
+                        >
+                          <TheIcon className={cn("w-full h-full text-primary/70", colorClassName)} />
+                        </span>
                       </span>
                     </span>
-                  </span>
-                );
-              })}
+                  );
+                })}
 
               {/* Main particle */}
               <span
                 className={cn("absolute top-0 will-change-transform pointer-events-auto uv-falling-particle", colorClassName)}
-                style={{
-                  left: `${p.leftPct}%`,
-                  animationDelay: `${p.delay}s`,
-                  animationDuration: `${p.fallDur}s`,
-                  animationName: FallName,
-                  animationTimingFunction: easingMap[easingFunction] || "linear",
-                  animationIterationCount: "infinite",
-                  ["--fall" as any]: `${fallDist ?? (typeof window !== 'undefined' ? window.innerHeight + 200 : 1200)}px`,
-                } as React.CSSProperties}
+                style={
+                  {
+                    left: `${p.leftPct}%`,
+                    animationDelay: `${p.delay}s`,
+                    animationDuration: `${p.fallDur}s`,
+                    animationName: FallName,
+                    animationTimingFunction: easingMap[easingFunction] || "linear",
+                    animationIterationCount: "infinite",
+                    ["--fall" as any]: `${fallDist ?? (typeof window !== "undefined" ? window.innerHeight + 200 : 1200)}px`,
+                  } as React.CSSProperties
+                }
                 onMouseEnter={handlePop}
                 onAnimationIteration={(ev: React.AnimationEvent<HTMLSpanElement>) => {
                   // Ignore bubbled events from inner sway/spin animations
@@ -320,31 +316,35 @@ export default function FallingIcons({
               >
                 <span
                   className="inline-block uv-sway"
-                  style={{
-                    transform: `translateX(-50%)`,
-                    animationName: SwayName,
-                    animationDuration: `${swayDuration}s`,
-                    animationTimingFunction: "ease-in-out",
-                    animationIterationCount: "infinite",
-                    ["--amp" as any]: `${Math.round(p.driftAmp)}px`,
-                  } as React.CSSProperties}
+                  style={
+                    {
+                      transform: `translateX(-50%)`,
+                      animationName: SwayName,
+                      animationDuration: `${swayDuration}s`,
+                      animationTimingFunction: "ease-in-out",
+                      animationIterationCount: "infinite",
+                      ["--amp" as any]: `${Math.round(p.driftAmp)}px`,
+                    } as React.CSSProperties
+                  }
                 >
                   <span
                     className={cn(
                       "block uv-spin hover:animate-[var(--popName)_0.35s_ease-out_forwards]",
                       physicsRotation
                         ? "animate-[var(--physicsSpinName)_var(--spinDur)_ease-in-out_infinite]"
-                        : spin && "animate-[var(--spinName)_var(--spinDur)_linear_infinite]"
+                        : spin && "animate-[var(--spinName)_var(--spinDur)_linear_infinite]",
                     )}
-                    style={{
-                      width: p.size,
-                      height: p.size,
-                      ["--spinName" as any]: SpinName,
-                      ["--physicsSpinName" as any]: PhysicsSpinName,
-                      ["--spinDur" as any]: `${spinDuration}s`,
-                      ["--popName" as any]: PopName,
-                      ...glowStyles,
-                    } as React.CSSProperties}
+                    style={
+                      {
+                        width: p.size,
+                        height: p.size,
+                        ["--spinName" as any]: SpinName,
+                        ["--physicsSpinName" as any]: PhysicsSpinName,
+                        ["--spinDur" as any]: `${spinDuration}s`,
+                        ["--popName" as any]: PopName,
+                        ...glowStyles,
+                      } as React.CSSProperties
+                    }
                   >
                     <TheIcon className={cn("w-full h-full text-primary/70", colorClassName)} />
                   </span>

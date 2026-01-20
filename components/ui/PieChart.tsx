@@ -201,7 +201,7 @@ export function PieChart({
               className="flex items-center gap-2 text-sm"
               style={animated ? { opacity: 0, animation: `fadeIn 0.3s ease-out ${i * 0.1 + 0.3}s forwards` } : undefined}
             >
-              <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: seg.color }} />
+              <div className="w-3 h-3 rounded-md shrink-0" style={{ backgroundColor: seg.color }} />
               <span className="text-muted-foreground">{seg.label}</span>
               <span className="text-foreground font-medium ml-auto">{showPercentage ? `${(seg.percentage * 100).toFixed(0)}%` : seg.value}</span>
             </div>

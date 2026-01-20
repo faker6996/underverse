@@ -148,8 +148,8 @@ export const Pagination: React.FC<PaginationProps> = ({
             disabled={disabled || page === 1}
             className={cn(
               sizeClass.btn,
-              "p-0 rounded transition-colors hidden sm:flex items-center justify-center",
-              disabled || page === 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground"
+              "p-0 rounded-lg transition-colors hidden sm:flex items-center justify-center",
+              disabled || page === 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
             )}
             title={labels?.firstPage || t("firstPage")}
             aria-label={labels?.firstPage || t("firstPage")}
@@ -165,8 +165,8 @@ export const Pagination: React.FC<PaginationProps> = ({
             disabled={disabled || page === 1}
             className={cn(
               sizeClass.btn,
-              "p-0 rounded transition-colors flex items-center justify-center",
-              disabled || page === 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground"
+              "p-0 rounded-lg transition-colors flex items-center justify-center",
+              disabled || page === 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
             )}
             title={labels?.previousPage || t("previousPage")}
             aria-label={labels?.previousPage || t("previousPage")}
@@ -189,16 +189,16 @@ export const Pagination: React.FC<PaginationProps> = ({
                 disabled={disabled}
                 className={cn(
                   sizeClass.page,
-                  "rounded font-medium transition-colors",
+                  "rounded-lg font-medium transition-colors",
                   page === p ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground",
-                  disabled && "opacity-40 cursor-not-allowed"
+                  disabled && "opacity-40 cursor-not-allowed",
                 )}
                 aria-label={labels?.pageNumber ? labels.pageNumber(p) : t("pageNumber", { page: p })}
                 aria-current={page === p ? "page" : undefined}
               >
                 {p}
               </button>
-            )
+            ),
           )}
 
         {/* Next Page */}
@@ -208,8 +208,8 @@ export const Pagination: React.FC<PaginationProps> = ({
             disabled={disabled || page === totalPages}
             className={cn(
               sizeClass.btn,
-              "p-0 rounded transition-colors flex items-center justify-center",
-              disabled || page === totalPages ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground"
+              "p-0 rounded-lg transition-colors flex items-center justify-center",
+              disabled || page === totalPages ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
             )}
             title={labels?.nextPage || t("nextPage")}
             aria-label={labels?.nextPage || t("nextPage")}
@@ -225,8 +225,8 @@ export const Pagination: React.FC<PaginationProps> = ({
             disabled={disabled || page === totalPages}
             className={cn(
               sizeClass.btn,
-              "p-0 rounded transition-colors hidden sm:flex items-center justify-center",
-              disabled || page === totalPages ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground"
+              "p-0 rounded-lg transition-colors hidden sm:flex items-center justify-center",
+              disabled || page === totalPages ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
             )}
             title={labels?.lastPage || t("lastPage")}
             aria-label={labels?.lastPage || t("lastPage")}
@@ -307,8 +307,8 @@ export const SimplePagination: React.FC<SimplePaginationProps> = ({
           disabled={disabled || page === 1}
           className={cn(
             sizeClass.btn,
-            "p-0 rounded transition-colors flex items-center justify-center",
-            disabled || page === 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground"
+            "p-0 rounded-lg transition-colors flex items-center justify-center",
+            disabled || page === 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
           )}
           aria-label="Previous page"
         >
@@ -324,8 +324,8 @@ export const SimplePagination: React.FC<SimplePaginationProps> = ({
           disabled={disabled || page === totalPages}
           className={cn(
             sizeClass.btn,
-            "p-0 rounded transition-colors flex items-center justify-center",
-            disabled || page === totalPages ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground"
+            "p-0 rounded-lg transition-colors flex items-center justify-center",
+            disabled || page === totalPages ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
           )}
           aria-label="Next page"
         >
@@ -356,8 +356,8 @@ export const CompactPagination: React.FC<CompactPaginationProps> = ({ page, tota
         onClick={() => onChange(1)}
         disabled={disabled || page === 1}
         className={cn(
-          "h-6 w-6 p-0 rounded transition-colors flex items-center justify-center",
-          disabled || page === 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground"
+          "h-6 w-6 p-0 rounded-lg transition-colors flex items-center justify-center",
+          disabled || page === 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
         )}
         title="First page"
         aria-label="First page"
@@ -368,8 +368,8 @@ export const CompactPagination: React.FC<CompactPaginationProps> = ({ page, tota
         onClick={() => onChange(Math.max(1, page - 1))}
         disabled={disabled || page === 1}
         className={cn(
-          "h-6 w-6 p-0 rounded transition-colors flex items-center justify-center",
-          disabled || page === 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground"
+          "h-6 w-6 p-0 rounded-lg transition-colors flex items-center justify-center",
+          disabled || page === 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
         )}
         title="Previous page"
         aria-label="Previous page"
@@ -385,8 +385,8 @@ export const CompactPagination: React.FC<CompactPaginationProps> = ({ page, tota
         onClick={() => onChange(Math.min(totalPages, page + 1))}
         disabled={disabled || page === totalPages}
         className={cn(
-          "h-6 w-6 p-0 rounded transition-colors flex items-center justify-center",
-          disabled || page === totalPages ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground"
+          "h-6 w-6 p-0 rounded-lg transition-colors flex items-center justify-center",
+          disabled || page === totalPages ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
         )}
         title="Next page"
         aria-label="Next page"
@@ -397,8 +397,8 @@ export const CompactPagination: React.FC<CompactPaginationProps> = ({ page, tota
         onClick={() => onChange(totalPages)}
         disabled={disabled || page === totalPages}
         className={cn(
-          "h-6 w-6 p-0 rounded transition-colors flex items-center justify-center",
-          disabled || page === totalPages ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground"
+          "h-6 w-6 p-0 rounded-lg transition-colors flex items-center justify-center",
+          disabled || page === totalPages ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
         )}
         title="Last page"
         aria-label="Last page"

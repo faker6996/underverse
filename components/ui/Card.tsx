@@ -51,7 +51,7 @@ const Card = ({
   return (
     <div
       className={cn(
-        "rounded-lg md:rounded-xl bg-card text-card-foreground transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft",
+        "rounded-2xl md:rounded-3xl bg-card text-card-foreground transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft",
         "shadow-sm md:hover:shadow-md mx-2 md:mx-0 border border-border",
         hoverable && "md:hover:-translate-y-0.5 md:hover:border-primary/15",
         clickable && "cursor-pointer active:translate-y-px md:hover:bg-accent/5",
@@ -63,7 +63,7 @@ const Card = ({
       onClick={onClick}
       {...rest}
     >
-      <div className={cn("relative overflow-hidden rounded-xl", innerClassName)}>
+      <div className={cn("relative overflow-hidden rounded-2xl md:rounded-3xl", innerClassName)}>
         {(hoverable || clickable) && (
           <div
             className={cn(

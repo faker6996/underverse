@@ -268,7 +268,7 @@ export function AreaChart({
                 />
                 <circle cx={point.x} cy={point.y} r={12} fill="transparent" />
               </g>
-            ))
+            )),
           )}
 
         {/* X-axis labels */}
@@ -334,7 +334,7 @@ export function AreaChart({
               className="flex items-center gap-2 text-sm"
               style={animated ? { opacity: 0, animation: `fadeIn 0.3s ease-out ${i * 0.1 + 0.5}s forwards` } : undefined}
             >
-              <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: s.color }} />
+              <div className="w-3 h-3 rounded-md" style={{ backgroundColor: s.color }} />
               <span className="text-muted-foreground">{s.name}</span>
             </div>
           ))}

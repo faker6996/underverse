@@ -7,6 +7,11 @@ Exports:
 
 Note: Usage snippets are minimal; fill required props from the props type below.
 
+## Behavior
+
+- Dropdown uses `Popover` internally (portal + fixed positioning + auto flip/clamp in viewport).
+- Dropdown width matches the trigger by default.
+
 ## MultiCombobox
 
 Props type: `MultiComboboxProps`
@@ -15,7 +20,7 @@ Props type: `MultiComboboxProps`
 import { MultiCombobox } from "@underverse-ui/underverse";
 
 export function Example() {
-  return <MultiCombobox />;
+  return <MultiCombobox value={[]} onChange={() => {}} options={[]} />;
 }
 ```
 
@@ -26,13 +31,13 @@ import React from "react";
 import { MultiCombobox } from "@underverse-ui/underverse";
 
 export function Example() {
-  const [value, setValue] = React.useState("");
+  const [value, setValue] = React.useState<string[]>([]);
 
   return (
     <MultiCombobox
       value={value}
       onChange={setValue}
-      options={"Gia tri"}
+      options={["Gia tri"]}
       label={"Nhan"}
       placeholder={"Nhap..."}
      />

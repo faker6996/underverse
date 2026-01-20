@@ -39,21 +39,24 @@ interface RadioGroupProps {
 }
 
 export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
-  ({ 
-    value, 
-    defaultValue, 
-    onValueChange, 
-    name, 
-    disabled = false, 
-    orientation = "vertical",
-    size = "md",
-    variant = "default",
-    className, 
-    children,
-    required = false,
-    error = false,
-    errorMessage
-  }, ref) => {
+  (
+    {
+      value,
+      defaultValue,
+      onValueChange,
+      name,
+      disabled = false,
+      orientation = "vertical",
+      size = "md",
+      variant = "default",
+      className,
+      children,
+      required = false,
+      error = false,
+      errorMessage,
+    },
+    ref,
+  ) => {
     const [internalValue, setInternalValue] = React.useState(defaultValue || "");
     const isControlled = value !== undefined;
     const currentValue = isControlled ? value : internalValue;
@@ -79,7 +82,7 @@ export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
           name: radioName,
           disabled,
           size,
-          variant
+          variant,
         }}
       >
         <div className="space-y-2">
@@ -89,7 +92,7 @@ export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
               "grid gap-2",
               orientation === "horizontal" ? "grid-flow-col auto-cols-max" : "grid-cols-1",
               error && "ring-2 ring-destructive/20 rounded-md p-2",
-              className
+              className,
             )}
             role="radiogroup"
             aria-disabled={disabled}
@@ -98,13 +101,11 @@ export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
           >
             {children}
           </div>
-          {error && errorMessage && (
-            <p className="text-sm text-destructive mt-1">{errorMessage}</p>
-          )}
+          {error && errorMessage && <p className="text-sm text-destructive mt-1">{errorMessage}</p>}
         </div>
       </RadioGroupContext.Provider>
     );
-  }
+  },
 );
 
 RadioGroup.displayName = "RadioGroup";
@@ -125,33 +126,26 @@ const sizeStyles = {
     radio: "h-3 w-3",
     dot: "w-1.5 h-1.5",
     text: "text-xs",
-    padding: "p-2"
+    padding: "p-2",
   },
   md: {
-    radio: "h-4 w-4", 
+    radio: "h-4 w-4",
     dot: "w-2 h-2",
     text: "text-sm",
-    padding: "p-3"
+    padding: "p-3",
   },
   lg: {
     radio: "h-5 w-5",
-    dot: "w-2.5 h-2.5", 
+    dot: "w-2.5 h-2.5",
     text: "text-base",
-    padding: "p-4"
-  }
+    padding: "p-4",
+  },
 };
 
 export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItemProps>(
   ({ value, id, disabled, className, children, label, description, icon }, ref) => {
-    const { 
-      value: selectedValue, 
-      onValueChange, 
-      name, 
-      disabled: groupDisabled,
-      size = "md",
-      variant = "default"
-    } = useRadioGroup();
-    
+    const { value: selectedValue, onValueChange, name, disabled: groupDisabled, size = "md", variant = "default" } = useRadioGroup();
+
     const isDisabled = disabled || groupDisabled;
     const isSelected = selectedValue === value;
     const Icon = icon;
@@ -162,12 +156,12 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
       return (
         <div
           className={cn(
-            "relative rounded-lg border transition-all duration-200 cursor-pointer",
+            "relative rounded-xl border transition-all duration-200 cursor-pointer",
             "hover:bg-accent/50 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
             isSelected && "border-primary bg-primary/5 ring-1 ring-primary/20",
             isDisabled && "cursor-not-allowed opacity-50",
             sizeStyles[size].padding,
-            className
+            className,
           )}
         >
           <div className="flex items-start gap-3">
@@ -185,43 +179,28 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 "disabled:cursor-not-allowed disabled:opacity-50",
                 "transition-all duration-200 mt-0.5",
-                sizeStyles[size].radio
+                sizeStyles[size].radio,
               )}
               onClick={() => onValueChange?.(value)}
             >
-              <span 
-                className={cn(
-                  "flex items-center justify-center w-full h-full rounded-full transition-all duration-200",
-                  isSelected && "bg-primary"
-                )}
+              <span
+                className={cn("flex items-center justify-center w-full h-full rounded-full transition-all duration-200", isSelected && "bg-primary")}
               >
-                {isSelected && (
-                  <span className={cn("bg-primary-foreground rounded-full", sizeStyles[size].dot)} />
-                )}
+                {isSelected && <span className={cn("bg-primary-foreground rounded-full", sizeStyles[size].dot)} />}
               </span>
             </button>
-            
+
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 {Icon && <Icon className="h-4 w-4 text-foreground" />}
-                <label 
-                  htmlFor={radioId}
-                  className={cn(
-                    "font-medium text-foreground cursor-pointer",
-                    sizeStyles[size].text
-                  )}
-                >
+                <label htmlFor={radioId} className={cn("font-medium text-foreground cursor-pointer", sizeStyles[size].text)}>
                   {label || children}
                 </label>
               </div>
-              {description && (
-                <p className="text-muted-foreground mt-1 text-xs">
-                  {description}
-                </p>
-              )}
+              {description && <p className="text-muted-foreground mt-1 text-xs">{description}</p>}
             </div>
           </div>
-          
+
           <input
             type="radio"
             name={name}
@@ -247,15 +226,15 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
           id={radioId}
           disabled={isDisabled}
           className={cn(
-            "inline-flex items-center justify-center gap-2 rounded-md border font-medium transition-all duration-200",
+            "inline-flex items-center justify-center gap-2 rounded-lg border font-medium transition-all duration-200",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             "disabled:cursor-not-allowed disabled:opacity-50",
-            isSelected 
+            isSelected
               ? "border-primary bg-primary text-primary-foreground shadow-sm"
               : "border-border bg-background hover:bg-accent hover:text-accent-foreground",
             sizeStyles[size].padding,
             sizeStyles[size].text,
-            className
+            className,
           )}
           onClick={() => onValueChange?.(value)}
         >
@@ -291,44 +270,33 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             "disabled:cursor-not-allowed disabled:opacity-50",
             "transition-all duration-200 hover:border-primary/80",
-            sizeStyles[size].radio
+            sizeStyles[size].radio,
           )}
           onClick={() => onValueChange?.(value)}
         >
-          <span 
-            className={cn(
-              "flex items-center justify-center w-full h-full rounded-full transition-all duration-200",
-              isSelected && "bg-primary"
-            )}
-          >
-            {isSelected && (
-              <span className={cn("bg-primary-foreground rounded-full", sizeStyles[size].dot)} />
-            )}
+          <span className={cn("flex items-center justify-center w-full h-full rounded-full transition-all duration-200", isSelected && "bg-primary")}>
+            {isSelected && <span className={cn("bg-primary-foreground rounded-full", sizeStyles[size].dot)} />}
           </span>
         </button>
-        
+
         {(label || children) && (
-          <label 
+          <label
             htmlFor={radioId}
             className={cn(
               "font-medium text-foreground cursor-pointer flex-1",
               "disabled:cursor-not-allowed disabled:opacity-50",
               sizeStyles[size].text,
-              isDisabled && "cursor-not-allowed opacity-50"
+              isDisabled && "cursor-not-allowed opacity-50",
             )}
           >
             <div className="flex items-center gap-2">
               {Icon && <Icon className="h-4 w-4" />}
               <span>{label || children}</span>
             </div>
-            {description && (
-              <p className="text-muted-foreground mt-0.5 text-xs">
-                {description}
-              </p>
-            )}
+            {description && <p className="text-muted-foreground mt-0.5 text-xs">{description}</p>}
           </label>
         )}
-        
+
         <input
           type="radio"
           name={name}
@@ -340,7 +308,7 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
         />
       </div>
     );
-  }
+  },
 );
 
 RadioGroupItem.displayName = "RadioGroupItem";
@@ -381,7 +349,7 @@ export const SimpleRadioGroup: React.FC<SimpleRadioGroupProps> = ({
   className,
   required = false,
   error = false,
-  errorMessage
+  errorMessage,
 }) => {
   return (
     <RadioGroup
@@ -444,7 +412,7 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
   size = "md",
   variant = "default",
   className,
-  fullWidth = false
+  fullWidth = false,
 }) => {
   const [internalValue, setInternalValue] = React.useState(defaultValue || "");
   const isControlled = value !== undefined;
@@ -462,40 +430,32 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
   const sizeClasses = {
     sm: "px-3 py-1.5 text-xs",
     md: "px-4 py-2 text-sm",
-    lg: "px-6 py-3 text-base"
+    lg: "px-6 py-3 text-base",
   };
 
   const variantClasses = {
     default: {
       container: "bg-muted rounded-md p-1",
       base: "bg-transparent hover:bg-background/50",
-      selected: "bg-background text-foreground shadow-sm"
+      selected: "bg-background text-foreground shadow-sm",
     },
     outline: {
       container: "border border-border rounded-md overflow-hidden",
       base: "bg-background border-r border-border hover:bg-accent",
-      selected: "bg-primary text-primary-foreground border-primary"
+      selected: "bg-primary text-primary-foreground border-primary",
     },
     solid: {
       container: "border border-border rounded-md overflow-hidden",
       base: "bg-background hover:bg-accent",
-      selected: "bg-primary text-primary-foreground"
-    }
+      selected: "bg-primary text-primary-foreground",
+    },
   };
 
   const uniqueId = React.useId();
   const radioName = name || `radio-button-group-${uniqueId}`;
 
   return (
-    <div 
-      className={cn(
-        "inline-flex",
-        variantClasses[variant].container,
-        fullWidth && "w-full",
-        className
-      )}
-      role="radiogroup"
-    >
+    <div className={cn("inline-flex", variantClasses[variant].container, fullWidth && "w-full", className)} role="radiogroup">
       {items.map((item, index) => {
         const isSelected = currentValue === item.value;
         const isDisabled = item.disabled || disabled;
@@ -514,12 +474,10 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
               "disabled:cursor-not-allowed disabled:opacity-50",
               sizeClasses[size],
-              isSelected 
-                ? variantClasses[variant].selected 
-                : variantClasses[variant].base,
+              isSelected ? variantClasses[variant].selected : variantClasses[variant].base,
               variant === "outline" && !isLast && "border-r border-border",
               variant === "default" && "rounded-sm",
-              fullWidth && "flex-1"
+              fullWidth && "flex-1",
             )}
             onClick={() => handleValueChange(item.value)}
           >
@@ -542,14 +500,14 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
 };
 
 // Segmented Control (iOS-style)
-interface SegmentedControlProps extends Omit<RadioButtonGroupProps, 'variant'> {}
+interface SegmentedControlProps extends Omit<RadioButtonGroupProps, "variant"> {}
 
 export const SegmentedControl: React.FC<SegmentedControlProps> = (props) => {
   return <RadioButtonGroup {...props} variant="default" />;
 };
 
 // Toggle Group (Connected outline buttons)
-interface ToggleGroupProps extends Omit<RadioButtonGroupProps, 'variant'> {}
+interface ToggleGroupProps extends Omit<RadioButtonGroupProps, "variant"> {}
 
 export const ToggleGroup: React.FC<ToggleGroupProps> = (props) => {
   return <RadioButtonGroup {...props} variant="outline" />;

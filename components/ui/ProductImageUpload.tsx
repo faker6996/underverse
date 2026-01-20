@@ -124,7 +124,7 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({ value, o
 
       {value ? (
         <div className="space-y-4">
-          <div className="relative w-full aspect-square max-w-md rounded-xl overflow-hidden border-2 border-border bg-muted shadow-lg group">
+          <div className="relative w-full aspect-square max-w-md rounded-2xl overflow-hidden border-2 border-border bg-muted shadow-lg group">
             <Image
               src={value}
               alt="Product image"
@@ -154,13 +154,13 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({ value, o
       ) : (
         <div
           className={cn(
-            "w-full aspect-square max-w-md rounded-xl border-2 border-dashed transition-all duration-200",
+            "w-full aspect-square max-w-md rounded-2xl border-2 border-dashed transition-all duration-200",
             "bg-linear-to-br from-muted/30 to-muted/10",
             "flex flex-col items-center justify-center cursor-pointer",
             "hover:border-primary/60 hover:bg-primary/5 hover:shadow-lg hover:scale-[1.02]",
             isDragging && "border-primary bg-primary/10 shadow-lg scale-[1.02]",
             (disabled || uploading) && "opacity-50 cursor-not-allowed hover:scale-100",
-            !isDragging && !disabled && !uploading && "border-border"
+            !isDragging && !disabled && !uploading && "border-border",
           )}
           onClick={!disabled && !uploading ? handleClickUpload : undefined}
           onDragOver={handleDragOver}
@@ -171,7 +171,7 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({ value, o
             <div
               className={cn(
                 "w-20 h-20 rounded-full flex items-center justify-center mb-4 transition-colors",
-                isDragging ? "bg-primary/20" : "bg-primary/10"
+                isDragging ? "bg-primary/20" : "bg-primary/10",
               )}
             >
               <Upload className={cn("w-10 h-10 transition-colors", isDragging ? "text-primary" : "text-muted-foreground")} />

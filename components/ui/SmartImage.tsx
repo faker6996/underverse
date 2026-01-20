@@ -47,7 +47,7 @@ export default function SmartImage({
   alt,
   className,
   ratioClass,
-  roundedClass = "rounded-lg",
+  roundedClass = "rounded-xl",
   fill = true,
   width,
   height,
@@ -109,7 +109,7 @@ export default function SmartImage({
         "outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0",
         ratioClass,
         roundedClass,
-        className
+        className,
       )}
     >
       {children}
@@ -139,7 +139,7 @@ export default function SmartImage({
         "relative overflow-hidden bg-muted/30",
         "outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0",
         roundedClass,
-        className
+        className,
       )}
     >
       <Image

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils/cn";
 import { useShadCNAnimations } from "@/lib/utils/shadcn-animations";
 import React, { useState } from "react";
-import { createPortal } from "react-dom";
+import { Popover } from "./Popover";
 
 interface DropdownMenuProps {
   trigger: React.ReactElement;
@@ -38,9 +38,8 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   items,
 }) => {
   const [internalOpen, setInternalOpen] = useState(false);
-  const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
   const triggerRef = React.useRef<HTMLElement>(null);
-  const contentRef = React.useRef<HTMLDivElement>(null);
+  const menuRef = React.useRef<HTMLDivElement>(null);
   const itemsRef = React.useRef<HTMLButtonElement[]>([]);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
 
@@ -50,79 +49,27 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   const open = isOpen !== undefined ? isOpen : internalOpen;
   const setOpen = onOpenChange || setInternalOpen;
 
-  // Calculate position
+  // Reset keyboard focus index when opened
   React.useEffect(() => {
-    if (open && triggerRef.current && contentRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      const menuRect = contentRef.current.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-
-      let top = rect.bottom + 4;
-      let left = rect.left;
-
-      // Auto-flip to top if dropdown would go below viewport
-      if (rect.bottom + menuRect.height > viewportHeight && rect.top > menuRect.height) {
-        top = rect.top - menuRect.height - 4;
-      }
-
-      switch (placement) {
-        case "top":
-        case "top-start":
-          top = rect.top - menuRect.height - 4;
-          break;
-        case "top-end":
-          top = rect.top - menuRect.height - 4;
-          left = rect.right - menuRect.width;
-          break;
-        case "bottom":
-        case "bottom-start":
-          // Auto-flip logic above already handles this
-          break;
-        case "bottom-end":
-          left = rect.right - menuRect.width;
-          break;
-        case "left":
-          top = rect.top;
-          left = rect.left - menuRect.width - 4;
-          break;
-        case "right":
-          top = rect.top;
-          left = rect.right + 4;
-          break;
-      }
-
-      setPosition({ top, left });
-    }
-    // Reset keyboard focus index when opened
     if (open) setActiveIndex(-1);
-  }, [open, placement]);
+  }, [open]);
 
-  // Handle clicks outside
+  // Keyboard navigation inside the menu (Arrow keys/Home/End)
   React.useEffect(() => {
     if (!open) return;
 
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (triggerRef.current && !triggerRef.current.contains(target)) {
-        const dropdown = document.querySelector("[data-dropdown-menu]") as Element;
-        if (dropdown && !dropdown.contains(target)) {
-          setOpen(false);
-        }
-      }
-    };
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscape);
     const handleKeyNav = (e: KeyboardEvent) => {
-      if (!contentRef.current) return;
+      const active = document.activeElement as Node | null;
+      const triggerEl = triggerRef.current;
+      const menuEl = menuRef.current;
+      if (!active || !triggerEl || !menuEl) return;
+      const isInMenu = menuEl.contains(active);
+      const isOnTrigger = triggerEl.contains(active);
+      if (!isInMenu && !isOnTrigger) return;
+
       const enabled = itemsRef.current.filter((el) => el && !el.disabled);
       if (enabled.length === 0) return;
+
       if (e.key === "ArrowDown") {
         e.preventDefault();
         const next = (activeIndex + 1 + enabled.length) % enabled.length;
@@ -143,20 +90,12 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
         enabled[enabled.length - 1]?.focus();
       }
     };
-    document.addEventListener("keydown", handleKeyNav);
 
+    document.addEventListener("keydown", handleKeyNav);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscape);
       document.removeEventListener("keydown", handleKeyNav);
     };
-  }, [open, setOpen, activeIndex]);
-
-  const handleTriggerClick = () => {
-    if (!disabled) {
-      setOpen(!open);
-    }
-  };
+  }, [open, activeIndex]);
 
   const handleItemClick = (itemOnClick: () => void) => {
     itemOnClick();
@@ -165,81 +104,84 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
     }
   };
 
-  const dropdownContent = open ? (
-    <div
-      data-dropdown-menu
-      data-combobox-dropdown
-      ref={contentRef}
-      style={{
-        position: "fixed",
-        top: position?.top ?? -9999,
-        left: position?.left ?? -9999,
-        zIndex: 9999,
-        visibility: position ? "visible" : "hidden",
-        transformOrigin: "top center",
-      }}
-      data-state={open ? "open" : "closed"}
-      role="menu"
-      className={cn("z-9999 min-w-40", className)}
-    >
-      <div
-        className={cn(
-          "rounded-md border bg-popover text-popover-foreground shadow-md",
-          "backdrop-blur-sm bg-popover/95 border-border/60 p-1",
-          contentClassName,
-        )}
-      >
-        {items
-          ? items.map((item, index) => {
-              const IconComponent = item.icon;
-              return (
-                <button
-                  key={index}
-                  ref={(el) => {
-                    if (el) itemsRef.current[index] = el;
-                  }}
-                  onClick={() => handleItemClick(item.onClick)}
-                  disabled={item.disabled}
-                  role="menuitem"
-                  tabIndex={-1}
-                  style={{
-                    animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms",
-                  }}
-                  className={cn(
-                    "dropdown-item flex w-full items-center gap-2 px-2.5 py-1.5 text-sm rounded-sm",
-                    "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                    "hover:bg-accent hover:text-accent-foreground",
-                    "focus:bg-accent focus:text-accent-foreground",
-                    "disabled:opacity-50 disabled:cursor-not-allowed",
-                    item.destructive && "text-destructive hover:bg-destructive/10 focus:bg-destructive/10",
-                  )}
-                >
-                  {IconComponent && <IconComponent className="h-4 w-4" />}
-                  {item.label}
-                </button>
-              );
-            })
-          : children}
-      </div>
+  const menuBody = (
+    <div ref={menuRef} data-dropdown-menu data-state={open ? "open" : "closed"} role="menu" className={cn("min-w-40", className)}>
+      {items
+        ? items.map((item, index) => {
+            const IconComponent = item.icon;
+            return (
+              <button
+                key={index}
+                ref={(el) => {
+                  if (el) itemsRef.current[index] = el;
+                }}
+                onClick={() => handleItemClick(item.onClick)}
+                disabled={item.disabled}
+                role="menuitem"
+                tabIndex={-1}
+                style={{
+                  animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms",
+                }}
+                className={cn(
+                  "dropdown-item flex w-full items-center gap-2 px-2.5 py-1.5 text-sm rounded-lg",
+                  "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                  "hover:bg-accent hover:text-accent-foreground",
+                  "focus:bg-accent focus:text-accent-foreground",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  item.destructive && "text-destructive hover:bg-destructive/10 focus:bg-destructive/10",
+                )}
+              >
+                {IconComponent && <IconComponent className="h-4 w-4" />}
+                {item.label}
+              </button>
+            );
+          })
+        : children}
     </div>
-  ) : null;
+  );
+
+  const enhancedTrigger = React.cloneElement(trigger, {
+    ref: triggerRef,
+    "aria-haspopup": "menu",
+    "aria-expanded": open,
+    onKeyDown: (e: React.KeyboardEvent) => {
+      if (disabled) return;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setOpen(true);
+        requestAnimationFrame(() => itemsRef.current.find((el) => el && !el.disabled)?.focus());
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setOpen(true);
+        requestAnimationFrame(() => {
+          const enabled = itemsRef.current.filter((el) => el && !el.disabled);
+          enabled[enabled.length - 1]?.focus();
+        });
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        setOpen(false);
+      }
+      if (typeof (trigger.props as any)?.onKeyDown === "function") {
+        (trigger.props as any).onKeyDown(e);
+      }
+    },
+    className: cn(
+      (trigger.props as any)?.className,
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    ),
+  } as any);
 
   return (
-    <>
-      {React.cloneElement(trigger, {
-        ref: triggerRef,
-        onClick: handleTriggerClick,
-        "aria-expanded": open,
-        "aria-haspopup": "menu",
-        className: cn(
-          // keep original classes on trigger
-          (trigger.props as any)?.className,
-          // ensure focus-visible ring for trigger too
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-        ),
-      } as any)}
-      {dropdownContent && typeof window !== "undefined" && createPortal(dropdownContent, document.body)}
-    </>
+    <Popover
+      open={open}
+      onOpenChange={setOpen}
+      trigger={enhancedTrigger}
+      placement={placement}
+      disabled={disabled}
+      contentClassName={cn("p-1", contentClassName)}
+    >
+      {menuBody}
+    </Popover>
   );
 };
 
@@ -255,7 +197,7 @@ export const DropdownMenuItem: React.FC<{
     onClick={onClick}
     disabled={disabled}
     className={cn(
-      "flex w-full items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
+      "flex w-full items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors",
       "hover:bg-accent hover:text-accent-foreground",
       "focus:bg-accent focus:text-accent-foreground focus:outline-none",
       "disabled:opacity-50 disabled:cursor-not-allowed",
@@ -280,7 +222,7 @@ export const SelectDropdown: React.FC<{
     trigger={
       <button
         className={cn(
-          "inline-flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-md border bg-background border-border/60",
+          "inline-flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-xl border bg-background border-border/60",
           "hover:bg-accent/50",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           className,

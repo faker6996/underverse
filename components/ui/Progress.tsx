@@ -20,17 +20,17 @@ interface ProgressProps {
 const variantStyles = {
   default: "bg-muted-foreground",
   primary: "bg-linear-to-r from-primary via-primary/90 to-primary",
-  success: "bg-linear-to-r from-success via-success/90 to-success shadow-sm shadow-success/20", 
+  success: "bg-linear-to-r from-success via-success/90 to-success shadow-sm shadow-success/20",
   warning: "bg-linear-to-r from-warning via-warning/90 to-warning shadow-sm shadow-warning/20",
   danger: "bg-linear-to-r from-destructive via-destructive/90 to-destructive shadow-sm shadow-destructive/20",
-  info: "bg-linear-to-r from-info via-info/90 to-info shadow-sm shadow-info/20"
+  info: "bg-linear-to-r from-info via-info/90 to-info shadow-sm shadow-info/20",
 };
 
 const sizeStyles = {
   sm: "h-1.5",
   md: "h-2.5",
   lg: "h-3.5",
-  xl: "h-4"
+  xl: "h-4",
 };
 
 export const Progress: React.FC<ProgressProps> = ({
@@ -45,7 +45,7 @@ export const Progress: React.FC<ProgressProps> = ({
   striped = false,
   indeterminate = false,
   description,
-  status = "normal"
+  status = "normal",
 }) => {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
   const isComplete = status === "complete" || percentage >= 100;
@@ -68,24 +68,27 @@ export const Progress: React.FC<ProgressProps> = ({
         <div className="space-y-1">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              {label && <span id={labelId} className="font-medium text-foreground">{label}</span>}
+              {label && (
+                <span id={labelId} className="font-medium text-foreground">
+                  {label}
+                </span>
+              )}
               {getStatusIcon()}
             </div>
             {showValue && !indeterminate && (
-              <span className={cn(
-                "text-sm font-medium",
-                isComplete ? "text-success" : isError ? "text-destructive" : "text-muted-foreground"
-              )}>
+              <span className={cn("text-sm font-medium", isComplete ? "text-success" : isError ? "text-destructive" : "text-muted-foreground")}>
                 {isComplete ? "Complete" : isError ? "Error" : `${Math.round(percentage)}%`}
               </span>
             )}
           </div>
           {description && (
-            <p id={descId} className="text-sm text-muted-foreground">{description}</p>
+            <p id={descId} className="text-sm text-muted-foreground">
+              {description}
+            </p>
           )}
         </div>
       )}
-      
+
       {/* Progress Bar */}
       <div
         role="progressbar"
@@ -94,11 +97,7 @@ export const Progress: React.FC<ProgressProps> = ({
         aria-valuenow={indeterminate ? undefined : Math.round(percentage)}
         aria-labelledby={label ? labelId : undefined}
         aria-describedby={description ? descId : undefined}
-        className={cn(
-          "w-full bg-muted/50 rounded-full overflow-hidden backdrop-blur-sm",
-          "border border-border/50",
-          sizeStyles[size]
-        )}
+        className={cn("w-full bg-muted/50 rounded-full overflow-hidden backdrop-blur-sm", "border border-border/50", sizeStyles[size])}
       >
         <div
           className={cn(
@@ -111,11 +110,13 @@ export const Progress: React.FC<ProgressProps> = ({
             striped && "bg-linear-to-r from-transparent via-primary-foreground/20 to-transparent bg-size-[1rem_1rem]",
             animated && !indeterminate && "before:animate-pulse",
             // Shimmer effect for indeterminate
-            indeterminate && "bg-linear-to-r from-muted via-primary/50 to-muted bg-size-[200%_100%] animate-[shimmer_2s_infinite]"
+            indeterminate && "bg-linear-to-r from-muted via-primary/50 to-muted bg-size-[200%_100%] animate-[shimmer_2s_infinite]",
           )}
-          style={{ 
+          style={{
             width: indeterminate ? "100%" : `${percentage}%`,
-            backgroundImage: striped ? "linear-gradient(45deg, hsl(var(--foreground) / 0.15) 25%, transparent 25%, transparent 50%, hsl(var(--foreground) / 0.15) 50%, hsl(var(--foreground) / 0.15) 75%, transparent 75%, transparent)" : undefined
+            backgroundImage: striped
+              ? "linear-gradient(45deg, hsl(var(--foreground) / 0.15) 25%, transparent 25%, transparent 50%, hsl(var(--foreground) / 0.15) 50%, hsl(var(--foreground) / 0.15) 75%, transparent 75%, transparent)"
+              : undefined,
           }}
         />
       </div>
@@ -149,7 +150,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
   children,
   indeterminate = false,
   status = "normal",
-  trackColor = "stroke-muted/20"
+  trackColor = "stroke-muted/20",
 }) => {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
   const radius = (size - strokeWidth) / 2;
@@ -162,9 +163,9 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
     default: "stroke-muted-foreground",
     primary: "stroke-primary",
     success: "stroke-success",
-    warning: "stroke-warning", 
+    warning: "stroke-warning",
     danger: "stroke-destructive",
-    info: "stroke-info"
+    info: "stroke-info",
   };
 
   const getContentIcon = () => {
@@ -185,23 +186,12 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
       <svg
         width={size}
         height={size}
-        className={cn(
-          "transform -rotate-90",
-          indeterminate && "animate-spin"
-        )}
+        className={cn("transform -rotate-90", indeterminate && "animate-spin")}
         style={{ animationDuration: indeterminate ? "2s" : undefined }}
       >
         {/* Background circle */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke="currentColor"
-          strokeWidth={strokeWidth}
-          fill="transparent"
-          className={trackColor}
-        />
-        
+        <circle cx={size / 2} cy={size / 2} r={radius} stroke="currentColor" strokeWidth={strokeWidth} fill="transparent" className={trackColor} />
+
         {/* Progress circle */}
         <circle
           cx={size / 2}
@@ -214,35 +204,30 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
           className={cn(
             "transition-all duration-700 ease-out",
             isComplete ? "stroke-success" : isError ? "stroke-destructive" : variantColors[variant],
-            "drop-shadow-sm"
+            "drop-shadow-sm",
           )}
           strokeLinecap="round"
           style={{
             filter: `drop-shadow(0 0 4px ${
-              isComplete ? "hsl(var(--success) / 0.3)" : 
-              isError ? "hsl(var(--destructive) / 0.3)" : 
-              "hsl(var(--primary) / 0.2)"
-            })`
+              isComplete ? "hsl(var(--success) / 0.3)" : isError ? "hsl(var(--destructive) / 0.3)" : "hsl(var(--primary) / 0.2)"
+            })`,
           }}
         />
       </svg>
-      
+
       {/* Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        {children ? children : (
+        {children ? (
+          children
+        ) : (
           <>
             {getContentIcon()}
             {showValue && !indeterminate && (
-              <span className={cn(
-                "text-sm font-semibold",
-                isComplete ? "text-success" : isError ? "text-destructive" : "text-foreground"
-              )}>
+              <span className={cn("text-sm font-semibold", isComplete ? "text-success" : isError ? "text-destructive" : "text-foreground")}>
                 {isComplete ? "✓" : isError ? "✗" : `${Math.round(percentage)}%`}
               </span>
             )}
-            {indeterminate && (
-              <Clock className="w-4 h-4 text-muted-foreground animate-pulse" />
-            )}
+            {indeterminate && <Clock className="w-4 h-4 text-muted-foreground animate-pulse" />}
           </>
         )}
       </div>
@@ -259,17 +244,11 @@ interface StepProgressProps {
   size?: "sm" | "md" | "lg";
 }
 
-export const StepProgress: React.FC<StepProgressProps> = ({
-  steps,
-  currentStep,
-  className,
-  variant = "primary",
-  size = "md"
-}) => {
+export const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStep, className, variant = "primary", size = "md" }) => {
   const stepSizes = {
     sm: "w-6 h-6 text-xs",
-    md: "w-8 h-8 text-sm", 
-    lg: "w-10 h-10 text-base"
+    md: "w-8 h-8 text-sm",
+    lg: "w-10 h-10 text-base",
   };
 
   const getStepStatus = (stepIndex: number) => {
@@ -283,7 +262,7 @@ export const StepProgress: React.FC<StepProgressProps> = ({
       <div className="flex items-center justify-between">
         {steps.map((step, index) => {
           const status = getStepStatus(index);
-          
+
           return (
             <div key={step} className="flex items-center" role="listitem" aria-current={status === "current" ? "step" : undefined}>
               {/* Step Circle */}
@@ -292,44 +271,29 @@ export const StepProgress: React.FC<StepProgressProps> = ({
                   "rounded-full border-2 flex items-center justify-center font-medium transition-all duration-300",
                   "shadow-sm hover:shadow-md",
                   stepSizes[size],
-                  status === "completed" && [
-                    "border-success bg-success text-success-foreground",
-                    "shadow-success/20"
-                  ],
-                  status === "current" && [
-                    "border-primary bg-primary/10 text-primary",
-                    "ring-2 ring-primary/20 ring-offset-2",
-                    "shadow-primary/20"
-                  ],
-                  status === "upcoming" && [
-                    "border-muted-foreground/30 text-muted-foreground bg-background",
-                    "hover:border-muted-foreground/50"
-                  ]
+                  status === "completed" && ["border-success bg-success text-success-foreground", "shadow-success/20"],
+                  status === "current" && ["border-primary bg-primary/10 text-primary", "ring-2 ring-primary/20 ring-offset-2", "shadow-primary/20"],
+                  status === "upcoming" && ["border-muted-foreground/30 text-muted-foreground bg-background", "hover:border-muted-foreground/50"],
                 )}
               >
                 {status === "completed" ? <Check className="w-3 h-3" /> : index + 1}
               </div>
-              
+
               {/* Step Label */}
               <span
                 className={cn(
                   "ml-2 text-sm font-medium transition-colors duration-200",
                   status === "completed" && variantStyles[variant].replace("bg-", "text-"),
                   status === "current" && "text-foreground",
-                  status === "upcoming" && "text-muted-foreground"
+                  status === "upcoming" && "text-muted-foreground",
                 )}
               >
                 {step}
               </span>
-              
+
               {/* Connector Line */}
               {index < steps.length - 1 && (
-                <div
-                  className={cn(
-                    "flex-1 h-0.5 mx-4 transition-colors duration-200",
-                    index < currentStep ? variantStyles[variant] : "bg-muted"
-                  )}
-                />
+                <div className={cn("flex-1 h-0.5 mx-4 transition-colors duration-200", index < currentStep ? variantStyles[variant] : "bg-muted")} />
               )}
             </div>
           );
@@ -348,13 +312,7 @@ interface MiniProgressProps {
   showValue?: boolean;
 }
 
-export const MiniProgress: React.FC<MiniProgressProps> = ({
-  value,
-  max = 100,
-  className,
-  variant = "primary",
-  showValue = false
-}) => {
+export const MiniProgress: React.FC<MiniProgressProps> = ({ value, max = 100, className, variant = "primary", showValue = false }) => {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
 
   return (
@@ -366,19 +324,9 @@ export const MiniProgress: React.FC<MiniProgressProps> = ({
         aria-valuemax={max}
         aria-valuenow={Math.round(percentage)}
       >
-        <div
-          className={cn(
-            "h-full transition-all duration-500 ease-out rounded-full",
-            variantStyles[variant]
-          )}
-          style={{ width: `${percentage}%` }}
-        />
+        <div className={cn("h-full transition-all duration-500 ease-out rounded-full", variantStyles[variant])} style={{ width: `${percentage}%` }} />
       </div>
-      {showValue && (
-        <span className="text-xs font-medium text-muted-foreground min-w-10 text-right">
-          {Math.round(percentage)}%
-        </span>
-      )}
+      {showValue && <span className="text-xs font-medium text-muted-foreground min-w-10 text-right">{Math.round(percentage)}%</span>}
     </div>
   );
 };
@@ -392,13 +340,7 @@ interface BatteryProgressProps {
   showValue?: boolean;
 }
 
-export const BatteryProgress: React.FC<BatteryProgressProps> = ({
-  value,
-  max = 100,
-  className,
-  charging = false,
-  showValue = false
-}) => {
+export const BatteryProgress: React.FC<BatteryProgressProps> = ({ value, max = 100, className, charging = false, showValue = false }) => {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
   const getVariant = () => {
     if (charging) return "info";
@@ -409,17 +351,20 @@ export const BatteryProgress: React.FC<BatteryProgressProps> = ({
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <div className="relative" role="progressbar" aria-label="Battery level" aria-valuemin={0} aria-valuemax={max} aria-valuenow={Math.round(percentage)}>
+      <div
+        className="relative"
+        role="progressbar"
+        aria-label="Battery level"
+        aria-valuemin={0}
+        aria-valuemax={max}
+        aria-valuenow={Math.round(percentage)}
+      >
         {/* Battery outline */}
-        <div className="w-6 h-3 border-2 border-foreground/20 rounded-sm relative">
+        <div className="w-6 h-3 border-2 border-foreground/20 rounded-md relative">
           <div className="absolute -right-1 top-0.5 w-0.5 h-1 bg-foreground/20 rounded-r-sm" />
           {/* Battery fill */}
           <div
-            className={cn(
-              "h-full transition-all duration-500 ease-out rounded-sm",
-              variantStyles[getVariant()],
-              charging && "animate-pulse"
-            )}
+            className={cn("h-full transition-all duration-500 ease-out rounded-sm", variantStyles[getVariant()], charging && "animate-pulse")}
             style={{ width: `${percentage}%` }}
           />
         </div>
@@ -430,12 +375,7 @@ export const BatteryProgress: React.FC<BatteryProgressProps> = ({
         )}
       </div>
       {showValue && (
-        <span className={cn(
-          "text-xs font-medium",
-          percentage <= 20 ? "text-destructive" : "text-muted-foreground"
-        )}>
-          {Math.round(percentage)}%
-        </span>
+        <span className={cn("text-xs font-medium", percentage <= 20 ? "text-destructive" : "text-muted-foreground")}>{Math.round(percentage)}%</span>
       )}
     </div>
   );
@@ -450,36 +390,22 @@ interface SegmentedProgressProps {
   size?: "sm" | "md" | "lg";
 }
 
-export const SegmentedProgress: React.FC<SegmentedProgressProps> = ({
-  segments,
-  activeSegments,
-  className,
-  variant = "primary",
-  size = "md"
-}) => {
+export const SegmentedProgress: React.FC<SegmentedProgressProps> = ({ segments, activeSegments, className, variant = "primary", size = "md" }) => {
   const segmentSizes = {
     sm: "h-1",
-    md: "h-2", 
-    lg: "h-3"
+    md: "h-2",
+    lg: "h-3",
   };
 
   return (
-    <div
-      className={cn("flex gap-1", className)}
-      role="progressbar"
-      aria-valuemin={0}
-      aria-valuemax={segments}
-      aria-valuenow={activeSegments}
-    >
+    <div className={cn("flex gap-1", className)} role="progressbar" aria-valuemin={0} aria-valuemax={segments} aria-valuenow={activeSegments}>
       {Array.from({ length: segments }, (_, index) => (
         <div
           key={index}
           className={cn(
             "flex-1 rounded-full transition-all duration-300",
             segmentSizes[size],
-            index < activeSegments 
-              ? variantStyles[variant]
-              : "bg-muted/50"
+            index < activeSegments ? variantStyles[variant] : "bg-muted/50",
           )}
         />
       ))}
@@ -507,25 +433,33 @@ export const LoadingProgress: React.FC<LoadingProgressProps> = ({
   label,
   status = "loading",
   speed,
-  timeRemaining
+  timeRemaining,
 }) => {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
-  
+
   const getStatusIcon = () => {
     switch (status) {
-      case "complete": return <Check className="w-4 h-4 text-success" />;
-      case "error": return <X className="w-4 h-4 text-destructive" />;
-      case "paused": return <Clock className="w-4 h-4 text-warning" />;
-      default: return <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />;
+      case "complete":
+        return <Check className="w-4 h-4 text-success" />;
+      case "error":
+        return <X className="w-4 h-4 text-destructive" />;
+      case "paused":
+        return <Clock className="w-4 h-4 text-warning" />;
+      default:
+        return <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />;
     }
   };
 
   const getStatusColor = () => {
     switch (status) {
-      case "complete": return "success";
-      case "error": return "danger";
-      case "paused": return "warning";
-      default: return variant;
+      case "complete":
+        return "success";
+      case "error":
+        return "danger";
+      case "paused":
+        return "warning";
+      default:
+        return variant;
     }
   };
 
@@ -537,9 +471,7 @@ export const LoadingProgress: React.FC<LoadingProgressProps> = ({
           {getStatusIcon()}
           {label && <span className="font-medium text-foreground">{label}</span>}
         </div>
-        <span className="text-muted-foreground">
-          {status === "complete" ? "Complete" : `${Math.round(percentage)}%`}
-        </span>
+        <span className="text-muted-foreground">{status === "complete" ? "Complete" : `${Math.round(percentage)}%`}</span>
       </div>
 
       {/* Progress Bar */}
@@ -555,7 +487,7 @@ export const LoadingProgress: React.FC<LoadingProgressProps> = ({
           className={cn(
             "h-full transition-all duration-300 ease-out rounded-full",
             variantStyles[getStatusColor()],
-            status === "loading" && "animate-pulse"
+            status === "loading" && "animate-pulse",
           )}
           style={{ width: `${percentage}%` }}
         />

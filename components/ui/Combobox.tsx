@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import { useId } from "react";
-import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils/cn";
 import { ChevronDown, Search, SearchX, Check, X, Loader2 } from "lucide-react";
 import { useShadCNAnimations } from "@/lib/utils/shadcn-animations";
+import { Popover } from "./Popover";
 
 // --- PROPS ---
 export type ComboboxOption = string | { label: string; value: any };
@@ -88,66 +88,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
     [options, query, enableSearch],
   );
 
-  // Manual positioning
-  const [dropdownPosition, setDropdownPosition] = React.useState<{ top: number; left: number; width: number } | null>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
-  const dropdownRef = React.useRef<HTMLDivElement | null>(null);
-
-  // Calculate positioning synchronously on open to avoid flicker
-  const calculatePosition = React.useCallback(() => {
-    if (!triggerRef.current) return null;
-    const rect = triggerRef.current.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-    return {
-      top: rect.bottom + scrollTop + 4,
-      left: rect.left + scrollLeft,
-      width: rect.width,
-    };
-  }, []);
-
-  // Reposition on resize/scroll while open
-  React.useEffect(() => {
-    if (!open) return;
-    const handler = () => {
-      const pos = calculatePosition();
-      if (pos) setDropdownPosition(pos);
-    };
-    window.addEventListener("resize", handler);
-    window.addEventListener("scroll", handler, true);
-    return () => {
-      window.removeEventListener("resize", handler);
-      window.removeEventListener("scroll", handler, true);
-    };
-  }, [open, calculatePosition]);
-
-  // Handle clicks outside
-  React.useEffect(() => {
-    if (!open) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      const triggerEl = triggerRef.current;
-      const dropdownEl = dropdownRef.current;
-      if (triggerEl && !triggerEl.contains(target) && dropdownEl && !dropdownEl.contains(target)) {
-        setOpen(false);
-      }
-    };
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscape);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [open]);
 
   // Event Handlers
   const handleSelect = (option: ComboboxOption) => {
@@ -181,126 +122,109 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const selectedOption = findOptionByValue(options, value);
   const displayValue = selectedOption ? getOptionLabel(selectedOption) : "";
 
-  const dropdownContent = (
-    <div
-      data-combobox-dropdown
-      ref={dropdownRef}
-      style={{
-        position: "absolute",
-        top: dropdownPosition?.top || 0,
-        left: dropdownPosition?.left || 0,
-        width: dropdownPosition?.width || 200,
-        zIndex: 9999,
-        transformOrigin: "top center",
-      }}
-      data-state={open ? "open" : "closed"}
-      role="listbox"
-      id={`${resolvedId}-listbox`}
-      className="z-9999"
-    >
-      <div className={cn("rounded-md border bg-popover text-popover-foreground shadow-md", "backdrop-blur-sm bg-popover/95 border-border/60")}>
-        {/* Search Input (only when many options) */}
-        {enableSearch && (
-          <div className="relative p-3 border-b border-border/50 bg-muted/20">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors" />
-            <input
-              ref={inputRef}
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setActiveIndex(null);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowDown") {
-                  e.preventDefault();
-                  setActiveIndex((prev) => {
-                    const next = prev === null ? 0 : prev + 1;
-                    return next >= filteredOptions.length ? 0 : next;
-                  });
-                } else if (e.key === "ArrowUp") {
-                  e.preventDefault();
-                  setActiveIndex((prev) => {
-                    const next = prev === null ? filteredOptions.length - 1 : prev - 1;
-                    return next < 0 ? filteredOptions.length - 1 : next;
-                  });
-                } else if (e.key === "Enter") {
-                  e.preventDefault();
-                  if (activeIndex !== null && filteredOptions[activeIndex]) {
-                    handleSelect(filteredOptions[activeIndex]);
-                  }
-                } else if (e.key === "Escape") {
-                  e.preventDefault();
-                  setOpen(false);
+  const dropdownBody = (
+    <div data-combobox-dropdown data-state={open ? "open" : "closed"} role="listbox" id={`${resolvedId}-listbox`} className="w-full">
+      {/* Search Input (only when many options) */}
+      {enableSearch && (
+        <div className="relative p-3 border-b border-border/50 bg-muted/20">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors" />
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActiveIndex(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                setActiveIndex((prev) => {
+                  const next = prev === null ? 0 : prev + 1;
+                  return next >= filteredOptions.length ? 0 : next;
+                });
+              } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                setActiveIndex((prev) => {
+                  const next = prev === null ? filteredOptions.length - 1 : prev - 1;
+                  return next < 0 ? filteredOptions.length - 1 : next;
+                });
+              } else if (e.key === "Enter") {
+                e.preventDefault();
+                if (activeIndex !== null && filteredOptions[activeIndex]) {
+                  handleSelect(filteredOptions[activeIndex]);
                 }
-              }}
-              placeholder={searchPlaceholder}
-              className="w-full rounded-md bg-background/50 py-2 pl-8 pr-3 text-sm border-0 focus:outline-none focus:bg-background/80 transition-colors placeholder:text-muted-foreground/60"
-              aria-autocomplete="list"
-              aria-activedescendant={activeIndex != null ? `combobox-item-${activeIndex}` : undefined}
-            />
-          </div>
-        )}
-
-        {/* Options List */}
-        <div className="max-h-64 overflow-y-auto overscroll-contain">
-          <ul className="p-1 space-y-1">
-            {loading ? (
-              <li className="px-3 py-8 text-center">
-                <div className="flex flex-col items-center gap-2 animate-in fade-in-0 zoom-in-95 duration-300">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  <span className="text-sm text-muted-foreground">{loadingText || "Loading…"}</span>
-                </div>
-              </li>
-            ) : filteredOptions.length > 0 ? (
-              filteredOptions.map((item, index) => {
-                const itemValue = getOptionValue(item);
-                const itemLabel = getOptionLabel(item);
-                const isSelected = itemValue === value;
-
-                return (
-                  <li
-                    key={`${itemValue}-${index}`}
-                    ref={(node) => {
-                      listRef.current[index] = node;
-                    }}
-                    id={`combobox-item-${index}`}
-                    role="option"
-                    tabIndex={-1}
-                    aria-selected={isSelected}
-                    onClick={() => handleSelect(item)}
-                    style={{
-                      animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms",
-                    }}
-                    className={cn(
-                      "dropdown-item group flex cursor-pointer items-center justify-between rounded-sm px-2.5 py-1.5 text-sm",
-                      "outline-none focus:outline-none focus-visible:outline-none",
-                      "hover:bg-accent hover:text-accent-foreground",
-                      "focus:bg-accent focus:text-accent-foreground",
-                      "data-disabled:pointer-events-none data-disabled:opacity-50",
-                      index === activeIndex && "bg-accent text-accent-foreground",
-                      isSelected && "bg-accent text-accent-foreground",
-                    )}
-                  >
-                    <span className="truncate">{itemLabel}</span>
-                    {isSelected && <Check className="h-4 w-4 text-primary" />}
-                  </li>
-                );
-              })
-            ) : (
-              <li className="px-3 py-8 text-center text-muted-foreground text-sm">
-                <div className="flex flex-col items-center gap-2 animate-in fade-in-0 zoom-in-95 duration-300">
-                  <SearchX className="h-8 w-8 opacity-40 text-muted-foreground" />
-                  <span className="text-sm">{emptyText}</span>
-                  {query && (
-                    <button type="button" onClick={() => setQuery("")} className="text-xs text-primary hover:underline">
-                      Clear
-                    </button>
-                  )}
-                </div>
-              </li>
-            )}
-          </ul>
+              } else if (e.key === "Escape") {
+                e.preventDefault();
+                setOpen(false);
+              }
+            }}
+            placeholder={searchPlaceholder}
+            className="w-full rounded-xl bg-background/50 py-2 pl-8 pr-3 text-sm border-0 focus:outline-none focus:bg-background/80 transition-colors placeholder:text-muted-foreground/60"
+            aria-autocomplete="list"
+            aria-activedescendant={activeIndex != null ? `combobox-item-${activeIndex}` : undefined}
+          />
         </div>
+      )}
+
+      {/* Options List */}
+      <div className="max-h-64 overflow-y-auto overscroll-contain">
+        <ul className="p-1 space-y-1">
+          {loading ? (
+            <li className="px-3 py-8 text-center">
+              <div className="flex flex-col items-center gap-2 animate-in fade-in-0 zoom-in-95 duration-300">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <span className="text-sm text-muted-foreground">{loadingText || "Loading…"}</span>
+              </div>
+            </li>
+          ) : filteredOptions.length > 0 ? (
+            filteredOptions.map((item, index) => {
+              const itemValue = getOptionValue(item);
+              const itemLabel = getOptionLabel(item);
+              const isSelected = itemValue === value;
+
+              return (
+                <li
+                  key={`${itemValue}-${index}`}
+                  ref={(node) => {
+                    listRef.current[index] = node;
+                  }}
+                  id={`combobox-item-${index}`}
+                  role="option"
+                  tabIndex={-1}
+                  aria-selected={isSelected}
+                  onClick={() => handleSelect(item)}
+                  style={{
+                    animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms",
+                  }}
+                  className={cn(
+                    "dropdown-item group flex cursor-pointer items-center justify-between rounded-lg px-2.5 py-1.5 text-sm",
+                    "outline-none focus:outline-none focus-visible:outline-none",
+                    "hover:bg-accent hover:text-accent-foreground",
+                    "focus:bg-accent focus:text-accent-foreground",
+                    "data-disabled:pointer-events-none data-disabled:opacity-50",
+                    index === activeIndex && "bg-accent text-accent-foreground",
+                    isSelected && "bg-accent text-accent-foreground",
+                  )}
+                >
+                  <span className="truncate">{itemLabel}</span>
+                  {isSelected && <Check className="h-4 w-4 text-primary" />}
+                </li>
+              );
+            })
+          ) : (
+            <li className="px-3 py-8 text-center text-muted-foreground text-sm">
+              <div className="flex flex-col items-center gap-2 animate-in fade-in-0 zoom-in-95 duration-300">
+                <SearchX className="h-8 w-8 opacity-40 text-muted-foreground" />
+                <span className="text-sm">{emptyText}</span>
+                {query && (
+                  <button type="button" onClick={() => setQuery("")} className="text-xs text-primary hover:underline">
+                    Clear
+                  </button>
+                )}
+              </div>
+            </li>
+          )}
+        </ul>
       </div>
     </div>
   );
@@ -316,9 +240,76 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const labelSize = size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm";
 
   // Radius consistent with Input: sm => rounded-md, md/lg => rounded-lg
-  const radiusClass = size === "sm" ? "rounded-md" : "rounded-lg";
+  const radiusClass = size === "sm" ? "rounded-lg" : "rounded-xl";
 
   const verticalGap = size === "sm" ? "space-y-1.5" : "space-y-2";
+
+  const triggerButtonBaseProps = {
+    ref: triggerRef,
+    type: "button" as const,
+    disabled,
+    role: "combobox" as const,
+    "aria-haspopup": "listbox" as const,
+    "aria-expanded": open,
+    "aria-controls": `${resolvedId}-listbox`,
+    id: resolvedId,
+    "aria-labelledby": labelId,
+    onKeyDown: (e: React.KeyboardEvent) => {
+      if (disabled) return;
+      if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        setOpen(true);
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        setOpen(false);
+      }
+    },
+    className: cn(
+      "flex w-full items-center justify-between border border-input bg-background px-3",
+      radiusClass,
+      sizeStyles[size],
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+      "disabled:cursor-not-allowed disabled:opacity-50",
+      "hover:bg-accent/5 transition-colors hover:border-primary/40 focus:border-primary",
+      className,
+    ),
+  };
+
+  const triggerContents = (
+    <>
+      <span className={cn("truncate", !displayValue && "text-muted-foreground", fontBold && "font-bold")}>{displayValue || placeholder}</span>
+
+      <div className="flex items-center gap-1 ml-2">
+        {allowClear && value && !disabled && (
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label="Clear selection"
+            onClick={handleClear}
+            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleClear(e as any)}
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+          >
+            <X className="h-3 w-3" />
+          </div>
+        )}
+        <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-all duration-200", open && "rotate-180 scale-110 text-primary")} />
+      </div>
+    </>
+  );
+
+  const triggerButtonForPopover = <button {...triggerButtonBaseProps}>{triggerContents}</button>;
+
+  const triggerButtonInline = (
+    <button
+      {...triggerButtonBaseProps}
+      onClick={() => {
+        if (disabled) return;
+        setOpen((prev) => !prev);
+      }}
+    >
+      {triggerContents}
+    </button>
+  );
 
   return (
     <div className={cn("w-full group", verticalGap)}>
@@ -340,59 +331,30 @@ export const Combobox: React.FC<ComboboxProps> = ({
           </label>
         </div>
       )}
-      {/* Trigger Button */}
-      <button
-        ref={triggerRef}
-        type="button"
-        disabled={disabled}
-        role="combobox"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-controls={`${resolvedId}-listbox`}
-        id={resolvedId}
-        aria-labelledby={labelId}
-        onClick={() => {
-          const next = !open;
-          if (next) {
-            const pos = calculatePosition();
-            if (pos) setDropdownPosition(pos);
-          }
-          setOpen(next);
-        }}
-        className={cn(
-          "flex w-full items-center justify-between border border-input bg-background px-3",
-          radiusClass,
-          sizeStyles[size],
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-          "disabled:cursor-not-allowed disabled:opacity-50",
-          "hover:bg-accent/5 transition-colors hover:border-primary/40 focus:border-primary",
-          className,
-        )}
-      >
-        <span className={cn("truncate", !displayValue && "text-muted-foreground", fontBold && "font-bold")}>{displayValue || placeholder}</span>
-
-        <div className="flex items-center gap-1 ml-2">
-          {allowClear && value && !disabled && (
-            // FIX: Use a div instead of a nested button
-            <div
-              role="button"
-              tabIndex={0}
-              aria-label="Clear selection"
-              onClick={handleClear}
-              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleClear(e as any)}
-              className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-            >
-              <X className="h-3 w-3" />
+      {usePortal ? (
+        <Popover
+          open={open}
+          onOpenChange={setOpen}
+          trigger={triggerButtonForPopover}
+          placement="bottom-start"
+          matchTriggerWidth
+          className="z-9999"
+          contentClassName="p-0"
+        >
+          {dropdownBody}
+        </Popover>
+      ) : (
+        <div className="relative">
+          {triggerButtonInline}
+          {open && (
+            <div className="absolute left-0 top-full mt-1 z-50 w-full">
+              <div className="rounded-xl border bg-popover text-popover-foreground shadow-md backdrop-blur-sm bg-popover/95 border-border/60">
+                {dropdownBody}
+              </div>
             </div>
           )}
-          <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-all duration-200", open && "rotate-180 scale-110 text-primary")} />
         </div>
-      </button>
-
-      {/* Dropdown Portal or Inline */}
-      {usePortal
-        ? open && dropdownPosition && typeof window !== "undefined" && createPortal(dropdownContent, document.body)
-        : open && dropdownPosition && dropdownContent}
+      )}
     </div>
   );
 };

@@ -4,10 +4,13 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils/cn";
 
+type Side = "top" | "right" | "bottom" | "left";
+type TooltipPlacement = Side;
+
 interface TooltipProps {
   children: React.ReactElement;
   content: React.ReactNode;
-  placement?: "top" | "right" | "bottom" | "left";
+  placement?: TooltipPlacement;
   delay?: number | { open?: number; close?: number };
   className?: string;
   disabled?: boolean;
@@ -22,6 +25,81 @@ const variantStyles = {
   success: "bg-success text-success-foreground border-success/20",
 };
 
+function assignRef<T>(ref: React.Ref<T> | undefined, value: T) {
+  if (!ref) return;
+  if (typeof ref === "function") {
+    ref(value);
+    return;
+  }
+  try {
+    (ref as React.MutableRefObject<T>).current = value;
+  } catch {
+    // ignore
+  }
+}
+
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+
+function getTransformOrigin(side: Side) {
+  switch (side) {
+    case "top":
+      return "center bottom";
+    case "bottom":
+      return "center top";
+    case "left":
+      return "right center";
+    case "right":
+      return "left center";
+  }
+}
+
+function computeTooltipPosition(args: {
+  triggerRect: DOMRect;
+  contentSize: { width: number; height: number };
+  placement: TooltipPlacement;
+  offset: number;
+  padding: number;
+  viewport: { width: number; height: number };
+}): { top: number; left: number; side: Side } {
+  const { triggerRect, contentSize, placement, offset, padding, viewport } = args;
+  let side: Side = placement;
+
+  const fitsTop = triggerRect.top - offset - contentSize.height >= padding;
+  const fitsBottom = triggerRect.bottom + offset + contentSize.height <= viewport.height - padding;
+  const fitsLeft = triggerRect.left - offset - contentSize.width >= padding;
+  const fitsRight = triggerRect.right + offset + contentSize.width <= viewport.width - padding;
+
+  if (side === "top" && !fitsTop && fitsBottom) side = "bottom";
+  if (side === "bottom" && !fitsBottom && fitsTop) side = "top";
+  if (side === "left" && !fitsLeft && fitsRight) side = "right";
+  if (side === "right" && !fitsRight && fitsLeft) side = "left";
+
+  const centerX = triggerRect.left + triggerRect.width / 2;
+  const centerY = triggerRect.top + triggerRect.height / 2;
+
+  let left = 0;
+  let top = 0;
+
+  if (side === "top") {
+    top = triggerRect.top - offset - contentSize.height;
+    left = centerX - contentSize.width / 2;
+  } else if (side === "bottom") {
+    top = triggerRect.bottom + offset;
+    left = centerX - contentSize.width / 2;
+  } else if (side === "left") {
+    top = centerY - contentSize.height / 2;
+    left = triggerRect.left - offset - contentSize.width;
+  } else {
+    top = centerY - contentSize.height / 2;
+    left = triggerRect.right + offset;
+  }
+
+  left = clamp(left, padding, viewport.width - contentSize.width - padding);
+  top = clamp(top, padding, viewport.height - contentSize.height - padding);
+
+  return { top, left, side };
+}
+
 export const Tooltip: React.FC<TooltipProps> = ({
   children,
   content,
@@ -32,10 +110,12 @@ export const Tooltip: React.FC<TooltipProps> = ({
   variant = "default",
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [position, setPosition] = React.useState<{ top: number; left: number } | null>(null);
   const [isMounted, setIsMounted] = React.useState(false);
   const triggerRef = React.useRef<HTMLElement>(null);
+  const positionerRef = React.useRef<HTMLDivElement>(null);
+  const panelRef = React.useRef<HTMLDivElement>(null);
   const timeoutRef = React.useRef<NodeJS.Timeout | undefined>(undefined);
+  const lastAppliedRef = React.useRef<{ top: number; left: number; side: Side } | null>(null);
 
   // Ensure client-side only
   React.useEffect(() => {
@@ -45,55 +125,49 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const delayOpen = typeof delay === "object" ? delay.open || 700 : delay;
   const delayClose = typeof delay === "object" ? delay.close || 300 : delay;
 
-  const calculatePosition = () => {
-    if (!triggerRef.current) return;
+  const offset = 8;
+  const padding = 8;
 
-    const rect = triggerRef.current.getBoundingClientRect();
+  const updatePosition = React.useCallback(() => {
+    const triggerEl = triggerRef.current;
+    const positionerEl = positionerRef.current;
+    const panelEl = panelRef.current;
+    if (!triggerEl || !positionerEl || !panelEl) return;
 
-    let top = rect.top;
-    let left = rect.left;
+    const triggerRect = triggerEl.getBoundingClientRect();
+    const measuredWidth = panelEl.offsetWidth;
+    const measuredHeight = panelEl.offsetHeight;
+    const rect = panelEl.getBoundingClientRect();
 
-    const OFFSET = 8;
+    const contentWidth = measuredWidth || rect.width;
+    const contentHeight = measuredHeight || rect.height;
 
-    switch (placement) {
-      case "top":
-        top = rect.top - OFFSET;
-        left = rect.left + rect.width / 2;
-        break;
-      case "bottom":
-        top = rect.bottom + OFFSET;
-        left = rect.left + rect.width / 2;
-        break;
-      case "left":
-        top = rect.top + rect.height / 2;
-        left = rect.left - OFFSET;
-        break;
-      case "right":
-        top = rect.top + rect.height / 2;
-        left = rect.right + OFFSET;
-        break;
-    }
+    const next = computeTooltipPosition({
+      triggerRect,
+      contentSize: { width: contentWidth, height: contentHeight },
+      placement,
+      offset,
+      padding,
+      viewport: { width: window.innerWidth, height: window.innerHeight },
+    });
 
-    // Ensure tooltip stays within viewport
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
+    const top = Math.round(next.top);
+    const left = Math.round(next.left);
 
-    // For horizontal centering, ensure it doesn't go off-screen
-    if (placement === "top" || placement === "bottom") {
-      const tooltipWidth = 200; // approximate width
-      const minLeft = tooltipWidth / 2;
-      const maxLeft = viewportWidth - tooltipWidth / 2;
-      left = Math.max(minLeft, Math.min(left, maxLeft));
-    }
+    const prev = lastAppliedRef.current;
+    const same = prev && Math.abs(prev.top - top) < 0.5 && Math.abs(prev.left - left) < 0.5 && prev.side === next.side;
+    if (same) return;
 
-    setPosition({ top, left });
-  };
+    lastAppliedRef.current = { top, left, side: next.side };
+    positionerEl.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+    panelEl.style.transformOrigin = getTransformOrigin(next.side);
+    if (positionerEl.style.visibility !== "visible") positionerEl.style.visibility = "visible";
+  }, [placement]);
 
   const handleMouseEnter = () => {
     if (disabled) return;
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
-      calculatePosition();
       setIsOpen(true);
     }, delayOpen);
   };
@@ -107,13 +181,63 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   const handleFocus = () => {
     if (disabled) return;
-    calculatePosition();
     setIsOpen(true);
   };
 
   const handleBlur = () => {
     setIsOpen(false);
   };
+
+  React.useEffect(() => {
+    return () => clearTimeout(timeoutRef.current);
+  }, []);
+
+  // Compute a stable position right after opening (before paint), then re-check a couple frames later.
+  React.useLayoutEffect(() => {
+    if (!isOpen) {
+      lastAppliedRef.current = null;
+      return;
+    }
+    updatePosition();
+    let raf1 = 0;
+    let raf2 = 0;
+    raf1 = window.requestAnimationFrame(() => {
+      updatePosition();
+      raf2 = window.requestAnimationFrame(() => updatePosition());
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, [isOpen, updatePosition]);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    let raf = 0;
+    const handler = () => {
+      cancelAnimationFrame(raf);
+      raf = window.requestAnimationFrame(() => updatePosition());
+    };
+    handler();
+    window.addEventListener("resize", handler);
+    window.addEventListener("scroll", handler, true);
+    document.addEventListener("scroll", handler, true);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", handler);
+      window.removeEventListener("scroll", handler, true);
+      document.removeEventListener("scroll", handler, true);
+    };
+  }, [isOpen, updatePosition]);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => updatePosition());
+    if (triggerRef.current) ro.observe(triggerRef.current);
+    if (panelRef.current) ro.observe(panelRef.current);
+    return () => ro.disconnect();
+  }, [isOpen, updatePosition]);
 
   if (disabled || !content) {
     return children;
@@ -122,45 +246,60 @@ export const Tooltip: React.FC<TooltipProps> = ({
   return (
     <>
       {React.cloneElement(children, {
-        ref: triggerRef,
-        onMouseEnter: handleMouseEnter,
-        onMouseLeave: handleMouseLeave,
-        onFocus: handleFocus,
-        onBlur: handleBlur,
+        ref: (node: HTMLElement | null) => {
+          triggerRef.current = node;
+          assignRef((children.props as any)?.ref, node);
+        },
+        onMouseEnter: (e: React.MouseEvent) => {
+          handleMouseEnter();
+          if (typeof (children.props as any)?.onMouseEnter === "function") (children.props as any).onMouseEnter(e);
+        },
+        onMouseLeave: (e: React.MouseEvent) => {
+          handleMouseLeave();
+          if (typeof (children.props as any)?.onMouseLeave === "function") (children.props as any).onMouseLeave(e);
+        },
+        onFocus: (e: React.FocusEvent) => {
+          handleFocus();
+          if (typeof (children.props as any)?.onFocus === "function") (children.props as any).onFocus(e);
+        },
+        onBlur: (e: React.FocusEvent) => {
+          handleBlur();
+          if (typeof (children.props as any)?.onBlur === "function") (children.props as any).onBlur(e);
+        },
       } as any)}
       {isMounted &&
         isOpen &&
-        position &&
         createPortal(
           <div
-            role="tooltip"
+            ref={positionerRef}
             style={{
               position: "fixed",
-              top: position.top,
-              left: position.left,
-              transform:
-                placement === "top"
-                  ? "translate(-50%, -100%)"
-                  : placement === "bottom"
-                    ? "translateX(-50%)"
-                    : placement === "left"
-                      ? "translate(-100%, -50%)"
-                      : placement === "right"
-                        ? "translateY(-50%)"
-                        : "none",
+              top: 0,
+              left: 0,
+              transform: "translate3d(0, 0, 0)",
               zIndex: 99999,
-              opacity: 1,
-              transition: "opacity 150ms",
+              visibility: "hidden",
               pointerEvents: "none",
+              willChange: "transform",
             }}
-            className={cn(
-              "px-3 py-2 text-sm font-medium rounded-lg shadow-lg border",
-              "max-w-xs wrap-break-word backdrop-blur-sm",
-              variantStyles[variant],
-              className,
-            )}
           >
-            {content}
+            <div
+              ref={panelRef}
+              role="tooltip"
+              style={{
+                opacity: 1,
+                transition: "opacity 150ms",
+                transformOrigin: getTransformOrigin(placement),
+              }}
+              className={cn(
+                "px-3 py-2 text-sm font-medium rounded-xl shadow-lg border",
+                "max-w-xs wrap-break-word backdrop-blur-sm",
+                variantStyles[variant],
+                className,
+              )}
+            >
+              {content}
+            </div>
           </div>,
           document.body,
         )}

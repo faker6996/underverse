@@ -110,15 +110,15 @@ function joinAreas(areas?: string | string[]) {
 function getVariantClasses(variant: GridVariant = "default", outlined?: boolean): string {
   // Handle deprecated outlined prop
   if (outlined) {
-    return "rounded-lg md:rounded-xl bg-card text-card-foreground border border-border shadow-sm";
+    return "rounded-xl md:rounded-2xl bg-card text-card-foreground border border-border shadow-sm";
   }
 
   const variants: Record<GridVariant, string> = {
     default: "",
-    bordered: "border border-border rounded-lg",
-    card: "rounded-lg md:rounded-xl bg-card text-card-foreground border border-border shadow-sm",
-    flat: "bg-muted/30 rounded-lg",
-    glass: "bg-background/80 backdrop-blur-sm border border-border/50 rounded-lg shadow-lg",
+    bordered: "border border-border rounded-xl",
+    card: "rounded-xl md:rounded-2xl bg-card text-card-foreground border border-border shadow-sm",
+    flat: "bg-muted/30 rounded-xl",
+    glass: "bg-background/80 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg",
   };
 
   return variants[variant] || "";
@@ -150,7 +150,7 @@ const GridRoot = React.forwardRef<HTMLDivElement, GridProps>(
       children,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const id = useId().replace(/[:]/g, "");
     const baseClass = `uv-grid-${id}`;
@@ -203,12 +203,7 @@ const GridRoot = React.forwardRef<HTMLDivElement, GridProps>(
     return (
       <div
         ref={ref}
-        className={cn(
-          baseClass,
-          getVariantClasses(variant, outlined),
-          animated && "transition-all duration-300 ease-in-out",
-          className
-        )}
+        className={cn(baseClass, getVariantClasses(variant, outlined), animated && "transition-all duration-300 ease-in-out", className)}
         style={style}
         {...rest}
       >
@@ -216,7 +211,7 @@ const GridRoot = React.forwardRef<HTMLDivElement, GridProps>(
         {children}
       </div>
     );
-  }
+  },
 );
 
 GridRoot.displayName = "Grid";
@@ -240,7 +235,7 @@ export const GridItem = React.forwardRef<HTMLDivElement, GridItemProps>(
       className,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const st: React.CSSProperties = { ...style };
     if (colSpan != null) st.gridColumn = `span ${colSpan} / span ${colSpan}`;
@@ -270,16 +265,13 @@ export const GridItem = React.forwardRef<HTMLDivElement, GridItemProps>(
         )}
         <div
           ref={ref}
-          className={cn(
-            hoverable && "transition-all duration-200 hover:scale-[1.02] hover:shadow-md cursor-pointer",
-            className
-          )}
+          className={cn(hoverable && "transition-all duration-200 hover:scale-[1.02] hover:shadow-md cursor-pointer", className)}
           style={st}
           {...rest}
         />
       </>
     );
-  }
+  },
 );
 
 GridItem.displayName = "Grid.Item";

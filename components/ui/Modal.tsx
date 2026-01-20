@@ -184,7 +184,7 @@ const Modal: React.FC<ModalProps> = ({
       <div
         ref={modalContentRef}
         className={cn(
-          "relative w-full rounded-lg bg-card text-card-foreground shadow-xl",
+          "relative w-full rounded-2xl md:rounded-3xl bg-card text-card-foreground shadow-xl",
           "transition-all duration-200 ease-out",
           maxWidthClass,
           fullWidth && "mx-0",
@@ -212,7 +212,7 @@ const Modal: React.FC<ModalProps> = ({
                 onClick={onClose}
                 aria-label="Close modal"
                 className={cn(
-                  "rounded-sm opacity-70 ring-offset-background transition-opacity",
+                  "rounded-lg opacity-70 ring-offset-background transition-opacity",
                   "hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
                   "disabled:pointer-events-none ",
                 )}

@@ -62,7 +62,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children, position
 
       // Auto-dismiss handled by ToastComponent so pause-on-hover works consistently.
     },
-    [maxToasts, removeToast]
+    [maxToasts, removeToast],
   );
 
   const positionClasses = {
@@ -160,11 +160,11 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
   return (
     <div
       className={cn(
-        "relative w-80 rounded-r-lg border border-l-0 backdrop-blur-md transition-all duration-300 pointer-events-auto overflow-hidden",
+        "relative w-80 rounded-r-xl border border-l-0 backdrop-blur-md transition-all duration-300 pointer-events-auto overflow-hidden",
         "bg-card shadow-xl",
         "animate-in slide-in-from-right-full",
         config.containerClassName,
-        isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"
+        isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full",
       )}
       role="status"
       aria-live={toast.type === "error" ? "assertive" : "polite"}
@@ -209,8 +209,8 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
           <button
             onClick={handleRemove}
             className={cn(
-              "rounded-md p-1 hover:bg-accent hover:text-accent-foreground",
-              "transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              "rounded-lg p-1 hover:bg-accent hover:text-accent-foreground",
+              "transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50",
             )}
             aria-label="Close toast"
           >
@@ -227,7 +227,7 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
               toast.type === "success" && "bg-success",
               toast.type === "error" && "bg-destructive",
               toast.type === "warning" && "bg-warning",
-              toast.type === "info" && "bg-info"
+              toast.type === "info" && "bg-info",
             )}
             style={{ width: `${progress}%`, transition: paused ? "none" : "width 100ms linear" }}
           />

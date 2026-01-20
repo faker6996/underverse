@@ -27,20 +27,20 @@ const sizeStyles = {
     text: "text-xs",
     spacing: "space-x-0.5",
     padding: "px-1.5 py-0.5",
-    icon: "h-3 w-3"
+    icon: "h-3 w-3",
   },
   md: {
-    text: "text-sm", 
+    text: "text-sm",
     spacing: "space-x-1",
     padding: "px-2 py-1",
-    icon: "h-4 w-4"
+    icon: "h-4 w-4",
   },
   lg: {
     text: "text-base",
-    spacing: "space-x-1.5", 
+    spacing: "space-x-1.5",
     padding: "px-3 py-1.5",
-    icon: "h-5 w-5"
-  }
+    icon: "h-5 w-5",
+  },
 };
 
 const variantStyles = {
@@ -48,7 +48,7 @@ const variantStyles = {
   simple: "text-muted-foreground hover:text-foreground underline-offset-4 hover:underline",
   slash: "text-muted-foreground hover:text-foreground",
   arrow: "text-muted-foreground hover:text-foreground",
-  pill: "text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+  pill: "text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors",
 };
 
 export const Breadcrumb: React.FC<BreadcrumbProps> = ({
@@ -60,10 +60,10 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
   maxItems = 5,
   showHome = false,
   homeHref = "/",
-  collapsible = true
+  collapsible = true,
 }) => {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
-  
+
   React.useEffect(() => {
     if (collapsible && items.length > maxItems) {
       setIsCollapsed(true);
@@ -71,30 +71,30 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
   }, [items.length, maxItems, collapsible]);
 
   const getSeparator = () => {
-    if (typeof separator === 'string') {
+    if (typeof separator === "string") {
       return <span className="text-muted-foreground">{separator}</span>;
     }
-    
+
     if (variant === "slash") {
       return <span className="text-muted-foreground">/</span>;
     }
-    
+
     if (variant === "arrow") {
       return <span className="text-muted-foreground">→</span>;
     }
-    
+
     const SeparatorComponent = separator;
     return <SeparatorComponent className={cn("text-muted-foreground", sizeStyles[size].icon)} />;
   };
 
   const processedItems = React.useMemo(() => {
     let finalItems = [...items];
-    
+
     if (showHome && finalItems[0]?.href !== homeHref) {
       finalItems.unshift({
         label: "Home",
         href: homeHref,
-        icon: Home
+        icon: Home,
       });
     }
 
@@ -112,10 +112,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
   };
 
   return (
-    <nav 
-      className={cn("flex w-full items-center", sizeStyles[size].text, className)} 
-      aria-label="Breadcrumb navigation"
-    >
+    <nav className={cn("flex w-full items-center", sizeStyles[size].text, className)} aria-label="Breadcrumb navigation">
       <ol className={cn("flex items-center", sizeStyles[size].spacing)}>
         {processedItems.map((item, index) => {
           const isLast = index === processedItems.length - 1;
@@ -131,35 +128,31 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
                     "inline-flex items-center gap-1 transition-all duration-200",
                     "hover:bg-accent rounded-md",
                     sizeStyles[size].padding,
-                    "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+                    "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
                   )}
                   aria-label="Show all breadcrumb items"
                 >
                   <MoreHorizontal className={sizeStyles[size].icon} />
                 </button>
               ) : item.href && !isLast && !item.disabled ? (
-                <Link 
+                <Link
                   href={item.href}
                   className={cn(
                     "inline-flex items-center gap-1 font-medium transition-all duration-200",
                     variantStyles[variant],
                     variant === "pill" && sizeStyles[size].padding,
-                    "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 rounded-sm"
+                    "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 rounded-md",
                   )}
                 >
                   {Icon && <Icon className={sizeStyles[size].icon} />}
                   <span>{item.label}</span>
                 </Link>
               ) : (
-                <span 
+                <span
                   className={cn(
                     "inline-flex items-center gap-1 font-medium",
-                    isLast 
-                      ? "text-foreground" 
-                      : item.disabled 
-                        ? "text-muted-foreground/60 cursor-not-allowed"
-                        : "text-muted-foreground",
-                    variant === "pill" && !isLast && sizeStyles[size].padding
+                    isLast ? "text-foreground" : item.disabled ? "text-muted-foreground/60 cursor-not-allowed" : "text-muted-foreground",
+                    variant === "pill" && !isLast && sizeStyles[size].padding,
                   )}
                   aria-current={isLast ? "page" : undefined}
                 >
@@ -169,11 +162,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
               )}
 
               {!isLast && (
-                <span 
-                  className={cn("mx-1", sizeStyles[size].spacing)} 
-                  role="presentation"
-                  aria-hidden="true"
-                >
+                <span className={cn("mx-1", sizeStyles[size].spacing)} role="presentation" aria-hidden="true">
                   {getSeparator()}
                 </span>
               )}
@@ -192,26 +181,16 @@ interface SimpleBreadcrumbProps {
   className?: string;
 }
 
-export const SimpleBreadcrumb: React.FC<SimpleBreadcrumbProps> = ({
-  items,
-  baseHref = "",
-  className
-}) => {
+export const SimpleBreadcrumb: React.FC<SimpleBreadcrumbProps> = ({ items, baseHref = "", className }) => {
   const breadcrumbItems = items.map((item, index) => ({
     label: item,
-    href: index < items.length - 1 ? `${baseHref}/${item.toLowerCase()}` : undefined
+    href: index < items.length - 1 ? `${baseHref}/${item.toLowerCase()}` : undefined,
   }));
 
-  return (
-    <Breadcrumb 
-      items={breadcrumbItems}
-      variant="simple"
-      className={className}
-    />
-  );
+  return <Breadcrumb items={breadcrumbItems} variant="simple" className={className} />;
 };
 
-interface IconBreadcrumbProps extends Omit<BreadcrumbProps, 'items'> {
+interface IconBreadcrumbProps extends Omit<BreadcrumbProps, "items"> {
   items: Array<{
     label: string;
     href?: string;
@@ -219,10 +198,7 @@ interface IconBreadcrumbProps extends Omit<BreadcrumbProps, 'items'> {
   }>;
 }
 
-export const IconBreadcrumb: React.FC<IconBreadcrumbProps> = ({
-  items,
-  ...props
-}) => {
+export const IconBreadcrumb: React.FC<IconBreadcrumbProps> = ({ items, ...props }) => {
   return <Breadcrumb items={items} {...props} />;
 };
 
@@ -231,21 +207,8 @@ interface CompactBreadcrumbProps extends BreadcrumbProps {
   alwaysShowLast?: boolean;
 }
 
-export const CompactBreadcrumb: React.FC<CompactBreadcrumbProps> = ({
-  alwaysShowFirst = true,
-  alwaysShowLast = true,
-  maxItems = 3,
-  ...props
-}) => {
-  return (
-    <Breadcrumb 
-      {...props}
-      maxItems={maxItems}
-      collapsible={true}
-      size="sm"
-      variant="pill"
-    />
-  );
+export const CompactBreadcrumb: React.FC<CompactBreadcrumbProps> = ({ alwaysShowFirst = true, alwaysShowLast = true, maxItems = 3, ...props }) => {
+  return <Breadcrumb {...props} maxItems={maxItems} collapsible={true} size="sm" variant="pill" />;
 };
 
 export default Breadcrumb;

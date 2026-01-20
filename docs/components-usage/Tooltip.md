@@ -8,6 +8,11 @@ Exports:
 
 Note: Usage snippets are minimal; fill required props from the props type below.
 
+## Behavior
+
+- Renders in a portal (`document.body`) using `position: fixed` and measures actual tooltip size.
+- Auto-flips/clamps to stay within the viewport (no hardcoded width).
+
 ## Accessibility (Web Interface Guidelines Compliant)
 
 | Feature                                  | Status |

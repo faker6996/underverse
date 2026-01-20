@@ -29,11 +29,11 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         <input type="checkbox" ref={ref} checked={isChecked} onChange={handleChange} className="hidden" {...props} />
         <div
           className={cn(
-            "w-5 h-5 border rounded-sm flex items-center justify-center transition-all duration-200 ease-soft",
+            "w-5 h-5 border rounded-md flex items-center justify-center transition-all duration-200 ease-soft",
             "hover:shadow-sm active:scale-95",
-            isChecked 
-              ? "bg-primary border-primary shadow-md text-primary-foreground" 
-              : "bg-background border-input hover:border-accent-foreground/30 hover:bg-accent/10"
+            isChecked
+              ? "bg-primary border-primary shadow-md text-primary-foreground"
+              : "bg-background border-input hover:border-accent-foreground/30 hover:bg-accent/10",
           )}
         >
           {isChecked && <Check className="w-4 h-4" />}
@@ -41,7 +41,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         {label && <span className={cn("text-sm text-foreground", labelClassName)}>{label}</span>}
       </label>
     );
-  }
+  },
 );
 
 Checkbox.displayName = "Checkbox";

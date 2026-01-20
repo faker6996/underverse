@@ -87,7 +87,7 @@ export function Carousel({
     (index: number) => {
       setCurrentIndex(Math.min(maxIndex, Math.max(0, index)));
     },
-    [maxIndex]
+    [maxIndex],
   );
 
   // Keyboard navigation
@@ -123,7 +123,7 @@ export function Carousel({
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
-      if (progressElRef.current) progressElRef.current.style.width = '0%';
+      if (progressElRef.current) progressElRef.current.style.width = "0%";
     };
 
     if (!autoScroll || isPaused || totalSlides <= slidesToShow) {
@@ -224,7 +224,7 @@ export function Carousel({
   return (
     <div
       ref={carouselRef}
-      className={cn("relative w-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg", className)}
+      className={cn("relative w-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-2xl", className)}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       role="region"
@@ -235,7 +235,7 @@ export function Carousel({
       {/* Progress bar */}
       {showProgress && autoScroll && (
         <div className="absolute top-0 left-0 right-0 h-1 bg-muted z-20">
-          <div ref={progressElRef} className="h-full bg-primary" style={{ width: '0%' }} />
+          <div ref={progressElRef} className="h-full bg-primary" style={{ width: "0%" }} />
         </div>
       )}
 
@@ -262,7 +262,7 @@ export function Carousel({
               isHorizontal ? "h-full" : "w-full",
               animation === "fade" && idx !== currentIndex && "opacity-0",
               animation === "scale" && idx !== currentIndex && "scale-95",
-              slideClassName
+              slideClassName,
             )}
             style={{
               [isHorizontal ? "width" : "height"]: `${slideWidth}%`,
@@ -289,7 +289,7 @@ export function Carousel({
             disabled={!loop && currentIndex === 0}
             className={cn(
               "absolute top-1/2 -translate-y-1/2 hover:-translate-y-1/2 active:-translate-y-1/2 z-10 rounded-full will-change-transform backdrop-blur-0 hover:backdrop-blur-0 hover:bg-transparent border-0",
-              isHorizontal ? "left-4" : "top-4 left-1/2 -translate-x-1/2 rotate-90"
+              isHorizontal ? "left-4" : "top-4 left-1/2 -translate-x-1/2 rotate-90",
             )}
             aria-label="Previous slide"
           />
@@ -303,7 +303,7 @@ export function Carousel({
             disabled={!loop && currentIndex >= maxIndex}
             className={cn(
               "absolute top-1/2 -translate-y-1/2 hover:-translate-y-1/2 active:-translate-y-1/2 z-10 rounded-full will-change-transform backdrop-blur-0 hover:backdrop-blur-0 hover:bg-transparent border-0",
-              isHorizontal ? "right-4" : "bottom-4 left-1/2 -translate-x-1/2 rotate-90"
+              isHorizontal ? "right-4" : "bottom-4 left-1/2 -translate-x-1/2 rotate-90",
             )}
             aria-label="Next slide"
           />
@@ -315,7 +315,7 @@ export function Carousel({
         <div
           className={cn(
             "absolute flex gap-2 z-10",
-            isHorizontal ? "bottom-4 left-1/2 -translate-x-1/2 flex-row" : "right-4 top-1/2 -translate-y-1/2 flex-col"
+            isHorizontal ? "bottom-4 left-1/2 -translate-x-1/2 flex-row" : "right-4 top-1/2 -translate-y-1/2 flex-col",
           )}
           role="tablist"
           aria-label="Carousel pagination"
@@ -327,7 +327,7 @@ export function Carousel({
               className={cn(
                 "rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
                 isHorizontal ? "w-2 h-2" : "w-2 h-2",
-                idx === currentIndex ? `bg-primary ${isHorizontal ? "w-6" : "h-6"}` : "bg-muted-foreground/50 hover:bg-muted-foreground/75"
+                idx === currentIndex ? `bg-primary ${isHorizontal ? "w-6" : "h-6"}` : "bg-muted-foreground/50 hover:bg-muted-foreground/75",
               )}
               aria-label={`Go to slide ${idx + 1}`}
               aria-selected={idx === currentIndex}
@@ -342,7 +342,7 @@ export function Carousel({
         <div
           className={cn(
             "absolute bottom-0 left-0 right-0 flex gap-2 p-4 bg-linear-to-t from-black/50 to-transparent overflow-x-auto",
-            isHorizontal ? "flex-row" : "flex-col"
+            isHorizontal ? "flex-row" : "flex-col",
           )}
         >
           {React.Children.map(children, (child, idx) => (
@@ -350,8 +350,8 @@ export function Carousel({
               key={idx}
               onClick={() => scrollTo(idx)}
               className={cn(
-                "shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary",
-                idx === currentIndex ? "border-primary scale-110" : "border-transparent opacity-70 hover:opacity-100"
+                "shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary",
+                idx === currentIndex ? "border-primary scale-110" : "border-transparent opacity-70 hover:opacity-100",
               )}
               aria-label={`Thumbnail ${idx + 1}`}
             >

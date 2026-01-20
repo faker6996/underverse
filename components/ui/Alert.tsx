@@ -82,11 +82,11 @@ const Alert = ({ title, description, variant = "default", className, icon, dismi
   return (
     <div
       className={cn(
-        "relative w-full rounded-r-lg border border-l-0 overflow-hidden",
+        "relative w-full rounded-r-xl border border-l-0 overflow-hidden",
         "flex items-start gap-3 p-4 pl-5",
         "backdrop-blur-md",
         config.containerClassName,
-        className
+        className,
       )}
       role="alert"
       aria-live={variant === "error" ? "assertive" : "polite"}
@@ -112,7 +112,7 @@ const Alert = ({ title, description, variant = "default", className, icon, dismi
       {dismissible && (
         <button
           onClick={handleClose}
-          className="rounded-md p-1 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="rounded-lg p-1 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={closeAriaLabel || t("closeAlert")}
         >
           <X className="h-4 w-4" />

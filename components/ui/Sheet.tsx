@@ -175,7 +175,7 @@ export const Sheet: React.FC<SheetProps> = ({
         className={cn(
           "fixed inset-0 transition-all duration-300 ease-out",
           variant === "overlay" ? "bg-background/95 backdrop-blur-sm" : "bg-background/80 backdrop-blur-sm",
-          open && !isAnimating ? "opacity-100" : "opacity-0"
+          open && !isAnimating ? "opacity-100" : "opacity-0",
         )}
         onClick={handleOverlayClick}
       />
@@ -194,19 +194,19 @@ export const Sheet: React.FC<SheetProps> = ({
           side === "bottom" && "border-t",
           // Animation classes - smooth slide in/out
           open && !isAnimating ? animationStyles[side].animate : animationStyles[side].initial,
-          className
+          className,
         )}
         style={{
           transform:
             open && !isAnimating
               ? "translate(0, 0)"
               : side === "right"
-              ? "translateX(100%)"
-              : side === "left"
-              ? "translateX(-100%)"
-              : side === "top"
-              ? "translateY(-100%)"
-              : "translateY(100%)",
+                ? "translateX(100%)"
+                : side === "left"
+                  ? "translateX(-100%)"
+                  : side === "top"
+                    ? "translateY(-100%)"
+                    : "translateY(100%)",
           transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
@@ -267,7 +267,7 @@ interface BottomSheetProps extends Omit<SheetProps, "side"> {
 }
 
 export const BottomSheet: React.FC<BottomSheetProps> = ({ snapPoints = ["25%", "50%", "90%"], defaultSnap = 1, ...props }) => {
-  return <Sheet {...props} side="bottom" variant="overlay" className={cn("rounded-t-lg", props.className)} />;
+  return <Sheet {...props} side="bottom" variant="overlay" className={cn("rounded-t-3xl", props.className)} />;
 };
 
 interface SidebarSheetProps extends Omit<SheetProps, "side" | "variant"> {

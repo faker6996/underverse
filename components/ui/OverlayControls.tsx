@@ -320,11 +320,11 @@ export default function OverlayControls({
             keyboardFeedback.type === "seek" && (keyboardFeedback.value ?? 0) > 0
               ? "justify-end pr-32"
               : keyboardFeedback.type === "seek" && (keyboardFeedback.value ?? 0) < 0
-              ? "justify-start pl-32"
-              : "justify-center"
+                ? "justify-start pl-32"
+                : "justify-center",
           )}
         >
-          <div className="bg-black/50 backdrop-blur-sm rounded-xl px-6 py-4 shadow-xl border border-white/10 animate-in fade-in zoom-in duration-200">
+          <div className="bg-black/50 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-xl border border-white/10 animate-in fade-in zoom-in duration-200">
             {keyboardFeedback.type === "play" && <Play className="w-16 h-16 text-white" fill="white" />}
             {keyboardFeedback.type === "pause" && <Pause className="w-16 h-16 text-white" fill="white" />}
             {keyboardFeedback.type === "seek" && (
@@ -358,7 +358,7 @@ export default function OverlayControls({
           "absolute bottom-0 left-0 right-0 pb-2 pt-8 bg-linear-to-t from-black/40 to-transparent z-20 transition-opacity duration-200",
           hoverClasses,
           autoHide && !controlsVisible && "opacity-0 pointer-events-none",
-          className
+          className,
         )}
       >
         <div className="px-4">
@@ -390,7 +390,7 @@ export default function OverlayControls({
             {previewData && (
               <div className="absolute bottom-full mb-2 transform -translate-x-1/2 pointer-events-none z-30" style={{ left: `${previewData.x}px` }}>
                 {previewData.url ? (
-                  <div className="bg-background/95 backdrop-blur rounded-md border border-border shadow-lg overflow-hidden">
+                  <div className="bg-background/95 backdrop-blur rounded-xl border border-border shadow-lg overflow-hidden">
                     <img src={previewData.url} alt="Preview" className="w-40 h-24 object-cover" />
                     <div className="px-2 py-1 text-xs font-mono text-center bg-background/80">{formatTime(previewData.time)}</div>
                   </div>
@@ -507,7 +507,7 @@ export default function OverlayControls({
                               onChangeRate(r);
                               setRateOpen(false);
                             }}
-                            className={cn("block w-full text-left px-3 py-1 text-sm rounded hover:bg-accent", rate === r && "bg-accent")}
+                            className={cn("block w-full text-left px-3 py-1 text-sm rounded-lg hover:bg-accent", rate === r && "bg-accent")}
                           >
                             {r}x
                           </button>
@@ -535,4 +535,3 @@ export default function OverlayControls({
     </>
   );
 }
-

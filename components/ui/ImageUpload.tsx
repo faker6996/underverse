@@ -70,7 +70,7 @@ export default function ImageUpload({
         setIsDragging(true);
       }
     },
-    [disabled]
+    [disabled],
   );
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
@@ -158,7 +158,7 @@ export default function ImageUpload({
         setUploading(false);
       }
     },
-    [maxSize, addToast, onUpload]
+    [maxSize, addToast, onUpload],
   );
 
   const handleDrop = useCallback(
@@ -171,7 +171,7 @@ export default function ImageUpload({
       const files = Array.from(e.dataTransfer.files);
       handleFiles(files);
     },
-    [disabled, handleFiles]
+    [disabled, handleFiles],
   );
 
   const handleFileSelect = useCallback(
@@ -184,7 +184,7 @@ export default function ImageUpload({
         fileInputRef.current.value = "";
       }
     },
-    [handleFiles]
+    [handleFiles],
   );
 
   const handleRemoveImage = (imageId: string | number) => {
@@ -201,17 +201,17 @@ export default function ImageUpload({
       {/* Upload Area */}
       <div
         className={cn(
-          "relative border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200",
+          "relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200",
           isDragging && !disabled ? "border-primary bg-primary/5 scale-[1.02]" : "border-border hover:border-primary/50",
           disabled && "opacity-50 cursor-not-allowed",
-          uploading && "pointer-events-none"
+          uploading && "pointer-events-none",
         )}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
         {uploading && (
-          <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-lg">
+          <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-xl">
             <div className="flex items-center gap-3">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
               <span className="text-sm font-medium">Uploading...</span>
@@ -253,7 +253,7 @@ export default function ImageUpload({
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {uploadedImages.map((image) => (
-              <div key={image.id} className="relative group bg-card border border-border rounded-lg p-3">
+              <div key={image.id} className="relative group bg-card border border-border rounded-xl p-3">
                 {/* Remove Button */}
                 <Button
                   variant="danger"
@@ -265,7 +265,7 @@ export default function ImageUpload({
                 </Button>
 
                 {/* Image Preview */}
-                <div className={cn("mx-auto mb-2 overflow-hidden rounded-md", previewSizes[previewSize])}>
+                <div className={cn("mx-auto mb-2 overflow-hidden rounded-lg", previewSizes[previewSize])}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={image.url}

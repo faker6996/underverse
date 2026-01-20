@@ -58,27 +58,27 @@ const variantStyles = {
   },
   card: {
     container: "space-y-1",
-    tab: "rounded-lg border border-transparent transition-all duration-200",
+    tab: "rounded-xl border border-transparent transition-all duration-200",
     activeTab: "bg-primary text-primary-foreground border-primary",
     inactiveTab: "text-muted-foreground hover:text-foreground hover:bg-accent/50 hover:border-border hover:shadow-sm",
   },
   "underline-card": {
-    container: "border-b border-border bg-card rounded-t-lg",
+    container: "border-b border-border bg-card rounded-t-2xl",
     tab: "relative transition-all duration-200 pb-3 px-4 border-b-2 border-transparent hover:border-primary/50 hover:bg-accent/30",
     activeTab: "text-primary border-primary font-medium bg-accent/20",
     inactiveTab: "text-muted-foreground hover:text-foreground",
   },
 };
 
-export const Tabs: React.FC<TabsProps> = ({ 
-  tabs, 
-  defaultValue, 
+export const Tabs: React.FC<TabsProps> = ({
+  tabs,
+  defaultValue,
   className,
   variant = "default",
   size = "md",
   orientation = "horizontal",
   onTabChange,
-  stretch = false
+  stretch = false,
 }) => {
   const [active, setActive] = React.useState<string>(defaultValue || tabs[0]?.value);
   const [underlineStyle, setUnderlineStyle] = React.useState<React.CSSProperties>({});
@@ -86,7 +86,7 @@ export const Tabs: React.FC<TabsProps> = ({
   // Generate a deterministic base id from tab values to avoid SSR/client mismatch
   const baseId = React.useMemo(() => {
     const key = tabs.map((t) => t.value).join("-");
-    return `tabs-${key || 'default'}`;
+    return `tabs-${key || "default"}`;
   }, [tabs]);
 
   const handleTabChange = (value: string) => {
@@ -97,9 +97,9 @@ export const Tabs: React.FC<TabsProps> = ({
   // Update underline position for underline variant
   React.useEffect(() => {
     if (variant === "underline" && orientation === "horizontal") {
-      const activeIndex = tabs.findIndex(tab => tab.value === active);
+      const activeIndex = tabs.findIndex((tab) => tab.value === active);
       const activeTab = tabRefs.current[activeIndex];
-      
+
       if (activeTab) {
         const { offsetLeft, offsetWidth } = activeTab;
         setUnderlineStyle({
@@ -114,7 +114,7 @@ export const Tabs: React.FC<TabsProps> = ({
     "w-full",
     orientation === "horizontal" ? "flex space-x-1 overflow-x-auto" : "flex flex-col space-y-1",
     variantStyles[variant].container,
-    className
+    className,
   );
 
   const activeTab = tabs.find((tab) => tab.value === active);
@@ -128,18 +128,20 @@ export const Tabs: React.FC<TabsProps> = ({
           const Icon = tab.icon;
           const tabId = `${baseId}-tab-${index}`;
           const panelId = `${baseId}-panel-${index}`;
-          
+
           return (
             <button
               key={tab.value}
-              ref={(el) => { tabRefs.current[index] = el; }}
+              ref={(el) => {
+                tabRefs.current[index] = el;
+              }}
               onClick={() => !tab.disabled && handleTabChange(tab.value)}
               disabled={tab.disabled}
               style={{
-                boxShadow: 'none',
-                transform: 'none',
-                outline: 'none',
-                border: 'none'
+                boxShadow: "none",
+                transform: "none",
+                outline: "none",
+                border: "none",
               }}
               className={cn(
                 "font-medium transition-all duration-200 cursor-pointer flex items-center gap-2",
@@ -148,11 +150,9 @@ export const Tabs: React.FC<TabsProps> = ({
                 "border-0 bg-transparent outline-none", // Reset button default styles
                 sizeStyles[size].tab,
                 variantStyles[variant].tab,
-                isActive
-                  ? variantStyles[variant].activeTab
-                  : variantStyles[variant].inactiveTab,
+                isActive ? variantStyles[variant].activeTab : variantStyles[variant].inactiveTab,
                 orientation === "vertical" && "justify-start w-full",
-                stretch && orientation === "horizontal" && "flex-1 justify-center"
+                stretch && orientation === "horizontal" && "flex-1 justify-center",
               )}
               role="tab"
               id={tabId}
@@ -161,17 +161,17 @@ export const Tabs: React.FC<TabsProps> = ({
               tabIndex={isActive ? 0 : -1}
               onKeyDown={(e) => {
                 const count = tabs.length;
-                const idx = tabs.findIndex(t => t.value === active);
+                const idx = tabs.findIndex((t) => t.value === active);
                 let next = idx;
-                if (orientation === 'horizontal') {
-                  if (e.key === 'ArrowRight') next = (idx + 1) % count;
-                  if (e.key === 'ArrowLeft') next = (idx - 1 + count) % count;
+                if (orientation === "horizontal") {
+                  if (e.key === "ArrowRight") next = (idx + 1) % count;
+                  if (e.key === "ArrowLeft") next = (idx - 1 + count) % count;
                 } else {
-                  if (e.key === 'ArrowDown') next = (idx + 1) % count;
-                  if (e.key === 'ArrowUp') next = (idx - 1 + count) % count;
+                  if (e.key === "ArrowDown") next = (idx + 1) % count;
+                  if (e.key === "ArrowUp") next = (idx - 1 + count) % count;
                 }
-                if (e.key === 'Home') next = 0;
-                if (e.key === 'End') next = count - 1;
+                if (e.key === "Home") next = 0;
+                if (e.key === "End") next = count - 1;
                 if (next !== idx) {
                   e.preventDefault();
                   const nextVal = tabs[next].value;
@@ -185,26 +185,23 @@ export const Tabs: React.FC<TabsProps> = ({
             </button>
           );
         })}
-        
+
         {/* Underline indicator for underline variant */}
         {variant === "underline" && orientation === "horizontal" && (
-          <div 
-            className="absolute bottom-0 h-0.5 bg-primary transition-all duration-300 ease-out"
-            style={underlineStyle}
-          />
+          <div className="absolute bottom-0 h-0.5 bg-primary transition-all duration-300 ease-out" style={underlineStyle} />
         )}
       </div>
 
       {/* Tab Content */}
       <div
         role="tabpanel"
-        id={`${baseId}-panel-${tabs.findIndex(t => t.value === active)}`}
-        aria-labelledby={`${baseId}-tab-${tabs.findIndex(t => t.value === active)}`}
+        id={`${baseId}-panel-${tabs.findIndex((t) => t.value === active)}`}
+        aria-labelledby={`${baseId}-tab-${tabs.findIndex((t) => t.value === active)}`}
         className={cn(
-        "bg-card rounded-lg border border-border shadow-sm text-card-foreground transition-all duration-200",
-        sizeStyles[size].content,
-        orientation === "vertical" && "flex-1"
-      )}
+          "bg-card rounded-xl border border-border shadow-sm text-card-foreground transition-all duration-200",
+          sizeStyles[size].content,
+          orientation === "vertical" && "flex-1",
+        )}
         tabIndex={0}
       >
         {activeTab?.content}
@@ -225,15 +222,7 @@ interface SimpleTabsProps {
 }
 
 export const SimpleTabs: React.FC<SimpleTabsProps> = ({ tabs, defaultValue, className }) => {
-  return (
-    <Tabs 
-      tabs={tabs} 
-      defaultValue={defaultValue} 
-      className={className}
-      variant="default"
-      size="sm"
-    />
-  );
+  return <Tabs tabs={tabs} defaultValue={defaultValue} className={className} variant="default" size="sm" />;
 };
 
 interface PillTabsProps extends TabsProps {
@@ -241,33 +230,18 @@ interface PillTabsProps extends TabsProps {
 }
 
 export const PillTabs: React.FC<PillTabsProps> = ({ contained = true, ...props }) => {
-  return (
-    <Tabs 
-      {...props}
-      variant="pills"
-      className={cn(contained && "max-w-fit", props.className)}
-    />
-  );
+  return <Tabs {...props} variant="pills" className={cn(contained && "max-w-fit", props.className)} />;
 };
 
 interface VerticalTabsProps extends TabsProps {
   sidebarWidth?: string;
 }
 
-export const VerticalTabs: React.FC<VerticalTabsProps> = ({ 
-  sidebarWidth = "w-48", 
-  className,
-  ...props 
-}) => {
+export const VerticalTabs: React.FC<VerticalTabsProps> = ({ sidebarWidth = "w-48", className, ...props }) => {
   return (
     <div className={cn("flex gap-6", className)}>
       <div className={cn(sidebarWidth, "shrink-0")}>
-        <Tabs 
-          {...props}
-          orientation="vertical"
-          variant="card"
-          className="w-full"
-        />
+        <Tabs {...props} orientation="vertical" variant="card" className="w-full" />
       </div>
     </div>
   );

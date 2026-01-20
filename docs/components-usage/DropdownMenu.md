@@ -11,6 +11,11 @@ Exports:
 
 Note: Usage snippets are minimal; fill required props from the props type below.
 
+## Behavior
+
+- Dropdown uses `Popover` internally (portal + fixed positioning + auto flip/clamp in viewport).
+- Closes on outside click and `Escape` (handled by `Popover`).
+
 ## Accessibility (Web Interface Guidelines Compliant)
 
 | Feature                          | Status |
@@ -30,7 +35,7 @@ Props type: `DropdownMenuProps`
 import { DropdownMenu } from "@underverse-ui/underverse";
 
 export function Example() {
-  return <DropdownMenu>Content</DropdownMenu>;
+  return <DropdownMenu trigger={<button type="button">Open</button>} />;
 }
 ```
 

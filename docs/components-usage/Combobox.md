@@ -8,6 +8,11 @@ Exports:
 
 Note: Usage snippets are minimal; fill required props from the props type below.
 
+## Behavior
+
+- Dropdown uses `Popover` internally (portal + fixed positioning + auto flip/clamp in viewport).
+- Dropdown width matches the trigger by default.
+
 ## Accessibility (Web Interface Guidelines Compliant)
 
 | Feature                          | Status |
@@ -28,7 +33,7 @@ Props type: `ComboboxProps`
 import { Combobox } from "@underverse-ui/underverse";
 
 export function Example() {
-  return <Combobox />;
+  return <Combobox options={[]} onChange={() => {}} />;
 }
 ```
 
@@ -41,7 +46,7 @@ import { Combobox } from "@underverse-ui/underverse";
 export function Example() {
   const [value, setValue] = React.useState("");
 
-  return <Combobox value={value} onChange={setValue} options={undefined} label={"Nhan"} placeholder={"Nhap..."} />;
+  return <Combobox value={value} onChange={setValue} options={["A", "B", "C"]} label={"Nhan"} placeholder={"Nhap..."} />;
 }
 ```
 

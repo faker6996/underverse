@@ -142,7 +142,7 @@ function computePopoverPosition(args: {
 
 export const Popover: React.FC<PopoverProps> = ({
   trigger,
-  children, 
+  children,
   className,
   contentClassName,
   placement = "bottom",
@@ -151,23 +151,20 @@ export const Popover: React.FC<PopoverProps> = ({
   open,
   onOpenChange,
   matchTriggerWidth = false,
-  contentWidth
+  contentWidth,
 }) => {
   const isControlled = open !== undefined;
   const [internalOpen, setInternalOpen] = React.useState(false);
   const triggerRef = React.useRef<HTMLElement>(null);
   const positionerRef = React.useRef<HTMLDivElement>(null);
   const panelRef = React.useRef<HTMLDivElement>(null);
-  const lastAppliedRef = React.useRef<
-    | {
-        top: number;
-        left: number;
-        side: Side;
-        align: Align;
-        width?: number;
-      }
-    | null
-  >(null);
+  const lastAppliedRef = React.useRef<{
+    top: number;
+    left: number;
+    side: Side;
+    align: Align;
+    width?: number;
+  } | null>(null);
 
   // Inject ShadCN animations
   useShadCNAnimations();
@@ -322,18 +319,18 @@ export const Popover: React.FC<PopoverProps> = ({
     };
 
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setIsOpen(false);
       }
     };
 
-    if (typeof document !== 'undefined') {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('keydown', handleEscape);
-      
+    if (typeof document !== "undefined") {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleEscape);
+
       return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-        document.removeEventListener('keydown', handleEscape);
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("keydown", handleEscape);
       };
     }
   }, [isOpen, setIsOpen]);
@@ -378,7 +375,7 @@ export const Popover: React.FC<PopoverProps> = ({
             >
               <div
                 className={cn(
-                  "rounded-md border bg-popover text-popover-foreground shadow-md",
+                  "rounded-xl border bg-popover text-popover-foreground shadow-md",
                   "backdrop-blur-sm bg-popover/95 border-border/60 p-4",
                   contentClassName,
                 )}
@@ -411,12 +408,12 @@ export const Popover: React.FC<PopoverProps> = ({
               triggerEl.props.onClick(e);
             }
           },
-          'aria-expanded': isOpen,
-          'aria-haspopup': 'dialog',
+          "aria-expanded": isOpen,
+          "aria-haspopup": triggerEl.props?.["aria-haspopup"] ?? "dialog",
           className: cn(
             triggerEl.props?.className,
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md'
-          )
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          ),
         } as any);
       })()}
       {popoverContent}

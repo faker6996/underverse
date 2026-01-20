@@ -62,9 +62,7 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
 }
 
 function rgbToHex(r: number, g: number, b: number) {
-  return `#${[r, g, b]
-    .map((v) => clamp(Math.round(v), 0, 255).toString(16).padStart(2, "0"))
-    .join("")}`;
+  return `#${[r, g, b].map((v) => clamp(Math.round(v), 0, 255).toString(16).padStart(2, "0")).join("")}`;
 }
 
 function rgbToHsl(r: number, g: number, b: number): { h: number; s: number; l: number } {
@@ -196,15 +194,28 @@ function getColorHarmony(rgba: RGBA): { complementary: string; triadic: string[]
 }
 
 const DEFAULT_PRESETS = [
-  "#000000", "#ffffff", "#f87171", "#fb923c", "#fbbf24", "#34d399", "#60a5fa", "#a78bfa", "#f472b6",
-  "#111827", "#4b5563", "#9ca3af", "#d1d5db", "#e5e7eb", "#f3f4f6",
+  "#000000",
+  "#ffffff",
+  "#f87171",
+  "#fb923c",
+  "#fbbf24",
+  "#34d399",
+  "#60a5fa",
+  "#a78bfa",
+  "#f472b6",
+  "#111827",
+  "#4b5563",
+  "#9ca3af",
+  "#d1d5db",
+  "#e5e7eb",
+  "#f3f4f6",
 ];
 
 const Swatch: React.FC<{ color: string; onClick?: () => void; ariaLabel?: string; size?: "sm" | "md" | "lg" }> = ({
   color,
   onClick,
   ariaLabel,
-  size = "md"
+  size = "md",
 }) => {
   const sizeClasses = {
     sm: "h-5 w-5",
@@ -214,11 +225,7 @@ const Swatch: React.FC<{ color: string; onClick?: () => void; ariaLabel?: string
   return (
     <button
       type="button"
-      className={cn(
-        sizeClasses[size],
-        "rounded-md border border-border shadow-sm hover:scale-110 transition-transform",
-        onClick && "cursor-pointer"
-      )}
+      className={cn(sizeClasses[size], "rounded-lg border border-border shadow-sm hover:scale-110 transition-transform", onClick && "cursor-pointer")}
       style={{ backgroundColor: color }}
       onClick={onClick}
       aria-label={ariaLabel}
@@ -356,20 +363,17 @@ export default function ColorPicker({
       type="button"
       disabled={disabled}
       className={cn(
-        "w-full px-3 rounded-lg border border-input bg-background flex items-center justify-between",
+        "w-full px-3 rounded-xl border border-input bg-background flex items-center justify-between",
         sizeClasses[size],
         "hover:border-accent-foreground/30 transition-colors",
         disabled && "opacity-50 cursor-not-allowed",
-        triggerClassName
+        triggerClassName,
       )}
       aria-label="Open color picker"
     >
       <div className="flex items-center gap-2">
         <span
-          className={cn(
-            "rounded border border-border shadow-sm",
-            size === "sm" ? "h-4 w-4" : size === "lg" ? "h-6 w-6" : "h-5 w-5"
-          )}
+          className={cn("rounded-md border border-border shadow-sm", size === "sm" ? "h-4 w-4" : size === "lg" ? "h-6 w-6" : "h-5 w-5")}
           style={{ backgroundColor: withAlpha ? `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})` : hexForInput }}
         />
         <span className="font-mono text-muted-foreground">{text}</span>
@@ -394,17 +398,22 @@ export default function ColorPicker({
         placement="bottom-start"
         matchTriggerWidth={variant === "minimal"}
         contentWidth={contentWidthByVariant[variant]}
-        contentClassName={cn("p-3 rounded-lg border border-border bg-card shadow-lg", contentClassName)}
+        contentClassName={cn("p-3 rounded-xl border border-border bg-card shadow-lg", contentClassName)}
       >
         <div className="space-y-3">
           {/* Native input + eyedropper + copy + clear */}
           {variant !== "minimal" && (
             <div className="flex items-center gap-2">
-              <input type="color" value={hexForInput} onChange={handleNativeChange} className="h-9 w-9 rounded-md cursor-pointer border border-border" />
+              <input
+                type="color"
+                value={hexForInput}
+                onChange={handleNativeChange}
+                className="h-9 w-9 rounded-lg cursor-pointer border border-border"
+              />
               <button
                 type="button"
                 onClick={tryEyedropper}
-                className={cn("h-9 px-3 rounded-md border border-border text-xs hover:bg-accent/10 transition-colors flex items-center gap-1.5")}
+                className={cn("h-9 px-3 rounded-lg border border-border text-xs hover:bg-accent/10 transition-colors flex items-center gap-1.5")}
               >
                 <Pipette className="w-3.5 h-3.5" />
                 {variant === "full" && "Pick"}
@@ -414,8 +423,8 @@ export default function ColorPicker({
                   type="button"
                   onClick={copyToClipboard}
                   className={cn(
-                    "h-9 px-3 rounded-md border border-border text-xs hover:bg-accent/10 transition-colors flex items-center gap-1.5",
-                    copied && "bg-green-500/10 border-green-500/30"
+                    "h-9 px-3 rounded-lg border border-border text-xs hover:bg-accent/10 transition-colors flex items-center gap-1.5",
+                    copied && "bg-green-500/10 border-green-500/30",
                   )}
                 >
                   {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -426,7 +435,7 @@ export default function ColorPicker({
                 <button
                   type="button"
                   onClick={clear}
-                  className="ml-auto h-9 px-2 rounded-md border border-border text-xs hover:bg-destructive/10 transition-colors flex items-center gap-1"
+                  className="ml-auto h-9 px-2 rounded-lg border border-border text-xs hover:bg-destructive/10 transition-colors flex items-center gap-1"
                 >
                   <X className="w-3.5 h-3.5" />
                   {variant === "full" && "Clear"}
@@ -441,11 +450,7 @@ export default function ColorPicker({
               value={text}
               onChange={(e) => handleHexChange(e.target.value)}
               placeholder={
-                format === "hsl" || format === "hsla"
-                  ? "hsl(240, 82%, 59%)"
-                  : withAlpha || format === "rgba"
-                  ? "rgba(79,70,229,1)"
-                  : "#4f46e5"
+                format === "hsl" || format === "hsla" ? "hsl(240, 82%, 59%)" : withAlpha || format === "rgba" ? "rgba(79,70,229,1)" : "#4f46e5"
               }
               variant="outlined"
               size="sm"
@@ -456,8 +461,8 @@ export default function ColorPicker({
                 type="button"
                 onClick={copyToClipboard}
                 className={cn(
-                  "h-9 w-9 rounded-md border border-border hover:bg-accent/10 transition-colors flex items-center justify-center",
-                  copied && "bg-green-500/10 border-green-500/30"
+                  "h-9 w-9 rounded-lg border border-border hover:bg-accent/10 transition-colors flex items-center justify-center",
+                  copied && "bg-green-500/10 border-green-500/30",
                 )}
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -468,7 +473,17 @@ export default function ColorPicker({
           {/* Alpha slider */}
           {withAlpha && (
             <div className="pt-1">
-              <Slider min={0} max={100} step={1} value={alphaPct} onChange={(v) => setAlpha(v)} label="Alpha" showValue formatValue={(v) => `${v}%`} size="sm" />
+              <Slider
+                min={0}
+                max={100}
+                step={1}
+                value={alphaPct}
+                onChange={(v) => setAlpha(v)}
+                label="Alpha"
+                showValue
+                formatValue={(v) => `${v}%`}
+                size="sm"
+              />
             </div>
           )}
 

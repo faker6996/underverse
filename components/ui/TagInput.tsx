@@ -81,7 +81,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       maxVisibleTags,
       labels,
     },
-    ref
+    ref,
   ) => {
     const [inputValue, setInputValue] = useState("");
     const [isFocused, setIsFocused] = useState(false);
@@ -107,23 +107,23 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
     // Size styles
     const sizeStyles = {
       sm: {
-        container: "min-h-8 p-1.5 gap-1",
+        container: "min-h-8 p-1.5 gap-1 rounded-lg",
         input: "text-xs",
-        tag: "px-1.5 py-0.5 text-xs gap-1",
+        tag: "px-1.5 py-0.5 text-xs gap-1 rounded-md",
         tagIcon: "h-3 w-3",
         button: "h-7 text-xs px-2",
       },
       md: {
-        container: "min-h-10 p-2 gap-1.5",
+        container: "min-h-10 p-2 gap-1.5 rounded-xl",
         input: "text-sm",
-        tag: "px-2 py-1 text-sm gap-1.5",
+        tag: "px-2 py-1 text-sm gap-1.5 rounded-lg",
         tagIcon: "h-3.5 w-3.5",
         button: "h-8 text-sm px-3",
       },
       lg: {
-        container: "min-h-12 p-2.5 gap-2",
+        container: "min-h-12 p-2.5 gap-2 rounded-xl",
         input: "text-base",
-        tag: "px-2.5 py-1.5 text-base gap-2",
+        tag: "px-2.5 py-1.5 text-base gap-2 rounded-lg",
         tagIcon: "h-4 w-4",
         button: "h-9 text-base px-4",
       },
@@ -221,7 +221,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
             className={cn(
               "block font-medium transition-colors duration-200",
               size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
-              disabled ? "text-muted-foreground" : isFocused ? "text-primary" : "text-foreground"
+              disabled ? "text-muted-foreground" : isFocused ? "text-primary" : "text-foreground",
             )}
           >
             {label}
@@ -238,12 +238,12 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
           onClick={handleContainerClick}
           className={cn(
             "flex flex-wrap items-center cursor-text",
-            "bg-background border border-input rounded-lg",
+            "bg-background border border-input",
             "transition-all duration-200",
             "hover:border-accent-foreground/20",
             isFocused && "ring-1 ring-ring ring-offset-1 ring-offset-background border-transparent shadow-md",
             disabled && "opacity-50 cursor-not-allowed",
-            sizeStyles[size].container
+            sizeStyles[size].container,
           )}
         >
           {/* Tags */}
@@ -251,10 +251,10 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
             <span
               key={`${tag}-${index}`}
               className={cn(
-                "inline-flex items-center rounded-md",
+                "inline-flex items-center",
                 "bg-primary/10 text-primary font-mono",
                 "animate-in fade-in-0 zoom-in-95 duration-200",
-                sizeStyles[size].tag
+                sizeStyles[size].tag,
               )}
             >
               <span className="truncate max-w-50">{tag}</span>
@@ -266,11 +266,11 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
                 }}
                 disabled={disabled}
                 className={cn(
-                  "flex items-center justify-center rounded-sm",
+                  "flex items-center justify-center rounded-md",
                   "text-primary/70 hover:text-primary hover:bg-primary/20",
                   "transition-colors duration-150",
                   "focus:outline-none focus-visible:ring-1 focus-visible:ring-primary",
-                  "disabled:pointer-events-none"
+                  "disabled:pointer-events-none",
                 )}
                 aria-label={`Remove ${tag}`}
               >
@@ -288,11 +288,11 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
                 setIsExpanded(true);
               }}
               className={cn(
-                "inline-flex items-center rounded-md cursor-pointer",
+                "inline-flex items-center cursor-pointer",
                 "bg-muted text-muted-foreground hover:bg-muted/80",
                 "transition-colors duration-150",
                 "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-                sizeStyles[size].tag
+                sizeStyles[size].tag,
               )}
               title={value.slice(maxVisibleTags).join(", ")}
             >
@@ -309,11 +309,11 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
                 setIsExpanded(false);
               }}
               className={cn(
-                "inline-flex items-center rounded-md cursor-pointer",
+                "inline-flex items-center cursor-pointer",
                 "bg-muted/50 text-muted-foreground hover:bg-muted/80",
                 "transition-colors duration-150",
                 "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-                sizeStyles[size].tag
+                sizeStyles[size].tag,
               )}
             >
               Show less
@@ -344,7 +344,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
               "flex-1 min-w-30 bg-transparent outline-none",
               "placeholder:text-muted-foreground",
               "disabled:cursor-not-allowed",
-              sizeStyles[size].input
+              sizeStyles[size].input,
             )}
             aria-label={label || "Tag input"}
           />
@@ -383,7 +383,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 TagInput.displayName = "TagInput";

@@ -270,7 +270,7 @@ export function DataTable<T extends Record<string, any>>({
                 {col.sortable && (
                   <button
                     className={cn(
-                      "p-1 rounded-sm transition-all duration-200 hover:bg-accent",
+                      "p-1 rounded-lg transition-all duration-200 hover:bg-accent",
                       sort?.key === col.key ? "opacity-100 bg-accent" : "opacity-60 hover:opacity-100",
                     )}
                     onClick={() => {
@@ -313,7 +313,7 @@ export function DataTable<T extends Record<string, any>>({
                 trigger={
                   <button
                     className={cn(
-                      "p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors",
+                      "p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                       filters[col.key] && "bg-accent text-foreground",
                     )}
@@ -515,7 +515,7 @@ export function DataTable<T extends Record<string, any>>({
         </div>
       </div>
 
-      <div className={cn("relative rounded-md border border-border/50 overflow-hidden", loading && "opacity-60 pointer-events-none")}>
+      <div className={cn("relative rounded-2xl md:rounded-3xl border border-border/50 overflow-hidden", loading && "opacity-60 pointer-events-none")}>
         <Table
           containerClassName="border-0 md:border-0 rounded-none md:rounded-none shadow-none bg-transparent"
           className="[&_thead]:sticky [&_thead]:top-0 [&_thead]:z-5 [&_thead]:bg-background [&_thead]:backdrop-blur-sm"
@@ -568,8 +568,8 @@ export function DataTable<T extends Record<string, any>>({
                               col.align === "right" && "text-right",
                               col.align === "center" && "text-center",
                               columnDividers && colIdx > 0 && "border-l border-border/60",
-                              isLastRow && col === visibleColumns[0] && "rounded-bl-md",
-                              isLastRow && col === visibleColumns[visibleColumns.length - 1] && "rounded-br-md",
+                              isLastRow && col === visibleColumns[0] && "rounded-bl-2xl md:rounded-bl-3xl",
+                              isLastRow && col === visibleColumns[visibleColumns.length - 1] && "rounded-br-2xl md:rounded-br-3xl",
                             ) as string
                           }
                         >
@@ -628,7 +628,7 @@ export function DataTable<T extends Record<string, any>>({
                     key={p}
                     onClick={() => setCurPage(p)}
                     className={cn(
-                      "h-7 min-w-7 px-1.5 rounded text-xs font-medium transition-colors",
+                      "h-7 min-w-7 px-1.5 rounded-lg text-xs font-medium transition-colors",
                       curPage === p ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground",
                     )}
                   >
