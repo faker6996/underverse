@@ -287,7 +287,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
             aria-label="Clear selection"
             onClick={handleClear}
             onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleClear(e as any)}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
           >
             <X className="h-3 w-3" />
           </div>

@@ -82,8 +82,8 @@ const ListItemSkeleton: React.FC<{ size: Size }> = ({ size }) => {
     <div className={cn("flex items-center gap-3 animate-pulse p-2")}>
       <div className={cn("rounded-full bg-muted shrink-0", sz.avatar)} />
       <div className="flex-1 space-y-2">
-        <div className="h-4 bg-muted rounded w-3/4" />
-        <div className="h-3 bg-muted rounded w-1/2" />
+        <div className="h-4 bg-muted rounded-md w-3/4" />
+        <div className="h-3 bg-muted rounded-md w-1/2" />
       </div>
     </div>
   );

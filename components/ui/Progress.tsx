@@ -364,7 +364,7 @@ export const BatteryProgress: React.FC<BatteryProgressProps> = ({ value, max = 1
           <div className="absolute -right-1 top-0.5 w-0.5 h-1 bg-foreground/20 rounded-r-sm" />
           {/* Battery fill */}
           <div
-            className={cn("h-full transition-all duration-500 ease-out rounded-sm", variantStyles[getVariant()], charging && "animate-pulse")}
+            className={cn("h-full transition-all duration-500 ease-out rounded-md", variantStyles[getVariant()], charging && "animate-pulse")}
             style={{ width: `${percentage}%` }}
           />
         </div>

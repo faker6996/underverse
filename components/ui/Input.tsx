@@ -285,7 +285,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                   (rest.onChange as any)?.({ target: { value: "" } });
                 }}
                 className={cn(
-                  "flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-sm",
+                  "flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-md",
                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
                   "active:bg-accent active:text-accent-foreground",
                   sizeStyles[size].button,
@@ -568,7 +568,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
               onClick={handleIncrement}
               disabled={max !== undefined && currentValue >= max}
               className={cn(
-                "flex items-center justify-center w-4 h-4 rounded-sm transition-colors",
+                "flex items-center justify-center w-4 h-4 rounded-md transition-colors",
                 "hover:bg-accent focus:outline-none focus:bg-accent",
                 "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent",
                 "text-muted-foreground hover:text-foreground",
@@ -584,7 +584,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
               onClick={handleDecrement}
               disabled={min !== undefined && currentValue <= min}
               className={cn(
-                "flex items-center justify-center w-4 h-4 rounded-sm transition-colors",
+                "flex items-center justify-center w-4 h-4 rounded-md transition-colors",
                 "hover:bg-accent focus:outline-none focus:bg-accent",
                 "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent",
                 "text-muted-foreground hover:text-foreground",

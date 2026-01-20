@@ -476,7 +476,7 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
               sizeClasses[size],
               isSelected ? variantClasses[variant].selected : variantClasses[variant].base,
               variant === "outline" && !isLast && "border-r border-border",
-              variant === "default" && "rounded-sm",
+              variant === "default" && "rounded-md",
               fullWidth && "flex-1",
             )}
             onClick={() => handleValueChange(item.value)}

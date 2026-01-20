@@ -204,7 +204,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
                     e.stopPropagation();
                     onChange(undefined);
                   }}
-                  className="hover:text-foreground p-0.5 rounded-sm hover:bg-accent"
+                  className="hover:text-foreground p-0.5 rounded-md hover:bg-accent"
                 >
                   <X className="h-4 w-4" />
                 </span>
