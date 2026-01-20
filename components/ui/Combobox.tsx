@@ -159,7 +159,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
               }
             }}
             placeholder={searchPlaceholder}
-            className="w-full rounded-xl bg-background/50 py-2 pl-8 pr-3 text-sm border-0 focus:outline-none focus:bg-background/80 transition-colors placeholder:text-muted-foreground/60"
+            className="w-full rounded-full bg-background/50 py-2 pl-8 pr-3 text-sm border-0 focus:outline-none focus:bg-background/80 transition-colors placeholder:text-muted-foreground/60"
             aria-autocomplete="list"
             aria-activedescendant={activeIndex != null ? `combobox-item-${activeIndex}` : undefined}
           />
@@ -240,7 +240,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const labelSize = size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm";
 
   // Radius consistent with Input: sm => rounded-md, md/lg => rounded-lg
-  const radiusClass = size === "sm" ? "rounded-lg" : "rounded-xl";
+  const radiusClass = size === "sm" ? "rounded-full" : "rounded-full";
 
   const verticalGap = size === "sm" ? "space-y-1.5" : "space-y-2";
 
@@ -348,7 +348,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
           {triggerButtonInline}
           {open && (
             <div className="absolute left-0 top-full mt-1 z-50 w-full">
-              <div className="rounded-xl border bg-popover text-popover-foreground shadow-md backdrop-blur-sm bg-popover/95 border-border/60">
+              <div className="rounded-2xl border bg-popover text-popover-foreground shadow-md backdrop-blur-sm bg-popover/95 border-border/60">
                 {dropdownBody}
               </div>
             </div>

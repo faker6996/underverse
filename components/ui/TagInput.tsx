@@ -114,14 +114,14 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
         button: "h-7 text-xs px-2",
       },
       md: {
-        container: "min-h-10 p-2 gap-1.5 rounded-xl",
+        container: "min-h-10 p-2 gap-1.5 rounded-2xl",
         input: "text-sm",
         tag: "px-2 py-1 text-sm gap-1.5 rounded-lg",
         tagIcon: "h-3.5 w-3.5",
         button: "h-8 text-sm px-3",
       },
       lg: {
-        container: "min-h-12 p-2.5 gap-2 rounded-xl",
+        container: "min-h-12 p-2.5 gap-2 rounded-2xl",
         input: "text-base",
         tag: "px-2.5 py-1.5 text-base gap-2 rounded-lg",
         tagIcon: "h-4 w-4",

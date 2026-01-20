@@ -4,6 +4,7 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
+import { DatePicker } from "@/components/ui/DatePicker";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
@@ -20,6 +21,8 @@ export default function ModalExample() {
   const [open8, setOpen8] = React.useState(false);
   const [open9, setOpen9] = React.useState(false);
   const [open10, setOpen10] = React.useState(false);
+  const [open11, setOpen11] = React.useState(false);
+  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(undefined);
 
   const code =
     `import { Button, Modal } from '@underverse-ui/underverse'\n\n` +
@@ -164,12 +167,7 @@ export default function ModalExample() {
         <Button variant="outline" onClick={() => setOpen7(true)}>
           Open No-Close-Button Modal
         </Button>
-        <Modal
-          isOpen={open7}
-          onClose={() => setOpen7(false)}
-          title="No Close Button"
-          showCloseButton={false}
-        >
+        <Modal isOpen={open7} onClose={() => setOpen7(false)} title="No Close Button" showCloseButton={false}>
           <div className="space-y-3">
             <p>User must use the action buttons to close this modal.</p>
             <div className="flex justify-end gap-2">
@@ -190,13 +188,7 @@ export default function ModalExample() {
         <Button variant="outline" onClick={() => setOpen8(true)}>
           Open Protected Modal
         </Button>
-        <Modal
-          isOpen={open8}
-          onClose={() => setOpen8(false)}
-          title="Protected Modal"
-          closeOnOverlayClick={false}
-          closeOnEsc={false}
-        >
+        <Modal isOpen={open8} onClose={() => setOpen8(false)} title="Protected Modal" closeOnOverlayClick={false} closeOnEsc={false}>
           <div className="space-y-3">
             <p>Cannot close by clicking outside or pressing Esc.</p>
             <div className="flex justify-end gap-2">
@@ -222,6 +214,28 @@ export default function ModalExample() {
           </div>
         </Modal>
       </div>
+
+      {/* Modal with DatePicker */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Modal with DatePicker</p>
+        <Button variant="outline" onClick={() => setOpen11(true)}>
+          Open Form Modal
+        </Button>
+        <Modal isOpen={open11} onClose={() => setOpen11(false)} title="Select Date" size="sm">
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Pick a date for your appointment:</p>
+            <DatePicker value={selectedDate} onChange={setSelectedDate} label="Appointment Date" placeholder="Select a date" />
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setOpen11(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={() => setOpen11(false)}>
+                Confirm
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      </div>
     </div>
   );
 
@@ -241,7 +255,22 @@ export default function ModalExample() {
     { property: "fullWidth", description: t("props.modal.fullWidth"), type: "boolean", default: "false" },
     { property: "children", description: t("props.modal.children"), type: "React.ReactNode", default: "—" },
   ];
-  const order = ["isOpen","onClose","title","description","size","width","height","showCloseButton","closeOnOverlayClick","closeOnEsc","contentClassName","noPadding","fullWidth","children"];
+  const order = [
+    "isOpen",
+    "onClose",
+    "title",
+    "description",
+    "size",
+    "width",
+    "height",
+    "showCloseButton",
+    "closeOnOverlayClick",
+    "closeOnEsc",
+    "contentClassName",
+    "noPadding",
+    "fullWidth",
+    "children",
+  ];
   const docs = <PropsDocsTable rows={rows} order={order} />;
 
   return (

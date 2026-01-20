@@ -345,7 +345,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           // Modern trigger button styling
           "group flex w-full items-center justify-between px-3 py-2.5",
           "bg-background/80 backdrop-blur-sm border border-border/60",
-          "rounded-xl h-11 text-sm",
+          "rounded-2xl h-11 text-sm",
           "hover:bg-accent/10 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
           "transition-all duration-300 ease-out",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",

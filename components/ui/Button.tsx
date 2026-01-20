@@ -69,8 +69,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const baseStyles = asContainer
-      ? "relative inline-flex justify-center rounded-xl font-medium transition-colors duration-150 ease-soft outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px"
-      : "relative inline-flex items-center justify-center gap-2 rounded-xl font-medium overflow-hidden transition-colors duration-150 ease-soft outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px";
+      ? "relative inline-flex justify-center rounded-full font-medium transition-colors duration-150 ease-soft outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px"
+      : "relative inline-flex items-center justify-center gap-2 rounded-full font-medium overflow-hidden transition-colors duration-150 ease-soft outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px";
 
     const finalVariant = gradient ? "gradient" : variant;
     const variantStyle = VARIANT_STYLES_BTN[finalVariant] || VARIANT_STYLES_BTN.default;

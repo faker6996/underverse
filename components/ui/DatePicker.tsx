@@ -354,7 +354,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             aria-labelledby={labelId}
             className={cn(
               "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
-              size === "sm" ? "rounded-lg" : "rounded-xl",
+              size === "sm" ? "rounded-full" : "rounded-full",
               size === "sm" ? "px-2.5 py-1.5 text-sm h-8 md:h-7 md:text-xs md:py-1" : "px-3 py-2.5 text-sm h-11",
               "border-border/60 hover:border-primary/40",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -683,7 +683,7 @@ export const DateRangePicker: React.FC<{
         <button
           type="button"
           className={cn(
-            "group flex w-full items-center justify-between rounded-xl border bg-background/80 backdrop-blur-sm px-3 py-2.5 text-sm",
+            "group flex w-full items-center justify-between rounded-full border bg-background/80 backdrop-blur-sm px-3 py-2.5 text-sm",
             "border-border/60 hover:border-primary/40",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",

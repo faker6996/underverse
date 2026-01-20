@@ -61,7 +61,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             className={cn(
-              "w-full rounded-xl transition-all duration-200 ease-soft resize-y",
+              "w-full rounded-2xl transition-all duration-200 ease-soft resize-y",
               "text-foreground placeholder:text-muted-foreground",
               "focus:outline-none shadow-sm focus:shadow-md",
               "backdrop-blur-sm",

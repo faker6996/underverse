@@ -170,7 +170,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     };
 
     // Radius by size for visual consistency with Combobox/DatePicker
-    const radiusClass = size === "sm" ? "rounded-lg" : "rounded-xl";
+    const radiusClass = size === "sm" ? "rounded-full" : "rounded-full";
 
     return (
       <div className={cn("w-full group", containerSpacing)}>
@@ -679,7 +679,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           className={cn(
-            "w-full rounded-xl px-4 py-3 text-sm text-foreground transition-all duration-200",
+            "w-full rounded-full px-4 py-3 text-sm text-foreground transition-all duration-200",
             "placeholder:text-muted-foreground focus:outline-none min-h-20",
             "disabled:cursor-not-allowed disabled:opacity-50",
             variantStyles[variant],

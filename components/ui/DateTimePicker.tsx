@@ -188,7 +188,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
             type="button"
             disabled={disabled}
             className={cn(
-              "flex w-full items-center justify-between rounded-xl border border-input bg-background px-3 py-2 text-sm",
+              "flex w-full items-center justify-between rounded-full border border-input bg-background px-3 py-2 text-sm",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               disabled && "opacity-50 cursor-not-allowed",
               !displayValue && "text-muted-foreground",

@@ -363,7 +363,7 @@ export default function ColorPicker({
       type="button"
       disabled={disabled}
       className={cn(
-        "w-full px-3 rounded-xl border border-input bg-background flex items-center justify-between",
+        "w-full px-3 rounded-full border border-input bg-background flex items-center justify-between",
         sizeClasses[size],
         "hover:border-accent-foreground/30 transition-colors",
         disabled && "opacity-50 cursor-not-allowed",

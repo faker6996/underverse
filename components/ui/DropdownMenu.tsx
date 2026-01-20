@@ -222,7 +222,7 @@ export const SelectDropdown: React.FC<{
     trigger={
       <button
         className={cn(
-          "inline-flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-xl border bg-background border-border/60",
+          "inline-flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-2xl border bg-background border-border/60",
           "hover:bg-accent/50",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           className,

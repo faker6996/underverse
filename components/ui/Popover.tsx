@@ -375,7 +375,7 @@ export const Popover: React.FC<PopoverProps> = ({
             >
               <div
                 className={cn(
-                  "rounded-xl border bg-popover text-popover-foreground shadow-md",
+                  "rounded-2xl border bg-popover text-popover-foreground shadow-md",
                   "backdrop-blur-sm bg-popover/95 border-border/60 p-4",
                   contentClassName,
                 )}
