@@ -190,7 +190,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             "transition-all duration-200 font-medium",
             isPastDate && "opacity-30 cursor-not-allowed text-muted-foreground",
             isSelected
-              ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-bold shadow-lg shadow-primary/30 scale-110 z-10 hover:from-primary hover:to-primary/70"
+              ? "bg-linear-to-br from-primary to-primary/80 text-primary-foreground font-bold shadow-lg shadow-primary/30 scale-110 z-10 hover:from-primary hover:to-primary/70"
               : !isPastDate && "hover:bg-accent/80 hover:text-accent-foreground hover:scale-105 focus:bg-accent focus:text-accent-foreground",
             isToday && !isSelected && "bg-primary/15 text-primary font-bold ring-2 ring-primary/30",
           )}
@@ -271,7 +271,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           }}
           className={cn(
             "flex-1 px-3 py-2 text-xs font-semibold rounded-xl",
-            "bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/30",
+            "bg-linear-to-r from-primary/10 to-primary/5 border border-primary/30",
             "text-primary hover:from-primary/20 hover:to-primary/10 hover:border-primary/50",
             "transition-all duration-300 flex items-center justify-center gap-2",
             "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:shadow-primary/10",
@@ -289,7 +289,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           }}
           className={cn(
             "flex-1 px-3 py-2 text-xs font-semibold rounded-xl",
-            "bg-gradient-to-r from-destructive/10 to-destructive/5 border border-destructive/30",
+            "bg-linear-to-r from-destructive/10 to-destructive/5 border border-destructive/30",
             "text-destructive hover:from-destructive/20 hover:to-destructive/10 hover:border-destructive/50",
             "transition-all duration-300 flex items-center justify-center gap-2",
             "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:shadow-destructive/10",
@@ -586,7 +586,7 @@ export const DateRangePicker: React.FC<{
             // Range selection styling - smooth continuous background with gradient
             isInRange && "bg-primary/15 text-foreground",
             (isRangeStart || isRangeEnd) &&
-              "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground hover:from-primary hover:to-primary/70 shadow-lg shadow-primary/25",
+              "bg-linear-to-br from-primary to-primary/80 text-primary-foreground hover:from-primary hover:to-primary/70 shadow-lg shadow-primary/25",
 
             // Only round the actual start and end of the range
             isRangeStart && !isRangeEnd && "rounded-l-lg rounded-r-none",

@@ -193,11 +193,11 @@ function WheelColumn({
       <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-3 text-center">{labelText}</div>
       <div className="relative rounded-xl bg-muted/30 overflow-hidden" style={{ height }}>
         <div
-          className="pointer-events-none absolute inset-x-2 top-1/2 -translate-y-1/2 rounded-lg bg-gradient-to-r from-primary/20 via-primary/15 to-primary/20 border border-primary/30 shadow-sm shadow-primary/10"
+          className="pointer-events-none absolute inset-x-2 top-1/2 -translate-y-1/2 rounded-lg bg-linear-to-r from-primary/20 via-primary/15 to-primary/20 border border-primary/30 shadow-sm shadow-primary/10"
           style={{ height: itemHeight }}
         />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-background/95 via-background/60 to-transparent z-10" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background/95 via-background/60 to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-linear-to-b from-background/95 via-background/60 to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-background/95 via-background/60 to-transparent z-10" />
 
         <div
           ref={scrollRef as any}
@@ -596,7 +596,7 @@ export default function TimePicker({
   const timePickerContent = (
     <div className="space-y-4">
       {/* Current Time Display */}
-      <div className="flex items-center justify-center py-2 px-3 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20">
+      <div className="flex items-center justify-center py-2 px-3 rounded-xl bg-linear-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20">
         <span className="text-2xl font-bold tabular-nums tracking-wide text-foreground">{display}</span>
       </div>
 
@@ -626,7 +626,7 @@ export default function TimePicker({
                 type="button"
                 className={cn(
                   "group relative px-3 py-2.5 text-xs font-medium rounded-xl border border-border/50 overflow-hidden",
-                  "bg-gradient-to-br from-background to-muted/30",
+                  "bg-linear-to-br from-background to-muted/30",
                   "hover:border-primary/40 hover:shadow-md transition-all duration-300",
                   animate && "hover:scale-[1.02] active:scale-[0.98]",
                 )}
@@ -634,7 +634,7 @@ export default function TimePicker({
                 aria-label={`Set time to ${label}`}
               >
                 <div
-                  className={cn("absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300", "bg-gradient-to-r", color)}
+                  className={cn("absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300", "bg-linear-to-r", color)}
                   style={{ opacity: 0.08 }}
                 />
                 <div className="relative flex items-center gap-2">
@@ -656,7 +656,7 @@ export default function TimePicker({
               type="button"
               className={cn(
                 "px-3 py-2.5 text-xs font-medium rounded-xl border border-border/50",
-                "bg-gradient-to-br from-background to-muted/30",
+                "bg-linear-to-br from-background to-muted/30",
                 "hover:border-primary/40 hover:bg-primary/5 hover:shadow-md transition-all duration-300",
                 animate && "hover:scale-[1.02] active:scale-[0.98]",
               )}
@@ -782,7 +782,7 @@ export default function TimePicker({
                     className={cn(
                       "relative px-4 py-3 rounded-lg transition-all duration-300 text-sm font-bold overflow-hidden",
                       "focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1",
-                      isSelected && "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25",
+                      isSelected && "bg-linear-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25",
                       !isSelected && "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                       animate && "hover:scale-[1.02] active:scale-[0.98]",
                     )}
@@ -796,7 +796,7 @@ export default function TimePicker({
                       emit(next);
                     }}
                   >
-                    {isSelected && <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent" />}
+                    {isSelected && <div className="absolute inset-0 bg-linear-to-tr from-white/20 to-transparent" />}
                     <span className="relative">{p}</span>
                   </button>
                 );
@@ -814,7 +814,7 @@ export default function TimePicker({
               type="button"
               className={cn(
                 "flex-1 px-4 py-2.5 text-xs font-semibold rounded-xl",
-                "bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/30",
+                "bg-linear-to-r from-primary/10 to-primary/5 border border-primary/30",
                 "text-primary hover:from-primary/20 hover:to-primary/10 hover:border-primary/50",
                 "transition-all duration-300 flex items-center justify-center gap-2",
                 animate && "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:shadow-primary/10",
@@ -834,7 +834,7 @@ export default function TimePicker({
               type="button"
               className={cn(
                 "flex-1 px-4 py-2.5 text-xs font-semibold rounded-xl",
-                "bg-gradient-to-r from-destructive/10 to-destructive/5 border border-destructive/30",
+                "bg-linear-to-r from-destructive/10 to-destructive/5 border border-destructive/30",
                 "text-destructive hover:from-destructive/20 hover:to-destructive/10 hover:border-destructive/50",
                 "transition-all duration-300 flex items-center justify-center gap-2",
                 animate && "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:shadow-destructive/10",

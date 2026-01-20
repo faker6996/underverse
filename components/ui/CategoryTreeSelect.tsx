@@ -175,7 +175,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
             !viewOnly && "cursor-pointer",
             !viewOnly && !isSelected && "hover:bg-accent/60 hover:shadow-sm",
             // Selected state
-            !viewOnly && isSelected && "bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 shadow-sm",
+            !viewOnly && isSelected && "bg-linear-to-r from-primary/15 via-primary/10 to-primary/5 shadow-sm",
           )}
           style={{ paddingLeft: `${level * 1.25 + 0.75}rem` }}
         >
@@ -183,7 +183,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           {!viewOnly && isSelected && (
             <span
               aria-hidden
-              className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-gradient-to-b from-primary to-primary/70 shadow-sm shadow-primary/30"
+              className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-linear-to-b from-primary to-primary/70 shadow-sm shadow-primary/30"
             />
           )}
 
@@ -229,7 +229,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
                   isSelected ? "border-primary bg-primary/10 shadow-sm shadow-primary/20" : "border-muted-foreground/30 hover:border-primary/50",
                 )}
               >
-                {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-primary to-primary/80 shadow-sm" />}
+                {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-linear-to-br from-primary to-primary/80 shadow-sm" />}
               </div>
               <span
                 className={cn(
@@ -252,7 +252,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
                 className={cn(
                   "w-5 h-5 border-2 rounded-lg flex items-center justify-center transition-all duration-200",
                   isSelected
-                    ? "bg-gradient-to-br from-primary to-primary/80 border-primary shadow-sm shadow-primary/25"
+                    ? "bg-linear-to-br from-primary to-primary/80 border-primary shadow-sm shadow-primary/25"
                     : "border-muted-foreground/30 hover:border-primary/50 hover:bg-primary/5",
                 )}
               >
