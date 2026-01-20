@@ -62,22 +62,30 @@ const Modal: React.FC<ModalProps> = ({
     return () => setIsMounted(false);
   }, []);
 
+  // Ref to prevent double animation trigger in React StrictMode
+  const animationRef = React.useRef(false);
+
   // Animation handling
   React.useEffect(() => {
     if (isOpen) {
+      if (animationRef.current) return; // Prevent double animation in StrictMode
+      animationRef.current = true;
       setIsVisible(true);
       setIsAnimating(true);
       // Start animation on next frame
       requestAnimationFrame(() => {
         setIsAnimating(false);
       });
-    } else if (isVisible) {
-      setIsAnimating(true);
-      // Hide after animation completes
-      const hideTimer = setTimeout(() => {
-        setIsVisible(false);
-      }, 200);
-      return () => clearTimeout(hideTimer);
+    } else {
+      animationRef.current = false;
+      if (isVisible) {
+        setIsAnimating(true);
+        // Hide after animation completes
+        const hideTimer = setTimeout(() => {
+          setIsVisible(false);
+        }, 200);
+        return () => clearTimeout(hideTimer);
+      }
     }
   }, [isOpen, isVisible]);
 
