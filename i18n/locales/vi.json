@@ -1200,5 +1200,107 @@
       "totalItems": "Tổng số mục.",
       "labels": "Ghi đè chuỗi i18n (chuỗi/hàm)."
     }
+  },
+  "UEditor": {
+    "placeholder": "Nhập '/' để mở lệnh, hoặc bắt đầu viết...",
+    "loading": "Đang tải trình soạn thảo...",
+    "words": "từ",
+    "characters": "ký tự",
+    "colors": {
+      "default": "Mặc định",
+      "muted": "Mờ",
+      "primary": "Chính",
+      "secondary": "Phụ",
+      "success": "Thành công",
+      "warning": "Cảnh báo",
+      "destructive": "Nguy hiểm",
+      "info": "Thông tin",
+      "accent": "Nhấn",
+      "textColor": "Màu chữ",
+      "highlight": "Nổi bật",
+      "done": "Xong"
+    },
+    "toolbar": {
+      "bold": "In đậm",
+      "boldShortcut": "In đậm (Ctrl+B)",
+      "italic": "In nghiêng",
+      "italicShortcut": "In nghiêng (Ctrl+I)",
+      "underline": "Gạch chân",
+      "underlineShortcut": "Gạch chân (Ctrl+U)",
+      "strike": "Gạch ngang",
+      "code": "Code nội dòng",
+      "subscript": "Chỉ số dưới",
+      "superscript": "Chỉ số trên",
+      "link": "Liên kết",
+      "image": "Chèn ảnh",
+      "table": "Chèn bảng",
+      "alignment": "Căn chỉnh",
+      "alignLeft": "Căn trái",
+      "alignCenter": "Căn giữa",
+      "alignRight": "Căn phải",
+      "justify": "Căn đều",
+      "bulletList": "Danh sách dấu chấm",
+      "orderedList": "Danh sách số",
+      "taskList": "Danh sách công việc",
+      "quote": "Trích dẫn",
+      "codeBlock": "Khối mã",
+      "undo": "Hoàn tác (Ctrl+Z)",
+      "redo": "Làm lại (Ctrl+Y)",
+      "textStyle": "Kiểu chữ",
+      "normal": "Văn bản thường",
+      "heading1": "Tiêu đề 1",
+      "heading2": "Tiêu đề 2",
+      "heading3": "Tiêu đề 3"
+    },
+    "slashCommand": {
+      "basicBlocks": "Khối cơ bản",
+      "text": "Văn bản",
+      "textDesc": "Khối văn bản thuần",
+      "heading1": "Tiêu đề 1",
+      "heading1Desc": "Tiêu đề phần lớn",
+      "heading2": "Tiêu đề 2",
+      "heading2Desc": "Tiêu đề phần vừa",
+      "heading3": "Tiêu đề 3",
+      "heading3Desc": "Tiêu đề phần nhỏ",
+      "bulletList": "Danh sách dấu chấm",
+      "bulletListDesc": "Danh sách liệt kê đơn giản",
+      "orderedList": "Danh sách số",
+      "orderedListDesc": "Danh sách có thứ tự",
+      "todoList": "Danh sách công việc",
+      "todoListDesc": "Checkbox công việc",
+      "quote": "Trích dẫn",
+      "quoteDesc": "Tạo trích dẫn",
+      "codeBlock": "Khối mã",
+      "codeBlockDesc": "Mã với tô màu cú pháp",
+      "divider": "Phân cách",
+      "dividerDesc": "Đường kẻ ngang",
+      "table": "Bảng",
+      "tableDesc": "Thêm bảng"
+    },
+    "floatingMenu": {
+      "addBlock": "Thêm khối"
+    },
+    "linkInput": {
+      "placeholder": "Dán hoặc nhập liên kết..."
+    },
+    "imageInput": {
+      "urlLabel": "URL hình ảnh",
+      "urlPlaceholder": "https://example.com/image.jpg",
+      "altLabel": "Mô tả ảnh (tuỳ chọn)",
+      "altPlaceholder": "Mô tả hình ảnh...",
+      "addBtn": "Thêm ảnh",
+      "cancelBtn": "Hủy",
+      "addFromUrl": "Thêm từ URL"
+    },
+    "tableMenu": {
+      "insert3x3": "Chèn bảng 3×3",
+      "addColumnBefore": "Thêm cột trước",
+      "addColumnAfter": "Thêm cột sau",
+      "addRowBefore": "Thêm hàng trước",
+      "addRowAfter": "Thêm hàng sau",
+      "deleteColumn": "Xóa cột",
+      "deleteRow": "Xóa hàng",
+      "deleteTable": "Xóa bảng"
+    }
   }
 }

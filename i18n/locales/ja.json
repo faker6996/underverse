@@ -1160,5 +1160,107 @@
         "noProps": "このコンポーネントは ThemeContext を参照・更新します。公開 props はありません。"
       }
     }
+  },
+  "UEditor": {
+    "placeholder": "コマンドを使用するには '/' を入力、または入力を開始...",
+    "loading": "エディタを読み込み中...",
+    "words": "単語",
+    "characters": "文字",
+    "colors": {
+      "default": "デフォルト",
+      "muted": "ミュート",
+      "primary": "プライマリ",
+      "secondary": "セカンダリ",
+      "success": "成功",
+      "warning": "警告",
+      "destructive": "破壊的",
+      "info": "情報",
+      "accent": "アクセント",
+      "textColor": "テキスト色",
+      "highlight": "ハイライト",
+      "done": "完了"
+    },
+    "toolbar": {
+      "bold": "太字",
+      "boldShortcut": "太字 (Ctrl+B)",
+      "italic": "斜体",
+      "italicShortcut": "斜体 (Ctrl+I)",
+      "underline": "下線",
+      "underlineShortcut": "下線 (Ctrl+U)",
+      "strike": "取り消し線",
+      "code": "コード",
+      "subscript": "下付き",
+      "superscript": "上付き",
+      "link": "リンク",
+      "image": "画像",
+      "table": "表",
+      "alignment": "配置",
+      "alignLeft": "左揃え",
+      "alignCenter": "中央揃え",
+      "alignRight": "右揃え",
+      "justify": "両端揃え",
+      "bulletList": "箇条書き",
+      "orderedList": "番号付きリスト",
+      "taskList": "タスクリスト",
+      "quote": "引用",
+      "codeBlock": "コードブロック",
+      "undo": "元に戻す",
+      "redo": "やり直し",
+      "textStyle": "テキストスタイル",
+      "normal": "標準テキスト",
+      "heading1": "見出し 1",
+      "heading2": "見出し 2",
+      "heading3": "見出し 3"
+    },
+    "slashCommand": {
+      "basicBlocks": "基本ブロック",
+      "text": "テキスト",
+      "textDesc": "プレーンテキストブロック",
+      "heading1": "見出し 1",
+      "heading1Desc": "大見出し",
+      "heading2": "見出し 2",
+      "heading2Desc": "中見出し",
+      "heading3": "見出し 3",
+      "heading3Desc": "小見出し",
+      "bulletList": "箇条書き",
+      "bulletListDesc": "シンプルな箇条書きリスト",
+      "orderedList": "番号付きリスト",
+      "orderedListDesc": "番号順のリスト",
+      "todoList": "タスクリスト",
+      "todoListDesc": "チェックボックス付きリスト",
+      "quote": "引用",
+      "quoteDesc": "引用ブロック",
+      "codeBlock": "コードブロック",
+      "codeBlockDesc": "シンタックスハイライト付きコード",
+      "divider": "区切り線",
+      "dividerDesc": "視覚的な区切り線",
+      "table": "表",
+      "tableDesc": "表を追加"
+    },
+    "floatingMenu": {
+      "addBlock": "ブロックを追加"
+    },
+    "linkInput": {
+      "placeholder": "リンクを貼り付けまたは入力..."
+    },
+    "imageInput": {
+      "urlLabel": "画像 URL",
+      "urlPlaceholder": "https://example.com/image.jpg",
+      "altLabel": "代替テキスト (任意)",
+      "altPlaceholder": "画像の説明...",
+      "addBtn": "画像を追加",
+      "cancelBtn": "キャンセル",
+      "addFromUrl": "URLから追加"
+    },
+    "tableMenu": {
+      "insert3x3": "3x3 表を挿入",
+      "addColumnBefore": "前に列を追加",
+      "addColumnAfter": "後に列を追加",
+      "addRowBefore": "前に行を追加",
+      "addRowAfter": "後に行を追加",
+      "deleteColumn": "列を削除",
+      "deleteRow": "行を削除",
+      "deleteTable": "表を削除"
+    }
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { BubbleMenuPlugin } from "@tiptap/extension-bubble-menu";
 import { FloatingMenuPlugin } from "@tiptap/extension-floating-menu";
@@ -78,6 +79,8 @@ import {
   Copy,
   ExternalLink,
   GripVertical,
+  ArrowDown,
+  ArrowRight,
 } from "lucide-react";
 
 // Lowlight setup for code highlighting
@@ -98,34 +101,47 @@ export interface UEditorProps {
   showFloatingMenu?: boolean;
   showCharacterCount?: boolean;
   maxCharacters?: number;
-  minHeight?: number;
-  maxHeight?: number;
+  minHeight?: number | string;
+  maxHeight?: number | string;
   variant?: "default" | "minimal" | "notion";
 }
 
 // ========== Color Palette - Using CSS Variables ==========
-const TEXT_COLORS = [
-  { name: "Default", color: "inherit", cssClass: "text-foreground" },
-  { name: "Muted", color: "var(--muted-foreground)", cssClass: "text-muted-foreground" },
-  { name: "Primary", color: "var(--primary)", cssClass: "text-primary" },
-  { name: "Secondary", color: "var(--secondary)", cssClass: "text-secondary" },
-  { name: "Success", color: "var(--success)", cssClass: "text-success" },
-  { name: "Warning", color: "var(--warning)", cssClass: "text-warning" },
-  { name: "Destructive", color: "var(--destructive)", cssClass: "text-destructive" },
-  { name: "Info", color: "var(--info)", cssClass: "text-info" },
-];
+// ========== Color Palette - Using CSS Variables ==========
+const useEditorColors = () => {
+  const t = useTranslations("UEditor");
 
-const HIGHLIGHT_COLORS = [
-  { name: "Default", color: "", cssClass: "" },
-  { name: "Muted", color: "var(--muted)", cssClass: "bg-muted" },
-  { name: "Primary", color: "color-mix(in oklch, var(--primary) 20%, transparent)", cssClass: "bg-primary/20" },
-  { name: "Secondary", color: "color-mix(in oklch, var(--secondary) 20%, transparent)", cssClass: "bg-secondary/20" },
-  { name: "Success", color: "color-mix(in oklch, var(--success) 20%, transparent)", cssClass: "bg-success/20" },
-  { name: "Warning", color: "color-mix(in oklch, var(--warning) 20%, transparent)", cssClass: "bg-warning/20" },
-  { name: "Destructive", color: "color-mix(in oklch, var(--destructive) 20%, transparent)", cssClass: "bg-destructive/20" },
-  { name: "Info", color: "color-mix(in oklch, var(--info) 20%, transparent)", cssClass: "bg-info/20" },
-  { name: "Accent", color: "var(--accent)", cssClass: "bg-accent" },
-];
+  const textColors = useMemo(
+    () => [
+      { name: t("colors.default"), color: "inherit", cssClass: "text-foreground" },
+      { name: t("colors.muted"), color: "var(--muted-foreground)", cssClass: "text-muted-foreground" },
+      { name: t("colors.primary"), color: "var(--primary)", cssClass: "text-primary" },
+      { name: t("colors.secondary"), color: "var(--secondary)", cssClass: "text-secondary" },
+      { name: t("colors.success"), color: "var(--success)", cssClass: "text-success" },
+      { name: t("colors.warning"), color: "var(--warning)", cssClass: "text-warning" },
+      { name: t("colors.destructive"), color: "var(--destructive)", cssClass: "text-destructive" },
+      { name: t("colors.info"), color: "var(--info)", cssClass: "text-info" },
+    ],
+    [t],
+  );
+
+  const highlightColors = useMemo(
+    () => [
+      { name: t("colors.default"), color: "", cssClass: "" },
+      { name: t("colors.muted"), color: "var(--muted)", cssClass: "bg-muted" },
+      { name: t("colors.primary"), color: "color-mix(in oklch, var(--primary) 20%, transparent)", cssClass: "bg-primary/20" },
+      { name: t("colors.secondary"), color: "color-mix(in oklch, var(--secondary) 20%, transparent)", cssClass: "bg-secondary/20" },
+      { name: t("colors.success"), color: "color-mix(in oklch, var(--success) 20%, transparent)", cssClass: "bg-success/20" },
+      { name: t("colors.warning"), color: "color-mix(in oklch, var(--warning) 20%, transparent)", cssClass: "bg-warning/20" },
+      { name: t("colors.destructive"), color: "color-mix(in oklch, var(--destructive) 20%, transparent)", cssClass: "bg-destructive/20" },
+      { name: t("colors.info"), color: "color-mix(in oklch, var(--info) 20%, transparent)", cssClass: "bg-info/20" },
+      { name: t("colors.accent"), color: "var(--accent)", cssClass: "bg-accent" },
+    ],
+    [t],
+  );
+
+  return { textColors, highlightColors };
+};
 
 // ========== Toolbar Button Component ==========
 const ToolbarButton = React.forwardRef<
@@ -209,20 +225,24 @@ const MenuItem = ({
   onClick,
   active,
   shortcut,
+  disabled = false,
 }: {
   icon?: React.ComponentType<{ className?: string }>;
   label: string;
   onClick: () => void;
   active?: boolean;
   shortcut?: string;
+  disabled?: boolean;
 }) => (
   <button
     type="button"
     onClick={onClick}
+    disabled={disabled}
     className={cn(
       "flex items-center w-full px-3 py-2 rounded-lg text-sm transition-all",
       "hover:bg-accent group",
       active && "bg-primary/10 text-primary",
+      disabled && "opacity-40 cursor-not-allowed hover:bg-transparent",
     )}
   >
     {Icon && <Icon className="w-4 h-4 mr-3 opacity-60 group-hover:opacity-100" />}
@@ -272,6 +292,7 @@ const ToolbarDivider = () => <div className="w-px h-6 bg-border/50 mx-1" />;
 
 // ========== Link Input Component ==========
 const LinkInput = ({ onSubmit, onCancel, initialUrl = "" }: { onSubmit: (url: string) => void; onCancel: () => void; initialUrl?: string }) => {
+  const t = useTranslations("UEditor");
   const [url, setUrl] = useState(initialUrl);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -294,7 +315,7 @@ const LinkInput = ({ onSubmit, onCancel, initialUrl = "" }: { onSubmit: (url: st
         type="text"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
-        placeholder="Paste or type a link..."
+        placeholder={t("linkInput.placeholder")}
         className="flex-1 px-3 py-2 text-sm bg-muted/50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
       />
       <button type="submit" className="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
@@ -309,6 +330,7 @@ const LinkInput = ({ onSubmit, onCancel, initialUrl = "" }: { onSubmit: (url: st
 
 // ========== Image Input Component ==========
 const ImageInput = ({ onSubmit, onCancel }: { onSubmit: (url: string, alt?: string) => void; onCancel: () => void }) => {
+  const t = useTranslations("UEditor");
   const [url, setUrl] = useState("");
   const [alt, setAlt] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -327,23 +349,23 @@ const ImageInput = ({ onSubmit, onCancel }: { onSubmit: (url: string, alt?: stri
   return (
     <form onSubmit={handleSubmit} className="p-3 space-y-3">
       <div>
-        <label className="text-xs font-medium text-muted-foreground">Image URL</label>
+        <label className="text-xs font-medium text-muted-foreground">{t("imageInput.urlLabel")}</label>
         <input
           ref={inputRef}
           type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://example.com/image.jpg"
+          placeholder={t("imageInput.urlPlaceholder")}
           className="w-full mt-1 px-3 py-2 text-sm bg-muted/50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
       </div>
       <div>
-        <label className="text-xs font-medium text-muted-foreground">Alt text (optional)</label>
+        <label className="text-xs font-medium text-muted-foreground">{t("imageInput.altLabel")}</label>
         <input
           type="text"
           value={alt}
           onChange={(e) => setAlt(e.target.value)}
-          placeholder="Describe the image..."
+          placeholder={t("imageInput.altPlaceholder")}
           className="w-full mt-1 px-3 py-2 text-sm bg-muted/50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
       </div>
@@ -353,10 +375,10 @@ const ImageInput = ({ onSubmit, onCancel }: { onSubmit: (url: string, alt?: stri
           disabled={!url}
           className="flex-1 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
         >
-          Add Image
+          {t("imageInput.addBtn")}
         </button>
         <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
-          Cancel
+          {t("imageInput.cancelBtn")}
         </button>
       </div>
     </form>
@@ -364,49 +386,69 @@ const ImageInput = ({ onSubmit, onCancel }: { onSubmit: (url: string, alt?: stri
 };
 
 // ========== Slash Command Menu ==========
-const SlashCommandMenu = ({
-  editor,
-  onClose,
-}: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editor: any;
-  onClose: () => void;
-}) => {
+const SlashCommandMenu = ({ editor, onClose }: { editor: any; onClose: () => void }) => {
+  const t = useTranslations("UEditor");
+
   const commands = [
-    { icon: Type, label: "Text", description: "Plain text block", action: () => editor.chain().focus().setParagraph().run() },
+    { icon: Type, label: t("slashCommand.text"), description: t("slashCommand.textDesc"), action: () => editor.chain().focus().setParagraph().run() },
     {
       icon: Heading1Icon,
-      label: "Heading 1",
-      description: "Large section heading",
+      label: t("slashCommand.heading1"),
+      description: t("slashCommand.heading1Desc"),
       action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
     },
     {
       icon: Heading2Icon,
-      label: "Heading 2",
-      description: "Medium section heading",
+      label: t("slashCommand.heading2"),
+      description: t("slashCommand.heading2Desc"),
       action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
     },
     {
       icon: Heading3Icon,
-      label: "Heading 3",
-      description: "Small section heading",
+      label: t("slashCommand.heading3"),
+      description: t("slashCommand.heading3Desc"),
       action: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
     },
-    { icon: ListIcon, label: "Bullet List", description: "Simple bulleted list", action: () => editor.chain().focus().toggleBulletList().run() },
-    { icon: ListOrderedIcon, label: "Numbered List", description: "Numbered list", action: () => editor.chain().focus().toggleOrderedList().run() },
-    { icon: ListTodo, label: "To-do List", description: "Checkboxes for tasks", action: () => editor.chain().focus().toggleTaskList().run() },
-    { icon: QuoteIcon, label: "Quote", description: "Capture a quote", action: () => editor.chain().focus().toggleBlockquote().run() },
+    {
+      icon: ListIcon,
+      label: t("slashCommand.bulletList"),
+      description: t("slashCommand.bulletListDesc"),
+      action: () => editor.chain().focus().toggleBulletList().run(),
+    },
+    {
+      icon: ListOrderedIcon,
+      label: t("slashCommand.orderedList"),
+      description: t("slashCommand.orderedListDesc"),
+      action: () => editor.chain().focus().toggleOrderedList().run(),
+    },
+    {
+      icon: ListTodo,
+      label: t("slashCommand.todoList"),
+      description: t("slashCommand.todoListDesc"),
+      action: () => editor.chain().focus().toggleTaskList().run(),
+    },
+    {
+      icon: QuoteIcon,
+      label: t("slashCommand.quote"),
+      description: t("slashCommand.quoteDesc"),
+      action: () => editor.chain().focus().toggleBlockquote().run(),
+    },
     {
       icon: FileCode,
-      label: "Code Block",
-      description: "Code with syntax highlighting",
+      label: t("slashCommand.codeBlock"),
+      description: t("slashCommand.codeBlockDesc"),
       action: () => editor.chain().focus().toggleCodeBlock().run(),
     },
-    { icon: Minus, label: "Divider", description: "Visual divider", action: () => editor.chain().focus().setHorizontalRule().run() },
+    {
+      icon: Minus,
+      label: t("slashCommand.divider"),
+      description: t("slashCommand.dividerDesc"),
+      action: () => editor.chain().focus().setHorizontalRule().run(),
+    },
     {
       icon: TableIcon,
-      label: "Table",
-      description: "Add a table",
+      label: t("slashCommand.table"),
+      description: t("slashCommand.tableDesc"),
       action: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
     },
   ];
@@ -414,7 +456,7 @@ const SlashCommandMenu = ({
   return (
     <div className="w-72 max-h-80 overflow-y-auto">
       <div className="px-3 py-2 border-b">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Basic Blocks</span>
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("slashCommand.basicBlocks")}</span>
       </div>
       <div className="p-1">
         {commands.map((cmd) => (
@@ -444,6 +486,7 @@ const SlashCommandMenu = ({
 // ========== Floating Menu Content ==========
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const FloatingMenuContent = ({ editor }: { editor: any }) => {
+  const t = useTranslations("UEditor");
   const [showCommands, setShowCommands] = useState(false);
 
   if (showCommands) {
@@ -457,7 +500,7 @@ const FloatingMenuContent = ({ editor }: { editor: any }) => {
       className="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-accent transition-all group"
     >
       <Plus className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />
-      <span className="text-sm text-muted-foreground group-hover:text-foreground">Add block</span>
+      <span className="text-sm text-muted-foreground group-hover:text-foreground">{t("floatingMenu.addBlock")}</span>
     </button>
   );
 };
@@ -465,6 +508,8 @@ const FloatingMenuContent = ({ editor }: { editor: any }) => {
 // ========== Bubble Menu Content ==========
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const BubbleMenuContent = ({ editor }: { editor: any }) => {
+  const t = useTranslations("UEditor");
+  const { textColors, highlightColors } = useEditorColors();
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
 
@@ -474,7 +519,6 @@ const BubbleMenuContent = ({ editor }: { editor: any }) => {
         initialUrl={editor.getAttributes("link").href || ""}
         onSubmit={(url) => {
           editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
-          setShowLinkInput(false);
         }}
         onCancel={() => setShowLinkInput(false)}
       />
@@ -485,7 +529,7 @@ const BubbleMenuContent = ({ editor }: { editor: any }) => {
     return (
       <div className="w-48">
         <ColorPicker
-          colors={TEXT_COLORS}
+          colors={textColors}
           currentColor={editor.getAttributes("textStyle").color || "inherit"}
           onSelect={(color) => {
             if (color === "inherit") {
@@ -494,11 +538,11 @@ const BubbleMenuContent = ({ editor }: { editor: any }) => {
               editor.chain().focus().setColor(color).run();
             }
           }}
-          label="Text Color"
+          label={t("colors.textColor")}
         />
         <div className="border-t my-1" />
         <ColorPicker
-          colors={HIGHLIGHT_COLORS}
+          colors={highlightColors}
           currentColor={editor.getAttributes("highlight").color || ""}
           onSelect={(color) => {
             if (color === "") {
@@ -507,7 +551,7 @@ const BubbleMenuContent = ({ editor }: { editor: any }) => {
               editor.chain().focus().toggleHighlight({ color }).run();
             }
           }}
-          label="Highlight"
+          label={t("colors.highlight")}
         />
         <div className="p-2 border-t">
           <button
@@ -515,7 +559,7 @@ const BubbleMenuContent = ({ editor }: { editor: any }) => {
             onClick={() => setShowColorPicker(false)}
             className="w-full py-1.5 text-sm rounded-lg hover:bg-muted transition-colors"
           >
-            Done
+            {t("colors.done")}
           </button>
         </div>
       </div>
@@ -524,38 +568,50 @@ const BubbleMenuContent = ({ editor }: { editor: any }) => {
 
   return (
     <div className="flex items-center gap-0.5 p-1">
-      <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title="Bold">
+      <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("toolbar.bold")}>
         <BoldIcon className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} title="Italic">
+      <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} title={t("toolbar.italic")}>
         <ItalicIcon className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive("underline")} title="Underline">
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleUnderline().run()}
+        active={editor.isActive("underline")}
+        title={t("toolbar.underline")}
+      >
         <UnderlineIcon className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")} title="Strikethrough">
+      <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")} title={t("toolbar.strike")}>
         <StrikethroughIcon className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive("code")} title="Code">
+      <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive("code")} title={t("toolbar.code")}>
         <CodeIcon className="w-4 h-4" />
       </ToolbarButton>
 
       <ToolbarDivider />
 
-      <ToolbarButton onClick={() => setShowLinkInput(true)} active={editor.isActive("link")} title="Link">
+      <ToolbarButton onClick={() => setShowLinkInput(true)} active={editor.isActive("link")} title={t("toolbar.link")}>
         <LinkIcon className="w-4 h-4" />
       </ToolbarButton>
 
-      <ToolbarButton onClick={() => setShowColorPicker(true)} title="Colors">
+      <ToolbarButton onClick={() => setShowColorPicker(true)} title={t("colors.textColor")}>
         <Palette className="w-4 h-4" />
       </ToolbarButton>
 
       <ToolbarDivider />
 
-      <ToolbarButton onClick={() => editor.chain().focus().toggleSubscript().run()} active={editor.isActive("subscript")} title="Subscript">
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleSubscript().run()}
+        active={editor.isActive("subscript")}
+        title={t("toolbar.subscript")}
+      >
         <SubscriptIcon className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().toggleSuperscript().run()} active={editor.isActive("superscript")} title="Superscript">
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleSuperscript().run()}
+        active={editor.isActive("superscript")}
+        title={t("toolbar.superscript")}
+      >
         <SuperscriptIcon className="w-4 h-4" />
       </ToolbarButton>
     </div>
@@ -678,18 +734,24 @@ const CustomFloatingMenu = ({ editor }: { editor: any }) => {
 // ========== Main Editor Toolbar ==========
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) => {
+  const t = useTranslations("UEditor");
+  const { textColors, highlightColors } = useEditorColors();
   const [showImageInput, setShowImageInput] = useState(false);
 
   if (variant === "minimal") {
     return (
       <div className="flex items-center gap-1 p-2 border-b bg-muted/30">
-        <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title="Bold">
+        <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("toolbar.bold")}>
           <BoldIcon className="w-4 h-4" />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} title="Italic">
+        <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} title={t("toolbar.italic")}>
           <ItalicIcon className="w-4 h-4" />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")} title="List">
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          active={editor.isActive("bulletList")}
+          title={t("toolbar.bulletList")}
+        >
           <ListIcon className="w-4 h-4" />
         </ToolbarButton>
       </div>
@@ -701,30 +763,35 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
       {/* Text Style */}
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} title="Text Style" className="px-2 w-auto gap-1">
+          <ToolbarButton onClick={() => {}} title={t("toolbar.textStyle")} className="px-2 w-auto gap-1">
             <Type className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
         }
       >
-        <MenuItem icon={Type} label="Normal text" onClick={() => editor.chain().focus().setParagraph().run()} active={editor.isActive("paragraph")} />
+        <MenuItem
+          icon={Type}
+          label={t("toolbar.normal")}
+          onClick={() => editor.chain().focus().setParagraph().run()}
+          active={editor.isActive("paragraph")}
+        />
         <MenuItem
           icon={Heading1Icon}
-          label="Heading 1"
+          label={t("toolbar.heading1")}
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
           active={editor.isActive("heading", { level: 1 })}
           shortcut="Ctrl+Alt+1"
         />
         <MenuItem
           icon={Heading2Icon}
-          label="Heading 2"
+          label={t("toolbar.heading2")}
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           active={editor.isActive("heading", { level: 2 })}
           shortcut="Ctrl+Alt+2"
         />
         <MenuItem
           icon={Heading3Icon}
-          label="Heading 3"
+          label={t("toolbar.heading3")}
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
           active={editor.isActive("heading", { level: 3 })}
           shortcut="Ctrl+Alt+3"
@@ -734,19 +801,23 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
       <ToolbarDivider />
 
       {/* Basic Formatting */}
-      <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title="Bold (Ctrl+B)">
+      <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("toolbar.bold")}>
         <BoldIcon className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} title="Italic (Ctrl+I)">
+      <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} title={t("toolbar.italic")}>
         <ItalicIcon className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive("underline")} title="Underline (Ctrl+U)">
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleUnderline().run()}
+        active={editor.isActive("underline")}
+        title={t("toolbar.underline")}
+      >
         <UnderlineIcon className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")} title="Strikethrough">
+      <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")} title={t("toolbar.strike")}>
         <StrikethroughIcon className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive("code")} title="Inline Code">
+      <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive("code")} title={t("toolbar.code")}>
         <CodeIcon className="w-4 h-4" />
       </ToolbarButton>
 
@@ -755,13 +826,14 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
       {/* Colors */}
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} title="Text Color">
+          <ToolbarButton onClick={() => {}} title={t("colors.textColor")}>
             <Palette className="w-4 h-4" />
+            <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
         }
       >
         <ColorPicker
-          colors={TEXT_COLORS}
+          colors={textColors}
           currentColor={editor.getAttributes("textStyle").color || "inherit"}
           onSelect={(color) => {
             if (color === "inherit") {
@@ -770,19 +842,20 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
               editor.chain().focus().setColor(color).run();
             }
           }}
-          label="Text Color"
+          label={t("colors.textColor")}
         />
       </DropdownMenu>
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} active={editor.isActive("highlight")} title="Highlight">
+          <ToolbarButton onClick={() => {}} active={editor.isActive("highlight")} title={t("colors.highlight")}>
             <Highlighter className="w-4 h-4" />
+            <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
         }
       >
         <ColorPicker
-          colors={HIGHLIGHT_COLORS}
+          colors={highlightColors}
           currentColor={editor.getAttributes("highlight").color || ""}
           onSelect={(color) => {
             if (color === "") {
@@ -791,7 +864,7 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
               editor.chain().focus().toggleHighlight({ color }).run();
             }
           }}
-          label="Highlight"
+          label={t("colors.highlight")}
         />
       </DropdownMenu>
 
@@ -800,32 +873,33 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
       {/* Alignment */}
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} title="Alignment">
+          <ToolbarButton onClick={() => {}} title={t("toolbar.alignment")}>
             <AlignLeft className="w-4 h-4" />
+            <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
         }
       >
         <MenuItem
           icon={AlignLeft}
-          label="Align Left"
+          label={t("toolbar.alignLeft")}
           onClick={() => editor.chain().focus().setTextAlign("left").run()}
           active={editor.isActive({ textAlign: "left" })}
         />
         <MenuItem
           icon={AlignCenter}
-          label="Align Center"
+          label={t("toolbar.alignCenter")}
           onClick={() => editor.chain().focus().setTextAlign("center").run()}
           active={editor.isActive({ textAlign: "center" })}
         />
         <MenuItem
           icon={AlignRight}
-          label="Align Right"
+          label={t("toolbar.alignRight")}
           onClick={() => editor.chain().focus().setTextAlign("right").run()}
           active={editor.isActive({ textAlign: "right" })}
         />
         <MenuItem
           icon={AlignJustify}
-          label="Justify"
+          label={t("toolbar.justify")}
           onClick={() => editor.chain().focus().setTextAlign("justify").run()}
           active={editor.isActive({ textAlign: "justify" })}
         />
@@ -834,31 +908,68 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
       <ToolbarDivider />
 
       {/* Lists */}
-      <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")} title="Bullet List">
-        <ListIcon className="w-4 h-4" />
-      </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")} title="Numbered List">
-        <ListOrderedIcon className="w-4 h-4" />
-      </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().toggleTaskList().run()} active={editor.isActive("taskList")} title="Task List">
-        <ListTodo className="w-4 h-4" />
-      </ToolbarButton>
-
-      <ToolbarDivider />
+      <DropdownMenu
+        trigger={
+          <ToolbarButton onClick={() => {}} title={t("toolbar.bulletList")}>
+            <ListIcon className="w-4 h-4" />
+            <ChevronDown className="w-3 h-3" />
+          </ToolbarButton>
+        }
+      >
+        <MenuItem
+          icon={ListIcon}
+          label={t("toolbar.bulletList")}
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          active={editor.isActive("bulletList")}
+          shortcut="Ctrl+Shift+8"
+        />
+        <MenuItem
+          icon={ListOrderedIcon}
+          label={t("toolbar.orderedList")}
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          active={editor.isActive("orderedList")}
+          shortcut="Ctrl+Shift+7"
+        />
+        <MenuItem
+          icon={ListTodo}
+          label={t("toolbar.taskList")}
+          onClick={() => editor.chain().focus().toggleTaskList().run()}
+          active={editor.isActive("taskList")}
+          shortcut="Ctrl+Shift+9"
+        />
+      </DropdownMenu>
 
       {/* Blocks */}
-      <ToolbarButton onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive("blockquote")} title="Quote">
-        <QuoteIcon className="w-4 h-4" />
-      </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive("codeBlock")} title="Code Block">
-        <FileCode className="w-4 h-4" />
-      </ToolbarButton>
+      <DropdownMenu
+        trigger={
+          <ToolbarButton onClick={() => {}} title={t("toolbar.quote")}>
+            <QuoteIcon className="w-4 h-4" />
+            <ChevronDown className="w-3 h-3" />
+          </ToolbarButton>
+        }
+      >
+        <MenuItem
+          icon={QuoteIcon}
+          label={t("toolbar.quote")}
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          active={editor.isActive("blockquote")}
+          shortcut="Ctrl+Shift+B"
+        />
+        <MenuItem
+          icon={FileCode}
+          label={t("toolbar.codeBlock")}
+          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+          active={editor.isActive("codeBlock")}
+          shortcut="Ctrl+Alt+C"
+        />
+      </DropdownMenu>
 
       {/* Image */}
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} title="Insert Image">
+          <ToolbarButton onClick={() => {}} title={t("toolbar.image")}>
             <ImageIcon className="w-4 h-4" />
+            <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
         }
       >
@@ -871,100 +982,77 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
             onCancel={() => setShowImageInput(false)}
           />
         ) : (
-          <div className="p-2">
-            <button type="button" onClick={() => setShowImageInput(true)} className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-accent">
-              <LinkIcon className="w-4 h-4 mr-2" />
-              <span className="text-sm">Add from URL</span>
-            </button>
-          </div>
+          <MenuItem icon={LinkIcon} label={t("imageInput.addFromUrl")} onClick={() => setShowImageInput(true)} />
         )}
       </DropdownMenu>
 
       {/* Table */}
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} title="Insert Table" active={editor.isActive("table")}>
+          <ToolbarButton onClick={() => {}} title={t("toolbar.table")}>
             <TableIcon className="w-4 h-4" />
+            <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
         }
       >
-        <div className="p-2 space-y-1">
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
-            className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-accent text-sm"
-          >
-            <TableIcon className="w-4 h-4 mr-2" />
-            Insert 3×3 Table
-          </button>
-          {editor.isActive("table") && (
-            <>
-              <div className="border-t my-2" />
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().addColumnBefore().run()}
-                className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-accent text-sm"
-              >
-                Add Column Before
-              </button>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().addColumnAfter().run()}
-                className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-accent text-sm"
-              >
-                Add Column After
-              </button>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().addRowBefore().run()}
-                className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-accent text-sm"
-              >
-                Add Row Before
-              </button>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().addRowAfter().run()}
-                className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-accent text-sm"
-              >
-                Add Row After
-              </button>
-              <div className="border-t my-2" />
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().deleteColumn().run()}
-                className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-destructive/10 text-destructive text-sm"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete Column
-              </button>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().deleteRow().run()}
-                className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-destructive/10 text-destructive text-sm"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete Row
-              </button>
-              <button
-                type="button"
-                onClick={() => editor.chain().focus().deleteTable().run()}
-                className="flex items-center w-full px-3 py-2 rounded-lg hover:bg-destructive/10 text-destructive text-sm"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete Table
-              </button>
-            </>
-          )}
-        </div>
+        <MenuItem
+          icon={TableIcon}
+          label={t("tableMenu.insert3x3")}
+          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+        />
+        <div className="my-1 border-t" />
+        <MenuItem
+          icon={ArrowDown}
+          label={t("tableMenu.addColumnBefore")}
+          onClick={() => editor.chain().focus().addColumnBefore().run()}
+          disabled={!editor.can().addColumnBefore()}
+        />
+        <MenuItem
+          icon={ArrowDown}
+          label={t("tableMenu.addColumnAfter")}
+          onClick={() => editor.chain().focus().addColumnAfter().run()}
+          disabled={!editor.can().addColumnAfter()}
+        />
+        <MenuItem
+          icon={ArrowRight}
+          label={t("tableMenu.addRowBefore")}
+          onClick={() => editor.chain().focus().addRowBefore().run()}
+          disabled={!editor.can().addRowBefore()}
+        />
+        <MenuItem
+          icon={ArrowRight}
+          label={t("tableMenu.addRowAfter")}
+          onClick={() => editor.chain().focus().addRowAfter().run()}
+          disabled={!editor.can().addRowAfter()}
+        />
+        <div className="my-1 border-t" />
+        <MenuItem
+          icon={Trash2}
+          label={t("tableMenu.deleteColumn")}
+          onClick={() => editor.chain().focus().deleteColumn().run()}
+          disabled={!editor.can().deleteColumn()}
+        />
+        <MenuItem
+          icon={Trash2}
+          label={t("tableMenu.deleteRow")}
+          onClick={() => editor.chain().focus().deleteRow().run()}
+          disabled={!editor.can().deleteRow()}
+        />
+        <MenuItem
+          icon={Trash2}
+          label={t("tableMenu.deleteTable")}
+          onClick={() => editor.chain().focus().deleteTable().run()}
+          disabled={!editor.can().deleteTable()}
+        />
       </DropdownMenu>
 
       <ToolbarDivider />
 
       {/* History */}
-      <ToolbarButton onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Undo (Ctrl+Z)">
+      <ToolbarButton onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title={t("toolbar.undo")}>
         <UndoIcon className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Redo (Ctrl+Y)">
+      <ToolbarButton onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title={t("toolbar.redo")}>
         <RedoIcon className="w-4 h-4" />
       </ToolbarButton>
     </div>
@@ -974,14 +1062,21 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
 // ========== Character Count ==========
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CharacterCountDisplay = ({ editor, maxCharacters }: { editor: any; maxCharacters?: number }) => {
+  const t = useTranslations("UEditor");
+  if (!editor) return null;
+
   const characterCount = editor.storage.characterCount.characters();
   const wordCount = editor.storage.characterCount.words();
   const percentage = maxCharacters ? Math.round((characterCount / maxCharacters) * 100) : 0;
 
   return (
-    <div className="flex items-center gap-4 px-3 py-2 border-t bg-muted/20 text-xs text-muted-foreground">
-      <span>{wordCount} words</span>
-      <span>{characterCount} characters</span>
+    <div className="flex items-center gap-3 px-3 py-2 text-xs text-muted-foreground border-t bg-muted/20">
+      <span>
+        {wordCount} {t("words")}
+      </span>
+      <span>
+        {characterCount} {t("characters")}
+      </span>
       {maxCharacters && (
         <span className={cn(percentage > 90 && "text-destructive", percentage > 100 && "font-bold")}>
           {characterCount}/{maxCharacters}
@@ -997,19 +1092,22 @@ const UEditor = ({
   onChange,
   onHtmlChange,
   onJsonChange,
-  placeholder = "Type '/' for commands, or just start writing...",
+  placeholder,
   className,
   editable = true,
   autofocus = false,
   showToolbar = true,
   showBubbleMenu = true,
   showFloatingMenu = true,
-  showCharacterCount = false,
+  showCharacterCount = true,
   maxCharacters,
-  minHeight = 200,
-  maxHeight,
-  variant = "notion",
+  minHeight = "200px",
+  maxHeight = "auto",
+  variant = "default",
 }: UEditorProps) => {
+  const t = useTranslations("UEditor");
+  const effectivePlaceholder = placeholder ?? t("placeholder");
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -1090,7 +1188,7 @@ const UEditor = ({
       Typography,
       History,
       Placeholder.configure({
-        placeholder,
+        placeholder: effectivePlaceholder,
         emptyEditorClass: "is-editor-empty",
         emptyNodeClass: "is-empty",
       }),
@@ -1149,11 +1247,11 @@ const UEditor = ({
 
   if (!editor) {
     return (
-      <div className={cn("flex items-center justify-center border rounded-xl bg-muted/30", className)} style={{ minHeight }}>
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm">Loading editor...</span>
-        </div>
+      <div
+        className={cn("w-full rounded-lg border bg-background flex items-center justify-center text-muted-foreground", className)}
+        style={{ minHeight }}
+      >
+        {t("loading")}
       </div>
     );
   }

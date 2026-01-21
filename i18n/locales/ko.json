@@ -1160,5 +1160,107 @@
         "noProps": "이 컴포넌트는 ThemeContext를 사용합니다. 공개 props 가 없습니다."
       }
     }
+  },
+  "UEditor": {
+    "placeholder": "명령어는 '/'를 입력하거나 입력을 시작하세요...",
+    "loading": "에디터 로딩 중...",
+    "words": "단어",
+    "characters": "자",
+    "colors": {
+      "default": "기본",
+      "muted": "흐림",
+      "primary": "기본",
+      "secondary": "보조",
+      "success": "성공",
+      "warning": "경고",
+      "destructive": "위험",
+      "info": "정보",
+      "accent": "강조",
+      "textColor": "텍스트 색상",
+      "highlight": "형광펜",
+      "done": "완료"
+    },
+    "toolbar": {
+      "bold": "굵게",
+      "boldShortcut": "굵게 (Ctrl+B)",
+      "italic": "기울임",
+      "italicShortcut": "기울임 (Ctrl+I)",
+      "underline": "밑줄",
+      "underlineShortcut": "밑줄 (Ctrl+U)",
+      "strike": "취소선",
+      "code": "코드",
+      "subscript": "아래 첨자",
+      "superscript": "위 첨자",
+      "link": "링크",
+      "image": "이미지",
+      "table": "표",
+      "alignment": "정렬",
+      "alignLeft": "왼쪽 정렬",
+      "alignCenter": "가운데 정렬",
+      "alignRight": "오른쪽 정렬",
+      "justify": "양쪽 맞춤",
+      "bulletList": "글머리 기호 목록",
+      "orderedList": "번호 매기기 목록",
+      "taskList": "할 일 목록",
+      "quote": "인용구",
+      "codeBlock": "코드 블록",
+      "undo": "실행 취소",
+      "redo": "다시 실행",
+      "textStyle": "텍스트 스타일",
+      "normal": "일반 텍스트",
+      "heading1": "제목 1",
+      "heading2": "제목 2",
+      "heading3": "제목 3"
+    },
+    "slashCommand": {
+      "basicBlocks": "기본 블록",
+      "text": "텍스트",
+      "textDesc": "일반 텍스트 블록",
+      "heading1": "제목 1",
+      "heading1Desc": "대형 섹션 제목",
+      "heading2": "제목 2",
+      "heading2Desc": "중형 섹션 제목",
+      "heading3": "제목 3",
+      "heading3Desc": "소형 섹션 제목",
+      "bulletList": "글머리 기호 목록",
+      "bulletListDesc": "간단한 글머리 기호 목록",
+      "orderedList": "번호 매기기 목록",
+      "orderedListDesc": "번호가 매겨진 목록",
+      "todoList": "할 일 목록",
+      "todoListDesc": "체크박스가 있는 할 일 목록",
+      "quote": "인용구",
+      "quoteDesc": "인용문 블록",
+      "codeBlock": "코드 블록",
+      "codeBlockDesc": "구문 강조가 있는 코드",
+      "divider": "구분선",
+      "dividerDesc": "시각적 구분선",
+      "table": "표",
+      "tableDesc": "표 추가"
+    },
+    "floatingMenu": {
+      "addBlock": "블록 추가"
+    },
+    "linkInput": {
+      "placeholder": "링크 붙여넣기 또는 입력..."
+    },
+    "imageInput": {
+      "urlLabel": "이미지 URL",
+      "urlPlaceholder": "https://example.com/image.jpg",
+      "altLabel": "대체 텍스트 (선택 사항)",
+      "altPlaceholder": "이미지에 대한 설명...",
+      "addBtn": "이미지 추가",
+      "cancelBtn": "취소",
+      "addFromUrl": "URL에서 추가"
+    },
+    "tableMenu": {
+      "insert3x3": "3x3 표 삽입",
+      "addColumnBefore": "앞에 열 추가",
+      "addColumnAfter": "뒤에 열 추가",
+      "addRowBefore": "위에 행 추가",
+      "addRowAfter": "아래에 행 추가",
+      "deleteColumn": "열 삭제",
+      "deleteRow": "행 삭제",
+      "deleteTable": "표 삭제"
+    }
   }
 }

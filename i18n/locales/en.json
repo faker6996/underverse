@@ -1097,7 +1097,8 @@
         "endDate": "Range end date.",
         "onChange": "Change handler receiving (start, end).",
         "placeholder": "Placeholder when no range is selected.",
-        "className": "Custom class for the trigger."
+        "className": "Custom class for the trigger.",
+        "disablePastDates": "Disable selecting dates before today."
       },
       "pagination": {
         "page": "Current page (1-based).",
@@ -1168,6 +1169,108 @@
       "themeToggle": {
         "noProps": "This component reads and updates ThemeContext; it has no public props."
       }
+    }
+  },
+  "UEditor": {
+    "placeholder": "Type '/' for commands, or just start writing...",
+    "loading": "Loading editor...",
+    "words": "words",
+    "characters": "characters",
+    "colors": {
+      "default": "Default",
+      "muted": "Muted",
+      "primary": "Primary",
+      "secondary": "Secondary",
+      "success": "Success",
+      "warning": "Warning",
+      "destructive": "Destructive",
+      "info": "Info",
+      "accent": "Accent",
+      "textColor": "Text Color",
+      "highlight": "Highlight",
+      "done": "Done"
+    },
+    "toolbar": {
+      "bold": "Bold",
+      "boldShortcut": "Bold (Ctrl+B)",
+      "italic": "Italic",
+      "italicShortcut": "Italic (Ctrl+I)",
+      "underline": "Underline",
+      "underlineShortcut": "Underline (Ctrl+U)",
+      "strike": "Strikethrough",
+      "code": "Inline Code",
+      "subscript": "Subscript",
+      "superscript": "Superscript",
+      "link": "Link",
+      "image": "Insert Image",
+      "table": "Insert Table",
+      "alignment": "Alignment",
+      "alignLeft": "Align Left",
+      "alignCenter": "Align Center",
+      "alignRight": "Align Right",
+      "justify": "Justify",
+      "bulletList": "Bullet List",
+      "orderedList": "Numbered List",
+      "taskList": "Task List",
+      "quote": "Quote",
+      "codeBlock": "Code Block",
+      "undo": "Undo (Ctrl+Z)",
+      "redo": "Redo (Ctrl+Y)",
+      "textStyle": "Text Style",
+      "normal": "Normal text",
+      "heading1": "Heading 1",
+      "heading2": "Heading 2",
+      "heading3": "Heading 3"
+    },
+    "slashCommand": {
+      "basicBlocks": "Basic Blocks",
+      "text": "Text",
+      "textDesc": "Plain text block",
+      "heading1": "Heading 1",
+      "heading1Desc": "Large section heading",
+      "heading2": "Heading 2",
+      "heading2Desc": "Medium section heading",
+      "heading3": "Heading 3",
+      "heading3Desc": "Small section heading",
+      "bulletList": "Bullet List",
+      "bulletListDesc": "Simple bulleted list",
+      "orderedList": "Numbered List",
+      "orderedListDesc": "Numbered list",
+      "todoList": "To-do List",
+      "todoListDesc": "Checkboxes for tasks",
+      "quote": "Quote",
+      "quoteDesc": "Capture a quote",
+      "codeBlock": "Code Block",
+      "codeBlockDesc": "Code with syntax highlighting",
+      "divider": "Divider",
+      "dividerDesc": "Visual divider",
+      "table": "Table",
+      "tableDesc": "Add a table"
+    },
+    "floatingMenu": {
+      "addBlock": "Add block"
+    },
+    "linkInput": {
+      "placeholder": "Paste or type a link..."
+    },
+    "imageInput": {
+      "urlLabel": "Image URL",
+      "urlPlaceholder": "https://example.com/image.jpg",
+      "altLabel": "Alt text (optional)",
+      "altPlaceholder": "Describe the image...",
+      "addBtn": "Add Image",
+      "cancelBtn": "Cancel",
+      "addFromUrl": "Add from URL"
+    },
+    "tableMenu": {
+      "insert3x3": "Insert 3×3 Table",
+      "addColumnBefore": "Add Column Before",
+      "addColumnAfter": "Add Column After",
+      "addRowBefore": "Add Row Before",
+      "addRowAfter": "Add Row After",
+      "deleteColumn": "Delete Column",
+      "deleteRow": "Delete Row",
+      "deleteTable": "Delete Table"
     }
   }
 }
