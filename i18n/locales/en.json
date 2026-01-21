@@ -253,6 +253,9 @@
       "tagInput": {
         "title": "TagInput"
       },
+      "ueditor": {
+        "title": "UEditor"
+      },
       "dateRangePicker": {
         "startDate": "Range start date.",
         "endDate": "Range end date.",

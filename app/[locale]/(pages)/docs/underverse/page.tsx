@@ -72,6 +72,7 @@ const DateUtilsExample = dynamicImport(() => import("./_examples/DateUtilsExampl
 const ChartExample = dynamicImport(() => import("./_examples/ChartExample"), { ssr: false });
 const DocGroupSection = dynamicImport(() => import("./_components/DocGroupSection"), { ssr: false });
 const DonationCard = dynamicImport(() => import("./_components/DonationCard"), { ssr: false });
+const UEditorExample = dynamicImport(() => import("./_examples/UEditorExample"), { ssr: false });
 
 export default function UnderverseGuidePage() {
   return <DocsContent />;
@@ -192,6 +193,10 @@ function DocsInner() {
 
               <DocSection id="tag-input" title={t("sections.tagInput.title")}>
                 <TagInputExample />
+              </DocSection>
+
+              <DocSection id="ueditor" title={t("sections.ueditor.title")}>
+                <UEditorExample />
               </DocSection>
             </DocGroupSection>
 
