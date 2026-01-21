@@ -253,6 +253,9 @@
       "tagInput": {
         "title": "TagInput"
       },
+      "ueditor": {
+        "title": "UEditor"
+      },
       "dateTimePicker": {
         "title": "DateTimePicker"
       },

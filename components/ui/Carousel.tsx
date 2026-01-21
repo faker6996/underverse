@@ -224,7 +224,10 @@ export function Carousel({
   return (
     <div
       ref={carouselRef}
-      className={cn("relative w-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-2xl", className)}
+      className={cn(
+        "relative w-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-2xl md:rounded-3xl",
+        className,
+      )}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       role="region"

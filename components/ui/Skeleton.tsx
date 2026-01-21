@@ -12,10 +12,10 @@ interface SkeletonProps {
 
 export const Skeleton: React.FC<SkeletonProps> = ({ className, width, height, variant = "rectangular", animation = "pulse", lines = 1 }) => {
   const variantClasses = {
-    rectangular: "rounded-md",
+    rectangular: "rounded-2xl md:rounded-3xl",
     circular: "rounded-full",
-    rounded: "rounded-lg",
-    text: "rounded",
+    rounded: "rounded-2xl md:rounded-3xl",
+    text: "rounded-xl",
   };
 
   const animationClasses = {
@@ -87,11 +87,11 @@ export const SkeletonCard: React.FC<{
   children?: React.ReactNode;
 }> = ({ showAvatar = true, showImage = false, textLines = 3, className, children }) => {
   if (children) {
-    return <div className={cn("p-4 space-y-4 rounded-lg bg-card outline-none focus:outline-none", className)}>{children}</div>;
+    return <div className={cn("p-4 space-y-4 rounded-2xl md:rounded-3xl bg-card outline-none focus:outline-none", className)}>{children}</div>;
   }
 
   return (
-    <div className={cn("p-4 space-y-4 rounded-2xl bg-card outline-none focus:outline-none", className)}>
+    <div className={cn("p-4 space-y-4 rounded-2xl md:rounded-3xl bg-card outline-none focus:outline-none", className)}>
       {/* Header with avatar */}
       {showAvatar && (
         <div className="flex items-center space-x-3">
@@ -104,7 +104,7 @@ export const SkeletonCard: React.FC<{
       )}
 
       {/* Image */}
-      {showImage && <Skeleton className="h-48 w-full rounded-xl" />}
+      {showImage && <Skeleton className="h-48 w-full rounded-2xl md:rounded-3xl" />}
 
       {/* Text content */}
       <SkeletonText lines={textLines} />
@@ -120,7 +120,7 @@ export const SkeletonCard: React.FC<{
 
 export const SkeletonPost: React.FC<{ className?: string }> = ({ className }) => {
   return (
-    <div className={cn("p-6 space-y-4 rounded-3xl bg-card outline-none focus:outline-none", className)}>
+    <div className={cn("p-6 space-y-4 rounded-2xl md:rounded-3xl bg-card outline-none focus:outline-none", className)}>
       {/* Post header */}
       <div className="flex items-center space-x-3">
         <SkeletonAvatar size="lg" />
@@ -180,7 +180,7 @@ export const SkeletonList: React.FC<{
   return (
     <div className={cn("space-y-3", className)}>
       {Array.from({ length: items }).map((_, index) => (
-        <div key={index} className="flex items-center space-x-3 p-3 rounded-xl">
+        <div key={index} className="flex items-center space-x-3 p-3 rounded-2xl md:rounded-3xl">
           {showAvatar && <SkeletonAvatar />}
           <div className="flex-1 space-y-2">
             <Skeleton className="h-4 w-3/4" />

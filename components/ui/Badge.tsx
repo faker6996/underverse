@@ -143,7 +143,7 @@ export const Badge: React.FC<BadgeProps> = ({
   }
 
   return (
-    <span className={cn(baseClasses, "rounded-lg gap-1", sizeStyles[size], className)} onClick={handleClick} role="status">
+    <span className={cn(baseClasses, "rounded-full gap-1", sizeStyles[size], className)} onClick={handleClick} role="status">
       {Icon && (
         <Icon
           className={cn(

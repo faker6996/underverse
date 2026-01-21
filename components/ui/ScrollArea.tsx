@@ -25,7 +25,12 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
     return (
       <div
         ref={ref}
-        className={cn("relative overflow-hidden", variantClasses[variant], outlined && "rounded-xl border border-border/60", className)}
+        className={cn(
+          "relative overflow-hidden rounded-2xl md:rounded-3xl",
+          variantClasses[variant],
+          outlined && "border border-border/60",
+          className,
+        )}
         {...props}
       >
         <div className={cn("h-full w-full overflow-y-auto scroll-area-viewport", contentClassName)}>{children}</div>

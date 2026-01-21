@@ -47,7 +47,7 @@ export default function SmartImage({
   alt,
   className,
   ratioClass,
-  roundedClass = "rounded-xl",
+  roundedClass = "rounded-2xl md:rounded-3xl",
   fill = true,
   width,
   height,

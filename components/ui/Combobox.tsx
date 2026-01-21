@@ -172,6 +172,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
     const itemDescription = getOptionDescription(item);
     const itemDisabled = getOptionDisabled(item);
     const isSelected = itemValue === value;
+    const isEven = index % 2 === 0;
 
     return (
       <li
@@ -189,11 +190,12 @@ export const Combobox: React.FC<ComboboxProps> = ({
           animationDelay: open ? `${Math.min(index * 15, 150)}ms` : "0ms",
         }}
         className={cn(
-          "dropdown-item group flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm",
+          "dropdown-item group flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm",
           "outline-none focus:outline-none focus-visible:outline-none",
           "transition-all duration-150",
-          !itemDisabled && "hover:bg-accent/80 hover:shadow-sm",
-          !itemDisabled && "focus:bg-accent focus:text-accent-foreground",
+          isEven && "bg-muted/40",
+          !itemDisabled && "hover:bg-accent/70 hover:shadow-sm",
+          !itemDisabled && "focus:bg-accent/80 focus:text-accent-foreground",
           index === activeIndex && !itemDisabled && "bg-accent/60",
           isSelected && "bg-primary/10 text-primary font-medium",
           itemDisabled && "opacity-50 cursor-not-allowed",
@@ -301,13 +303,21 @@ export const Combobox: React.FC<ComboboxProps> = ({
             </div>
           ) : filteredOptions.length > 0 ? (
             groupedOptions ? (
-              // Render grouped options
-              Object.entries(groupedOptions).map(([group, items], groupIndex) => (
-                <div key={group} className={cn(groupIndex > 0 && "mt-2 pt-2 border-t border-border/30")}>
-                  <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{group}</div>
-                  <ul className="space-y-0.5">{items.map((item, index) => renderOptionItem(item, groupIndex * 100 + index))}</ul>
-                </div>
-              ))
+              // Render grouped options with global index tracking
+              (() => {
+                let globalIndex = 0;
+                return Object.entries(groupedOptions).map(([group, items]) => (
+                  <div key={group} className={cn(globalIndex > 0 && "mt-2 pt-2 border-t border-border/30")}>
+                    <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{group}</div>
+                    <ul className="space-y-0.5">
+                      {items.map((item) => {
+                        const index = globalIndex++;
+                        return renderOptionItem(item, index);
+                      })}
+                    </ul>
+                  </div>
+                ));
+              })()
             ) : (
               // Render flat options
               <ul className="space-y-0.5">{filteredOptions.map((item, index) => renderOptionItem(item, index))}</ul>

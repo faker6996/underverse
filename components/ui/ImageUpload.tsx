@@ -201,7 +201,7 @@ export default function ImageUpload({
       {/* Upload Area */}
       <div
         className={cn(
-          "relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200",
+          "relative border-2 border-dashed rounded-2xl md:rounded-3xl p-8 text-center transition-all duration-200",
           isDragging && !disabled ? "border-primary bg-primary/5 scale-[1.02]" : "border-border hover:border-primary/50",
           disabled && "opacity-50 cursor-not-allowed",
           uploading && "pointer-events-none",
@@ -211,7 +211,7 @@ export default function ImageUpload({
         onDrop={handleDrop}
       >
         {uploading && (
-          <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-xl">
+          <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-2xl md:rounded-3xl">
             <div className="flex items-center gap-3">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
               <span className="text-sm font-medium">Uploading...</span>
@@ -253,7 +253,7 @@ export default function ImageUpload({
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {uploadedImages.map((image) => (
-              <div key={image.id} className="relative group bg-card border border-border rounded-xl p-3">
+              <div key={image.id} className="relative group bg-card border border-border rounded-2xl md:rounded-3xl p-3">
                 {/* Remove Button */}
                 <Button
                   variant="danger"

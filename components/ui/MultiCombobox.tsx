@@ -224,6 +224,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
     const isDisabled = item.disabled || disabledOptions.includes(item.value);
     const optionIcon = item.icon;
     const optionDesc = item.description;
+    const isEven = index % 2 === 0;
 
     if (renderOption) {
       return (
@@ -239,7 +240,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
             inputRef.current?.focus();
           }}
           style={{ animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms" }}
-          className={cn("dropdown-item", isDisabled && "opacity-50 cursor-not-allowed pointer-events-none")}
+          className={cn("dropdown-item", isEven && "bg-muted/25", isDisabled && "opacity-50 cursor-not-allowed pointer-events-none")}
         >
           {renderOption(item, isSelected)}
         </li>
@@ -260,11 +261,12 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         }}
         style={{ animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms" }}
         className={cn(
-          "dropdown-item flex cursor-pointer items-center gap-3 rounded-xl transition-all duration-200",
+          "dropdown-item flex cursor-pointer items-center gap-3 rounded-lg transition-all duration-200",
           sizeStyles[size].item,
-          "hover:bg-linear-to-r hover:from-primary/5 hover:to-transparent",
-          index === activeIndex && "bg-primary/5",
-          isSelected && "bg-primary/5",
+          isEven && "bg-muted/25",
+          "hover:bg-accent/70 hover:shadow-sm",
+          index === activeIndex && "bg-accent/60",
+          isSelected && "bg-primary/10 text-primary font-medium",
           isDisabled && "opacity-40 cursor-not-allowed pointer-events-none",
         )}
       >

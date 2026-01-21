@@ -594,7 +594,13 @@ export function DataTable<T extends Record<string, any>>({
 
           {/* Center: Page numbers with prev/next */}
           <div className="flex items-center gap-0.5">
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setCurPage(Math.max(1, curPage - 1))} disabled={curPage === 1}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 rounded-full"
+              onClick={() => setCurPage(Math.max(1, curPage - 1))}
+              disabled={curPage === 1}
+            >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
@@ -628,7 +634,7 @@ export function DataTable<T extends Record<string, any>>({
                     key={p}
                     onClick={() => setCurPage(p)}
                     className={cn(
-                      "h-7 min-w-7 px-1.5 rounded-lg text-xs font-medium transition-colors",
+                      "h-7 min-w-7 px-2 rounded-full text-xs font-medium transition-colors",
                       curPage === p ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground",
                     )}
                   >
@@ -641,7 +647,7 @@ export function DataTable<T extends Record<string, any>>({
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 w-7 p-0"
+              className="h-7 w-7 p-0 rounded-full"
               onClick={() => setCurPage(Math.min(Math.ceil(totalItems / curPageSize), curPage + 1))}
               disabled={curPage === Math.ceil(totalItems / curPageSize)}
             >
@@ -661,7 +667,7 @@ export function DataTable<T extends Record<string, any>>({
                 setCurPageSize(Number(v));
               }}
               size="sm"
-              className="w-14 h-7"
+              className="w-20"
             />
           )}
         </div>

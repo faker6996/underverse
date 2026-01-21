@@ -117,12 +117,12 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
     // Variant styles
     const variantClasses = {
       plain: "",
-      outlined: "rounded-xl md:rounded-2xl bg-card text-card-foreground border border-border shadow-sm",
-      soft: "rounded-xl bg-muted/40 border border-border/60",
-      bordered: "border border-border rounded-xl",
-      card: "rounded-xl bg-card shadow-md border border-border",
+      outlined: "rounded-2xl md:rounded-3xl bg-card text-card-foreground border border-border shadow-sm",
+      soft: "rounded-2xl md:rounded-3xl bg-muted/40 border border-border/60",
+      bordered: "border border-border rounded-2xl md:rounded-3xl",
+      card: "rounded-2xl md:rounded-3xl bg-card shadow-md border border-border",
       flush: "",
-      striped: "rounded-xl border border-border overflow-hidden",
+      striped: "rounded-2xl md:rounded-3xl border border-border overflow-hidden",
     };
 
     // Loading state

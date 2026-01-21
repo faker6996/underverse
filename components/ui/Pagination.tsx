@@ -238,14 +238,17 @@ export const Pagination: React.FC<PaginationProps> = ({
 
       {/* Right: Page Size Selector */}
       {pageSizeOptions && onPageSizeChange ? (
-        <Combobox
-          options={pageSizeOptionsStrings}
-          value={pageSize?.toString() || "10"}
-          onChange={handlePageSizeChange}
-          size="sm"
-          className="w-14"
-          disabled={disabled}
-        />
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground/70 hidden sm:inline">{t("itemsPerPage")}:</span>
+          <Combobox
+            options={pageSizeOptionsStrings}
+            value={pageSize?.toString() || "10"}
+            onChange={handlePageSizeChange}
+            size="sm"
+            className="w-20 sm:w-24"
+            disabled={disabled}
+          />
+        </div>
       ) : (
         <div />
       )}

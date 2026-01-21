@@ -28,7 +28,7 @@ const sizeStyles = {
     content: "mt-3 p-3",
   },
   md: {
-    tab: "py-2 px-4 text-sm",
+    tab: "py-2.5 px-4 text-sm",
     content: "mt-4 p-4",
   },
   lg: {
@@ -39,33 +39,33 @@ const sizeStyles = {
 
 const variantStyles = {
   default: {
-    container: "border-b border-border",
-    tab: "border-b-2 border-transparent hover:border-border/60",
-    activeTab: "border-primary text-primary",
+    container: "border-b border-border/60 bg-muted/30 p-1 rounded-t-2xl",
+    tab: "rounded-full border-b-2 border-transparent hover:bg-accent/40",
+    activeTab: "border-primary bg-background text-primary shadow-sm",
     inactiveTab: "text-muted-foreground hover:text-foreground",
   },
   pills: {
-    container: "bg-muted p-1 rounded-lg",
-    tab: "rounded-md transition-all duration-200",
-    activeTab: "bg-background text-foreground shadow-sm",
+    container: "bg-muted/50 backdrop-blur-sm p-1.5 rounded-2xl border border-border/40",
+    tab: "rounded-full transition-all duration-200",
+    activeTab: "bg-background text-foreground shadow-md border border-border/50",
     inactiveTab: "text-muted-foreground hover:text-foreground hover:bg-background/50",
   },
   underline: {
-    container: "relative border-b border-border",
-    tab: "relative transition-colors duration-200 pb-3 border-b-2 border-transparent hover:border-border/60",
-    activeTab: "text-primary border-primary font-medium",
+    container: "relative border-b border-border/60",
+    tab: "relative transition-colors duration-200 pb-3 border-b-2 border-transparent hover:border-primary/30",
+    activeTab: "text-primary border-primary font-semibold",
     inactiveTab: "text-muted-foreground hover:text-foreground",
   },
   card: {
-    container: "space-y-1",
+    container: "space-y-1.5 bg-muted/20 p-2 rounded-2xl border border-border/30",
     tab: "rounded-xl border border-transparent transition-all duration-200",
-    activeTab: "bg-primary text-primary-foreground border-primary",
-    inactiveTab: "text-muted-foreground hover:text-foreground hover:bg-accent/50 hover:border-border hover:shadow-sm",
+    activeTab: "bg-primary text-primary-foreground border-primary shadow-md",
+    inactiveTab: "text-muted-foreground hover:text-foreground hover:bg-accent/50 hover:border-border/50",
   },
   "underline-card": {
-    container: "border-b border-border bg-card rounded-t-2xl",
-    tab: "relative transition-all duration-200 pb-3 px-4 border-b-2 border-transparent hover:border-primary/50 hover:bg-accent/30",
-    activeTab: "text-primary border-primary font-medium bg-accent/20",
+    container: "border-b border-border/60 bg-card/80 backdrop-blur-sm rounded-t-2xl p-1",
+    tab: "relative transition-all duration-200 pb-3 px-4 rounded-t-xl border-b-2 border-transparent hover:border-primary/30 hover:bg-accent/30",
+    activeTab: "text-primary border-primary font-semibold bg-accent/30",
     inactiveTab: "text-muted-foreground hover:text-foreground",
   },
 };
@@ -198,7 +198,8 @@ export const Tabs: React.FC<TabsProps> = ({
         id={`${baseId}-panel-${tabs.findIndex((t) => t.value === active)}`}
         aria-labelledby={`${baseId}-tab-${tabs.findIndex((t) => t.value === active)}`}
         className={cn(
-          "bg-card rounded-xl border border-border shadow-sm text-card-foreground transition-all duration-200",
+          "bg-card rounded-2xl md:rounded-3xl border border-border/60 shadow-sm text-card-foreground transition-all duration-200",
+          "backdrop-blur-sm",
           sizeStyles[size].content,
           orientation === "vertical" && "flex-1",
         )}

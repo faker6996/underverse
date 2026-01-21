@@ -53,6 +53,7 @@ const tocGroups: TocGroup[] = [
       { id: "radio-group", labelKey: "sections.radioGroup.title" },
       { id: "slider", labelKey: "sections.slider.title" },
       { id: "tag-input", labelKey: "sections.tagInput.title" },
+      { id: "ueditor", labelKey: "sections.ueditor.title" },
     ],
   },
   {

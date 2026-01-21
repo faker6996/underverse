@@ -166,26 +166,24 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     const hasChildren = children.length > 0;
     const isExpanded = expandedNodes.has(category.id);
     const isSelected = valueArray.includes(category.id);
+    const isParent = level === 0;
 
     return (
       <div key={category.id} className="animate-in fade-in-50 duration-200" style={{ animationDelay: `${level * 30}ms` }}>
         <div
           className={cn(
-            "relative flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200",
+            "relative flex items-center gap-2.5 px-3 py-2.5 transition-all duration-200",
+            "border-l-4 border-l-transparent",
+            // Parent level styling
+            isParent && "bg-muted/25 font-medium",
             !viewOnly && "cursor-pointer",
             !viewOnly && !isSelected && "hover:bg-accent/60 hover:shadow-sm",
             // Selected state
-            !viewOnly && isSelected && "bg-linear-to-r from-primary/15 via-primary/10 to-primary/5 shadow-sm",
+            !viewOnly && isSelected && "bg-accent/30 border-l-primary shadow-sm",
           )}
           style={{ paddingLeft: `${level * 1.25 + 0.75}rem` }}
         >
-          {/* Left indicator for selected items */}
-          {!viewOnly && isSelected && (
-            <span
-              aria-hidden
-              className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-linear-to-b from-primary to-primary/70 shadow-sm shadow-primary/30"
-            />
-          )}
+          {/* Left indicator removed - using border instead */}
 
           {/* Expand/Collapse button */}
           {hasChildren ? (
