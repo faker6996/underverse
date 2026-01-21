@@ -72,7 +72,7 @@ Display content without editing capabilities:
 | `autofocus`          | `boolean`                            | `false`                      | Auto focus editor on mount.                   |
 | `showToolbar`        | `boolean`                            | `true`                       | Show the main toolbar.                        |
 | `showBubbleMenu`     | `boolean`                            | `true`                       | Show bubble menu on text selection.           |
-| `showFloatingMenu`   | `boolean`                            | `true`                       | Show floating menu on empty lines.            |
+| `showFloatingMenu`   | `boolean`                            | `false`                      | Show floating menu on empty lines.            |
 | `showCharacterCount` | `boolean`                            | `false`                      | Show character & word count footer.           |
 | `maxCharacters`      | `number`                             | `undefined`                  | Maximum character limit.                      |
 | `minHeight`          | `number \| string`                   | `"200px"`                    | Minimum height of editor area.                |
@@ -127,13 +127,29 @@ Display content without editing capabilities:
 ### UX Features
 
 - **Bubble Menu**: Appears on text selection with quick formatting options
-- **Floating Menu**: Click + on empty lines to add blocks
-- **Slash Commands**: Type `/` to open command palette (coming soon)
+- **Floating Menu**: Click + on empty lines to add blocks (disabled by default)
+- **Slash Commands**: Type `/` to open command palette with keyboard navigation
+  - Filter by typing (e.g., `/heading`)
+  - Navigate with `↑` `↓` arrow keys
+  - Select with `Enter`
+  - Cancel with `Escape`
+- **Tooltip Integration**: Uses `Tooltip` component for toolbar button hints
 - **Keyboard Shortcuts**: Standard shortcuts for all formatting
 - **Undo/Redo**: Full history support
 - **Character & Word Count**: Optional footer with counts
 - **Typography Auto-formatting**: Smart quotes, dashes, etc.
 - **Responsive Toolbar**: Collapses and groups on smaller screens
+
+## Component Integration
+
+UEditor reuses existing UI components from the library:
+
+| Component          | Usage                             |
+| ------------------ | --------------------------------- |
+| `DropdownMenu`     | Toolbar dropdown menus            |
+| `DropdownMenuItem` | Menu items with icons, shortcuts  |
+| `Tooltip`          | Toolbar button tooltips           |
+| `Popover`          | Available for future enhancements |
 
 ## Color System
 

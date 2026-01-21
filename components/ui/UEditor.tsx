@@ -40,6 +40,9 @@ import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import { common, createLowlight } from "lowlight";
 import { cn } from "@/lib/utils/cn";
+import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "./DropdownMenu";
+import { Tooltip } from "./Tooltip";
+import { Popover } from "./Popover";
 import {
   Bold as BoldIcon,
   Italic as ItalicIcon,
@@ -154,106 +157,41 @@ const ToolbarButton = React.forwardRef<
     title?: string;
     className?: string;
   }
->(({ onClick, active, disabled, children, title, className }, ref) => (
-  <button
-    ref={ref}
-    type="button"
-    onClick={onClick}
-    disabled={disabled}
-    title={title}
-    className={cn(
-      "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200",
-      "hover:bg-accent hover:scale-105",
-      "focus:outline-none focus:ring-2 focus:ring-primary/20",
-      "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100",
-      active ? "bg-primary/10 text-primary shadow-sm" : "text-muted-foreground hover:text-foreground",
-      className,
-    )}
-  >
-    {children}
-  </button>
-));
+>(({ onClick, active, disabled, children, title, className }, ref) => {
+  const button = (
+    <button
+      ref={ref}
+      type="button"
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200",
+        "hover:bg-accent hover:scale-105",
+        "focus:outline-none focus:ring-2 focus:ring-primary/20",
+        "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100",
+        active ? "bg-primary/10 text-primary shadow-sm" : "text-muted-foreground hover:text-foreground",
+        className,
+      )}
+    >
+      {children}
+    </button>
+  );
+
+  if (title) {
+    return (
+      <Tooltip content={title} placement="top" delay={{ open: 500, close: 0 }}>
+        {button}
+      </Tooltip>
+    );
+  }
+
+  return button;
+});
 ToolbarButton.displayName = "ToolbarButton";
 
-// ========== Dropdown Menu Component ==========
-const DropdownMenu = ({
-  trigger,
-  children,
-  align = "start",
-}: {
-  trigger: React.ReactNode;
-  children: React.ReactNode;
-  align?: "start" | "center" | "end";
-}) => {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  return (
-    <div ref={ref} className="relative">
-      <div onClick={() => setOpen(!open)}>{trigger}</div>
-      {open && (
-        <div
-          className={cn(
-            "absolute z-50 mt-2 min-w-50 rounded-xl border bg-popover/95 backdrop-blur-xl p-2 shadow-2xl",
-            "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2",
-            align === "end" && "right-0",
-            align === "center" && "left-1/2 -translate-x-1/2",
-          )}
-          onClick={() => setOpen(false)}
-        >
-          {children}
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ========== Menu Item Component ==========
-const MenuItem = ({
-  icon: Icon,
-  label,
-  onClick,
-  active,
-  shortcut,
-  disabled = false,
-}: {
-  icon?: React.ComponentType<{ className?: string }>;
-  label: string;
-  onClick: () => void;
-  active?: boolean;
-  shortcut?: string;
-  disabled?: boolean;
-}) => (
-  <button
-    type="button"
-    onClick={onClick}
-    disabled={disabled}
-    className={cn(
-      "flex items-center w-full px-3 py-2 rounded-lg text-sm transition-all",
-      "hover:bg-accent group",
-      active && "bg-primary/10 text-primary",
-      disabled && "opacity-40 cursor-not-allowed hover:bg-transparent",
-    )}
-  >
-    {Icon && <Icon className="w-4 h-4 mr-3 opacity-60 group-hover:opacity-100" />}
-    <span className="flex-1 text-left">{label}</span>
-    {shortcut && <span className="ml-2 text-xs text-muted-foreground opacity-60">{shortcut}</span>}
-    {active && <Check className="w-4 h-4 ml-2 text-primary" />}
-  </button>
-);
-
-// ========== Color Picker Component ==========
-const ColorPicker = ({
+// ========== Editor Color Palette Component (different from EditorColorPalette - this is a simple palette grid) ==========
+const EditorColorPalette = ({
   colors,
   currentColor,
   onSelect,
@@ -271,6 +209,7 @@ const ColorPicker = ({
         <button
           key={c.name}
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => onSelect(c.color)}
           className={cn(
             "flex items-center justify-center w-9 h-9 rounded-lg border-2 transition-all hover:scale-105",
@@ -385,101 +324,257 @@ const ImageInput = ({ onSubmit, onCancel }: { onSubmit: (url: string, alt?: stri
   );
 };
 
-// ========== Slash Command Menu ==========
-const SlashCommandMenu = ({ editor, onClose }: { editor: any; onClose: () => void }) => {
+// ========== Slash Command Menu with keyboard navigation ==========
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const SlashCommandMenu = ({ editor, onClose, filterText = "" }: { editor: any; onClose: () => void; filterText?: string }) => {
   const t = useTranslations("UEditor");
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const commands = [
-    { icon: Type, label: t("slashCommand.text"), description: t("slashCommand.textDesc"), action: () => editor.chain().focus().setParagraph().run() },
-    {
-      icon: Heading1Icon,
-      label: t("slashCommand.heading1"),
-      description: t("slashCommand.heading1Desc"),
-      action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+  const allCommands = useMemo(
+    () => [
+      {
+        icon: Type,
+        label: t("slashCommand.text"),
+        description: t("slashCommand.textDesc"),
+        action: () => editor.chain().focus().setParagraph().run(),
+      },
+      {
+        icon: Heading1Icon,
+        label: t("slashCommand.heading1"),
+        description: t("slashCommand.heading1Desc"),
+        action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+      },
+      {
+        icon: Heading2Icon,
+        label: t("slashCommand.heading2"),
+        description: t("slashCommand.heading2Desc"),
+        action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+      },
+      {
+        icon: Heading3Icon,
+        label: t("slashCommand.heading3"),
+        description: t("slashCommand.heading3Desc"),
+        action: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+      },
+      {
+        icon: ListIcon,
+        label: t("slashCommand.bulletList"),
+        description: t("slashCommand.bulletListDesc"),
+        action: () => editor.chain().focus().toggleBulletList().run(),
+      },
+      {
+        icon: ListOrderedIcon,
+        label: t("slashCommand.orderedList"),
+        description: t("slashCommand.orderedListDesc"),
+        action: () => editor.chain().focus().toggleOrderedList().run(),
+      },
+      {
+        icon: ListTodo,
+        label: t("slashCommand.todoList"),
+        description: t("slashCommand.todoListDesc"),
+        action: () => editor.chain().focus().toggleTaskList().run(),
+      },
+      {
+        icon: QuoteIcon,
+        label: t("slashCommand.quote"),
+        description: t("slashCommand.quoteDesc"),
+        action: () => editor.chain().focus().toggleBlockquote().run(),
+      },
+      {
+        icon: FileCode,
+        label: t("slashCommand.codeBlock"),
+        description: t("slashCommand.codeBlockDesc"),
+        action: () => editor.chain().focus().toggleCodeBlock().run(),
+      },
+      {
+        icon: Minus,
+        label: t("slashCommand.divider"),
+        description: t("slashCommand.dividerDesc"),
+        action: () => editor.chain().focus().setHorizontalRule().run(),
+      },
+      {
+        icon: TableIcon,
+        label: t("slashCommand.table"),
+        description: t("slashCommand.tableDesc"),
+        action: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
+      },
+    ],
+    [editor, t],
+  );
+
+  // Filter commands based on filterText
+  const commands = useMemo(() => {
+    if (!filterText) return allCommands;
+    const lowerFilter = filterText.toLowerCase();
+    return allCommands.filter((cmd) => cmd.label.toLowerCase().includes(lowerFilter) || cmd.description.toLowerCase().includes(lowerFilter));
+  }, [allCommands, filterText]);
+
+  // Reset selection when filter changes
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [filterText]);
+
+  // Scroll selected item into view
+  useEffect(() => {
+    const selectedElement = menuRef.current?.querySelector(`[data-index="${selectedIndex}"]`);
+    selectedElement?.scrollIntoView({ block: "nearest" });
+  }, [selectedIndex]);
+
+  const selectCommand = useCallback(
+    (index: number) => {
+      const command = commands[index];
+      if (command) {
+        command.action();
+        onClose();
+      }
     },
-    {
-      icon: Heading2Icon,
-      label: t("slashCommand.heading2"),
-      description: t("slashCommand.heading2Desc"),
-      action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
-    },
-    {
-      icon: Heading3Icon,
-      label: t("slashCommand.heading3"),
-      description: t("slashCommand.heading3Desc"),
-      action: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
-    },
-    {
-      icon: ListIcon,
-      label: t("slashCommand.bulletList"),
-      description: t("slashCommand.bulletListDesc"),
-      action: () => editor.chain().focus().toggleBulletList().run(),
-    },
-    {
-      icon: ListOrderedIcon,
-      label: t("slashCommand.orderedList"),
-      description: t("slashCommand.orderedListDesc"),
-      action: () => editor.chain().focus().toggleOrderedList().run(),
-    },
-    {
-      icon: ListTodo,
-      label: t("slashCommand.todoList"),
-      description: t("slashCommand.todoListDesc"),
-      action: () => editor.chain().focus().toggleTaskList().run(),
-    },
-    {
-      icon: QuoteIcon,
-      label: t("slashCommand.quote"),
-      description: t("slashCommand.quoteDesc"),
-      action: () => editor.chain().focus().toggleBlockquote().run(),
-    },
-    {
-      icon: FileCode,
-      label: t("slashCommand.codeBlock"),
-      description: t("slashCommand.codeBlockDesc"),
-      action: () => editor.chain().focus().toggleCodeBlock().run(),
-    },
-    {
-      icon: Minus,
-      label: t("slashCommand.divider"),
-      description: t("slashCommand.dividerDesc"),
-      action: () => editor.chain().focus().setHorizontalRule().run(),
-    },
-    {
-      icon: TableIcon,
-      label: t("slashCommand.table"),
-      description: t("slashCommand.tableDesc"),
-      action: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
-    },
-  ];
+    [commands, onClose],
+  );
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev + 1) % commands.length);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev - 1 + commands.length) % commands.length);
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        selectCommand(selectedIndex);
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [commands.length, selectedIndex, selectCommand, onClose]);
+
+  if (commands.length === 0) {
+    return <div className="w-72 p-4 text-center text-muted-foreground text-sm">{t("slashCommand.noResults")}</div>;
+  }
 
   return (
-    <div className="w-72 max-h-80 overflow-y-auto">
+    <div ref={menuRef} className="w-72 max-h-80 overflow-y-auto">
       <div className="px-3 py-2 border-b">
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("slashCommand.basicBlocks")}</span>
       </div>
       <div className="p-1">
-        {commands.map((cmd) => (
+        {commands.map((cmd, index) => (
           <button
             key={cmd.label}
             type="button"
-            onClick={() => {
-              cmd.action();
-              onClose();
-            }}
-            className="flex items-center w-full px-3 py-2.5 rounded-lg hover:bg-accent transition-colors group"
+            data-index={index}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => selectCommand(index)}
+            onMouseEnter={() => setSelectedIndex(index)}
+            className={cn(
+              "flex items-center w-full px-3 py-2.5 rounded-lg transition-colors group",
+              selectedIndex === index ? "bg-accent" : "hover:bg-accent/50",
+            )}
           >
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-muted/50 group-hover:bg-muted mr-3">
-              <cmd.icon className="w-5 h-5 text-muted-foreground" />
+            <div
+              className={cn(
+                "flex items-center justify-center w-10 h-10 rounded-lg mr-3 transition-colors",
+                selectedIndex === index ? "bg-primary/10" : "bg-muted/50 group-hover:bg-muted",
+              )}
+            >
+              <cmd.icon className={cn("w-5 h-5", selectedIndex === index ? "text-primary" : "text-muted-foreground")} />
             </div>
             <div className="text-left">
-              <div className="text-sm font-medium">{cmd.label}</div>
+              <div className={cn("text-sm font-medium", selectedIndex === index && "text-primary")}>{cmd.label}</div>
               <div className="text-xs text-muted-foreground">{cmd.description}</div>
             </div>
           </button>
         ))}
       </div>
     </div>
+  );
+};
+
+// ========== Slash Command Trigger (detects "/" and shows menu) ==========
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const SlashCommandTrigger = ({ editor }: { editor: any }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [filterText, setFilterText] = useState("");
+  const slashPosRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      const { state, view } = editor;
+      const { $from, empty } = state.selection;
+
+      if (!empty || !view.hasFocus()) {
+        setIsVisible(false);
+        slashPosRef.current = null;
+        return;
+      }
+
+      // Get text before cursor in current block
+      const textBefore = $from.parent.textContent.slice(0, $from.parentOffset);
+
+      // Check if there's a "/" that starts a command
+      const slashMatch = textBefore.match(/\/([^\s\/]*)$/);
+
+      if (slashMatch) {
+        const slashIndex = textBefore.lastIndexOf("/");
+        const absoluteSlashPos = $from.start() + slashIndex;
+
+        // Calculate position at the slash character
+        const coords = view.coordsAtPos(absoluteSlashPos);
+        setPosition({ top: coords.bottom + 5, left: coords.left });
+        setFilterText(slashMatch[1] || "");
+        slashPosRef.current = absoluteSlashPos;
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+        slashPosRef.current = null;
+        setFilterText("");
+      }
+    };
+
+    editor.on("selectionUpdate", handleUpdate);
+    editor.on("update", handleUpdate);
+
+    return () => {
+      editor.off("selectionUpdate", handleUpdate);
+      editor.off("update", handleUpdate);
+    };
+  }, [editor]);
+
+  const handleClose = useCallback(() => {
+    // Delete the slash and filter text when selecting a command
+    if (slashPosRef.current !== null) {
+      const { state } = editor;
+      const { $from } = state.selection;
+      const deleteFrom = slashPosRef.current;
+      const deleteTo = $from.pos;
+      editor.chain().focus().deleteRange({ from: deleteFrom, to: deleteTo }).run();
+    }
+    setIsVisible(false);
+    slashPosRef.current = null;
+    setFilterText("");
+  }, [editor]);
+
+  if (!isVisible) return null;
+
+  return createPortal(
+    <div
+      className="fixed z-50 rounded-2xl border border-border bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 zoom-in-95 slide-in-from-top-2"
+      style={{
+        top: `${position.top}px`,
+        left: `${position.left}px`,
+      }}
+      onMouseDown={(e) => e.preventDefault()}
+    >
+      <SlashCommandMenu editor={editor} onClose={handleClose} filterText={filterText} />
+    </div>,
+    document.body,
   );
 };
 
@@ -511,7 +606,7 @@ const BubbleMenuContent = ({ editor }: { editor: any }) => {
   const t = useTranslations("UEditor");
   const { textColors, highlightColors } = useEditorColors();
   const [showLinkInput, setShowLinkInput] = useState(false);
-  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showEditorColorPalette, setShowEditorColorPalette] = useState(false);
 
   if (showLinkInput) {
     return (
@@ -525,10 +620,10 @@ const BubbleMenuContent = ({ editor }: { editor: any }) => {
     );
   }
 
-  if (showColorPicker) {
+  if (showEditorColorPalette) {
     return (
       <div className="w-48">
-        <ColorPicker
+        <EditorColorPalette
           colors={textColors}
           currentColor={editor.getAttributes("textStyle").color || "inherit"}
           onSelect={(color) => {
@@ -541,7 +636,7 @@ const BubbleMenuContent = ({ editor }: { editor: any }) => {
           label={t("colors.textColor")}
         />
         <div className="border-t my-1" />
-        <ColorPicker
+        <EditorColorPalette
           colors={highlightColors}
           currentColor={editor.getAttributes("highlight").color || ""}
           onSelect={(color) => {
@@ -556,7 +651,7 @@ const BubbleMenuContent = ({ editor }: { editor: any }) => {
         <div className="p-2 border-t">
           <button
             type="button"
-            onClick={() => setShowColorPicker(false)}
+            onClick={() => setShowEditorColorPalette(false)}
             className="w-full py-1.5 text-sm rounded-lg hover:bg-muted transition-colors"
           >
             {t("colors.done")}
@@ -594,7 +689,7 @@ const BubbleMenuContent = ({ editor }: { editor: any }) => {
         <LinkIcon className="w-4 h-4" />
       </ToolbarButton>
 
-      <ToolbarButton onClick={() => setShowColorPicker(true)} title={t("colors.textColor")}>
+      <ToolbarButton onClick={() => setShowEditorColorPalette(true)} title={t("colors.textColor")}>
         <Palette className="w-4 h-4" />
       </ToolbarButton>
 
@@ -663,12 +758,13 @@ const CustomBubbleMenu = ({ editor }: { editor: any }) => {
   return createPortal(
     <div
       ref={menuRef}
-      className="fixed z-50 flex rounded-xl border bg-popover/95 backdrop-blur-xl shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95"
+      className="fixed z-50 flex rounded-2xl border border-border bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 zoom-in-95"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
         transform: "translate(-50%, -100%)",
       }}
+      onMouseDown={(e) => e.preventDefault()}
     >
       <BubbleMenuContent editor={editor} />
     </div>,
@@ -695,9 +791,9 @@ const CustomFloatingMenu = ({ editor }: { editor: any }) => {
         return;
       }
 
-      // Get cursor position
+      // Get cursor position - show menu above the line
       const coords = view.coordsAtPos($from.pos);
-      setPosition({ top: coords.top, left: coords.left - 40 });
+      setPosition({ top: coords.top - 10, left: coords.left });
       setIsVisible(true);
     };
 
@@ -718,12 +814,13 @@ const CustomFloatingMenu = ({ editor }: { editor: any }) => {
 
   return createPortal(
     <div
-      className="fixed z-50 rounded-xl border bg-popover/95 backdrop-blur-xl shadow-2xl overflow-hidden animate-in fade-in-0 slide-in-from-left-2"
+      className="fixed z-50 rounded-2xl border border-border bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 slide-in-from-bottom-2"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
-        transform: "translateY(-50%)",
+        transform: "translate(-50%, -100%)",
       }}
+      onMouseDown={(e) => e.preventDefault()}
     >
       <FloatingMenuContent editor={editor} />
     </div>,
@@ -769,27 +866,27 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
           </ToolbarButton>
         }
       >
-        <MenuItem
+        <DropdownMenuItem
           icon={Type}
           label={t("toolbar.normal")}
           onClick={() => editor.chain().focus().setParagraph().run()}
           active={editor.isActive("paragraph")}
         />
-        <MenuItem
+        <DropdownMenuItem
           icon={Heading1Icon}
           label={t("toolbar.heading1")}
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
           active={editor.isActive("heading", { level: 1 })}
           shortcut="Ctrl+Alt+1"
         />
-        <MenuItem
+        <DropdownMenuItem
           icon={Heading2Icon}
           label={t("toolbar.heading2")}
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           active={editor.isActive("heading", { level: 2 })}
           shortcut="Ctrl+Alt+2"
         />
-        <MenuItem
+        <DropdownMenuItem
           icon={Heading3Icon}
           label={t("toolbar.heading3")}
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
@@ -832,7 +929,7 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
           </ToolbarButton>
         }
       >
-        <ColorPicker
+        <EditorColorPalette
           colors={textColors}
           currentColor={editor.getAttributes("textStyle").color || "inherit"}
           onSelect={(color) => {
@@ -854,7 +951,7 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
           </ToolbarButton>
         }
       >
-        <ColorPicker
+        <EditorColorPalette
           colors={highlightColors}
           currentColor={editor.getAttributes("highlight").color || ""}
           onSelect={(color) => {
@@ -879,25 +976,25 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
           </ToolbarButton>
         }
       >
-        <MenuItem
+        <DropdownMenuItem
           icon={AlignLeft}
           label={t("toolbar.alignLeft")}
           onClick={() => editor.chain().focus().setTextAlign("left").run()}
           active={editor.isActive({ textAlign: "left" })}
         />
-        <MenuItem
+        <DropdownMenuItem
           icon={AlignCenter}
           label={t("toolbar.alignCenter")}
           onClick={() => editor.chain().focus().setTextAlign("center").run()}
           active={editor.isActive({ textAlign: "center" })}
         />
-        <MenuItem
+        <DropdownMenuItem
           icon={AlignRight}
           label={t("toolbar.alignRight")}
           onClick={() => editor.chain().focus().setTextAlign("right").run()}
           active={editor.isActive({ textAlign: "right" })}
         />
-        <MenuItem
+        <DropdownMenuItem
           icon={AlignJustify}
           label={t("toolbar.justify")}
           onClick={() => editor.chain().focus().setTextAlign("justify").run()}
@@ -916,21 +1013,21 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
           </ToolbarButton>
         }
       >
-        <MenuItem
+        <DropdownMenuItem
           icon={ListIcon}
           label={t("toolbar.bulletList")}
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           active={editor.isActive("bulletList")}
           shortcut="Ctrl+Shift+8"
         />
-        <MenuItem
+        <DropdownMenuItem
           icon={ListOrderedIcon}
           label={t("toolbar.orderedList")}
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           active={editor.isActive("orderedList")}
           shortcut="Ctrl+Shift+7"
         />
-        <MenuItem
+        <DropdownMenuItem
           icon={ListTodo}
           label={t("toolbar.taskList")}
           onClick={() => editor.chain().focus().toggleTaskList().run()}
@@ -948,14 +1045,14 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
           </ToolbarButton>
         }
       >
-        <MenuItem
+        <DropdownMenuItem
           icon={QuoteIcon}
           label={t("toolbar.quote")}
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           active={editor.isActive("blockquote")}
           shortcut="Ctrl+Shift+B"
         />
-        <MenuItem
+        <DropdownMenuItem
           icon={FileCode}
           label={t("toolbar.codeBlock")}
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
@@ -982,7 +1079,7 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
             onCancel={() => setShowImageInput(false)}
           />
         ) : (
-          <MenuItem icon={LinkIcon} label={t("imageInput.addFromUrl")} onClick={() => setShowImageInput(true)} />
+          <DropdownMenuItem icon={LinkIcon} label={t("imageInput.addFromUrl")} onClick={() => setShowImageInput(true)} />
         )}
       </DropdownMenu>
 
@@ -995,50 +1092,50 @@ const EditorToolbar = ({ editor, variant }: { editor: any; variant: string }) =>
           </ToolbarButton>
         }
       >
-        <MenuItem
+        <DropdownMenuItem
           icon={TableIcon}
           label={t("tableMenu.insert3x3")}
           onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
         />
         <div className="my-1 border-t" />
-        <MenuItem
+        <DropdownMenuItem
           icon={ArrowDown}
           label={t("tableMenu.addColumnBefore")}
           onClick={() => editor.chain().focus().addColumnBefore().run()}
           disabled={!editor.can().addColumnBefore()}
         />
-        <MenuItem
+        <DropdownMenuItem
           icon={ArrowDown}
           label={t("tableMenu.addColumnAfter")}
           onClick={() => editor.chain().focus().addColumnAfter().run()}
           disabled={!editor.can().addColumnAfter()}
         />
-        <MenuItem
+        <DropdownMenuItem
           icon={ArrowRight}
           label={t("tableMenu.addRowBefore")}
           onClick={() => editor.chain().focus().addRowBefore().run()}
           disabled={!editor.can().addRowBefore()}
         />
-        <MenuItem
+        <DropdownMenuItem
           icon={ArrowRight}
           label={t("tableMenu.addRowAfter")}
           onClick={() => editor.chain().focus().addRowAfter().run()}
           disabled={!editor.can().addRowAfter()}
         />
         <div className="my-1 border-t" />
-        <MenuItem
+        <DropdownMenuItem
           icon={Trash2}
           label={t("tableMenu.deleteColumn")}
           onClick={() => editor.chain().focus().deleteColumn().run()}
           disabled={!editor.can().deleteColumn()}
         />
-        <MenuItem
+        <DropdownMenuItem
           icon={Trash2}
           label={t("tableMenu.deleteRow")}
           onClick={() => editor.chain().focus().deleteRow().run()}
           disabled={!editor.can().deleteRow()}
         />
-        <MenuItem
+        <DropdownMenuItem
           icon={Trash2}
           label={t("tableMenu.deleteTable")}
           onClick={() => editor.chain().focus().deleteTable().run()}
@@ -1098,7 +1195,7 @@ const UEditor = ({
   autofocus = false,
   showToolbar = true,
   showBubbleMenu = true,
-  showFloatingMenu = true,
+  showFloatingMenu = false,
   showCharacterCount = true,
   maxCharacters,
   minHeight = "200px",
@@ -1123,16 +1220,28 @@ const UEditor = ({
       Heading.configure({
         levels: [1, 2, 3],
       }),
-      BulletList,
-      OrderedList,
-      ListItem,
+      BulletList.configure({
+        HTMLAttributes: {
+          class: "list-disc pl-6 my-2 space-y-1",
+        },
+      }),
+      OrderedList.configure({
+        HTMLAttributes: {
+          class: "list-decimal pl-6 my-2 space-y-1",
+        },
+      }),
+      ListItem.configure({
+        HTMLAttributes: {
+          class: "pl-1",
+        },
+      }),
       TaskList,
       TaskItem.configure({
         nested: true,
       }),
       Blockquote.configure({
         HTMLAttributes: {
-          class: "border-l-4 border-primary/30 pl-4 italic",
+          class: "border-l-4 border-primary pl-4 py-2 my-4 bg-muted/30 rounded-r-lg italic text-muted-foreground",
         },
       }),
       Code.configure({
@@ -1223,8 +1332,45 @@ const UEditor = ({
           "[&_pre]:!text-[#d4d4d4]",
           "[&_pre_code]:!bg-transparent",
           "[&_hr]:border-t-2",
-          "[&_hr]:border-border/50",
-          "[&_hr]:my-6",
+          "[&_hr]:border-primary/30",
+          "[&_hr]:my-8",
+          // Heading styles
+          "[&_h1]:text-3xl",
+          "[&_h1]:font-bold",
+          "[&_h1]:mt-6",
+          "[&_h1]:mb-4",
+          "[&_h1]:text-foreground",
+          "[&_h2]:text-2xl",
+          "[&_h2]:font-semibold",
+          "[&_h2]:mt-5",
+          "[&_h2]:mb-3",
+          "[&_h2]:text-foreground",
+          "[&_h3]:text-xl",
+          "[&_h3]:font-semibold",
+          "[&_h3]:mt-4",
+          "[&_h3]:mb-2",
+          "[&_h3]:text-foreground",
+          // List styles
+          "[&_ul:not([data-type='taskList'])]:list-disc",
+          "[&_ul:not([data-type='taskList'])]:pl-6",
+          "[&_ul:not([data-type='taskList'])]:my-3",
+          "[&_ol]:list-decimal",
+          "[&_ol]:pl-6",
+          "[&_ol]:my-3",
+          "[&_li]:my-1",
+          "[&_li]:pl-1",
+          "[&_li_p]:my-0",
+          // Blockquote styles
+          "[&_blockquote]:border-l-4",
+          "[&_blockquote]:border-primary",
+          "[&_blockquote]:pl-4",
+          "[&_blockquote]:py-2",
+          "[&_blockquote]:my-4",
+          "[&_blockquote]:bg-muted/30",
+          "[&_blockquote]:rounded-r-lg",
+          "[&_blockquote]:italic",
+          "[&_blockquote]:text-muted-foreground",
+          "[&_blockquote_p]:my-0",
         ),
       },
     },
@@ -1259,10 +1405,11 @@ const UEditor = ({
   return (
     <div
       className={cn(
-        "group relative flex flex-col rounded-xl border bg-background overflow-hidden",
-        "transition-all duration-300",
-        "focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/50",
-        variant === "notion" && "shadow-sm hover:shadow-md",
+        "group relative flex flex-col rounded-2xl md:rounded-3xl border border-border bg-card text-card-foreground overflow-hidden",
+        "transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft",
+        "shadow-sm focus-within:shadow-md focus-within:border-primary/15",
+        "backdrop-blur-sm",
+        variant === "notion" && "hover:shadow-md",
         className,
       )}
     >
@@ -1274,6 +1421,9 @@ const UEditor = ({
 
       {/* Custom Floating Menu - appears on empty lines */}
       {editable && showFloatingMenu && <CustomFloatingMenu editor={editor} />}
+
+      {/* Slash Command Menu - appears when typing "/" */}
+      {editable && <SlashCommandTrigger editor={editor} />}
 
       {/* Editor Content */}
       <EditorContent

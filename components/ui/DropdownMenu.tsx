@@ -185,27 +185,58 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   );
 };
 
-// Additional components for backward compatibility
-export const DropdownMenuItem: React.FC<{
-  children: React.ReactNode;
+// ========== Enhanced Dropdown Menu Item ==========
+export interface DropdownMenuItemProps {
+  children?: React.ReactNode;
+  label?: string;
+  description?: string;
+  icon?: React.ComponentType<{ className?: string }>;
   onClick?: () => void;
   disabled?: boolean;
   destructive?: boolean;
+  active?: boolean;
+  shortcut?: string;
   className?: string;
-}> = ({ children, onClick, disabled, destructive, className }) => (
+}
+
+export const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({
+  children,
+  label,
+  description,
+  icon: Icon,
+  onClick,
+  disabled,
+  destructive,
+  active,
+  shortcut,
+  className,
+}) => (
   <button
     onClick={onClick}
     disabled={disabled}
+    onMouseDown={(e) => e.preventDefault()}
     className={cn(
-      "flex w-full items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors",
+      "flex w-full items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors group",
       "hover:bg-accent hover:text-accent-foreground",
       "focus:bg-accent focus:text-accent-foreground focus:outline-none",
       "disabled:opacity-50 disabled:cursor-not-allowed",
       destructive && "text-destructive hover:bg-destructive/10 focus:bg-destructive/10",
+      active && "bg-primary/10 text-primary",
       className,
     )}
   >
-    {children}
+    {Icon && <Icon className={cn("w-4 h-4 shrink-0", active ? "text-primary" : "opacity-60 group-hover:opacity-100")} />}
+    <div className="flex-1 text-left">
+      {label && <div className={cn("font-medium", description && "leading-tight")}>{label}</div>}
+      {description && <div className="text-xs text-muted-foreground">{description}</div>}
+      {children}
+    </div>
+    {shortcut && <span className="ml-2 text-xs text-muted-foreground opacity-60">{shortcut}</span>}
+    {active && (
+      <svg className="w-4 h-4 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    )}
   </button>
 );
 

@@ -1245,7 +1245,8 @@
       "divider": "Divider",
       "dividerDesc": "Visual divider",
       "table": "Table",
-      "tableDesc": "Add a table"
+      "tableDesc": "Add a table",
+      "noResults": "No matching blocks found"
     },
     "floatingMenu": {
       "addBlock": "Add block"

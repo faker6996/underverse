@@ -1275,7 +1275,8 @@
       "divider": "Phân cách",
       "dividerDesc": "Đường kẻ ngang",
       "table": "Bảng",
-      "tableDesc": "Thêm bảng"
+      "tableDesc": "Thêm bảng",
+      "noResults": "Không tìm thấy khối phù hợp"
     },
     "floatingMenu": {
       "addBlock": "Thêm khối"

@@ -82,36 +82,50 @@ interface DropdownMenuProps {
 
 ## DropdownMenuItem
 
+Enhanced menu item with support for icons, labels, descriptions, active state, and keyboard shortcuts.
+
 Props type: `DropdownMenuItemProps`
 
 ```tsx
 import { DropdownMenuItem } from "@underverse-ui/underverse";
+import { Edit, Trash2 } from "lucide-react";
 
 export function Example() {
-  return <DropdownMenuItem>Content</DropdownMenuItem>;
-}
-```
-
-Vi du day du:
-
-```tsx
-import React from "react";
-import { DropdownMenuItem } from "@underverse-ui/underverse";
-
-export function Example() {
-  return <DropdownMenuItem>Noi dung</DropdownMenuItem>;
+  return (
+    <>
+      <DropdownMenuItem icon={Edit} label="Edit" description="Modify this item" shortcut="Ctrl+E" onClick={() => console.log("edit")} />
+      <DropdownMenuItem icon={Trash2} label="Delete" destructive onClick={() => console.log("delete")} />
+      <DropdownMenuItem active label="Selected option" />
+    </>
+  );
 }
 ```
 
 ```ts
-type DropdownMenuItemProps = {
-  children: React.ReactNode;
+interface DropdownMenuItemProps {
+  children?: React.ReactNode;
+  label?: string;
+  description?: string;
+  icon?: React.ComponentType<{ className?: string }>;
   onClick?: () => void;
   disabled?: boolean;
   destructive?: boolean;
+  active?: boolean;
+  shortcut?: string;
   className?: string;
-};
+}
 ```
+
+### DropdownMenuItem Features
+
+| Feature       | Description                               |
+| ------------- | ----------------------------------------- |
+| `icon`        | Left-aligned icon component               |
+| `label`       | Primary text                              |
+| `description` | Secondary description text                |
+| `active`      | Shows checkmark and primary color styling |
+| `shortcut`    | Right-aligned keyboard shortcut hint      |
+| `destructive` | Red styling for dangerous actions         |
 
 ## DropdownMenuSeparator
 
