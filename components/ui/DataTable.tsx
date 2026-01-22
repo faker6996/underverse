@@ -352,7 +352,7 @@ export function DataTable<T extends Record<string, any>>({
                   "flex items-center gap-2 select-none min-h-10",
                   isRightAlign && "justify-end",
                   isCenterAlign && "justify-center",
-                  !isRightAlign && !isCenterAlign && "justify-between",
+                  !isRightAlign && !isCenterAlign && "justify-start",
                 )}
               >
                 {/* Khi căn phải: filter trước, title sau (đối xứng với căn trái) */}
