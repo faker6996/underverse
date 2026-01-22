@@ -94,7 +94,31 @@ All components follow [Vercel Web Interface Guidelines](https://github.com/verce
 
 ---
 
-## 🚀 Quick Start
+## � Entry Points
+
+Package được chia thành 2 entry points để tối ưu cho Server Components:
+
+### Main Entry (Server-safe)
+
+```tsx
+// dist/index.js - Các components không phụ thuộc react-hook-form
+// Có thể sử dụng trong cả Server Components và Client Components
+import { Button, Skeleton, DatePicker, DataTable } from "@underverse-ui/underverse";
+```
+
+### Form Entry (Client-only)
+
+```tsx
+// dist/form.js - Form components (phụ thuộc react-hook-form)
+// Chỉ sử dụng trong Client Components ("use client")
+import { Form, FormField, FormItem, FormLabel, FormMessage } from "@underverse-ui/underverse/form";
+```
+
+**Lưu ý:** Form components yêu cầu `react-hook-form` và `@hookform/resolvers` nên chỉ hoạt động ở client-side.
+
+---
+
+## �🚀 Quick Start
 
 ### Standalone React (Vite, CRA, etc.)
 
