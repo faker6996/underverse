@@ -24,6 +24,8 @@ export type DataTableColumn<T> = {
   filter?: { type: FilterType; options?: string[]; placeholder?: string };
   render?: (value: any, record: T, index: number) => React.ReactNode;
   visible?: boolean; // default true
+  /** Cố định cột bên trái hoặc phải khi cuộn ngang */
+  fixed?: "left" | "right";
 };
 
 export type Sorter = { key: string; order: "asc" | "desc" } | null;
@@ -189,6 +191,55 @@ export function DataTable<T extends Record<string, any>>({
   const visibleColsSet = React.useMemo(() => new Set(visibleCols), [visibleCols]);
   const visibleColumns = columns.filter((c) => visibleColsSet.has(c.key));
 
+  // Tính toán vị trí sticky cho các cột cố định
+  const stickyPositions = React.useMemo(() => {
+    const positions: Record<string, { left?: number; right?: number }> = {};
+
+    // Tính left position cho các cột fixed="left"
+    let leftOffset = 0;
+    for (const col of visibleColumns) {
+      if (col.fixed === "left") {
+        positions[col.key] = { left: leftOffset };
+        const colWidth = typeof col.width === "number" ? col.width : parseInt(String(col.width) || "150", 10);
+        leftOffset += colWidth;
+      }
+    }
+
+    // Tính right position cho các cột fixed="right" (từ phải sang trái)
+    let rightOffset = 0;
+    for (let i = visibleColumns.length - 1; i >= 0; i--) {
+      const col = visibleColumns[i];
+      if (col.fixed === "right") {
+        positions[col.key] = { right: rightOffset };
+        const colWidth = typeof col.width === "number" ? col.width : parseInt(String(col.width) || "150", 10);
+        rightOffset += colWidth;
+      }
+    }
+
+    return positions;
+  }, [visibleColumns]);
+
+  // Helper function để lấy class cho cột cố định
+  const getStickyColumnClass = (col: DataTableColumn<T>, isHeader = false) => {
+    if (!col.fixed) return "";
+    return cn(
+      "sticky z-10 bg-background",
+      col.fixed === "left" && "shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]",
+      col.fixed === "right" && "shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]",
+      isHeader && "z-20", // Header cần z-index cao hơn
+    );
+  };
+
+  // Helper function để lấy style cho cột cố định
+  const getStickyColumnStyle = (col: DataTableColumn<T>): React.CSSProperties => {
+    if (!col.fixed) return {};
+    const pos = stickyPositions[col.key];
+    return {
+      ...(pos?.left !== undefined && { left: pos.left }),
+      ...(pos?.right !== undefined && { right: pos.right }),
+    };
+  };
+
   const getRowKey = (row: T, idx: number) => {
     if (!rowKey) return String(idx);
     if (typeof rowKey === "function") return String(rowKey(row));
@@ -250,13 +301,14 @@ export function DataTable<T extends Record<string, any>>({
       {visibleColumns.map((col, colIdx) => (
         <TableHead
           key={col.key}
-          style={{ width: col.width }}
+          style={{ width: col.width, ...getStickyColumnStyle(col) }}
           className={
             cn(
               // Use column-specific align if defined, otherwise use global headerAlign
               (col.align === "right" || (!col.align && headerAlign === "right")) && "text-right",
               (col.align === "center" || (!col.align && headerAlign === "center")) && "text-center",
               columnDividers && colIdx > 0 && "border-l border-border/60",
+              getStickyColumnClass(col, true),
             ) as string
           }
         >
@@ -562,6 +614,7 @@ export function DataTable<T extends Record<string, any>>({
                       return (
                         <TableCell
                           key={col.key}
+                          style={getStickyColumnStyle(col)}
                           className={
                             cn(
                               cellPadding,
@@ -570,6 +623,9 @@ export function DataTable<T extends Record<string, any>>({
                               columnDividers && colIdx > 0 && "border-l border-border/60",
                               isLastRow && col === visibleColumns[0] && "rounded-bl-2xl md:rounded-bl-3xl",
                               isLastRow && col === visibleColumns[visibleColumns.length - 1] && "rounded-br-2xl md:rounded-br-3xl",
+                              getStickyColumnClass(col),
+                              // Giữ màu nền striped cho cột cố định
+                              col.fixed && striped && idx % 2 === 0 && "bg-muted/50!",
                             ) as string
                           }
                         >

@@ -114,3 +114,69 @@ interface DataTableProps<T> {
   };
 }
 ```
+
+## DataTableColumn
+
+Type định nghĩa cho mỗi cột trong bảng:
+
+```ts
+type DataTableColumn<T> = {
+  key: string; // unique key
+  title: React.ReactNode;
+  dataIndex?: keyof T | string;
+  width?: number | string;
+  align?: "left" | "center" | "right";
+  sortable?: boolean;
+  filter?: { type: FilterType; options?: string[]; placeholder?: string };
+  render?: (value: any, record: T, index: number) => React.ReactNode;
+  visible?: boolean; // default true
+  /** Cố định cột bên trái hoặc phải khi cuộn ngang */
+  fixed?: "left" | "right";
+};
+```
+
+## Sticky Column (Cố định cột)
+
+DataTable hỗ trợ cố định cột bên trái hoặc phải khi cuộn ngang. Sử dụng thuộc tính `fixed` trong column definition:
+
+### Cách sử dụng
+
+```tsx
+const columns: DataTableColumn<MyData>[] = [
+  {
+    key: "id",
+    title: "ID",
+    dataIndex: "id",
+    width: 80,
+    fixed: "left", // Cố định bên trái
+  },
+  { key: "name", title: "Tên", dataIndex: "name", width: 200 },
+  { key: "email", title: "Email", dataIndex: "email", width: 250 },
+  { key: "phone", title: "Điện thoại", dataIndex: "phone", width: 150 },
+  { key: "address", title: "Địa chỉ", dataIndex: "address", width: 300 },
+  {
+    key: "actions",
+    title: "Thao tác",
+    width: 120,
+    fixed: "right", // Cố định bên phải
+    render: (_, record) => <Button>Edit</Button>,
+  },
+];
+```
+
+### Tính năng
+
+| Feature                | Description                                                |
+| ---------------------- | ---------------------------------------------------------- |
+| **fixed="left"**       | Cố định cột bên trái khi cuộn ngang                        |
+| **fixed="right"**      | Cố định cột bên phải khi cuộn ngang                        |
+| **Shadow effect**      | Hiển thị shadow để phân biệt cột cố định với các cột khác  |
+| **Auto position**      | Tự động tính toán vị trí sticky dựa trên width của các cột |
+| **Striped compatible** | Giữ màu nền striped cho các cột cố định                    |
+| **Header sticky**      | Cột cố định ở header có z-index cao hơn để không bị đè lên |
+
+### Lưu ý
+
+- **Bắt buộc có `width`**: Các cột có `fixed` nên có thuộc tính `width` để tính toán vị trí chính xác
+- **Thứ tự cột**: Các cột `fixed="left"` nên đặt ở đầu mảng columns, `fixed="right"` ở cuối
+- **Hiệu suất**: Sử dụng CSS `position: sticky` nên không ảnh hưởng đến performance
