@@ -562,7 +562,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
           )}
         />
         {showSteppers && (
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-0.5">
+          <div className="absolute right-4 top-1/2 -translate-y-[64%] flex flex-col gap-0.5">
             <button
               type="button"
               onClick={handleIncrement}

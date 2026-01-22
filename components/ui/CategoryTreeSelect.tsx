@@ -172,14 +172,12 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
       <div key={category.id} className="animate-in fade-in-50 duration-200" style={{ animationDelay: `${level * 30}ms` }}>
         <div
           className={cn(
-            "relative flex items-center gap-2.5 px-3 py-2.5 transition-all duration-200",
-            "border-l-4 border-l-transparent",
-            // Parent level styling
-            isParent && "bg-muted/25 font-medium",
+            "relative flex items-center gap-2.5 px-3 py-2.5 transition-all duration-200 rounded-lg",
+            // Không phân biệt parent/child - đồng bộ màu
             !viewOnly && "cursor-pointer",
-            !viewOnly && !isSelected && "hover:bg-accent/60 hover:shadow-sm",
-            // Selected state
-            !viewOnly && isSelected && "bg-accent/30 border-l-primary shadow-sm",
+            !viewOnly && !isSelected && "hover:bg-accent/50",
+            // Selected state - đồng bộ cho tất cả
+            !viewOnly && isSelected && "bg-accent/40",
           )}
           style={{ paddingLeft: `${level * 1.25 + 0.75}rem` }}
         >
