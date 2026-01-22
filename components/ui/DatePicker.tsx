@@ -47,6 +47,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const locale = useLocale();
   const [isOpen, setIsOpen] = React.useState(false);
   const [viewDate, setViewDate] = React.useState(value || new Date());
+  const [viewMode, setViewMode] = React.useState<"calendar" | "month" | "year">("calendar");
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const wheelContainerRef = React.useRef<HTMLDivElement>(null);
   const wheelDeltaRef = React.useRef(0);
@@ -62,6 +63,13 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       setViewDate(new Date());
     }
   }, [value]);
+
+  // Reset view mode when popover closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      setViewMode("calendar");
+    }
+  }, [isOpen]);
 
   const handleDateSelect = (date: Date) => {
     // Create date in local timezone, not UTC
@@ -204,13 +212,83 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     return days;
   };
 
+  // Render month selector grid
+  const renderMonthSelector = () => {
+    const months =
+      locale === "vi"
+        ? ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"]
+        : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    return (
+      <div className="grid grid-cols-3 gap-2 p-2">
+        {months.map((month, idx) => {
+          const isSelected = viewDate.getMonth() === idx;
+          return (
+            <button
+              key={month}
+              type="button"
+              onClick={() => {
+                setViewDate(new Date(viewDate.getFullYear(), idx, 1));
+                setViewMode("calendar");
+              }}
+              className={cn(
+                "py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200",
+                isSelected ? "bg-primary text-primary-foreground shadow-md" : "hover:bg-accent/80 text-foreground hover:scale-105",
+              )}
+            >
+              {month}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // Render year selector grid
+  const renderYearSelector = () => {
+    const currentYear = viewDate.getFullYear();
+    const startYear = Math.floor(currentYear / 12) * 12;
+    const years = Array.from({ length: 12 }, (_, i) => startYear + i);
+
+    return (
+      <div className="grid grid-cols-3 gap-2 p-2">
+        {years.map((year) => {
+          const isSelected = viewDate.getFullYear() === year;
+          return (
+            <button
+              key={year}
+              type="button"
+              onClick={() => {
+                setViewDate(new Date(year, viewDate.getMonth(), 1));
+                setViewMode("month");
+              }}
+              className={cn(
+                "py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200",
+                isSelected ? "bg-primary text-primary-foreground shadow-md" : "hover:bg-accent/80 text-foreground hover:scale-105",
+              )}
+            >
+              {year}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // Navigate year range for year selector
+  const navigateYearRange = (direction: "prev" | "next") => {
+    const currentYear = viewDate.getFullYear();
+    const offset = direction === "next" ? 12 : -12;
+    setViewDate(new Date(currentYear + offset, viewDate.getMonth(), 1));
+  };
+
   const datePickerContent = (
     <div ref={wheelContainerRef} data-datepicker className="w-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 px-1">
         <button
           type="button"
-          onClick={() => navigateMonth("prev")}
+          onClick={() => (viewMode === "year" ? navigateYearRange("prev") : navigateMonth("prev"))}
           className={cn(
             "p-2 rounded-xl transition-all duration-200",
             "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground",
@@ -220,15 +298,31 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
-        <div className="flex flex-col items-center">
-          <span className="text-sm font-bold text-foreground">
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setViewMode(viewMode === "month" ? "calendar" : "month")}
+            className={cn(
+              "text-sm font-bold transition-all duration-200 px-2 py-1 rounded-lg",
+              viewMode === "month" ? "bg-primary/15 text-primary" : "text-foreground hover:bg-accent/50",
+            )}
+          >
             {viewDate.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", { month: "long" })}
-          </span>
-          <span className="text-xs text-muted-foreground font-medium">{viewDate.getFullYear()}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode(viewMode === "year" ? "calendar" : "year")}
+            className={cn(
+              "text-sm font-bold transition-all duration-200 px-2 py-1 rounded-lg",
+              viewMode === "year" ? "bg-primary/15 text-primary" : "text-foreground hover:bg-accent/50",
+            )}
+          >
+            {viewDate.getFullYear()}
+          </button>
         </div>
         <button
           type="button"
-          onClick={() => navigateMonth("next")}
+          onClick={() => (viewMode === "year" ? navigateYearRange("next") : navigateMonth("next"))}
           className={cn(
             "p-2 rounded-xl transition-all duration-200",
             "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground",
@@ -240,29 +334,37 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         </button>
       </div>
 
-      {/* Weekday headers */}
-      <div className={cn("grid grid-cols-7 gap-1 mb-2 px-0.5")}>
-        {(weekdayLabels || (locale === "vi" ? ["CN", "T2", "T3", "T4", "T5", "T6", "T7"] : ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"])).map(
-          (day, idx) => (
-            <div
-              key={day}
-              className={cn(
-                "text-center font-bold uppercase tracking-wide",
-                size === "sm" ? "text-[9px] py-1" : "text-[10px] py-1.5",
-                idx === 0 || idx === 6 ? "text-primary/70" : "text-muted-foreground/60",
-              )}
-            >
-              {day}
-            </div>
-          ),
-        )}
-      </div>
+      {/* Content based on view mode */}
+      {viewMode === "calendar" && (
+        <>
+          {/* Weekday headers */}
+          <div className={cn("grid grid-cols-7 gap-1 mb-2 px-0.5")}>
+            {(weekdayLabels || (locale === "vi" ? ["CN", "T2", "T3", "T4", "T5", "T6", "T7"] : ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"])).map(
+              (day, idx) => (
+                <div
+                  key={day}
+                  className={cn(
+                    "text-center font-bold uppercase tracking-wide",
+                    size === "sm" ? "text-[9px] py-1" : "text-[10px] py-1.5",
+                    idx === 0 || idx === 6 ? "text-primary/70" : "text-muted-foreground/60",
+                  )}
+                >
+                  {day}
+                </div>
+              ),
+            )}
+          </div>
 
-      {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-1 p-1 rounded-xl bg-muted/20">{renderCalendar()}</div>
+          {/* Calendar grid */}
+          <div className="grid grid-cols-7 gap-1 p-1 rounded-xl bg-muted/20">{renderCalendar()}</div>
+        </>
+      )}
+
+      {viewMode === "month" && renderMonthSelector()}
+      {viewMode === "year" && renderYearSelector()}
 
       {/* Footer actions */}
-      <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border/50">
+      <div className={cn("flex items-center gap-2 mt-4 pt-3 border-t border-border/50", size === "sm" && "mt-3 pt-2 gap-1.5")}>
         <button
           type="button"
           onClick={() => {
@@ -270,14 +372,15 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             handleDateSelect(today);
           }}
           className={cn(
-            "flex-1 px-3 py-2 text-xs font-semibold rounded-xl",
+            "flex-1 font-semibold rounded-xl",
             "bg-linear-to-r from-primary/10 to-primary/5 border border-primary/30",
             "text-primary hover:from-primary/20 hover:to-primary/10 hover:border-primary/50",
-            "transition-all duration-300 flex items-center justify-center gap-2",
+            "transition-all duration-300 flex items-center justify-center",
             "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:shadow-primary/10",
+            size === "sm" ? "px-2 py-1 text-[10px] gap-1" : "px-3 py-2 text-xs gap-2",
           )}
         >
-          <Sparkles className="w-3.5 h-3.5" />
+          <Sparkles className={size === "sm" ? "w-2.5 h-2.5" : "w-3.5 h-3.5"} />
           {todayLabel || t("today")}
         </button>
         <button
@@ -288,14 +391,15 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             setViewDate(new Date());
           }}
           className={cn(
-            "flex-1 px-3 py-2 text-xs font-semibold rounded-xl",
+            "flex-1 font-semibold rounded-xl",
             "bg-linear-to-r from-destructive/10 to-destructive/5 border border-destructive/30",
             "text-destructive hover:from-destructive/20 hover:to-destructive/10 hover:border-destructive/50",
-            "transition-all duration-300 flex items-center justify-center gap-2",
+            "transition-all duration-300 flex items-center justify-center",
             "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:shadow-destructive/10",
+            size === "sm" ? "px-2 py-1 text-[10px] gap-1" : "px-3 py-2 text-xs gap-2",
           )}
         >
-          <XIcon className="w-3.5 h-3.5" />
+          <XIcon className={size === "sm" ? "w-2.5 h-2.5" : "w-3.5 h-3.5"} />
           {clearLabel || t("clear")}
         </button>
       </div>
@@ -435,25 +539,34 @@ export const DateRangePicker: React.FC<{
   className?: string;
   /** Disable selecting past dates (before today) */
   disablePastDates?: boolean;
-}> = ({ startDate, endDate, onChange, placeholder = "Select date range...", className, disablePastDates = false }) => {
+  /** Size variant */
+  size?: "sm" | "md";
+}> = ({ startDate, endDate, onChange, placeholder = "Select date range...", className, disablePastDates = false, size = "md" }) => {
   const locale = useLocale();
+  const t = useTranslations("DatePicker");
   const [isOpen, setIsOpen] = React.useState(false);
   const wheelContainerRef = React.useRef<HTMLDivElement>(null);
   const wheelDeltaRef = React.useRef(0);
 
+  // Helper to normalize date to local timezone (avoid UTC offset issues)
+  const normalizeToLocal = (date: Date | undefined | null): Date | null => {
+    if (!date) return null;
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  };
+
   // Use passed-in props as the source of truth, but manage a temporary state for selection.
   const [viewDate, setViewDate] = React.useState<Date>(startDate || new Date());
-  const [tempStart, setTempStart] = React.useState<Date | null>(startDate || null);
-  const [tempEnd, setTempEnd] = React.useState<Date | null>(endDate || null);
+  const [tempStart, setTempStart] = React.useState<Date | null>(normalizeToLocal(startDate));
+  const [tempEnd, setTempEnd] = React.useState<Date | null>(normalizeToLocal(endDate));
   const [hoveredDate, setHoveredDate] = React.useState<Date | null>(null);
 
-  // Sync temp state with props
+  // Sync temp state with props (normalize to avoid timezone issues)
   React.useEffect(() => {
-    setTempStart(startDate || null);
+    setTempStart(normalizeToLocal(startDate));
   }, [startDate]);
 
   React.useEffect(() => {
-    setTempEnd(endDate || null);
+    setTempEnd(normalizeToLocal(endDate));
   }, [endDate]);
 
   const isSameDay = (a: Date | null, b: Date | null) => {
@@ -577,7 +690,8 @@ export const DateRangePicker: React.FC<{
           onMouseEnter={() => !isPastDate && tempStart && !tempEnd && setHoveredDate(date)}
           onMouseLeave={() => tempStart && !tempEnd && setHoveredDate(null)}
           className={cn(
-            "w-8 h-8 text-sm transition-all duration-200 focus:outline-none relative font-medium",
+            "transition-all duration-200 focus:outline-none relative font-medium",
+            size === "sm" ? "w-6 h-6 text-xs" : "w-8 h-8 text-sm",
             // Disabled/past date state
             isPastDate && "opacity-30 cursor-not-allowed text-muted-foreground",
             // Default state
@@ -609,45 +723,48 @@ export const DateRangePicker: React.FC<{
   const panel = (
     <div ref={wheelContainerRef} className="w-full">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 px-1">
+      <div className={cn("flex items-center justify-between px-1", size === "sm" ? "mb-2" : "mb-4")}>
         <button
           type="button"
           onClick={() => navigateMonth("prev")}
           className={cn(
-            "p-2 rounded-xl transition-all duration-200",
+            "rounded-xl transition-all duration-200",
+            size === "sm" ? "p-1.5" : "p-2",
             "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground",
             "hover:scale-110 active:scale-95 hover:shadow-md",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
           )}
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className={cn(size === "sm" ? "h-3 w-3" : "h-4 w-4")} />
         </button>
         <div className="flex flex-col items-center">
-          <span className="text-sm font-bold text-foreground">
+          <span className={cn("font-bold text-foreground", size === "sm" ? "text-xs" : "text-sm")}>
             {viewDate.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", { month: "long" })}
           </span>
-          <span className="text-xs text-muted-foreground font-medium">{viewDate.getFullYear()}</span>
+          <span className={cn("text-muted-foreground font-medium", size === "sm" ? "text-[10px]" : "text-xs")}>{viewDate.getFullYear()}</span>
         </div>
         <button
           type="button"
           onClick={() => navigateMonth("next")}
           className={cn(
-            "p-2 rounded-xl transition-all duration-200",
+            "rounded-xl transition-all duration-200",
+            size === "sm" ? "p-1.5" : "p-2",
             "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground",
             "hover:scale-110 active:scale-95 hover:shadow-md",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
           )}
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className={cn(size === "sm" ? "h-3 w-3" : "h-4 w-4")} />
         </button>
       </div>
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 gap-1 mb-2 px-0.5">
+      <div className={cn("grid grid-cols-7 gap-1 px-0.5", size === "sm" ? "mb-1" : "mb-2")}>
         {(locale === "vi" ? ["CN", "T2", "T3", "T4", "T5", "T6", "T7"] : ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]).map((d, idx) => (
           <div
             key={d}
             className={cn(
-              "text-[10px] text-center py-1.5 font-bold uppercase tracking-wide",
+              "text-center font-bold uppercase tracking-wide",
+              size === "sm" ? "text-[8px] py-1" : "text-[10px] py-1.5",
               idx === 0 || idx === 6 ? "text-primary/70" : "text-muted-foreground/60",
             )}
           >
@@ -670,20 +787,21 @@ export const DateRangePicker: React.FC<{
       open={isOpen}
       onOpenChange={setIsOpen}
       placement="bottom-start"
-      contentWidth={280}
+      contentWidth={size === "sm" ? 240 : 280}
       contentClassName={cn(
         "p-0",
         "backdrop-blur-xl bg-popover/95 border-border/40 shadow-2xl",
         "rounded-2xl",
         "max-w-[calc(100vw-1rem)] max-h-[calc(100vh-6rem)] overflow-auto overscroll-contain",
-        "p-5",
+        size === "sm" ? "p-3" : "p-5",
         "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
       )}
       trigger={
         <button
           type="button"
           className={cn(
-            "group flex w-full items-center justify-between rounded-full border bg-background/80 backdrop-blur-sm px-3 py-2.5 text-sm",
+            "group flex w-full items-center justify-between rounded-full border bg-background/80 backdrop-blur-sm",
+            size === "sm" ? "px-2 py-1.5 text-xs" : "px-3 py-2.5 text-sm",
             "border-border/60 hover:border-primary/40",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
@@ -692,14 +810,15 @@ export const DateRangePicker: React.FC<{
             className,
           )}
         >
-          <div className="flex items-center gap-2.5">
+          <div className={cn("flex items-center", size === "sm" ? "gap-1.5" : "gap-2.5")}>
             <div
               className={cn(
-                "flex items-center justify-center rounded-lg p-1.5 transition-all duration-300",
+                "flex items-center justify-center rounded-lg transition-all duration-300",
+                size === "sm" ? "p-1" : "p-1.5",
                 isOpen ? "bg-primary/15 text-primary" : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
               )}
             >
-              <Calendar className={cn("h-4 w-4 transition-transform duration-300", isOpen && "scale-110")} />
+              <Calendar className={cn("transition-transform duration-300", size === "sm" ? "h-3 w-3" : "h-4 w-4", isOpen && "scale-110")} />
             </div>
             <span
               className={cn(
@@ -712,7 +831,7 @@ export const DateRangePicker: React.FC<{
             </span>
           </div>
           <span className={cn("transition-all duration-300 text-muted-foreground group-hover:text-foreground", isOpen && "rotate-180 text-primary")}>
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <svg className={cn(size === "sm" ? "h-3 w-3" : "h-4 w-4")} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </span>

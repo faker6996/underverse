@@ -14,6 +14,10 @@ Underverse UI là thư viện UI components cho React/Next.js với hỗ trợ �
 
 - [TranslationProvider](./TranslationProvider.md) - i18n context cho Standalone React
 
+### 🎨 Design System
+
+- [Color System](../COLOR_SYSTEM.md) - OKLCH tokens, brand configuration, WCAG compliance
+
 ### 📦 Utilities
 
 - [DateUtils](./DateUtils.md) - Date formatting với locale support

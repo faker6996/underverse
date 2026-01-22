@@ -52,6 +52,30 @@ export function Example() {
 }
 ```
 
+### Size variants
+
+```tsx
+// Default size (md)
+<DatePicker value={date} onChange={setDate} />
+
+// Compact size (sm)
+<DatePicker value={date} onChange={setDate} size="sm" />
+```
+
+### Month/Year Selector
+
+DatePicker hỗ trợ chọn tháng và năm nhanh:
+
+- **Click vào tên tháng** → Hiển thị grid chọn tháng (12 tháng)
+- **Click vào năm** → Hiển thị grid chọn năm (20 năm, có nút prev/next)
+
+```tsx
+// Year/Month selector được bật mặc định
+<DatePicker value={date} onChange={setDate} />
+```
+
+````
+
 ### Với TranslationProvider (Standalone React):
 
 ```tsx
@@ -67,7 +91,7 @@ export function App() {
     </TranslationProvider>
   );
 }
-```
+````
 
 ### Override labels thủ công:
 
@@ -146,7 +170,19 @@ type DateRangePickerProps = {
   className?: string;
   /** Disable selecting past dates (before today) */
   disablePastDates?: boolean;
+  /** Size variant */
+  size?: "sm" | "md";
 };
+```
+
+### Size variants (DateRangePicker)
+
+```tsx
+// Default size (md)
+<DateRangePicker startDate={start} endDate={end} onChange={handleChange} />
+
+// Compact size (sm) - useful for filters, toolbars
+<DateRangePicker startDate={start} endDate={end} onChange={handleChange} size="sm" />
 ```
 
 ### Disable Past Dates (DateRangePicker)
