@@ -107,8 +107,7 @@ export * from "../../../components/ui/Loading";
 export { default as DataTable } from "../../../components/ui/DataTable";
 export type { DataTableColumn, DataTableQuery, Sorter } from "../../../components/ui/DataTable";
 export * from "../../../components/ui/Table";
-// Form is now in separate entry point: import from "@underverse-ui/underverse/form"
-// This avoids react-hook-form dependency in Server Components
+export * from "../../../components/ui/Form";
 export { default as NotificationModal } from "../../../components/ui/NotificationModal";
 export { default as FloatingContacts } from "../../../components/ui/FloatingContacts";
 export { default as AccessDenied } from "../../../components/ui/AccessDenied";

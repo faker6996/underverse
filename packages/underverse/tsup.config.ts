@@ -2,10 +2,7 @@ import { defineConfig } from "tsup";
 import path from "path";
 
 export default defineConfig({
-  entry: {
-    index: "src/index.ts",
-    form: "src/form.ts",
-  },
+  entry: ["src/index.ts"],
   format: ["esm", "cjs"],
   dts: true,
   sourcemap: true,
