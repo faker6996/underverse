@@ -20,8 +20,8 @@ export interface TimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   required?: boolean;
   format?: TimeFormat; // 24 or 12
   includeSeconds?: boolean;
-  minuteStep?: number; // default 5
-  secondStep?: number; // default 5
+  minuteStep?: number; // default 1
+  secondStep?: number; // default 1
   clearable?: boolean;
   /** Visual variant of the picker */
   variant?: TimePickerVariant;
@@ -306,8 +306,8 @@ export default function TimePicker({
   required,
   format = "24",
   includeSeconds = false,
-  minuteStep = 5,
-  secondStep = 5,
+  minuteStep = 1,
+  secondStep = 1,
   clearable = true,
   variant = "default",
   showNow = false,
@@ -514,7 +514,6 @@ export default function TimePicker({
   };
 
   const sz = sizeClasses[size];
-  const radiusClass = size === "sm" ? "rounded-md" : "rounded-lg";
 
   const display = formatTime(parts, format, includeSeconds);
 
@@ -527,16 +526,15 @@ export default function TimePicker({
         aria-haspopup="dialog"
         aria-expanded={open}
         className={cn(
-          "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
+          "group flex w-full items-center justify-between rounded-full border bg-background/80 backdrop-blur-sm",
           sz.height,
           sz.padding,
           sz.text,
-          radiusClass,
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           "transition-all duration-300 ease-out",
           error && "border-destructive/60 focus-visible:ring-destructive/50 bg-destructive/5",
-          success && "border-green-500/60 focus-visible:ring-green-500/50 bg-green-500/5",
+          success && "border-success/60 focus-visible:ring-success/50 bg-success/5",
           !error && !success && "border-border/60 hover:border-primary/40 hover:bg-accent/10",
           animate && !disabled && "hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
           open && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
@@ -550,7 +548,7 @@ export default function TimePicker({
               error
                 ? "bg-destructive/10 text-destructive"
                 : success
-                  ? "bg-green-500/10 text-green-500"
+                  ? "bg-success/10 text-success"
                   : open
                     ? "bg-primary/15 text-primary"
                     : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
@@ -900,7 +898,7 @@ export default function TimePicker({
         contentClassName={cn(
           "p-5 rounded-2xl border bg-popover/95 backdrop-blur-xl shadow-2xl",
           error && "border-destructive/40",
-          success && "border-green-500/40",
+          success && "border-success/40",
           !error && !success && "border-border/60",
           animate && "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
         )}
@@ -918,7 +916,7 @@ export default function TimePicker({
             </div>
           )}
           {success && !error && (
-            <div className="flex items-center gap-2 text-green-600 bg-green-500/10 px-3 py-1.5 rounded-lg">
+            <div className="flex items-center gap-2 text-success bg-success/10 px-3 py-1.5 rounded-lg">
               <Check className="w-3.5 h-3.5 shrink-0" />
               <span className="font-medium">Valid time selected</span>
             </div>

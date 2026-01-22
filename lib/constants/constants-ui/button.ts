@@ -35,8 +35,8 @@ export const VARIANT_STYLES_BTN = {
   // Link: chỉ văn bản
   link: "text-primary bg-transparent underline-offset-4 hover:underline hover:text-primary/85 transition-colors",
 
-  // Gradient: tuỳ chọn, giảm shadow
-  gradient: "bg-linear-to-r from-primary via-secondary to-accent text-primary-foreground hover:opacity-90 shadow-sm border border-primary/10",
+  // Gradient: smooth gradient từ primary → secondary (cùng tone)
+  gradient: "bg-linear-to-r from-primary via-primary/80 to-secondary text-primary-foreground hover:opacity-90 shadow-md border-0",
 };
 
 export const SIZE_STYLES_BTN = {

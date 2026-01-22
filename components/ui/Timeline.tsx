@@ -100,10 +100,10 @@ const SIZE_STYLE: Record<
 const STATUS_COLOR: Record<NonNullable<TimelineItemProps["status"]>, string> = {
   default: "bg-muted/60",
   primary: "bg-primary",
-  success: "bg-green-500",
-  warning: "bg-yellow-500",
-  error: "bg-red-500",
-  info: "bg-blue-500",
+  success: "bg-success",
+  warning: "bg-warning",
+  error: "bg-destructive",
+  info: "bg-info",
 };
 
 const TimelineContext = React.createContext<{

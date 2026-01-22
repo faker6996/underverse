@@ -424,10 +424,10 @@ export default function ColorPicker({
                   onClick={copyToClipboard}
                   className={cn(
                     "h-9 px-3 rounded-lg border border-border text-xs hover:bg-accent/10 transition-colors flex items-center gap-1.5",
-                    copied && "bg-green-500/10 border-green-500/30",
+                    copied && "bg-success/10 border-success/30",
                   )}
                 >
-                  {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
                   {variant === "full" && (copied ? "Copied!" : "Copy")}
                 </button>
               )}
@@ -462,10 +462,10 @@ export default function ColorPicker({
                 onClick={copyToClipboard}
                 className={cn(
                   "h-9 w-9 rounded-lg border border-border hover:bg-accent/10 transition-colors flex items-center justify-center",
-                  copied && "bg-green-500/10 border-green-500/30",
+                  copied && "bg-success/10 border-success/30",
                 )}
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
               </button>
             )}
           </div>
