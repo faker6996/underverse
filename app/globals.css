@@ -2,126 +2,171 @@
 @config "../tailwind.config.ts";
 
 :root {
-  --background: oklch(97% 0 0); /* Very light gray - subtle backdrop */
-  --foreground: oklch(25% 0 0); /* Dark charcoal - improved contrast for readability */
+  /* =========================
+   * BRAND CONFIG (đổi brand chỉ cần sửa ở đây)
+   * ========================= */
+  --brand-h: 255; /* Brand hue: 255=Blue, 145=Green, 280=Purple, 25=Orange */
+  --brand-c: 0.18; /* Brand chroma: Blue 0.18, Green 0.15, Purple 0.14 */
+  --secondary-h: 280; /* Secondary hue: thường là complementary/analogous */
+  --secondary-c: 0.12;
+  --neutral-h: 255; /* Neutral tint: thường = brand-h hoặc 0 (pure gray) */
 
-  --card: oklch(100% 0 0); /* Pure white - elevated card surfaces */
-  --card-foreground: oklch(25% 0 0); /* Dark charcoal - card text */
+  /* Semantic hues (KHÔNG đổi theo brand) */
+  --info-h: 210; /* Cyan/Sky - system messages */
+  --success-h: 145; /* Green - positive */
+  --warning-h: 60; /* Amber - caution (55-65 range) */
+  --destructive-h: 22; /* Red - danger */
 
-  --popover: oklch(100% 0 0); /* Pure white - dropdown/modal backgrounds */
-  --popover-foreground: oklch(25% 0 0); /* Dark charcoal - popup text */
+  /* -----------------------
+   * NEUTRAL (tinted với neutral-h)
+   * ----------------------- */
+  --background: oklch(97% 0.008 var(--neutral-h));
+  --foreground: oklch(22% 0.012 var(--neutral-h));
 
-  /* Brand primary: Vibrant blue */
-  --primary: oklch(50% 0.238 255); /* Deep blue - WCAG AA compliant with white text */
-  --primary-foreground: oklch(98.5% 0 0); /* Near white text on blue */
+  --card: oklch(99.5% 0.006 var(--neutral-h));
+  --card-foreground: var(--foreground);
 
-  --secondary: oklch(50% 0.15 280); /* Purple/indigo tone - WCAG AA compliant */
-  --secondary-foreground: oklch(98.5% 0 0); /* Near white - text on secondary */
+  --popover: oklch(100% 0.004 var(--neutral-h));
+  --popover-foreground: var(--foreground);
 
-  --muted: oklch(96.1% 0 0); /* Very light gray - muted backgrounds */
-  --muted-foreground: oklch(45% 0 0); /* Medium-dark gray - WCAG AA compliant contrast */
+  /* Surfaces (ramp rõ để dashboard/landing đều ổn) */
+  --surface-0: var(--background);
+  --surface-1: oklch(99% 0.006 var(--neutral-h));
+  --surface-2: oklch(98% 0.007 var(--neutral-h));
+  --surface-3: oklch(97% 0.008 var(--neutral-h));
 
-  /* Accent: soft tint of primary (~primary/20) */
-  --accent: color-mix(in oklch, var(--primary) 20%, var(--background) 80%);
-  --accent-foreground: oklch(20.5% 0 0); /* Dark gray - text on accents */
+  /* Muted */
+  --muted: oklch(95.5% 0.01 var(--neutral-h));
+  --muted-foreground: oklch(46% 0.012 var(--neutral-h));
 
-  --input-focus: var(--primary); /* Focus ring color for inputs */
-  --input-disabled: oklch(96% 0 0); /* Disabled input background */
-  --input-invalid: var(--destructive); /* Invalid input color */
+  /* Borders / inputs (tinted + alpha) */
+  --border: oklch(28% 0.012 var(--neutral-h) / 0.14);
+  --input: oklch(28% 0.012 var(--neutral-h) / 0.22);
 
-  --destructive: oklch(55% 0.191 22.216); /* Deep red - WCAG AA compliant */
-  --destructive-foreground: oklch(98.5% 0 0); /* Near white - text on red buttons */
+  /* -----------------------
+   * BRAND / ACTION (derived từ brand-h, brand-c)
+   * ----------------------- */
+  --primary: oklch(52% var(--brand-c) var(--brand-h));
+  --primary-foreground: oklch(98.5% 0 0);
 
-  --border: oklch(20.5% 0 0 / 0.15); /* 15% transparent dark - visible borders */
-  --input: oklch(20.5% 0 0 / 0.2); /* 20% transparent dark - input borders */
-  --ring: var(--primary); /* Match focus ring to primary */
+  --secondary: oklch(54% var(--secondary-c) var(--secondary-h));
+  --secondary-foreground: oklch(98.5% 0 0);
 
-  --radius: 0.5rem; /* 8px border radius */
+  /* Accent = tint của primary trên neutral */
+  --accent: color-mix(in oklch, var(--primary) 14%, var(--background));
+  --accent-foreground: var(--foreground);
 
-  --success: oklch(42% 0.18 145); /* Deep green - WCAG AA compliant */
-  --success-foreground: oklch(98.5% 0 0); /* Near white - text on green */
+  /* Focus ring derived từ primary + background (ổn định hơn white) */
+  --ring: color-mix(in oklch, var(--primary) 70%, var(--background) 30%);
+  --input-focus: var(--ring);
+  --input-disabled: oklch(95% 0.01 var(--neutral-h));
+  --input-invalid: var(--destructive);
 
-  --warning: oklch(55% 0.18 55); /* Deep orange - WCAG AA compliant */
-  --warning-foreground: oklch(98.5% 0 0); /* Near white - text on warning */
+  /* Radius */
+  --radius: 0.5rem;
 
-  --info: oklch(50% 0.2 240); /* Deep blue - WCAG AA compliant */
-  --info-foreground: oklch(98.5% 0 0); /* Near white - text on blue */
+  /* -----------------------
+   * SEMANTIC (solid + foreground)
+   * Các hue cố định, KHÔNG đổi theo brand
+   * ----------------------- */
+  --destructive: oklch(56% 0.19 var(--destructive-h));
+  --destructive-foreground: oklch(98.5% 0 0);
 
-  /* Surface elevation levels for depth */
-  --surface-0: oklch(100% 0 0); /* Base surface */
-  --surface-1: oklch(99% 0 0); /* Slightly elevated */
-  --surface-2: oklch(98% 0 0); /* More elevated */
-  --surface-3: oklch(97% 0 0); /* Highest elevation */
+  --success: oklch(44% 0.16 var(--success-h));
+  --success-foreground: oklch(98.5% 0 0);
 
-  /* Shadow system for elevation */
+  --warning: oklch(62% 0.16 var(--warning-h));
+  --warning-foreground: oklch(22% 0.012 var(--neutral-h));
+
+  --info: oklch(62% 0.14 var(--info-h));
+  --info-foreground: oklch(98.5% 0 0);
+
+  /* Soft variants (derived automatically) */
+  --primary-soft: color-mix(in oklch, var(--primary) 12%, var(--background));
+  --secondary-soft: color-mix(in oklch, var(--secondary) 12%, var(--background));
+  --success-soft: color-mix(in oklch, var(--success) 12%, var(--background));
+  --warning-soft: color-mix(in oklch, var(--warning) 14%, var(--background));
+  --info-soft: color-mix(in oklch, var(--info) 12%, var(--background));
+  --destructive-soft: color-mix(in oklch, var(--destructive) 12%, var(--background));
+
+  /* Shadows */
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 
-  /* Normalized light controls */
   color-scheme: light;
 }
 
 .dark {
-  --background: oklch(18% 0.03 255); /* Deep blue-black - softer dark backdrop with blue tint */
-  --foreground: oklch(96% 0.01 255); /* Near white with slight blue tint */
+  /* Brand config được kế thừa từ :root, chỉ override nếu cần */
 
-  --card: oklch(22% 0.03 255); /* Dark blue-gray - elevated card surfaces */
-  --card-foreground: oklch(96% 0.01 255); /* Near white - text on cards */
+  /* Neutral tinted for dark (cùng neutral-h, C tăng nhẹ để "đắt" hơn) */
+  --background: oklch(18% 0.02 var(--neutral-h));
+  --foreground: oklch(94% 0.012 var(--neutral-h));
 
-  --popover: oklch(24% 0.035 255); /* Medium dark blue-gray - floating elements */
-  --popover-foreground: oklch(96% 0.01 255); /* Near white - popup text */
+  --card: oklch(22% 0.022 var(--neutral-h));
+  --card-foreground: var(--foreground);
 
-  /* Brighter primary tuned for dark surfaces (blue) */
-  --primary: oklch(55% 0.24 255); /* Deep blue - WCAG AA compliant */
-  --primary-foreground: oklch(98.5% 0 0); /* Near white text on blue */
+  --popover: oklch(24% 0.024 var(--neutral-h));
+  --popover-foreground: var(--foreground);
 
-  --secondary: oklch(55% 0.15 280); /* Purple/indigo - WCAG AA compliant UI */
-  --secondary-foreground: oklch(98.5% 0.01 255); /* Near white - text on secondary */
+  --surface-0: var(--background);
+  --surface-1: oklch(20% 0.022 var(--neutral-h));
+  --surface-2: oklch(22% 0.022 var(--neutral-h));
+  --surface-3: oklch(24% 0.024 var(--neutral-h));
 
-  --muted: oklch(25% 0.03 255); /* Dark blue-gray - muted areas */
-  --muted-foreground: oklch(65% 0.02 255); /* Light-medium gray - improved muted text contrast */
+  --muted: oklch(26% 0.022 var(--neutral-h));
+  --muted-foreground: oklch(72% 0.014 var(--neutral-h));
 
-  /* Accent: soft tint of primary on dark background (~primary/20) */
-  --accent: color-mix(in oklch, var(--primary) 20%, var(--background) 80%);
-  --accent-foreground: var(--primary-foreground); /* Light text on tinted accent */
+  /* Border/input: hơi sáng hơn để thấy viền nhưng không "neon" */
+  --border: oklch(92% 0.012 var(--neutral-h) / 0.18);
+  --input: oklch(92% 0.012 var(--neutral-h) / 0.24);
 
-  --input-focus: var(--primary); /* Focus ring color for inputs */
-  --input-disabled: oklch(25% 0.03 255); /* Disabled input background */
-  --input-invalid: var(--destructive); /* Invalid input color */
+  /* Primary: tăng L cho dark, giữ brand-h và brand-c */
+  --primary: oklch(70% var(--brand-c) var(--brand-h));
+  --primary-foreground: oklch(10% 0 0); /* Neutral black - sạch, không color cast */
 
-  --destructive: oklch(55% 0.191 22.216); /* Deep red - WCAG AA compliant */
-  --destructive-foreground: oklch(98.5% 0 0); /* Near white - text on red */
+  --secondary: oklch(62% var(--secondary-c) var(--secondary-h));
+  --secondary-foreground: oklch(10% 0 0); /* Neutral black */
 
-  --border: oklch(100% 0.02 255 / 0.2); /* Visible blue-tinted borders */
-  --input: oklch(100% 0.02 255 / 0.25); /* Bright blue-tinted input borders */
-  --ring: var(--primary); /* Match focus ring to primary */
+  --accent: color-mix(in oklch, var(--primary) 14%, var(--background));
+  --accent-foreground: var(--foreground);
 
-  --success: oklch(50% 0.18 145); /* Bright green - WCAG AA compliant UI */
-  --success-foreground: oklch(98.5% 0 0); /* Near white - text on green */
+  --ring: color-mix(in oklch, var(--primary) 60%, var(--background) 40%);
+  --input-focus: var(--ring);
+  --input-disabled: oklch(26% 0.022 var(--neutral-h));
+  --input-invalid: var(--destructive);
 
-  --warning: oklch(55% 0.18 55); /* Deep orange - WCAG AA compliant */
-  --warning-foreground: oklch(98.5% 0 0); /* Near white - text on warning */
+  /* Semantic: nâng L lên để nổi trên nền tối */
+  --destructive: oklch(62% 0.19 var(--destructive-h));
+  --destructive-foreground: oklch(10% 0.02 var(--neutral-h));
 
-  --info: oklch(52% 0.2 240); /* Deep blue - WCAG AA compliant */
-  --info-foreground: oklch(98.5% 0 0); /* Near white - text on blue */
+  --success: oklch(62% 0.16 var(--success-h));
+  --success-foreground: oklch(10% 0.02 var(--neutral-h));
 
-  /* Surface elevation levels for depth in dark mode */
-  --surface-0: oklch(18% 0.03 255); /* Base surface */
-  --surface-1: oklch(20% 0.03 255); /* Slightly elevated */
-  --surface-2: oklch(22% 0.03 255); /* More elevated */
-  --surface-3: oklch(24% 0.03 255); /* Highest elevation */
+  --warning: oklch(78% 0.14 var(--warning-h));
+  --warning-foreground: oklch(12% 0.02 var(--neutral-h));
 
-  /* Shadow system for elevation in dark mode - more subtle */
+  --info: oklch(76% 0.11 var(--info-h));
+  --info-foreground: oklch(12% 0.02 var(--neutral-h));
+
+  /* Soft variants (derived automatically) */
+  --primary-soft: color-mix(in oklch, var(--primary) 16%, var(--background));
+  --secondary-soft: color-mix(in oklch, var(--secondary) 16%, var(--background));
+  --success-soft: color-mix(in oklch, var(--success) 16%, var(--background));
+  --warning-soft: color-mix(in oklch, var(--warning) 18%, var(--background));
+  --info-soft: color-mix(in oklch, var(--info) 16%, var(--background));
+  --destructive-soft: color-mix(in oklch, var(--destructive) 16%, var(--background));
+
+  /* Shadows cho dark: "mềm" + ít gắt */
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.45), 0 2px 4px -2px rgb(0 0 0 / 0.45);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.55), 0 8px 10px -6px rgb(0 0 0 / 0.55);
 
-  /* Normalized dark controls */
   color-scheme: dark;
 }
 
@@ -134,23 +179,29 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-soft: var(--secondary-soft);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-soft: var(--destructive-soft);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
+  --color-info-soft: var(--info-soft);
   --color-input-focus: var(--input-focus);
   --color-input-disabled: var(--input-disabled);
   --color-input-invalid: var(--input-invalid);
