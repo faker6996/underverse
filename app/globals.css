@@ -144,10 +144,10 @@
   --destructive-foreground: oklch(10% 0.02 var(--neutral-h));
 
   --success: oklch(62% 0.16 var(--success-h));
-  --success-foreground: oklch(10% 0.02 var(--neutral-h));
+  --success-foreground: oklch(98% 0 0); /* White text for dark green background */
 
   --warning: oklch(78% 0.14 var(--warning-h));
-  --warning-foreground: oklch(12% 0.02 var(--neutral-h));
+  --warning-foreground: oklch(5% 0 0); /* Pure black for better contrast */
 
   --info: oklch(76% 0.11 var(--info-h));
   --info-foreground: oklch(12% 0.02 var(--neutral-h));
