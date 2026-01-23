@@ -197,6 +197,14 @@ export function DataTable<T extends Record<string, any>>({
   const visibleColsSet = React.useMemo(() => new Set(visibleCols), [visibleCols]);
   const visibleColumns = columns.filter((c) => visibleColsSet.has(c.key));
 
+  // Tính tổng width của tất cả các cột để set min-width cho table
+  const totalColumnsWidth = React.useMemo(() => {
+    return visibleColumns.reduce((sum, col) => {
+      const colWidth = typeof col.width === "number" ? col.width : parseInt(String(col.width) || "150", 10);
+      return sum + colWidth;
+    }, 0);
+  }, [visibleColumns]);
+
   // Tính toán vị trí sticky cho các cột cố định
   const stickyPositions = React.useMemo(() => {
     const positions: Record<string, { left?: number; right?: number }> = {};
@@ -606,6 +614,7 @@ export function DataTable<T extends Record<string, any>>({
             "table-fixed",
             stickyHeader && ["[&_thead]:sticky", "[&_thead]:top-0", "[&_thead]:z-20", "[&_thead]:shadow-[0_1px_3px_rgba(0,0,0,0.1)]"],
           )}
+          style={{ minWidth: totalColumnsWidth > 0 ? `${totalColumnsWidth}px` : undefined }}
         >
           <TableHeader>{renderHeader}</TableHeader>
           <TableBody>
