@@ -16,8 +16,7 @@
   --success-h: 145; /* Green - positive */
   --warning-h: 60; /* Amber - caution (55-65 range) */
   --destructive-h: 22; /* Red - danger */
-
-  /* -----------------------
+/* -----------------------
    * NEUTRAL (tinted với neutral-h)
    * ----------------------- */
   --background: oklch(97% 0.008 var(--neutral-h));
@@ -37,11 +36,11 @@
 
   /* Muted */
   --muted: oklch(95.5% 0.01 var(--neutral-h));
-  --muted-foreground: oklch(46% 0.012 var(--neutral-h));
+  --muted-foreground: oklch(40% 0.012 var(--neutral-h));
 
   /* Borders / inputs (tinted + alpha) */
-  --border: oklch(28% 0.012 var(--neutral-h) / 0.14);
-  --input: oklch(28% 0.012 var(--neutral-h) / 0.22);
+  --border: oklch(70% 0.01 var(--neutral-h) / 0.22);
+  --input: oklch(70% 0.01 var(--neutral-h) / 0.3);
 
   /* -----------------------
    * BRAND / ACTION (derived từ brand-h, brand-c)
@@ -53,7 +52,7 @@
   --secondary-foreground: oklch(98.5% 0 0);
 
   /* Accent = tint của primary trên neutral */
-  --accent: color-mix(in oklch, var(--primary) 14%, var(--background));
+  --accent: color-mix(in oklch, var(--primary) 18%, var(--background));
   --accent-foreground: var(--foreground);
 
   /* Focus ring derived từ primary + background (ổn định hơn white) */
@@ -76,7 +75,7 @@
   --success-foreground: oklch(98.5% 0 0);
 
   --warning: oklch(62% 0.16 var(--warning-h));
-  --warning-foreground: oklch(98.5% 0 0); /* White text for better contrast */
+  --warning-foreground: oklch(16% 0.012 var(--neutral-h));
 
   --info: oklch(62% 0.14 var(--info-h));
   --info-foreground: oklch(98.5% 0 0);
@@ -169,7 +168,6 @@
 
   color-scheme: dark;
 }
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
