@@ -72,11 +72,11 @@
   --destructive: oklch(56% 0.19 var(--destructive-h));
   --destructive-foreground: oklch(98.5% 0 0);
 
-  --success: oklch(44% 0.16 var(--success-h));
+  --success: oklch(52% 0.16 var(--success-h));
   --success-foreground: oklch(98.5% 0 0);
 
   --warning: oklch(62% 0.16 var(--warning-h));
-  --warning-foreground: oklch(22% 0.012 var(--neutral-h));
+  --warning-foreground: oklch(98.5% 0 0); /* White text for better contrast */
 
   --info: oklch(62% 0.14 var(--info-h));
   --info-foreground: oklch(98.5% 0 0);
@@ -126,10 +126,10 @@
 
   /* Primary: tăng L cho dark, giữ brand-h và brand-c */
   --primary: oklch(70% var(--brand-c) var(--brand-h));
-  --primary-foreground: oklch(10% 0 0); /* Neutral black - sạch, không color cast */
+  --primary-foreground: oklch(98.5% 0 0); /* White text for better contrast on colored backgrounds */
 
   --secondary: oklch(62% var(--secondary-c) var(--secondary-h));
-  --secondary-foreground: oklch(10% 0 0); /* Neutral black */
+  --secondary-foreground: oklch(98.5% 0 0); /* White text for better contrast */
 
   --accent: color-mix(in oklch, var(--primary) 14%, var(--background));
   --accent-foreground: var(--foreground);
@@ -141,16 +141,16 @@
 
   /* Semantic: nâng L lên để nổi trên nền tối */
   --destructive: oklch(62% 0.19 var(--destructive-h));
-  --destructive-foreground: oklch(10% 0.02 var(--neutral-h));
+  --destructive-foreground: oklch(98.5% 0 0); /* White text for better contrast */
 
   --success: oklch(62% 0.16 var(--success-h));
   --success-foreground: oklch(98% 0 0); /* White text for dark green background */
 
-  --warning: oklch(78% 0.14 var(--warning-h));
-  --warning-foreground: oklch(5% 0 0); /* Pure black for better contrast */
+  --warning: oklch(68% 0.15 var(--warning-h));
+  --warning-foreground: oklch(98.5% 0 0); /* White text for better contrast */
 
   --info: oklch(76% 0.11 var(--info-h));
-  --info-foreground: oklch(12% 0.02 var(--neutral-h));
+  --info-foreground: oklch(98.5% 0 0); /* White text for better contrast */
 
   /* Soft variants (derived automatically) */
   --primary-soft: color-mix(in oklch, var(--primary) 16%, var(--background));
