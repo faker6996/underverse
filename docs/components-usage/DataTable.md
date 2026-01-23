@@ -101,6 +101,10 @@ interface DataTableProps<T> {
   className?: string;
   /** Key để lưu pageSize vào localStorage. Nếu không cung cấp, pageSize sẽ không được persist */
   storageKey?: string;
+  /** Cố định header khi cuộn dọc. Mặc định là true */
+  stickyHeader?: boolean;
+  /** Chiều cao tối đa của bảng khi bật stickyHeader. Mặc định là 500px */
+  maxHeight?: number | string;
   labels?: {
     density?: string;
     columns?: string;
@@ -137,7 +141,7 @@ type DataTableColumn<T> = {
 
 ## Sticky Column (Cố định cột)
 
-DataTable hỗ trợ cố định cột bên trái hoặc phải khi cuộn ngang. Sử dụng thuộc tính `fixed` trong column definition:
+DataTable hỗ trợ cố định một hoặc nhiều cột bên trái hoặc phải khi cuộn ngang. Sử dụng thuộc tính `fixed` trong column definition:
 
 ### Cách sử dụng
 
@@ -164,12 +168,39 @@ const columns: DataTableColumn<MyData>[] = [
 ];
 ```
 
+### Cố định nhiều cột
+
+Bạn có thể cố định nhiều cột cùng lúc. Các cột sẽ tự động tính toán vị trí dựa trên width của nhau:
+
+```tsx
+const columns: DataTableColumn<MyData>[] = [
+  // 2 cột cố định bên trái
+  { key: "select", title: <Checkbox />, width: 48, fixed: "left" },
+  { key: "id", title: "ID", dataIndex: "id", width: 80, fixed: "left" },
+
+  // Các cột bình thường
+  { key: "name", title: "Tên", dataIndex: "name", width: 200 },
+  { key: "email", title: "Email", dataIndex: "email", width: 250 },
+  { key: "phone", title: "Điện thoại", dataIndex: "phone", width: 150 },
+
+  // 2 cột cố định bên phải
+  { key: "status", title: "Trạng thái", dataIndex: "status", width: 100, fixed: "right" },
+  { key: "actions", title: "Thao tác", width: 120, fixed: "right", render: ... },
+];
+```
+
+Kết quả:
+
+- **Bên trái**: Cột `select` (left: 0px), cột `id` (left: 48px) - tự động xếp chồng
+- **Bên phải**: Cột `actions` (right: 0px), cột `status` (right: 120px) - tự động xếp chồng
+
 ### Tính năng
 
 | Feature                | Description                                                |
 | ---------------------- | ---------------------------------------------------------- |
 | **fixed="left"**       | Cố định cột bên trái khi cuộn ngang                        |
 | **fixed="right"**      | Cố định cột bên phải khi cuộn ngang                        |
+| **Multiple columns**   | Hỗ trợ cố định nhiều cột cùng lúc, tự động tính vị trí     |
 | **Shadow effect**      | Hiển thị shadow để phân biệt cột cố định với các cột khác  |
 | **Auto position**      | Tự động tính toán vị trí sticky dựa trên width của các cột |
 | **Striped compatible** | Giữ màu nền striped cho các cột cố định                    |
@@ -177,6 +208,63 @@ const columns: DataTableColumn<MyData>[] = [
 
 ### Lưu ý
 
-- **Bắt buộc có `width`**: Các cột có `fixed` nên có thuộc tính `width` để tính toán vị trí chính xác
+- **Bắt buộc có `width`**: Các cột có `fixed` **phải** có thuộc tính `width` để tính toán vị trí chính xác
 - **Thứ tự cột**: Các cột `fixed="left"` nên đặt ở đầu mảng columns, `fixed="right"` ở cuối
 - **Hiệu suất**: Sử dụng CSS `position: sticky` nên không ảnh hưởng đến performance
+
+## Sticky Header (Cố định header)
+
+DataTable hỗ trợ cố định header khi cuộn dọc. Mặc định được bật (`stickyHeader={true}`).
+
+### Cách sử dụng
+
+```tsx
+<DataTable
+  columns={columns}
+  data={data}
+  stickyHeader={true} // Mặc định là true
+  maxHeight={400} // Chiều cao tối đa, mặc định 500px
+/>
+```
+
+### Props
+
+| Prop           | Type             | Default | Description                                    |
+| -------------- | ---------------- | ------- | ---------------------------------------------- |
+| `stickyHeader` | `boolean`        | `true`  | Cố định header khi cuộn dọc                    |
+| `maxHeight`    | `number\|string` | `500`   | Chiều cao tối đa của bảng (px hoặc CSS string) |
+
+### Tính năng
+
+| Feature           | Description                                                     |
+| ----------------- | --------------------------------------------------------------- |
+| **Auto scroll**   | Tự động hiển thị thanh cuộn dọc khi nội dung vượt quá maxHeight |
+| **Header fixed**  | Header luôn hiển thị ở trên cùng khi cuộn                       |
+| **Shadow effect** | Header có shadow nhẹ để phân biệt với body                      |
+| **Compatible**    | Hoạt động tốt với cột cố định (fixed columns)                   |
+
+### Ví dụ kết hợp Sticky Header và Sticky Column
+
+```tsx
+const columns: DataTableColumn<User>[] = [
+  { key: "id", title: "ID", dataIndex: "id", width: 80, fixed: "left" },
+  { key: "name", title: "Name", dataIndex: "name", width: 200 },
+  { key: "email", title: "Email", dataIndex: "email", width: 250 },
+  { key: "phone", title: "Phone", dataIndex: "phone", width: 150 },
+  { key: "address", title: "Address", dataIndex: "address", width: 300 },
+  { key: "actions", title: "Actions", width: 120, fixed: "right", render: ... },
+];
+
+<DataTable
+  columns={columns}
+  data={data}
+  stickyHeader={true}
+  maxHeight={400}
+  striped
+/>
+```
+
+Khi cuộn:
+
+- **Cuộn dọc**: Header cố định ở trên
+- **Cuộn ngang**: Cột ID (trái) và Actions (phải) cố định

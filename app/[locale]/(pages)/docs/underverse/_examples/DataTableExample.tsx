@@ -232,6 +232,18 @@ export default function DataTableExample() {
                     },
                     { property: "enableHeaderAlignToggle", description: "Bật nút căn header", type: "boolean", default: "false" },
                     {
+                      property: "stickyHeader",
+                      description: "Cố định header khi cuộn dọc",
+                      type: "boolean",
+                      default: "true",
+                    },
+                    {
+                      property: "maxHeight",
+                      description: "Chiều cao tối đa của bảng khi bật stickyHeader",
+                      type: "number | string",
+                      default: "500",
+                    },
+                    {
                       property: "storageKey",
                       description: "Key để lưu pageSize vào localStorage. Nếu không cung cấp, pageSize sẽ không được persist",
                       type: "string",
