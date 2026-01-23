@@ -147,7 +147,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
     }
   }, [open, enableSearch]);
 
-  // Get display value
+  // Get display values
   const selectedOption = findOptionByValue(options, value);
   const displayValue = selectedOption ? getOptionLabel(selectedOption) : "";
   const selectedIcon = selectedOption ? getOptionIcon(selectedOption) : undefined;
