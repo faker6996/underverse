@@ -10,13 +10,16 @@ import { Tabs } from "@/components/ui/Tab";
 import { useTranslations } from "next-intl";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
-type Row = { id: number; name: string; role: string; amount: number; created_at: string };
+type Row = { id: number; name: string; email: string; role: string; department: string; amount: number; status: string; created_at: string };
 
-const ALL: Row[] = Array.from({ length: 25 }).map((_, i) => ({
+const ALL: Row[] = Array.from({ length: 50 }).map((_, i) => ({
   id: i + 1,
   name: `User ${i + 1}`,
+  email: `user${i + 1}@example.com`,
   role: i % 3 === 0 ? "Admin" : i % 2 === 0 ? "Editor" : "User",
+  department: ["Engineering", "Marketing", "Sales", "HR", "Finance"][i % 5],
   amount: Math.floor(Math.random() * 2000) + 500,
+  status: i % 4 === 0 ? "Active" : i % 4 === 1 ? "Inactive" : i % 4 === 2 ? "Pending" : "Suspended",
   created_at: new Date(2024, i % 12, (i % 28) + 1).toISOString().slice(0, 10),
 }));
 
@@ -27,7 +30,7 @@ export default function DataTableExample() {
   const [rows, setRows] = React.useState<Row[]>([]);
   const [total, setTotal] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
-  const [query, setQuery] = React.useState<DataTableQuery>({ filters: {}, page: 1, pageSize: 5 });
+  const [query, setQuery] = React.useState<DataTableQuery>({ filters: {}, page: 1, pageSize: 20 });
   const [selected, setSelected] = React.useState<Set<number>>(new Set());
 
   const allPageSelected = rows.length > 0 && rows.every((r) => selected.has(r.id));
@@ -48,6 +51,7 @@ export default function DataTableExample() {
         />
       ),
       width: 48,
+      fixed: "left",
       render: (_, record) => (
         <Checkbox
           checked={selected.has(record.id)}
@@ -60,13 +64,24 @@ export default function DataTableExample() {
         />
       ),
     },
-    { key: "name", title: "Name", dataIndex: "name", sortable: true, filter: { type: "text" } },
-    { key: "role", title: "Role", dataIndex: "role", filter: { type: "select", options: ["Admin", "Editor", "User"] } },
-    { key: "amount", title: "Amount", dataIndex: "amount", sortable: true },
-    { key: "created_at", title: "Created", dataIndex: "created_at", filter: { type: "date" } },
+    { key: "name", title: "Name", dataIndex: "name", sortable: true, filter: { type: "text" }, width: 150 },
+    { key: "email", title: "Email", dataIndex: "email", width: 200 },
+    { key: "role", title: "Role", dataIndex: "role", filter: { type: "select", options: ["Admin", "Editor", "User"] }, width: 100 },
+    {
+      key: "department",
+      title: "Department",
+      dataIndex: "department",
+      filter: { type: "select", options: ["Engineering", "Marketing", "Sales", "HR", "Finance"] },
+      width: 130,
+    },
+    { key: "amount", title: "Amount", dataIndex: "amount", sortable: true, width: 100 },
+    { key: "status", title: "Status", dataIndex: "status", width: 100 },
+    { key: "created_at", title: "Created", dataIndex: "created_at", filter: { type: "date" }, width: 120 },
     {
       key: "actions",
       title: "Actions",
+      width: 140,
+      fixed: "right",
       render: (_, record) => (
         <div className="flex gap-1 justify-center">
           <Button size="smx" variant="outline" onClick={() => alert(`View ${record.name}`)}>
@@ -154,13 +169,15 @@ export default function DataTableExample() {
       total={total}
       page={query.page}
       pageSize={query.pageSize}
-      pageSizeOptions={[5, 10, 20]}
+      pageSizeOptions={[5, 10, 20, 50]}
       onQueryChange={fetchData}
       toolbar={toolbar}
       striped
       columnDividers
       enableHeaderAlignToggle
       storageKey="example-table"
+      stickyHeader
+      maxHeight={400}
       labels={{
         density: t("density"),
         columns: t("columns"),

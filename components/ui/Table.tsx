@@ -25,7 +25,7 @@ interface TableHeaderProps extends React.HTMLAttributes<HTMLTableSectionElement>
 }
 
 const TableHeader = React.forwardRef<HTMLTableSectionElement, TableHeaderProps>(({ className, children, filterRow, ...props }, ref) => (
-  <thead ref={ref} className={cn("[&_tr]:border-b [&_tr]:border-border", "bg-muted/50", className)} {...props}>
+  <thead ref={ref} className={cn("[&_tr]:border-b [&_tr]:border-border", "bg-muted", className)} {...props}>
     {children}
     {filterRow}
   </thead>

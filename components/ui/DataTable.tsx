@@ -58,6 +58,10 @@ interface DataTableProps<T> {
   className?: string;
   /** Key để lưu pageSize vào localStorage. Nếu không cung cấp, pageSize sẽ không được persist */
   storageKey?: string;
+  /** Bật sticky header khi cuộn. Mặc định là false */
+  stickyHeader?: boolean;
+  /** Chiều cao tối đa của bảng khi bật stickyHeader (mặc định: 500px) */
+  maxHeight?: number | string;
   labels?: {
     density?: string;
     columns?: string;
@@ -99,6 +103,8 @@ export function DataTable<T extends Record<string, any>>({
   columnDividers = false,
   className,
   storageKey,
+  stickyHeader = true,
+  maxHeight = 500,
   labels,
 }: DataTableProps<T>) {
   const t = useTranslations("Common");
@@ -223,10 +229,11 @@ export function DataTable<T extends Record<string, any>>({
   const getStickyColumnClass = (col: DataTableColumn<T>, isHeader = false) => {
     if (!col.fixed) return "";
     return cn(
-      "sticky z-10 bg-background",
-      col.fixed === "left" && "shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]",
-      col.fixed === "right" && "shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]",
-      isHeader && "z-20", // Header cần z-index cao hơn
+      "sticky",
+      col.fixed === "left" && "left-0 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)]",
+      col.fixed === "right" && "right-0 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.15)]",
+      // Header fixed column cần z-index cao hơn thead (z-30) để không bị che
+      isHeader ? "z-50 bg-muted!" : "z-10 bg-card!",
     );
   };
 
@@ -298,132 +305,146 @@ export function DataTable<T extends Record<string, any>>({
 
   const renderHeader = (
     <TableRow>
-      {visibleColumns.map((col, colIdx) => (
-        <TableHead
-          key={col.key}
-          style={{ width: col.width, ...getStickyColumnStyle(col) }}
-          className={
-            cn(
-              // Use column-specific align if defined, otherwise use global headerAlign
-              (col.align === "right" || (!col.align && headerAlign === "right")) && "text-right",
-              (col.align === "center" || (!col.align && headerAlign === "center")) && "text-center",
-              columnDividers && colIdx > 0 && "border-l border-border/60",
-              getStickyColumnClass(col, true),
-            ) as string
-          }
-        >
-          {(() => {
-            const isRightAlign = col.align === "right" || (!col.align && headerAlign === "right");
-            const isCenterAlign = col.align === "center" || (!col.align && headerAlign === "center");
+      {visibleColumns.map((col, colIdx) => {
+        // Kiểm tra xem cột trước đó có phải là cột fixed left không
+        const prevCol = colIdx > 0 ? visibleColumns[colIdx - 1] : null;
+        const isAfterFixedLeft = prevCol?.fixed === "left";
+        // Không thêm border-l cho cột ngay sau cột fixed left hoặc cột fixed
+        const showBorderLeft = columnDividers && colIdx > 0 && !isAfterFixedLeft && !col.fixed;
 
-            const titleContent = (
-              <div className="flex items-center gap-1 min-w-0 shrink">
-                <span className="truncate font-medium text-sm">{col.title}</span>
-                {col.sortable && (
-                  <button
-                    className={cn(
-                      "p-1 rounded-lg transition-all duration-200 hover:bg-accent",
-                      sort?.key === col.key ? "opacity-100 bg-accent" : "opacity-60 hover:opacity-100",
-                    )}
-                    onClick={() => {
-                      setCurPage(1);
-                      setSort((s) => {
-                        if (!s || s.key !== col.key) return { key: col.key, order: "asc" };
-                        if (s.order === "asc") return { key: col.key, order: "desc" };
-                        return null;
-                      });
-                    }}
-                    aria-label="Sort"
-                    title={`Sort by ${String(col.title)}`}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none" className="inline-block">
-                      <path
-                        d="M7 8l3-3 3 3"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        opacity={sort?.key === col.key && sort.order === "asc" ? 1 : 0.4}
-                      />
-                      <path
-                        d="M7 12l3 3 3-3"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        opacity={sort?.key === col.key && sort.order === "desc" ? 1 : 0.4}
-                      />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            );
+        return (
+          <TableHead
+            key={col.key}
+            style={{ width: col.width, ...getStickyColumnStyle(col) }}
+            className={
+              cn(
+                // Use column-specific align if defined, otherwise use global headerAlign
+                (col.align === "right" || (!col.align && headerAlign === "right")) && "text-right",
+                (col.align === "center" || (!col.align && headerAlign === "center")) && "text-center",
+                showBorderLeft && "border-l border-border/60",
+                getStickyColumnClass(col, true),
+              ) as string
+            }
+          >
+            {(() => {
+              const isRightAlign = col.align === "right" || (!col.align && headerAlign === "right");
+              const isCenterAlign = col.align === "center" || (!col.align && headerAlign === "center");
 
-            const filterContent = col.filter && (
-              <Popover
-                placement={isRightAlign ? "bottom-end" : "bottom-start"}
-                trigger={
-                  <button
-                    className={cn(
-                      "p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                      filters[col.key] && "bg-accent text-foreground",
-                    )}
-                    aria-label="Filter"
-                    title="Filter"
-                  >
-                    <FilterIcon className="h-4 w-4" />
-                  </button>
-                }
-              >
-                <div className="w-48 p-2 space-y-2">
-                  <div className="text-xs font-medium text-muted-foreground mb-2">Filter {col.title}</div>
-                  {renderFilterControl(col)}
-                  {filters[col.key] && (
+              const titleContent = (
+                <div
+                  className={cn(
+                    "flex items-center gap-1",
+                    // Cột fixed không cần shrink vì đã có width cố định
+                    !col.fixed && "min-w-0 shrink",
+                  )}
+                >
+                  <span className={cn("font-medium text-sm", !col.fixed && "truncate")}>{col.title}</span>
+                  {col.sortable && (
                     <button
+                      className={cn(
+                        "p-1 rounded-lg transition-all duration-200 hover:bg-accent",
+                        sort?.key === col.key ? "opacity-100 bg-accent" : "opacity-60 hover:opacity-100",
+                      )}
                       onClick={() => {
                         setCurPage(1);
-                        setFilters((f) => {
-                          const newFilters = { ...f };
-                          delete newFilters[col.key];
-                          return newFilters;
+                        setSort((s) => {
+                          if (!s || s.key !== col.key) return { key: col.key, order: "asc" };
+                          if (s.order === "asc") return { key: col.key, order: "desc" };
+                          return null;
                         });
                       }}
-                      className="text-xs text-destructive hover:underline"
+                      aria-label="Sort"
+                      title={`Sort by ${String(col.title)}`}
                     >
-                      {t("clearFilter")}
+                      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" className="inline-block">
+                        <path
+                          d="M7 8l3-3 3 3"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          opacity={sort?.key === col.key && sort.order === "asc" ? 1 : 0.4}
+                        />
+                        <path
+                          d="M7 12l3 3 3-3"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          opacity={sort?.key === col.key && sort.order === "desc" ? 1 : 0.4}
+                        />
+                      </svg>
                     </button>
                   )}
                 </div>
-              </Popover>
-            );
+              );
 
-            return (
-              <div
-                className={cn(
-                  "flex items-center gap-2 select-none min-h-10",
-                  isRightAlign && "justify-end",
-                  isCenterAlign && "justify-center",
-                  !isRightAlign && !isCenterAlign && "justify-start",
-                )}
-              >
-                {/* Khi căn phải: filter trước, title sau (đối xứng với căn trái) */}
-                {isRightAlign ? (
-                  <>
-                    {filterContent}
-                    {titleContent}
-                  </>
-                ) : (
-                  <>
-                    {titleContent}
-                    {filterContent}
-                  </>
-                )}
-              </div>
-            );
-          })()}
-        </TableHead>
-      ))}
+              const filterContent = col.filter && (
+                <Popover
+                  placement={isRightAlign ? "bottom-end" : "bottom-start"}
+                  trigger={
+                    <button
+                      className={cn(
+                        "p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                        filters[col.key] && "bg-accent text-foreground",
+                      )}
+                      aria-label="Filter"
+                      title="Filter"
+                    >
+                      <FilterIcon className="h-4 w-4" />
+                    </button>
+                  }
+                >
+                  <div className="w-48 p-2 space-y-2">
+                    <div className="text-xs font-medium text-muted-foreground mb-2">Filter {col.title}</div>
+                    {renderFilterControl(col)}
+                    {filters[col.key] && (
+                      <button
+                        onClick={() => {
+                          setCurPage(1);
+                          setFilters((f) => {
+                            const newFilters = { ...f };
+                            delete newFilters[col.key];
+                            return newFilters;
+                          });
+                        }}
+                        className="text-xs text-destructive hover:underline"
+                      >
+                        {t("clearFilter")}
+                      </button>
+                    )}
+                  </div>
+                </Popover>
+              );
+
+              return (
+                <div
+                  className={cn(
+                    "flex items-center gap-2 select-none min-h-10",
+                    isRightAlign && "justify-end",
+                    isCenterAlign && "justify-center",
+                    !isRightAlign && !isCenterAlign && "justify-start",
+                  )}
+                >
+                  {/* Khi căn phải: filter trước, title sau (đối xứng với căn trái) */}
+                  {isRightAlign ? (
+                    <>
+                      {filterContent}
+                      {titleContent}
+                    </>
+                  ) : (
+                    <>
+                      {titleContent}
+                      {filterContent}
+                    </>
+                  )}
+                </div>
+              );
+            })()}
+          </TableHead>
+        );
+      })}
     </TableRow>
   );
 
@@ -567,10 +588,24 @@ export function DataTable<T extends Record<string, any>>({
         </div>
       </div>
 
-      <div className={cn("relative rounded-2xl md:rounded-3xl border border-border/50 overflow-hidden", loading && "opacity-60 pointer-events-none")}>
+      <div
+        className={cn("relative rounded-2xl md:rounded-3xl border border-border/50", loading && "opacity-60 pointer-events-none")}
+        style={
+          stickyHeader
+            ? {
+                maxHeight: typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight,
+                overflowY: "auto",
+                overflowX: "auto",
+              }
+            : { overflowX: "auto" }
+        }
+      >
         <Table
-          containerClassName="border-0 md:border-0 rounded-none md:rounded-none shadow-none bg-transparent"
-          className="[&_thead]:sticky [&_thead]:top-0 [&_thead]:z-5 [&_thead]:bg-background [&_thead]:backdrop-blur-sm"
+          containerClassName={cn("border-0 md:border-0 rounded-none md:rounded-none shadow-none bg-transparent", "overflow-visible")}
+          className={cn(
+            "table-fixed",
+            stickyHeader && ["[&_thead]:sticky", "[&_thead]:top-0", "[&_thead]:z-20", "[&_thead]:shadow-[0_1px_3px_rgba(0,0,0,0.1)]"],
+          )}
         >
           <TableHeader>{renderHeader}</TableHeader>
           <TableBody>
@@ -602,7 +637,7 @@ export function DataTable<T extends Record<string, any>>({
                 return (
                   <TableRow
                     key={getRowKey(row, idx)}
-                    className={cn(densityRowClass, striped && idx % 2 === 0 && "bg-muted/50")}
+                    className={cn(densityRowClass)}
                     style={{
                       // content-visibility: auto for rendering performance (skip off-screen rows)
                       contentVisibility: "auto",
@@ -611,6 +646,13 @@ export function DataTable<T extends Record<string, any>>({
                   >
                     {visibleColumns.map((col, colIdx) => {
                       const value = col.dataIndex ? row[col.dataIndex as keyof T] : undefined;
+                      const isStripedRow = striped && idx % 2 === 0;
+                      // Kiểm tra xem cột trước đó có phải là cột fixed left không
+                      const prevCol = colIdx > 0 ? visibleColumns[colIdx - 1] : null;
+                      const isAfterFixedLeft = prevCol?.fixed === "left";
+                      // Không thêm border-l cho cột ngay sau cột fixed left hoặc cột fixed
+                      const showBorderLeft = columnDividers && colIdx > 0 && !isAfterFixedLeft && !col.fixed;
+
                       return (
                         <TableCell
                           key={col.key}
@@ -620,12 +662,18 @@ export function DataTable<T extends Record<string, any>>({
                               cellPadding,
                               col.align === "right" && "text-right",
                               col.align === "center" && "text-center",
-                              columnDividers && colIdx > 0 && "border-l border-border/60",
+                              showBorderLeft && "border-l border-border/60",
                               isLastRow && col === visibleColumns[0] && "rounded-bl-2xl md:rounded-bl-3xl",
                               isLastRow && col === visibleColumns[visibleColumns.length - 1] && "rounded-br-2xl md:rounded-br-3xl",
-                              getStickyColumnClass(col),
-                              // Giữ màu nền striped cho cột cố định
-                              col.fixed && striped && idx % 2 === 0 && "bg-muted/50!",
+                              // Cột cố định cần solid background
+                              col.fixed
+                                ? cn(
+                                    "sticky z-10",
+                                    col.fixed === "left" && "left-0 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)]",
+                                    col.fixed === "right" && "right-0 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.15)]",
+                                    isStripedRow ? "bg-muted!" : "bg-card!",
+                                  )
+                                : isStripedRow && "bg-muted/50",
                             ) as string
                           }
                         >
