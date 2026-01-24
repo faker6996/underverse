@@ -33,6 +33,7 @@ interface SmartImageProps {
   objectPosition?: React.CSSProperties["objectPosition"];
   /** Optional fallback src if original fails. */
   fallbackSrc?: string;
+  imageClassName?: string;
 }
 
 // SVG placeholder as data URL to avoid 404 errors
@@ -46,6 +47,7 @@ export default function SmartImage({
   src,
   alt,
   className,
+  imageClassName,
   ratioClass,
   roundedClass = "rounded-2xl md:rounded-3xl",
   fill = true,
@@ -128,6 +130,7 @@ export default function SmartImage({
           priority={priority}
           quality={quality}
           style={{ objectFit: fit, objectPosition }}
+          className={cn("transition-all duration-300", imageClassName)}
         />
       </Wrapper>
     );
@@ -152,6 +155,7 @@ export default function SmartImage({
         priority={priority}
         quality={quality}
         style={{ objectFit: fit, objectPosition, width: "100%", height: "100%" }}
+        className={cn("transition-all duration-300", imageClassName)}
       />
     </div>
   );

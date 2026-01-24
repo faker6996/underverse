@@ -3,6 +3,7 @@
 Source: `components/ui/SmartImage.tsx`
 
 Exports:
+
 - SmartImage
 
 Note: Usage snippets are minimal; fill required props from the props type below.
@@ -26,12 +27,7 @@ import React from "react";
 import { SmartImage } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <SmartImage
-      src={"Gia tri"}
-      alt={"Gia tri"}
-     />
-  );
+  return <SmartImage src={"Gia tri"} alt={"Gia tri"} />;
 }
 ```
 
@@ -63,5 +59,7 @@ interface SmartImageProps {
   objectPosition?: React.CSSProperties["objectPosition"];
   /** Optional fallback src if original fails. */
   fallbackSrc?: string;
+  /** ClassName for the inner Image component */
+  imageClassName?: string;
 }
 ```

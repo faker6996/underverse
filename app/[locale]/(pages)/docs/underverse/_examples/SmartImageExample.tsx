@@ -73,6 +73,20 @@ export default function SmartImageExample() {
           <SmartImage src="/images/products/sample.jpg" alt="Auto-fix" fill ratioClass="aspect-square" />
         </div>
       </div>
+
+      {/* 7) Image ClassName (e.g. Hover Effect) */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Image ClassName (Hover Zoom)</p>
+        <div className="w-40 rounded-md overflow-hidden">
+          <SmartImage
+            src="https://picsum.photos/seed/uvhover/300/300"
+            alt="Hover Zoom"
+            fill
+            ratioClass="aspect-square"
+            imageClassName="hover:scale-110 transition-transform duration-500"
+          />
+        </div>
+      </div>
     </div>
   );
 
@@ -101,6 +115,16 @@ export default function SmartImageExample() {
     `// 6) Local product path auto-convert .jpg -> .png\n` +
     `<div className='w-40 rounded-md overflow-hidden'>\n` +
     `  <SmartImage src='/images/products/sample.jpg' alt='Auto-fix' fill ratioClass='aspect-square'/>\n` +
+    `</div>\n\n` +
+    `// 7) Image ClassName (Hover Zoom)\n` +
+    `<div className='w-40 rounded-md overflow-hidden'>\n` +
+    `  <SmartImage \n` +
+    `    src='https://picsum.photos/seed/uvhover/300/300' \n` +
+    `    alt='Hover Zoom' \n` +
+    `    fill \n` +
+    `    ratioClass='aspect-square' \n` +
+    `    imageClassName='hover:scale-110 transition-transform duration-500'\n` +
+    `  />\n` +
     `</div>`;
 
   const rows: PropsRow[] = [
@@ -118,6 +142,7 @@ export default function SmartImageExample() {
     { property: "fit", description: t("props.smartImage.fit"), type: '"cover" | "contain"', default: '"cover"' },
     { property: "objectPosition", description: t("props.smartImage.objectPosition"), type: "string", default: "-" },
     { property: "fallbackSrc", description: t("props.smartImage.fallbackSrc"), type: "string", default: '"data:image/svg+xml,..."' },
+    { property: "imageClassName", description: t("props.smartImage.imageClassName"), type: "string", default: "-" },
   ];
   const order = rows.map((r) => r.property);
   const docs = <PropsDocsTable rows={rows} order={order} />;
