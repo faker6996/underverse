@@ -283,7 +283,7 @@ export default function Calendar({
                 onClick={() => handleClickDay(d)}
                 disabled={disabled}
                 className={cn(
-                  "rounded-lg flex items-center justify-center relative",
+                  "rounded-lg flex items-center justify-center relative cursor-pointer",
                   sz.day,
                   !inMonth && "text-muted-foreground/60",
                   disabled && "opacity-40 cursor-not-allowed",
@@ -388,7 +388,7 @@ export default function Calendar({
                   onClick={() => handleClickDay(d)}
                   disabled={disabled}
                   className={cn(
-                    "rounded-lg flex items-center justify-center relative",
+                    "rounded-lg flex items-center justify-center relative cursor-pointer",
                     sz.day,
                     disabled && "opacity-40 cursor-not-allowed",
                     isToday && !selectedDay && "ring-1 ring-primary/50",

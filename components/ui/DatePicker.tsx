@@ -194,7 +194,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           }}
           className={cn(
             size === "sm" ? "w-7 h-7 text-[12px]" : "w-8 h-8 text-sm",
-            "datepicker-day rounded-lg focus:outline-none relative",
+            "datepicker-day rounded-lg focus:outline-none relative cursor-pointer",
             "transition-all duration-200 font-medium",
             isPastDate && "opacity-30 cursor-not-allowed text-muted-foreground",
             isSelected
@@ -690,7 +690,7 @@ export const DateRangePicker: React.FC<{
           onMouseEnter={() => !isPastDate && tempStart && !tempEnd && setHoveredDate(date)}
           onMouseLeave={() => tempStart && !tempEnd && setHoveredDate(null)}
           className={cn(
-            "transition-all duration-200 focus:outline-none relative font-medium",
+            "transition-all duration-200 focus:outline-none relative font-medium cursor-pointer",
             size === "sm" ? "w-6 h-6 text-xs" : "w-8 h-8 text-sm",
             // Disabled/past date state
             isPastDate && "opacity-30 cursor-not-allowed text-muted-foreground",
