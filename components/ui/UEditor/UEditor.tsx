@@ -43,6 +43,20 @@ const UEditor = ({
     editable,
     autofocus,
     editorProps: {
+      handleDOMEvents: {
+        keydown: (_view, event) => {
+          if (!(event instanceof KeyboardEvent)) return false;
+          if (
+            event.key === "ArrowLeft" ||
+            event.key === "ArrowRight" ||
+            event.key === "ArrowUp" ||
+            event.key === "ArrowDown"
+          ) {
+            event.stopPropagation();
+          }
+          return false;
+        },
+      },
       attributes: {
         class: cn(
           "prose prose-sm sm:prose dark:prose-invert max-w-none",
@@ -165,4 +179,3 @@ const UEditor = ({
 };
 
 export default UEditor;
-
