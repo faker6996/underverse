@@ -3,7 +3,7 @@
 import { Extension } from "@tiptap/core";
 import Suggestion from "@tiptap/suggestion";
 import { ReactRenderer } from "@tiptap/react";
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import type { Editor } from "@tiptap/core";
 import type { SuggestionProps } from "@tiptap/suggestion";
 import {
@@ -40,19 +40,25 @@ type CommandListRef = {
 
 const CommandList = forwardRef<CommandListRef, CommandListProps>((props, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setSelectedIndex(0);
   }, [props.items]);
 
+  useEffect(() => {
+    const selectedElement = listRef.current?.querySelector<HTMLElement>(`[data-index="${selectedIndex}"]`);
+    selectedElement?.scrollIntoView({ block: "nearest" });
+  }, [selectedIndex, props.items]);
+
   useImperativeHandle(ref, () => ({
     onKeyDown: ({ event }: { event: KeyboardEvent }) => {
       if (event.key === "ArrowUp") {
-        setSelectedIndex((selectedIndex + props.items.length - 1) % props.items.length);
+        setSelectedIndex((prev) => (prev + props.items.length - 1) % props.items.length);
         return true;
       }
       if (event.key === "ArrowDown") {
-        setSelectedIndex((selectedIndex + 1) % props.items.length);
+        setSelectedIndex((prev) => (prev + 1) % props.items.length);
         return true;
       }
       if (event.key === "Enter") {
@@ -71,7 +77,7 @@ const CommandList = forwardRef<CommandListRef, CommandListProps>((props, ref) =>
   }
 
   return (
-    <div className="w-72 max-h-80 overflow-y-auto bg-card border border-border rounded-2xl shadow-lg">
+    <div ref={listRef} className="w-72 max-h-80 overflow-y-auto bg-card border border-border rounded-2xl shadow-lg">
       <div className="px-3 py-2 border-b">
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Basic Blocks</span>
       </div>
@@ -80,6 +86,7 @@ const CommandList = forwardRef<CommandListRef, CommandListProps>((props, ref) =>
           <button
             key={item.title}
             type="button"
+            data-index={index}
             onClick={() => props.command(item)}
             className={cn(
               "flex items-center w-full px-3 py-2.5 rounded-lg transition-colors group",
