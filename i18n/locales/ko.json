@@ -972,7 +972,8 @@
         "quality": "이미지 품질 (1-100).",
         "fit": "object-fit (cover|contain).",
         "objectPosition": "object-position CSS 값.",
-        "fallbackSrc": "실패 시 대체 이미지."
+        "fallbackSrc": "실패 시 대체 이미지.",
+        "imageClassName": "이미지 태그용 커스텀 클래스"
       },
       "categoryTreeSelect": {
         "categories": "카테고리 목록(id, name, parent_id).",

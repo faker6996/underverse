@@ -982,7 +982,8 @@
         "quality": "Image quality (1-100).",
         "fit": "Object-fit (cover|contain).",
         "objectPosition": "Object-position CSS value.",
-        "fallbackSrc": "Fallback src when load fails."
+        "fallbackSrc": "Fallback src when load fails.",
+        "imageClassName": "Custom class for image element."
       },
       "categoryTreeSelect": {
         "categories": "Flat list of categories (id, name, parent_id).",

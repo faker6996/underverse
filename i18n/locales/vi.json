@@ -975,7 +975,8 @@
         "quality": "Chất lượng ảnh (1-100).",
         "fit": "Object-fit (cover|contain).",
         "objectPosition": "Giá trị object-position.",
-        "fallbackSrc": "Nguồn dự phòng khi lỗi."
+        "fallbackSrc": "Nguồn dự phòng khi lỗi.",
+        "imageClassName": "Class tuỳ chỉnh cho thẻ ảnh."
       },
       "categoryTreeSelect": {
         "categories": "Danh sách danh mục phẳng (id, name, parent_id).",

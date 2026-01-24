@@ -972,7 +972,8 @@
         "quality": "画像品質 (1-100)。",
         "fit": "object-fit（cover|contain）。",
         "objectPosition": "object-position CSS 値。",
-        "fallbackSrc": "失敗時のフォールバック画像。"
+        "fallbackSrc": "失敗時のフォールバック画像。",
+        "imageClassName": "画像タグ用カスタムクラス"
       },
       "categoryTreeSelect": {
         "categories": "カテゴリ一覧（id, name, parent_id）。",
