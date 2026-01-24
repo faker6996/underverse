@@ -1289,8 +1289,14 @@
       "placeholder": "Dán hoặc nhập liên kết..."
     },
     "imageInput": {
+      "urlTab": "URL",
+      "uploadTab": "Tải lên",
       "urlLabel": "URL hình ảnh",
       "urlPlaceholder": "https://example.com/image.jpg",
+      "uploadLabel": "Chọn hình ảnh",
+      "uploadPlaceholder": "Nhấn để tải ảnh lên",
+      "uploading": "Đang tải lên...",
+      "uploadError": "Tải lên thất bại. Vui lòng thử lại.",
       "altLabel": "Mô tả ảnh (tuỳ chọn)",
       "altPlaceholder": "Mô tả hình ảnh...",
       "addBtn": "Thêm ảnh",

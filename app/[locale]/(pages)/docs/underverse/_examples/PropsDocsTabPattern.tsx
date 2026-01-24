@@ -88,7 +88,7 @@ export function PropsDocsTable({
       <DataTable<PropsRow>
         columns={localizedColumns}
         data={data}
-        rowKey={(r) => r.property}
+        rowKey={(r: PropsRow) => r.property}
         striped
         enableDensityToggle={false}
         enableColumnVisibilityToggle={false}

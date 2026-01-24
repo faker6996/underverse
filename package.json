@@ -46,6 +46,7 @@
     "@tiptap/extension-heading": "^3.16.0",
     "@tiptap/extension-highlight": "^3.16.0",
     "@tiptap/extension-history": "^3.16.0",
+    "@tiptap/extension-horizontal-rule": "^3.17.0",
     "@tiptap/extension-image": "^3.16.0",
     "@tiptap/extension-italic": "^3.16.0",
     "@tiptap/extension-link": "^3.16.0",
@@ -71,6 +72,8 @@
     "@tiptap/extensions": "^3.16.0",
     "@tiptap/pm": "^3.16.0",
     "@tiptap/react": "^3.16.0",
+    "@tiptap/suggestion": "^3.17.0",
+    "@types/tippy.js": "^6.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lowlight": "^3.3.0",
@@ -82,7 +85,8 @@
     "react-dom": "^19.2.3",
     "react-hook-form": "^7.71.1",
     "tailwind-merge": "^3.4.0",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.1.18",
+    "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^16.1.4",

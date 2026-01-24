@@ -73,7 +73,7 @@ Display content without editing capabilities:
 | `showToolbar`        | `boolean`                            | `true`                       | Show the main toolbar.                        |
 | `showBubbleMenu`     | `boolean`                            | `true`                       | Show bubble menu on text selection.           |
 | `showFloatingMenu`   | `boolean`                            | `false`                      | Show floating menu on empty lines.            |
-| `showCharacterCount` | `boolean`                            | `false`                      | Show character & word count footer.           |
+| `showCharacterCount` | `boolean`                            | `true`                       | Show character & word count footer.           |
 | `maxCharacters`      | `number`                             | `undefined`                  | Maximum character limit.                      |
 | `minHeight`          | `number \| string`                   | `"200px"`                    | Minimum height of editor area.                |
 | `maxHeight`          | `number \| string`                   | `"auto"`                     | Maximum height with scroll.                   |

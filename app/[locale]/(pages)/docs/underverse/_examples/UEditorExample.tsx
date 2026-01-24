@@ -152,12 +152,12 @@ export default function UEditorExample() {
     { property: "autofocus", description: "Auto focus editor on mount", type: "boolean", default: "false" },
     { property: "showToolbar", description: "Show the main toolbar", type: "boolean", default: "true" },
     { property: "showBubbleMenu", description: "Show bubble menu on text selection", type: "boolean", default: "true" },
-    { property: "showFloatingMenu", description: "Show floating menu on empty lines", type: "boolean", default: "true" },
-    { property: "showCharacterCount", description: "Show character & word count footer", type: "boolean", default: "false" },
+    { property: "showFloatingMenu", description: "Show floating menu on empty lines", type: "boolean", default: "false" },
+    { property: "showCharacterCount", description: "Show character & word count footer", type: "boolean", default: "true" },
     { property: "maxCharacters", description: "Maximum character limit", type: "number", default: "undefined" },
-    { property: "minHeight", description: "Minimum height of editor area (px)", type: "number", default: "200" },
-    { property: "maxHeight", description: "Maximum height with scroll (px)", type: "number", default: "undefined" },
-    { property: "variant", description: "UI style variant", type: '"default" | "minimal" | "notion"', default: '"notion"' },
+    { property: "minHeight", description: "Minimum height of editor area", type: "number | string", default: '"200px"' },
+    { property: "maxHeight", description: "Maximum height with scroll", type: "number | string", default: '"auto"' },
+    { property: "variant", description: "UI style variant", type: '"default" | "minimal" | "notion"', default: '"default"' },
   ];
 
   const order = [

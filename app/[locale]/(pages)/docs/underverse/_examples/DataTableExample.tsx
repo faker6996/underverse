@@ -52,7 +52,7 @@ export default function DataTableExample() {
       ),
       width: 48,
       fixed: "left",
-      render: (_, record) => (
+      render: (_value: unknown, record: Row) => (
         <Checkbox
           checked={selected.has(record.id)}
           onChange={(e) => {
@@ -82,7 +82,7 @@ export default function DataTableExample() {
       title: "Actions",
       width: 140,
       fixed: "right",
-      render: (_, record) => (
+      render: (_value: unknown, record: Row) => (
         <div className="flex gap-1 justify-center">
           <Button size="smx" variant="outline" onClick={() => alert(`View ${record.name}`)}>
             View

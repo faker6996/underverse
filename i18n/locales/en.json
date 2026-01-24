@@ -1256,8 +1256,14 @@
       "placeholder": "Paste or type a link..."
     },
     "imageInput": {
+      "urlTab": "URL",
+      "uploadTab": "Upload",
       "urlLabel": "Image URL",
       "urlPlaceholder": "https://example.com/image.jpg",
+      "uploadLabel": "Choose Image",
+      "uploadPlaceholder": "Click to upload image",
+      "uploading": "Uploading...",
+      "uploadError": "Upload failed. Please try again.",
       "altLabel": "Alt text (optional)",
       "altPlaceholder": "Describe the image...",
       "addBtn": "Add Image",

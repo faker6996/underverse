@@ -1245,8 +1245,14 @@
       "placeholder": "링크 붙여넣기 또는 입력..."
     },
     "imageInput": {
+      "urlTab": "URL",
+      "uploadTab": "업로드",
       "urlLabel": "이미지 URL",
       "urlPlaceholder": "https://example.com/image.jpg",
+      "uploadLabel": "이미지 선택",
+      "uploadPlaceholder": "클릭하여 이미지 업로드",
+      "uploading": "업로드 중...",
+      "uploadError": "업로드 실패. 다시 시도해 주세요.",
       "altLabel": "대체 텍스트 (선택 사항)",
       "altPlaceholder": "이미지에 대한 설명...",
       "addBtn": "이미지 추가",

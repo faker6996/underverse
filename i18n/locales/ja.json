@@ -1245,8 +1245,14 @@
       "placeholder": "リンクを貼り付けまたは入力..."
     },
     "imageInput": {
+      "urlTab": "URL",
+      "uploadTab": "アップロード",
       "urlLabel": "画像 URL",
       "urlPlaceholder": "https://example.com/image.jpg",
+      "uploadLabel": "画像を選択",
+      "uploadPlaceholder": "クリックして画像をアップロード",
+      "uploading": "アップロード中...",
+      "uploadError": "アップロード失敗。もう一度お試しください。",
       "altLabel": "代替テキスト (任意)",
       "altPlaceholder": "画像の説明...",
       "addBtn": "画像を追加",
