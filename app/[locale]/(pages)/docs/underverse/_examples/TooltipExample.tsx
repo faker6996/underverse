@@ -160,7 +160,7 @@ export default function TooltipExample() {
     { property: "disabled", description: t("props.tooltip.disabled"), type: "boolean", default: "false" },
   ];
   const order = ["content","placement","delay","variant","disabled"];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Tooltip.md" />;
 
   return (
     <Tabs

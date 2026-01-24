@@ -181,7 +181,7 @@ export default function SkeletonExample() {
     "SkeletonTable.rows","SkeletonTable.columns","SkeletonTable.className",
   ];
 
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Skeleton.md" />;
 
   return (
     <Tabs

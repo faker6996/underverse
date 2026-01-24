@@ -134,7 +134,7 @@ export default function AvatarExample() {
     { property: "onClick", description: t("props.avatar.onClick"), type: "() => void", default: "—" },
   ];
   const order = ["src", "alt", "fallback", "size", "showStatus", "status", "hideStatusOnHover", "className", "onClick"];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Avatar.md" />;
 
   return (
     <Tabs

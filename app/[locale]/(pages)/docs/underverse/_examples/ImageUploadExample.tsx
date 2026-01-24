@@ -81,7 +81,7 @@ export default function ImageUploadExample() {
     { property: "supportedFormatsText", description: t("props.imageUpload.supportedFormatsText"), type: "string", default: "t('OCR.imageUpload.supportedFormats')" },
   ];
   const order = rows.map(r => r.property);
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="ImageUpload.md" />;
 
   return (
     <Tabs

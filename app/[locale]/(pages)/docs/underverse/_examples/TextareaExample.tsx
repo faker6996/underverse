@@ -106,7 +106,7 @@ export default function TextareaExample() {
     { property: "className", description: t("props.textarea.className"), type: "string", default: "—" },
   ];
   const order = ["label","variant","size","description","error","maxLength","required","disabled","value","onChange","placeholder","className"];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Textarea.md" />;
 
   return (
     <Tabs

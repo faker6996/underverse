@@ -271,7 +271,7 @@ export default function ModalExample() {
     "fullWidth",
     "children",
   ];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Modal.md" />;
 
   return (
     <Tabs

@@ -40,42 +40,66 @@ function sortByOrder(rows: PropsRow[], order?: string[]) {
   return [...rows].sort((a, b) => (index.get(a.property) ?? 999) - (index.get(b.property) ?? 999));
 }
 
+import { Download } from "lucide-react";
+import Button from "@/components/ui/Button";
+
+// ... (existing PropsRow type definition)
+
 export function PropsDocsTable({
   rows,
   order,
   columns = baseColumns,
   className,
+  markdownFile,
 }: {
   rows: PropsRow[];
   order?: string[];
   columns?: DataTableColumn<PropsRow>[];
   className?: string;
+  markdownFile?: string;
 }) {
   const t = useTranslations("DocsUnderverse");
   const data = sortByOrder(rows, order);
-  const localizedColumns: DataTableColumn<PropsRow>[] = columns === baseColumns || !columns
-    ? [
-        { key: "property", title: t("propsTable.property"), dataIndex: "property", width: 160 },
-        { key: "description", title: t("propsTable.description"), dataIndex: "description" },
-        { key: "type", title: t("propsTable.type"), dataIndex: "type", width: 260 },
-        { key: "default", title: t("propsTable.default"), dataIndex: "default", width: 140 },
-      ]
-    : columns;
+  const localizedColumns: DataTableColumn<PropsRow>[] =
+    columns === baseColumns || !columns
+      ? [
+          { key: "property", title: t("propsTable.property"), dataIndex: "property", width: 160 },
+          { key: "description", title: t("propsTable.description"), dataIndex: "description" },
+          { key: "type", title: t("propsTable.type"), dataIndex: "type", width: 260 },
+          { key: "default", title: t("propsTable.default"), dataIndex: "default", width: 140 },
+        ]
+      : columns;
+
+  const handleDownload = () => {
+    if (!markdownFile) return;
+    // Trigger download via API
+    window.open(`/api/docs/download?file=${markdownFile}`, "_blank");
+  };
+
   return (
-    <DataTable<PropsRow>
-      columns={localizedColumns}
-      data={data}
-      rowKey={(r) => r.property}
-      striped
-      enableDensityToggle={false}
-      enableColumnVisibilityToggle={false}
-      // server-mode trick to disable built-in pagination UI
-      onQueryChange={() => {}}
-      total={0}
-      page={1}
-      pageSize={data.length}
-      className={className ?? "text-sm"}
-    />
+    <div className="space-y-4">
+      {markdownFile && (
+        <div className="flex justify-end">
+          <Button variant="outline" size="sm" onClick={handleDownload} icon={Download} className="gap-2">
+            Download Docs
+          </Button>
+        </div>
+      )}
+      <DataTable<PropsRow>
+        columns={localizedColumns}
+        data={data}
+        rowKey={(r) => r.property}
+        striped
+        enableDensityToggle={false}
+        enableColumnVisibilityToggle={false}
+        // server-mode trick to disable built-in pagination UI
+        onQueryChange={() => {}}
+        total={0}
+        page={1}
+        pageSize={data.length}
+        className={className ?? "text-sm"}
+      />
+    </div>
   );
 }
 

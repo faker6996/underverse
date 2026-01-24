@@ -163,7 +163,7 @@ export default function SectionExample() {
     "gradientTo",
     "gradientDirection",
   ];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Section.md" />;
 
   return (
     <Tabs

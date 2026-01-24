@@ -131,7 +131,7 @@ export default function ToastExample() {
     { property: "maxToasts", description: t("props.toast.maxToasts"), type: "number", default: "5" },
   ];
   const order = ["ToastProvider","useToast","position","maxToasts"];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Toast.md" />;
 
   return (
     <Tabs

@@ -142,7 +142,7 @@ export default function SliderExample() {
     { property: "noFocus", description: t("props.slider.noFocus"), type: "boolean", default: "false" },
   ];
   const order = ["value","defaultValue","min","max","step","onChange","onValueChange","onMouseUp","onTouchEnd","label","labelClassName","containerClassName","trackClassName","thumbClassName","showValue","valueClassName","formatValue","size","disabled","orientation","noFocus"];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Slider.md" />;
 
   return (
     <Tabs

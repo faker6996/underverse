@@ -75,7 +75,7 @@ export default function NotificationModalExample() {
     { property: "closeText", description: t("props.notificationModal.closeText"), type: "string", default: '"t(\'Common.close\')"' },
   ];
   const order = rows.map(r => r.property);
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="NotificationModal.md" />;
 
   return (
     <IntlDemoProvider>

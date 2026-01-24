@@ -271,7 +271,7 @@ export default function MultiComboboxExample() {
     { property: "maxTagsVisible", description: "Max number of visible tags", type: "number", default: "3" },
   ];
   const order = rows.map((r) => r.property);
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="MultiCombobox.md" />;
 
   return (
     <Tabs

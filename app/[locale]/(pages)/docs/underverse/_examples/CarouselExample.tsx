@@ -275,7 +275,7 @@ export default function CarouselExample() {
   const order = [
     "children","autoScroll","autoScrollInterval","animation","orientation","showArrows","showDots","showProgress","showThumbnails","loop","slidesToShow","slidesToScroll","className","containerClassName","slideClassName","onSlideChange","thumbnailRenderer","ariaLabel"
   ];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Carousel.md" />;
 
   return (
     <Tabs

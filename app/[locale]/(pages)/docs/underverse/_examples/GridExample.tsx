@@ -229,7 +229,7 @@ export default function GridExample() {
   const order = [
     "columns","rows","gap","gapX","gapY","autoRows","autoColumns","autoFlow","minColumnWidth","areas","alignItems","justifyItems","alignContent","justifyContent","variant","animated","outlined","responsive"
   ];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Grid.md" />;
 
   return (
     <Tabs

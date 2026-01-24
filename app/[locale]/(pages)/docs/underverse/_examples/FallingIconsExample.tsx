@@ -323,7 +323,7 @@ export default function FallingIconsExample() {
     { property: "easingFunction", description: "Animation easing function", type: "'linear' | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'bounce' | 'elastic'", default: "linear" },
   ];
   const order = rows.map(r => r.property);
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="FallingIcons.md" />;
 
   return (
     <Tabs

@@ -105,7 +105,7 @@ export default function SwitchExample() {
     { property: "className", description: t("props.switch.className"), type: "string", default: "-" },
   ];
   const order = ["checked","onCheckedChange","label","size","variant","disabled","className"];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Switch.md" />;
 
   return (
     <Tabs

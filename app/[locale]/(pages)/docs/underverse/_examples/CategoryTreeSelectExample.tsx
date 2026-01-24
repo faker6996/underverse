@@ -124,7 +124,7 @@ export default function CategoryTreeSelectExample() {
     { property: "className", description: t("props.categoryTreeSelect.className"), type: "string", default: "-" },
   ];
   const order = rows.map((r) => r.property);
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="CategoryTreeSelect.md" />;
 
   return (
     <Tabs

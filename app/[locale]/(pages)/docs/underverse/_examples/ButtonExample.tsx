@@ -73,7 +73,9 @@ export default function ButtonExample() {
           <Button variant="info">Info</Button>
           <Button variant="outline">Outline</Button>
           <Button variant="ghost">Ghost</Button>
-          <Button variant="link" title="Link style">Link</Button>
+          <Button variant="link" title="Link style">
+            Link
+          </Button>
           <Button variant="gradient">Gradient (variant)</Button>
           <Button gradient>Gradient (prop)</Button>
         </div>
@@ -96,8 +98,12 @@ export default function ButtonExample() {
         <p className="text-sm font-medium">Icons</p>
         <div className="flex flex-wrap items-center gap-3">
           <Button icon={Download}>Download</Button>
-          <Button iconRight={ArrowRight} variant="primary">Tiếp tục</Button>
-          <Button icon={Plus} iconRight={ArrowRight} variant="secondary">New</Button>
+          <Button iconRight={ArrowRight} variant="primary">
+            Tiếp tục
+          </Button>
+          <Button icon={Plus} iconRight={ArrowRight} variant="secondary">
+            New
+          </Button>
         </div>
       </div>
 
@@ -105,10 +111,18 @@ export default function ButtonExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Loading / Disabled</p>
         <div className="flex flex-wrap items-center gap-3">
-          <Button loading loadingText="Dang x? ly...">Loading</Button>
-          <Button disabled variant="outline">Disabled</Button>
-          <Button loading preserveChildrenOnLoading variant="success">Lưu</Button>
-          <Button onClick={onSave} loading={saving} variant="primary">Lưu thay đổi</Button>
+          <Button loading loadingText="Dang x? ly...">
+            Loading
+          </Button>
+          <Button disabled variant="outline">
+            Disabled
+          </Button>
+          <Button loading preserveChildrenOnLoading variant="success">
+            Lưu
+          </Button>
+          <Button onClick={onSave} loading={saving} variant="primary">
+            Lưu thay đổi
+          </Button>
         </div>
       </div>
 
@@ -116,8 +130,12 @@ export default function ButtonExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Behavior</p>
         <div className="flex flex-col gap-3">
-          <Button preventDoubleClick onClick={() => console.log("clicked")}>Chống double-click</Button>
-          <Button fullWidth variant="outline">Full width button</Button>
+          <Button preventDoubleClick onClick={() => console.log("clicked")}>
+            Chống double-click
+          </Button>
+          <Button fullWidth variant="outline">
+            Full width button
+          </Button>
         </div>
       </div>
     </div>
@@ -129,7 +147,12 @@ export default function ButtonExample() {
     { property: "type", description: t("props.button.type"), type: '"button" | "submit" | "reset"', default: '"button"' },
     { property: "icon", description: t("props.button.icon"), type: "React.ComponentType<{ className?: string }>", default: "—" },
     { property: "iconRight", description: t("props.button.iconRight"), type: "React.ComponentType<{ className?: string }>", default: "—" },
-    { property: "variant", description: t("props.button.variant"), type: '"default" | "outline" | "primary" | "secondary" | "success" | "danger" | "destructive" | "warning" | "info" | "ghost" | "link" | "gradient"', default: '"default"' },
+    {
+      property: "variant",
+      description: t("props.button.variant"),
+      type: '"default" | "outline" | "primary" | "secondary" | "success" | "danger" | "destructive" | "warning" | "info" | "ghost" | "link" | "gradient"',
+      default: '"default"',
+    },
     { property: "size", description: t("props.button.size"), type: '"sm" | "md" | "lg" | "smx" | "icon"', default: '"md"' },
     { property: "className", description: t("props.button.className"), type: "string", default: '""' },
     { property: "iConClassName", description: t("props.button.iConClassName"), type: "string", default: '""' },
@@ -175,7 +198,7 @@ export default function ButtonExample() {
     "aria-label",
   ];
 
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Button.md" />;
 
   return (
     <Tabs

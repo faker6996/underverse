@@ -289,7 +289,7 @@ export default function RadioGroupExample() {
     { property: "ToggleGroup.items", description: t("props.radioGroup.ToggleGroup.items"), type: "Array<{ value: string; label: string }>", default: "-" },
   ];
   const order = rows.map(r => r.property);
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="RadioGroup.md" />;
 
   return (
     <Tabs

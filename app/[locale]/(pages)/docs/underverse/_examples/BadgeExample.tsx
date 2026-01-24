@@ -60,7 +60,7 @@ export default function BadgeExample() {
   const order = [
     "children","variant","size","className","dot","count","maxCount","showZero","pulse","removable","onRemove","icon","clickable","onClick"
   ];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Badge.md" />;
 
   return (
     <Tabs

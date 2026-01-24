@@ -111,7 +111,7 @@ export default function AccessDeniedExample() {
     { property: "children", description: t("props.accessDenied.children"), type: "React.ReactNode", default: "-" },
   ];
   const order = ["title","description","variant","icon","className","children"];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="AccessDenied.md" />;
 
   return (
     <Tabs

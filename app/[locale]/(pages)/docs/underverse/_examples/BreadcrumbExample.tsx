@@ -141,7 +141,7 @@ export default function BreadcrumbExample() {
     { property: "className", description: t("props.breadcrumb.className"), type: "string", default: "—" },
   ];
   const order = ["items", "variant", "size", "separator", "showHome", "homeHref", "className"];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Breadcrumb.md" />;
 
   return (
     <Tabs

@@ -103,7 +103,7 @@ export default function DropdownMenuExample() {
     { property: "items", description: t("props.dropdownMenu.items"), type: "Array<{ label: string; icon?: React.ComponentType; onClick: () => void; disabled?: boolean; destructive?: boolean }>", default: "-" },
   ];
   const order = ["trigger","children","className","contentClassName","placement","closeOnSelect","disabled","isOpen","onOpenChange","items"];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="DropdownMenu.md" />;
 
   return (
     <Tabs

@@ -265,7 +265,7 @@ export default function ComboboxExample() {
     { property: "helperText", description: "Helper text below the combobox", type: "string", default: "-" },
   ];
   const order = rows.map((r) => r.property);
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Combobox.md" />;
 
   return (
     <Tabs

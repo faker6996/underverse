@@ -163,7 +163,7 @@ export default function SheetExample() {
   const order = [
     "open","onOpenChange","side","size","variant","children","title","description","className","showClose","closeOnOutsideClick","closeOnEscape","header","footer"
   ];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Sheet.md" />;
 
   return (
     <Tabs

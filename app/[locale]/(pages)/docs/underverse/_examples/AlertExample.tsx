@@ -130,7 +130,7 @@ export default function AlertExample() {
   const order = [
     "title","description","variant","className","icon","dismissible","onClose","actions","closeAriaLabel"
   ];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Alert.md" />;
 
   return (
     <IntlDemoProvider>

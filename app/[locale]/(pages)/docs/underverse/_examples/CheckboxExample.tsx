@@ -110,7 +110,7 @@ export default function CheckboxExample() {
     "value",
     "id",
   ];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Checkbox.md" />;
 
   return (
     <Tabs

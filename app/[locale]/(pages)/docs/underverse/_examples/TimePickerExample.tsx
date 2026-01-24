@@ -375,7 +375,7 @@ export default function TimePickerExample() {
     "onClose",
     "clearable",
   ];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="TimePicker.md" />;
 
   return (
     <Tabs

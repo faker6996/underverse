@@ -130,7 +130,7 @@ export default function TabsExample() {
     { property: "stretch", description: t("props.tabs.stretch"), type: "boolean", default: "false" },
   ];
   const order = ["tabs","variant","size","orientation","stretch"];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Tabs.md" />;
 
   return (
     <Tabs

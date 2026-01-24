@@ -112,7 +112,7 @@ export default function ScrollAreaExample() {
     { property: "children", description: t("props.scrollArea.children"), type: "React.ReactNode", default: "-" },
   ];
   const order = ["className", "contentClassName", "variant", "outlined", "children"];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="ScrollArea.md" />;
 
   return (
     <Tabs

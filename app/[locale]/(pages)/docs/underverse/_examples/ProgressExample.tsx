@@ -193,7 +193,7 @@ export default function ProgressExample() {
     { property: "LoadingProgress.timeRemaining", description: t("props.progress.LoadingProgress.timeRemaining"), type: "string", default: "-" },
   ];
   const order = rows.map(r => r.property);
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Progress.md" />;
 
   return (
     <Tabs

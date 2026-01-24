@@ -145,7 +145,7 @@ export default function SmartImageExample() {
     { property: "imageClassName", description: t("props.smartImage.imageClassName"), type: "string", default: "-" },
   ];
   const order = rows.map((r) => r.property);
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="SmartImage.md" />;
 
   return (
     <Tabs

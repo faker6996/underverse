@@ -161,7 +161,7 @@ export default function CardExample() {
     { property: "contentClassName", description: t("props.card.contentClassName"), type: "string", default: "—" },
   ];
   const order = ["title", "description", "footer", "hoverable", "clickable", "onClick", "className", "contentClassName"];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Card.md" />;
 
   return (
     <Tabs

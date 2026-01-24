@@ -231,7 +231,7 @@ export default function ColorPickerExample() {
     "triggerClassName",
     "contentClassName",
   ];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="ColorPicker.md" />;
 
   return (
     <Tabs

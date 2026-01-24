@@ -238,7 +238,7 @@ export default function PopoverExample() {
   const order = [
     "trigger","children","className","contentClassName","placement","modal","disabled","open","onOpenChange","matchTriggerWidth","contentWidth"
   ];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Popover.md" />;
 
   return (
     <Tabs

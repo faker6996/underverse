@@ -174,7 +174,7 @@ export default function LoadingExample() {
     { property: "LoadingBar", description: t("props.loading.LoadingBar"), type: "Component", default: "—" },
   ];
   const order = ["GlobalLoading","ButtonLoading","LoadingSpinner","LoadingDots","LoadingBar"];
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Loading.md" />;
 
   return (
     <Tabs

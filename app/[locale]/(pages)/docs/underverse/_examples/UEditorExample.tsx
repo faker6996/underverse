@@ -224,7 +224,7 @@ export default function UEditorExample() {
       {featuresDoc}
       <div className="border-t pt-4">
         <h3 className="text-lg font-semibold mb-4 px-4">Props Reference</h3>
-        <PropsDocsTable rows={rows} order={order} />
+        <PropsDocsTable rows={rows} order={order} markdownFile="UEditor.md" />
       </div>
     </div>
   );

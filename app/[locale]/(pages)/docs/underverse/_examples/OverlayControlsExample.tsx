@@ -327,7 +327,7 @@ export default function OverlayControlsExample() {
     { property: "enableKeyboardShortcuts", description: t("props.overlayControls.enableKeyboardShortcuts"), type: "boolean", default: "true" },
   ];
   const order = rows.map(r => r.property);
-  const docs = <PropsDocsTable rows={rows} order={order} />;
+  const docs = <PropsDocsTable rows={rows} order={order} markdownFile="OverlayControls.md" />;
 
   return (
     <Tabs
