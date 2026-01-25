@@ -15,6 +15,8 @@ import { useDebounced } from "./hooks/useDebounced";
 import { usePageSizeStorage } from "./hooks/usePageSizeStorage";
 import { useStickyColumns } from "./hooks/useStickyColumns";
 import { getColumnWidth } from "./utils/columns";
+import { buildHeaderRows, getLeafColumns, filterVisibleColumns } from "./utils/headers";
+import { validateColumns } from "./utils/validation";
 import type { DataTableColumn, DataTableProps, Sorter } from "./types";
 
 export function DataTable<T extends Record<string, any>>({
@@ -50,6 +52,14 @@ export function DataTable<T extends Record<string, any>>({
 
   const { curPageSize, setCurPageSize } = usePageSizeStorage({ pageSize, storageKey });
 
+  // Validate columns in development mode
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      const warnings = validateColumns(columns);
+      warnings.forEach((w) => console.warn(`[DataTable] ${w}`));
+    }
+  }, [columns]);
+
   React.useEffect(() => {
     const newColKeys = columns.filter((c) => c.visible !== false).map((c) => c.key);
     setVisibleCols((prev) => {
@@ -79,13 +89,25 @@ export function DataTable<T extends Record<string, any>>({
   const cellPadding = density === "compact" ? "py-1.5 px-3" : density === "comfortable" ? "py-3 px-4" : "py-2.5 px-4";
 
   const visibleColsSet = React.useMemo(() => new Set(visibleCols), [visibleCols]);
-  const visibleColumns = columns.filter((c) => visibleColsSet.has(c.key));
 
-  const totalColumnsWidth = React.useMemo(() => {
-    return visibleColumns.reduce((sum, col) => sum + getColumnWidth(col), 0);
+  // NEW: Filter columns with hierarchy support
+  const visibleColumns = React.useMemo(() => {
+    return filterVisibleColumns(columns, visibleColsSet);
+  }, [columns, visibleColsSet]);
+
+  // NEW: Get leaf columns for body rendering
+  const leafColumns = React.useMemo(() => {
+    return getLeafColumns(visibleColumns);
   }, [visibleColumns]);
 
-  const { getStickyCellClass, getStickyColumnStyle, getStickyHeaderClass } = useStickyColumns(visibleColumns);
+  const totalColumnsWidth = React.useMemo(() => {
+    return leafColumns.reduce((sum, col) => sum + getColumnWidth(col), 0);
+  }, [leafColumns]);
+
+  const { getStickyCellClass, getStickyColumnStyle, getStickyHeaderClass, getStickyHeaderCellStyle } = useStickyColumns(
+    columns,
+    visibleColsSet,
+  );
 
   const getRowKey = (row: T, idx: number) => {
     if (!rowKey) return String(idx);
@@ -145,136 +167,169 @@ export function DataTable<T extends Record<string, any>>({
     return null;
   };
 
-  const renderHeader = (
-    <TableRow>
-      {visibleColumns.map((col, colIdx) => {
-        const prevCol = colIdx > 0 ? visibleColumns[colIdx - 1] : null;
-        const isAfterFixedLeft = prevCol?.fixed === "left";
-        const showBorderLeft = columnDividers && colIdx > 0 && !isAfterFixedLeft && !col.fixed;
+  // NEW: Build multi-row header structure
+  const headerRows = React.useMemo(() => buildHeaderRows(visibleColumns), [visibleColumns]);
 
-        return (
-          <TableHead
-            key={col.key}
-            style={{ width: col.width, ...getStickyColumnStyle(col) }}
-            className={
-              cn(
-                (col.align === "right" || (!col.align && headerAlign === "right")) && "text-right",
-                (col.align === "center" || (!col.align && headerAlign === "center")) && "text-center",
-                showBorderLeft && "border-l border-border/60",
-                getStickyHeaderClass(col),
-              ) as string
-            }
+  // Helper to render header content (group vs leaf)
+  const renderHeaderContent = (col: DataTableColumn<T>, isLeaf: boolean) => {
+    // Group columns: only show title (no sort/filter)
+    if (!isLeaf) {
+      return (
+        <div
+          className={cn(
+            "flex items-center gap-1 min-h-10",
+            col.align === "right" && "justify-end",
+            col.align === "center" && "justify-center",
+            !col.align && "justify-start",
+          )}
+        >
+          <span className="font-medium text-sm whitespace-nowrap">{col.title}</span>
+        </div>
+      );
+    }
+
+    // Leaf columns: show title + sort + filter
+    const isRightAlign = col.align === "right" || (!col.align && headerAlign === "right");
+    const isCenterAlign = col.align === "center" || (!col.align && headerAlign === "center");
+
+    const titleContent = (
+      <div className="flex items-center gap-1">
+        <span className="font-medium text-sm whitespace-nowrap">{col.title}</span>
+        {col.sortable && (
+          <button
+            className={cn(
+              "p-1 rounded-lg transition-all duration-200 hover:bg-accent",
+              sort?.key === col.key ? "opacity-100 bg-accent" : "opacity-60 hover:opacity-100",
+            )}
+            onClick={() => {
+              setCurPage(1);
+              setSort((s) => {
+                if (!s || s.key !== col.key) return { key: col.key, order: "asc" };
+                if (s.order === "asc") return { key: col.key, order: "desc" };
+                return null;
+              });
+            }}
+            aria-label="Sort"
+            title={`Sort by ${String(col.title)}`}
           >
-            {(() => {
-              const isRightAlign = col.align === "right" || (!col.align && headerAlign === "right");
-              const isCenterAlign = col.align === "center" || (!col.align && headerAlign === "center");
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" className="inline-block">
+              <path
+                d="M7 8l3-3 3 3"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                opacity={sort?.key === col.key && sort.order === "asc" ? 1 : 0.4}
+              />
+              <path
+                d="M7 12l3 3 3-3"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                opacity={sort?.key === col.key && sort.order === "desc" ? 1 : 0.4}
+              />
+            </svg>
+          </button>
+        )}
+      </div>
+    );
 
-              const titleContent = (
-                <div className={cn("flex items-center gap-1", !col.fixed && "min-w-0 shrink")}>
-                  <span className={cn("font-medium text-sm", !col.fixed && "truncate")}>{col.title}</span>
-                  {col.sortable && (
-                    <button
-                      className={cn(
-                        "p-1 rounded-lg transition-all duration-200 hover:bg-accent",
-                        sort?.key === col.key ? "opacity-100 bg-accent" : "opacity-60 hover:opacity-100",
-                      )}
-                      onClick={() => {
-                        setCurPage(1);
-                        setSort((s) => {
-                          if (!s || s.key !== col.key) return { key: col.key, order: "asc" };
-                          if (s.order === "asc") return { key: col.key, order: "desc" };
-                          return null;
-                        });
-                      }}
-                      aria-label="Sort"
-                      title={`Sort by ${String(col.title)}`}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" className="inline-block">
-                        <path
-                          d="M7 8l3-3 3 3"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          opacity={sort?.key === col.key && sort.order === "asc" ? 1 : 0.4}
-                        />
-                        <path
-                          d="M7 12l3 3 3-3"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          opacity={sort?.key === col.key && sort.order === "desc" ? 1 : 0.4}
-                        />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-              );
+    const filterContent = col.filter ? (
+      <Popover
+        placement="bottom-start"
+        trigger={
+          <button
+            className={cn(
+              "p-1.5 rounded-lg transition-all duration-200 hover:bg-accent",
+              filters[col.key] ? "bg-accent text-primary" : "text-muted-foreground",
+            )}
+            aria-label="Filter"
+            title={`Filter by ${String(col.title)}`}
+          >
+            <FilterIcon className="w-4 h-4" />
+          </button>
+        }
+      >
+        <div className="p-3 w-64 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="text-sm font-medium">{col.title}</div>
+            {filters[col.key] !== undefined && filters[col.key] !== null && filters[col.key] !== "" && (
+              <button
+                onClick={() => {
+                  setCurPage(1);
+                  setFilters((f) => ({ ...f, [col.key]: undefined }));
+                }}
+                className="text-xs text-destructive hover:underline"
+              >
+                {t("clearFilter")}
+              </button>
+            )}
+          </div>
+          {renderFilterControl(col)}
+        </div>
+      </Popover>
+    ) : null;
 
-              const filterContent = col.filter ? (
-                <Popover
-                  placement="bottom-start"
-                  trigger={
-                    <button
-                      className={cn(
-                        "p-1.5 rounded-lg transition-all duration-200 hover:bg-accent",
-                        filters[col.key] ? "bg-accent text-primary" : "text-muted-foreground",
-                      )}
-                      aria-label="Filter"
-                      title={`Filter by ${String(col.title)}`}
-                    >
-                      <FilterIcon className="w-4 h-4" />
-                    </button>
-                  }
-                >
-                  <div className="p-3 w-64 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm font-medium">{col.title}</div>
-                      {filters[col.key] !== undefined && filters[col.key] !== null && filters[col.key] !== "" && (
-                        <button
-                          onClick={() => {
-                            setCurPage(1);
-                            setFilters((f) => ({ ...f, [col.key]: undefined }));
-                          }}
-                          className="text-xs text-destructive hover:underline"
-                        >
-                          {t("clearFilter")}
-                        </button>
-                      )}
-                    </div>
-                    {renderFilterControl(col)}
-                  </div>
-                </Popover>
-              ) : null;
+    return (
+      <div
+        className={cn(
+          "flex items-center gap-2 select-none min-h-10",
+          isRightAlign && "justify-end",
+          isCenterAlign && "justify-center",
+          !isRightAlign && !isCenterAlign && "justify-start",
+        )}
+      >
+        {isRightAlign ? (
+          <>
+            {filterContent}
+            {titleContent}
+          </>
+        ) : (
+          <>
+            {titleContent}
+            {filterContent}
+          </>
+        )}
+      </div>
+    );
+  };
 
-              return (
-                <div
-                  className={cn(
-                    "flex items-center gap-2 select-none min-h-10",
-                    isRightAlign && "justify-end",
-                    isCenterAlign && "justify-center",
-                    !isRightAlign && !isCenterAlign && "justify-start",
-                  )}
-                >
-                  {isRightAlign ? (
-                    <>
-                      {filterContent}
-                      {titleContent}
-                    </>
-                  ) : (
-                    <>
-                      {titleContent}
-                      {filterContent}
-                    </>
-                  )}
-                </div>
-              );
-            })()}
-          </TableHead>
-        );
-      })}
-    </TableRow>
+  const renderHeader = (
+    <>
+      {headerRows.map((row, rowIndex) => (
+        <TableRow key={`header-row-${rowIndex}`}>
+          {row.map((headerCell, cellIndex) => {
+            const { column: col, colSpan, rowSpan, isLeaf } = headerCell;
+
+            const prevCell = cellIndex > 0 ? row[cellIndex - 1] : null;
+            const prevCol = prevCell?.column;
+            const isAfterFixedLeft = prevCol?.fixed === "left";
+            const showBorderLeft = columnDividers && cellIndex > 0 && !isAfterFixedLeft && !col.fixed;
+
+            return (
+              <TableHead
+                key={col.key}
+                colSpan={colSpan}
+                rowSpan={rowSpan}
+                style={{
+                  width: col.width,
+                  ...getStickyHeaderCellStyle(headerCell),
+                }}
+                className={cn(
+                  (col.align === "right" || (!col.align && headerAlign === "right")) && "text-right",
+                  (col.align === "center" || (!col.align && headerAlign === "center")) && "text-center",
+                  showBorderLeft && "border-l border-border/60",
+                  getStickyHeaderClass(col),
+                )}
+              >
+                {renderHeaderContent(col, isLeaf)}
+              </TableHead>
+            );
+          })}
+        </TableRow>
+      ))}
+    </>
   );
 
   const processedData = React.useMemo(() => {
@@ -371,7 +426,7 @@ export function DataTable<T extends Record<string, any>>({
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={visibleColumns.length} className="text-center py-8">
+                <TableCell colSpan={leafColumns.length} className="text-center py-8">
                   <div className="flex items-center justify-center gap-2 text-muted-foreground">
                     <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -387,7 +442,7 @@ export function DataTable<T extends Record<string, any>>({
               </TableRow>
             ) : !displayedData || displayedData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={visibleColumns.length} className="text-center py-6 text-muted-foreground">
+                <TableCell colSpan={leafColumns.length} className="text-center py-6 text-muted-foreground">
                   {t("noData")}
                 </TableCell>
               </TableRow>
@@ -403,10 +458,10 @@ export function DataTable<T extends Record<string, any>>({
                       containIntrinsicSize: density === "compact" ? "0 36px" : density === "comfortable" ? "0 56px" : "0 48px",
                     }}
                   >
-                    {visibleColumns.map((col, colIdx) => {
+                    {leafColumns.map((col, colIdx) => {
                       const value = col.dataIndex ? row[col.dataIndex as keyof T] : undefined;
                       const isStripedRow = striped && idx % 2 === 0;
-                      const prevCol = colIdx > 0 ? visibleColumns[colIdx - 1] : null;
+                      const prevCol = colIdx > 0 ? leafColumns[colIdx - 1] : null;
                       const isAfterFixedLeft = prevCol?.fixed === "left";
                       const showBorderLeft = columnDividers && colIdx > 0 && !isAfterFixedLeft && !col.fixed;
 
@@ -420,8 +475,8 @@ export function DataTable<T extends Record<string, any>>({
                               col.align === "right" && "text-right",
                               col.align === "center" && "text-center",
                               showBorderLeft && "border-l border-border/60",
-                              isLastRow && col === visibleColumns[0] && "rounded-bl-2xl md:rounded-bl-3xl",
-                              isLastRow && col === visibleColumns[visibleColumns.length - 1] && "rounded-br-2xl md:rounded-br-3xl",
+                              isLastRow && col === leafColumns[0] && "rounded-bl-2xl md:rounded-bl-3xl",
+                              isLastRow && col === leafColumns[leafColumns.length - 1] && "rounded-br-2xl md:rounded-br-3xl",
                               getStickyCellClass(col, isStripedRow),
                               !col.fixed && isStripedRow && "bg-muted/50",
                             ) as string

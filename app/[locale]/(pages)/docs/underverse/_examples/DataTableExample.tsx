@@ -161,6 +161,85 @@ export default function DataTableExample() {
   labels={{ density: '...', columns: '...', headerAlign: '...' }}
 />`;
 
+  // Example with multi-row headers (grouped columns)
+  const groupedColumns: DataTableColumn<Row>[] = [
+    {
+      key: "select",
+      title: (
+        <Checkbox
+          checked={allPageSelected}
+          onChange={(e) => {
+            const next = new Set(selected);
+            if (e.target.checked) rows.forEach((r) => next.add(r.id));
+            else rows.forEach((r) => next.delete(r.id));
+            setSelected(next);
+          }}
+          aria-label="Select all"
+        />
+      ),
+      width: 48,
+      fixed: "left",
+      render: (_: unknown, record: Row) => (
+        <Checkbox
+          checked={selected.has(record.id)}
+          onChange={(e) => {
+            const next = new Set(selected);
+            if (e.target.checked) next.add(record.id);
+            else next.delete(record.id);
+            setSelected(next);
+          }}
+        />
+      ),
+    },
+    {
+      key: "personal-info",
+      title: "Personal Information",
+      children: [
+        { key: "name", title: "Name", dataIndex: "name", sortable: true, filter: { type: "text" }, width: 150 },
+        { key: "email", title: "Email", dataIndex: "email", width: 200 },
+      ],
+    },
+    {
+      key: "work-info",
+      title: "Work Information",
+      children: [
+        { key: "role", title: "Role", dataIndex: "role", filter: { type: "select", options: ["Admin", "Editor", "User"] }, width: 100 },
+        {
+          key: "department",
+          title: "Department",
+          dataIndex: "department",
+          filter: { type: "select", options: ["Engineering", "Marketing", "Sales", "HR", "Finance"] },
+          width: 130,
+        },
+      ],
+    },
+    {
+      key: "metrics",
+      title: "Metrics",
+      children: [
+        { key: "amount", title: "Amount", dataIndex: "amount", sortable: true, width: 100 },
+        { key: "status", title: "Status", dataIndex: "status", width: 100 },
+        { key: "created_at", title: "Created", dataIndex: "created_at", filter: { type: "date" }, width: 120 },
+      ],
+    },
+    {
+      key: "actions",
+      title: "Actions",
+      width: 140,
+      fixed: "right",
+      render: (_value: unknown, record: Row) => (
+        <div className="flex gap-1 justify-center">
+          <Button size="smx" variant="outline" onClick={() => alert(`View ${record.name}`)}>
+            View
+          </Button>
+          <Button size="smx" variant="ghost" onClick={() => alert(`Edit ${record.name}`)}>
+            Edit
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   const demo = (
     <DataTable<Row>
       columns={columns}
@@ -192,12 +271,95 @@ export default function DataTableExample() {
     />
   );
 
+  const demoGrouped = (
+    <DataTable<Row>
+      columns={groupedColumns}
+      data={rows}
+      loading={loading}
+      total={total}
+      page={query.page}
+      pageSize={query.pageSize}
+      pageSizeOptions={[5, 10, 20, 50]}
+      onQueryChange={fetchData}
+      toolbar={toolbar}
+      striped
+      columnDividers
+      storageKey="example-table-grouped"
+      stickyHeader
+      maxHeight={400}
+      labels={{
+        density: t("density"),
+        columns: t("columns"),
+        compact: t("compact"),
+        normal: t("normal"),
+        comfortable: t("comfortable"),
+      }}
+    />
+  );
+
+  const groupedCode = `// Multi-row headers example with column grouping
+const groupedColumns: DataTableColumn<User>[] = [
+  { key: 'select', title: <Checkbox />, fixed: 'left', render: ... },
+  {
+    key: 'personal-info',
+    title: 'Personal Information',
+    children: [
+      { key: 'name', title: 'Name', dataIndex: 'name', sortable: true },
+      { key: 'email', title: 'Email', dataIndex: 'email' },
+    ],
+  },
+  {
+    key: 'work-info',
+    title: 'Work Information',
+    children: [
+      { key: 'role', title: 'Role', dataIndex: 'role', filter: {...} },
+      { key: 'department', title: 'Department', dataIndex: 'department' },
+    ],
+  },
+  {
+    key: 'metrics',
+    title: 'Metrics',
+    children: [
+      { key: 'amount', title: 'Amount', dataIndex: 'amount', sortable: true },
+      { key: 'status', title: 'Status', dataIndex: 'status' },
+      { key: 'created_at', title: 'Created', dataIndex: 'created_at' },
+    ],
+  },
+  { key: 'actions', title: 'Actions', fixed: 'right', render: ... },
+];
+
+// Renders:
+// ┌──────┬─────────────────────────────┬─────────────────────────┬────────────────────────────────┬─────────┐
+// │      │   Personal Information      │    Work Information     │          Metrics               │ Actions │
+// │      ├──────────────┬──────────────┼───────────┬─────────────┼──────────┬─────────┬───────────┤         │
+// │      │ Name         │ Email        │ Role      │ Department  │ Amount   │ Status  │ Created   │         │
+// └──────┴──────────────┴──────────────┴───────────┴─────────────┴──────────┴─────────┴───────────┴─────────┘
+
+<DataTable columns={groupedColumns} ... />`;
+
   return (
     <IntlDemoProvider>
       <Tabs
         tabs={[
           { value: "preview", label: td("tabs.preview"), content: <div className="p-1">{demo}</div> },
+          {
+            value: "multi-row",
+            label: "Multi-Row Headers",
+            content: (
+              <div className="space-y-4">
+                <div className="p-4 bg-muted/50 rounded-lg">
+                  <h3 className="text-sm font-semibold mb-2">Multi-Row Headers with Column Grouping</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Group related columns together using the <code className="px-1 py-0.5 bg-background rounded">children</code> property.
+                    Group columns only show titles (no sort/filter), while leaf columns support all features.
+                  </p>
+                </div>
+                <div className="p-1">{demoGrouped}</div>
+              </div>
+            )
+          },
           { value: "code", label: td("tabs.code"), content: <CodeBlock code={code} /> },
+          { value: "grouped-code", label: "Grouped Code", content: <CodeBlock code={groupedCode} /> },
           {
             value: "docs",
             label: td("tabs.document"),

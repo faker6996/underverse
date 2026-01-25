@@ -4,6 +4,7 @@ import React from "react";
 import Button from "@/components/ui/Button";
 import DropdownMenu, { DropdownMenuItem } from "@/components/ui/DropdownMenu";
 import type { DataTableColumn, DataTableLabels } from "../types";
+import { getLeafColumns } from "../utils/headers";
 
 export function DataTableToolbar<T>({
   caption,
@@ -56,35 +57,40 @@ export function DataTableToolbar<T>({
           />
         )}
 
-        {enableColumnVisibilityToggle && (
-          <DropdownMenu
-            trigger={
-              <Button variant="ghost" size="sm" className="h-8 px-2">
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
-                  />
-                </svg>
-                {labels?.columns || t("columns")}
-              </Button>
-            }
-          >
-            {columns.map((c) => (
-              <DropdownMenuItem
-                key={c.key}
-                onClick={() => {
-                  setVisibleCols((prev) => (prev.includes(c.key) ? prev.filter((k) => k !== c.key) : [...prev, c.key]));
-                }}
-              >
-                <input type="checkbox" className="mr-2 rounded-md border-border" readOnly checked={visibleCols.includes(c.key)} />
-                <span className="truncate">{c.title as any}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenu>
-        )}
+        {enableColumnVisibilityToggle && (() => {
+          // Only show leaf columns in visibility toggle (columns that render data)
+          const leafCols = getLeafColumns(columns);
+
+          return (
+            <DropdownMenu
+              trigger={
+                <Button variant="ghost" size="sm" className="h-8 px-2">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
+                    />
+                  </svg>
+                  {labels?.columns || t("columns")}
+                </Button>
+              }
+            >
+              {leafCols.map((c) => (
+                <DropdownMenuItem
+                  key={c.key}
+                  onClick={() => {
+                    setVisibleCols((prev) => (prev.includes(c.key) ? prev.filter((k) => k !== c.key) : [...prev, c.key]));
+                  }}
+                >
+                  <input type="checkbox" className="mr-2 rounded-md border-border" readOnly checked={visibleCols.includes(c.key)} />
+                  <span className="truncate">{c.title as any}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenu>
+          );
+        })()}
 
         {enableHeaderAlignToggle && (
           <DropdownMenu

@@ -2,15 +2,20 @@
 
 import React from "react";
 import { cn } from "@/lib/utils/cn";
-import type { DataTableColumn } from "../types";
+import type { DataTableColumn, HeaderCell } from "../types";
 import { getColumnWidth } from "../utils/columns";
+import { filterVisibleColumns, getLeafColumns, getLeafColumnsWithFixedInheritance } from "../utils/headers";
 
-export function useStickyColumns<T>(visibleColumns: DataTableColumn<T>[]) {
+export function useStickyColumns<T>(columns: DataTableColumn<T>[], visibleKeys: Set<string>) {
+  const visibleColumns = React.useMemo(() => filterVisibleColumns(columns, visibleKeys), [columns, visibleKeys]);
+
+  const leafColumns = React.useMemo(() => getLeafColumnsWithFixedInheritance(visibleColumns), [visibleColumns]);
+
   const stickyPositions = React.useMemo(() => {
     const positions: Record<string, { left?: number; right?: number }> = {};
 
     let leftOffset = 0;
-    for (const col of visibleColumns) {
+    for (const col of leafColumns) {
       if (col.fixed === "left") {
         positions[col.key] = { left: leftOffset };
         leftOffset += getColumnWidth(col);
@@ -18,8 +23,8 @@ export function useStickyColumns<T>(visibleColumns: DataTableColumn<T>[]) {
     }
 
     let rightOffset = 0;
-    for (let i = visibleColumns.length - 1; i >= 0; i--) {
-      const col = visibleColumns[i];
+    for (let i = leafColumns.length - 1; i >= 0; i--) {
+      const col = leafColumns[i];
       if (col.fixed === "right") {
         positions[col.key] = { right: rightOffset };
         rightOffset += getColumnWidth(col);
@@ -27,7 +32,7 @@ export function useStickyColumns<T>(visibleColumns: DataTableColumn<T>[]) {
     }
 
     return positions;
-  }, [visibleColumns]);
+  }, [leafColumns]);
 
   const getStickyColumnStyle = React.useCallback(
     (col: DataTableColumn<T>): React.CSSProperties => {
@@ -61,6 +66,47 @@ export function useStickyColumns<T>(visibleColumns: DataTableColumn<T>[]) {
     );
   }, []);
 
-  return { getStickyColumnStyle, getStickyHeaderClass, getStickyCellClass };
-}
+  /**
+   * Get sticky style for header cells (including group headers).
+   * For group headers, uses the position of first/last sticky descendant.
+   */
+  const getStickyHeaderCellStyle = React.useCallback(
+    (headerCell: HeaderCell<T>): React.CSSProperties => {
+      const col = headerCell.column;
 
+      // If leaf column, use existing logic
+      if (headerCell.isLeaf) {
+        return getStickyColumnStyle(col);
+      }
+
+      // If group column, check if any descendants are sticky
+      const descendants = getLeafColumns([col]);
+      const stickyDescendants = descendants.filter((d) => d.fixed);
+
+      if (stickyDescendants.length === 0) return {};
+
+      // Use first/last descendant's position
+      const firstSticky = stickyDescendants[0];
+      const lastSticky = stickyDescendants[stickyDescendants.length - 1];
+
+      if (firstSticky.fixed === "left") {
+        const pos = stickyPositions[firstSticky.key];
+        return pos?.left !== undefined ? { left: pos.left } : {};
+      }
+      if (lastSticky.fixed === "right") {
+        const pos = stickyPositions[lastSticky.key];
+        return pos?.right !== undefined ? { right: pos.right } : {};
+      }
+
+      return {};
+    },
+    [stickyPositions, getStickyColumnStyle],
+  );
+
+  return {
+    getStickyColumnStyle,
+    getStickyHeaderClass,
+    getStickyCellClass,
+    getStickyHeaderCellStyle,
+  };
+}
