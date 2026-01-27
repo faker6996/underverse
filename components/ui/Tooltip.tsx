@@ -104,7 +104,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   children,
   content,
   placement = "top",
-  delay = { open: 700, close: 300 },
+  delay = { open: 200, close: 300 },
   className,
   disabled = false,
   variant = "default",
