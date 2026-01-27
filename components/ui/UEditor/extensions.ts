@@ -33,10 +33,21 @@ import Superscript from "@tiptap/extension-superscript";
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import { common, createLowlight } from "lowlight";
 import { SlashCommand } from "./slash-command";
+import { ClipboardImages } from "./clipboard-images";
 
 const lowlight = createLowlight(common);
 
-export function buildUEditorExtensions({ placeholder, maxCharacters }: { placeholder: string; maxCharacters?: number }) {
+export function buildUEditorExtensions({
+  placeholder,
+  maxCharacters,
+  uploadImage,
+  imageInsertMode = "base64",
+}: {
+  placeholder: string;
+  maxCharacters?: number;
+  uploadImage?: (file: File) => Promise<string> | string;
+  imageInsertMode?: "base64" | "upload";
+}) {
   return [
     Document,
     Paragraph,
@@ -93,10 +104,12 @@ export function buildUEditorExtensions({ placeholder, maxCharacters }: { placeho
       },
     }),
     Image.configure({
+      allowBase64: true,
       HTMLAttributes: {
         class: "rounded-lg max-w-full h-auto my-4",
       },
     }),
+    ClipboardImages.configure({ upload: uploadImage, insertMode: imageInsertMode }),
     TextStyle,
     Color,
     Highlight.configure({
@@ -135,4 +148,3 @@ export function buildUEditorExtensions({ placeholder, maxCharacters }: { placeho
     SlashCommand,
   ];
 }
-

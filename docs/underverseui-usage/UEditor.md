@@ -23,6 +23,11 @@ export default function Example() {
 }
 ```
 
+## Images
+
+- Paste (`Ctrl+V`), drag & drop, and toolbar file picker all insert images as base64 (`data:`) by default.
+- If you want to upload immediately, set `imageInsertMode="upload"` and provide `uploadImage(file)` to return the final URL.
+
 ## Variants
 
 ### Notion Style (Default)
@@ -57,6 +62,8 @@ Display content without editing capabilities:
 | `onChange`           | `(content: string) => void`          | `undefined`                  | Callback function fired when content changes. |
 | `onHtmlChange`       | `(html: string) => void`             | `undefined`                  | Alias for onChange.                           |
 | `onJsonChange`       | `(json: object) => void`             | `undefined`                  | Callback with JSON structure of content.      |
+| `uploadImage`        | `(file: File) => Promise<string> \| string` | `undefined`            | Image upload handler (used when `imageInsertMode="upload"`). Must return the image URL. |
+| `imageInsertMode`    | `"base64" \| "upload"`               | `"base64"`                   | Insert images as base64 (default) or upload via `uploadImage`. |
 | `placeholder`        | `string`                             | `"Type '/' for commands..."` | Placeholder text when empty.                  |
 | `className`          | `string`                             | `undefined`                  | Additional CSS classes for the container.     |
 | `editable`           | `boolean`                            | `true`                       | Whether the editor is editable.               |
@@ -92,7 +99,7 @@ Display content without editing capabilities:
 - **Blockquotes**
 - **Code Blocks** with syntax highlighting (via lowlight)
 - **Tables** (with row/column operations, header support)
-- **Images**
+- **Images** (paste/drop/upload; base64 by default)
 - **Horizontal Divider**
 
 ### Table Features
@@ -186,6 +193,7 @@ The editor is built with Tailwind CSS and supports:
 - Smooth animations and transitions
 - Backdrop blur effects on menus
 - Focus ring states for accessibility
+- Selected image outline when clicking an image
 
 ## Accessibility
 

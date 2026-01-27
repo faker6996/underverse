@@ -3,6 +3,8 @@ export interface UEditorProps {
   onChange?: (content: string) => void;
   onHtmlChange?: (html: string) => void;
   onJsonChange?: (json: object) => void;
+  uploadImage?: (file: File) => Promise<string> | string;
+  imageInsertMode?: "base64" | "upload";
   placeholder?: string;
   className?: string;
   editable?: boolean;
@@ -18,4 +20,3 @@ export interface UEditorProps {
 }
 
 export type UEditorVariant = NonNullable<UEditorProps["variant"]>;
-

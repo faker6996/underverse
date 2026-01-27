@@ -15,6 +15,8 @@ const UEditor = ({
   onChange,
   onHtmlChange,
   onJsonChange,
+  uploadImage,
+  imageInsertMode = "base64",
   placeholder,
   className,
   editable = true,
@@ -32,8 +34,8 @@ const UEditor = ({
   const effectivePlaceholder = placeholder ?? t("placeholder");
 
   const extensions = useMemo(
-    () => buildUEditorExtensions({ placeholder: effectivePlaceholder, maxCharacters }),
-    [effectivePlaceholder, maxCharacters],
+    () => buildUEditorExtensions({ placeholder: effectivePlaceholder, maxCharacters, uploadImage, imageInsertMode }),
+    [effectivePlaceholder, maxCharacters, uploadImage, imageInsertMode],
   );
 
   const editor = useEditor({
@@ -82,6 +84,10 @@ const UEditor = ({
           "[&_pre]:!bg-[#1e1e1e]",
           "[&_pre]:!text-[#d4d4d4]",
           "[&_pre_code]:!bg-transparent",
+          "[&_img.ProseMirror-selectednode]:ring-2",
+          "[&_img.ProseMirror-selectednode]:ring-primary/60",
+          "[&_img.ProseMirror-selectednode]:ring-offset-2",
+          "[&_img.ProseMirror-selectednode]:ring-offset-background",
           "[&_hr]:border-t-2",
           "[&_hr]:border-primary/30",
           "[&_hr]:my-8",
@@ -160,7 +166,9 @@ const UEditor = ({
         className,
       )}
     >
-      {editable && showToolbar && <EditorToolbar editor={editor} variant={variant} />}
+      {editable && showToolbar && (
+        <EditorToolbar editor={editor} variant={variant} uploadImage={uploadImage} imageInsertMode={imageInsertMode} />
+      )}
       {editable && showBubbleMenu && <CustomBubbleMenu editor={editor} />}
       {editable && showFloatingMenu && <CustomFloatingMenu editor={editor} />}
 

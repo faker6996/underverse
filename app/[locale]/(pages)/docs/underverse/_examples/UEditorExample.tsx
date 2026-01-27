@@ -26,12 +26,26 @@ export default function UEditorExample() {
     `import UEditor from '@/components/ui/UEditor'\n` +
     `import { useState } from 'react'\n\n` +
     `const [content, setContent] = useState("<p>Hello!</p>")\n\n` +
+    `// Images: paste/drop/file => base64 (data:) by default\n` +
     `// Basic Notion-style editor\n` +
     `<UEditor\n` +
     `  content={content}\n` +
     `  onChange={setContent}\n` +
     `  placeholder="Type '/' for commands..."\n` +
     `  variant="notion"\n` +
+    `/>\n\n` +
+    `// Optional: upload images immediately (instead of base64)\n` +
+    `<UEditor\n` +
+    `  content={content}\n` +
+    `  onChange={setContent}\n` +
+    `  imageInsertMode="upload"\n` +
+    `  uploadImage={async (file) => {\n` +
+    `    const fd = new FormData()\n` +
+    `    fd.append('file', file)\n` +
+    `    const res = await fetch('/api/upload', { method: 'POST', body: fd })\n` +
+    `    const data = await res.json()\n` +
+    `    return data.url\n` +
+    `  }}\n` +
     `/>\n\n` +
     `// Minimal toolbar\n` +
     `<UEditor\n` +
@@ -146,6 +160,18 @@ export default function UEditorExample() {
     { property: "onChange", description: "Callback when HTML content changes", type: "(content: string) => void", default: "—" },
     { property: "onHtmlChange", description: "Alias for onChange", type: "(html: string) => void", default: "—" },
     { property: "onJsonChange", description: "Callback with JSON structure of content", type: "(json: object) => void", default: "—" },
+    {
+      property: "uploadImage",
+      description: 'Override image upload handler (used when imageInsertMode="upload"). Return the image URL.',
+      type: "(file: File) => Promise<string> | string",
+      default: "—",
+    },
+    {
+      property: "imageInsertMode",
+      description: 'How images are inserted: "base64" (default) or "upload" (uses uploadImage).',
+      type: '"base64" | "upload"',
+      default: '"base64"',
+    },
     { property: "placeholder", description: "Placeholder text when empty", type: "string", default: "\"Type '/' for commands...\"" },
     { property: "className", description: "Additional CSS classes for container", type: "string", default: "undefined" },
     { property: "editable", description: "Whether the editor is editable", type: "boolean", default: "true" },
@@ -165,6 +191,8 @@ export default function UEditorExample() {
     "onChange",
     "onHtmlChange",
     "onJsonChange",
+    "uploadImage",
+    "imageInsertMode",
     "placeholder",
     "className",
     "editable",
@@ -200,7 +228,7 @@ export default function UEditorExample() {
           <li>✓ Blockquote</li>
           <li>✓ Code blocks with syntax highlighting</li>
           <li>✓ Tables (resizable)</li>
-          <li>✓ Images</li>
+          <li>✓ Images (paste/drop/upload; base64 by default)</li>
           <li>✓ Links</li>
           <li>✓ Horizontal divider</li>
         </ul>

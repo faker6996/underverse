@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import type { Editor } from "@tiptap/core";
 import { useTranslations } from "next-intl";
 import {
@@ -35,6 +35,7 @@ import {
   Type,
   Underline as UnderlineIcon,
   Undo as UndoIcon,
+  Upload,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu";
@@ -42,6 +43,17 @@ import { Tooltip } from "../Tooltip";
 import { EditorColorPalette, useEditorColors } from "./colors";
 import { ImageInput } from "./inputs";
 import type { UEditorVariant } from "./types";
+
+type UploadImageFn = (file: File) => Promise<string> | string;
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ""));
+    reader.onerror = () => reject(reader.error ?? new Error("Failed to read image file"));
+    reader.readAsDataURL(file);
+  });
+}
 
 export const ToolbarButton = React.forwardRef<
   HTMLButtonElement,
@@ -88,10 +100,45 @@ ToolbarButton.displayName = "ToolbarButton";
 
 const ToolbarDivider = () => <div className="w-px h-6 bg-border/50 mx-1" />;
 
-export const EditorToolbar = ({ editor, variant }: { editor: Editor; variant: UEditorVariant }) => {
+export const EditorToolbar = ({
+  editor,
+  variant,
+  uploadImage,
+  imageInsertMode = "base64",
+}: {
+  editor: Editor;
+  variant: UEditorVariant;
+  uploadImage?: UploadImageFn;
+  imageInsertMode?: "base64" | "upload";
+}) => {
   const t = useTranslations("UEditor");
   const { textColors, highlightColors } = useEditorColors();
   const [showImageInput, setShowImageInput] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
+
+  const insertImageFiles = async (files: File[]) => {
+    if (files.length === 0) return;
+
+    setIsUploadingImage(true);
+    setImageUploadError(null);
+
+    for (const file of files) {
+      if (!file.type.startsWith("image/")) continue;
+      try {
+        const src =
+          imageInsertMode === "upload" && uploadImage ? await uploadImage(file) : await fileToDataUrl(file);
+        if (!src) continue;
+        editor.chain().focus().setImage({ src, alt: file.name }).run();
+        editor.commands.createParagraphNear();
+      } catch {
+        setImageUploadError(t("imageInput.uploadError"));
+      }
+    }
+
+    setIsUploadingImage(false);
+  };
 
   if (variant === "minimal") {
     return (
@@ -337,7 +384,28 @@ export const EditorToolbar = ({ editor, variant }: { editor: Editor; variant: UE
             onCancel={() => setShowImageInput(false)}
           />
         ) : (
-          <DropdownMenuItem icon={LinkIcon} label={t("imageInput.addFromUrl")} onClick={() => setShowImageInput(true)} />
+          <>
+            <DropdownMenuItem icon={LinkIcon} label={t("imageInput.addFromUrl")} onClick={() => setShowImageInput(true)} />
+            <DropdownMenuItem
+              icon={Upload}
+              label={isUploadingImage ? t("imageInput.uploading") : t("imageInput.uploadTab")}
+              disabled={isUploadingImage}
+              onClick={() => fileInputRef.current?.click()}
+            />
+            {imageUploadError && <DropdownMenuItem label={imageUploadError} disabled destructive />}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                const files = Array.from(e.target.files ?? []);
+                e.target.value = "";
+                void insertImageFiles(files);
+              }}
+            />
+          </>
         )}
       </DropdownMenu>
 
@@ -411,4 +479,3 @@ export const EditorToolbar = ({ editor, variant }: { editor: Editor; variant: UE
     </div>
   );
 };
-
