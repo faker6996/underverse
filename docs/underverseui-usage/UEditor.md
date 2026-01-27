@@ -7,16 +7,7 @@ A powerful Notion-like rich text editor built with [TipTap](https://tiptap.dev/)
 The editor requires the following TipTap packages:
 
 ```bash
-npm install @tiptap/react @tiptap/extension-document @tiptap/extension-paragraph @tiptap/extension-text \
-  @tiptap/extension-bold @tiptap/extension-italic @tiptap/extension-strike @tiptap/extension-underline \
-  @tiptap/extension-heading @tiptap/extension-bullet-list @tiptap/extension-ordered-list @tiptap/extension-list-item \
-  @tiptap/extension-task-list @tiptap/extension-task-item @tiptap/extension-blockquote @tiptap/extension-code \
-  @tiptap/extension-code-block-lowlight @tiptap/extension-history @tiptap/extension-placeholder \
-  @tiptap/extension-link @tiptap/extension-image @tiptap/extension-text-style @tiptap/extension-color \
-  @tiptap/extension-highlight @tiptap/extension-text-align @tiptap/extension-table @tiptap/extension-table-row \
-  @tiptap/extension-table-cell @tiptap/extension-table-header @tiptap/extension-character-count \
-  @tiptap/extension-typography @tiptap/extension-subscript @tiptap/extension-superscript \
-  @tiptap/extension-bubble-menu @tiptap/extension-floating-menu lowlight
+npm install @underverse-ui/underverse
 ```
 
 ## Usage
