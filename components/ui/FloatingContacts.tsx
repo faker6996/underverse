@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Phone } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import React from "react";
 
 interface FloatingContactsProps {
   className?: string;
@@ -87,7 +88,7 @@ export default function FloatingContacts({ className }: FloatingContactsProps) {
           "w-12 h-12 rounded-full text-white shadow-lg leading-none",
           "grid place-items-center",
           "hover:scale-105 active:scale-95 transition-transform",
-          "bg-[#22c55e]"
+          "bg-[#22c55e]",
         )}
       >
         <Phone className="w-6 h-6" />
@@ -104,7 +105,7 @@ export default function FloatingContacts({ className }: FloatingContactsProps) {
             "w-12 h-12 rounded-full text-white shadow-lg leading-none",
             "grid place-items-center",
             "hover:scale-105 active:scale-95 transition-transform",
-            bg
+            bg,
           )}
         >
           <Icon className="w-6 h-6" />

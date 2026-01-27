@@ -164,6 +164,8 @@ export type { UnderverseProviderProps } from "../../../lib/i18n/translation-adap
 export { useSmartTranslations, useSmartLocale, ForceInternalTranslationsProvider } from "./hooks/useSmartTranslations";
 
 // Excluded: NotificationBell (depends on project-specific API, auth, and sockets)
+export { default as UEditor } from "../../../components/ui/UEditor";
+export type { UEditorProps, UEditorVariant } from "../../../components/ui/UEditor";
 
 // i18n messages for next-intl consumers
 // Provide ready-to-merge messages so apps can easily integrate underverse UI texts.
