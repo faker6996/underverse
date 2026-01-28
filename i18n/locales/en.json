@@ -272,6 +272,9 @@
       "calendar": {
         "title": "Calendar"
       },
+      "calendarTimeline": {
+        "title": "CalendarTimeline"
+      },
       "timePicker": {
         "title": "TimePicker"
       },
@@ -330,6 +333,20 @@
         "minDate": "Lower bound for selectable dates.",
         "maxDate": "Upper bound for selectable dates.",
         "disabledDates": "List or predicate to disable specific dates."
+      },
+      "calendarTimeline": {
+        "resources": "List of resources (rows).",
+        "events": "List of events (end is exclusive).",
+        "view": "Active view: month/week/day (controlled).",
+        "date": "Anchor date for the current view (controlled).",
+        "timeZone": "IANA timezone used for rendering and calculations.",
+        "locale": "BCP47 locale used for formatting headers.",
+        "groups": "Optional groups for resources.",
+        "groupCollapsed": "Controlled collapsed map for groups.",
+        "interactions": "Enable create/drag/resize interactions.",
+        "onCreateEvent": "Called when creating an event by dragging on empty cells.",
+        "onEventMove": "Called when an event is moved.",
+        "onEventResize": "Called when an event is resized."
       },
       "list": {
         "as": "Element to render as (ul/ol/div).",

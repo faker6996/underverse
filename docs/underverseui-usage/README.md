@@ -58,6 +58,7 @@ Underverse UI là thư viện UI components cho React/Next.js với hỗ trợ �
 | [DatePicker](./DatePicker.md)                 | Date picker           | ✅   |
 | [TimePicker](./TimePicker.md)                 | Time picker           | -    |
 | [Calendar](./Calendar.md)                     | Full calendar view    | -    |
+| [CalendarTimeline](./CalendarTimeline.md)     | Resource timeline     | ✅   |
 | [Combobox](./Combobox.md)                     | Searchable select     | -    |
 | [MultiCombobox](./MultiCombobox.md)           | Multi-select combobox | -    |
 | [CategoryTreeSelect](./CategoryTreeSelect.md) | Tree select           | -    |

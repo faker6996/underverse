@@ -49,6 +49,17 @@
     "clear": "クリア",
     "done": "完了"
   },
+  "CalendarTimeline": {
+    "today": "今日",
+    "prev": "前へ",
+    "next": "次へ",
+    "month": "月",
+    "week": "週",
+    "day": "日",
+    "expandGroup": "グループを展開",
+    "collapseGroup": "グループを折りたたむ",
+    "more": "+{n}件"
+  },
   "Pagination": {
     "navigationLabel": "ページナビゲーション",
     "showingResults": "{startItem}–{endItem} / 全{totalItems}件",

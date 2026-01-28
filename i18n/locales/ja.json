@@ -262,6 +262,9 @@
       "calendar": {
         "title": "Calendar"
       },
+      "calendarTimeline": {
+        "title": "CalendarTimeline"
+      },
       "timePicker": {
         "title": "TimePicker"
       },
@@ -320,6 +323,20 @@
         "minDate": "選択可能日付の下限。",
         "maxDate": "選択可能日付の上限。",
         "disabledDates": "特定の日付を無効化する配列または関数。"
+      },
+      "calendarTimeline": {
+        "resources": "リソース（行）の一覧。",
+        "events": "イベント一覧（end は exclusive）。",
+        "view": "表示モード: month/week/day（制御）。",
+        "date": "現在表示の基準日（制御）。",
+        "timeZone": "レンダリング/計算に使う IANA タイムゾーン。",
+        "locale": "ヘッダーのフォーマットに使う BCP47 ロケール。",
+        "groups": "リソースのグルーピング（任意）。",
+        "groupCollapsed": "グループの折りたたみ状態（制御）。",
+        "interactions": "作成/ドラッグ/リサイズを有効化。",
+        "onCreateEvent": "空セルをドラッグしてイベント作成時に呼び出し。",
+        "onEventMove": "イベント移動時に呼び出し。",
+        "onEventResize": "イベントリサイズ時に呼び出し。"
       },
       "list": {
         "as": "レンダー要素（ul/ol/div）。",

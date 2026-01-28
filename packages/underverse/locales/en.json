@@ -49,6 +49,17 @@
     "clear": "Clear",
     "done": "Done"
   },
+  "CalendarTimeline": {
+    "today": "Today",
+    "prev": "Previous",
+    "next": "Next",
+    "month": "Month",
+    "week": "Week",
+    "day": "Day",
+    "expandGroup": "Expand group",
+    "collapseGroup": "Collapse group",
+    "more": "+{n} more"
+  },
   "Pagination": {
     "navigationLabel": "Pagination navigation",
     "showingResults": "Showing {startItem}–{endItem} of {totalItems}",

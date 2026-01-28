@@ -49,6 +49,17 @@
     "clear": "지우기",
     "done": "완료"
   },
+  "CalendarTimeline": {
+    "today": "오늘",
+    "prev": "이전",
+    "next": "다음",
+    "month": "월",
+    "week": "주",
+    "day": "일",
+    "expandGroup": "그룹 펼치기",
+    "collapseGroup": "그룹 접기",
+    "more": "+{n}개 더"
+  },
   "Pagination": {
     "navigationLabel": "페이지 네비게이션",
     "showingResults": "{startItem}–{endItem} / 총 {totalItems}개",

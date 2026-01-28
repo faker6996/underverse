@@ -58,6 +58,19 @@ export { default as TimePicker } from "../../../components/ui/TimePicker";
 export type { TimePickerProps } from "../../../components/ui/TimePicker";
 export { default as Calendar } from "../../../components/ui/Calendar";
 export type { CalendarProps, CalendarEvent } from "../../../components/ui/Calendar";
+export { default as CalendarTimeline } from "../../../components/ui/CalendarTimeline";
+export type {
+  CalendarTimelineProps,
+  CalendarTimelineView,
+  CalendarTimelineDateInput,
+  CalendarTimelineGroup,
+  CalendarTimelineResource,
+  CalendarTimelineEvent,
+  CalendarTimelineLabels,
+  CalendarTimelineFormatters,
+  CalendarTimelineInteractions,
+  CalendarTimelineVirtualization,
+} from "../../../components/ui/CalendarTimeline";
 export { Combobox } from "../../../components/ui/Combobox";
 export type { ComboboxProps } from "../../../components/ui/Combobox";
 export { MultiCombobox } from "../../../components/ui/MultiCombobox";

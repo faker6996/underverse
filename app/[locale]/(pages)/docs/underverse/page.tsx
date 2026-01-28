@@ -52,6 +52,7 @@ const ColorPickerExample = dynamicImport(() => import("./_examples/ColorPickerEx
 const TimePickerExample = dynamicImport(() => import("./_examples/TimePickerExample"), { ssr: false });
 const DateTimePickerExample = dynamicImport(() => import("./_examples/DateTimePickerExample"), { ssr: false });
 const CalendarExample = dynamicImport(() => import("./_examples/CalendarExample"), { ssr: false });
+const CalendarTimelineExample = dynamicImport(() => import("./_examples/CalendarTimelineExample"), { ssr: false });
 const PaginationExample = dynamicImport(() => import("./_examples/PaginationExample"), { ssr: false });
 const ImageUploadExample = dynamicImport(() => import("./_examples/ImageUploadExample"), { ssr: false });
 const AlertExample = dynamicImport(() => import("./_examples/AlertExample"), { ssr: false });
@@ -216,6 +217,10 @@ function DocsInner() {
 
               <DocSection id="calendar" title={t("sections.calendar.title")}>
                 <CalendarExample />
+              </DocSection>
+
+              <DocSection id="calendar-timeline" title={t("sections.calendarTimeline.title")}>
+                <CalendarTimelineExample />
               </DocSection>
 
               <DocSection id="color-picker" title={t("sections.colorPicker.title")}>

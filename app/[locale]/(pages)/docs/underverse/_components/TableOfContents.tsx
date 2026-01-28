@@ -64,6 +64,7 @@ const tocGroups: TocGroup[] = [
       { id: "date-time-picker", labelKey: "sections.dateTimePicker.title" },
       { id: "time-picker", labelKey: "sections.timePicker.title" },
       { id: "calendar", labelKey: "sections.calendar.title" },
+      { id: "calendar-timeline", labelKey: "sections.calendarTimeline.title" },
       { id: "color-picker", labelKey: "sections.colorPicker.title" },
       { id: "combobox", labelKey: "sections.combobox.title" },
       { id: "multi-combobox", labelKey: "sections.multiCombobox.title" },

@@ -265,6 +265,9 @@
       "calendar": {
         "title": "Calendar"
       },
+      "calendarTimeline": {
+        "title": "CalendarTimeline"
+      },
       "timePicker": {
         "title": "TimePicker"
       },
@@ -323,6 +326,20 @@
         "minDate": "Giới hạn dưới cho ngày có thể chọn.",
         "maxDate": "Giới hạn trên cho ngày có thể chọn.",
         "disabledDates": "Danh sách hoặc hàm để vô hiệu hoá các ngày cụ thể."
+      },
+      "calendarTimeline": {
+        "resources": "Danh sách resource (các hàng).",
+        "events": "Danh sách event (end là exclusive).",
+        "view": "Chế độ xem: month/week/day (controlled).",
+        "date": "Ngày neo cho view hiện tại (controlled).",
+        "timeZone": "Múi giờ IANA dùng để render và tính toán.",
+        "locale": "Locale BCP47 dùng để format header.",
+        "groups": "Nhóm resources (tuỳ chọn).",
+        "groupCollapsed": "Map điều khiển trạng thái thu gọn group.",
+        "interactions": "Bật create/drag/resize.",
+        "onCreateEvent": "Gọi khi tạo event bằng cách kéo ở ô trống.",
+        "onEventMove": "Gọi khi kéo di chuyển event.",
+        "onEventResize": "Gọi khi resize event."
       },
       "list": {
         "as": "Thẻ element để render (ul/ol/div).",

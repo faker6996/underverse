@@ -60,6 +60,17 @@ const defaultTranslations: Record<string, LocaleTranslations> = {
       today: "Today",
       clear: "Clear",
     },
+    CalendarTimeline: {
+      today: "Today",
+      prev: "Previous",
+      next: "Next",
+      month: "Month",
+      week: "Week",
+      day: "Day",
+      expandGroup: "Expand group",
+      collapseGroup: "Collapse group",
+      more: "+{n} more",
+    },
     Pagination: {
       navigationLabel: "Pagination navigation",
       showingResults: "Showing {startItem}–{endItem} of {totalItems}",
@@ -123,6 +134,17 @@ const defaultTranslations: Record<string, LocaleTranslations> = {
       placeholder: "Chọn ngày",
       today: "Hôm nay",
       clear: "Xóa",
+    },
+    CalendarTimeline: {
+      today: "Hôm nay",
+      prev: "Trước",
+      next: "Sau",
+      month: "Tháng",
+      week: "Tuần",
+      day: "Ngày",
+      expandGroup: "Mở nhóm",
+      collapseGroup: "Thu gọn nhóm",
+      more: "+{n} thêm",
     },
     Pagination: {
       navigationLabel: "Điều hướng phân trang",
@@ -188,6 +210,17 @@ const defaultTranslations: Record<string, LocaleTranslations> = {
       today: "오늘",
       clear: "지우기",
     },
+    CalendarTimeline: {
+      today: "오늘",
+      prev: "이전",
+      next: "다음",
+      month: "월",
+      week: "주",
+      day: "일",
+      expandGroup: "그룹 펼치기",
+      collapseGroup: "그룹 접기",
+      more: "+{n}개 더",
+    },
     Pagination: {
       navigationLabel: "페이지 네비게이션",
       showingResults: "{startItem}–{endItem} / 총 {totalItems}개",
@@ -251,6 +284,17 @@ const defaultTranslations: Record<string, LocaleTranslations> = {
       placeholder: "日付を選択",
       today: "今日",
       clear: "クリア",
+    },
+    CalendarTimeline: {
+      today: "今日",
+      prev: "前へ",
+      next: "次へ",
+      month: "月",
+      week: "週",
+      day: "日",
+      expandGroup: "グループを展開",
+      collapseGroup: "グループを折りたたむ",
+      more: "+{n}件",
     },
     Pagination: {
       navigationLabel: "ページナビゲーション",
@@ -467,7 +511,11 @@ export function useLocale(): Locale {
     try {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const locale = nextIntlUseLocale();
-      return (locale === "vi" ? "vi" : "en") as Locale;
+      if (locale === "en" || locale === "vi" || locale === "ko" || locale === "ja") return locale;
+      if (locale?.startsWith?.("vi")) return "vi";
+      if (locale?.startsWith?.("ko")) return "ko";
+      if (locale?.startsWith?.("ja")) return "ja";
+      return "en";
     } catch {
       // Fall through to default
     }

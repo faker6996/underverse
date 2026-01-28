@@ -262,6 +262,9 @@
       "calendar": {
         "title": "Calendar"
       },
+      "calendarTimeline": {
+        "title": "CalendarTimeline"
+      },
       "timePicker": {
         "title": "TimePicker"
       },
@@ -320,6 +323,20 @@
         "minDate": "선택 가능한 날짜의 하한.",
         "maxDate": "선택 가능한 날짜의 상한.",
         "disabledDates": "특정 날짜를 비활성화하는 목록 또는 함수."
+      },
+      "calendarTimeline": {
+        "resources": "리소스(행) 목록.",
+        "events": "이벤트 목록(end는 exclusive).",
+        "view": "현재 보기: month/week/day(제어).",
+        "date": "현재 보기의 기준 날짜(제어).",
+        "timeZone": "렌더링/계산에 사용하는 IANA 타임존.",
+        "locale": "헤더 포맷에 사용하는 BCP47 로케일.",
+        "groups": "리소스 그룹(선택).",
+        "groupCollapsed": "그룹 접힘 상태를 제어하는 맵.",
+        "interactions": "생성/드래그/리사이즈 상호작용 활성화.",
+        "onCreateEvent": "빈 셀 드래그로 이벤트 생성 시 호출.",
+        "onEventMove": "이벤트 이동 시 호출.",
+        "onEventResize": "이벤트 리사이즈 시 호출."
       },
       "list": {
         "as": "렌더링 엘리먼트(ul/ol/div).",

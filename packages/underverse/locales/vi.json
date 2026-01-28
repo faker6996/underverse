@@ -49,6 +49,17 @@
     "clear": "Xóa",
     "done": "Xong"
   },
+  "CalendarTimeline": {
+    "today": "Hôm nay",
+    "prev": "Trước",
+    "next": "Sau",
+    "month": "Tháng",
+    "week": "Tuần",
+    "day": "Ngày",
+    "expandGroup": "Mở nhóm",
+    "collapseGroup": "Thu gọn nhóm",
+    "more": "+{n} thêm"
+  },
   "Pagination": {
     "navigationLabel": "Điều hướng phân trang",
     "showingResults": "Hiển thị {startItem}–{endItem} trong tổng {totalItems}",
