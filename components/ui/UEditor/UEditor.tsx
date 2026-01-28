@@ -34,8 +34,8 @@ const UEditor = ({
   const effectivePlaceholder = placeholder ?? t("placeholder");
 
   const extensions = useMemo(
-    () => buildUEditorExtensions({ placeholder: effectivePlaceholder, maxCharacters, uploadImage, imageInsertMode }),
-    [effectivePlaceholder, maxCharacters, uploadImage, imageInsertMode],
+    () => buildUEditorExtensions({ placeholder: effectivePlaceholder, maxCharacters, uploadImage, imageInsertMode, editable }),
+    [effectivePlaceholder, maxCharacters, uploadImage, imageInsertMode, editable],
   );
 
   const editor = useEditor({
@@ -57,6 +57,23 @@ const UEditor = ({
             event.stopPropagation();
           }
           return false;
+        },
+        click: (view, event) => {
+          if (!(event instanceof MouseEvent)) return false;
+          if (event.button !== 0) return false;
+
+          const target = event.target as Element | null;
+          const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
+          const href = anchor?.getAttribute("href") ?? "";
+          if (!href) return false;
+
+          // Avoid opening while user is selecting text.
+          if (!view.state.selection.empty) return false;
+
+          event.preventDefault();
+          event.stopPropagation();
+          window.open(href, "_blank", "noopener,noreferrer");
+          return true;
         },
       },
       attributes: {

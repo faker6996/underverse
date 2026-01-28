@@ -4,6 +4,18 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Check, X } from "lucide-react";
 
+function normalizeUrl(raw: string) {
+  const url = raw.trim();
+  if (!url) return "";
+
+  // Keep absolute URLs, protocol URLs, anchors, and relative paths as-is.
+  if (url.startsWith("#") || url.startsWith("/")) return url;
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)) return url;
+
+  // Otherwise treat it like a hostname and default to https.
+  return `https://${url}`;
+}
+
 export const LinkInput = ({
   onSubmit,
   onCancel,
@@ -24,9 +36,8 @@ export const LinkInput = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (url) {
-      onSubmit(url.startsWith("http") ? url : `https://${url}`);
-    }
+    const normalized = normalizeUrl(url);
+    if (normalized) onSubmit(normalized);
   };
 
   return (
@@ -104,4 +115,3 @@ export const ImageInput = ({ onSubmit, onCancel }: { onSubmit: (url: string, alt
     </form>
   );
 };
-

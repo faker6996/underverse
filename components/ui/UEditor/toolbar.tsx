@@ -59,18 +59,22 @@ export const ToolbarButton = React.forwardRef<
   HTMLButtonElement,
   {
     onClick: (e: React.MouseEvent) => void;
+    onMouseDown?: (e: React.MouseEvent) => void;
     active?: boolean;
     disabled?: boolean;
     children: React.ReactNode;
     title?: string;
     className?: string;
   }
->(({ onClick, active, disabled, children, title, className }, ref) => {
+>(({ onClick, onMouseDown, active, disabled, children, title, className }, ref) => {
   const button = (
     <button
       ref={ref}
       type="button"
-      onMouseDown={(e) => e.preventDefault()}
+      onMouseDown={(e) => {
+        onMouseDown?.(e);
+        e.preventDefault();
+      }}
       onClick={onClick}
       disabled={disabled}
       className={cn(

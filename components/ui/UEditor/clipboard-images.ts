@@ -12,6 +12,9 @@ export type ClipboardImagesOptions = {
 function getImageFiles(dataTransfer: DataTransfer | null): File[] {
   if (!dataTransfer) return [];
 
+  // Some browsers expose the *same* pasted/dropped image both in `items` and `files`.
+  // Prefer `items` when available to avoid duplicate inserts.
+  const itemFiles: File[] = [];
   const byKey = new Map<string, File>();
 
   for (const item of Array.from(dataTransfer.items ?? [])) {
@@ -21,6 +24,9 @@ function getImageFiles(dataTransfer: DataTransfer | null): File[] {
     if (!file) continue;
     byKey.set(`${file.name}:${file.size}:${file.lastModified}`, file);
   }
+
+  itemFiles.push(...Array.from(byKey.values()));
+  if (itemFiles.length > 0) return itemFiles;
 
   for (const file of Array.from(dataTransfer.files ?? [])) {
     if (!file.type.startsWith("image/")) continue;

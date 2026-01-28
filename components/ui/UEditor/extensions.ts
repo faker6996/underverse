@@ -17,7 +17,6 @@ import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import History from "@tiptap/extension-history";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
@@ -34,6 +33,7 @@ import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import { common, createLowlight } from "lowlight";
 import { SlashCommand } from "./slash-command";
 import { ClipboardImages } from "./clipboard-images";
+import ResizableImage from "./resizable-image";
 
 const lowlight = createLowlight(common);
 
@@ -42,11 +42,13 @@ export function buildUEditorExtensions({
   maxCharacters,
   uploadImage,
   imageInsertMode = "base64",
+  editable = true,
 }: {
   placeholder: string;
   maxCharacters?: number;
   uploadImage?: (file: File) => Promise<string> | string;
   imageInsertMode?: "base64" | "upload";
+  editable?: boolean;
 }) {
   return [
     Document,
@@ -103,12 +105,7 @@ export function buildUEditorExtensions({
         class: "text-primary underline underline-offset-2 hover:text-primary/80 cursor-pointer",
       },
     }),
-    Image.configure({
-      allowBase64: true,
-      HTMLAttributes: {
-        class: "rounded-lg max-w-full h-auto my-4",
-      },
-    }),
+    ResizableImage,
     ClipboardImages.configure({ upload: uploadImage, insertMode: imageInsertMode }),
     TextStyle,
     Color,
@@ -116,7 +113,7 @@ export function buildUEditorExtensions({
       multicolor: true,
     }),
     TextAlign.configure({
-      types: ["heading", "paragraph"],
+      types: ["heading", "paragraph", "image"],
     }),
     Table.configure({
       resizable: true,

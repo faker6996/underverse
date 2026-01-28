@@ -302,11 +302,21 @@ const FloatingMenuContent = ({ editor }: { editor: Editor }) => {
   );
 };
 
-const BubbleMenuContent = ({ editor }: { editor: Editor }) => {
+const BubbleMenuContent = ({
+  editor,
+  onKeepOpenChange,
+}: {
+  editor: Editor;
+  onKeepOpenChange?: (keepOpen: boolean) => void;
+}) => {
   const t = useTranslations("UEditor");
   const { textColors, highlightColors } = useEditorColors();
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [showEditorColorPalette, setShowEditorColorPalette] = useState(false);
+
+  useEffect(() => {
+    onKeepOpenChange?.(showLinkInput);
+  }, [onKeepOpenChange, showLinkInput]);
 
   if (showLinkInput) {
     return (
@@ -314,8 +324,14 @@ const BubbleMenuContent = ({ editor }: { editor: Editor }) => {
         initialUrl={editor.getAttributes("link").href || ""}
         onSubmit={(url) => {
           editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+          setShowLinkInput(false);
+          // Move focus back to editor so the bubble can resume normal tracking.
+          requestAnimationFrame(() => editor.commands.focus());
         }}
-        onCancel={() => setShowLinkInput(false)}
+        onCancel={() => {
+          setShowLinkInput(false);
+          requestAnimationFrame(() => editor.commands.focus());
+        }}
       />
     );
   }
@@ -385,7 +401,17 @@ const BubbleMenuContent = ({ editor }: { editor: Editor }) => {
 
       <div className="w-px h-6 bg-border/50 mx-1" />
 
-      <ToolbarButton onClick={() => setShowLinkInput(true)} active={editor.isActive("link")} title={t("toolbar.link")}>
+      <ToolbarButton
+        onMouseDown={() => {
+          // Pin the bubble as early as possible (mousedown) so it won't disappear when focusing the input.
+          onKeepOpenChange?.(true);
+        }}
+        onClick={() => {
+          setShowLinkInput(true);
+        }}
+        active={editor.isActive("link")}
+        title={t("toolbar.link")}
+      >
         <LinkIcon className="w-4 h-4" />
       </ToolbarButton>
 
@@ -417,13 +443,18 @@ export const CustomBubbleMenu = ({ editor }: { editor: Editor }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
+  const keepOpenRef = useRef(false);
+  const setKeepOpen = useCallback((next: boolean) => {
+    keepOpenRef.current = next;
+    if (next) setIsVisible(true);
+  }, []);
 
   useEffect(() => {
     const updatePosition = () => {
       const { state, view } = editor;
       const { from, to, empty } = state.selection;
 
-      if (empty || !view.hasFocus()) {
+      if (!keepOpenRef.current && (empty || !view.hasFocus())) {
         setIsVisible(false);
         return;
       }
@@ -438,7 +469,9 @@ export const CustomBubbleMenu = ({ editor }: { editor: Editor }) => {
       setIsVisible(true);
     };
 
-    const handleBlur = () => setIsVisible(false);
+    const handleBlur = () => {
+      if (!keepOpenRef.current) setIsVisible(false);
+    };
 
     editor.on("selectionUpdate", updatePosition);
     editor.on("focus", updatePosition);
@@ -464,7 +497,10 @@ export const CustomBubbleMenu = ({ editor }: { editor: Editor }) => {
       }}
       onMouseDown={(e) => e.preventDefault()}
     >
-      <BubbleMenuContent editor={editor} />
+      <BubbleMenuContent
+        editor={editor}
+        onKeepOpenChange={setKeepOpen}
+      />
     </div>,
     document.body,
   );
@@ -524,4 +560,3 @@ export const CustomFloatingMenu = ({ editor }: { editor: Editor }) => {
     document.body,
   );
 };
-
