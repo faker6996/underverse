@@ -318,6 +318,21 @@ const BubbleMenuContent = ({
     onKeepOpenChange?.(showLinkInput);
   }, [onKeepOpenChange, showLinkInput]);
 
+  useEffect(() => {
+    if (!showLinkInput) return;
+
+    // If user opened the link input but then clicked somewhere else in the editor,
+    // close the input and resume normal bubble behavior.
+    const close = () => setShowLinkInput(false);
+    editor.on("selectionUpdate", close);
+    editor.on("blur", close);
+
+    return () => {
+      editor.off("selectionUpdate", close);
+      editor.off("blur", close);
+    };
+  }, [editor, showLinkInput]);
+
   if (showLinkInput) {
     return (
       <LinkInput
