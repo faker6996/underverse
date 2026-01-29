@@ -22,7 +22,7 @@ export const SIZE_CONFIG_BY_SIZE: Record<CalendarTimelineSize, CalendarTimelineS
     resourceColumnWidth: 200,
     rowHeight: 44,
     slotMinWidth: 52,
-    eventHeight: 16,
+    eventHeight: 20,
     laneGap: 3,
     lanePaddingY: 5,
     densityClass: "text-xs",
@@ -38,7 +38,7 @@ export const SIZE_CONFIG_BY_SIZE: Record<CalendarTimelineSize, CalendarTimelineS
     resourceColumnWidth: 240,
     rowHeight: 52,
     slotMinWidth: 64,
-    eventHeight: 18,
+    eventHeight: 24,
     laneGap: 4,
     lanePaddingY: 6,
     densityClass: "text-sm",
@@ -54,7 +54,7 @@ export const SIZE_CONFIG_BY_SIZE: Record<CalendarTimelineSize, CalendarTimelineS
     resourceColumnWidth: 280,
     rowHeight: 60,
     slotMinWidth: 76,
-    eventHeight: 20,
+    eventHeight: 28,
     laneGap: 5,
     lanePaddingY: 8,
     densityClass: "text-base",
@@ -71,4 +71,3 @@ export const SIZE_CONFIG_BY_SIZE: Record<CalendarTimelineSize, CalendarTimelineS
 export function getSizeConfig(size: CalendarTimelineSize) {
   return SIZE_CONFIG_BY_SIZE[size];
 }
-

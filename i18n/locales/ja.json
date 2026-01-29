@@ -1337,6 +1337,7 @@
     "resourcesHeader": "リソース",
     "expandGroup": "グループを展開",
     "collapseGroup": "グループを折りたたむ",
-    "more": "+{n}件"
+    "more": "+{n}件",
+    "deleteConfirm": "このイベントを削除しますか？"
   }
 }

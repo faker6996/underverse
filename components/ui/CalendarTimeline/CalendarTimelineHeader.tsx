@@ -131,11 +131,10 @@ export function CalendarTimelineHeader(props: {
             </div>
           ) : null}
         </div>
-        <div ref={headerRef} className="overflow-x-auto overflow-y-hidden scrollbar-none">
+        <div ref={headerRef} className="flex-1 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-none">
           {slotHeaderNodes}
         </div>
       </div>
     </div>
   );
 }
-

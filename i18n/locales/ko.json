@@ -1337,6 +1337,7 @@
     "resourcesHeader": "리소스",
     "expandGroup": "그룹 펼치기",
     "collapseGroup": "그룹 접기",
-    "more": "+{n}개 더"
+    "more": "+{n}개 더",
+    "deleteConfirm": "이 이벤트를 삭제할까요?"
   }
 }

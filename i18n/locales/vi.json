@@ -1381,6 +1381,7 @@
     "resourcesHeader": "Tài nguyên",
     "expandGroup": "Mở rộng nhóm",
     "collapseGroup": "Thu gọn nhóm",
-    "more": "+{n} thêm"
+    "more": "+{n} thêm",
+    "deleteConfirm": "Xóa sự kiện này?"
   }
 }

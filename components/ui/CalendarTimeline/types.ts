@@ -42,6 +42,7 @@ export interface CalendarTimelineLabels {
   expandGroup?: string;
   collapseGroup?: string;
   more?: (n: number) => string;
+  deleteConfirm?: string;
 }
 
 export interface CalendarTimelineFormatters {
@@ -57,6 +58,7 @@ export interface CalendarTimelineInteractions {
   creatable?: boolean;
   draggableEvents?: boolean;
   resizableEvents?: boolean;
+  deletableEvents?: boolean;
 }
 
 export interface CalendarTimelineVirtualization {
@@ -172,6 +174,7 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   onCreateEvent?: (draft: { resourceId: string; start: Date; end: Date }) => void;
   onEventMove?: (args: { eventId: string; resourceId: string; start: Date; end: Date }) => void;
   onEventResize?: (args: { eventId: string; start: Date; end: Date }) => void;
+  onEventDelete?: (args: { eventId: string }) => void;
   onMoreClick?: (args: { resourceId: string; hiddenEvents: CalendarTimelineEvent<TEventMeta>[] }) => void;
 
   virtualization?: CalendarTimelineVirtualization;

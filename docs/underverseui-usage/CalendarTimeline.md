@@ -94,6 +94,9 @@ export function Example() {
         onEventResize={({ eventId, start, end }) => {
           setEvents((prev) => prev.map((e) => (e.id === eventId ? { ...e, start, end } : e)));
         }}
+        onEventDelete={({ eventId }) => {
+          setEvents((prev) => prev.filter((e) => e.id !== eventId));
+        }}
       />
     </div>
   );
@@ -128,6 +131,19 @@ CalendarTimeline hỗ trợ **resize bằng chuột** (khi bật `enableLayoutRe
 
 - **Resize độ rộng cột Resource (bên trái)**: hover vào ô header “Resources”, kéo mép phải.
 - **Resize chiều cao từng hàng Resource**: hover vào **ô Resource bên trái của hàng đó**, kéo mép dưới.
+
+## Delete event (right click)
+
+Right click an event to show a confirm dialog and delete it (controlled by your `onEventDelete` handler).
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  onEventDelete={({ eventId }) => setEvents((prev) => prev.filter((e) => e.id !== eventId))}
+  interactions={{ deletableEvents: true }}
+/>
+```
 
 ### Controlled / Uncontrolled
 

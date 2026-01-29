@@ -16,7 +16,7 @@ import type {
 } from "./types";
 import { addZonedDays, addZonedMonths, getDtf, getIsoWeekInfo, localeToBCP47, startOfZonedDay } from "./date";
 import { binarySearchFirstGE, binarySearchLastLE, clamp, intervalPack } from "./layout";
-import { useHorizontalScrollSync, useVirtualVariableRows } from "./hooks";
+import { useClientWidth, useHorizontalScrollSync, useVirtualVariableRows } from "./hooks";
 import { getSizeConfig } from "./config";
 import { defaultEventTime, defaultMonthTitle, defaultSlotHeader } from "./defaults";
 import { buildRows, computeSlotStarts, eventsByResourceId, getGroupResourceCounts, normalizeEvents, resourcesById, type CalendarTimelineRow } from "./model";
@@ -81,6 +81,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   onCreateEvent,
   onEventMove,
   onEventResize,
+  onEventDelete,
   onMoreClick,
   virtualization,
   className,
@@ -184,6 +185,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       expandGroup: labels?.expandGroup ?? t("expandGroup"),
       collapseGroup: labels?.collapseGroup ?? t("collapseGroup"),
       more: labels?.more ?? ((n) => t("more", { n })),
+      deleteConfirm: labels?.deleteConfirm ?? t("deleteConfirm"),
     }),
     [labels, t],
   );
@@ -260,8 +262,18 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     onRangeChange?.(range);
   }, [range.start, range.end, onRangeChange]);
 
+  const leftRef = React.useRef<HTMLDivElement>(null);
+  const bodyRef = React.useRef<HTMLDivElement>(null);
+  const headerRef = React.useRef<HTMLDivElement>(null);
+  const bodyClientWidth = useClientWidth(bodyRef);
+
   const slotStarts = React.useMemo(() => slots.map((s) => s.start), [slots]);
-  const slotWidth = effectiveSlotMinWidth;
+  const slotWidth = React.useMemo(() => {
+    if (activeView !== "week") return effectiveSlotMinWidth;
+    if (bodyClientWidth <= 0) return effectiveSlotMinWidth;
+    if (slots.length <= 0) return effectiveSlotMinWidth;
+    return Math.max(effectiveSlotMinWidth, bodyClientWidth / slots.length);
+  }, [activeView, bodyClientWidth, effectiveSlotMinWidth, slots.length]);
   const gridWidth = slots.length * slotWidth;
 
   const normalizedEvents = React.useMemo(() => {
@@ -306,10 +318,6 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       setEventSheetOpen(false);
     }
   }, [activeEventSheetOpen, activeSelectedEventId, effectiveEnableEventSheet, selectedEvent, setEventSheetOpen]);
-
-  const leftRef = React.useRef<HTMLDivElement>(null);
-  const bodyRef = React.useRef<HTMLDivElement>(null);
-  const headerRef = React.useRef<HTMLDivElement>(null);
 
   useHorizontalScrollSync({ bodyRef, headerRef, leftRef });
 
@@ -400,6 +408,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       e: React.PointerEvent,
       args: { startWidth: number; startHeight: number; resourceId?: string },
     ) => {
+      if (e.button !== 0 || e.ctrlKey) return;
       resizeRef.current = {
         mode,
         pointerId: e.pointerId,
@@ -519,11 +528,14 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     pointerId: number;
     startSlotIdx: number;
     startRowResourceId: string;
+    startClientX: number;
+    startClientY: number;
   }>(null);
   const [preview, setPreview] = React.useState<{ eventId?: string; resourceId: string; start: Date; end: Date } | null>(null);
+  const suppressNextEventClickRef = React.useRef(false);
 
   const getPointerContext = React.useCallback(
-    (clientX: number, clientY: number) => {
+    (clientX: number, clientY: number, opts?: { biasLeft?: boolean }) => {
       const body = bodyRef.current;
       if (!body) return null;
       const el = document.elementFromPoint(clientX, clientY) as HTMLElement | null;
@@ -533,7 +545,10 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       // from the scroll container to avoid double-counting scrollLeft.
       const bodyRect = body.getBoundingClientRect();
       const x = clientX - bodyRect.left + body.scrollLeft;
-      const slotIdx = clamp(Math.floor(x / slotWidth), 0, Math.max(0, slots.length - 1));
+      // When creating events, users often drag to an hour boundary. If the pointer is
+      // exactly on the boundary, bias to the left so a "04→06" drag doesn't become "04→07".
+      const epsilon = opts?.biasLeft ? 0.01 : 0;
+      const slotIdx = clamp(Math.floor((x - epsilon) / slotWidth), 0, Math.max(0, slots.length - 1));
       const rowEl = el?.closest?.("[data-uv-ct-row]") as HTMLElement | null;
       const rid = rowEl?.dataset?.uvCtRow ?? null;
       return { slotIdx, resourceId: rid, x };
@@ -554,12 +569,14 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   );
 
   const onPointerDownEvent = (e: React.PointerEvent, ev: CalendarTimelineEvent<TEventMeta> & { _start: Date; _end: Date }, mode: DragMode) => {
+    if (e.button !== 0 || e.ctrlKey) return;
     if (ev.resourceId == null) return;
     const allowDrag = interactions?.draggableEvents ?? true;
     const allowResize = interactions?.resizableEvents ?? true;
     if (mode === "move" && (!allowDrag || ev.draggable === false)) return;
     if ((mode === "resize-start" || mode === "resize-end") && (!allowResize || ev.resizable === false)) return;
 
+    suppressNextEventClickRef.current = false;
     const startIdx = binarySearchLastLE(slotStarts, ev._start);
     const endIdx = binarySearchFirstGE(slotStarts, ev._end);
     dragRef.current = {
@@ -572,6 +589,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       pointerId: e.pointerId,
       startSlotIdx: startIdx,
       startRowResourceId: ev.resourceId,
+      startClientX: e.clientX,
+      startClientY: e.clientY,
     };
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     e.preventDefault();
@@ -579,11 +598,12 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   };
 
   const onPointerDownCell = (e: React.PointerEvent) => {
+    if (e.button !== 0 || e.ctrlKey) return;
     if (!(interactions?.creatable ?? false) || !onCreateEvent) return;
-    const ctx = getPointerContext(e.clientX, e.clientY);
+    const ctx = getPointerContext(e.clientX, e.clientY, { biasLeft: true });
     if (!ctx?.resourceId) return;
     const { start } = slotToDate(ctx.slotIdx);
-    const { end } = slotToDate(ctx.slotIdx + 1 >= slots.length ? ctx.slotIdx : ctx.slotIdx + 1);
+    const end = ctx.slotIdx + 1 >= slots.length ? range.end : slotToDate(ctx.slotIdx + 1).start;
     dragRef.current = {
       mode: "create",
       resourceId: ctx.resourceId,
@@ -593,6 +613,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       pointerId: e.pointerId,
       startSlotIdx: ctx.slotIdx,
       startRowResourceId: ctx.resourceId,
+      startClientX: e.clientX,
+      startClientY: e.clientY,
     };
     setPreview({ resourceId: ctx.resourceId, start, end });
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -602,9 +624,17 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const onPointerMove = (e: React.PointerEvent) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== e.pointerId) return;
-    const ctx = getPointerContext(e.clientX, e.clientY);
+    const ctx = getPointerContext(e.clientX, e.clientY, drag.mode === "create" ? { biasLeft: true } : undefined);
     if (!ctx || !ctx.resourceId) return;
     const { slotIdx } = ctx;
+
+    const movedEnough =
+      Math.abs(e.clientX - drag.startClientX) > 3 ||
+      Math.abs(e.clientY - drag.startClientY) > 3 ||
+      slotIdx !== drag.startSlotIdx ||
+      ctx.resourceId !== drag.startRowResourceId;
+    if (movedEnough) suppressNextEventClickRef.current = true;
+
     if (drag.mode === "create") {
       const a = Math.min(drag.startSlotIdx, slotIdx);
       const b = Math.max(drag.startSlotIdx, slotIdx) + 1;
@@ -737,6 +767,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     const map = new Map<
       string,
       {
+        baseTop: number;
+        eventHeight: number;
         visible: Array<{ ev: CalendarTimelineEvent<TEventMeta> & { _start: Date; _end: Date }; left: number; width: number; lane: number }>;
         hidden: Array<CalendarTimelineEvent<TEventMeta>>;
       }
@@ -752,10 +784,20 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         return { ev: { ...ev, _start: s, _end: e }, startIdx, endIdx };
       });
 
-      const { packed } = intervalPack(mapped);
+      const { packed, laneCount } = intervalPack(mapped);
       const visible = packed.filter((p) => p.lane < maxLanesPerRow);
       const hidden = packed.filter((p) => p.lane >= maxLanesPerRow);
+
+      const rowHeightPx = getResourceRowHeight(resourceId);
+      const visibleLaneCount = Math.max(1, Math.min(laneCount, maxLanesPerRow));
+      const available = Math.max(0, rowHeightPx - lanePaddingY * 2 - laneGap * Math.max(0, visibleLaneCount - 1));
+      const fitPerLane = visibleLaneCount > 0 ? Math.floor(available / visibleLaneCount) : eventHeight;
+      const perLaneHeight = Math.max(9, Math.min(eventHeight, fitPerLane || eventHeight));
+      const baseTop = visibleLaneCount === 1 ? Math.max(0, Math.round((rowHeightPx - perLaneHeight) / 2)) : lanePaddingY;
+
       map.set(resourceId, {
+        baseTop,
+        eventHeight: perLaneHeight,
         visible: visible.map((p) => ({
           ev: p.ev,
           lane: p.lane,
@@ -767,7 +809,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     }
 
     return map;
-  }, [eventsByResource, slotStarts, slots.length, slotWidth, maxLanesPerRow, preview]);
+  }, [eventsByResource, getResourceRowHeight, laneGap, lanePaddingY, slotStarts, slots.length, slotWidth, maxLanesPerRow, preview, eventHeight]);
 
   return (
     <div
@@ -834,7 +876,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
             }
 
             const r = row.resource;
-            const layout = layoutsByResource.get(r.id) ?? { visible: [], hidden: [] };
+            const layout = layoutsByResource.get(r.id) ?? { visible: [], hidden: [], baseTop: lanePaddingY, eventHeight };
             const canMore = layout.hidden.length > 0 && !!onMoreClick;
 
             return (
@@ -862,7 +904,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                   </div>
 
                   {layout.visible.map(({ ev, left, width, lane }) => {
-                    const top = lanePaddingY + lane * (eventHeight + laneGap);
+                    const top = layout.baseTop + lane * (layout.eventHeight + laneGap);
                     const isPreview = preview?.eventId === ev.id;
                     const bg = ev.color ? ev.color : "hsl(var(--primary) / 0.15)";
                     const border = ev.color ? ev.color : "hsl(var(--primary))";
@@ -879,9 +921,9 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                       }) ?? defaultEventTime({ start: ev._start, end: ev._end, locale: resolvedLocale, timeZone: resolvedTimeZone, view: activeView });
 
                   const node = renderEvent?.(ev, { left, width, lane }) ?? (
-                    <div className="px-2.5 py-1 truncate flex items-center gap-1.5">
-                      {ev.title ? <span className="font-semibold text-[11px] truncate leading-tight">{ev.title}</span> : null}
-                      <span className="text-[10px] opacity-70 truncate ml-auto">{timeText}</span>
+                    <div className="h-full px-2.5 truncate flex items-center gap-1.5">
+                      {ev.title ? <span className="font-semibold text-xs truncate leading-none">{ev.title}</span> : null}
+                      <span className="text-[11px] opacity-70 truncate ml-auto leading-none">{timeText}</span>
                     </div>
                   );
 
@@ -910,7 +952,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                           left,
                           top,
                           width,
-                          height: eventHeight,
+                          height: layout.eventHeight,
                           background: bg,
                           borderColor: border,
                           borderLeftWidth: 3,
@@ -918,7 +960,23 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         role="button"
                         tabIndex={0}
                         aria-label={aria}
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (interactions?.deletableEvents === false) return;
+                          const ok = window.confirm(l.deleteConfirm);
+                          if (!ok) return;
+                          if (!onEventDelete) {
+                            window.alert("Missing `onEventDelete` handler.");
+                            return;
+                          }
+                          onEventDelete({ eventId: ev.id });
+                        }}
                         onClick={() => {
+                          if (suppressNextEventClickRef.current) {
+                            suppressNextEventClickRef.current = false;
+                            return;
+                          }
                           onEventClick?.(ev);
                           if (effectiveEnableEventSheet) {
                             setSelectedEventId(ev.id);
@@ -955,7 +1013,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         return (
                           <div
                             className="absolute rounded-lg border-2 border-dashed border-primary/60 bg-primary/10 backdrop-blur-sm animate-pulse"
-                            style={{ left, top: lanePaddingY, width, height: eventHeight }}
+                            style={{ left, top: layout.baseTop, width, height: layout.eventHeight }}
                           />
                         );
                       })()

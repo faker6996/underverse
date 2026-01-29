@@ -1348,6 +1348,7 @@
     "resourcesHeader": "Resources",
     "expandGroup": "Expand group",
     "collapseGroup": "Collapse group",
-    "more": "+{n} more"
+    "more": "+{n} more",
+    "deleteConfirm": "Delete this event?"
   }
 }
