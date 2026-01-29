@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, ChevronsUpDown, Calendar, CalendarDays, Cale
 import { cn } from "@/lib/utils/cn";
 import { useLocale, useTranslations } from "@/lib/i18n/translation-adapter";
 import Button from "../Button";
+import { Tooltip } from "../Tooltip";
 import type {
   CalendarTimelineEvent,
   CalendarTimelineGroup,
@@ -14,7 +15,7 @@ import type {
   CalendarTimelineSize,
   CalendarTimelineView,
 } from "./types";
-import { addZonedDays, addZonedMonths, getDtf, localeToBCP47, startOfZonedDay, startOfZonedMonth, startOfZonedWeek, toDate } from "./date";
+import { addZonedDays, addZonedMonths, getDtf, getIsoWeekInfo, localeToBCP47, startOfZonedDay, startOfZonedMonth, startOfZonedWeek, toDate } from "./date";
 import { binarySearchFirstGE, binarySearchLastLE, clamp, intervalPack } from "./layout";
 import { useHorizontalScrollSync, useVirtualRows } from "./hooks";
 
@@ -362,6 +363,12 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     return map;
   }, [normalizedEvents]);
 
+  const resourceById = React.useMemo(() => {
+    const map = new Map<string, CalendarTimelineResource<TResourceMeta>>();
+    for (const r of resources) map.set(r.id, r);
+    return map;
+  }, [resources]);
+
   const leftRef = React.useRef<HTMLDivElement>(null);
   const bodyRef = React.useRef<HTMLDivElement>(null);
   const headerRef = React.useRef<HTMLDivElement>(null);
@@ -369,11 +376,32 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   useHorizontalScrollSync({ bodyRef, headerRef, leftRef });
 
   const title = React.useMemo(() => {
-    return (
-      formatters?.monthTitle?.(activeDate, { locale: resolvedLocale, timeZone: resolvedTimeZone }) ??
-      defaultMonthTitle(activeDate, resolvedLocale, resolvedTimeZone)
-    );
-  }, [activeDate, formatters, resolvedLocale, resolvedTimeZone]);
+    if (activeView === "month") {
+      return (
+        formatters?.monthTitle?.(activeDate, { locale: resolvedLocale, timeZone: resolvedTimeZone }) ??
+        defaultMonthTitle(activeDate, resolvedLocale, resolvedTimeZone)
+      );
+    }
+
+    if (activeView === "week") {
+      const { week } = getIsoWeekInfo(range.start, resolvedTimeZone);
+      const fmt = getDtf(resolvedLocale, resolvedTimeZone, { month: "short", day: "numeric" });
+      const fmtYear = getDtf(resolvedLocale, resolvedTimeZone, { year: "numeric" });
+      const endInclusive = new Date(range.end.getTime() - 1);
+
+      const a = fmt.format(range.start);
+      const b = fmt.format(endInclusive);
+      const ya = fmtYear.format(range.start);
+      const yb = fmtYear.format(endInclusive);
+
+      const rangeText = ya === yb ? `${a} – ${b}, ${ya}` : `${a}, ${ya} – ${b}, ${yb}`;
+      return `${l.week} ${week} • ${rangeText}`;
+    }
+
+    // day
+    const fmt = getDtf(resolvedLocale, resolvedTimeZone, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    return fmt.format(range.start);
+  }, [activeDate, activeView, formatters, l.week, range.end, range.start, resolvedLocale, resolvedTimeZone]);
 
   const densityClass = sizeConfig.densityClass;
   const eventHeight = sizeConfig.eventHeight;
@@ -849,16 +877,26 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         view: activeView,
                       }) ?? defaultEventTime({ start: ev._start, end: ev._end, locale: resolvedLocale, timeZone: resolvedTimeZone, view: activeView });
 
-                    const node = renderEvent?.(ev, { left, width, lane }) ?? (
-                      <div className="px-2.5 py-1 truncate flex items-center gap-1.5">
-                        {ev.title ? <span className="font-semibold text-[11px] truncate leading-tight">{ev.title}</span> : null}
-                        <span className="text-[10px] opacity-70 truncate ml-auto">{timeText}</span>
-                      </div>
-                    );
+                  const node = renderEvent?.(ev, { left, width, lane }) ?? (
+                    <div className="px-2.5 py-1 truncate flex items-center gap-1.5">
+                      {ev.title ? <span className="font-semibold text-[11px] truncate leading-tight">{ev.title}</span> : null}
+                      <span className="text-[10px] opacity-70 truncate ml-auto">{timeText}</span>
+                    </div>
+                  );
 
-                    return (
+                  const resource = resourceById.get(ev.resourceId);
+                  const tooltipTitle = ev.title || ev.id;
+                  const tooltipContent = (
+                    <div className="flex flex-col gap-0.5">
+                      <div className="font-semibold">{tooltipTitle}</div>
+                      <div className="text-xs opacity-80">{timeText}</div>
+                      {resource?.label ? <div className="text-xs opacity-70">{resource.label}</div> : null}
+                    </div>
+                  );
+
+                  return (
+                    <Tooltip key={ev.id} content={tooltipContent} placement="top" delay={{ open: 250, close: 0 }}>
                       <div
-                        key={ev.id}
                         className={cn(
                           "absolute rounded-lg border select-none cursor-pointer",
                           "shadow-sm hover:shadow-md hover:scale-[1.02] hover:z-10",
@@ -897,8 +935,9 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         ) : null}
                         {node}
                       </div>
-                    );
-                  })}
+                    </Tooltip>
+                  );
+                })}
 
                   {preview && preview.resourceId === r.id && !preview.eventId
                     ? (() => {

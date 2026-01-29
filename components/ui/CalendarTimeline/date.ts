@@ -44,6 +44,26 @@ function getZonedParts(date: Date, timeZone: string) {
   };
 }
 
+export function getIsoWeekInfo(date: Date, timeZone: string) {
+  // ISO week number based on the calendar date in the provided timezone.
+  const p = getZonedParts(date, timeZone);
+  const target = new Date(Date.UTC(p.year, p.month - 1, p.day));
+
+  // Monday = 0 ... Sunday = 6
+  const dayNr = (target.getUTCDay() + 6) % 7;
+  // Shift to Thursday in current week to determine ISO week-year
+  target.setUTCDate(target.getUTCDate() - dayNr + 3);
+
+  const isoYear = target.getUTCFullYear();
+  // Week 1 is the week with Jan 4th (also a Thursday in ISO week logic)
+  const firstThursday = new Date(Date.UTC(isoYear, 0, 4));
+  const firstDayNr = (firstThursday.getUTCDay() + 6) % 7;
+  firstThursday.setUTCDate(firstThursday.getUTCDate() - firstDayNr + 3);
+
+  const week = 1 + Math.round((target.getTime() - firstThursday.getTime()) / (7 * 24 * 60 * 60 * 1000));
+  return { year: isoYear, week };
+}
+
 function partsToUtcMs(p: { year: number; month: number; day: number; hour: number; minute: number; second: number }) {
   return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
 }
@@ -92,4 +112,3 @@ export function startOfZonedWeek(date: Date, weekStartsOn: number, timeZone: str
   const diff = (weekday - weekStartsOn + 7) % 7;
   return new Date(zonedTimeToUtcMs({ year: p.year, month: p.month, day: p.day - diff, hour: 0, minute: 0, second: 0 }, timeZone));
 }
-
