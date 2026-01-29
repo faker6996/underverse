@@ -114,7 +114,7 @@ Kéo chuột trên grid để tạo event (giữ nguyên hành vi hiện tại).
 <CalendarTimeline
   resources={resources}
   events={events}
-  interactions={{ creatable: true, createMode: "drag" }}
+  interactions={{ mode: "edit", creatable: true, createMode: "drag" }}
   onCreateEvent={({ resourceId, start, end }) => {
     setEvents((prev) => [...prev, { id: `e_${prev.length + 1}`, resourceId, start, end, title: "New event" }]);
   }}
@@ -129,7 +129,7 @@ Click vào ô trống để bạn tự mở modal/sheet tạo event theo ý (cus
 <CalendarTimeline
   resources={resources}
   events={events}
-  interactions={{ creatable: true, createMode: "click" }}
+  interactions={{ mode: "edit", creatable: true, createMode: "click" }}
   onCreateEventClick={({ resourceId, start, end, view }) => {
     // open your custom modal/sheet here and prefill {resourceId,start,end}
     console.log("create", { resourceId, start, end, view });
@@ -145,6 +145,20 @@ Click vào ô trống để bạn tự mở modal/sheet tạo event theo ý (cus
 - Khi **drag/move/resize** event, component sẽ **không mở Event Sheet** (chỉ click mới mở).
 - Ở **week view**, các slot sẽ **tự giãn để fill full chiều ngang** vùng timeline (nhưng vẫn tôn trọng `slotMinWidth` như giá trị tối thiểu).
 - Có nút **New event** ở header (khi bật `interactions.creatable` và có `onCreateEvent`) để tạo event bằng cách chọn **resource / start / end** theo đúng view hiện tại (month/week/day).
+- Có mode **view-only**: `interactions.mode="view"` sẽ tắt create/drag/resize/delete và **ẩn nút New event**; click event vẫn mở sheet.
+
+## View-only mode
+
+Chỉ xem (không tạo/sửa/xoá), click event vẫn mở sheet:
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  enableEventSheet
+  interactions={{ mode: "view" }}
+/>
+```
 
 ## Event Sheet
 
@@ -364,6 +378,7 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   renderEvent?: (event: CalendarTimelineEvent<TEventMeta>, layout: { left: number; width: number; lane: number }) => React.ReactNode;
 
   interactions?: {
+    mode?: "edit" | "view";
     selectable?: boolean;
     creatable?: boolean;
     createMode?: "drag" | "click";
