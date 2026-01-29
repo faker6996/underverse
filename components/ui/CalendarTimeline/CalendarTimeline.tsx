@@ -564,7 +564,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         className={cn(
           "w-full h-full flex items-center text-left",
           sizeConfig.groupRowClass,
-          "bg-gradient-to-r from-muted/40 to-muted/20 border-b border-border/40",
+          "bg-linear-to-r from-muted/40 to-muted/20 border-b border-border/40",
           "backdrop-blur-sm",
           canToggle ? "cursor-pointer hover:from-muted/60 hover:to-muted/30 transition-all duration-200" : "cursor-default",
         )}
@@ -596,7 +596,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         <div
           key={`${s.start.toISOString()}_${idx}`}
           className={cn(
-            "flex-shrink-0 border-l border-border/30 flex items-center justify-center transition-colors duration-150",
+            "shrink-0 border-l border-border/30 flex items-center justify-center transition-colors duration-150",
             sizeConfig.slotHeaderClass,
             s.isToday && "bg-primary/8 border-l-primary/40",
           )}
@@ -619,7 +619,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   };
 
   const Header = (
-    <div className="sticky top-0 z-30 bg-gradient-to-b from-background via-background to-background/95 border-b border-border/40 backdrop-blur-xl">
+    <div className="sticky top-0 z-30 bg-linear-to-b from-background via-background to-background/95 border-b border-border/40 backdrop-blur-xl">
       <div className={cn("flex items-center justify-between gap-4", sizeConfig.headerPaddingClass)}>
         {/* Navigation Controls */}
         <div className="flex items-center gap-1.5 min-w-0">
@@ -680,7 +680,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       {/* Slot Headers */}
       <div className="flex border-t border-border/20">
         <div
-          className="flex-shrink-0 border-r border-border/30 bg-muted/20 flex items-center justify-center"
+          className="shrink-0 border-r border-border/30 bg-muted/20 flex items-center justify-center"
           style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
         >
           <span className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
@@ -697,12 +697,12 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const ResourceCell = (r: CalendarTimelineResource<TResourceMeta>) => (
     <div
       className={cn(
-        "h-full w-full flex items-center border-b border-border/30 bg-gradient-to-r from-background to-background/95",
+        "h-full w-full flex items-center border-b border-border/30 bg-linear-to-r from-background to-background/95",
         sizeConfig.resourceRowClass,
         "hover:from-muted/30 hover:to-muted/10 transition-all duration-200 group",
       )}
     >
-      <div className="flex-shrink-0 opacity-0 group-hover:opacity-60 transition-opacity cursor-grab">
+      <div className="shrink-0 opacity-0 group-hover:opacity-60 transition-opacity cursor-grab">
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
       <div className={cn("flex-1 min-w-0", r.disabled && "opacity-50")}>
@@ -771,12 +771,12 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
             return (
               <div key={`g_${row.group.id}_${rowIndex}`} className="flex" style={{ height: effectiveRowHeight }}>
                 <div
-                  className="flex-shrink-0 sticky left-0 z-20"
+                  className="shrink-0 sticky left-0 z-20"
                   style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
                 >
                   {renderGroupRow(row.group)}
                 </div>
-                <div className="flex-1 border-b border-border/30 bg-gradient-to-r from-muted/15 to-muted/5" style={{ minWidth: gridWidth }} />
+                <div className="flex-1 border-b border-border/30 bg-linear-to-r from-muted/15 to-muted/5" style={{ minWidth: gridWidth }} />
               </div>
             );
           }
@@ -793,12 +793,12 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
               data-uv-ct-row={r.id}
             >
               <div
-                className="flex-shrink-0 sticky left-0 z-20 border-r border-border/30"
+                className="shrink-0 sticky left-0 z-20 border-r border-border/30"
                 style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
               >
                 {ResourceCell(r)}
               </div>
-              <div className="relative flex-shrink-0" style={{ width: gridWidth, minWidth: gridWidth }}>
+              <div className="relative shrink-0" style={{ width: gridWidth, minWidth: gridWidth }}>
                 <div className="absolute inset-0" onPointerDown={onPointerDownCell} data-uv-ct-timeline>
                   <div className="absolute inset-0 flex">
                     {slots.map((s, i2) => (
