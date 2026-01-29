@@ -122,6 +122,18 @@ Clicking an event can open a right-side sheet. Provide `renderEventSheet` to cus
 />
 ```
 
+## Layout Resize (Row/Column)
+
+CalendarTimeline hỗ trợ **resize bằng chuột** (khi bật `enableLayoutResize`):
+
+- **Resize độ rộng cột Resource (bên trái)**: hover vào ô header “Resources”, kéo mép phải.
+- **Resize chiều cao từng hàng Resource**: hover vào **ô Resource bên trái của hàng đó**, kéo mép dưới.
+
+### Controlled / Uncontrolled
+
+- **Controlled**: dùng `resourceColumnWidth` + `rowHeights` và lắng nghe `onResourceColumnWidthChange` / `onRowHeightsChange`.
+- **Uncontrolled**: dùng `defaultResourceColumnWidth` + `defaultRowHeights` (component tự quản lý state nội bộ).
+
 ```ts
 export type CalendarTimelineView = "month" | "week" | "day";
 export type CalendarTimelineDateInput = Date | string | number;
@@ -197,22 +209,40 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   defaultGroupCollapsed?: Record<string, boolean>;
   onGroupCollapsedChange?: (next: Record<string, boolean>) => void;
 
+  /** Controlled width of the left resource column (px or CSS width string). */
   resourceColumnWidth?: number | string;
+  /** Default width of the left resource column when uncontrolled (px). */
   defaultResourceColumnWidth?: number;
+  /** Called when user resizes the left resource column. */
   onResourceColumnWidthChange?: (width: number) => void;
+  /** Min width for the left resource column (px). */
   minResourceColumnWidth?: number;
+  /** Max width for the left resource column (px). */
   maxResourceColumnWidth?: number;
 
+  /** Default fallback height of each resource row (px). */
   rowHeight?: number;
+  /** Default row height when uncontrolled (px). */
   defaultRowHeight?: number;
+  /** Called when user resizes row height. */
   onRowHeightChange?: (height: number) => void;
+  /** Min row height (px). */
   minRowHeight?: number;
+  /** Max row height (px). */
   maxRowHeight?: number;
 
+  /** Controlled per-resource row heights (px) keyed by resourceId. */
   rowHeights?: Record<string, number>;
+  /** Default per-resource row heights (px) keyed by resourceId. */
   defaultRowHeights?: Record<string, number>;
+  /** Called when per-resource row heights change. */
   onRowHeightsChange?: (next: Record<string, number>) => void;
 
+  /**
+   * Allow resizing layout with mouse:
+   * - column: drag the divider in the header
+   * - row: drag the bottom edge of a resource row header
+   */
   enableLayoutResize?: boolean | { column?: boolean; row?: boolean };
 
   slotMinWidth?: number;

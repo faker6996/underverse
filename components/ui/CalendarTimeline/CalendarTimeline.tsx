@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { ChevronLeft, ChevronRight, ChevronsUpDown, Calendar, CalendarDays, CalendarRange, ChevronDown, Dot, GripVertical, Plus } from "lucide-react";
+import { Dot } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useLocale, useTranslations } from "@/lib/i18n/translation-adapter";
-import Button from "../Button";
 import { Sheet } from "../Sheet";
 import { Tooltip } from "../Tooltip";
 import type {
@@ -13,46 +12,18 @@ import type {
   CalendarTimelineLabels,
   CalendarTimelineProps,
   CalendarTimelineResource,
-  CalendarTimelineSize,
   CalendarTimelineView,
 } from "./types";
-import { addZonedDays, addZonedMonths, getDtf, getIsoWeekInfo, localeToBCP47, startOfZonedDay, startOfZonedMonth, startOfZonedWeek, toDate } from "./date";
+import { addZonedDays, addZonedMonths, getDtf, getIsoWeekInfo, localeToBCP47, startOfZonedDay } from "./date";
 import { binarySearchFirstGE, binarySearchLastLE, clamp, intervalPack } from "./layout";
 import { useHorizontalScrollSync, useVirtualVariableRows } from "./hooks";
-
-type Row<TResourceMeta = unknown> =
-  | { kind: "group"; group: CalendarTimelineGroup }
-  | { kind: "resource"; resource: CalendarTimelineResource<TResourceMeta> };
+import { getSizeConfig } from "./config";
+import { defaultEventTime, defaultMonthTitle, defaultSlotHeader } from "./defaults";
+import { buildRows, computeSlotStarts, eventsByResourceId, getGroupResourceCounts, normalizeEvents, resourcesById, type CalendarTimelineRow } from "./model";
+import { CalendarTimelineHeader } from "./CalendarTimelineHeader";
+import { DefaultGroupRow, ResourceRowCell } from "./CalendarTimelineRowCells";
 
 type Slot = { start: Date; label: React.ReactNode; isToday: boolean };
-
-function defaultMonthTitle(date: Date, locale: string, timeZone: string) {
-  return getDtf(locale, timeZone, { month: "long", year: "numeric" }).format(date);
-}
-
-function defaultSlotHeader(slotStart: Date, view: CalendarTimelineView, locale: string, timeZone: string) {
-  if (view === "day") {
-    return getDtf(locale, timeZone, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(slotStart);
-  }
-  const weekday = getDtf(locale, timeZone, { weekday: "short" }).format(slotStart);
-  const day = getDtf(locale, timeZone, { day: "numeric" }).format(slotStart);
-  return (
-    <span className="inline-flex flex-col items-center leading-tight">
-      <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">{weekday}</span>
-      <span className="text-sm font-semibold text-foreground">{day}</span>
-    </span>
-  );
-}
-
-function defaultEventTime(args: { start: Date; end: Date; locale: string; timeZone: string; view: CalendarTimelineView }) {
-  const fmt = getDtf(args.locale, args.timeZone, { hour: "2-digit", minute: "2-digit" });
-  if (args.view === "day") return `${fmt.format(args.start)} - ${fmt.format(args.end)}`;
-  const df = getDtf(args.locale, args.timeZone, { month: "short", day: "numeric" });
-  const inclusiveEnd = new Date(args.end.getTime() - 1);
-  const a = df.format(args.start);
-  const b = df.format(inclusiveEnd);
-  return a === b ? a : `${a} - ${b}`;
-}
 
 export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = unknown>({
   resources,
@@ -145,77 +116,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     [isControlledEventSheetOpen, onEventSheetOpenChange, setSelectedEventId],
   );
 
-  const sizeConfig = React.useMemo(() => {
-    const cfgBySize: Record<
-      CalendarTimelineSize,
-      {
-        resourceColumnWidth: number;
-        rowHeight: number;
-        slotMinWidth: number;
-        eventHeight: number;
-        laneGap: number;
-        lanePaddingY: number;
-        densityClass: string;
-        headerPaddingClass: string;
-        titleClass: string;
-        resourceRowClass: string;
-        groupRowClass: string;
-        slotHeaderClass: string;
-        controlButtonIconClass: string;
-        controlButtonTextClass: string;
-      }
-    > = {
-      sm: {
-        resourceColumnWidth: 200,
-        rowHeight: 44,
-        slotMinWidth: 52,
-        eventHeight: 16,
-        laneGap: 3,
-        lanePaddingY: 5,
-        densityClass: "text-xs",
-        headerPaddingClass: "px-3 py-2",
-        titleClass: "text-base",
-        resourceRowClass: "gap-2 px-3",
-        groupRowClass: "gap-2 px-3",
-        slotHeaderClass: "px-1 py-2",
-        controlButtonIconClass: "h-7 w-7",
-        controlButtonTextClass: "h-7 px-2 text-xs",
-      },
-      md: {
-        resourceColumnWidth: 240,
-        rowHeight: 52,
-        slotMinWidth: 64,
-        eventHeight: 18,
-        laneGap: 4,
-        lanePaddingY: 6,
-        densityClass: "text-sm",
-        headerPaddingClass: "px-4 py-3",
-        titleClass: "text-lg",
-        resourceRowClass: "gap-3 px-4",
-        groupRowClass: "gap-3 px-4",
-        slotHeaderClass: "px-1 py-3",
-        controlButtonIconClass: "h-8 w-8",
-        controlButtonTextClass: "h-8 px-3",
-      },
-      xl: {
-        resourceColumnWidth: 280,
-        rowHeight: 60,
-        slotMinWidth: 76,
-        eventHeight: 20,
-        laneGap: 5,
-        lanePaddingY: 8,
-        densityClass: "text-base",
-        headerPaddingClass: "px-5 py-4",
-        titleClass: "text-xl",
-        resourceRowClass: "gap-4 px-5",
-        groupRowClass: "gap-4 px-5",
-        slotHeaderClass: "px-2 py-4",
-        controlButtonIconClass: "h-9 w-9",
-        controlButtonTextClass: "h-9 px-4 text-sm",
-      },
-    };
-    return cfgBySize[size];
-  }, [size]);
+  const sizeConfig = React.useMemo(() => getSizeConfig(size), [size]);
 
   const canResizeColumn = React.useMemo(() => {
     const cfg = enableLayoutResize;
@@ -331,77 +232,18 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     [groupCollapsed, onGroupCollapsedChange],
   );
 
-  const rows: Row<TResourceMeta>[] = React.useMemo(() => {
-    if (!groups || groups.length === 0) return resources.map((resource) => ({ kind: "resource", resource }));
-    const byGroup = new Map<string, CalendarTimelineResource<TResourceMeta>[]>();
-    for (const r of resources) {
-      const gid = r.groupId ?? "__ungrouped__";
-      if (!byGroup.has(gid)) byGroup.set(gid, []);
-      byGroup.get(gid)!.push(r);
-    }
-    const out: Row<TResourceMeta>[] = [];
-    const seen = new Set<string>();
-    for (const g of groups) {
-      out.push({ kind: "group", group: g });
-      seen.add(g.id);
-      if (collapsed[g.id]) continue;
-      const children = byGroup.get(g.id) ?? [];
-      for (const r of children) out.push({ kind: "resource", resource: r });
-    }
-    for (const gid of byGroup.keys()) {
-      if (gid === "__ungrouped__") continue;
-      if (seen.has(gid)) continue;
-      out.push({ kind: "group", group: { id: gid, label: gid, collapsible: true } });
-      if (collapsed[gid]) continue;
-      for (const r of byGroup.get(gid) ?? []) out.push({ kind: "resource", resource: r });
-    }
-    const ungrouped = byGroup.get("__ungrouped__") ?? [];
-    if (ungrouped.length) {
-      out.push({ kind: "group", group: { id: "__ungrouped__", label: "", collapsible: true } });
-      for (const r of ungrouped) out.push({ kind: "resource", resource: r });
-    }
-    return out;
-  }, [resources, groups, collapsed]);
+  const rows: CalendarTimelineRow<TResourceMeta>[] = React.useMemo(() => buildRows({ resources, groups, collapsed }), [resources, groups, collapsed]);
+
+  const groupResourceCounts = React.useMemo(() => getGroupResourceCounts(resources), [resources]);
 
   const { slots, range } = React.useMemo((): { slots: Slot[]; range: { start: Date; end: Date } } => {
-    const start =
-      activeView === "month"
-        ? startOfZonedMonth(activeDate, resolvedTimeZone)
-        : activeView === "week"
-          ? startOfZonedWeek(activeDate, weekStartsOn, resolvedTimeZone)
-          : startOfZonedDay(activeDate, resolvedTimeZone);
-
-    if (activeView === "day") {
-      const step = Math.max(5, Math.min(240, Math.trunc(dayTimeStepMinutes)));
-      const stepMs = step * 60_000;
-      const end = addZonedDays(start, 1, resolvedTimeZone);
-      const slotStarts: Date[] = [];
-      for (let cur = start.getTime(), guard = 0; cur < end.getTime() && guard++ < 2000; cur += stepMs) {
-        slotStarts.push(new Date(cur));
-      }
-      const todayStart = startOfZonedDay(resolvedNow, resolvedTimeZone).getTime();
-      const slotItems: Slot[] = slotStarts.map((s) => ({
-        start: s,
-        label:
-          formatters?.slotHeader?.(s, { view: activeView, locale: resolvedLocale, timeZone: resolvedTimeZone }) ??
-          defaultSlotHeader(s, activeView, resolvedLocale, resolvedTimeZone),
-        isToday: startOfZonedDay(s, resolvedTimeZone).getTime() === todayStart,
-      }));
-      return { slots: slotItems, range: { start, end } };
-    }
-
-    const end =
-      activeView === "month"
-        ? startOfZonedMonth(addZonedMonths(start, 1, resolvedTimeZone), resolvedTimeZone)
-        : addZonedDays(start, 7, resolvedTimeZone);
-    const slotStarts: Date[] = [];
-    let cur = start;
-    let guard = 0;
-    while (cur.getTime() < end.getTime() && guard++ < 60) {
-      slotStarts.push(cur);
-      cur = addZonedDays(cur, 1, resolvedTimeZone);
-    }
-
+    const { start, end, slotStarts } = computeSlotStarts({
+      view: activeView,
+      date: activeDate,
+      timeZone: resolvedTimeZone,
+      weekStartsOn,
+      dayTimeStepMinutes,
+    });
     const todayStart = startOfZonedDay(resolvedNow, resolvedTimeZone).getTime();
     const slotItems: Slot[] = slotStarts.map((s) => ({
       start: s,
@@ -423,37 +265,15 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const gridWidth = slots.length * slotWidth;
 
   const normalizedEvents = React.useMemo(() => {
-    const rangeStart = range.start.getTime();
-    const rangeEnd = range.end.getTime();
-    return (events as CalendarTimelineEvent<TEventMeta>[])
-      .map((e) => {
-        const start = toDate(e.start);
-        const end = toDate(e.end);
-        if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
-        const ns = activeView === "day" ? start : startOfZonedDay(start, resolvedTimeZone);
-        let ne = activeView === "day" ? end : startOfZonedDay(end, resolvedTimeZone);
-        if (ne.getTime() <= ns.getTime()) ne = activeView === "day" ? new Date(ns.getTime() + 60_000) : addZonedDays(ns, 1, resolvedTimeZone);
-        const cs = new Date(clamp(ns.getTime(), rangeStart, rangeEnd));
-        const ce = new Date(clamp(ne.getTime(), rangeStart, rangeEnd));
-        if (ce.getTime() <= rangeStart || cs.getTime() >= rangeEnd) return null;
-        return { ...e, _start: cs, _end: ce };
-      })
-      .filter(Boolean) as Array<CalendarTimelineEvent<TEventMeta> & { _start: Date; _end: Date }>;
-  }, [events, range.start, range.end, activeView, resolvedTimeZone]);
+    return normalizeEvents({ events: events as CalendarTimelineEvent<TEventMeta>[], range, view: activeView, timeZone: resolvedTimeZone });
+  }, [events, range, activeView, resolvedTimeZone]);
 
   const eventsByResource = React.useMemo(() => {
-    const map = new Map<string, Array<CalendarTimelineEvent<TEventMeta> & { _start: Date; _end: Date }>>();
-    for (const e of normalizedEvents) {
-      if (!map.has(e.resourceId)) map.set(e.resourceId, []);
-      map.get(e.resourceId)!.push(e);
-    }
-    return map;
+    return eventsByResourceId(normalizedEvents);
   }, [normalizedEvents]);
 
   const resourceById = React.useMemo(() => {
-    const map = new Map<string, CalendarTimelineResource<TResourceMeta>>();
-    for (const r of resources) map.set(r.id, r);
-    return map;
+    return resourcesById(resources);
   }, [resources]);
 
   const selectedEvent = React.useMemo(() => {
@@ -853,30 +673,17 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     const toggle = () => setCollapsed({ ...collapsed, [g.id]: !isCollapsed });
     if (renderGroup) return renderGroup(g, { collapsed: isCollapsed, toggle });
     const canToggle = g.collapsible ?? true;
+    const itemCount = groupResourceCounts.get(g.id) ?? 0;
     return (
-      <button
-        type="button"
-        onClick={canToggle ? toggle : undefined}
-        className={cn(
-          "w-full h-full flex items-center text-left",
-          sizeConfig.groupRowClass,
-          "bg-linear-to-r from-muted/40 to-muted/20 border-b border-border/40",
-          "backdrop-blur-sm",
-          canToggle ? "cursor-pointer hover:from-muted/60 hover:to-muted/30 transition-all duration-200" : "cursor-default",
-        )}
-        aria-label={isCollapsed ? l.expandGroup : l.collapseGroup}
-      >
-        <span
-          className={cn(
-            "inline-flex items-center justify-center w-5 h-5 rounded-md bg-background/60 transition-transform duration-200",
-            isCollapsed ? "" : "rotate-180",
-          )}
-        >
-          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-        </span>
-        <span className="font-semibold text-foreground/90">{g.label}</span>
-        <span className="ml-auto text-xs text-muted-foreground/60 font-medium">{resources.filter((r) => r.groupId === g.id).length} items</span>
-      </button>
+      <DefaultGroupRow
+        group={g}
+        collapsed={isCollapsed}
+        toggle={toggle}
+        canToggle={canToggle}
+        ariaLabel={isCollapsed ? l.expandGroup : l.collapseGroup}
+        itemCount={itemCount}
+        sizeConfig={sizeConfig}
+      />
     );
   };
 
@@ -908,144 +715,22 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     </div>
   );
 
-  const viewIcons = {
-    month: <CalendarRange className="h-4 w-4" />,
-    week: <CalendarDays className="h-4 w-4" />,
-    day: <Calendar className="h-4 w-4" />,
-  };
-
   const Header = (
-    <div className="sticky top-0 z-30 bg-linear-to-b from-background via-background to-background/95 border-b border-border/40 backdrop-blur-xl">
-      <div className={cn("flex items-center justify-between gap-4", sizeConfig.headerPaddingClass)}>
-        {/* Navigation Controls */}
-        <div className="flex items-center gap-1.5 min-w-0">
-          <div className="flex items-center bg-muted/40 rounded-xl p-1 gap-0.5">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              aria-label={l.prev}
-              className={cn(sizeConfig.controlButtonIconClass, "rounded-lg hover:bg-background/80 transition-all duration-200")}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={goToday}
-              className={cn(sizeConfig.controlButtonTextClass, "rounded-lg hover:bg-background/80 font-medium transition-all duration-200")}
-            >
-              {l.today}
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(1)}
-              aria-label={l.next}
-              className={cn(sizeConfig.controlButtonIconClass, "rounded-lg hover:bg-background/80 transition-all duration-200")}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-          <h2 className={cn("ml-3 font-semibold tracking-tight truncate text-foreground", sizeConfig.titleClass)}>{title}</h2>
-        </div>
-
-        {/* View Switcher */}
-        <div className="flex items-center bg-muted/40 rounded-xl p-1 gap-0.5">
-          {(["month", "week", "day"] as CalendarTimelineView[]).map((v) => (
-            <Button
-              key={v}
-              variant={activeView === v ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setView(v)}
-              className={cn(
-                sizeConfig.controlButtonTextClass,
-                "rounded-lg font-medium transition-all duration-200 gap-1.5",
-                activeView === v
-                  ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
-                  : "hover:bg-background/80 text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {viewIcons[v]}
-              <span className="hidden sm:inline">{l[v]}</span>
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Slot Headers */}
-      <div className="flex border-t border-border/20">
-        <div
-          className="shrink-0 border-r border-border/30 bg-muted/20 flex items-center justify-center relative group/uv-ct-top-left"
-          style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
-        >
-          <span className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
-            {t("resourcesHeader")}
-          </span>
-          {canResizeColumn && typeof effectiveResourceColumnWidth === "number" ? (
-            <div
-              role="separator"
-              aria-orientation="vertical"
-              aria-label="Resize resource column"
-              className={cn(
-                "absolute right-0 top-0 h-full w-3 cursor-col-resize z-20",
-                "bg-transparent hover:bg-primary/10 active:bg-primary/15",
-                "transition-all",
-                "opacity-0 pointer-events-none",
-                "group-hover/uv-ct-top-left:opacity-100 group-hover/uv-ct-top-left:pointer-events-auto",
-              )}
-              onPointerDown={beginResizeColumn}
-            >
-              <div className="absolute inset-y-2 left-1/2 w-px -translate-x-1/2 bg-border/70" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-70">
-                <GripVertical className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </div>
-          ) : null}
-        </div>
-        <div ref={headerRef} className="overflow-x-auto overflow-y-hidden scrollbar-none">
-          {slotHeaderNodes}
-        </div>
-      </div>
-    </div>
-  );
-
-  const ResourceCell = (r: CalendarTimelineResource<TResourceMeta>) => (
-    <div
-      className={cn(
-        "h-full w-full flex items-center border-b border-border/30 bg-linear-to-r from-background to-background/95 relative",
-        sizeConfig.resourceRowClass,
-        "hover:from-muted/30 hover:to-muted/10 transition-all duration-200 group/uv-ct-row-header",
-      )}
-    >
-      <div className="shrink-0 opacity-0 group-hover/uv-ct-row-header:opacity-60 transition-opacity cursor-grab">
-        <GripVertical className="h-4 w-4 text-muted-foreground" />
-      </div>
-      <div className={cn("flex-1 min-w-0", r.disabled && "opacity-50")}>
-        {renderResource ? renderResource(r) : <span className="font-medium text-sm truncate block">{r.label}</span>}
-      </div>
-
-      {canResizeRow ? (
-        <div
-          role="separator"
-          aria-orientation="horizontal"
-          aria-label="Resize row height"
-          className={cn(
-            "absolute left-0 bottom-0 w-full h-3 cursor-row-resize z-20",
-            "bg-transparent hover:bg-primary/10 active:bg-primary/15",
-            "transition-all",
-            "opacity-0 pointer-events-none",
-            "group-hover/uv-ct-row-header:opacity-100 group-hover/uv-ct-row-header:pointer-events-auto",
-          )}
-          onPointerDown={beginResizeResourceRow(r.id)}
-        >
-          <div className="absolute inset-x-3 top-1/2 h-px -translate-y-1/2 bg-border/70" />
-          <div className="absolute top-1/2 right-3 -translate-y-1/2 opacity-70">
-            <GripVertical className="h-4 w-4 text-muted-foreground rotate-90" />
-          </div>
-        </div>
-      ) : null}
-    </div>
+    <CalendarTimelineHeader
+      title={title}
+      resourcesHeaderLabel={t("resourcesHeader")}
+      labels={{ today: l.today, prev: l.prev, next: l.next, month: l.month, week: l.week, day: l.day }}
+      activeView={activeView}
+      sizeConfig={sizeConfig}
+      navigate={navigate}
+      goToday={goToday}
+      setView={setView}
+      effectiveResourceColumnWidth={effectiveResourceColumnWidth}
+      canResizeColumn={canResizeColumn}
+      beginResizeColumn={beginResizeColumn}
+      headerRef={headerRef}
+      slotHeaderNodes={slotHeaderNodes}
+    />
   );
 
   const layoutsByResource = React.useMemo(() => {
@@ -1067,7 +752,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         return { ev: { ...ev, _start: s, _end: e }, startIdx, endIdx };
       });
 
-      const { packed } = intervalPack(mapped.map((m) => ({ ...m, startIdx: m.startIdx, endIdx: m.endIdx })));
+      const { packed } = intervalPack(mapped);
       const visible = packed.filter((p) => p.lane < maxLanesPerRow);
       const hidden = packed.filter((p) => p.lane >= maxLanesPerRow);
       map.set(resourceId, {
@@ -1116,7 +801,13 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
             const r = row.resource;
             return (
               <div key={`lr_${r.id}_${rowIndex}`} style={{ height: h }}>
-                {ResourceCell(r)}
+                <ResourceRowCell
+                  resource={r}
+                  sizeConfig={sizeConfig}
+                  canResizeRow={canResizeRow}
+                  beginResizeResourceRow={beginResizeResourceRow}
+                  renderResource={renderResource}
+                />
               </div>
             );
           })}
