@@ -322,7 +322,13 @@
         "months": "月モードで横に表示する月数。",
         "minDate": "選択可能日付の下限。",
         "maxDate": "選択可能日付の上限。",
-        "disabledDates": "特定の日付を無効化する配列または関数。"
+        "disabledDates": "特定の日付を無効化する配列または関数。",
+        "cellMode": "日セルのモード：compact（ドット）または events（リスト）。",
+        "maxEventsPerDay": "1日あたりに表示する最大イベント数（events モード）。",
+        "onEventClick": "イベントクリック時のハンドラ（events モード）。",
+        "renderEvent": "イベント行のカスタムレンダラー（events モード）。",
+        "showEventBadges": "イベントのバッジ表示（events モード）。",
+        "highlightWeekends": "週末列を強調表示。"
       },
       "calendarTimeline": {
         "resources": "リソース（行）の一覧。",

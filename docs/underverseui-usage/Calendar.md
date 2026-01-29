@@ -35,6 +35,32 @@ export function Example() {
 }
 ```
 
+### Events mode (large cells)
+
+```tsx
+import React from "react";
+import { Calendar } from "@underverse-ui/underverse";
+
+export function Example() {
+  const events = [
+    { id: "a", date: new Date(), title: "Today", color: "#f59e0b", badge: "1" },
+    { id: "b", date: new Date(), title: "Standup", color: "#3b82f6", badge: "15m" },
+  ];
+
+  return (
+    <Calendar
+      size="lg"
+      cellMode="events"
+      events={events}
+      maxEventsPerDay={3}
+      showEventBadges
+      highlightWeekends
+      onEventClick={(event) => console.log(event)}
+    />
+  );
+}
+```
+
 ```ts
 export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'defaultValue' | 'value' | 'onSelect'> {
   month?: Date; // visible month
@@ -74,5 +100,13 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   showEventBadges?: boolean;
   /** Highlight weekends */
   highlightWeekends?: boolean;
+  /** Render mode for each day cell (compact dots vs large cell with event list) */
+  cellMode?: "compact" | "events";
+  /** Max events shown per day (events cell mode) */
+  maxEventsPerDay?: number;
+  /** Fired when clicking an event in a day cell (events cell mode) */
+  onEventClick?: (event: CalendarEvent, date: Date) => void;
+  /** Customize event rendering (events cell mode) */
+  renderEvent?: (args: { event: CalendarEvent; date: Date }) => React.ReactNode;
 }
 ```

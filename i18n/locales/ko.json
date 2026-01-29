@@ -322,7 +322,13 @@
         "months": "월 모드에서 나란히 표시할 개월 수.",
         "minDate": "선택 가능한 날짜의 하한.",
         "maxDate": "선택 가능한 날짜의 상한.",
-        "disabledDates": "특정 날짜를 비활성화하는 목록 또는 함수."
+        "disabledDates": "특정 날짜를 비활성화하는 목록 또는 함수.",
+        "cellMode": "일자 셀 모드: compact(점) 또는 events(목록).",
+        "maxEventsPerDay": "하루에 표시할 최대 이벤트 수(events 모드).",
+        "onEventClick": "이벤트 클릭 핸들러(events 모드).",
+        "renderEvent": "이벤트 행 커스텀 렌더러(events 모드).",
+        "showEventBadges": "이벤트 배지 텍스트 표시(events 모드).",
+        "highlightWeekends": "주말 컬럼 강조 표시."
       },
       "calendarTimeline": {
         "resources": "리소스(행) 목록.",

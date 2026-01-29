@@ -10,11 +10,18 @@ import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 export default function CalendarExample() {
   const t = useTranslations("DocsUnderverse");
   const [selected, setSelected] = React.useState<Date | undefined>(new Date());
-  const events = React.useMemo(() => [
-    { date: new Date(), title: 'Today', color: '#f59e0b' },
-    { date: new Date(new Date().setDate(new Date().getDate() + 1)), title: 'Tomorrow', color: '#10b981' },
-    { date: new Date(new Date().setDate(new Date().getDate() + 3)), title: 'Event', color: '#3b82f6' },
-  ], []);
+  const events = React.useMemo(
+    () => [
+      { id: "today-1", date: new Date(), title: "Today", color: "#f59e0b", badge: "1" },
+      { id: "today-2", date: new Date(), title: "Standup", color: "#3b82f6", badge: "15m" },
+      { id: "tmr-1", date: new Date(new Date().setDate(new Date().getDate() + 1)), title: "Tomorrow", color: "#10b981" },
+      { id: "d3-1", date: new Date(new Date().setDate(new Date().getDate() + 3)), title: "Event", color: "#3b82f6", badge: "new" },
+      { id: "d3-2", date: new Date(new Date().setDate(new Date().getDate() + 3)), title: "Design review", color: "#a855f7" },
+      { id: "d3-3", date: new Date(new Date().setDate(new Date().getDate() + 3)), title: "Release", color: "#ef4444" },
+      { id: "d3-4", date: new Date(new Date().setDate(new Date().getDate() + 3)), title: "Dinner", color: "#f97316" },
+    ],
+    [],
+  );
 
   const demo = (
     <div className="space-y-6">
@@ -23,22 +30,30 @@ export default function CalendarExample() {
           <p className="text-sm font-medium mb-2">Single select</p>
           <Calendar
             value={selected}
-            onSelect={(v) => typeof v === 'object' && v instanceof Date ? setSelected(v) : undefined}
+            onSelect={(v) => (typeof v === "object" && v instanceof Date ? setSelected(v) : undefined)}
             events={events}
           />
-          <div className="text-xs text-muted-foreground font-mono mt-2">{selected?.toDateString() || '—'}</div>
+          <div className="text-xs text-muted-foreground font-mono mt-2">{selected?.toDateString() || "—"}</div>
         </div>
         <div>
           <p className="text-sm font-medium mb-2">Range select</p>
-          <Calendar
-            selectMode="range"
-            defaultValue={{ start: new Date(), end: undefined }}
-            events={events}
-          />
+          <Calendar selectMode="range" defaultValue={{ start: new Date(), end: undefined }} events={events} />
         </div>
         <div>
           <p className="text-sm font-medium mb-2">Week view</p>
           <Calendar display="week" events={events} />
+        </div>
+        <div className="md:col-span-2">
+          <p className="text-sm font-medium mb-2">Events mode (large cells)</p>
+          <Calendar
+            size="lg"
+            cellMode="events"
+            maxEventsPerDay={3}
+            showEventBadges
+            highlightWeekends
+            events={events}
+            onEventClick={(event) => console.log("event click", event)}
+          />
         </div>
       </div>
       <div>
@@ -63,9 +78,9 @@ export default function CalendarExample() {
     `// Single select\n` +
     `const [selected, setSelected] = useState<Date | undefined>(new Date())\n` +
     `const events = [\n` +
-    `  { date: new Date(), title: 'Today', color: '#f59e0b' },\n` +
-    `  { date: new Date(new Date().setDate(new Date().getDate() + 1)), title: 'Tomorrow', color: '#10b981' },\n` +
-    `  { date: new Date(new Date().setDate(new Date().getDate() + 3)), title: 'Event', color: '#3b82f6' },\n` +
+    `  { id: 'today-1', date: new Date(), title: 'Today', color: '#f59e0b', badge: '1' },\n` +
+    `  { id: 'today-2', date: new Date(), title: 'Standup', color: '#3b82f6', badge: '15m' },\n` +
+    `  { id: 'd3-1', date: new Date(new Date().setDate(new Date().getDate() + 3)), title: 'Event', color: '#3b82f6' },\n` +
     `]\n\n` +
     `<Calendar\n` +
     `  value={selected}\n` +
@@ -83,6 +98,16 @@ export default function CalendarExample() {
     `/>\n\n` +
     `// Week view\n` +
     `<Calendar display='week' events={events} />\n\n` +
+    `// Events mode (large cells)\n` +
+    `<Calendar\n` +
+    `  size='lg'\n` +
+    `  cellMode='events'\n` +
+    `  maxEventsPerDay={3}\n` +
+    `  showEventBadges\n` +
+    `  highlightWeekends\n` +
+    `  events={events}\n` +
+    `  onEventClick={(event) => console.log(event)}\n` +
+    `/>\n\n` +
     `// Multi-month (2)\n` +
     `<Calendar months={2} />\n\n` +
     `// Min/Max + disabled dates\n` +
@@ -113,8 +138,14 @@ export default function CalendarExample() {
     { property: "minDate", description: t("props.calendar.minDate"), type: "Date", default: "-" },
     { property: "maxDate", description: t("props.calendar.maxDate"), type: "Date", default: "-" },
     { property: "disabledDates", description: t("props.calendar.disabledDates"), type: "Date[] | (date: Date) => boolean", default: "-" },
+    { property: "cellMode", description: t("props.calendar.cellMode"), type: "'compact' | 'events'", default: "'compact'" },
+    { property: "maxEventsPerDay", description: t("props.calendar.maxEventsPerDay"), type: "number", default: "3" },
+    { property: "onEventClick", description: t("props.calendar.onEventClick"), type: "(event: CalendarEvent, date: Date) => void", default: "-" },
+    { property: "renderEvent", description: t("props.calendar.renderEvent"), type: "(args) => ReactNode", default: "-" },
+    { property: "showEventBadges", description: t("props.calendar.showEventBadges"), type: "boolean", default: "false" },
+    { property: "highlightWeekends", description: t("props.calendar.highlightWeekends"), type: "boolean", default: "false" },
   ];
-  const docs = <PropsDocsTable rows={rows} />;
+  const docs = <PropsDocsTable rows={rows} markdownFile="Calendar.md" />;
 
   return (
     <Tabs

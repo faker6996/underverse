@@ -332,7 +332,13 @@
         "months": "Number of months to render side-by-side (month mode).",
         "minDate": "Lower bound for selectable dates.",
         "maxDate": "Upper bound for selectable dates.",
-        "disabledDates": "List or predicate to disable specific dates."
+        "disabledDates": "List or predicate to disable specific dates.",
+        "cellMode": "Day cell mode: compact dots or large event list.",
+        "maxEventsPerDay": "Maximum number of visible events per day (events mode).",
+        "onEventClick": "Event click handler (events mode).",
+        "renderEvent": "Custom renderer for an event row (events mode).",
+        "showEventBadges": "Show event badge text (events mode).",
+        "highlightWeekends": "Highlight weekend columns."
       },
       "calendarTimeline": {
         "resources": "List of resources (rows).",

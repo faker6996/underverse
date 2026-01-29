@@ -325,7 +325,13 @@
         "months": "Số tháng hiển thị cạnh nhau (chỉ áp dụng chế độ tháng).",
         "minDate": "Giới hạn dưới cho ngày có thể chọn.",
         "maxDate": "Giới hạn trên cho ngày có thể chọn.",
-        "disabledDates": "Danh sách hoặc hàm để vô hiệu hoá các ngày cụ thể."
+        "disabledDates": "Danh sách hoặc hàm để vô hiệu hoá các ngày cụ thể.",
+        "cellMode": "Chế độ ô ngày: compact (chấm) hoặc events (danh sách).",
+        "maxEventsPerDay": "Số sự kiện hiển thị tối đa mỗi ngày (events mode).",
+        "onEventClick": "Hàm xử lý click sự kiện (events mode).",
+        "renderEvent": "Tuỳ biến render 1 dòng sự kiện (events mode).",
+        "showEventBadges": "Hiển thị badge của sự kiện (events mode).",
+        "highlightWeekends": "Tô nổi bật cột cuối tuần."
       },
       "calendarTimeline": {
         "resources": "Danh sách resource (các hàng).",

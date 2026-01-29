@@ -8,9 +8,11 @@ import Button from "./Button";
 type SelectMode = "single" | "multiple" | "range";
 type Variant = "default" | "bordered" | "card" | "minimal";
 type DisplayMode = "month" | "week" | "year";
+type CellMode = "compact" | "events";
 
 export interface CalendarEvent {
   date: Date | string;
+  id?: string | number;
   title?: string;
   color?: string; // dot color
   badge?: string; // badge text
@@ -54,6 +56,14 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   showEventBadges?: boolean;
   /** Highlight weekends */
   highlightWeekends?: boolean;
+  /** Render mode for each day cell (compact dots vs large cell with event list) */
+  cellMode?: CellMode;
+  /** Max events shown per day (events cell mode) */
+  maxEventsPerDay?: number;
+  /** Fired when clicking an event in a day cell (events cell mode) */
+  onEventClick?: (event: CalendarEvent, date: Date) => void;
+  /** Customize event rendering (events cell mode) */
+  renderEvent?: (args: { event: CalendarEvent; date: Date }) => React.ReactNode;
 }
 
 function startOfMonth(d: Date) {
@@ -139,6 +149,10 @@ export default function Calendar({
   animate = false,
   showEventBadges = false,
   highlightWeekends = false,
+  cellMode = "compact",
+  maxEventsPerDay = 3,
+  onEventClick,
+  renderEvent,
   ...rest
 }: CalendarProps) {
   const isControlledMonth = month != null;
@@ -242,6 +256,14 @@ export default function Calendar({
   };
   const sz = SIZE_STYLES[size];
 
+  const CELL_EVENT_STYLES = {
+    sm: { cell: dense ? "min-h-20 p-1.5" : "min-h-24 p-2", day: "text-[12px]" },
+    md: { cell: dense ? "min-h-28 p-2" : "min-h-32 p-2.5", day: "text-sm" },
+    lg: { cell: dense ? "min-h-36 p-2.5" : "min-h-40 p-3", day: "text-base" },
+    xl: { cell: dense ? "min-h-44 p-3" : "min-h-52 p-3.5", day: "text-lg" },
+  } as const;
+  const cellSz = CELL_EVENT_STYLES[size];
+
   const VARIANT_STYLES = {
     default: "border border-border rounded-2xl bg-card",
     bordered: "border-2 border-border rounded-2xl bg-card shadow-sm",
@@ -277,6 +299,80 @@ export default function Calendar({
             const k = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
             const dayEvents = byDay.get(k) || [];
             const disabled = isDateDisabled(d);
+            const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+
+            const customDay = renderDay?.({ date: d, isCurrentMonth: inMonth, isToday, isSelected: selectedDay, events: dayEvents });
+            if (customDay) return <React.Fragment key={`${monthLabel}-${idx}`}>{customDay}</React.Fragment>;
+
+            if (cellMode === "events") {
+              const limit = Math.max(0, maxEventsPerDay);
+              const visibleEvents = dayEvents.slice(0, limit);
+              const hiddenCount = Math.max(0, dayEvents.length - visibleEvents.length);
+              return (
+                <div
+                  key={`${monthLabel}-${idx}`}
+                  className={cn(
+                    "rounded-xl border border-border/50 bg-background/40 overflow-hidden",
+                    "transition-colors duration-150",
+                    animate && "will-change-transform",
+                    cellSz.cell,
+                    !inMonth && "opacity-60",
+                    disabled && "opacity-40",
+                    highlightWeekends && isWeekend && "bg-accent/10",
+                    isToday && !selectedDay && "ring-1 ring-primary/40",
+                    selectedDay && "border-primary/50 bg-primary/10",
+                  )}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => !disabled && handleClickDay(d)}
+                      disabled={disabled}
+                      className={cn(
+                        "inline-flex items-center justify-center rounded-lg px-2 py-1",
+                        "transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                        cellSz.day,
+                        selectedDay ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground",
+                        disabled && "cursor-not-allowed hover:bg-transparent",
+                      )}
+                      title={d.toDateString()}
+                    >
+                      {d.getDate()}
+                    </button>
+                    {dayEvents.length > 0 && <span className="text-[11px] text-muted-foreground tabular-nums">{dayEvents.length}</span>}
+                  </div>
+
+                  <div className={cn("mt-2 space-y-1", dense ? "mt-1.5" : "mt-2")}>
+                    {visibleEvents.map((e, i) => {
+                      const key = e.id ?? `${k}-${i}`;
+                      const node = renderEvent?.({ event: e, date: d });
+                      if (node) return <div key={String(key)}>{node}</div>;
+                      return (
+                        <button
+                          key={String(key)}
+                          type="button"
+                          onClick={() => onEventClick?.(e, d)}
+                          className={cn(
+                            "w-full text-left rounded-lg px-2 py-1",
+                            "transition-colors duration-150 hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                            "text-xs flex items-center gap-2",
+                          )}
+                          title={e.title}
+                        >
+                          <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: e.color || "hsl(var(--primary))" }} />
+                          <span className="truncate flex-1">{e.title ?? "Event"}</span>
+                          {showEventBadges && e.badge && (
+                            <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{e.badge}</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                    {hiddenCount > 0 && <div className="px-2 text-[11px] text-muted-foreground">+{hiddenCount} more</div>}
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <button
                 key={`${monthLabel}-${idx}`}
@@ -287,6 +383,7 @@ export default function Calendar({
                   sz.day,
                   !inMonth && "text-muted-foreground/60",
                   disabled && "opacity-40 cursor-not-allowed",
+                  highlightWeekends && isWeekend && "bg-accent/10",
                   isToday && !selectedDay && "ring-1 ring-primary/50",
                   selectedDay && "bg-primary text-primary-foreground hover:bg-primary/90",
                   !selectedDay && "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
@@ -297,7 +394,11 @@ export default function Calendar({
                 {dayEvents.length > 0 && (
                   <span className="absolute -bottom-1 inline-flex gap-0.5">
                     {dayEvents.slice(0, 3).map((e, i) => (
-                      <span key={i} className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: e.color || "hsl(var(--primary))" }} />
+                      <span
+                        key={String(e.id ?? i)}
+                        className="h-1.5 w-1.5 rounded-full"
+                        style={{ backgroundColor: e.color || "hsl(var(--primary))" }}
+                      />
                     ))}
                   </span>
                 )}
@@ -382,6 +483,77 @@ export default function Calendar({
               const k = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
               const dayEvents = byDay.get(k) || [];
               const disabled = isDateDisabled(d);
+              const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+
+              const customDay = renderDay?.({ date: d, isCurrentMonth: inMonth, isToday, isSelected: selectedDay, events: dayEvents });
+              if (customDay) return <React.Fragment key={`wd-${idx}`}>{customDay}</React.Fragment>;
+
+              if (cellMode === "events") {
+                const limit = Math.max(0, maxEventsPerDay);
+                const visibleEvents = dayEvents.slice(0, limit);
+                const hiddenCount = Math.max(0, dayEvents.length - visibleEvents.length);
+                return (
+                  <div
+                    key={`wd-${idx}`}
+                    className={cn(
+                      "rounded-xl border border-border/50 bg-background/40 overflow-hidden",
+                      "transition-colors duration-150",
+                      cellSz.cell,
+                      disabled && "opacity-40",
+                      highlightWeekends && isWeekend && "bg-accent/10",
+                      isToday && !selectedDay && "ring-1 ring-primary/40",
+                      selectedDay && "border-primary/50 bg-primary/10",
+                    )}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => !disabled && handleClickDay(d)}
+                        disabled={disabled}
+                        className={cn(
+                          "inline-flex items-center justify-center rounded-lg px-2 py-1",
+                          "transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                          cellSz.day,
+                          selectedDay ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground",
+                          disabled && "cursor-not-allowed hover:bg-transparent",
+                        )}
+                        title={d.toDateString()}
+                      >
+                        {d.getDate()}
+                      </button>
+                      {dayEvents.length > 0 && <span className="text-[11px] text-muted-foreground tabular-nums">{dayEvents.length}</span>}
+                    </div>
+
+                    <div className={cn("mt-2 space-y-1", dense ? "mt-1.5" : "mt-2")}>
+                      {visibleEvents.map((e, i) => {
+                        const key = e.id ?? `${k}-${i}`;
+                        const node = renderEvent?.({ event: e, date: d });
+                        if (node) return <div key={String(key)}>{node}</div>;
+                        return (
+                          <button
+                            key={String(key)}
+                            type="button"
+                            onClick={() => onEventClick?.(e, d)}
+                            className={cn(
+                              "w-full text-left rounded-lg px-2 py-1",
+                              "transition-colors duration-150 hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                              "text-xs flex items-center gap-2",
+                            )}
+                            title={e.title}
+                          >
+                            <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: e.color || "hsl(var(--primary))" }} />
+                            <span className="truncate flex-1">{e.title ?? "Event"}</span>
+                            {showEventBadges && e.badge && (
+                              <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{e.badge}</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                      {hiddenCount > 0 && <div className="px-2 text-[11px] text-muted-foreground">+{hiddenCount} more</div>}
+                    </div>
+                  </div>
+                );
+              }
               return (
                 <button
                   key={`wd-${idx}`}
@@ -391,6 +563,7 @@ export default function Calendar({
                     "rounded-lg flex items-center justify-center relative cursor-pointer",
                     sz.day,
                     disabled && "opacity-40 cursor-not-allowed",
+                    highlightWeekends && isWeekend && "bg-accent/10",
                     isToday && !selectedDay && "ring-1 ring-primary/50",
                     selectedDay && "bg-primary text-primary-foreground hover:bg-primary/90",
                     !selectedDay && "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
@@ -401,7 +574,7 @@ export default function Calendar({
                   {dayEvents.length > 0 && (
                     <span className="absolute -bottom-1 inline-flex gap-0.5">
                       {dayEvents.slice(0, 3).map((e, i) => (
-                        <span key={i} className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: e.color || "hsl(var(--primary))" }} />
+                        <span key={String(e.id ?? i)} className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: e.color || "hsl(var(--primary))" }} />
                       ))}
                     </span>
                   )}
