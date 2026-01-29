@@ -1,6 +1,6 @@
 # CalendarTimeline
 
-Source: `components/ui/CalendarTimeline.tsx`
+Source: `components/ui/CalendarTimeline/CalendarTimeline.tsx`
 
 Exports:
 - CalendarTimeline
@@ -66,8 +66,7 @@ export function Example() {
         events={events}
         defaultView="month"
         weekStartsOn={1}
-        timeZone="Asia/Ho_Chi_Minh"
-        locale="vi-VN"
+        // locale/timeZone automatically follow the app/user settings by default
         interactions={{ creatable: true, draggableEvents: true, resizableEvents: true }}
         onCreateEvent={(draft) => {
           setEvents((prev) => [
@@ -159,4 +158,3 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   onEventResize?: (args: { eventId: string; start: Date; end: Date }) => void;
 }
 ```
-

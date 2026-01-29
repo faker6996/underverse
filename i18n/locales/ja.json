@@ -1286,5 +1286,16 @@
       "deleteRow": "行を削除",
       "deleteTable": "表を削除"
     }
+  },
+  "CalendarTimeline": {
+    "today": "今日",
+    "prev": "前へ",
+    "next": "次へ",
+    "month": "月",
+    "week": "週",
+    "day": "日",
+    "expandGroup": "グループを展開",
+    "collapseGroup": "グループを折りたたむ",
+    "more": "+{n}件"
   }
 }

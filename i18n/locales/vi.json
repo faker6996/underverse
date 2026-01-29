@@ -1330,5 +1330,16 @@
       "deleteRow": "Xóa hàng",
       "deleteTable": "Xóa bảng"
     }
+  },
+  "CalendarTimeline": {
+    "today": "Hôm nay",
+    "prev": "Trước",
+    "next": "Sau",
+    "month": "Tháng",
+    "week": "Tuần",
+    "day": "Ngày",
+    "expandGroup": "Mở rộng nhóm",
+    "collapseGroup": "Thu gọn nhóm",
+    "more": "+{n} thêm"
   }
 }

@@ -1297,5 +1297,16 @@
       "deleteRow": "Delete Row",
       "deleteTable": "Delete Table"
     }
+  },
+  "CalendarTimeline": {
+    "today": "Today",
+    "prev": "Previous",
+    "next": "Next",
+    "month": "Month",
+    "week": "Week",
+    "day": "Day",
+    "expandGroup": "Expand group",
+    "collapseGroup": "Collapse group",
+    "more": "+{n} more"
   }
 }

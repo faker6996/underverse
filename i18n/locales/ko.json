@@ -1286,5 +1286,16 @@
       "deleteRow": "행 삭제",
       "deleteTable": "표 삭제"
     }
+  },
+  "CalendarTimeline": {
+    "today": "오늘",
+    "prev": "이전",
+    "next": "다음",
+    "month": "월",
+    "week": "주",
+    "day": "일",
+    "expandGroup": "그룹 펼치기",
+    "collapseGroup": "그룹 접기",
+    "more": "+{n}개 더"
   }
 }

@@ -43,8 +43,6 @@ export default function CalendarTimelineExample() {
 
   const [view, setView] = React.useState<CalendarTimelineView>("month");
   const [date, setDate] = React.useState<Date>(new Date());
-  const [timeZone, setTimeZone] = React.useState<string>("Asia/Ho_Chi_Minh");
-  const [locale, setLocale] = React.useState<string>("vi-VN");
 
   const todayUtc = React.useMemo(() => {
     const now = new Date();
@@ -105,35 +103,6 @@ export default function CalendarTimelineExample() {
         <div className="text-xs text-muted-foreground">
           Tip: Drag event to move, drag edges to resize, drag empty cells to create (when enabled).
         </div>
-
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          <label className="text-xs text-muted-foreground">
-            Locale
-            <select
-              className="ml-2 rounded-md border border-border/60 bg-background px-2 py-1 text-xs"
-              value={locale}
-              onChange={(e) => setLocale(e.target.value)}
-            >
-              <option value="vi-VN">vi-VN</option>
-              <option value="en-US">en-US</option>
-              <option value="ko-KR">ko-KR</option>
-              <option value="ja-JP">ja-JP</option>
-            </select>
-          </label>
-          <label className="text-xs text-muted-foreground">
-            Timezone
-            <select
-              className="ml-2 rounded-md border border-border/60 bg-background px-2 py-1 text-xs"
-              value={timeZone}
-              onChange={(e) => setTimeZone(e.target.value)}
-            >
-              <option value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh</option>
-              <option value="UTC">UTC</option>
-              <option value="Asia/Tokyo">Asia/Tokyo</option>
-              <option value="America/Los_Angeles">America/Los_Angeles</option>
-            </select>
-          </label>
-        </div>
       </div>
 
       <div className="h-[520px]">
@@ -145,8 +114,6 @@ export default function CalendarTimelineExample() {
           onViewChange={setView}
           date={date}
           onDateChange={setDate}
-          locale={locale}
-          timeZone={timeZone}
           weekStartsOn={1}
           slotMinWidth={56}
           maxLanesPerRow={3}
@@ -199,8 +166,7 @@ export function Example() {
         groups={groups}
         events={events}
         defaultView="month"
-        timeZone="Asia/Ho_Chi_Minh"
-        locale="vi-VN"
+        // locale/timeZone automatically follow the app/user settings by default
         interactions={{ creatable: true, draggableEvents: true, resizableEvents: true }}
         onCreateEvent={(draft) => {
           setEvents((prev) => [...prev, { id: String(prev.length + 1), resourceId: draft.resourceId, start: draft.start, end: draft.end, title: 'New event' }])
