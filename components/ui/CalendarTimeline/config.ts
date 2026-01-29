@@ -20,9 +20,9 @@ export type CalendarTimelineSizeConfig = {
 export const SIZE_CONFIG_BY_SIZE: Record<CalendarTimelineSize, CalendarTimelineSizeConfig> = {
   sm: {
     resourceColumnWidth: 200,
-    rowHeight: 44,
+    rowHeight: 66,
     slotMinWidth: 52,
-    eventHeight: 20,
+    eventHeight: 40,
     laneGap: 3,
     lanePaddingY: 5,
     densityClass: "text-xs",
@@ -36,9 +36,9 @@ export const SIZE_CONFIG_BY_SIZE: Record<CalendarTimelineSize, CalendarTimelineS
   },
   md: {
     resourceColumnWidth: 240,
-    rowHeight: 52,
+    rowHeight: 78,
     slotMinWidth: 64,
-    eventHeight: 24,
+    eventHeight: 48,
     laneGap: 4,
     lanePaddingY: 6,
     densityClass: "text-sm",
@@ -52,9 +52,9 @@ export const SIZE_CONFIG_BY_SIZE: Record<CalendarTimelineSize, CalendarTimelineS
   },
   xl: {
     resourceColumnWidth: 280,
-    rowHeight: 60,
+    rowHeight: 90,
     slotMinWidth: 76,
-    eventHeight: 28,
+    eventHeight: 56,
     laneGap: 5,
     lanePaddingY: 8,
     densityClass: "text-base",

@@ -97,6 +97,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const resolvedTimeZone = React.useMemo(() => timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone ?? "UTC", [timeZone]);
 
   const effectiveEnableEventSheet = enableEventSheet ?? Boolean(renderEventSheet);
+  const isViewOnly = interactions?.mode === "view";
   const isControlledSelectedEventId = selectedEventId !== undefined;
   const [internalSelectedEventId, setInternalSelectedEventId] = React.useState<string | null>(defaultSelectedEventId ?? null);
   const activeSelectedEventId = isControlledSelectedEventId ? (selectedEventId as string | null) : internalSelectedEventId;
@@ -125,16 +126,18 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const canResizeColumn = React.useMemo(() => {
     const cfg = enableLayoutResize;
     if (!cfg) return false;
+    if (isViewOnly) return false;
     if (cfg === true) return true;
     return cfg.column !== false;
-  }, [enableLayoutResize]);
+  }, [enableLayoutResize, isViewOnly]);
 
   const canResizeRow = React.useMemo(() => {
     const cfg = enableLayoutResize;
     if (!cfg) return false;
+    if (isViewOnly) return false;
     if (cfg === true) return true;
     return cfg.row !== false;
-  }, [enableLayoutResize]);
+  }, [enableLayoutResize, isViewOnly]);
 
   const isControlledResourceColumnWidth = resourceColumnWidth !== undefined;
   const [internalResourceColumnWidth, setInternalResourceColumnWidth] = React.useState<number>(() => {
@@ -528,7 +531,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const lanePaddingY = sizeConfig.lanePaddingY;
 
   const createMode = interactions?.createMode ?? "drag";
-  const canCreate = (interactions?.creatable ?? false) && !!onCreateEvent;
+  const canCreate = !isViewOnly && (interactions?.creatable ?? false) && !!onCreateEvent;
   const [createOpen, setCreateOpen] = React.useState(false);
   const [createResourceId, setCreateResourceId] = React.useState<string | null>(null);
   const [createStartIdx, setCreateStartIdx] = React.useState(0);
@@ -656,6 +659,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   const onPointerDownEvent = (e: React.PointerEvent, ev: CalendarTimelineEvent<TEventMeta> & { _start: Date; _end: Date }, mode: DragMode) => {
     if (e.button !== 0 || e.ctrlKey) return;
+    if (isViewOnly) return;
     if (ev.resourceId == null) return;
     const allowDrag = interactions?.draggableEvents ?? true;
     const allowResize = interactions?.resizableEvents ?? true;
@@ -685,6 +689,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   const onPointerDownCell = (e: React.PointerEvent) => {
     if (e.button !== 0 || e.ctrlKey) return;
+    if (isViewOnly) return;
     if (!(interactions?.creatable ?? false) || !onCreateEvent) return;
     if (createMode === "click") return;
     const ctx = getPointerContext(e.clientX, e.clientY, { biasLeft: true });
@@ -710,6 +715,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   const onClickCell = (e: React.MouseEvent) => {
     if (e.button !== 0 || e.ctrlKey) return;
+    if (isViewOnly) return;
     if (!(interactions?.creatable ?? false)) return;
     if (createMode !== "click") return;
     if (!onCreateEventClick) return;
@@ -857,8 +863,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       resourcesHeaderLabel={t("resourcesHeader")}
       labels={{ today: l.today, prev: l.prev, next: l.next, month: l.month, week: l.week, day: l.day }}
       newEventLabel={l.newEvent}
-      newEventDisabled={!canCreate || resources.length === 0}
-      onNewEventClick={openCreate}
+      newEventDisabled={isViewOnly || !canCreate || resources.length === 0}
+      onNewEventClick={isViewOnly ? undefined : openCreate}
       activeView={activeView}
       sizeConfig={sizeConfig}
       navigate={navigate}
@@ -1071,6 +1077,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         tabIndex={0}
                         aria-label={aria}
                         onContextMenu={(e) => {
+                          if (isViewOnly) return;
                           if (!onEventDelete) return;
                           if (interactions?.deletableEvents === false) return;
                           e.preventDefault();
@@ -1093,7 +1100,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         onDoubleClick={() => onEventDoubleClick?.(ev)}
                         onPointerDown={(e) => onPointerDownEvent(e, ev, "move")}
                       >
-                        {(interactions?.resizableEvents ?? true) && ev.resizable !== false ? (
+                        {!isViewOnly && (interactions?.resizableEvents ?? true) && ev.resizable !== false ? (
                           <>
                             <div
                               className="absolute left-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-l-lg transition-opacity"

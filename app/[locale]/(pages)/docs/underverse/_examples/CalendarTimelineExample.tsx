@@ -17,6 +17,7 @@ import Input from "@/components/ui/Input";
 
 type EventMeta = { kind?: "meeting" | "task" };
 type CreateMode = "drag" | "click";
+type DemoMode = "edit" | "view";
 
 const resources: CalendarTimelineResource[] = [
   { id: "r-a", label: "Resource A", groupId: "g-1" },
@@ -47,6 +48,7 @@ export default function CalendarTimelineExample() {
 
   const [view, setView] = React.useState<CalendarTimelineView>("month");
   const [date, setDate] = React.useState<Date>(new Date());
+  const [demoMode, setDemoMode] = React.useState<DemoMode>("edit");
   const [createMode, setCreateMode] = React.useState<CreateMode>("drag");
   const [customCreateOpen, setCustomCreateOpen] = React.useState(false);
   const [customCreateTitle, setCustomCreateTitle] = React.useState("New event");
@@ -106,18 +108,36 @@ export default function CalendarTimelineExample() {
   });
 
   const tip =
-    createMode === "drag"
-      ? "Mode: Drag-to-create. Drag empty cells to create a new event."
-      : "Mode: Click-to-create (custom). Click an empty cell to open a custom create sheet.";
+    demoMode === "view"
+      ? "Mode: View only. Click an event to open the sheet."
+      : createMode === "drag"
+        ? "Mode: Edit + Drag-to-create. Drag empty cells to create a new event."
+        : "Mode: Edit + Click-to-create (custom). Click an empty cell to open a custom create sheet.";
 
   const demo = (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant={createMode === "drag" ? "default" : "ghost"} size="sm" onClick={() => setCreateMode("drag")}>
+          <Button variant={demoMode === "edit" ? "default" : "ghost"} size="sm" onClick={() => setDemoMode("edit")}>
+            Mode: Edit
+          </Button>
+          <Button variant={demoMode === "view" ? "default" : "ghost"} size="sm" onClick={() => setDemoMode("view")}>
+            Mode: View
+          </Button>
+          <Button
+            variant={createMode === "drag" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setCreateMode("drag")}
+            disabled={demoMode === "view"}
+          >
             Create: Drag
           </Button>
-          <Button variant={createMode === "click" ? "default" : "ghost"} size="sm" onClick={() => setCreateMode("click")}>
+          <Button
+            variant={createMode === "click" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setCreateMode("click")}
+            disabled={demoMode === "view"}
+          >
             Create: Click (custom)
           </Button>
           <div className="text-xs text-muted-foreground">{tip}</div>
@@ -147,9 +167,9 @@ export default function CalendarTimelineExample() {
               </Button>
             </div>
           )}
-          interactions={{ creatable: true, createMode, draggableEvents: true, resizableEvents: true }}
+          interactions={demoMode === "view" ? { mode: "view" } : { mode: "edit", creatable: true, createMode, draggableEvents: true, resizableEvents: true }}
           onCreateEventClick={
-            createMode === "click"
+            demoMode !== "view" && createMode === "click"
               ? ({ resourceId, start, end }) => {
                   setCustomCreateDraft({ resourceId, start, end });
                   setCustomCreateTitle("New event");
@@ -279,18 +299,32 @@ export function Example() {
       default: "—",
     },
     { property: "selectedEventId", description: t("props.calendarTimeline.selectedEventId"), type: "string | null", default: "—" },
+    { property: "defaultSelectedEventId", description: t("props.calendarTimeline.defaultSelectedEventId"), type: "string | null", default: "null" },
+    { property: "onSelectedEventIdChange", description: t("props.calendarTimeline.onSelectedEventIdChange"), type: "(eventId: string | null) => void", default: "—" },
     { property: "eventSheetOpen", description: t("props.calendarTimeline.eventSheetOpen"), type: "boolean", default: "—" },
+    { property: "defaultEventSheetOpen", description: t("props.calendarTimeline.defaultEventSheetOpen"), type: "boolean", default: "false" },
+    { property: "onEventSheetOpenChange", description: t("props.calendarTimeline.onEventSheetOpenChange"), type: "(open: boolean) => void", default: "—" },
     { property: "view", description: t("props.calendarTimeline.view"), type: "'month' | 'week' | 'day'", default: "'month'" },
+    { property: "defaultView", description: t("props.calendarTimeline.defaultView"), type: "'month' | 'week' | 'day'", default: "'month'" },
+    { property: "onViewChange", description: t("props.calendarTimeline.onViewChange"), type: "(view: CalendarTimelineView) => void", default: "—" },
     { property: "date", description: t("props.calendarTimeline.date"), type: "Date", default: "new Date()" },
+    { property: "defaultDate", description: t("props.calendarTimeline.defaultDate"), type: "Date", default: "new Date()" },
+    { property: "onDateChange", description: t("props.calendarTimeline.onDateChange"), type: "(date: Date) => void", default: "—" },
+    { property: "weekStartsOn", description: t("props.calendarTimeline.weekStartsOn"), type: "0 | 1 | 2 | 3 | 4 | 5 | 6", default: "1" },
     { property: "timeZone", description: t("props.calendarTimeline.timeZone"), type: "string (IANA TZ)", default: "Intl resolved" },
     { property: "locale", description: t("props.calendarTimeline.locale"), type: "string (BCP47)", default: "from i18n" },
+    { property: "labels", description: t("props.calendarTimeline.labels"), type: "CalendarTimelineLabels", default: "—" },
+    { property: "formatters", description: t("props.calendarTimeline.formatters"), type: "CalendarTimelineFormatters", default: "—" },
     { property: "groups", description: t("props.calendarTimeline.groups"), type: "CalendarTimelineGroup[]", default: "-" },
     { property: "groupCollapsed", description: t("props.calendarTimeline.groupCollapsed"), type: "Record<string, boolean>", default: "-" },
+    { property: "defaultGroupCollapsed", description: t("props.calendarTimeline.defaultGroupCollapsed"), type: "Record<string, boolean>", default: "{}" },
+    { property: "onGroupCollapsedChange", description: t("props.calendarTimeline.onGroupCollapsedChange"), type: "(next: Record<string, boolean>) => void", default: "—" },
     { property: "resourceColumnWidth", description: t("props.calendarTimeline.resourceColumnWidth"), type: "number | string", default: "by size" },
     { property: "rowHeight", description: t("props.calendarTimeline.rowHeight"), type: "number", default: "by size" },
     { property: "slotMinWidth", description: t("props.calendarTimeline.slotMinWidth"), type: "number", default: "by size" },
     { property: "dayTimeStepMinutes", description: t("props.calendarTimeline.dayTimeStepMinutes"), type: "number", default: "60" },
     { property: "maxLanesPerRow", description: t("props.calendarTimeline.maxLanesPerRow"), type: "number", default: "3" },
+    { property: "now", description: t("props.calendarTimeline.now"), type: "Date", default: "new Date()" },
     { property: "enableLayoutResize", description: t("props.calendarTimeline.enableLayoutResize"), type: "boolean | {column?: boolean; row?: boolean}", default: "false" },
     { property: "defaultResourceColumnWidth", description: t("props.calendarTimeline.defaultResourceColumnWidth"), type: "number", default: "-" },
     { property: "onResourceColumnWidthChange", description: t("props.calendarTimeline.onResourceColumnWidthChange"), type: "(width: number) => void", default: "-" },
@@ -303,10 +337,22 @@ export function Example() {
     { property: "rowHeights", description: t("props.calendarTimeline.rowHeights"), type: "Record<string, number>", default: "-" },
     { property: "defaultRowHeights", description: t("props.calendarTimeline.defaultRowHeights"), type: "Record<string, number>", default: "-" },
     { property: "onRowHeightsChange", description: t("props.calendarTimeline.onRowHeightsChange"), type: "(next: Record<string, number>) => void", default: "-" },
-    { property: "interactions", description: t("props.calendarTimeline.interactions"), type: "{creatable; draggableEvents; resizableEvents}", default: "-" },
+    { property: "renderResource", description: t("props.calendarTimeline.renderResource"), type: "(resource) => ReactNode", default: "—" },
+    { property: "renderGroup", description: t("props.calendarTimeline.renderGroup"), type: "(group, args) => ReactNode", default: "—" },
+    { property: "renderEvent", description: t("props.calendarTimeline.renderEvent"), type: "(event, layout) => ReactNode", default: "—" },
+    { property: "interactions", description: t("props.calendarTimeline.interactions"), type: "CalendarTimelineInteractions", default: "-" },
+    { property: "interactions.mode", description: t("props.calendarTimeline.interactionsMode"), type: "'edit' | 'view'", default: "'edit'" },
+    { property: "interactions.createMode", description: t("props.calendarTimeline.createMode"), type: "'drag' | 'click'", default: "'drag'" },
+    { property: "onRangeChange", description: t("props.calendarTimeline.onRangeChange"), type: "(range) => void", default: "—" },
+    { property: "onEventClick", description: t("props.calendarTimeline.onEventClick"), type: "(event) => void", default: "—" },
+    { property: "onEventDoubleClick", description: t("props.calendarTimeline.onEventDoubleClick"), type: "(event) => void", default: "—" },
+    { property: "onCreateEventClick", description: t("props.calendarTimeline.onCreateEventClick"), type: "(args) => void", default: "—" },
     { property: "onCreateEvent", description: t("props.calendarTimeline.onCreateEvent"), type: "(draft) => void", default: "-" },
     { property: "onEventMove", description: t("props.calendarTimeline.onEventMove"), type: "(args) => void", default: "-" },
     { property: "onEventResize", description: t("props.calendarTimeline.onEventResize"), type: "(args) => void", default: "-" },
+    { property: "onEventDelete", description: t("props.calendarTimeline.onEventDelete"), type: "(args) => void", default: "—" },
+    { property: "onMoreClick", description: t("props.calendarTimeline.onMoreClick"), type: "(args) => void", default: "—" },
+    { property: "virtualization", description: t("props.calendarTimeline.virtualization"), type: "{enabled?: boolean; overscan?: number}", default: "—" },
   ];
   const docs = <PropsDocsTable rows={rows} markdownFile="CalendarTimeline.md" />;
 

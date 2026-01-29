@@ -61,6 +61,8 @@ export interface CalendarTimelineFormatters {
 }
 
 export interface CalendarTimelineInteractions {
+  /** Interaction preset. Default: "edit". */
+  mode?: "edit" | "view";
   selectable?: boolean;
   creatable?: boolean;
   /** How creating events via the grid works. Default: "drag". */

@@ -87,16 +87,18 @@ export function CalendarTimelineHeader(props: {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="default"
-            size="sm"
-            icon={Plus}
-            disabled={newEventDisabled || !onNewEventClick}
-            onClick={onNewEventClick}
-            className={cn(sizeConfig.controlButtonTextClass, "rounded-lg font-medium transition-all duration-200 gap-1.5")}
-          >
-            <span className="hidden sm:inline">{newEventLabel}</span>
-          </Button>
+          {onNewEventClick ? (
+            <Button
+              variant="default"
+              size="sm"
+              icon={Plus}
+              disabled={newEventDisabled}
+              onClick={onNewEventClick}
+              className={cn(sizeConfig.controlButtonTextClass, "rounded-lg font-medium transition-all duration-200 gap-1.5")}
+            >
+              <span className="hidden sm:inline">{newEventLabel}</span>
+            </Button>
+          ) : null}
 
           {/* View Switcher */}
           <div className="flex items-center bg-muted/40 rounded-xl p-1 gap-0.5">
