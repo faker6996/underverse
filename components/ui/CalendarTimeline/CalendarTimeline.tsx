@@ -961,15 +961,12 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         tabIndex={0}
                         aria-label={aria}
                         onContextMenu={(e) => {
+                          if (!onEventDelete) return;
+                          if (interactions?.deletableEvents === false) return;
                           e.preventDefault();
                           e.stopPropagation();
-                          if (interactions?.deletableEvents === false) return;
                           const ok = window.confirm(l.deleteConfirm);
                           if (!ok) return;
-                          if (!onEventDelete) {
-                            window.alert("Missing `onEventDelete` handler.");
-                            return;
-                          }
                           onEventDelete({ eventId: ev.id });
                         }}
                         onClick={() => {

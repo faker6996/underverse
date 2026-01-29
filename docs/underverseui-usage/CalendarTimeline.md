@@ -81,7 +81,7 @@ export function Example() {
         weekStartsOn={1}
         // locale/timeZone automatically follow the app/user settings by default
         // Hover an event to see a tooltip, click to open the sheet.
-        interactions={{ creatable: true, draggableEvents: true, resizableEvents: true }}
+        interactions={{ creatable: true, draggableEvents: true, resizableEvents: true, deletableEvents: true }}
         onCreateEvent={(draft) => {
           setEvents((prev) => [
             ...prev,
@@ -102,6 +102,14 @@ export function Example() {
   );
 }
 ```
+
+## Hành vi
+
+- **Một resource (một hàng)** có thể có **nhiều event**. Nếu các event overlap, component sẽ tự xếp thành nhiều “lane”.
+- `maxLanesPerRow` giới hạn số lane hiển thị; phần dư sẽ vào “hidden” và hiển thị nút `+n more`.
+- `end` của event là **exclusive** (kết thúc không bao gồm). Ví dụ `04:00 → 06:00` là đúng 2 giờ.
+- Khi **drag/move/resize** event, component sẽ **không mở Event Sheet** (chỉ click mới mở).
+- Ở **week view**, các slot sẽ **tự giãn để fill full chiều ngang** vùng timeline (nhưng vẫn tôn trọng `slotMinWidth` như giá trị tối thiểu).
 
 ## Event Sheet
 
@@ -134,7 +142,9 @@ CalendarTimeline hỗ trợ **resize bằng chuột** (khi bật `enableLayoutRe
 
 ## Delete event (right click)
 
-Right click an event to show a confirm dialog and delete it (controlled by your `onEventDelete` handler).
+Chuột phải lên event để hiện confirm và xoá (cần cung cấp `onEventDelete`).
+
+> macOS: bạn có thể dùng **Ctrl+Click** để mở “chuột phải”.
 
 ```tsx
 <CalendarTimeline
@@ -220,6 +230,27 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   locale?: string;
   timeZone?: string;
 
+  labels?: {
+    today?: string;
+    prev?: string;
+    next?: string;
+    month?: string;
+    week?: string;
+    day?: string;
+    expandGroup?: string;
+    collapseGroup?: string;
+    more?: (n: number) => string;
+    deleteConfirm?: string;
+  };
+
+  formatters?: {
+    monthTitle?: (date: Date, ctx: { locale: string; timeZone: string }) => string;
+    slotHeader?: (slotStart: Date, ctx: { view: CalendarTimelineView; locale: string; timeZone: string }) => React.ReactNode;
+    eventTime?: (args: { start: Date; end: Date; locale: string; timeZone: string; view: CalendarTimelineView }) => string;
+    ariaEventLabel?: (event: CalendarTimelineEvent, ctx: { locale: string; timeZone: string }) => string;
+    ariaSlotLabel?: (slotStart: Date, ctx: { view: CalendarTimelineView; locale: string; timeZone: string }) => string;
+  };
+
   groups?: CalendarTimelineGroup[];
   groupCollapsed?: Record<string, boolean>;
   defaultGroupCollapsed?: Record<string, boolean>;
@@ -275,6 +306,7 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
     creatable?: boolean;
     draggableEvents?: boolean;
     resizableEvents?: boolean;
+    deletableEvents?: boolean;
   };
 
   onRangeChange?: (range: { start: Date; end: Date }) => void;
@@ -283,6 +315,7 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   onCreateEvent?: (draft: { resourceId: string; start: Date; end: Date }) => void;
   onEventMove?: (args: { eventId: string; resourceId: string; start: Date; end: Date }) => void;
   onEventResize?: (args: { eventId: string; start: Date; end: Date }) => void;
+  onEventDelete?: (args: { eventId: string }) => void;
 
   onMoreClick?: (args: { resourceId: string; hiddenEvents: CalendarTimelineEvent<TEventMeta>[] }) => void;
 
