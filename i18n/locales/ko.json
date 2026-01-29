@@ -327,6 +327,7 @@
       "calendarTimeline": {
         "resources": "리소스(행) 목록.",
         "events": "이벤트 목록(end는 exclusive).",
+        "size": "크기 프리셋(sm/md/xl).",
         "view": "현재 보기: month/week/day(제어).",
         "date": "현재 보기의 기준 날짜(제어).",
         "timeZone": "렌더링/계산에 사용하는 IANA 타임존.",
@@ -1294,6 +1295,7 @@
     "month": "월",
     "week": "주",
     "day": "일",
+    "resourcesHeader": "리소스",
     "expandGroup": "그룹 펼치기",
     "collapseGroup": "그룹 접기",
     "more": "+{n}개 더"

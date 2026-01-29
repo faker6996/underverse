@@ -64,6 +64,7 @@ export function Example() {
         resources={resources}
         groups={groups}
         events={events}
+        size="md" // "sm" | "md" | "xl"
         defaultView="month"
         weekStartsOn={1}
         // locale/timeZone automatically follow the app/user settings by default

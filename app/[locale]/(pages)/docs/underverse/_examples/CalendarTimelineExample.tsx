@@ -185,6 +185,7 @@ export function Example() {
   const rows: PropsRow[] = [
     { property: "resources", description: t("props.calendarTimeline.resources"), type: "CalendarTimelineResource[]", default: "-" },
     { property: "events", description: t("props.calendarTimeline.events"), type: "CalendarTimelineEvent[]", default: "-" },
+    { property: "size", description: t("props.calendarTimeline.size"), type: '"sm" | "md" | "xl"', default: '"md"' },
     { property: "view", description: t("props.calendarTimeline.view"), type: "'month' | 'week' | 'day'", default: "'month'" },
     { property: "date", description: t("props.calendarTimeline.date"), type: "Date", default: "new Date()" },
     { property: "timeZone", description: t("props.calendarTimeline.timeZone"), type: "string (IANA TZ)", default: "Intl resolved" },

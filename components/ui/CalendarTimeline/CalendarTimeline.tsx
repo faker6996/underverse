@@ -11,6 +11,7 @@ import type {
   CalendarTimelineLabels,
   CalendarTimelineProps,
   CalendarTimelineResource,
+  CalendarTimelineSize,
   CalendarTimelineView,
 } from "./types";
 import { addZonedDays, addZonedMonths, getDtf, localeToBCP47, startOfZonedDay, startOfZonedMonth, startOfZonedWeek, toDate } from "./date";
@@ -54,6 +55,7 @@ function defaultEventTime(args: { start: Date; end: Date; locale: string; timeZo
 export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = unknown>({
   resources,
   events,
+  size = "md",
   view,
   defaultView = "month",
   onViewChange,
@@ -69,9 +71,9 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   groupCollapsed,
   defaultGroupCollapsed,
   onGroupCollapsedChange,
-  resourceColumnWidth = 240,
-  rowHeight = 52,
-  slotMinWidth = 64,
+  resourceColumnWidth,
+  rowHeight,
+  slotMinWidth,
   dayTimeStepMinutes = 60,
   maxLanesPerRow = 3,
   now,
@@ -95,6 +97,82 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   const resolvedLocale = React.useMemo(() => localeToBCP47(locale ?? detectedLocale), [locale, detectedLocale]);
   const resolvedTimeZone = React.useMemo(() => timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone ?? "UTC", [timeZone]);
+
+  const sizeConfig = React.useMemo(() => {
+    const cfgBySize: Record<
+      CalendarTimelineSize,
+      {
+        resourceColumnWidth: number;
+        rowHeight: number;
+        slotMinWidth: number;
+        eventHeight: number;
+        laneGap: number;
+        lanePaddingY: number;
+        densityClass: string;
+        headerPaddingClass: string;
+        titleClass: string;
+        resourceRowClass: string;
+        groupRowClass: string;
+        slotHeaderClass: string;
+        controlButtonIconClass: string;
+        controlButtonTextClass: string;
+      }
+    > = {
+      sm: {
+        resourceColumnWidth: 200,
+        rowHeight: 44,
+        slotMinWidth: 52,
+        eventHeight: 16,
+        laneGap: 3,
+        lanePaddingY: 5,
+        densityClass: "text-xs",
+        headerPaddingClass: "px-3 py-2",
+        titleClass: "text-base",
+        resourceRowClass: "gap-2 px-3",
+        groupRowClass: "gap-2 px-3",
+        slotHeaderClass: "px-1 py-2",
+        controlButtonIconClass: "h-7 w-7",
+        controlButtonTextClass: "h-7 px-2 text-xs",
+      },
+      md: {
+        resourceColumnWidth: 240,
+        rowHeight: 52,
+        slotMinWidth: 64,
+        eventHeight: 18,
+        laneGap: 4,
+        lanePaddingY: 6,
+        densityClass: "text-sm",
+        headerPaddingClass: "px-4 py-3",
+        titleClass: "text-lg",
+        resourceRowClass: "gap-3 px-4",
+        groupRowClass: "gap-3 px-4",
+        slotHeaderClass: "px-1 py-3",
+        controlButtonIconClass: "h-8 w-8",
+        controlButtonTextClass: "h-8 px-3",
+      },
+      xl: {
+        resourceColumnWidth: 280,
+        rowHeight: 60,
+        slotMinWidth: 76,
+        eventHeight: 20,
+        laneGap: 5,
+        lanePaddingY: 8,
+        densityClass: "text-base",
+        headerPaddingClass: "px-5 py-4",
+        titleClass: "text-xl",
+        resourceRowClass: "gap-4 px-5",
+        groupRowClass: "gap-4 px-5",
+        slotHeaderClass: "px-2 py-4",
+        controlButtonIconClass: "h-9 w-9",
+        controlButtonTextClass: "h-9 px-4 text-sm",
+      },
+    };
+    return cfgBySize[size];
+  }, [size]);
+
+  const effectiveResourceColumnWidth = resourceColumnWidth ?? sizeConfig.resourceColumnWidth;
+  const effectiveRowHeight = rowHeight ?? sizeConfig.rowHeight;
+  const effectiveSlotMinWidth = slotMinWidth ?? sizeConfig.slotMinWidth;
 
   const isControlledView = view !== undefined;
   const [internalView, setInternalView] = React.useState<CalendarTimelineView>(defaultView);
@@ -253,7 +331,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   }, [range.start, range.end, onRangeChange]);
 
   const slotStarts = React.useMemo(() => slots.map((s) => s.start), [slots]);
-  const slotWidth = slotMinWidth;
+  const slotWidth = effectiveSlotMinWidth;
   const gridWidth = slots.length * slotWidth;
 
   const normalizedEvents = React.useMemo(() => {
@@ -296,10 +374,10 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     );
   }, [activeDate, formatters, resolvedLocale, resolvedTimeZone]);
 
-  const densityClass = "text-sm";
-  const eventHeight = 18;
-  const laneGap = 4;
-  const lanePaddingY = 6;
+  const densityClass = sizeConfig.densityClass;
+  const eventHeight = sizeConfig.eventHeight;
+  const laneGap = sizeConfig.laneGap;
+  const lanePaddingY = sizeConfig.lanePaddingY;
 
   const virt = virtualization?.enabled;
   const overscan = virtualization?.overscan ?? 8;
@@ -311,7 +389,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   } = useVirtualRows({
     enabled: virt,
     overscan,
-    rowHeight,
+    rowHeight: effectiveRowHeight,
     itemCount: rows.length,
     scrollRef: bodyRef,
   });
@@ -338,8 +416,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       const timelineEl = el?.closest?.("[data-uv-ct-timeline]") as HTMLElement | null;
       if (!timelineEl) return null;
       const timelineRect = timelineEl.getBoundingClientRect();
-      const x = clientX - timelineRect.left + body.scrollLeft;
-      const slotIdx = clamp(Math.floor(x / slotWidth), 0, Math.max(0, slots.length - 1));
+    const x = clientX - timelineRect.left + body.scrollLeft;
+    const slotIdx = clamp(Math.floor(x / slotWidth), 0, Math.max(0, slots.length - 1));
       const rowEl = el?.closest?.("[data-uv-ct-row]") as HTMLElement | null;
       const rid = rowEl?.dataset?.uvCtRow ?? null;
       return { slotIdx, resourceId: rid, x };
@@ -484,7 +562,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         type="button"
         onClick={canToggle ? toggle : undefined}
         className={cn(
-          "w-full h-full flex items-center gap-3 px-4 text-left",
+          "w-full h-full flex items-center text-left",
+          sizeConfig.groupRowClass,
           "bg-gradient-to-r from-muted/40 to-muted/20 border-b border-border/40",
           "backdrop-blur-sm",
           canToggle ? "cursor-pointer hover:from-muted/60 hover:to-muted/30 transition-all duration-200" : "cursor-default",
@@ -517,7 +596,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         <div
           key={`${s.start.toISOString()}_${idx}`}
           className={cn(
-            "flex-shrink-0 border-l border-border/30 px-1 py-3 flex items-center justify-center transition-colors duration-150",
+            "flex-shrink-0 border-l border-border/30 flex items-center justify-center transition-colors duration-150",
+            sizeConfig.slotHeaderClass,
             s.isToday && "bg-primary/8 border-l-primary/40",
           )}
           style={{ width: slotWidth, minWidth: slotWidth }}
@@ -540,7 +620,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   const Header = (
     <div className="sticky top-0 z-30 bg-gradient-to-b from-background via-background to-background/95 border-b border-border/40 backdrop-blur-xl">
-      <div className="flex items-center justify-between gap-4 px-4 py-3">
+      <div className={cn("flex items-center justify-between gap-4", sizeConfig.headerPaddingClass)}>
         {/* Navigation Controls */}
         <div className="flex items-center gap-1.5 min-w-0">
           <div className="flex items-center bg-muted/40 rounded-xl p-1 gap-0.5">
@@ -549,7 +629,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
               size="icon"
               onClick={() => navigate(-1)}
               aria-label={l.prev}
-              className="h-8 w-8 rounded-lg hover:bg-background/80 transition-all duration-200"
+              className={cn(sizeConfig.controlButtonIconClass, "rounded-lg hover:bg-background/80 transition-all duration-200")}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -557,7 +637,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
               variant="ghost"
               size="sm"
               onClick={goToday}
-              className="h-8 px-3 rounded-lg hover:bg-background/80 font-medium transition-all duration-200"
+              className={cn(sizeConfig.controlButtonTextClass, "rounded-lg hover:bg-background/80 font-medium transition-all duration-200")}
             >
               {l.today}
             </Button>
@@ -566,12 +646,12 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
               size="icon"
               onClick={() => navigate(1)}
               aria-label={l.next}
-              className="h-8 w-8 rounded-lg hover:bg-background/80 transition-all duration-200"
+              className={cn(sizeConfig.controlButtonIconClass, "rounded-lg hover:bg-background/80 transition-all duration-200")}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          <h2 className="ml-3 text-lg font-semibold tracking-tight truncate text-foreground">{title}</h2>
+          <h2 className={cn("ml-3 font-semibold tracking-tight truncate text-foreground", sizeConfig.titleClass)}>{title}</h2>
         </div>
 
         {/* View Switcher */}
@@ -583,7 +663,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
               size="sm"
               onClick={() => setView(v)}
               className={cn(
-                "h-8 px-3 rounded-lg font-medium transition-all duration-200 gap-1.5",
+                sizeConfig.controlButtonTextClass,
+                "rounded-lg font-medium transition-all duration-200 gap-1.5",
                 activeView === v
                   ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
                   : "hover:bg-background/80 text-muted-foreground hover:text-foreground",
@@ -600,9 +681,11 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       <div className="flex border-t border-border/20">
         <div
           className="flex-shrink-0 border-r border-border/30 bg-muted/20 flex items-center justify-center"
-          style={{ width: resourceColumnWidth, minWidth: resourceColumnWidth }}
+          style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
         >
-          <span className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Resources</span>
+          <span className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
+            {t("resourcesHeader")}
+          </span>
         </div>
         <div ref={headerRef} className="overflow-x-auto overflow-y-hidden scrollbar-none">
           {slotHeaderNodes}
@@ -614,7 +697,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const ResourceCell = (r: CalendarTimelineResource<TResourceMeta>) => (
     <div
       className={cn(
-        "h-full w-full flex items-center gap-3 px-4 border-b border-border/30 bg-gradient-to-r from-background to-background/95",
+        "h-full w-full flex items-center border-b border-border/30 bg-gradient-to-r from-background to-background/95",
+        sizeConfig.resourceRowClass,
         "hover:from-muted/30 hover:to-muted/10 transition-all duration-200 group",
       )}
     >
@@ -685,8 +769,11 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
           const rowIndex = startRow + idx;
           if (row.kind === "group") {
             return (
-              <div key={`g_${row.group.id}_${rowIndex}`} className="flex" style={{ height: rowHeight }}>
-                <div className="flex-shrink-0 sticky left-0 z-20" style={{ width: resourceColumnWidth, minWidth: resourceColumnWidth }}>
+              <div key={`g_${row.group.id}_${rowIndex}`} className="flex" style={{ height: effectiveRowHeight }}>
+                <div
+                  className="flex-shrink-0 sticky left-0 z-20"
+                  style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
+                >
                   {renderGroupRow(row.group)}
                 </div>
                 <div className="flex-1 border-b border-border/30 bg-gradient-to-r from-muted/15 to-muted/5" style={{ minWidth: gridWidth }} />
@@ -702,12 +789,12 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
             <div
               key={`r_${r.id}_${rowIndex}`}
               className="flex group/row hover:bg-muted/5 transition-colors duration-150"
-              style={{ height: rowHeight }}
+              style={{ height: effectiveRowHeight }}
               data-uv-ct-row={r.id}
             >
               <div
                 className="flex-shrink-0 sticky left-0 z-20 border-r border-border/30"
-                style={{ width: resourceColumnWidth, minWidth: resourceColumnWidth }}
+                style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
               >
                 {ResourceCell(r)}
               </div>

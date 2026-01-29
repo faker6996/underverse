@@ -327,6 +327,7 @@
       "calendarTimeline": {
         "resources": "リソース（行）の一覧。",
         "events": "イベント一覧（end は exclusive）。",
+        "size": "サイズプリセット（sm/md/xl）。",
         "view": "表示モード: month/week/day（制御）。",
         "date": "現在表示の基準日（制御）。",
         "timeZone": "レンダリング/計算に使う IANA タイムゾーン。",
@@ -1294,6 +1295,7 @@
     "month": "月",
     "week": "週",
     "day": "日",
+    "resourcesHeader": "リソース",
     "expandGroup": "グループを展開",
     "collapseGroup": "グループを折りたたむ",
     "more": "+{n}件"

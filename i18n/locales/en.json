@@ -337,6 +337,7 @@
       "calendarTimeline": {
         "resources": "List of resources (rows).",
         "events": "List of events (end is exclusive).",
+        "size": "Visual size preset (sm/md/xl).",
         "view": "Active view: month/week/day (controlled).",
         "date": "Anchor date for the current view (controlled).",
         "timeZone": "IANA timezone used for rendering and calculations.",
@@ -1305,6 +1306,7 @@
     "month": "Month",
     "week": "Week",
     "day": "Day",
+    "resourcesHeader": "Resources",
     "expandGroup": "Expand group",
     "collapseGroup": "Collapse group",
     "more": "+{n} more"

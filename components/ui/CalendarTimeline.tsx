@@ -10,6 +10,7 @@ export type {
   CalendarTimelineLabels,
   CalendarTimelineProps,
   CalendarTimelineResource,
+  CalendarTimelineSize,
   CalendarTimelineView,
   CalendarTimelineVirtualization,
 } from "./CalendarTimeline/types";

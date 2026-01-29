@@ -330,6 +330,7 @@
       "calendarTimeline": {
         "resources": "Danh sách resource (các hàng).",
         "events": "Danh sách event (end là exclusive).",
+        "size": "Preset kích thước hiển thị (sm/md/xl).",
         "view": "Chế độ xem: month/week/day (controlled).",
         "date": "Ngày neo cho view hiện tại (controlled).",
         "timeZone": "Múi giờ IANA dùng để render và tính toán.",
@@ -1338,6 +1339,7 @@
     "month": "Tháng",
     "week": "Tuần",
     "day": "Ngày",
+    "resourcesHeader": "Tài nguyên",
     "expandGroup": "Mở rộng nhóm",
     "collapseGroup": "Thu gọn nhóm",
     "more": "+{n} thêm"

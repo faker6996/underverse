@@ -2,6 +2,7 @@ import type * as React from "react";
 
 export type CalendarTimelineView = "month" | "week" | "day";
 export type CalendarTimelineDateInput = Date | string | number;
+export type CalendarTimelineSize = "sm" | "md" | "xl";
 
 export interface CalendarTimelineGroup {
   id: string;
@@ -67,6 +68,8 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   resources: CalendarTimelineResource<TResourceMeta>[];
   events: CalendarTimelineEvent<TEventMeta>[];
 
+  size?: CalendarTimelineSize;
+
   // view/date
   view?: CalendarTimelineView;
   defaultView?: CalendarTimelineView;
@@ -115,4 +118,3 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
 
   virtualization?: CalendarTimelineVirtualization;
 }
-
