@@ -74,8 +74,6 @@ DatePicker hỗ trợ chọn tháng và năm nhanh:
 <DatePicker value={date} onChange={setDate} />
 ```
 
-````
-
 ### Với TranslationProvider (Standalone React):
 
 ```tsx
@@ -91,7 +89,7 @@ export function App() {
     </TranslationProvider>
   );
 }
-````
+```
 
 ### Override labels thủ công:
 
@@ -115,6 +113,10 @@ export interface DatePickerProps {
   weekdayLabels?: string[];
   /** Disable selecting past dates (before today) */
   disablePastDates?: boolean;
+  /** Minimum selectable date (inclusive). Compared by day in local timezone. */
+  minDate?: Date;
+  /** Maximum selectable date (inclusive). Compared by day in local timezone. */
+  maxDate?: Date;
 }
 ```
 
@@ -132,6 +134,25 @@ export function Example() {
       onChange={setDate}
       label="Ngày hẹn"
       disablePastDates={true} // Không cho phép chọn ngày quá khứ
+    />
+  );
+}
+```
+
+### Min/Max Date (Giới hạn khoảng ngày)
+
+```tsx
+import React from "react";
+import { DatePicker } from "@underverse-ui/underverse";
+
+export function Example() {
+  const [date, setDate] = React.useState<Date>();
+  return (
+    <DatePicker
+      value={date}
+      onChange={setDate}
+      minDate={new Date(2026, 0, 10)} // 10/01/2026
+      maxDate={new Date(2026, 1, 5)} // 05/02/2026
     />
   );
 }
@@ -170,6 +191,10 @@ type DateRangePickerProps = {
   className?: string;
   /** Disable selecting past dates (before today) */
   disablePastDates?: boolean;
+  /** Minimum selectable date (inclusive). Compared by day in local timezone. */
+  minDate?: Date;
+  /** Maximum selectable date (inclusive). Compared by day in local timezone. */
+  maxDate?: Date;
   /** Size variant */
   size?: "sm" | "md";
 };
@@ -205,6 +230,25 @@ export function Example() {
       }}
       placeholder="Chọn khoảng thời gian"
       disablePastDates={true} // Không cho phép chọn ngày quá khứ
+    />
+  );
+}
+```
+
+### Min/Max Date (DateRangePicker)
+
+```tsx
+import React from "react";
+import { DateRangePicker } from "@underverse-ui/underverse";
+
+export function Example() {
+  return (
+    <DateRangePicker
+      minDate={new Date(2026, 0, 10)}
+      maxDate={new Date(2026, 1, 5)}
+      onChange={(start, end) => {
+        console.log(start, end);
+      }}
     />
   );
 }

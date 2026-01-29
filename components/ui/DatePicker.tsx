@@ -24,6 +24,10 @@ export interface DatePickerProps {
   weekdayLabels?: string[];
   /** Disable selecting past dates (before today) */
   disablePastDates?: boolean;
+  /** Minimum selectable date (inclusive). Compared by day in local timezone. */
+  minDate?: Date;
+  /** Maximum selectable date (inclusive). Compared by day in local timezone. */
+  maxDate?: Date;
 }
 
 export const DatePicker: React.FC<DatePickerProps> = ({
@@ -40,6 +44,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   clearLabel,
   weekdayLabels,
   disablePastDates = false,
+  minDate,
+  maxDate,
 }) => {
   const t = useTranslations("DatePicker");
   const locale = useLocale();
@@ -49,6 +55,32 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const wheelContainerRef = React.useRef<HTMLDivElement>(null);
   const wheelDeltaRef = React.useRef(0);
+
+  const normalizeToLocalDay = React.useCallback((date: Date | undefined): Date | null => {
+    if (!date) return null;
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }, []);
+
+  const minDay = React.useMemo(() => normalizeToLocalDay(minDate), [minDate, normalizeToLocalDay]);
+  const maxDay = React.useMemo(() => normalizeToLocalDay(maxDate), [maxDate, normalizeToLocalDay]);
+
+  const isDateDisabled = React.useCallback(
+    (date: Date) => {
+      const day = normalizeToLocalDay(date);
+      if (!day) return false;
+
+      if (disablePastDates) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (day < today) return true;
+      }
+
+      if (minDay && day < minDay) return true;
+      if (maxDay && day > maxDay) return true;
+      return false;
+    },
+    [disablePastDates, maxDay, minDay, normalizeToLocalDay],
+  );
 
   // Inject ShadCN animations
   useShadCNAnimations();
@@ -166,17 +198,13 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     }
 
     // Days of the month
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
       const isSelected =
         value && date.getDate() === value.getDate() && date.getMonth() === value.getMonth() && date.getFullYear() === value.getFullYear();
       const isToday = date.toDateString() === new Date().toDateString();
 
-      // Check if date is in the past (before today)
-      const isPastDate = disablePastDates && date < today;
+      const isDisabled = isDateDisabled(date);
 
       // Calculate which row this day is in (0-based)
       const totalDaysFromStart = firstDayOfMonth + day - 1;
@@ -185,8 +213,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       days.push(
         <button
           key={day}
-          onClick={() => !isPastDate && handleDateSelect(date)}
-          disabled={isPastDate}
+          onClick={() => !isDisabled && handleDateSelect(date)}
+          disabled={isDisabled}
           style={{
             animationDelay: isOpen ? `${rowIndex * 40}ms` : "0ms",
           }}
@@ -194,10 +222,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             size === "sm" ? "w-7 h-7 text-[12px]" : "w-8 h-8 text-sm",
             "datepicker-day rounded-lg focus:outline-none relative cursor-pointer",
             "transition-all duration-200 font-medium",
-            isPastDate && "opacity-30 cursor-not-allowed text-muted-foreground",
+            isDisabled && "opacity-30 cursor-not-allowed text-muted-foreground",
             isSelected
               ? "bg-linear-to-br from-primary to-primary/80 text-primary-foreground font-bold shadow-lg shadow-primary/30 scale-110 z-10 hover:from-primary hover:to-primary/70"
-              : !isPastDate && "hover:bg-accent/80 hover:text-accent-foreground hover:scale-105 focus:bg-accent focus:text-accent-foreground",
+              : !isDisabled && "hover:bg-accent/80 hover:text-accent-foreground hover:scale-105 focus:bg-accent focus:text-accent-foreground",
             isToday && !isSelected && "bg-primary/15 text-primary font-bold ring-2 ring-primary/30",
           )}
         >
@@ -367,8 +395,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           type="button"
           onClick={() => {
             const today = new Date();
+            if (isDateDisabled(today)) return;
             handleDateSelect(today);
           }}
+          disabled={isDateDisabled(new Date())}
           className={cn(
             "flex-1 font-semibold rounded-xl",
             "bg-linear-to-r from-primary/10 to-primary/5 border border-primary/30",
@@ -376,6 +406,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             "transition-all duration-300 flex items-center justify-center",
             "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:shadow-primary/10",
             size === "sm" ? "px-2 py-1 text-[10px] gap-1" : "px-3 py-2 text-xs gap-2",
+            isDateDisabled(new Date()) && "opacity-50 cursor-not-allowed hover:scale-100 active:scale-100",
           )}
         >
           <Sparkles className={size === "sm" ? "w-2.5 h-2.5" : "w-3.5 h-3.5"} />
@@ -537,9 +568,13 @@ export const DateRangePicker: React.FC<{
   className?: string;
   /** Disable selecting past dates (before today) */
   disablePastDates?: boolean;
+  /** Minimum selectable date (inclusive). Compared by day in local timezone. */
+  minDate?: Date;
+  /** Maximum selectable date (inclusive). Compared by day in local timezone. */
+  maxDate?: Date;
   /** Size variant */
   size?: "sm" | "md";
-}> = ({ startDate, endDate, onChange, placeholder = "Select date range...", className, disablePastDates = false, size = "md" }) => {
+}> = ({ startDate, endDate, onChange, placeholder = "Select date range...", className, disablePastDates = false, minDate, maxDate, size = "md" }) => {
   const locale = useLocale();
   const t = useTranslations("DatePicker");
   const [isOpen, setIsOpen] = React.useState(false);
@@ -551,6 +586,9 @@ export const DateRangePicker: React.FC<{
     if (!date) return null;
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   };
+
+  const minDay = React.useMemo(() => normalizeToLocal(minDate), [minDate]);
+  const maxDay = React.useMemo(() => normalizeToLocal(maxDate), [maxDate]);
 
   // Use passed-in props as the source of truth, but manage a temporary state for selection.
   const [viewDate, setViewDate] = React.useState<Date>(startDate || new Date());
@@ -654,6 +692,8 @@ export const DateRangePicker: React.FC<{
 
       // Check if date is in the past (before today)
       const isPastDate = disablePastDates && date < today;
+      const isOutOfRange = (!!minDay && date < minDay) || (!!maxDay && date > maxDay);
+      const isDisabled = isPastDate || isOutOfRange;
 
       const isSelectedStart = isSameDay(date, tempStart);
       const isSelectedEnd = isSameDay(date, tempEnd);
@@ -683,17 +723,17 @@ export const DateRangePicker: React.FC<{
       nodes.push(
         <button
           key={d}
-          onClick={() => !isPastDate && handleSelect(date)}
-          disabled={isPastDate}
-          onMouseEnter={() => !isPastDate && tempStart && !tempEnd && setHoveredDate(date)}
+          onClick={() => !isDisabled && handleSelect(date)}
+          disabled={isDisabled}
+          onMouseEnter={() => !isDisabled && tempStart && !tempEnd && setHoveredDate(date)}
           onMouseLeave={() => tempStart && !tempEnd && setHoveredDate(null)}
           className={cn(
             "transition-all duration-200 focus:outline-none relative font-medium cursor-pointer",
             size === "sm" ? "w-6 h-6 text-xs" : "w-8 h-8 text-sm",
             // Disabled/past date state
-            isPastDate && "opacity-30 cursor-not-allowed text-muted-foreground",
+            isDisabled && "opacity-30 cursor-not-allowed text-muted-foreground",
             // Default state
-            !isPastDate && !isInRange && !isRangeStart && !isRangeEnd && "hover:bg-accent/80 hover:text-accent-foreground hover:scale-105 rounded-lg",
+            !isDisabled && !isInRange && !isRangeStart && !isRangeEnd && "hover:bg-accent/80 hover:text-accent-foreground hover:scale-105 rounded-lg",
 
             // Range selection styling - smooth continuous background with gradient
             isInRange && "bg-primary/15 text-foreground",
@@ -706,9 +746,9 @@ export const DateRangePicker: React.FC<{
             isRangeStart && isRangeEnd && "rounded-lg", // Single day selection
 
             // Hover effects for range
-            isInRange && !isPastDate && "hover:bg-primary/25",
+            isInRange && !isDisabled && "hover:bg-primary/25",
 
-            !isPastDate && "focus:bg-accent focus:text-accent-foreground focus:z-10 focus:shadow-md",
+            !isDisabled && "focus:bg-accent focus:text-accent-foreground focus:z-10 focus:shadow-md",
           )}
         >
           {d}
