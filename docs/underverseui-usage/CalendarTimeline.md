@@ -3,6 +3,7 @@
 Source: `components/ui/CalendarTimeline/CalendarTimeline.tsx`
 
 Exports:
+
 - CalendarTimeline
 
 ## CalendarTimeline
@@ -15,14 +16,16 @@ import { CalendarTimeline } from "@underverse-ui/underverse";
 
 export function Example() {
   return (
-    <div className="h-[520px]">
+    <div>
       <CalendarTimeline resources={[]} events={[]} />
     </div>
   );
 }
 ```
 
-Ví dụ đầy đủ (month/week/day + timezone + group/collapse + drag/resize):
+Ví dụ đầy đủ (month/week/day + timezone + group/collapse + drag/resize + resize layout):
+
+> Lưu ý: `export function Example()` trong file `.md` chỉ là snippet minh hoạ để bạn copy/paste, không có gì “cố định” trong component.
 
 ```tsx
 import * as React from "react";
@@ -57,14 +60,21 @@ const initialEvents: CalendarTimelineEvent<EventMeta>[] = [
 
 export function Example() {
   const [events, setEvents] = React.useState(initialEvents);
+  const [resourceColumnWidth, setResourceColumnWidth] = React.useState(240);
+  const [rowHeights, setRowHeights] = React.useState<Record<string, number>>({});
 
   return (
-    <div className="h-[520px]">
+    <div>
       <CalendarTimeline
         resources={resources}
         groups={groups}
         events={events}
         size="md" // "sm" | "md" | "xl"
+        enableLayoutResize
+        resourceColumnWidth={resourceColumnWidth}
+        onResourceColumnWidthChange={setResourceColumnWidth}
+        rowHeights={rowHeights}
+        onRowHeightsChange={setRowHeights}
         enableEventSheet
         eventSheetSize="md" // "sm" | "md" | "lg" | "xl" | "full"
         defaultView="month"
@@ -104,7 +114,9 @@ Clicking an event can open a right-side sheet. Provide `renderEventSheet` to cus
     <div className="space-y-3">
       <div className="text-sm font-semibold">{event.title ?? event.id}</div>
       {resource?.label ? <div className="text-xs text-muted-foreground">{resource.label}</div> : null}
-      <button type="button" onClick={close}>Close</button>
+      <button type="button" onClick={close}>
+        Close
+      </button>
     </div>
   )}
 />
@@ -143,8 +155,7 @@ export interface CalendarTimelineEvent<TMeta = unknown> {
   resizable?: boolean;
 }
 
-export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unknown>
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
+export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unknown> extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
   resources: CalendarTimelineResource<TResourceMeta>[];
   events: CalendarTimelineEvent<TEventMeta>[];
 
@@ -187,7 +198,23 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   onGroupCollapsedChange?: (next: Record<string, boolean>) => void;
 
   resourceColumnWidth?: number | string;
+  defaultResourceColumnWidth?: number;
+  onResourceColumnWidthChange?: (width: number) => void;
+  minResourceColumnWidth?: number;
+  maxResourceColumnWidth?: number;
+
   rowHeight?: number;
+  defaultRowHeight?: number;
+  onRowHeightChange?: (height: number) => void;
+  minRowHeight?: number;
+  maxRowHeight?: number;
+
+  rowHeights?: Record<string, number>;
+  defaultRowHeights?: Record<string, number>;
+  onRowHeightsChange?: (next: Record<string, number>) => void;
+
+  enableLayoutResize?: boolean | { column?: boolean; row?: boolean };
+
   slotMinWidth?: number;
   dayTimeStepMinutes?: number;
   maxLanesPerRow?: number;

@@ -118,8 +118,42 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   onGroupCollapsedChange?: (next: Record<string, boolean>) => void;
 
   // layout
+  /** Controlled width of the left resource column (px or CSS width string). */
   resourceColumnWidth?: number | string;
+  /** Default width of the left resource column when uncontrolled (px). */
+  defaultResourceColumnWidth?: number;
+  /** Called when user resizes the left resource column. */
+  onResourceColumnWidthChange?: (width: number) => void;
+  /** Min width for the left resource column (px). */
+  minResourceColumnWidth?: number;
+  /** Max width for the left resource column (px). */
+  maxResourceColumnWidth?: number;
+
+  /** Controlled height of each resource row (px). */
   rowHeight?: number;
+  /** Default row height when uncontrolled (px). */
+  defaultRowHeight?: number;
+  /** Called when user resizes row height. */
+  onRowHeightChange?: (height: number) => void;
+  /** Min row height (px). */
+  minRowHeight?: number;
+  /** Max row height (px). */
+  maxRowHeight?: number;
+
+  /** Controlled per-resource row heights (px) keyed by resourceId. */
+  rowHeights?: Record<string, number>;
+  /** Default per-resource row heights (px) keyed by resourceId. */
+  defaultRowHeights?: Record<string, number>;
+  /** Called when per-resource row heights change. */
+  onRowHeightsChange?: (next: Record<string, number>) => void;
+
+  /**
+   * Allow resizing layout with mouse:
+   * - column: drag the divider in the header
+   * - row: drag the bottom edge of a resource row
+   */
+  enableLayoutResize?: boolean | { column?: boolean; row?: boolean };
+
   slotMinWidth?: number; // min px per slot; timeline can overflow horizontally
   dayTimeStepMinutes?: number; // day view slot size
   maxLanesPerRow?: number;

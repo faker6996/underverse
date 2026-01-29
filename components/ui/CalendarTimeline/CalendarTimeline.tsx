@@ -18,7 +18,7 @@ import type {
 } from "./types";
 import { addZonedDays, addZonedMonths, getDtf, getIsoWeekInfo, localeToBCP47, startOfZonedDay, startOfZonedMonth, startOfZonedWeek, toDate } from "./date";
 import { binarySearchFirstGE, binarySearchLastLE, clamp, intervalPack } from "./layout";
-import { useHorizontalScrollSync, useVirtualRows } from "./hooks";
+import { useHorizontalScrollSync, useVirtualVariableRows } from "./hooks";
 
 type Row<TResourceMeta = unknown> =
   | { kind: "group"; group: CalendarTimelineGroup }
@@ -83,7 +83,19 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   defaultGroupCollapsed,
   onGroupCollapsedChange,
   resourceColumnWidth,
+  defaultResourceColumnWidth,
+  onResourceColumnWidthChange,
+  minResourceColumnWidth,
+  maxResourceColumnWidth,
   rowHeight,
+  defaultRowHeight,
+  onRowHeightChange,
+  minRowHeight,
+  maxRowHeight,
+  rowHeights,
+  defaultRowHeights,
+  onRowHeightsChange,
+  enableLayoutResize,
   slotMinWidth,
   dayTimeStepMinutes = 60,
   maxLanesPerRow = 3,
@@ -205,9 +217,50 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     return cfgBySize[size];
   }, [size]);
 
-  const effectiveResourceColumnWidth = resourceColumnWidth ?? sizeConfig.resourceColumnWidth;
-  const effectiveRowHeight = rowHeight ?? sizeConfig.rowHeight;
+  const canResizeColumn = React.useMemo(() => {
+    const cfg = enableLayoutResize;
+    if (!cfg) return false;
+    if (cfg === true) return true;
+    return cfg.column !== false;
+  }, [enableLayoutResize]);
+
+  const canResizeRow = React.useMemo(() => {
+    const cfg = enableLayoutResize;
+    if (!cfg) return false;
+    if (cfg === true) return true;
+    return cfg.row !== false;
+  }, [enableLayoutResize]);
+
+  const isControlledResourceColumnWidth = resourceColumnWidth !== undefined;
+  const [internalResourceColumnWidth, setInternalResourceColumnWidth] = React.useState<number>(() => {
+    const init = defaultResourceColumnWidth ?? sizeConfig.resourceColumnWidth;
+    return typeof init === "number" ? init : sizeConfig.resourceColumnWidth;
+  });
+
+  React.useEffect(() => {
+    if (isControlledResourceColumnWidth) return;
+    if (defaultResourceColumnWidth == null) return;
+    setInternalResourceColumnWidth(defaultResourceColumnWidth);
+  }, [defaultResourceColumnWidth, isControlledResourceColumnWidth]);
+
+  const effectiveResourceColumnWidth: number | string = isControlledResourceColumnWidth ? (resourceColumnWidth as any) : internalResourceColumnWidth;
+
+  const isControlledRowHeight = rowHeight !== undefined;
+  const [internalRowHeight, setInternalRowHeight] = React.useState<number>(() => defaultRowHeight ?? sizeConfig.rowHeight);
+
+  React.useEffect(() => {
+    if (isControlledRowHeight) return;
+    if (defaultRowHeight == null) return;
+    setInternalRowHeight(defaultRowHeight);
+  }, [defaultRowHeight, isControlledRowHeight]);
+
+  const effectiveRowHeight = isControlledRowHeight ? (rowHeight as number) : internalRowHeight;
   const effectiveSlotMinWidth = slotMinWidth ?? sizeConfig.slotMinWidth;
+
+  const colMin = minResourceColumnWidth ?? 160;
+  const colMax = maxResourceColumnWidth ?? 520;
+  const rowMin = minRowHeight ?? 36;
+  const rowMax = maxRowHeight ?? 120;
 
   const isControlledView = view !== undefined;
   const [internalView, setInternalView] = React.useState<CalendarTimelineView>(defaultView);
@@ -440,6 +493,168 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   useHorizontalScrollSync({ bodyRef, headerRef, leftRef });
 
+  const virt = virtualization?.enabled;
+  const overscan = virtualization?.overscan ?? 8;
+
+  const isControlledRowHeights = rowHeights !== undefined;
+  const [internalRowHeights, setInternalRowHeights] = React.useState<Record<string, number>>(() => defaultRowHeights ?? {});
+  React.useEffect(() => {
+    if (isControlledRowHeights) return;
+    if (!defaultRowHeights) return;
+    setInternalRowHeights(defaultRowHeights);
+  }, [defaultRowHeights, isControlledRowHeights]);
+
+  const activeRowHeights = isControlledRowHeights ? (rowHeights as Record<string, number>) : internalRowHeights;
+
+  const getResourceRowHeight = React.useCallback(
+    (resourceId: string) => {
+      const h = activeRowHeights[resourceId];
+      if (typeof h === "number" && Number.isFinite(h) && h > 0) return h;
+      return effectiveRowHeight;
+    },
+    [activeRowHeights, effectiveRowHeight],
+  );
+
+  const setRowHeightForResource = React.useCallback(
+    (resourceId: string, height: number) => {
+      const clamped = clamp(Math.round(height), rowMin, rowMax);
+      onRowHeightChange?.(clamped);
+      if (isControlledRowHeights) {
+        const next = { ...(activeRowHeights ?? {}), [resourceId]: clamped };
+        onRowHeightsChange?.(next);
+        return;
+      }
+      setInternalRowHeights((prev) => {
+        const next = { ...prev, [resourceId]: clamped };
+        onRowHeightsChange?.(next);
+        return next;
+      });
+    },
+    [activeRowHeights, isControlledRowHeights, onRowHeightChange, onRowHeightsChange, rowMax, rowMin],
+  );
+
+  const rowHeightsArray = React.useMemo(() => {
+    return rows.map((r) => {
+      if (r.kind === "resource") return getResourceRowHeight(r.resource.id);
+      return effectiveRowHeight;
+    });
+  }, [effectiveRowHeight, getResourceRowHeight, rows]);
+
+  const virtualResult = useVirtualVariableRows({
+    enabled: virt,
+    overscan,
+    rowHeights: rowHeightsArray,
+    scrollRef: bodyRef,
+  });
+
+  const startRow = virt ? virtualResult.startIndex : 0;
+  const endRow = virt ? virtualResult.endIndex : rows.length;
+  const topSpacer = virt ? virtualResult.topSpacer : 0;
+  const bottomSpacer = virt ? virtualResult.bottomSpacer : 0;
+
+  const resizeRef = React.useRef<
+    | null
+    | {
+        mode: "column" | "row";
+        pointerId: number;
+        startX: number;
+        startY: number;
+        startWidth: number;
+        startHeight: number;
+        resourceId?: string;
+      }
+  >(null);
+
+  const setResourceColumnWidth = React.useCallback(
+    (next: number) => {
+      const clamped = clamp(Math.round(next), colMin, colMax);
+      if (!isControlledResourceColumnWidth) setInternalResourceColumnWidth(clamped);
+      onResourceColumnWidthChange?.(clamped);
+    },
+    [colMax, colMin, isControlledResourceColumnWidth, onResourceColumnWidthChange],
+  );
+
+  const startResize = React.useCallback(
+    (
+      mode: "column" | "row",
+      e: React.PointerEvent,
+      args: { startWidth: number; startHeight: number; resourceId?: string },
+    ) => {
+      resizeRef.current = {
+        mode,
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        startY: e.clientY,
+        startWidth: args.startWidth,
+        startHeight: args.startHeight,
+        resourceId: args.resourceId,
+      };
+
+      document.body.style.cursor = mode === "column" ? "col-resize" : "row-resize";
+      document.body.style.userSelect = "none";
+
+      const onMove = (ev: PointerEvent) => {
+        const st = resizeRef.current;
+        if (!st) return;
+        if (ev.pointerId !== st.pointerId) return;
+        if (st.mode === "column") {
+          setResourceColumnWidth(st.startWidth + (ev.clientX - st.startX));
+        } else {
+          if (!st.resourceId) return;
+          setRowHeightForResource(st.resourceId, st.startHeight + (ev.clientY - st.startY));
+        }
+      };
+
+      const onUp = (ev: PointerEvent) => {
+        const st = resizeRef.current;
+        if (!st) return;
+        if (ev.pointerId !== st.pointerId) return;
+        resizeRef.current = null;
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+      };
+
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    [setResourceColumnWidth, setRowHeightForResource],
+  );
+
+  React.useEffect(() => {
+    return () => {
+      if (!resizeRef.current) return;
+      resizeRef.current = null;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, []);
+
+  const beginResizeColumn = React.useCallback(
+    (e: React.PointerEvent) => {
+      if (!canResizeColumn) return;
+      if (typeof effectiveResourceColumnWidth !== "number") return;
+      startResize("column", e, { startWidth: effectiveResourceColumnWidth, startHeight: effectiveRowHeight });
+    },
+    [canResizeColumn, effectiveResourceColumnWidth, effectiveRowHeight, startResize],
+  );
+
+  const beginResizeResourceRow = React.useCallback(
+    (resourceId: string) => (e: React.PointerEvent) => {
+      if (!canResizeRow) return;
+      startResize("row", e, {
+        startWidth: typeof effectiveResourceColumnWidth === "number" ? effectiveResourceColumnWidth : 0,
+        startHeight: getResourceRowHeight(resourceId),
+        resourceId,
+      });
+    },
+    [canResizeRow, effectiveResourceColumnWidth, getResourceRowHeight, startResize],
+  );
+
   const title = React.useMemo(() => {
     if (activeView === "month") {
       return (
@@ -472,21 +687,6 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const eventHeight = sizeConfig.eventHeight;
   const laneGap = sizeConfig.laneGap;
   const lanePaddingY = sizeConfig.lanePaddingY;
-
-  const virt = virtualization?.enabled;
-  const overscan = virtualization?.overscan ?? 8;
-  const {
-    startIndex: startRow,
-    endIndex: endRow,
-    topSpacer,
-    bottomSpacer,
-  } = useVirtualRows({
-    enabled: virt,
-    overscan,
-    rowHeight: effectiveRowHeight,
-    itemCount: rows.length,
-    scrollRef: bodyRef,
-  });
 
   type DragMode = "move" | "resize-start" | "resize-end" | "create";
   const dragRef = React.useRef<null | {
@@ -776,12 +976,32 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       {/* Slot Headers */}
       <div className="flex border-t border-border/20">
         <div
-          className="shrink-0 border-r border-border/30 bg-muted/20 flex items-center justify-center"
+          className="shrink-0 border-r border-border/30 bg-muted/20 flex items-center justify-center relative group/uv-ct-top-left"
           style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
         >
           <span className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
             {t("resourcesHeader")}
           </span>
+          {canResizeColumn && typeof effectiveResourceColumnWidth === "number" ? (
+            <div
+              role="separator"
+              aria-orientation="vertical"
+              aria-label="Resize resource column"
+              className={cn(
+                "absolute right-0 top-0 h-full w-3 cursor-col-resize z-20",
+                "bg-transparent hover:bg-primary/10 active:bg-primary/15",
+                "transition-all",
+                "opacity-0 pointer-events-none",
+                "group-hover/uv-ct-top-left:opacity-100 group-hover/uv-ct-top-left:pointer-events-auto",
+              )}
+              onPointerDown={beginResizeColumn}
+            >
+              <div className="absolute inset-y-2 left-1/2 w-px -translate-x-1/2 bg-border/70" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-70">
+                <GripVertical className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
+          ) : null}
         </div>
         <div ref={headerRef} className="overflow-x-auto overflow-y-hidden scrollbar-none">
           {slotHeaderNodes}
@@ -793,17 +1013,38 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const ResourceCell = (r: CalendarTimelineResource<TResourceMeta>) => (
     <div
       className={cn(
-        "h-full w-full flex items-center border-b border-border/30 bg-linear-to-r from-background to-background/95",
+        "h-full w-full flex items-center border-b border-border/30 bg-linear-to-r from-background to-background/95 relative",
         sizeConfig.resourceRowClass,
-        "hover:from-muted/30 hover:to-muted/10 transition-all duration-200 group",
+        "hover:from-muted/30 hover:to-muted/10 transition-all duration-200 group/uv-ct-row-header",
       )}
     >
-      <div className="shrink-0 opacity-0 group-hover:opacity-60 transition-opacity cursor-grab">
+      <div className="shrink-0 opacity-0 group-hover/uv-ct-row-header:opacity-60 transition-opacity cursor-grab">
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
       <div className={cn("flex-1 min-w-0", r.disabled && "opacity-50")}>
         {renderResource ? renderResource(r) : <span className="font-medium text-sm truncate block">{r.label}</span>}
       </div>
+
+      {canResizeRow ? (
+        <div
+          role="separator"
+          aria-orientation="horizontal"
+          aria-label="Resize row height"
+          className={cn(
+            "absolute left-0 bottom-0 w-full h-3 cursor-row-resize z-20",
+            "bg-transparent hover:bg-primary/10 active:bg-primary/15",
+            "transition-all",
+            "opacity-0 pointer-events-none",
+            "group-hover/uv-ct-row-header:opacity-100 group-hover/uv-ct-row-header:pointer-events-auto",
+          )}
+          onPointerDown={beginResizeResourceRow(r.id)}
+        >
+          <div className="absolute inset-x-3 top-1/2 h-px -translate-y-1/2 bg-border/70" />
+          <div className="absolute top-1/2 right-3 -translate-y-1/2 opacity-70">
+            <GripVertical className="h-4 w-4 text-muted-foreground rotate-90" />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 
@@ -864,16 +1105,17 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
           <div style={{ height: topSpacer }} />
           {rows.slice(startRow, endRow).map((row, idx) => {
             const rowIndex = startRow + idx;
+            const h = rowHeightsArray[rowIndex] ?? effectiveRowHeight;
             if (row.kind === "group") {
               return (
-                <div key={`lg_${row.group.id}_${rowIndex}`} style={{ height: effectiveRowHeight }}>
+                <div key={`lg_${row.group.id}_${rowIndex}`} style={{ height: h }}>
                   {renderGroupRow(row.group)}
                 </div>
               );
             }
             const r = row.resource;
             return (
-              <div key={`lr_${r.id}_${rowIndex}`} style={{ height: effectiveRowHeight }}>
+              <div key={`lr_${r.id}_${rowIndex}`} style={{ height: h }}>
                 {ResourceCell(r)}
               </div>
             );
@@ -891,9 +1133,10 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
           <div style={{ height: topSpacer }} />
           {rows.slice(startRow, endRow).map((row, idx) => {
             const rowIndex = startRow + idx;
+            const h = rowHeightsArray[rowIndex] ?? effectiveRowHeight;
             if (row.kind === "group") {
               return (
-                <div key={`rg_${row.group.id}_${rowIndex}`} className="flex" style={{ height: effectiveRowHeight }}>
+                <div key={`rg_${row.group.id}_${rowIndex}`} className="flex" style={{ height: h }}>
                   <div className="border-b border-border/30 bg-linear-to-r from-muted/15 to-muted/5" style={{ width: gridWidth, minWidth: gridWidth }} />
                 </div>
               );
@@ -907,7 +1150,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
               <div
                 key={`rr_${r.id}_${rowIndex}`}
                 className="group/row hover:bg-muted/5 transition-colors duration-150"
-                style={{ height: effectiveRowHeight }}
+                style={{ height: h }}
                 data-uv-ct-row={r.id}
               >
                 <div className="relative shrink-0" style={{ width: gridWidth, minWidth: gridWidth, height: "100%" }}>

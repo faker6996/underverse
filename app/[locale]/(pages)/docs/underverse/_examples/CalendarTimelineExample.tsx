@@ -118,6 +118,7 @@ export default function CalendarTimelineExample() {
           weekStartsOn={1}
           slotMinWidth={56}
           maxLanesPerRow={3}
+          enableLayoutResize
           enableEventSheet
           renderEventSheet={({ event, close }) => (
             <div className="space-y-3">
@@ -213,12 +214,29 @@ export function Example() {
     { property: "locale", description: t("props.calendarTimeline.locale"), type: "string (BCP47)", default: "from i18n" },
     { property: "groups", description: t("props.calendarTimeline.groups"), type: "CalendarTimelineGroup[]", default: "-" },
     { property: "groupCollapsed", description: t("props.calendarTimeline.groupCollapsed"), type: "Record<string, boolean>", default: "-" },
+    { property: "resourceColumnWidth", description: t("props.calendarTimeline.resourceColumnWidth"), type: "number | string", default: "by size" },
+    { property: "rowHeight", description: t("props.calendarTimeline.rowHeight"), type: "number", default: "by size" },
+    { property: "slotMinWidth", description: t("props.calendarTimeline.slotMinWidth"), type: "number", default: "by size" },
+    { property: "dayTimeStepMinutes", description: t("props.calendarTimeline.dayTimeStepMinutes"), type: "number", default: "60" },
+    { property: "maxLanesPerRow", description: t("props.calendarTimeline.maxLanesPerRow"), type: "number", default: "3" },
+    { property: "enableLayoutResize", description: t("props.calendarTimeline.enableLayoutResize"), type: "boolean | {column?: boolean; row?: boolean}", default: "false" },
+    { property: "defaultResourceColumnWidth", description: t("props.calendarTimeline.defaultResourceColumnWidth"), type: "number", default: "-" },
+    { property: "onResourceColumnWidthChange", description: t("props.calendarTimeline.onResourceColumnWidthChange"), type: "(width: number) => void", default: "-" },
+    { property: "minResourceColumnWidth", description: t("props.calendarTimeline.minResourceColumnWidth"), type: "number", default: "160" },
+    { property: "maxResourceColumnWidth", description: t("props.calendarTimeline.maxResourceColumnWidth"), type: "number", default: "520" },
+    { property: "defaultRowHeight", description: t("props.calendarTimeline.defaultRowHeight"), type: "number", default: "-" },
+    { property: "onRowHeightChange", description: t("props.calendarTimeline.onRowHeightChange"), type: "(height: number) => void", default: "-" },
+    { property: "minRowHeight", description: t("props.calendarTimeline.minRowHeight"), type: "number", default: "36" },
+    { property: "maxRowHeight", description: t("props.calendarTimeline.maxRowHeight"), type: "number", default: "120" },
+    { property: "rowHeights", description: t("props.calendarTimeline.rowHeights"), type: "Record<string, number>", default: "-" },
+    { property: "defaultRowHeights", description: t("props.calendarTimeline.defaultRowHeights"), type: "Record<string, number>", default: "-" },
+    { property: "onRowHeightsChange", description: t("props.calendarTimeline.onRowHeightsChange"), type: "(next: Record<string, number>) => void", default: "-" },
     { property: "interactions", description: t("props.calendarTimeline.interactions"), type: "{creatable; draggableEvents; resizableEvents}", default: "-" },
     { property: "onCreateEvent", description: t("props.calendarTimeline.onCreateEvent"), type: "(draft) => void", default: "-" },
     { property: "onEventMove", description: t("props.calendarTimeline.onEventMove"), type: "(args) => void", default: "-" },
     { property: "onEventResize", description: t("props.calendarTimeline.onEventResize"), type: "(args) => void", default: "-" },
   ];
-  const docs = <PropsDocsTable rows={rows} />;
+  const docs = <PropsDocsTable rows={rows} markdownFile="CalendarTimeline.md" />;
 
   return (
     <Tabs
