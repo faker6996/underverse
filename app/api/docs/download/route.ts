@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid filename" }, { status: 400 });
   }
 
-  const docsDir = path.join(process.cwd(), "docs/components-usage");
+  // Docs live in this repo under `docs/underverseui-usage`
+  const docsDir = path.join(process.cwd(), "docs/underverseui-usage");
   const filePath = path.join(docsDir, filename);
 
   try {

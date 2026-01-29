@@ -1114,7 +1114,9 @@
         "todayLabel": "Text for Today button (if provided).",
         "clearLabel": "Text for Clear button.",
         "weekdayLabels": "Custom weekday labels, falls back to Su..Sa.",
-        "disablePastDates": "Disable selecting dates before today."
+        "disablePastDates": "Disable selecting dates before today.",
+        "minDate": "Minimum selectable date (inclusive).",
+        "maxDate": "Maximum selectable date (inclusive)."
       },
       "dateRangePicker": {
         "startDate": "Range start date.",
@@ -1122,7 +1124,9 @@
         "onChange": "Change handler receiving (start, end).",
         "placeholder": "Placeholder when no range is selected.",
         "className": "Custom class for the trigger.",
-        "disablePastDates": "Disable selecting dates before today."
+        "disablePastDates": "Disable selecting dates before today.",
+        "minDate": "Minimum selectable date (inclusive).",
+        "maxDate": "Maximum selectable date (inclusive)."
       },
       "pagination": {
         "page": "Current page (1-based).",

@@ -178,6 +178,8 @@ export default function DatePickerExample() {
                       { property: "clearLabel", description: td("props.datePicker.clearLabel"), type: "string", default: "-" },
                       { property: "weekdayLabels", description: td("props.datePicker.weekdayLabels"), type: "string[]", default: "-" },
                       { property: "disablePastDates", description: td("props.datePicker.disablePastDates"), type: "boolean", default: "false" },
+                      { property: "minDate", description: td("props.datePicker.minDate"), type: "Date", default: "-" },
+                      { property: "maxDate", description: td("props.datePicker.maxDate"), type: "Date", default: "-" },
                     ]}
                     order={[
                       "id",
@@ -193,7 +195,10 @@ export default function DatePickerExample() {
                       "clearLabel",
                       "weekdayLabels",
                       "disablePastDates",
+                      "minDate",
+                      "maxDate",
                     ]}
+                    markdownFile="DatePicker.md"
                   />
                 </div>
                 <div>
@@ -216,8 +221,10 @@ export default function DatePickerExample() {
                       },
                       { property: "className", description: td("props.dateRangePicker.className"), type: "string", default: "-" },
                       { property: "disablePastDates", description: td("props.dateRangePicker.disablePastDates"), type: "boolean", default: "false" },
+                      { property: "minDate", description: td("props.dateRangePicker.minDate"), type: "Date", default: "-" },
+                      { property: "maxDate", description: td("props.dateRangePicker.maxDate"), type: "Date", default: "-" },
                     ]}
-                    order={["startDate", "endDate", "onChange", "placeholder", "className", "disablePastDates"]}
+                    order={["startDate", "endDate", "onChange", "placeholder", "className", "disablePastDates", "minDate", "maxDate"]}
                   />
                 </div>
               </div>

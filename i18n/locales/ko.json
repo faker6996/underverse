@@ -1104,7 +1104,9 @@
         "todayLabel": "Today 버튼 라벨(선택).",
         "clearLabel": "Clear 버튼 라벨.",
         "weekdayLabels": "요일 라벨 커스텀(기본 Su..Sa).",
-        "disablePastDates": "오늘 이전 날짜 선택 비활성화."
+        "disablePastDates": "오늘 이전 날짜 선택 비활성화.",
+        "minDate": "선택 가능한 최소 날짜(포함).",
+        "maxDate": "선택 가능한 최대 날짜(포함)."
       },
       "dateRangePicker": {
         "startDate": "시작 날짜.",
@@ -1112,7 +1114,9 @@
         "onChange": "(start, end)을 받는 변경 핸들러.",
         "placeholder": "선택하지 않았을 때의 플레이스홀더.",
         "className": "트리거 커스텀 클래스.",
-        "disablePastDates": "오늘 이전 날짜 선택 비활성화."
+        "disablePastDates": "오늘 이전 날짜 선택 비활성화.",
+        "minDate": "선택 가능한 최소 날짜(포함).",
+        "maxDate": "선택 가능한 최대 날짜(포함)."
       },
       "pagination": {
         "page": "현재 페이지(1부터).",

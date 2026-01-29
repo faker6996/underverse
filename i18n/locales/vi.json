@@ -1107,7 +1107,9 @@
         "todayLabel": "Nhãn nút Today (nếu cung cấp).",
         "clearLabel": "Nhãn nút Clear.",
         "weekdayLabels": "Tuỳ chỉnh nhãn ngày trong tuần; mặc định Su..Sa.",
-        "disablePastDates": "Không cho phép chọn ngày trước hôm nay."
+        "disablePastDates": "Không cho phép chọn ngày trước hôm nay.",
+        "minDate": "Ngày nhỏ nhất có thể chọn (bao gồm).",
+        "maxDate": "Ngày lớn nhất có thể chọn (bao gồm)."
       },
       "dateRangePicker": {
         "startDate": "Ngày bắt đầu.",
@@ -1115,7 +1117,9 @@
         "onChange": "Hàm thay đổi nhận (start, end).",
         "placeholder": "Placeholder khi chưa chọn khoảng.",
         "className": "Class tuỳ chỉnh cho nút kích hoạt.",
-        "disablePastDates": "Không cho phép chọn ngày trước hôm nay."
+        "disablePastDates": "Không cho phép chọn ngày trước hôm nay.",
+        "minDate": "Ngày nhỏ nhất có thể chọn (bao gồm).",
+        "maxDate": "Ngày lớn nhất có thể chọn (bao gồm)."
       },
       "pagination": {
         "page": "Trang hiện tại (bắt đầu từ 1).",

@@ -1104,7 +1104,9 @@
         "todayLabel": "Today ボタンの文言（任意）。",
         "clearLabel": "Clear ボタンの文言。",
         "weekdayLabels": "曜日ラベルをカスタマイズ（既定は Su..Sa）。",
-        "disablePastDates": "今日より前の日付を選択不可にする。"
+        "disablePastDates": "今日より前の日付を選択不可にする。",
+        "minDate": "選択可能な最小日付（含む）。",
+        "maxDate": "選択可能な最大日付（含む）。"
       },
       "dateRangePicker": {
         "startDate": "開始日。",
@@ -1112,7 +1114,9 @@
         "onChange": "(start, end) を受け取るハンドラ。",
         "placeholder": "未選択時のプレースホルダ。",
         "className": "トリガーのカスタムクラス。",
-        "disablePastDates": "今日より前の日付を選択不可にする。"
+        "disablePastDates": "今日より前の日付を選択不可にする。",
+        "minDate": "選択可能な最小日付（含む）。",
+        "maxDate": "選択可能な最大日付（含む）。"
       },
       "pagination": {
         "page": "現在のページ（1 始まり）。",
