@@ -3,6 +3,7 @@ import type * as React from "react";
 export type CalendarTimelineView = "month" | "week" | "day";
 export type CalendarTimelineDateInput = Date | string | number;
 export type CalendarTimelineSize = "sm" | "md" | "xl";
+export type CalendarTimelineSheetSize = "sm" | "md" | "lg" | "xl" | "full";
 
 export interface CalendarTimelineGroup {
   id: string;
@@ -69,6 +70,29 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   events: CalendarTimelineEvent<TEventMeta>[];
 
   size?: CalendarTimelineSize;
+
+  /**
+   * Enable the built-in right-side event details sheet on click.
+   * If `renderEventSheet` is provided, this defaults to enabled.
+   */
+  enableEventSheet?: boolean;
+  eventSheetSize?: CalendarTimelineSheetSize;
+  renderEventSheet?: (args: {
+    event: CalendarTimelineEvent<TEventMeta>;
+    resource?: CalendarTimelineResource<TResourceMeta>;
+    close: () => void;
+    locale: string;
+    timeZone: string;
+    view: CalendarTimelineView;
+  }) => React.ReactNode;
+
+  selectedEventId?: string | null;
+  defaultSelectedEventId?: string | null;
+  onSelectedEventIdChange?: (eventId: string | null) => void;
+
+  eventSheetOpen?: boolean;
+  defaultEventSheetOpen?: boolean;
+  onEventSheetOpenChange?: (open: boolean) => void;
 
   // view/date
   view?: CalendarTimelineView;

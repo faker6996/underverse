@@ -11,6 +11,7 @@ import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { useTranslations } from "next-intl";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import Button from "@/components/ui/Button";
 
 type EventMeta = { kind?: "meeting" | "task" };
 
@@ -117,6 +118,16 @@ export default function CalendarTimelineExample() {
           weekStartsOn={1}
           slotMinWidth={56}
           maxLanesPerRow={3}
+          enableEventSheet
+          renderEventSheet={({ event, close }) => (
+            <div className="space-y-3">
+              <div className="text-sm font-semibold">{event.title ?? event.id}</div>
+              {event.meta?.kind ? <div className="text-xs text-muted-foreground">Kind: {event.meta.kind}</div> : null}
+              <Button variant="default" size="sm" onClick={close}>
+                Close
+              </Button>
+            </div>
+          )}
           interactions={{ creatable: true, draggableEvents: true, resizableEvents: true }}
           onCreateEvent={(draft) => {
             setEvents((prev) => [
@@ -186,6 +197,16 @@ export function Example() {
     { property: "resources", description: t("props.calendarTimeline.resources"), type: "CalendarTimelineResource[]", default: "-" },
     { property: "events", description: t("props.calendarTimeline.events"), type: "CalendarTimelineEvent[]", default: "-" },
     { property: "size", description: t("props.calendarTimeline.size"), type: '"sm" | "md" | "xl"', default: '"md"' },
+    { property: "enableEventSheet", description: t("props.calendarTimeline.enableEventSheet"), type: "boolean", default: "false" },
+    { property: "eventSheetSize", description: t("props.calendarTimeline.eventSheetSize"), type: '"sm" | "md" | "lg" | "xl" | "full"', default: '"md"' },
+    {
+      property: "renderEventSheet",
+      description: t("props.calendarTimeline.renderEventSheet"),
+      type: "(args) => ReactNode",
+      default: "—",
+    },
+    { property: "selectedEventId", description: t("props.calendarTimeline.selectedEventId"), type: "string | null", default: "—" },
+    { property: "eventSheetOpen", description: t("props.calendarTimeline.eventSheetOpen"), type: "boolean", default: "—" },
     { property: "view", description: t("props.calendarTimeline.view"), type: "'month' | 'week' | 'day'", default: "'month'" },
     { property: "date", description: t("props.calendarTimeline.date"), type: "Date", default: "new Date()" },
     { property: "timeZone", description: t("props.calendarTimeline.timeZone"), type: "string (IANA TZ)", default: "Intl resolved" },

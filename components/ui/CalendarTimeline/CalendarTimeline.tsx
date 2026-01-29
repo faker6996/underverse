@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, ChevronsUpDown, Calendar, CalendarDays, Cale
 import { cn } from "@/lib/utils/cn";
 import { useLocale, useTranslations } from "@/lib/i18n/translation-adapter";
 import Button from "../Button";
+import { Sheet } from "../Sheet";
 import { Tooltip } from "../Tooltip";
 import type {
   CalendarTimelineEvent,
@@ -57,6 +58,15 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   resources,
   events,
   size = "md",
+  enableEventSheet,
+  eventSheetSize = "md",
+  renderEventSheet,
+  selectedEventId,
+  defaultSelectedEventId,
+  onSelectedEventIdChange,
+  eventSheetOpen,
+  defaultEventSheetOpen,
+  onEventSheetOpenChange,
   view,
   defaultView = "month",
   onViewChange,
@@ -98,6 +108,30 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   const resolvedLocale = React.useMemo(() => localeToBCP47(locale ?? detectedLocale), [locale, detectedLocale]);
   const resolvedTimeZone = React.useMemo(() => timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone ?? "UTC", [timeZone]);
+
+  const effectiveEnableEventSheet = enableEventSheet ?? Boolean(renderEventSheet);
+  const isControlledSelectedEventId = selectedEventId !== undefined;
+  const [internalSelectedEventId, setInternalSelectedEventId] = React.useState<string | null>(defaultSelectedEventId ?? null);
+  const activeSelectedEventId = isControlledSelectedEventId ? (selectedEventId as string | null) : internalSelectedEventId;
+  const setSelectedEventId = React.useCallback(
+    (next: string | null) => {
+      if (!isControlledSelectedEventId) setInternalSelectedEventId(next);
+      onSelectedEventIdChange?.(next);
+    },
+    [isControlledSelectedEventId, onSelectedEventIdChange],
+  );
+
+  const isControlledEventSheetOpen = eventSheetOpen !== undefined;
+  const [internalEventSheetOpen, setInternalEventSheetOpen] = React.useState<boolean>(defaultEventSheetOpen ?? false);
+  const activeEventSheetOpen = isControlledEventSheetOpen ? Boolean(eventSheetOpen) : internalEventSheetOpen;
+  const setEventSheetOpen = React.useCallback(
+    (next: boolean) => {
+      if (!isControlledEventSheetOpen) setInternalEventSheetOpen(next);
+      onEventSheetOpenChange?.(next);
+      if (!next) setSelectedEventId(null);
+    },
+    [isControlledEventSheetOpen, onEventSheetOpenChange, setSelectedEventId],
+  );
 
   const sizeConfig = React.useMemo(() => {
     const cfgBySize: Record<
@@ -368,6 +402,37 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     for (const r of resources) map.set(r.id, r);
     return map;
   }, [resources]);
+
+  const selectedEvent = React.useMemo(() => {
+    if (!activeSelectedEventId) return null;
+    const found = normalizedEvents.find((e) => e.id === activeSelectedEventId);
+    return found ?? null;
+  }, [activeSelectedEventId, normalizedEvents]);
+
+  const selectedResource = React.useMemo(() => {
+    if (!selectedEvent) return undefined;
+    return resourceById.get(selectedEvent.resourceId);
+  }, [resourceById, selectedEvent]);
+
+  const selectedTimeText = React.useMemo(() => {
+    if (!selectedEvent) return "";
+    return (
+      formatters?.eventTime?.({
+        start: selectedEvent._start,
+        end: selectedEvent._end,
+        locale: resolvedLocale,
+        timeZone: resolvedTimeZone,
+        view: activeView,
+      }) ?? defaultEventTime({ start: selectedEvent._start, end: selectedEvent._end, locale: resolvedLocale, timeZone: resolvedTimeZone, view: activeView })
+    );
+  }, [activeView, formatters, resolvedLocale, resolvedTimeZone, selectedEvent]);
+
+  React.useEffect(() => {
+    if (!effectiveEnableEventSheet) return;
+    if (activeEventSheetOpen && activeSelectedEventId && !selectedEvent) {
+      setEventSheetOpen(false);
+    }
+  }, [activeEventSheetOpen, activeSelectedEventId, effectiveEnableEventSheet, selectedEvent, setEventSheetOpen]);
 
   const leftRef = React.useRef<HTMLDivElement>(null);
   const bodyRef = React.useRef<HTMLDivElement>(null);
@@ -919,7 +984,13 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         role="button"
                         tabIndex={0}
                         aria-label={aria}
-                        onClick={() => onEventClick?.(ev)}
+                        onClick={() => {
+                          onEventClick?.(ev);
+                          if (effectiveEnableEventSheet) {
+                            setSelectedEventId(ev.id);
+                            setEventSheetOpen(true);
+                          }
+                        }}
                         onDoubleClick={() => onEventDoubleClick?.(ev)}
                         onPointerDown={(e) => onPointerDownEvent(e, ev, "move")}
                       >
@@ -977,6 +1048,41 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
           <div style={{ height: bottomSpacer }} />
         </div>
       </div>
+
+      {effectiveEnableEventSheet && selectedEvent ? (
+        <Sheet
+          open={activeEventSheetOpen}
+          onOpenChange={setEventSheetOpen}
+          side="right"
+          size={eventSheetSize}
+          title={selectedEvent.title ?? "Event"}
+          description={selectedTimeText || undefined}
+        >
+          {renderEventSheet
+            ? renderEventSheet({
+                event: selectedEvent,
+                resource: selectedResource,
+                close: () => setEventSheetOpen(false),
+                locale: resolvedLocale,
+                timeZone: resolvedTimeZone,
+                view: activeView,
+              })
+            : (
+                <div className="space-y-3">
+                  {selectedResource?.label ? (
+                    <div>
+                      <div className="text-xs text-muted-foreground">{t("resourcesHeader")}</div>
+                      <div className="font-medium">{selectedResource.label}</div>
+                    </div>
+                  ) : null}
+                  <div>
+                    <div className="text-xs text-muted-foreground">ID</div>
+                    <div className="font-mono text-xs break-all">{selectedEvent.id}</div>
+                  </div>
+                </div>
+              )}
+        </Sheet>
+      ) : null}
     </div>
   );
 }
