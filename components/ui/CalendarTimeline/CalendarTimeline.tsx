@@ -362,10 +362,11 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     return map;
   }, [normalizedEvents]);
 
+  const leftRef = React.useRef<HTMLDivElement>(null);
   const bodyRef = React.useRef<HTMLDivElement>(null);
   const headerRef = React.useRef<HTMLDivElement>(null);
 
-  useHorizontalScrollSync({ bodyRef, headerRef });
+  useHorizontalScrollSync({ bodyRef, headerRef, leftRef });
 
   const title = React.useMemo(() => {
     return (
@@ -758,165 +759,182 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       {...rest}
     >
       {Header}
-      <div
-        ref={bodyRef}
-        className="relative overflow-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-      >
-        <div style={{ height: topSpacer }} />
-        {rows.slice(startRow, endRow).map((row, idx) => {
-          const rowIndex = startRow + idx;
-          if (row.kind === "group") {
-            return (
-              <div key={`g_${row.group.id}_${rowIndex}`} className="flex" style={{ height: effectiveRowHeight }}>
-                <div
-                  className="shrink-0 sticky left-0 z-20"
-                  style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
-                >
+      <div className="flex min-h-0">
+        {/* Left column (resources / groups): vertical scroll sync with body */}
+        <div
+          ref={leftRef}
+          className="shrink-0 overflow-y-auto overflow-x-hidden scrollbar-none"
+          style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
+        >
+          <div style={{ height: topSpacer }} />
+          {rows.slice(startRow, endRow).map((row, idx) => {
+            const rowIndex = startRow + idx;
+            if (row.kind === "group") {
+              return (
+                <div key={`lg_${row.group.id}_${rowIndex}`} style={{ height: effectiveRowHeight }}>
                   {renderGroupRow(row.group)}
                 </div>
-                <div className="flex-1 border-b border-border/30 bg-linear-to-r from-muted/15 to-muted/5" style={{ minWidth: gridWidth }} />
-              </div>
-            );
-          }
-
-          const r = row.resource;
-          const layout = layoutsByResource.get(r.id) ?? { visible: [], hidden: [] };
-          const canMore = layout.hidden.length > 0 && !!onMoreClick;
-
-          return (
-            <div
-              key={`r_${r.id}_${rowIndex}`}
-              className="flex group/row hover:bg-muted/5 transition-colors duration-150"
-              style={{ height: effectiveRowHeight }}
-              data-uv-ct-row={r.id}
-            >
-              <div
-                className="shrink-0 sticky left-0 z-20 border-r border-border/30"
-                style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
-              >
+              );
+            }
+            const r = row.resource;
+            return (
+              <div key={`lr_${r.id}_${rowIndex}`} style={{ height: effectiveRowHeight }}>
                 {ResourceCell(r)}
               </div>
-              <div className="relative shrink-0" style={{ width: gridWidth, minWidth: gridWidth }}>
-                <div className="absolute inset-0" onPointerDown={onPointerDownCell} data-uv-ct-timeline>
-                  <div className="absolute inset-0 flex">
-                    {slots.map((s, i2) => (
-                      <div
-                        key={`${r.id}_${i2}`}
-                        className={cn(
-                          "h-full border-l border-border/20 transition-colors duration-100",
-                          s.isToday && "bg-primary/5 border-l-primary/30",
-                          "hover:bg-muted/10",
-                        )}
-                        style={{ width: slotWidth, minWidth: slotWidth }}
-                      />
-                    ))}
-                  </div>
+            );
+          })}
+          <div style={{ height: bottomSpacer }} />
+        </div>
+
+        {/* Right grid: main scroll container (both axes) */}
+        <div
+          ref={bodyRef}
+          className="relative flex-1 overflow-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+        >
+          <div style={{ height: topSpacer }} />
+          {rows.slice(startRow, endRow).map((row, idx) => {
+            const rowIndex = startRow + idx;
+            if (row.kind === "group") {
+              return (
+                <div key={`rg_${row.group.id}_${rowIndex}`} className="flex" style={{ height: effectiveRowHeight }}>
+                  <div className="border-b border-border/30 bg-linear-to-r from-muted/15 to-muted/5" style={{ width: gridWidth, minWidth: gridWidth }} />
                 </div>
+              );
+            }
 
-                {layout.visible.map(({ ev, left, width, lane }) => {
-                  const top = lanePaddingY + lane * (eventHeight + laneGap);
-                  const isPreview = preview?.eventId === ev.id;
-                  const bg = ev.color ? ev.color : "hsl(var(--primary) / 0.15)";
-                  const border = ev.color ? ev.color : "hsl(var(--primary))";
-                  const aria =
-                    formatters?.ariaEventLabel?.(ev, { locale: resolvedLocale, timeZone: resolvedTimeZone }) ??
-                    (typeof ev.title === "string" ? ev.title : "Event");
-                  const timeText =
-                    formatters?.eventTime?.({
-                      start: ev._start,
-                      end: ev._end,
-                      locale: resolvedLocale,
-                      timeZone: resolvedTimeZone,
-                      view: activeView,
-                    }) ?? defaultEventTime({ start: ev._start, end: ev._end, locale: resolvedLocale, timeZone: resolvedTimeZone, view: activeView });
+            const r = row.resource;
+            const layout = layoutsByResource.get(r.id) ?? { visible: [], hidden: [] };
+            const canMore = layout.hidden.length > 0 && !!onMoreClick;
 
-                  const node = renderEvent?.(ev, { left, width, lane }) ?? (
-                    <div className="px-2.5 py-1 truncate flex items-center gap-1.5">
-                      {ev.title ? <span className="font-semibold text-[11px] truncate leading-tight">{ev.title}</span> : null}
-                      <span className="text-[10px] opacity-70 truncate ml-auto">{timeText}</span>
-                    </div>
-                  );
-
-                  return (
-                    <div
-                      key={ev.id}
-                      className={cn(
-                        "absolute rounded-lg border select-none cursor-pointer",
-                        "shadow-sm hover:shadow-md hover:scale-[1.02] hover:z-10",
-                        "transition-all duration-150 ease-out",
-                        "backdrop-blur-sm",
-                        ev.className,
-                        isPreview && "ring-2 ring-primary/50 ring-offset-1 ring-offset-background scale-[1.02] z-10",
-                      )}
-                      style={{
-                        left,
-                        top,
-                        width,
-                        height: eventHeight,
-                        background: bg,
-                        borderColor: border,
-                        borderLeftWidth: 3,
-                      }}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={aria}
-                      onClick={() => onEventClick?.(ev)}
-                      onDoubleClick={() => onEventDoubleClick?.(ev)}
-                      onPointerDown={(e) => onPointerDownEvent(e, ev, "move")}
-                    >
-                      {(interactions?.resizableEvents ?? true) && ev.resizable !== false ? (
-                        <>
-                          <div
-                            className="absolute left-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-l-lg transition-opacity"
-                            onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-start")}
-                          />
-                          <div
-                            className="absolute right-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-r-lg transition-opacity"
-                            onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-end")}
-                          />
-                        </>
-                      ) : null}
-                      {node}
-                    </div>
-                  );
-                })}
-
-                {preview && preview.resourceId === r.id && !preview.eventId
-                  ? (() => {
-                      const startIdx = binarySearchLastLE(slotStarts, preview.start);
-                      const endIdx = clamp(binarySearchFirstGE(slotStarts, preview.end), startIdx + 1, slots.length);
-                      const left = startIdx * slotWidth;
-                      const width = Math.max(1, (endIdx - startIdx) * slotWidth);
-                      return (
+            return (
+              <div
+                key={`rr_${r.id}_${rowIndex}`}
+                className="group/row hover:bg-muted/5 transition-colors duration-150"
+                style={{ height: effectiveRowHeight }}
+                data-uv-ct-row={r.id}
+              >
+                <div className="relative shrink-0" style={{ width: gridWidth, minWidth: gridWidth, height: "100%" }}>
+                  <div className="absolute inset-0" onPointerDown={onPointerDownCell} data-uv-ct-timeline>
+                    <div className="absolute inset-0 flex">
+                      {slots.map((s, i2) => (
                         <div
-                          className="absolute rounded-lg border-2 border-dashed border-primary/60 bg-primary/10 backdrop-blur-sm animate-pulse"
-                          style={{ left, top: lanePaddingY, width, height: eventHeight }}
+                          key={`${r.id}_${i2}`}
+                          className={cn(
+                            "h-full border-l border-border/20 transition-colors duration-100",
+                            s.isToday && "bg-primary/5 border-l-primary/30",
+                            "hover:bg-muted/10",
+                          )}
+                          style={{ width: slotWidth, minWidth: slotWidth }}
                         />
-                      );
-                    })()
-                  : null}
+                      ))}
+                    </div>
+                  </div>
 
-                {canMore ? (
-                  <button
-                    type="button"
-                    className={cn(
-                      "absolute right-2 bottom-1.5 text-[10px] font-semibold",
-                      "px-2 py-0.5 rounded-full",
-                      "bg-primary/10 text-primary hover:bg-primary/20",
-                      "transition-all duration-200 hover:scale-105",
-                    )}
-                    onClick={() => onMoreClick?.({ resourceId: r.id, hiddenEvents: layout.hidden })}
-                  >
-                    +{layout.hidden.length} {l.more(layout.hidden.length).replace(/^\+?\d+\s*/, "")}
-                  </button>
-                ) : null}
+                  {layout.visible.map(({ ev, left, width, lane }) => {
+                    const top = lanePaddingY + lane * (eventHeight + laneGap);
+                    const isPreview = preview?.eventId === ev.id;
+                    const bg = ev.color ? ev.color : "hsl(var(--primary) / 0.15)";
+                    const border = ev.color ? ev.color : "hsl(var(--primary))";
+                    const aria =
+                      formatters?.ariaEventLabel?.(ev, { locale: resolvedLocale, timeZone: resolvedTimeZone }) ??
+                      (typeof ev.title === "string" ? ev.title : "Event");
+                    const timeText =
+                      formatters?.eventTime?.({
+                        start: ev._start,
+                        end: ev._end,
+                        locale: resolvedLocale,
+                        timeZone: resolvedTimeZone,
+                        view: activeView,
+                      }) ?? defaultEventTime({ start: ev._start, end: ev._end, locale: resolvedLocale, timeZone: resolvedTimeZone, view: activeView });
+
+                    const node = renderEvent?.(ev, { left, width, lane }) ?? (
+                      <div className="px-2.5 py-1 truncate flex items-center gap-1.5">
+                        {ev.title ? <span className="font-semibold text-[11px] truncate leading-tight">{ev.title}</span> : null}
+                        <span className="text-[10px] opacity-70 truncate ml-auto">{timeText}</span>
+                      </div>
+                    );
+
+                    return (
+                      <div
+                        key={ev.id}
+                        className={cn(
+                          "absolute rounded-lg border select-none cursor-pointer",
+                          "shadow-sm hover:shadow-md hover:scale-[1.02] hover:z-10",
+                          "transition-all duration-150 ease-out",
+                          "backdrop-blur-sm",
+                          ev.className,
+                          isPreview && "ring-2 ring-primary/50 ring-offset-1 ring-offset-background scale-[1.02] z-10",
+                        )}
+                        style={{
+                          left,
+                          top,
+                          width,
+                          height: eventHeight,
+                          background: bg,
+                          borderColor: border,
+                          borderLeftWidth: 3,
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={aria}
+                        onClick={() => onEventClick?.(ev)}
+                        onDoubleClick={() => onEventDoubleClick?.(ev)}
+                        onPointerDown={(e) => onPointerDownEvent(e, ev, "move")}
+                      >
+                        {(interactions?.resizableEvents ?? true) && ev.resizable !== false ? (
+                          <>
+                            <div
+                              className="absolute left-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-l-lg transition-opacity"
+                              onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-start")}
+                            />
+                            <div
+                              className="absolute right-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-r-lg transition-opacity"
+                              onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-end")}
+                            />
+                          </>
+                        ) : null}
+                        {node}
+                      </div>
+                    );
+                  })}
+
+                  {preview && preview.resourceId === r.id && !preview.eventId
+                    ? (() => {
+                        const startIdx = binarySearchLastLE(slotStarts, preview.start);
+                        const endIdx = clamp(binarySearchFirstGE(slotStarts, preview.end), startIdx + 1, slots.length);
+                        const left = startIdx * slotWidth;
+                        const width = Math.max(1, (endIdx - startIdx) * slotWidth);
+                        return (
+                          <div
+                            className="absolute rounded-lg border-2 border-dashed border-primary/60 bg-primary/10 backdrop-blur-sm animate-pulse"
+                            style={{ left, top: lanePaddingY, width, height: eventHeight }}
+                          />
+                        );
+                      })()
+                    : null}
+
+                  {canMore ? (
+                    <button
+                      type="button"
+                      className={cn(
+                        "absolute right-2 bottom-1.5 text-[10px] font-semibold",
+                        "px-2 py-0.5 rounded-full",
+                        "bg-primary/10 text-primary hover:bg-primary/20",
+                        "transition-all duration-200 hover:scale-105",
+                      )}
+                      onClick={() => onMoreClick?.({ resourceId: r.id, hiddenEvents: layout.hidden })}
+                    >
+                      +{layout.hidden.length} {l.more(layout.hidden.length).replace(/^\+?\d+\s*/, "")}
+                    </button>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          );
-        })}
-        <div style={{ height: bottomSpacer }} />
+            );
+          })}
+          <div style={{ height: bottomSpacer }} />
+        </div>
       </div>
     </div>
   );
