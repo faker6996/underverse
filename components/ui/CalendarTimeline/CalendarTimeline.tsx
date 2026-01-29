@@ -887,6 +887,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                 data-uv-ct-row={r.id}
               >
                 <div className="relative shrink-0" style={{ width: gridWidth, minWidth: gridWidth, height: "100%" }}>
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-border/25" />
                   <div className="absolute inset-0" onPointerDown={onPointerDownCell} data-uv-ct-timeline>
                     <div className="absolute inset-0 flex">
                       {slots.map((s, i2) => (
