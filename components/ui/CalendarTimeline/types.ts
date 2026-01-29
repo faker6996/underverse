@@ -39,6 +39,13 @@ export interface CalendarTimelineLabels {
   month?: string;
   week?: string;
   day?: string;
+  newEvent?: string;
+  createEventTitle?: string;
+  create?: string;
+  cancel?: string;
+  resource?: string;
+  start?: string;
+  end?: string;
   expandGroup?: string;
   collapseGroup?: string;
   more?: (n: number) => string;
@@ -56,6 +63,8 @@ export interface CalendarTimelineFormatters {
 export interface CalendarTimelineInteractions {
   selectable?: boolean;
   creatable?: boolean;
+  /** How creating events via the grid works. Default: "drag". */
+  createMode?: "drag" | "click";
   draggableEvents?: boolean;
   resizableEvents?: boolean;
   deletableEvents?: boolean;
@@ -171,6 +180,19 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   onRangeChange?: (range: { start: Date; end: Date }) => void;
   onEventClick?: (event: CalendarTimelineEvent<TEventMeta>) => void;
   onEventDoubleClick?: (event: CalendarTimelineEvent<TEventMeta>) => void;
+  /**
+   * Custom create flow: when `interactions.creatable` + `interactions.createMode="click"`,
+   * clicking an empty cell calls this handler with the inferred range for that cell.
+   */
+  onCreateEventClick?: (args: {
+    resourceId: string;
+    start: Date;
+    end: Date;
+    slotIdx: number;
+    view: CalendarTimelineView;
+    locale: string;
+    timeZone: string;
+  }) => void;
   onCreateEvent?: (draft: { resourceId: string; start: Date; end: Date }) => void;
   onEventMove?: (args: { eventId: string; resourceId: string; start: Date; end: Date }) => void;
   onEventResize?: (args: { eventId: string; start: Date; end: Date }) => void;

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils/cn";
 import { useLocale, useTranslations } from "@/lib/i18n/translation-adapter";
 import { Sheet } from "../Sheet";
 import { Tooltip } from "../Tooltip";
+import Button from "../Button";
 import type {
   CalendarTimelineEvent,
   CalendarTimelineGroup,
@@ -22,6 +23,7 @@ import { defaultEventTime, defaultMonthTitle, defaultSlotHeader } from "./defaul
 import { buildRows, computeSlotStarts, eventsByResourceId, getGroupResourceCounts, normalizeEvents, resourcesById, type CalendarTimelineRow } from "./model";
 import { CalendarTimelineHeader } from "./CalendarTimelineHeader";
 import { DefaultGroupRow, ResourceRowCell } from "./CalendarTimelineRowCells";
+import { Combobox } from "../Combobox";
 
 type Slot = { start: Date; label: React.ReactNode; isToday: boolean };
 
@@ -78,6 +80,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   onRangeChange,
   onEventClick,
   onEventDoubleClick,
+  onCreateEventClick,
   onCreateEvent,
   onEventMove,
   onEventResize,
@@ -182,6 +185,13 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       month: labels?.month ?? t("month"),
       week: labels?.week ?? t("week"),
       day: labels?.day ?? t("day"),
+      newEvent: labels?.newEvent ?? t("newEvent"),
+      createEventTitle: labels?.createEventTitle ?? t("createEventTitle"),
+      create: labels?.create ?? t("create"),
+      cancel: labels?.cancel ?? t("cancel"),
+      resource: labels?.resource ?? t("resource"),
+      start: labels?.start ?? t("start"),
+      end: labels?.end ?? t("end"),
       expandGroup: labels?.expandGroup ?? t("expandGroup"),
       collapseGroup: labels?.collapseGroup ?? t("collapseGroup"),
       more: labels?.more ?? ((n) => t("more", { n })),
@@ -517,6 +527,82 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const laneGap = sizeConfig.laneGap;
   const lanePaddingY = sizeConfig.lanePaddingY;
 
+  const createMode = interactions?.createMode ?? "drag";
+  const canCreate = (interactions?.creatable ?? false) && !!onCreateEvent;
+  const [createOpen, setCreateOpen] = React.useState(false);
+  const [createResourceId, setCreateResourceId] = React.useState<string | null>(null);
+  const [createStartIdx, setCreateStartIdx] = React.useState(0);
+  const [createEndIdx, setCreateEndIdx] = React.useState(1);
+
+  const resourceOptions = React.useMemo(() => {
+    return resources.map((r) => ({
+      label: typeof r.label === "string" ? r.label : r.id,
+      value: r.id,
+      description: r.groupId ? String(r.groupId) : undefined,
+      disabled: r.disabled ?? false,
+    }));
+  }, [resources]);
+
+  const slotPickerLabel = React.useMemo(() => {
+    const timeFmt = getDtf(resolvedLocale, resolvedTimeZone, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+    const dayFmt = getDtf(resolvedLocale, resolvedTimeZone, { weekday: "short", month: "short", day: "numeric" });
+    return (d: Date) => (activeView === "day" ? timeFmt.format(d) : dayFmt.format(d));
+  }, [activeView, resolvedLocale, resolvedTimeZone]);
+
+  const openCreate = React.useCallback(() => {
+    if (!canCreate) return;
+
+    // Avoid two sheets at once.
+    if (activeEventSheetOpen) setEventSheetOpen(false);
+
+    const firstResource = resources.find((r) => !r.disabled)?.id ?? resources[0]?.id ?? null;
+    setCreateResourceId(firstResource ?? null);
+
+    let startIdx = 0;
+    if (slots.length > 0) {
+      if (activeView === "day") {
+        const inRange = resolvedNow.getTime() >= range.start.getTime() && resolvedNow.getTime() < range.end.getTime();
+        startIdx = clamp(inRange ? binarySearchFirstGE(slotStarts, resolvedNow) : 0, 0, slots.length - 1);
+      } else {
+        const dayStart = startOfZonedDay(activeDate, resolvedTimeZone);
+        startIdx = clamp(binarySearchLastLE(slotStarts, dayStart), 0, slots.length - 1);
+      }
+    }
+
+    setCreateStartIdx(startIdx);
+    setCreateEndIdx(Math.min(slots.length, startIdx + 1));
+    setCreateOpen(true);
+  }, [activeDate, activeEventSheetOpen, activeView, canCreate, range.end, range.start, resolvedNow, resolvedTimeZone, resources, setEventSheetOpen, slotStarts, slots.length]);
+
+  React.useEffect(() => {
+    setCreateEndIdx((prev) => Math.min(slots.length, Math.max(prev, createStartIdx + 1)));
+  }, [createStartIdx, slots.length]);
+
+  const createStartOptions = React.useMemo(() => {
+    return slotStarts.map((d, idx) => ({ label: slotPickerLabel(d), value: idx }));
+  }, [slotStarts, slotPickerLabel]);
+
+  const createEndOptions = React.useMemo(() => {
+    const out: Array<{ label: string; value: number }> = [];
+    for (let idx = createStartIdx + 1; idx <= slotStarts.length; idx++) {
+      const boundary = idx >= slotStarts.length ? range.end : slotStarts[idx]!;
+      out.push({ label: slotPickerLabel(boundary), value: idx });
+    }
+    return out;
+  }, [createStartIdx, range.end, slotPickerLabel, slotStarts]);
+
+  const commitCreate = React.useCallback(() => {
+    if (!onCreateEvent) return;
+    if (!createResourceId) return;
+    const start = slotStarts[clamp(createStartIdx, 0, Math.max(0, slotStarts.length - 1))];
+    if (!start) return;
+    const endBoundary = createEndIdx >= slotStarts.length ? range.end : slotStarts[createEndIdx];
+    if (!endBoundary) return;
+    if (endBoundary.getTime() <= start.getTime()) return;
+    onCreateEvent({ resourceId: createResourceId, start, end: endBoundary });
+    setCreateOpen(false);
+  }, [createEndIdx, createResourceId, createStartIdx, onCreateEvent, range.end, slotStarts]);
+
   type DragMode = "move" | "resize-start" | "resize-end" | "create";
   const dragRef = React.useRef<null | {
     mode: DragMode;
@@ -600,6 +686,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const onPointerDownCell = (e: React.PointerEvent) => {
     if (e.button !== 0 || e.ctrlKey) return;
     if (!(interactions?.creatable ?? false) || !onCreateEvent) return;
+    if (createMode === "click") return;
     const ctx = getPointerContext(e.clientX, e.clientY, { biasLeft: true });
     if (!ctx?.resourceId) return;
     const { start } = slotToDate(ctx.slotIdx);
@@ -619,6 +706,25 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     setPreview({ resourceId: ctx.resourceId, start, end });
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     e.preventDefault();
+  };
+
+  const onClickCell = (e: React.MouseEvent) => {
+    if (e.button !== 0 || e.ctrlKey) return;
+    if (!(interactions?.creatable ?? false)) return;
+    if (createMode !== "click") return;
+    if (!onCreateEventClick) return;
+    const ctx = getPointerContext(e.clientX, e.clientY, { biasLeft: true });
+    if (!ctx?.resourceId) return;
+    const { start, end } = slotToDate(ctx.slotIdx);
+    onCreateEventClick({
+      resourceId: ctx.resourceId,
+      start,
+      end: ctx.slotIdx + 1 >= slots.length ? range.end : end,
+      slotIdx: ctx.slotIdx,
+      view: activeView,
+      locale: resolvedLocale,
+      timeZone: resolvedTimeZone,
+    });
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -750,6 +856,9 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       title={title}
       resourcesHeaderLabel={t("resourcesHeader")}
       labels={{ today: l.today, prev: l.prev, next: l.next, month: l.month, week: l.week, day: l.day }}
+      newEventLabel={l.newEvent}
+      newEventDisabled={!canCreate || resources.length === 0}
+      onNewEventClick={openCreate}
       activeView={activeView}
       sizeConfig={sizeConfig}
       navigate={navigate}
@@ -888,7 +997,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
               >
                 <div className="relative shrink-0" style={{ width: gridWidth, minWidth: gridWidth, height: "100%" }}>
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-border/25" />
-                  <div className="absolute inset-0" onPointerDown={onPointerDownCell} data-uv-ct-timeline>
+                  <div className="absolute inset-0" onPointerDown={onPointerDownCell} onClick={onClickCell} data-uv-ct-timeline>
                     <div className="absolute inset-0 flex">
                       {slots.map((s, i2) => (
                         <div
@@ -1071,6 +1180,64 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                   </div>
                 </div>
               )}
+        </Sheet>
+      ) : null}
+
+      {canCreate ? (
+        <Sheet
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          side="right"
+          size="md"
+          title={l.createEventTitle}
+          description={activeView === "day" ? l.day : activeView === "week" ? l.week : l.month}
+        >
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="text-xs text-muted-foreground">{l.resource}</div>
+              <Combobox
+                options={resourceOptions}
+                value={createResourceId}
+                onChange={(v) => setCreateResourceId(v as string)}
+                placeholder={l.resource}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground">{l.start}</div>
+                <Combobox
+                  options={createStartOptions}
+                  value={createStartIdx}
+                  onChange={(v) => setCreateStartIdx(Number(v))}
+                  placeholder={l.start}
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground">{l.end}</div>
+                <Combobox
+                  options={createEndOptions}
+                  value={createEndIdx}
+                  onChange={(v) => setCreateEndIdx(Number(v))}
+                  placeholder={l.end}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <Button variant="ghost" size="sm" onClick={() => setCreateOpen(false)}>
+                {l.cancel}
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={commitCreate}
+                disabled={!createResourceId || createEndIdx <= createStartIdx || createStartOptions.length === 0}
+              >
+                {l.create}
+              </Button>
+            </div>
+          </div>
         </Sheet>
       ) : null}
     </div>

@@ -12,8 +12,11 @@ import { Tabs } from "@/components/ui/Tab";
 import { useTranslations } from "next-intl";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 import Button from "@/components/ui/Button";
+import { Sheet } from "@/components/ui/Sheet";
+import Input from "@/components/ui/Input";
 
 type EventMeta = { kind?: "meeting" | "task" };
+type CreateMode = "drag" | "click";
 
 const resources: CalendarTimelineResource[] = [
   { id: "r-a", label: "Resource A", groupId: "g-1" },
@@ -44,6 +47,10 @@ export default function CalendarTimelineExample() {
 
   const [view, setView] = React.useState<CalendarTimelineView>("month");
   const [date, setDate] = React.useState<Date>(new Date());
+  const [createMode, setCreateMode] = React.useState<CreateMode>("drag");
+  const [customCreateOpen, setCustomCreateOpen] = React.useState(false);
+  const [customCreateTitle, setCustomCreateTitle] = React.useState("New event");
+  const [customCreateDraft, setCustomCreateDraft] = React.useState<null | { resourceId: string; start: Date; end: Date }>(null);
 
   const todayUtc = React.useMemo(() => {
     const now = new Date();
@@ -98,11 +105,22 @@ export default function CalendarTimelineExample() {
     ];
   });
 
+  const tip =
+    createMode === "drag"
+      ? "Mode: Drag-to-create. Drag empty cells to create a new event."
+      : "Mode: Click-to-create (custom). Click an empty cell to open a custom create sheet.";
+
   const demo = (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="text-xs text-muted-foreground">
-          Tip: Drag event to move, drag edges to resize, drag empty cells to create (when enabled).
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant={createMode === "drag" ? "default" : "ghost"} size="sm" onClick={() => setCreateMode("drag")}>
+            Create: Drag
+          </Button>
+          <Button variant={createMode === "click" ? "default" : "ghost"} size="sm" onClick={() => setCreateMode("click")}>
+            Create: Click (custom)
+          </Button>
+          <div className="text-xs text-muted-foreground">{tip}</div>
         </div>
       </div>
 
@@ -129,7 +147,16 @@ export default function CalendarTimelineExample() {
               </Button>
             </div>
           )}
-          interactions={{ creatable: true, draggableEvents: true, resizableEvents: true }}
+          interactions={{ creatable: true, createMode, draggableEvents: true, resizableEvents: true }}
+          onCreateEventClick={
+            createMode === "click"
+              ? ({ resourceId, start, end }) => {
+                  setCustomCreateDraft({ resourceId, start, end });
+                  setCustomCreateTitle("New event");
+                  setCustomCreateOpen(true);
+                }
+              : undefined
+          }
           onCreateEvent={(draft) => {
             setEvents((prev) => [
               ...prev,
@@ -153,6 +180,51 @@ export default function CalendarTimelineExample() {
           }}
         />
       </div>
+
+      <Sheet
+        open={customCreateOpen}
+        onOpenChange={(open) => {
+          setCustomCreateOpen(open);
+          if (!open) setCustomCreateDraft(null);
+        }}
+        title="Custom create event"
+        description={
+          customCreateDraft ? `resource=${customCreateDraft.resourceId} • ${customCreateDraft.start.toISOString()} → ${customCreateDraft.end.toISOString()}` : undefined
+        }
+      >
+        <div className="space-y-4">
+          <Input label="Title" value={customCreateTitle} onChange={(e) => setCustomCreateTitle(e.target.value)} />
+          <div className="flex items-center justify-end gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setCustomCreateOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                if (!customCreateDraft) return;
+                setEvents((prev) => [
+                  ...prev,
+                  {
+                    id: `e_${prev.length + 1}`,
+                    resourceId: customCreateDraft.resourceId,
+                    title: customCreateTitle || "New event",
+                    start: customCreateDraft.start,
+                    end: customCreateDraft.end,
+                    color: "var(--secondary-soft)",
+                    draggable: true,
+                    resizable: true,
+                  },
+                ]);
+                setCustomCreateOpen(false);
+              }}
+              disabled={!customCreateDraft}
+            >
+              Create
+            </Button>
+          </div>
+        </div>
+      </Sheet>
     </div>
   );
 

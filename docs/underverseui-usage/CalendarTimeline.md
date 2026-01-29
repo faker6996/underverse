@@ -80,8 +80,9 @@ export function Example() {
         defaultView="month"
         weekStartsOn={1}
         // locale/timeZone automatically follow the app/user settings by default
+        // Mode 1: Drag to create (default)
         // Hover an event to see a tooltip, click to open the sheet.
-        interactions={{ creatable: true, draggableEvents: true, resizableEvents: true, deletableEvents: true }}
+        interactions={{ creatable: true, createMode: "drag", draggableEvents: true, resizableEvents: true, deletableEvents: true }}
         onCreateEvent={(draft) => {
           setEvents((prev) => [
             ...prev,
@@ -103,6 +104,39 @@ export function Example() {
 }
 ```
 
+## Examples: 2 create modes
+
+### Mode 1 — Drag to create (default)
+
+Kéo chuột trên grid để tạo event (giữ nguyên hành vi hiện tại).
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  interactions={{ creatable: true, createMode: "drag" }}
+  onCreateEvent={({ resourceId, start, end }) => {
+    setEvents((prev) => [...prev, { id: `e_${prev.length + 1}`, resourceId, start, end, title: "New event" }]);
+  }}
+/>
+```
+
+### Mode 2 — Click cell to open custom create UI
+
+Click vào ô trống để bạn tự mở modal/sheet tạo event theo ý (custom UI).
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  interactions={{ creatable: true, createMode: "click" }}
+  onCreateEventClick={({ resourceId, start, end, view }) => {
+    // open your custom modal/sheet here and prefill {resourceId,start,end}
+    console.log("create", { resourceId, start, end, view });
+  }}
+/>
+```
+
 ## Hành vi
 
 - **Một resource (một hàng)** có thể có **nhiều event**. Nếu các event overlap, component sẽ tự xếp thành nhiều “lane”.
@@ -110,6 +144,7 @@ export function Example() {
 - `end` của event là **exclusive** (kết thúc không bao gồm). Ví dụ `04:00 → 06:00` là đúng 2 giờ.
 - Khi **drag/move/resize** event, component sẽ **không mở Event Sheet** (chỉ click mới mở).
 - Ở **week view**, các slot sẽ **tự giãn để fill full chiều ngang** vùng timeline (nhưng vẫn tôn trọng `slotMinWidth` như giá trị tối thiểu).
+- Có nút **New event** ở header (khi bật `interactions.creatable` và có `onCreateEvent`) để tạo event bằng cách chọn **resource / start / end** theo đúng view hiện tại (month/week/day).
 
 ## Event Sheet
 
@@ -132,6 +167,26 @@ Clicking an event can open a right-side sheet. Provide `renderEventSheet` to cus
   )}
 />
 ```
+
+## Custom create mode (click cell)
+
+Nếu bạn muốn **tự custom UI tạo event** (mở modal/sheet riêng của bạn) khi click vào **ô trống** trong grid:
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  interactions={{ creatable: true, createMode: "click" }}
+  onCreateEventClick={({ resourceId, start, end, view }) => {
+    // mở modal/sheet của bạn, prefill theo ô vừa click
+    console.log("create at", { resourceId, start, end, view });
+  }}
+/>
+```
+
+Gợi ý:
+- `view="day"`: `start/end` theo step giờ (dựa trên `dayTimeStepMinutes`)
+- `view="week"`/`"month"`: `start/end` theo ngày
 
 ## Layout Resize (Row/Column)
 
@@ -237,6 +292,13 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
     month?: string;
     week?: string;
     day?: string;
+    newEvent?: string;
+    createEventTitle?: string;
+    create?: string;
+    cancel?: string;
+    resource?: string;
+    start?: string;
+    end?: string;
     expandGroup?: string;
     collapseGroup?: string;
     more?: (n: number) => string;
@@ -304,6 +366,7 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   interactions?: {
     selectable?: boolean;
     creatable?: boolean;
+    createMode?: "drag" | "click";
     draggableEvents?: boolean;
     resizableEvents?: boolean;
     deletableEvents?: boolean;
@@ -312,6 +375,15 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   onRangeChange?: (range: { start: Date; end: Date }) => void;
   onEventClick?: (event: CalendarTimelineEvent<TEventMeta>) => void;
   onEventDoubleClick?: (event: CalendarTimelineEvent<TEventMeta>) => void;
+  onCreateEventClick?: (args: {
+    resourceId: string;
+    start: Date;
+    end: Date;
+    slotIdx: number;
+    view: CalendarTimelineView;
+    locale: string;
+    timeZone: string;
+  }) => void;
   onCreateEvent?: (draft: { resourceId: string; start: Date; end: Date }) => void;
   onEventMove?: (args: { eventId: string; resourceId: string; start: Date; end: Date }) => void;
   onEventResize?: (args: { eventId: string; start: Date; end: Date }) => void;

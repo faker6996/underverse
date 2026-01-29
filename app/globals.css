@@ -16,7 +16,7 @@
   --success-h: 145; /* Green - positive */
   --warning-h: 60; /* Amber - caution (55-65 range) */
   --destructive-h: 22; /* Red - danger */
-/* -----------------------
+  /* -----------------------
    * NEUTRAL (tinted với neutral-h)
    * ----------------------- */
   --background: oklch(97% 0.008 var(--neutral-h));

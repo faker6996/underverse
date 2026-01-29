@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Calendar, CalendarDays, CalendarRange, ChevronLeft, ChevronRight, GripVertical } from "lucide-react";
+import { Calendar, CalendarDays, CalendarRange, ChevronLeft, ChevronRight, GripVertical, Plus } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import Button from "../Button";
 import type { CalendarTimelineView } from "./types";
@@ -17,6 +17,9 @@ export function CalendarTimelineHeader(props: {
   title: string;
   resourcesHeaderLabel: string;
   labels: { today: string; prev: string; next: string; month: string; week: string; day: string };
+  newEventLabel: string;
+  newEventDisabled?: boolean;
+  onNewEventClick?: () => void;
   activeView: CalendarTimelineView;
   sizeConfig: CalendarTimelineSizeConfig;
   navigate: (dir: -1 | 1) => void;
@@ -32,6 +35,9 @@ export function CalendarTimelineHeader(props: {
     title,
     resourcesHeaderLabel,
     labels,
+    newEventLabel,
+    newEventDisabled,
+    onNewEventClick,
     activeView,
     sizeConfig,
     navigate,
@@ -80,26 +86,39 @@ export function CalendarTimelineHeader(props: {
           <h2 className={cn("ml-3 font-semibold tracking-tight truncate text-foreground", sizeConfig.titleClass)}>{title}</h2>
         </div>
 
-        {/* View Switcher */}
-        <div className="flex items-center bg-muted/40 rounded-xl p-1 gap-0.5">
-          {(["month", "week", "day"] as CalendarTimelineView[]).map((v) => (
-            <Button
-              key={v}
-              variant={activeView === v ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setView(v)}
-              className={cn(
-                sizeConfig.controlButtonTextClass,
-                "rounded-lg font-medium transition-all duration-200 gap-1.5",
-                activeView === v
-                  ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
-                  : "hover:bg-background/80 text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {VIEW_ICONS[v]}
-              <span className="hidden sm:inline">{labels[v]}</span>
-            </Button>
-          ))}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="default"
+            size="sm"
+            icon={Plus}
+            disabled={newEventDisabled || !onNewEventClick}
+            onClick={onNewEventClick}
+            className={cn(sizeConfig.controlButtonTextClass, "rounded-lg font-medium transition-all duration-200 gap-1.5")}
+          >
+            <span className="hidden sm:inline">{newEventLabel}</span>
+          </Button>
+
+          {/* View Switcher */}
+          <div className="flex items-center bg-muted/40 rounded-xl p-1 gap-0.5">
+            {(["month", "week", "day"] as CalendarTimelineView[]).map((v) => (
+              <Button
+                key={v}
+                variant={activeView === v ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setView(v)}
+                className={cn(
+                  sizeConfig.controlButtonTextClass,
+                  "rounded-lg font-medium transition-all duration-200 gap-1.5",
+                  activeView === v
+                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
+                    : "hover:bg-background/80 text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {VIEW_ICONS[v]}
+                <span className="hidden sm:inline">{labels[v]}</span>
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
 
