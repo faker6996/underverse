@@ -442,11 +442,13 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       const body = bodyRef.current;
       if (!body) return null;
       const el = document.elementFromPoint(clientX, clientY) as HTMLElement | null;
-      const timelineEl = el?.closest?.("[data-uv-ct-timeline]") as HTMLElement | null;
-      if (!timelineEl) return null;
-      const timelineRect = timelineEl.getBoundingClientRect();
-    const x = clientX - timelineRect.left + body.scrollLeft;
-    const slotIdx = clamp(Math.floor(x / slotWidth), 0, Math.max(0, slots.length - 1));
+      if (!el || !body.contains(el)) return null;
+
+      // The grid lives inside `bodyRef` (the right pane). Derive the x position
+      // from the scroll container to avoid double-counting scrollLeft.
+      const bodyRect = body.getBoundingClientRect();
+      const x = clientX - bodyRect.left + body.scrollLeft;
+      const slotIdx = clamp(Math.floor(x / slotWidth), 0, Math.max(0, slots.length - 1));
       const rowEl = el?.closest?.("[data-uv-ct-row]") as HTMLElement | null;
       const rid = rowEl?.dataset?.uvCtRow ?? null;
       return { slotIdx, resourceId: rid, x };
