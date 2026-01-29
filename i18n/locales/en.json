@@ -338,7 +338,14 @@
         "onEventClick": "Event click handler (events mode).",
         "renderEvent": "Custom renderer for an event row (events mode).",
         "showEventBadges": "Show event badge text (events mode).",
-        "highlightWeekends": "Highlight weekend columns."
+        "highlightWeekends": "Highlight weekend columns.",
+        "enableEventSheet": "Open a right-side sheet when clicking an event.",
+        "eventSheetSize": "Sheet size (right side).",
+        "renderEventSheet": "Custom sheet content renderer.",
+        "selectedEventId": "Controlled selected event id.",
+        "eventSheetOpen": "Controlled open state for the sheet.",
+        "onEventSheetOpenChange": "Open state change handler for the sheet.",
+        "onSelectedEventIdChange": "Selected event id change handler."
       },
       "calendarTimeline": {
         "resources": "List of resources (rows).",

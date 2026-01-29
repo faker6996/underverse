@@ -328,7 +328,14 @@
         "onEventClick": "イベントクリック時のハンドラ（events モード）。",
         "renderEvent": "イベント行のカスタムレンダラー（events モード）。",
         "showEventBadges": "イベントのバッジ表示（events モード）。",
-        "highlightWeekends": "週末列を強調表示。"
+        "highlightWeekends": "週末列を強調表示。",
+        "enableEventSheet": "イベントクリックで右側のシートを開きます。",
+        "eventSheetSize": "シートのサイズ（右側）。",
+        "renderEventSheet": "シート内容のカスタムレンダラー。",
+        "selectedEventId": "選択イベントID（制御）。",
+        "eventSheetOpen": "シートの開閉状態（制御）。",
+        "onEventSheetOpenChange": "シート開閉状態の変更ハンドラ。",
+        "onSelectedEventIdChange": "選択イベントIDの変更ハンドラ。"
       },
       "calendarTimeline": {
         "resources": "リソース（行）の一覧。",

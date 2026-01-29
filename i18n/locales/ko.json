@@ -328,7 +328,14 @@
         "onEventClick": "이벤트 클릭 핸들러(events 모드).",
         "renderEvent": "이벤트 행 커스텀 렌더러(events 모드).",
         "showEventBadges": "이벤트 배지 텍스트 표시(events 모드).",
-        "highlightWeekends": "주말 컬럼 강조 표시."
+        "highlightWeekends": "주말 컬럼 강조 표시.",
+        "enableEventSheet": "이벤트 클릭 시 오른쪽 시트를 엽니다.",
+        "eventSheetSize": "시트 크기(오른쪽).",
+        "renderEventSheet": "시트 콘텐츠 커스텀 렌더러.",
+        "selectedEventId": "선택된 이벤트 id(제어).",
+        "eventSheetOpen": "시트 열림 상태(제어).",
+        "onEventSheetOpenChange": "시트 열림 상태 변경 핸들러.",
+        "onSelectedEventIdChange": "선택된 이벤트 id 변경 핸들러."
       },
       "calendarTimeline": {
         "resources": "리소스(행) 목록.",

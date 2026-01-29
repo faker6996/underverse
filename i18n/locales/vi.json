@@ -331,7 +331,14 @@
         "onEventClick": "Hàm xử lý click sự kiện (events mode).",
         "renderEvent": "Tuỳ biến render 1 dòng sự kiện (events mode).",
         "showEventBadges": "Hiển thị badge của sự kiện (events mode).",
-        "highlightWeekends": "Tô nổi bật cột cuối tuần."
+        "highlightWeekends": "Tô nổi bật cột cuối tuần.",
+        "enableEventSheet": "Mở sheet bên phải khi click vào event.",
+        "eventSheetSize": "Kích thước sheet (bên phải).",
+        "renderEventSheet": "Tuỳ biến render nội dung sheet.",
+        "selectedEventId": "Controlled id event đang chọn.",
+        "eventSheetOpen": "Controlled trạng thái mở/đóng sheet.",
+        "onEventSheetOpenChange": "Hàm xử lý thay đổi trạng thái mở/đóng sheet.",
+        "onSelectedEventIdChange": "Hàm xử lý thay đổi id event đang chọn."
       },
       "calendarTimeline": {
         "resources": "Danh sách resource (các hàng).",

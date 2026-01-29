@@ -55,6 +55,7 @@ export function Example() {
       maxEventsPerDay={3}
       showEventBadges
       highlightWeekends
+      enableEventSheet
       onEventClick={(event) => console.log(event)}
     />
   );
@@ -108,5 +109,19 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   onEventClick?: (event: CalendarEvent, date: Date) => void;
   /** Customize event rendering (events cell mode) */
   renderEvent?: (args: { event: CalendarEvent; date: Date }) => React.ReactNode;
+  /** Open a right-side Sheet when clicking an event */
+  enableEventSheet?: boolean;
+  /** Sheet size (right side) */
+  eventSheetSize?: "sm" | "md" | "lg" | "xl" | "full";
+  /** Custom sheet content renderer */
+  renderEventSheet?: (args: { event: CalendarEvent; date: Date; close: () => void }) => React.ReactNode;
+  /** Controlled selected event id (recommended to provide `event.id`) */
+  selectedEventId?: string | number;
+  /** Controlled open state for the event sheet */
+  eventSheetOpen?: boolean;
+  /** Controlled open state handler */
+  onEventSheetOpenChange?: (open: boolean) => void;
+  /** Controlled selected event handler */
+  onSelectedEventIdChange?: (id: string | number | undefined) => void;
 }
 ```

@@ -4,6 +4,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils/cn";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import Button from "./Button";
+import { Sheet } from "./Sheet";
 
 type SelectMode = "single" | "multiple" | "range";
 type Variant = "default" | "bordered" | "card" | "minimal";
@@ -17,6 +18,12 @@ export interface CalendarEvent {
   color?: string; // dot color
   badge?: string; // badge text
 }
+
+type CalendarSelectedEventRef = {
+  dayKey: string;
+  eventId?: string | number;
+  index?: number;
+};
 
 export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "value" | "onSelect"> {
   month?: Date; // visible month
@@ -64,6 +71,20 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   onEventClick?: (event: CalendarEvent, date: Date) => void;
   /** Customize event rendering (events cell mode) */
   renderEvent?: (args: { event: CalendarEvent; date: Date }) => React.ReactNode;
+  /** Open a right-side Sheet when clicking an event */
+  enableEventSheet?: boolean;
+  /** Sheet size (right side) */
+  eventSheetSize?: "sm" | "md" | "lg" | "xl" | "full";
+  /** Custom sheet content renderer */
+  renderEventSheet?: (args: { event: CalendarEvent; date: Date; close: () => void }) => React.ReactNode;
+  /** Controlled selected event id (recommended to provide `event.id`) */
+  selectedEventId?: string | number;
+  /** Controlled open state for the event sheet */
+  eventSheetOpen?: boolean;
+  /** Controlled open state handler */
+  onEventSheetOpenChange?: (open: boolean) => void;
+  /** Controlled selected event handler */
+  onSelectedEventIdChange?: (id: string | number | undefined) => void;
 }
 
 function startOfMonth(d: Date) {
@@ -153,6 +174,13 @@ export default function Calendar({
   maxEventsPerDay = 3,
   onEventClick,
   renderEvent,
+  enableEventSheet,
+  eventSheetSize = "md",
+  renderEventSheet,
+  selectedEventId,
+  eventSheetOpen,
+  onEventSheetOpenChange,
+  onSelectedEventIdChange,
   ...rest
 }: CalendarProps) {
   const isControlledMonth = month != null;
@@ -188,6 +216,68 @@ export default function Calendar({
     }
     return map;
   }, [events]);
+
+  const effectiveEnableEventSheet = enableEventSheet ?? !!renderEventSheet;
+  const isEventSheetOpenControlled = eventSheetOpen !== undefined;
+  const [internalEventSheetOpen, setInternalEventSheetOpen] = React.useState(false);
+  const activeEventSheetOpen = isEventSheetOpenControlled ? !!eventSheetOpen : internalEventSheetOpen;
+
+  const isSelectedEventControlled = selectedEventId !== undefined;
+  const [internalSelectedEventRef, setInternalSelectedEventRef] = React.useState<CalendarSelectedEventRef | null>(null);
+
+  const setEventSheetOpen = React.useCallback(
+    (open: boolean) => {
+      if (!isEventSheetOpenControlled) setInternalEventSheetOpen(open);
+      onEventSheetOpenChange?.(open);
+      if (!open) {
+        // Clear selection when closing (uncontrolled)
+        if (!isSelectedEventControlled) setInternalSelectedEventRef(null);
+        onSelectedEventIdChange?.(undefined);
+      }
+    },
+    [isEventSheetOpenControlled, isSelectedEventControlled, onEventSheetOpenChange, onSelectedEventIdChange],
+  );
+
+  const selectedEventRef: CalendarSelectedEventRef | null = React.useMemo(() => {
+    if (isSelectedEventControlled && selectedEventId != null) {
+      const ev = events.find((e) => e.id === selectedEventId);
+      if (!ev) return null;
+      const d = toDate(ev.date);
+      const dayKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      return { dayKey, eventId: selectedEventId };
+    }
+    return internalSelectedEventRef;
+  }, [events, internalSelectedEventRef, isSelectedEventControlled, selectedEventId]);
+
+  const selectedEvent = React.useMemo(() => {
+    if (!selectedEventRef) return null;
+    const list = byDay.get(selectedEventRef.dayKey) || [];
+    if (selectedEventRef.eventId != null) {
+      return list.find((e) => e.id === selectedEventRef.eventId) || null;
+    }
+    const idx = selectedEventRef.index ?? -1;
+    return idx >= 0 && idx < list.length ? list[idx] : null;
+  }, [byDay, selectedEventRef]);
+
+  const selectedEventDate = React.useMemo(() => {
+    if (!selectedEventRef) return null;
+    const [y, m, d] = selectedEventRef.dayKey.split("-").map((x) => Number(x));
+    if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return null;
+    return new Date(y, m, d);
+  }, [selectedEventRef]);
+
+  const handleEventActivate = React.useCallback(
+    (event: CalendarEvent, date: Date, dayKey: string, index?: number) => {
+      onEventClick?.(event, date);
+      onSelectedEventIdChange?.(event.id ?? undefined);
+      if (!effectiveEnableEventSheet) return;
+      if (!isSelectedEventControlled) {
+        setInternalSelectedEventRef({ dayKey, eventId: event.id, index });
+      }
+      setEventSheetOpen(true);
+    },
+    [effectiveEnableEventSheet, isSelectedEventControlled, onEventClick, onSelectedEventIdChange, setEventSheetOpen],
+  );
 
   const isSelected = (d: Date): boolean => {
     if (!selected) return false;
@@ -351,7 +441,7 @@ export default function Calendar({
                         <button
                           key={String(key)}
                           type="button"
-                          onClick={() => onEventClick?.(e, d)}
+                          onClick={() => handleEventActivate(e, d, k, i)}
                           className={cn(
                             "w-full text-left rounded-lg px-2 py-1",
                             "transition-colors duration-150 hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
@@ -526,18 +616,18 @@ export default function Calendar({
 
                     <div className={cn("mt-2 space-y-1", dense ? "mt-1.5" : "mt-2")}>
                       {visibleEvents.map((e, i) => {
-                        const key = e.id ?? `${k}-${i}`;
-                        const node = renderEvent?.({ event: e, date: d });
-                        if (node) return <div key={String(key)}>{node}</div>;
-                        return (
-                          <button
-                            key={String(key)}
-                            type="button"
-                            onClick={() => onEventClick?.(e, d)}
-                            className={cn(
-                              "w-full text-left rounded-lg px-2 py-1",
-                              "transition-colors duration-150 hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-                              "text-xs flex items-center gap-2",
+                      const key = e.id ?? `${k}-${i}`;
+                      const node = renderEvent?.({ event: e, date: d });
+                      if (node) return <div key={String(key)}>{node}</div>;
+                      return (
+                        <button
+                          key={String(key)}
+                          type="button"
+                          onClick={() => handleEventActivate(e, d, k, i)}
+                          className={cn(
+                            "w-full text-left rounded-lg px-2 py-1",
+                            "transition-colors duration-150 hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                            "text-xs flex items-center gap-2",
                             )}
                             title={e.title}
                           >
@@ -590,6 +680,40 @@ export default function Calendar({
           ))}
         </div>
       )}
+
+      {effectiveEnableEventSheet && selectedEvent && selectedEventDate ? (
+        <Sheet
+          open={activeEventSheetOpen}
+          onOpenChange={setEventSheetOpen}
+          side="right"
+          size={eventSheetSize}
+          title={selectedEvent.title ?? "Event"}
+          description={selectedEventDate.toDateString()}
+        >
+          {renderEventSheet ? (
+            renderEventSheet({ event: selectedEvent, date: selectedEventDate, close: () => setEventSheetOpen(false) })
+          ) : (
+            <div className="space-y-3">
+              {selectedEvent.id != null ? (
+                <div>
+                  <div className="text-xs text-muted-foreground">ID</div>
+                  <div className="font-mono text-xs break-all">{String(selectedEvent.id)}</div>
+                </div>
+              ) : null}
+              {selectedEvent.badge ? (
+                <div>
+                  <div className="text-xs text-muted-foreground">Badge</div>
+                  <div className="text-sm">{selectedEvent.badge}</div>
+                </div>
+              ) : null}
+              <div className="flex items-center gap-2">
+                <span className="h-3 w-3 rounded-full" style={{ backgroundColor: selectedEvent.color || "hsl(var(--primary))" }} />
+                <span className="text-sm text-muted-foreground">Color</span>
+              </div>
+            </div>
+          )}
+        </Sheet>
+      ) : null}
     </div>
   );
 }

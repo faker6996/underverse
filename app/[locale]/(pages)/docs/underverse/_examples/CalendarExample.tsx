@@ -52,7 +52,26 @@ export default function CalendarExample() {
             showEventBadges
             highlightWeekends
             events={events}
-            onEventClick={(event) => console.log("event click", event)}
+            enableEventSheet
+            eventSheetSize="md"
+            renderEventSheet={({ event, date, close }) => (
+              <div className="space-y-4">
+                <div className="text-sm text-muted-foreground">{date.toDateString()}</div>
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full" style={{ backgroundColor: event.color || "hsl(var(--primary))" }} />
+                  <div className="font-medium">{event.title ?? "Event"}</div>
+                </div>
+                {event.badge ? (
+                  <div>
+                    <div className="text-xs text-muted-foreground">Badge</div>
+                    <div className="text-sm">{event.badge}</div>
+                  </div>
+                ) : null}
+                <button className="text-sm text-primary underline" onClick={close}>
+                  Close
+                </button>
+              </div>
+            )}
           />
         </div>
       </div>
@@ -106,7 +125,7 @@ export default function CalendarExample() {
     `  showEventBadges\n` +
     `  highlightWeekends\n` +
     `  events={events}\n` +
-    `  onEventClick={(event) => console.log(event)}\n` +
+    `  enableEventSheet\n` +
     `/>\n\n` +
     `// Multi-month (2)\n` +
     `<Calendar months={2} />\n\n` +
@@ -144,6 +163,13 @@ export default function CalendarExample() {
     { property: "renderEvent", description: t("props.calendar.renderEvent"), type: "(args) => ReactNode", default: "-" },
     { property: "showEventBadges", description: t("props.calendar.showEventBadges"), type: "boolean", default: "false" },
     { property: "highlightWeekends", description: t("props.calendar.highlightWeekends"), type: "boolean", default: "false" },
+    { property: "enableEventSheet", description: t("props.calendar.enableEventSheet"), type: "boolean", default: "false" },
+    { property: "eventSheetSize", description: t("props.calendar.eventSheetSize"), type: "'sm'|'md'|'lg'|'xl'|'full'", default: "'md'" },
+    { property: "renderEventSheet", description: t("props.calendar.renderEventSheet"), type: "(args) => ReactNode", default: "-" },
+    { property: "selectedEventId", description: t("props.calendar.selectedEventId"), type: "string | number", default: "-" },
+    { property: "eventSheetOpen", description: t("props.calendar.eventSheetOpen"), type: "boolean", default: "-" },
+    { property: "onEventSheetOpenChange", description: t("props.calendar.onEventSheetOpenChange"), type: "(open: boolean) => void", default: "-" },
+    { property: "onSelectedEventIdChange", description: t("props.calendar.onSelectedEventIdChange"), type: "(id?: string | number) => void", default: "-" },
   ];
   const docs = <PropsDocsTable rows={rows} markdownFile="Calendar.md" />;
 
