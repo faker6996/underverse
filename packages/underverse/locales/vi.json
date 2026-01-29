@@ -56,6 +56,7 @@
     "month": "Tháng",
     "week": "Tuần",
     "day": "Ngày",
+    "resourcesHeader": "Tài nguyên",
     "expandGroup": "Mở nhóm",
     "collapseGroup": "Thu gọn nhóm",
     "more": "+{n} thêm"

@@ -56,6 +56,7 @@
     "month": "월",
     "week": "주",
     "day": "일",
+    "resourcesHeader": "리소스",
     "expandGroup": "그룹 펼치기",
     "collapseGroup": "그룹 접기",
     "more": "+{n}개 더"

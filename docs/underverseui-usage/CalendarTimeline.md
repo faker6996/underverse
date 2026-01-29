@@ -65,9 +65,12 @@ export function Example() {
         groups={groups}
         events={events}
         size="md" // "sm" | "md" | "xl"
+        enableEventSheet
+        eventSheetSize="md" // "sm" | "md" | "lg" | "xl" | "full"
         defaultView="month"
         weekStartsOn={1}
         // locale/timeZone automatically follow the app/user settings by default
+        // Hover an event to see a tooltip, click to open the sheet.
         interactions={{ creatable: true, draggableEvents: true, resizableEvents: true }}
         onCreateEvent={(draft) => {
           setEvents((prev) => [
@@ -87,9 +90,31 @@ export function Example() {
 }
 ```
 
+## Event Sheet
+
+Clicking an event can open a right-side sheet. Provide `renderEventSheet` to customize content.
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  enableEventSheet
+  eventSheetSize="lg"
+  renderEventSheet={({ event, resource, close }) => (
+    <div className="space-y-3">
+      <div className="text-sm font-semibold">{event.title ?? event.id}</div>
+      {resource?.label ? <div className="text-xs text-muted-foreground">{resource.label}</div> : null}
+      <button type="button" onClick={close}>Close</button>
+    </div>
+  )}
+/>
+```
+
 ```ts
 export type CalendarTimelineView = "month" | "week" | "day";
 export type CalendarTimelineDateInput = Date | string | number;
+export type CalendarTimelineSize = "sm" | "md" | "xl";
+export type CalendarTimelineSheetSize = "sm" | "md" | "lg" | "xl" | "full";
 
 export interface CalendarTimelineGroup {
   id: string;
@@ -123,6 +148,27 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   resources: CalendarTimelineResource<TResourceMeta>[];
   events: CalendarTimelineEvent<TEventMeta>[];
 
+  size?: CalendarTimelineSize;
+
+  enableEventSheet?: boolean;
+  eventSheetSize?: CalendarTimelineSheetSize;
+  renderEventSheet?: (args: {
+    event: CalendarTimelineEvent<TEventMeta>;
+    resource?: CalendarTimelineResource<TResourceMeta>;
+    close: () => void;
+    locale: string;
+    timeZone: string;
+    view: CalendarTimelineView;
+  }) => React.ReactNode;
+
+  selectedEventId?: string | null;
+  defaultSelectedEventId?: string | null;
+  onSelectedEventIdChange?: (eventId: string | null) => void;
+
+  eventSheetOpen?: boolean;
+  defaultEventSheetOpen?: boolean;
+  onEventSheetOpenChange?: (open: boolean) => void;
+
   view?: CalendarTimelineView;
   defaultView?: CalendarTimelineView;
   onViewChange?: (view: CalendarTimelineView) => void;
@@ -147,6 +193,10 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   maxLanesPerRow?: number;
   now?: Date;
 
+  renderResource?: (resource: CalendarTimelineResource<TResourceMeta>) => React.ReactNode;
+  renderGroup?: (group: CalendarTimelineGroup, args: { collapsed: boolean; toggle: () => void }) => React.ReactNode;
+  renderEvent?: (event: CalendarTimelineEvent<TEventMeta>, layout: { left: number; width: number; lane: number }) => React.ReactNode;
+
   interactions?: {
     selectable?: boolean;
     creatable?: boolean;
@@ -154,8 +204,18 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
     resizableEvents?: boolean;
   };
 
+  onRangeChange?: (range: { start: Date; end: Date }) => void;
+  onEventClick?: (event: CalendarTimelineEvent<TEventMeta>) => void;
+  onEventDoubleClick?: (event: CalendarTimelineEvent<TEventMeta>) => void;
   onCreateEvent?: (draft: { resourceId: string; start: Date; end: Date }) => void;
   onEventMove?: (args: { eventId: string; resourceId: string; start: Date; end: Date }) => void;
   onEventResize?: (args: { eventId: string; start: Date; end: Date }) => void;
+
+  onMoreClick?: (args: { resourceId: string; hiddenEvents: CalendarTimelineEvent<TEventMeta>[] }) => void;
+
+  virtualization?: {
+    enabled?: boolean;
+    overscan?: number;
+  };
 }
 ```

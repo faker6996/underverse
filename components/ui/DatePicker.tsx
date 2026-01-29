@@ -1,15 +1,13 @@
 "use client";
 
+import { useLocale, useTranslations } from "@/lib/i18n/translation-adapter";
+import { cn } from "@/lib/utils/cn";
+import { formatDateShort } from "@/lib/utils/date";
+import { useShadCNAnimations } from "@/lib/utils/shadcn-animations";
+import { Calendar, ChevronLeft, ChevronRight, Sparkles, X as XIcon } from "lucide-react";
 import * as React from "react";
 import { useId } from "react";
-import { cn } from "@/lib/utils/cn";
-import { Calendar, ChevronLeft, ChevronRight, X as XIcon, Sparkles } from "lucide-react";
-import Button from "./Button";
 import { Popover } from "./Popover";
-import { useShadCNAnimations } from "@/lib/utils/shadcn-animations";
-import { useTranslations, useLocale } from "@/lib/i18n/translation-adapter";
-import { LOCALE } from "@/lib/constants/enum";
-import { formatDate as formatDateUtil, formatDateShort } from "@/lib/utils/date";
 
 export interface DatePickerProps {
   id?: string;
