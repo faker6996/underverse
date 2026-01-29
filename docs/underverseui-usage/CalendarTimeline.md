@@ -182,6 +182,39 @@ Clicking an event can open a right-side sheet. Provide `renderEventSheet` to cus
 />
 ```
 
+## Custom event box (`renderEvent`)
+
+Bạn có thể custom UI trong box event bằng `renderEvent`. Component sẽ **không cho nội dung vượt quá chiều cao của hàng** (event box có `overflow: hidden`), nên nếu text quá dài thì bạn nên **wrap + clamp** số dòng.
+
+`renderEvent` nhận thêm:
+- `layout.height`: chiều cao event box hiện tại (px)
+- `layout.timeText`: text thời gian đã được format theo `formatters.eventTime`/default
+
+Ví dụ: tự xuống dòng + tối đa 1–2 dòng tuỳ theo `layout.height`:
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  renderEvent={(event, layout) => {
+    const maxLines = layout.height >= 34 ? 2 : 1;
+    return (
+      <div className="h-full px-2.5 flex items-center min-w-0 overflow-hidden">
+        <div className="w-full grid grid-cols-[1fr_auto] gap-x-2 items-start min-w-0 overflow-hidden">
+          <div
+            className="text-xs font-semibold leading-snug min-w-0 overflow-hidden break-words"
+            style={{ display: \"-webkit-box\", WebkitBoxOrient: \"vertical\", WebkitLineClamp: maxLines as any }}
+          >
+            {event.title}
+          </div>
+          <div className="text-[11px] opacity-70 leading-snug whitespace-nowrap">{layout.timeText}</div>
+        </div>
+      </div>
+    );
+  }}
+/>
+```
+
 ## Custom create mode (click cell)
 
 Nếu bạn muốn **tự custom UI tạo event** (mở modal/sheet riêng của bạn) khi click vào **ô trống** trong grid:
@@ -375,7 +408,10 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
 
   renderResource?: (resource: CalendarTimelineResource<TResourceMeta>) => React.ReactNode;
   renderGroup?: (group: CalendarTimelineGroup, args: { collapsed: boolean; toggle: () => void }) => React.ReactNode;
-  renderEvent?: (event: CalendarTimelineEvent<TEventMeta>, layout: { left: number; width: number; lane: number }) => React.ReactNode;
+  renderEvent?: (
+    event: CalendarTimelineEvent<TEventMeta>,
+    layout: { left: number; width: number; lane: number; height: number; timeText: string },
+  ) => React.ReactNode;
 
   interactions?: {
     mode?: "edit" | "view";

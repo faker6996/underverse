@@ -339,7 +339,12 @@ export function Example() {
     { property: "onRowHeightsChange", description: t("props.calendarTimeline.onRowHeightsChange"), type: "(next: Record<string, number>) => void", default: "-" },
     { property: "renderResource", description: t("props.calendarTimeline.renderResource"), type: "(resource) => ReactNode", default: "—" },
     { property: "renderGroup", description: t("props.calendarTimeline.renderGroup"), type: "(group, args) => ReactNode", default: "—" },
-    { property: "renderEvent", description: t("props.calendarTimeline.renderEvent"), type: "(event, layout) => ReactNode", default: "—" },
+    {
+      property: "renderEvent",
+      description: t("props.calendarTimeline.renderEvent"),
+      type: "(event, layout: { left: number; width: number; lane: number; height: number; timeText: string }) => ReactNode",
+      default: "—",
+    },
     { property: "interactions", description: t("props.calendarTimeline.interactions"), type: "CalendarTimelineInteractions", default: "-" },
     { property: "interactions.mode", description: t("props.calendarTimeline.interactionsMode"), type: "'edit' | 'view'", default: "'edit'" },
     { property: "interactions.createMode", description: t("props.calendarTimeline.createMode"), type: "'drag' | 'click'", default: "'drag'" },

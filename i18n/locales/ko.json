@@ -150,7 +150,7 @@
         "title": "Tabs"
       },
       "toast": {
-        "title": "토스트",
+        "title": "Toast",
         "description": "아래 버튼을 클릭하면 토스트가 표시됩니다."
       },
       "imports": {
@@ -253,6 +253,9 @@
       "tagInput": {
         "title": "TagInput"
       },
+      "ueditor": {
+        "title": "UEditor"
+      },
       "dateTimePicker": {
         "title": "DateTimePicker"
       },
@@ -287,19 +290,19 @@
         "title": "FloatingContacts"
       },
       "themeToggleHeadless": {
-        "title": "테마 토글(헤드리스)"
+        "title": "ThemeToggle (headless)"
       },
       "languageSwitcherHeadless": {
-        "title": "언어 스위처(헤드리스)"
+        "title": "LanguageSwitcher (headless)"
       },
       "translationProvider": {
         "title": "TranslationProvider"
       },
       "dateUtils": {
-        "title": "날짜 유틸리티"
+        "title": "Date Utilities"
       },
       "charts": {
-        "title": "차트"
+        "title": "Charts"
       }
     },
     "props": {

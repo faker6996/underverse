@@ -175,7 +175,10 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   // rendering
   renderResource?: (resource: CalendarTimelineResource<TResourceMeta>) => React.ReactNode;
   renderGroup?: (group: CalendarTimelineGroup, args: { collapsed: boolean; toggle: () => void }) => React.ReactNode;
-  renderEvent?: (event: CalendarTimelineEvent<TEventMeta>, layout: { left: number; width: number; lane: number }) => React.ReactNode;
+  renderEvent?: (
+    event: CalendarTimelineEvent<TEventMeta>,
+    layout: { left: number; width: number; lane: number; height: number; timeText: string },
+  ) => React.ReactNode;
 
   // interactions
   interactions?: CalendarTimelineInteractions;

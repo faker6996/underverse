@@ -299,10 +299,10 @@
         "title": "TranslationProvider"
       },
       "dateUtils": {
-        "title": "Tiện ích Ngày tháng"
+        "title": "Date Utilities"
       },
       "charts": {
-        "title": "Biểu đồ"
+        "title": "Charts"
       }
     },
     "props": {

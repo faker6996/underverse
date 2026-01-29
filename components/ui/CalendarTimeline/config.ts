@@ -3,6 +3,7 @@ import type { CalendarTimelineSize } from "./types";
 export type CalendarTimelineSizeConfig = {
   resourceColumnWidth: number;
   rowHeight: number;
+  groupRowHeight: number;
   slotMinWidth: number;
   eventHeight: number;
   laneGap: number;
@@ -20,9 +21,10 @@ export type CalendarTimelineSizeConfig = {
 export const SIZE_CONFIG_BY_SIZE: Record<CalendarTimelineSize, CalendarTimelineSizeConfig> = {
   sm: {
     resourceColumnWidth: 200,
-    rowHeight: 66,
+    rowHeight: 84,
+    groupRowHeight: 36,
     slotMinWidth: 52,
-    eventHeight: 40,
+    eventHeight: 46,
     laneGap: 3,
     lanePaddingY: 5,
     densityClass: "text-xs",
@@ -36,9 +38,10 @@ export const SIZE_CONFIG_BY_SIZE: Record<CalendarTimelineSize, CalendarTimelineS
   },
   md: {
     resourceColumnWidth: 240,
-    rowHeight: 78,
+    rowHeight: 96,
+    groupRowHeight: 40,
     slotMinWidth: 64,
-    eventHeight: 48,
+    eventHeight: 54,
     laneGap: 4,
     lanePaddingY: 6,
     densityClass: "text-sm",
@@ -52,9 +55,10 @@ export const SIZE_CONFIG_BY_SIZE: Record<CalendarTimelineSize, CalendarTimelineS
   },
   xl: {
     resourceColumnWidth: 280,
-    rowHeight: 90,
+    rowHeight: 112,
+    groupRowHeight: 44,
     slotMinWidth: 76,
-    eventHeight: 56,
+    eventHeight: 62,
     laneGap: 5,
     lanePaddingY: 8,
     densityClass: "text-base",

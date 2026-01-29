@@ -253,6 +253,9 @@
       "tagInput": {
         "title": "TagInput"
       },
+      "ueditor": {
+        "title": "UEditor"
+      },
       "dateTimePicker": {
         "title": "DateTimePicker"
       },
@@ -281,10 +284,10 @@
         "title": "ThemeToggle (with i18n)"
       },
       "themeToggleHeadless": {
-        "title": "ThemeToggle（ヘッドレス）"
+        "title": "ThemeToggle (headless)"
       },
       "languageSwitcherHeadless": {
-        "title": "言語スイッチャー（ヘッドレス）"
+        "title": "LanguageSwitcher (headless)"
       },
       "notificationBell": {
         "title": "NotificationBell (with i18n)"
@@ -296,10 +299,10 @@
         "title": "TranslationProvider"
       },
       "dateUtils": {
-        "title": "日付ユーティリティ"
+        "title": "Date Utilities"
       },
       "charts": {
-        "title": "チャート"
+        "title": "Charts"
       }
     },
     "props": {

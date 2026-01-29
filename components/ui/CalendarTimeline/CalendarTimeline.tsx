@@ -282,10 +282,12 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   const slotStarts = React.useMemo(() => slots.map((s) => s.start), [slots]);
   const slotWidth = React.useMemo(() => {
-    if (activeView !== "week") return effectiveSlotMinWidth;
-    if (bodyClientWidth <= 0) return effectiveSlotMinWidth;
-    if (slots.length <= 0) return effectiveSlotMinWidth;
-    return Math.max(effectiveSlotMinWidth, bodyClientWidth / slots.length);
+    const baseSlotWidth = activeView === "month" ? effectiveSlotMinWidth * 3 : effectiveSlotMinWidth;
+
+    if (activeView !== "week") return baseSlotWidth;
+    if (bodyClientWidth <= 0) return baseSlotWidth;
+    if (slots.length <= 0) return baseSlotWidth;
+    return Math.max(baseSlotWidth, bodyClientWidth / slots.length);
   }, [activeView, bodyClientWidth, effectiveSlotMinWidth, slots.length]);
   const gridWidth = slots.length * slotWidth;
 
@@ -377,9 +379,9 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const rowHeightsArray = React.useMemo(() => {
     return rows.map((r) => {
       if (r.kind === "resource") return getResourceRowHeight(r.resource.id);
-      return effectiveRowHeight;
+      return sizeConfig.groupRowHeight;
     });
-  }, [effectiveRowHeight, getResourceRowHeight, rows]);
+  }, [getResourceRowHeight, rows, sizeConfig.groupRowHeight]);
 
   const virtualResult = useVirtualVariableRows({
     enabled: virt,
@@ -1027,21 +1029,44 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                     const aria =
                       formatters?.ariaEventLabel?.(ev, { locale: resolvedLocale, timeZone: resolvedTimeZone }) ??
                       (typeof ev.title === "string" ? ev.title : "Event");
-                    const timeText =
-                      formatters?.eventTime?.({
-                        start: ev._start,
-                        end: ev._end,
-                        locale: resolvedLocale,
-                        timeZone: resolvedTimeZone,
-                        view: activeView,
-                      }) ?? defaultEventTime({ start: ev._start, end: ev._end, locale: resolvedLocale, timeZone: resolvedTimeZone, view: activeView });
+                  const timeText =
+                    formatters?.eventTime?.({
+                      start: ev._start,
+                      end: ev._end,
+                      locale: resolvedLocale,
+                      timeZone: resolvedTimeZone,
+                      view: activeView,
+                    }) ?? defaultEventTime({ start: ev._start, end: ev._end, locale: resolvedLocale, timeZone: resolvedTimeZone, view: activeView });
 
-                  const node = renderEvent?.(ev, { left, width, lane }) ?? (
-                    <div className="h-full px-2.5 truncate flex items-center gap-1.5">
-                      {ev.title ? <span className="font-semibold text-xs truncate leading-none">{ev.title}</span> : null}
-                      <span className="text-[11px] opacity-70 truncate ml-auto leading-none">{timeText}</span>
-                    </div>
-                  );
+                  const node =
+                    renderEvent?.(ev, { left, width, lane, height: layout.eventHeight, timeText }) ??
+                    (() => {
+                      const showTime = layout.eventHeight >= 24;
+                      const titleMaxLines = showTime ? (layout.eventHeight >= 34 ? 2 : 1) : 1;
+                      const isPlainTitle = typeof ev.title === "string" || typeof ev.title === "number";
+
+                      return (
+                        <div className="h-full px-2.5 flex items-center min-w-0 overflow-hidden">
+                          <div className="w-full grid grid-cols-[1fr_auto] gap-x-2 items-start min-w-0 overflow-hidden">
+                            <div
+                              className={cn("text-xs font-semibold leading-snug min-w-0 overflow-hidden", isPlainTitle ? "break-words" : "")}
+                              style={
+                                isPlainTitle
+                                  ? {
+                                      display: "-webkit-box",
+                                      WebkitBoxOrient: "vertical",
+                                      WebkitLineClamp: titleMaxLines as any,
+                                    }
+                                  : undefined
+                              }
+                            >
+                              {ev.title ?? null}
+                            </div>
+                            {showTime ? <div className="text-[11px] opacity-70 leading-snug whitespace-nowrap">{timeText}</div> : null}
+                          </div>
+                        </div>
+                      );
+                    })();
 
                   const resource = resourceById.get(ev.resourceId);
                   const tooltipTitle = ev.title || ev.id;
@@ -1061,6 +1086,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                           "shadow-sm hover:shadow-md hover:scale-[1.02] hover:z-10",
                           "transition-all duration-150 ease-out",
                           "backdrop-blur-sm",
+                          "overflow-hidden",
                           ev.className,
                           isPreview && "ring-2 ring-primary/50 ring-offset-1 ring-offset-background scale-[1.02] z-10",
                         )}
