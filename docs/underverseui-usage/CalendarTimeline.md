@@ -29,7 +29,13 @@ Ví dụ đầy đủ (month/week/day + timezone + group/collapse + drag/resize 
 
 ```tsx
 import * as React from "react";
-import { CalendarTimeline, type CalendarTimelineEvent, type CalendarTimelineResource } from "@underverse-ui/underverse";
+import {
+  CalendarTimeline,
+  type CalendarTimelineDayRangeMode,
+  type CalendarTimelineEvent,
+  type CalendarTimelineResource,
+  type CalendarTimelineView,
+} from "@underverse-ui/underverse";
 
 type ResourceMeta = { department?: string };
 type EventMeta = { type?: "meeting" | "task" };
@@ -62,13 +68,49 @@ export function Example() {
   const [events, setEvents] = React.useState(initialEvents);
   const [resourceColumnWidth, setResourceColumnWidth] = React.useState(240);
   const [rowHeights, setRowHeights] = React.useState<Record<string, number>>({});
+  const [view, setView] = React.useState<CalendarTimelineView>("day");
+  const [mode, setMode] = React.useState<"edit" | "view">("edit");
+  const [createMode, setCreateMode] = React.useState<"drag" | "click">("drag");
+  const [dayRangeMode, setDayRangeMode] = React.useState<CalendarTimelineDayRangeMode>("work");
 
   return (
     <div>
+      <div className="flex flex-wrap gap-2 mb-3">
+        <button type="button" onClick={() => setMode("edit")}>
+          Mode: Edit
+        </button>
+        <button type="button" onClick={() => setMode("view")}>
+          Mode: View
+        </button>
+        <button type="button" onClick={() => setCreateMode("drag")}>
+          Create: Drag
+        </button>
+        <button type="button" onClick={() => setCreateMode("click")}>
+          Create: Click (custom)
+        </button>
+        <button type="button" onClick={() => setView("month")}>
+          View: Month
+        </button>
+        <button type="button" onClick={() => setView("week")}>
+          View: Week
+        </button>
+        <button type="button" onClick={() => setView("day")}>
+          View: Day
+        </button>
+        <button type="button" onClick={() => setDayRangeMode("full")}>
+          Day: 24h
+        </button>
+        <button type="button" onClick={() => setDayRangeMode("work")}>
+          Day: Work hours
+        </button>
+      </div>
+
       <CalendarTimeline
         resources={resources}
         groups={groups}
         events={events}
+        view={view}
+        onViewChange={setView}
         size="md" // "sm" | "md" | "xl"
         enableLayoutResize
         resourceColumnWidth={resourceColumnWidth}
@@ -77,16 +119,38 @@ export function Example() {
         onRowHeightsChange={setRowHeights}
         enableEventSheet
         eventSheetSize="md" // "sm" | "md" | "lg" | "xl" | "full"
-        defaultView="month"
+        // Day view: 2 modes
+        // - "full": 24h (default)
+        // - "work": working hours (default 08:00–17:00)
+        dayRangeMode={dayRangeMode}
+        workHours={{ startHour: 8, endHour: 17 }}
         weekStartsOn={1}
         // locale/timeZone automatically follow the app/user settings by default
-        // Mode 1: Drag to create (default)
-        // Hover an event to see a tooltip, click to open the sheet.
-        interactions={{ creatable: true, createMode: "drag", draggableEvents: true, resizableEvents: true, deletableEvents: true }}
+        // Modes:
+        // - mode="view": disable create/drag/resize/delete (click event still opens sheet)
+        // - createMode="drag": drag empty cells to create
+        // - createMode="click": click empty cell for custom create UI
+        interactions={{
+          mode,
+          creatable: true,
+          createMode,
+          draggableEvents: true,
+          resizableEvents: true,
+          deletableEvents: true,
+        }}
         onCreateEvent={(draft) => {
+          if (createMode !== "drag") return;
           setEvents((prev) => [
             ...prev,
             { id: `e_${prev.length + 1}`, resourceId: draft.resourceId, start: draft.start, end: draft.end, title: "New event" },
+          ]);
+        }}
+        onCreateEventClick={({ resourceId, start, end }) => {
+          if (createMode !== "click") return;
+          // open your custom modal/sheet here and prefill {resourceId,start,end}
+          setEvents((prev) => [
+            ...prev,
+            { id: `e_${prev.length + 1}`, resourceId, start, end, title: "New event (custom)" },
           ]);
         }}
         onEventMove={({ eventId, resourceId, start, end }) => {
@@ -146,6 +210,21 @@ Click vào ô trống để bạn tự mở modal/sheet tạo event theo ý (cus
 - Ở **week view**, các slot sẽ **tự giãn để fill full chiều ngang** vùng timeline (nhưng vẫn tôn trọng `slotMinWidth` như giá trị tối thiểu).
 - Có nút **New event** ở header (khi bật `interactions.creatable` và có `onCreateEvent`) để tạo event bằng cách chọn **resource / start / end** theo đúng view hiện tại (month/week/day).
 - Có mode **view-only**: `interactions.mode="view"` sẽ tắt create/drag/resize/delete và **ẩn nút New event**; click event vẫn mở sheet.
+
+## Day view: 24h / Work hours
+
+Day view hỗ trợ 2 mode hiển thị theo giờ:
+
+- `dayRangeMode="full"`: hiển thị 24h (mặc định)
+- `dayRangeMode="work"`: hiển thị giờ làm việc (mặc định 08:00–17:00, có thể set bằng `workHours`)
+
+```tsx
+// 24h
+<CalendarTimeline resources={resources} events={events} view="day" dayRangeMode="full" />
+
+// Working hours (08:00–17:00)
+<CalendarTimeline resources={resources} events={events} view="day" dayRangeMode="work" workHours={{ startHour: 8, endHour: 17 }} />
+```
 
 ## View-only mode
 
@@ -264,6 +343,7 @@ Chuột phải lên event để hiện confirm và xoá (cần cung cấp `onEve
 
 ```ts
 export type CalendarTimelineView = "month" | "week" | "day";
+export type CalendarTimelineDayRangeMode = "full" | "work";
 export type CalendarTimelineDateInput = Date | string | number;
 export type CalendarTimelineSize = "sm" | "md" | "xl";
 export type CalendarTimelineSheetSize = "sm" | "md" | "lg" | "xl" | "full";
@@ -403,6 +483,8 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
 
   slotMinWidth?: number;
   dayTimeStepMinutes?: number;
+  dayRangeMode?: CalendarTimelineDayRangeMode;
+  workHours?: { startHour: number; endHour: number };
   maxLanesPerRow?: number;
   now?: Date;
 

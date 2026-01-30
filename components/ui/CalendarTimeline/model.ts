@@ -1,5 +1,5 @@
-import type { CalendarTimelineEvent, CalendarTimelineGroup, CalendarTimelineResource, CalendarTimelineView } from "./types";
-import { addZonedDays, addZonedMonths, startOfZonedDay, startOfZonedMonth, startOfZonedWeek, toDate } from "./date";
+import type { CalendarTimelineDayRangeMode, CalendarTimelineEvent, CalendarTimelineGroup, CalendarTimelineResource, CalendarTimelineView } from "./types";
+import { addZonedDays, addZonedMonths, startOfZonedDay, startOfZonedMonth, startOfZonedWeek, toDate, zonedDateAtTime } from "./date";
 import { clamp } from "./layout";
 
 export type CalendarTimelineRow<TResourceMeta = unknown> =
@@ -65,21 +65,34 @@ export function computeSlotStarts(args: {
   timeZone: string;
   weekStartsOn: number;
   dayTimeStepMinutes: number;
+  dayRangeMode?: CalendarTimelineDayRangeMode;
+  workHours?: { startHour: number; endHour: number };
 }) {
-  const { view, date, timeZone, weekStartsOn, dayTimeStepMinutes } = args;
+  const { view, date, timeZone, weekStartsOn, dayTimeStepMinutes, dayRangeMode, workHours } = args;
 
+  const baseDayStart = startOfZonedDay(date, timeZone);
   const start =
-    view === "month" ? startOfZonedMonth(date, timeZone) : view === "week" ? startOfZonedWeek(date, weekStartsOn, timeZone) : startOfZonedDay(date, timeZone);
+    view === "month" ? startOfZonedMonth(date, timeZone) : view === "week" ? startOfZonedWeek(date, weekStartsOn, timeZone) : baseDayStart;
 
   if (view === "day") {
     const step = Math.max(5, Math.min(240, Math.trunc(dayTimeStepMinutes)));
     const stepMs = step * 60_000;
-    const end = addZonedDays(start, 1, timeZone);
+    const hours = workHours ?? { startHour: 8, endHour: 17 };
+    const boundedStartHour = clamp(Math.trunc(hours.startHour), 0, 23);
+    const boundedEndHour = clamp(Math.trunc(hours.endHour), 1, 24);
+    const isWork = dayRangeMode === "work";
+    const start2 = isWork ? zonedDateAtTime(baseDayStart, timeZone, { hour: boundedStartHour }) : start;
+    const end2 = isWork
+      ? boundedEndHour === 24
+        ? addZonedDays(baseDayStart, 1, timeZone)
+        : zonedDateAtTime(baseDayStart, timeZone, { hour: clamp(boundedEndHour, 0, 23) })
+      : addZonedDays(start, 1, timeZone);
+    const end = end2.getTime() > start2.getTime() ? end2 : addZonedDays(start2, 1, timeZone);
     const slotStarts: Date[] = [];
-    for (let cur = start.getTime(), guard = 0; cur < end.getTime() && guard++ < 2000; cur += stepMs) {
+    for (let cur = start2.getTime(), guard = 0; cur < end.getTime() && guard++ < 2000; cur += stepMs) {
       slotStarts.push(new Date(cur));
     }
-    return { start, end, slotStarts };
+    return { start: start2, end, slotStarts };
   }
 
   const end = view === "month" ? startOfZonedMonth(addZonedMonths(start, 1, timeZone), timeZone) : addZonedDays(start, 7, timeZone);

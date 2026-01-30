@@ -71,6 +71,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   enableLayoutResize,
   slotMinWidth,
   dayTimeStepMinutes = 60,
+  dayRangeMode,
+  workHours,
   maxLanesPerRow = 3,
   now,
   renderResource,
@@ -258,6 +260,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       timeZone: resolvedTimeZone,
       weekStartsOn,
       dayTimeStepMinutes,
+      dayRangeMode,
+      workHours,
     });
     const todayStart = startOfZonedDay(resolvedNow, resolvedTimeZone).getTime();
     const slotItems: Slot[] = slotStarts.map((s) => ({
@@ -269,7 +273,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     }));
 
     return { slots: slotItems, range: { start, end } };
-  }, [activeView, activeDate, resolvedTimeZone, resolvedLocale, weekStartsOn, dayTimeStepMinutes, resolvedNow, formatters]);
+  }, [activeView, activeDate, resolvedTimeZone, resolvedLocale, weekStartsOn, dayTimeStepMinutes, dayRangeMode, workHours, resolvedNow, formatters]);
 
   React.useEffect(() => {
     onRangeChange?.(range);
@@ -282,7 +286,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   const slotStarts = React.useMemo(() => slots.map((s) => s.start), [slots]);
   const slotWidth = React.useMemo(() => {
-    const baseSlotWidth = activeView === "month" ? effectiveSlotMinWidth * 3 : effectiveSlotMinWidth;
+    const baseSlotWidth = activeView === "month" ? effectiveSlotMinWidth * 3 : activeView === "day" ? effectiveSlotMinWidth * 3 : effectiveSlotMinWidth;
 
     if (activeView !== "week") return baseSlotWidth;
     if (bodyClientWidth <= 0) return baseSlotWidth;
@@ -624,24 +628,40 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   }>(null);
   const [preview, setPreview] = React.useState<{ eventId?: string; resourceId: string; start: Date; end: Date } | null>(null);
   const suppressNextEventClickRef = React.useRef(false);
+  const autoScrollStateRef = React.useRef<{ dir: -1 | 0 | 1; speed: number; lastClientX: number; lastClientY: number }>({
+    dir: 0,
+    speed: 0,
+    lastClientX: 0,
+    lastClientY: 0,
+  });
+  const autoScrollRafRef = React.useRef<number | null>(null);
+
+  const stopAutoScroll = React.useCallback(() => {
+    if (autoScrollRafRef.current != null) cancelAnimationFrame(autoScrollRafRef.current);
+    autoScrollRafRef.current = null;
+    autoScrollStateRef.current.dir = 0;
+    autoScrollStateRef.current.speed = 0;
+  }, []);
 
   const getPointerContext = React.useCallback(
-    (clientX: number, clientY: number, opts?: { biasLeft?: boolean }) => {
+    (clientX: number, clientY: number, opts?: { biasLeft?: boolean; fallbackResourceId?: string }) => {
       const body = bodyRef.current;
       if (!body) return null;
-      const el = document.elementFromPoint(clientX, clientY) as HTMLElement | null;
-      if (!el || !body.contains(el)) return null;
+      const bodyRect = body.getBoundingClientRect();
+      const probeX = clamp(clientX, bodyRect.left + 1, bodyRect.right - 1);
+      const probeY = clamp(clientY, bodyRect.top + 1, bodyRect.bottom - 1);
+      const el = document.elementFromPoint(probeX, probeY) as HTMLElement | null;
 
       // The grid lives inside `bodyRef` (the right pane). Derive the x position
       // from the scroll container to avoid double-counting scrollLeft.
-      const bodyRect = body.getBoundingClientRect();
-      const x = clientX - bodyRect.left + body.scrollLeft;
+      const x = probeX - bodyRect.left + body.scrollLeft;
       // When creating events, users often drag to an hour boundary. If the pointer is
       // exactly on the boundary, bias to the left so a "04→06" drag doesn't become "04→07".
       const epsilon = opts?.biasLeft ? 0.01 : 0;
       const slotIdx = clamp(Math.floor((x - epsilon) / slotWidth), 0, Math.max(0, slots.length - 1));
-      const rowEl = el?.closest?.("[data-uv-ct-row]") as HTMLElement | null;
-      const rid = rowEl?.dataset?.uvCtRow ?? null;
+      const rowEl = el && body.contains(el) ? ((el.closest?.("[data-uv-ct-row]") as HTMLElement | null) ?? null) : null;
+      const rid = rowEl?.dataset?.uvCtRow ?? opts?.fallbackResourceId ?? null;
+      if (!rid) return null;
       return { slotIdx, resourceId: rid, x };
     },
     [slotWidth, slots.length],
@@ -659,6 +679,115 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     [activeView, dayTimeStepMinutes, resolvedTimeZone, slotStarts],
   );
 
+  const updateDragPreview = React.useCallback(
+    (clientX: number, clientY: number) => {
+      const drag = dragRef.current;
+      if (!drag) return;
+      const ctx = getPointerContext(clientX, clientY, drag.mode === "create" ? { biasLeft: true, fallbackResourceId: drag.resourceId } : { fallbackResourceId: drag.resourceId });
+      if (!ctx) return;
+      const { slotIdx } = ctx;
+
+      const movedEnough =
+        Math.abs(clientX - drag.startClientX) > 3 ||
+        Math.abs(clientY - drag.startClientY) > 3 ||
+        slotIdx !== drag.startSlotIdx ||
+        ctx.resourceId !== drag.startRowResourceId;
+      if (movedEnough) suppressNextEventClickRef.current = true;
+
+      if (drag.mode === "create") {
+        const a = Math.min(drag.startSlotIdx, slotIdx);
+        const b = Math.max(drag.startSlotIdx, slotIdx) + 1;
+        const s = slotToDate(a).start;
+        const e2 = b >= slots.length ? range.end : slotToDate(b).start;
+        setPreview({ resourceId: drag.resourceId, start: s, end: e2 });
+        return;
+      }
+
+      const targetSlotStart = slotToDate(slotIdx).start;
+      const originSlotStart = slotToDate(drag.startSlotIdx).start;
+      const deltaMs = targetSlotStart.getTime() - originSlotStart.getTime();
+
+      if (drag.mode === "move") {
+        const nextStart = new Date(drag.originStart.getTime() + deltaMs);
+        const nextEnd = new Date(drag.originEnd.getTime() + deltaMs);
+        setPreview({ eventId: drag.eventId, resourceId: ctx.resourceId, start: nextStart, end: nextEnd });
+        drag.resourceId = ctx.resourceId;
+        return;
+      }
+      if (drag.mode === "resize-start") {
+        const nextStart = new Date(clamp(targetSlotStart.getTime(), range.start.getTime(), drag.originEnd.getTime() - 60_000));
+        setPreview({ eventId: drag.eventId, resourceId: drag.resourceId, start: nextStart, end: drag.originEnd });
+        return;
+      }
+      if (drag.mode === "resize-end") {
+        const nextEnd = new Date(clamp(targetSlotStart.getTime(), drag.originStart.getTime() + 60_000, range.end.getTime()));
+        setPreview({ eventId: drag.eventId, resourceId: drag.resourceId, start: drag.originStart, end: nextEnd });
+        return;
+      }
+    },
+    [getPointerContext, range.end, range.start, slotToDate, slots.length],
+  );
+
+  const autoScrollTick = React.useCallback(() => {
+    const drag = dragRef.current;
+    const body = bodyRef.current;
+    const st = autoScrollStateRef.current;
+    if (!drag || !body || st.dir === 0) {
+      stopAutoScroll();
+      return;
+    }
+
+    const maxScrollLeft = Math.max(0, body.scrollWidth - body.clientWidth);
+    const prevLeft = body.scrollLeft;
+    const nextLeft = clamp(prevLeft + st.dir * st.speed, 0, maxScrollLeft);
+    if (nextLeft === prevLeft) {
+      stopAutoScroll();
+      return;
+    }
+    body.scrollLeft = nextLeft;
+
+    updateDragPreview(st.lastClientX, st.lastClientY);
+    autoScrollRafRef.current = requestAnimationFrame(autoScrollTick);
+  }, [stopAutoScroll, updateDragPreview]);
+
+  const updateAutoScrollFromPointer = React.useCallback(
+    (clientX: number, clientY: number) => {
+      const body = bodyRef.current;
+      if (!body) return;
+      const rect = body.getBoundingClientRect();
+
+      const edge = 56;
+      let dir: -1 | 0 | 1 = 0;
+      let speed = 0;
+
+      if (clientX < rect.left + edge) {
+        dir = -1;
+        const dist = clientX - rect.left;
+        const t = clamp(1 - dist / edge, 0, 1);
+        speed = 8 + t * 28;
+      } else if (clientX > rect.right - edge) {
+        dir = 1;
+        const dist = rect.right - clientX;
+        const t = clamp(1 - dist / edge, 0, 1);
+        speed = 8 + t * 28;
+      }
+
+      autoScrollStateRef.current.lastClientX = clientX;
+      autoScrollStateRef.current.lastClientY = clientY;
+      autoScrollStateRef.current.dir = dir;
+      autoScrollStateRef.current.speed = speed;
+
+      if (dir === 0) {
+        stopAutoScroll();
+        return;
+      }
+      if (autoScrollRafRef.current == null) autoScrollRafRef.current = requestAnimationFrame(autoScrollTick);
+    },
+    [autoScrollTick, stopAutoScroll],
+  );
+
+  React.useEffect(() => stopAutoScroll, [stopAutoScroll]);
+
   const onPointerDownEvent = (e: React.PointerEvent, ev: CalendarTimelineEvent<TEventMeta> & { _start: Date; _end: Date }, mode: DragMode) => {
     if (e.button !== 0 || e.ctrlKey) return;
     if (isViewOnly) return;
@@ -671,6 +800,10 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     suppressNextEventClickRef.current = false;
     const startIdx = binarySearchLastLE(slotStarts, ev._start);
     const endIdx = binarySearchFirstGE(slotStarts, ev._end);
+    // When moving an event, keep the "grabbed point" under the pointer by basing
+    // the delta on the slot under the pointer at drag start (not the event start).
+    const pointerCtx = getPointerContext(e.clientX, e.clientY, { fallbackResourceId: ev.resourceId });
+    const grabSlotIdx = pointerCtx?.slotIdx ?? startIdx;
     dragRef.current = {
       mode,
       eventId: ev.id,
@@ -679,7 +812,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       originEnd: ev._end,
       durationMs: ev._end.getTime() - ev._start.getTime(),
       pointerId: e.pointerId,
-      startSlotIdx: startIdx,
+      startSlotIdx: grabSlotIdx,
       startRowResourceId: ev.resourceId,
       startClientX: e.clientX,
       startClientY: e.clientY,
@@ -738,53 +871,15 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const onPointerMove = (e: React.PointerEvent) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== e.pointerId) return;
-    const ctx = getPointerContext(e.clientX, e.clientY, drag.mode === "create" ? { biasLeft: true } : undefined);
-    if (!ctx || !ctx.resourceId) return;
-    const { slotIdx } = ctx;
-
-    const movedEnough =
-      Math.abs(e.clientX - drag.startClientX) > 3 ||
-      Math.abs(e.clientY - drag.startClientY) > 3 ||
-      slotIdx !== drag.startSlotIdx ||
-      ctx.resourceId !== drag.startRowResourceId;
-    if (movedEnough) suppressNextEventClickRef.current = true;
-
-    if (drag.mode === "create") {
-      const a = Math.min(drag.startSlotIdx, slotIdx);
-      const b = Math.max(drag.startSlotIdx, slotIdx) + 1;
-      const s = slotToDate(a).start;
-      const e2 = b >= slots.length ? range.end : slotToDate(b).start;
-      setPreview({ resourceId: drag.resourceId, start: s, end: e2 });
-      return;
-    }
-
-    const targetSlotStart = slotToDate(slotIdx).start;
-    const originSlotStart = slotToDate(drag.startSlotIdx).start;
-    const deltaMs = targetSlotStart.getTime() - originSlotStart.getTime();
-
-    if (drag.mode === "move") {
-      const nextStart = new Date(drag.originStart.getTime() + deltaMs);
-      const nextEnd = new Date(drag.originEnd.getTime() + deltaMs);
-      setPreview({ eventId: drag.eventId, resourceId: ctx.resourceId, start: nextStart, end: nextEnd });
-      drag.resourceId = ctx.resourceId;
-      return;
-    }
-    if (drag.mode === "resize-start") {
-      const nextStart = new Date(clamp(targetSlotStart.getTime(), range.start.getTime(), drag.originEnd.getTime() - 60_000));
-      setPreview({ eventId: drag.eventId, resourceId: drag.resourceId, start: nextStart, end: drag.originEnd });
-      return;
-    }
-    if (drag.mode === "resize-end") {
-      const nextEnd = new Date(clamp(targetSlotStart.getTime(), drag.originStart.getTime() + 60_000, range.end.getTime()));
-      setPreview({ eventId: drag.eventId, resourceId: drag.resourceId, start: drag.originStart, end: nextEnd });
-      return;
-    }
+    updateAutoScrollFromPointer(e.clientX, e.clientY);
+    updateDragPreview(e.clientX, e.clientY);
   };
 
   const onPointerUp = (e: React.PointerEvent) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== e.pointerId) return;
     dragRef.current = null;
+    stopAutoScroll();
 
     if (!preview) {
       setPreview(null);

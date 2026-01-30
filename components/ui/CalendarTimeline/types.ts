@@ -1,6 +1,7 @@
 import type * as React from "react";
 
 export type CalendarTimelineView = "month" | "week" | "day";
+export type CalendarTimelineDayRangeMode = "full" | "work";
 export type CalendarTimelineDateInput = Date | string | number;
 export type CalendarTimelineSize = "sm" | "md" | "xl";
 export type CalendarTimelineSheetSize = "sm" | "md" | "lg" | "xl" | "full";
@@ -169,6 +170,14 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
 
   slotMinWidth?: number; // min px per slot; timeline can overflow horizontally
   dayTimeStepMinutes?: number; // day view slot size
+  /**
+   * Day view horizontal range:
+   * - "full": show 24h (default)
+   * - "work": show working hours (default 08:00–17:00)
+   */
+  dayRangeMode?: CalendarTimelineDayRangeMode;
+  /** Used when `dayRangeMode="work"`. Default: `{ startHour: 8, endHour: 17 }`. */
+  workHours?: { startHour: number; endHour: number };
   maxLanesPerRow?: number;
   now?: Date;
 

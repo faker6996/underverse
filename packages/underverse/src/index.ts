@@ -62,6 +62,7 @@ export { default as CalendarTimeline } from "../../../components/ui/CalendarTime
 export type {
   CalendarTimelineProps,
   CalendarTimelineView,
+  CalendarTimelineDayRangeMode,
   CalendarTimelineSize,
   CalendarTimelineDateInput,
   CalendarTimelineGroup,

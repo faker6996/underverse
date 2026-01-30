@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import CalendarTimeline, {
+  type CalendarTimelineDayRangeMode,
   type CalendarTimelineEvent,
   type CalendarTimelineResource,
   type CalendarTimelineGroup,
@@ -18,6 +19,7 @@ import Input from "@/components/ui/Input";
 type EventMeta = { kind?: "meeting" | "task" };
 type CreateMode = "drag" | "click";
 type DemoMode = "edit" | "view";
+type DayRangeMode = CalendarTimelineDayRangeMode;
 
 const resources: CalendarTimelineResource[] = [
   { id: "r-a", label: "Resource A", groupId: "g-1" },
@@ -50,6 +52,7 @@ export default function CalendarTimelineExample() {
   const [date, setDate] = React.useState<Date>(new Date());
   const [demoMode, setDemoMode] = React.useState<DemoMode>("edit");
   const [createMode, setCreateMode] = React.useState<CreateMode>("drag");
+  const [dayRangeMode, setDayRangeMode] = React.useState<DayRangeMode>("work");
   const [customCreateOpen, setCustomCreateOpen] = React.useState(false);
   const [customCreateTitle, setCustomCreateTitle] = React.useState("New event");
   const [customCreateDraft, setCustomCreateDraft] = React.useState<null | { resourceId: string; start: Date; end: Date }>(null);
@@ -140,6 +143,12 @@ export default function CalendarTimelineExample() {
           >
             Create: Click (custom)
           </Button>
+          <Button variant={dayRangeMode === "full" ? "default" : "ghost"} size="sm" onClick={() => setDayRangeMode("full")} disabled={view !== "day"}>
+            Day: 24h
+          </Button>
+          <Button variant={dayRangeMode === "work" ? "default" : "ghost"} size="sm" onClick={() => setDayRangeMode("work")} disabled={view !== "day"}>
+            Day: Work hours
+          </Button>
           <div className="text-xs text-muted-foreground">{tip}</div>
         </div>
       </div>
@@ -155,6 +164,8 @@ export default function CalendarTimelineExample() {
           onDateChange={setDate}
           weekStartsOn={1}
           slotMinWidth={56}
+          dayRangeMode={dayRangeMode}
+          workHours={{ startHour: 8, endHour: 17 }}
           maxLanesPerRow={3}
           enableLayoutResize
           enableEventSheet
@@ -259,8 +270,12 @@ const resources = [
 const groups = [{ id: 'g-1', label: 'Group 1' }]
 
 export function Example() {
+  const [view, setView] = useState('day')
+  const [createMode, setCreateMode] = useState('drag') // 'drag' | 'click'
+  const [dayRangeMode, setDayRangeMode] = useState('work') // 'full' | 'work'
   const [events, setEvents] = useState([
     { id: 'e-1', resourceId: 'r-a', title: 'Event 1', start: '2026-01-03T00:00:00Z', end: '2026-01-05T00:00:00Z' }, // end exclusive
+    { id: 'e-2', resourceId: 'r-b', title: 'Meeting', start: '2026-01-03T09:00:00Z', end: '2026-01-03T12:00:00Z' },
   ])
 
   return (
@@ -269,11 +284,18 @@ export function Example() {
         resources={resources}
         groups={groups}
         events={events}
-        defaultView="month"
+        view={view}
+        onViewChange={setView}
+        dayRangeMode={dayRangeMode}
+        workHours={{ startHour: 8, endHour: 17 }}
         // locale/timeZone automatically follow the app/user settings by default
-        interactions={{ creatable: true, draggableEvents: true, resizableEvents: true }}
+        interactions={{ mode: 'edit', creatable: true, createMode, draggableEvents: true, resizableEvents: true }}
         onCreateEvent={(draft) => {
           setEvents((prev) => [...prev, { id: String(prev.length + 1), resourceId: draft.resourceId, start: draft.start, end: draft.end, title: 'New event' }])
+        }}
+        onCreateEventClick={({ resourceId, start, end }) => {
+          // only when interactions.createMode === 'click'
+          setEvents((prev) => [...prev, { id: String(prev.length + 1), resourceId, start, end, title: 'New event (custom)' }])
         }}
         onEventMove={({ eventId, resourceId, start, end }) => {
           setEvents((prev) => prev.map((e) => (e.id === eventId ? { ...e, resourceId, start, end } : e)))
@@ -323,6 +345,8 @@ export function Example() {
     { property: "rowHeight", description: t("props.calendarTimeline.rowHeight"), type: "number", default: "by size" },
     { property: "slotMinWidth", description: t("props.calendarTimeline.slotMinWidth"), type: "number", default: "by size" },
     { property: "dayTimeStepMinutes", description: t("props.calendarTimeline.dayTimeStepMinutes"), type: "number", default: "60" },
+    { property: "dayRangeMode", description: t("props.calendarTimeline.dayRangeMode"), type: "'full' | 'work'", default: "'full'" },
+    { property: "workHours", description: t("props.calendarTimeline.workHours"), type: "{ startHour: number; endHour: number }", default: "{ startHour: 8, endHour: 17 }" },
     { property: "maxLanesPerRow", description: t("props.calendarTimeline.maxLanesPerRow"), type: "number", default: "3" },
     { property: "now", description: t("props.calendarTimeline.now"), type: "Date", default: "new Date()" },
     { property: "enableLayoutResize", description: t("props.calendarTimeline.enableLayoutResize"), type: "boolean | {column?: boolean; row?: boolean}", default: "false" },

@@ -384,6 +384,8 @@
         "enableLayoutResize": "Cho phép resize cột/hàng bằng chuột.",
         "slotMinWidth": "Độ rộng tối thiểu mỗi slot (px).",
         "dayTimeStepMinutes": "Kích thước slot ở day view (phút).",
+        "dayRangeMode": "Phạm vi giờ ở day view: 24h hoặc giờ làm việc.",
+        "workHours": "Giờ làm việc áp dụng khi dayRangeMode='work' (startHour/endHour).",
         "maxLanesPerRow": "Số lane event tối đa trước khi gộp vào +more.",
         "now": "Override thời điểm hiện tại (dùng highlight today).",
         "renderResource": "Render tuỳ biến ô resource (cột trái).",

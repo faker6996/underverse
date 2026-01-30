@@ -391,6 +391,8 @@
         "enableLayoutResize": "Allow resizing column/row using mouse drag.",
         "slotMinWidth": "Minimum width per time slot (px).",
         "dayTimeStepMinutes": "Slot size in day view (minutes).",
+        "dayRangeMode": "Day view hour range: full 24h or working hours.",
+        "workHours": "Working hours range used when dayRangeMode='work' (startHour/endHour).",
         "maxLanesPerRow": "Maximum event lanes shown per row before collapsing into +more.",
         "now": "Override the current time (used for highlighting today).",
         "renderResource": "Custom renderer for a resource row header.",

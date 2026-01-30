@@ -2,6 +2,7 @@
 
 export { default } from "./CalendarTimeline/CalendarTimeline";
 export type {
+  CalendarTimelineDayRangeMode,
   CalendarTimelineDateInput,
   CalendarTimelineEvent,
   CalendarTimelineFormatters,

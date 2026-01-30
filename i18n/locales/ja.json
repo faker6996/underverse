@@ -384,6 +384,8 @@
         "enableLayoutResize": "マウスで列/行サイズ変更を許可。",
         "slotMinWidth": "スロットの最小幅(px)。",
         "dayTimeStepMinutes": "day 表示のスロットサイズ（分）。",
+        "dayRangeMode": "day 表示の時間範囲：24時間 or 勤務時間。",
+        "workHours": "dayRangeMode='work' のときに使う勤務時間（startHour/endHour）。",
         "maxLanesPerRow": "+more にまとめる前の最大レーン数。",
         "now": "現在時刻 override（今日強調表示用）。",
         "renderResource": "リソース行ヘッダー（左）カスタムレンダラー。",

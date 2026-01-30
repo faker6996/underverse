@@ -87,6 +87,23 @@ export function startOfZonedDay(date: Date, timeZone: string) {
   return new Date(zonedTimeToUtcMs({ ...p, hour: 0, minute: 0, second: 0 }, timeZone));
 }
 
+export function zonedDateAtTime(date: Date, timeZone: string, time: { hour: number; minute?: number; second?: number }) {
+  const p = getZonedParts(date, timeZone);
+  return new Date(
+    zonedTimeToUtcMs(
+      {
+        year: p.year,
+        month: p.month,
+        day: p.day,
+        hour: time.hour,
+        minute: time.minute ?? 0,
+        second: time.second ?? 0,
+      },
+      timeZone,
+    ),
+  );
+}
+
 export function startOfZonedMonth(date: Date, timeZone: string) {
   const p = getZonedParts(date, timeZone);
   return new Date(zonedTimeToUtcMs({ year: p.year, month: p.month, day: 1, hour: 0, minute: 0, second: 0 }, timeZone));

@@ -384,6 +384,8 @@
         "enableLayoutResize": "마우스로 컬럼/행 크기 조절 허용.",
         "slotMinWidth": "슬롯 최소 너비(px).",
         "dayTimeStepMinutes": "day 뷰 슬롯 크기(분).",
+        "dayRangeMode": "day 뷰 시간 범위: 24시간 또는 근무 시간.",
+        "workHours": "dayRangeMode='work'에서 사용하는 근무 시간(startHour/endHour).",
         "maxLanesPerRow": "+more로 접기 전 최대 lane 수.",
         "now": "현재 시간 override(오늘 강조 표시용).",
         "renderResource": "리소스 행 헤더(왼쪽) 커스텀 렌더러.",
