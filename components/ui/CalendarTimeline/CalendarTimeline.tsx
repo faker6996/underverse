@@ -68,6 +68,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   rowHeights,
   defaultRowHeights,
   onRowHeightsChange,
+  autoRowHeight,
   enableLayoutResize,
   slotMinWidth,
   dayTimeStepMinutes = 60,
@@ -124,6 +125,10 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   );
 
   const sizeConfig = React.useMemo(() => getSizeConfig(size), [size]);
+  const densityClass = sizeConfig.densityClass;
+  const eventHeight = sizeConfig.eventHeight;
+  const laneGap = sizeConfig.laneGap;
+  const lanePaddingY = sizeConfig.lanePaddingY;
 
   const canResizeColumn = React.useMemo(() => {
     const cfg = enableLayoutResize;
@@ -353,13 +358,48 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   const activeRowHeights = isControlledRowHeights ? (rowHeights as Record<string, number>) : internalRowHeights;
 
+  const autoRowHeightCfg = React.useMemo(() => {
+    if (!autoRowHeight) return null;
+    return autoRowHeight === true ? {} : autoRowHeight;
+  }, [autoRowHeight]);
+
+  const effectiveMaxLanesPerRow = React.useMemo(() => {
+    if (!autoRowHeightCfg) return maxLanesPerRow;
+    const maxLanes = autoRowHeightCfg.maxLanesPerRow;
+    if (typeof maxLanes === "number" && Number.isFinite(maxLanes) && maxLanes > 0) return Math.floor(maxLanes);
+    return Number.POSITIVE_INFINITY;
+  }, [autoRowHeightCfg, maxLanesPerRow]);
+
+  const autoRowHeightsByResource = React.useMemo(() => {
+    if (!autoRowHeightCfg) return null;
+    const maxRowHeight = autoRowHeightCfg.maxRowHeight;
+    const out = new Map<string, number>();
+
+    for (const [resourceId, list] of eventsByResource.entries()) {
+      const mapped = list.map((ev) => {
+        const startIdx = binarySearchLastLE(slotStarts, ev._start);
+        const endIdx = clamp(binarySearchFirstGE(slotStarts, ev._end), startIdx + 1, slots.length);
+        return { startIdx, endIdx };
+      });
+      const { laneCount } = intervalPack(mapped);
+      const lanesToFit = Number.isFinite(effectiveMaxLanesPerRow) ? Math.max(1, Math.min(laneCount, effectiveMaxLanesPerRow)) : Math.max(1, laneCount);
+      const needed = lanePaddingY * 2 + lanesToFit * eventHeight + laneGap * Math.max(0, lanesToFit - 1);
+      const next = typeof maxRowHeight === "number" && Number.isFinite(maxRowHeight) && maxRowHeight > 0 ? Math.min(needed, maxRowHeight) : needed;
+      out.set(resourceId, next);
+    }
+
+    return out;
+  }, [autoRowHeightCfg, eventHeight, eventsByResource, laneGap, lanePaddingY, slotStarts, slots.length, effectiveMaxLanesPerRow]);
+
   const getResourceRowHeight = React.useCallback(
     (resourceId: string) => {
       const h = activeRowHeights[resourceId];
-      if (typeof h === "number" && Number.isFinite(h) && h > 0) return h;
-      return effectiveRowHeight;
+      const base = typeof h === "number" && Number.isFinite(h) && h > 0 ? h : effectiveRowHeight;
+      const auto = autoRowHeightsByResource?.get(resourceId);
+      if (typeof auto === "number" && Number.isFinite(auto) && auto > 0) return Math.max(base, auto);
+      return base;
     },
-    [activeRowHeights, effectiveRowHeight],
+    [activeRowHeights, autoRowHeightsByResource, effectiveRowHeight],
   );
 
   const setRowHeightForResource = React.useCallback(
@@ -530,11 +570,6 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     const fmt = getDtf(resolvedLocale, resolvedTimeZone, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
     return fmt.format(range.start);
   }, [activeDate, activeView, formatters, l.week, range.end, range.start, resolvedLocale, resolvedTimeZone]);
-
-  const densityClass = sizeConfig.densityClass;
-  const eventHeight = sizeConfig.eventHeight;
-  const laneGap = sizeConfig.laneGap;
-  const lanePaddingY = sizeConfig.lanePaddingY;
 
   const createMode = interactions?.createMode ?? "drag";
   const canCreate = !isViewOnly && (interactions?.creatable ?? false) && !!onCreateEvent;
@@ -997,11 +1032,11 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       });
 
       const { packed, laneCount } = intervalPack(mapped);
-      const visible = packed.filter((p) => p.lane < maxLanesPerRow);
-      const hidden = packed.filter((p) => p.lane >= maxLanesPerRow);
+      const visible = packed.filter((p) => p.lane < effectiveMaxLanesPerRow);
+      const hidden = packed.filter((p) => p.lane >= effectiveMaxLanesPerRow);
 
       const rowHeightPx = getResourceRowHeight(resourceId);
-      const visibleLaneCount = Math.max(1, Math.min(laneCount, maxLanesPerRow));
+      const visibleLaneCount = Math.max(1, Math.min(laneCount, effectiveMaxLanesPerRow));
       const available = Math.max(0, rowHeightPx - lanePaddingY * 2 - laneGap * Math.max(0, visibleLaneCount - 1));
       const fitPerLane = visibleLaneCount > 0 ? Math.floor(available / visibleLaneCount) : eventHeight;
       const perLaneHeight = Math.max(9, Math.min(eventHeight, fitPerLane || eventHeight));
@@ -1021,7 +1056,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     }
 
     return map;
-  }, [eventsByResource, getResourceRowHeight, laneGap, lanePaddingY, slotStarts, slots.length, slotWidth, maxLanesPerRow, preview, eventHeight]);
+  }, [eventsByResource, getResourceRowHeight, laneGap, lanePaddingY, slotStarts, slots.length, slotWidth, effectiveMaxLanesPerRow, preview, eventHeight]);
 
   return (
     <div

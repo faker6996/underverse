@@ -162,6 +162,12 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   onRowHeightsChange?: (next: Record<string, number>) => void;
 
   /**
+   * Auto-expand each resource row height to fit overlapping events (lanes) without collapsing into "+more".
+   * When enabled, `maxLanesPerRow` is ignored unless overridden via `autoRowHeight.maxLanesPerRow`.
+   */
+  autoRowHeight?: boolean | { maxRowHeight?: number; maxLanesPerRow?: number };
+
+  /**
    * Allow resizing layout with mouse:
    * - column: drag the divider in the header
    * - row: drag the bottom edge of a resource row

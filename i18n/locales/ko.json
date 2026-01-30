@@ -382,6 +382,7 @@
         "defaultRowHeights": "기본 리소스별 행 높이 맵.",
         "onRowHeightsChange": "리소스별 행 높이 맵 변경 시 호출.",
         "enableLayoutResize": "마우스로 컬럼/행 크기 조절 허용.",
+        "autoRowHeight": "겹치는 이벤트(lane)를 모두 담도록 리소스 행 높이를 자동 확장(+more로 접지 않음).",
         "slotMinWidth": "슬롯 최소 너비(px).",
         "dayTimeStepMinutes": "day 뷰 슬롯 크기(분).",
         "dayRangeMode": "day 뷰 시간 범위: 24시간 또는 근무 시간.",

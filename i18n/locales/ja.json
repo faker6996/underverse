@@ -382,6 +382,7 @@
         "defaultRowHeights": "既定のリソースごとの行高マップ。",
         "onRowHeightsChange": "リソースごとの行高が変わるときに呼び出し。",
         "enableLayoutResize": "マウスで列/行サイズ変更を許可。",
+        "autoRowHeight": "重なっているイベント（レーン）をすべて表示できるように行高を自動拡張（+more で折りたたまない）。",
         "slotMinWidth": "スロットの最小幅(px)。",
         "dayTimeStepMinutes": "day 表示のスロットサイズ（分）。",
         "dayRangeMode": "day 表示の時間範囲：24時間 or 勤務時間。",

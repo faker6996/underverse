@@ -389,6 +389,7 @@
         "defaultRowHeights": "Default per-resource row heights map.",
         "onRowHeightsChange": "Called when per-resource row heights change.",
         "enableLayoutResize": "Allow resizing column/row using mouse drag.",
+        "autoRowHeight": "Auto-expand each resource row height to fit all overlapping events (no +more collapsing).",
         "slotMinWidth": "Minimum width per time slot (px).",
         "dayTimeStepMinutes": "Slot size in day view (minutes).",
         "dayRangeMode": "Day view hour range: full 24h or working hours.",

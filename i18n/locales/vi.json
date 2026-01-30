@@ -382,6 +382,7 @@
         "defaultRowHeights": "Map chiều cao mặc định từng hàng.",
         "onRowHeightsChange": "Gọi khi map chiều cao từng hàng thay đổi.",
         "enableLayoutResize": "Cho phép resize cột/hàng bằng chuột.",
+        "autoRowHeight": "Tự động tăng chiều cao hàng resource để chứa hết các event đang overlap (không gộp vào +more).",
         "slotMinWidth": "Độ rộng tối thiểu mỗi slot (px).",
         "dayTimeStepMinutes": "Kích thước slot ở day view (phút).",
         "dayRangeMode": "Phạm vi giờ ở day view: 24h hoặc giờ làm việc.",

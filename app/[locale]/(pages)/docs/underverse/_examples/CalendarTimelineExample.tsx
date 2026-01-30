@@ -53,6 +53,7 @@ export default function CalendarTimelineExample() {
   const [demoMode, setDemoMode] = React.useState<DemoMode>("edit");
   const [createMode, setCreateMode] = React.useState<CreateMode>("drag");
   const [dayRangeMode, setDayRangeMode] = React.useState<DayRangeMode>("work");
+  const [autoRowHeight, setAutoRowHeight] = React.useState(true);
   const [customCreateOpen, setCustomCreateOpen] = React.useState(false);
   const [customCreateTitle, setCustomCreateTitle] = React.useState("New event");
   const [customCreateDraft, setCustomCreateDraft] = React.useState<null | { resourceId: string; start: Date; end: Date }>(null);
@@ -149,6 +150,9 @@ export default function CalendarTimelineExample() {
           <Button variant={dayRangeMode === "work" ? "default" : "ghost"} size="sm" onClick={() => setDayRangeMode("work")} disabled={view !== "day"}>
             Day: Work hours
           </Button>
+          <Button variant={autoRowHeight ? "default" : "ghost"} size="sm" onClick={() => setAutoRowHeight((v) => !v)}>
+            Auto row height
+          </Button>
           <div className="text-xs text-muted-foreground">{tip}</div>
         </div>
       </div>
@@ -166,6 +170,7 @@ export default function CalendarTimelineExample() {
           slotMinWidth={56}
           dayRangeMode={dayRangeMode}
           workHours={{ startHour: 8, endHour: 17 }}
+          autoRowHeight={autoRowHeight}
           maxLanesPerRow={3}
           enableLayoutResize
           enableEventSheet
@@ -273,6 +278,7 @@ export function Example() {
   const [view, setView] = useState('day')
   const [createMode, setCreateMode] = useState('drag') // 'drag' | 'click'
   const [dayRangeMode, setDayRangeMode] = useState('work') // 'full' | 'work'
+  const [autoRowHeight, setAutoRowHeight] = useState(true)
   const [events, setEvents] = useState([
     { id: 'e-1', resourceId: 'r-a', title: 'Event 1', start: '2026-01-03T00:00:00Z', end: '2026-01-05T00:00:00Z' }, // end exclusive
     { id: 'e-2', resourceId: 'r-b', title: 'Meeting', start: '2026-01-03T09:00:00Z', end: '2026-01-03T12:00:00Z' },
@@ -288,6 +294,7 @@ export function Example() {
         onViewChange={setView}
         dayRangeMode={dayRangeMode}
         workHours={{ startHour: 8, endHour: 17 }}
+        autoRowHeight={autoRowHeight}
         // locale/timeZone automatically follow the app/user settings by default
         interactions={{ mode: 'edit', creatable: true, createMode, draggableEvents: true, resizableEvents: true }}
         onCreateEvent={(draft) => {
@@ -345,6 +352,7 @@ export function Example() {
     { property: "rowHeight", description: t("props.calendarTimeline.rowHeight"), type: "number", default: "by size" },
     { property: "slotMinWidth", description: t("props.calendarTimeline.slotMinWidth"), type: "number", default: "by size" },
     { property: "dayTimeStepMinutes", description: t("props.calendarTimeline.dayTimeStepMinutes"), type: "number", default: "60" },
+    { property: "autoRowHeight", description: t("props.calendarTimeline.autoRowHeight"), type: "boolean | { maxRowHeight?: number; maxLanesPerRow?: number }", default: "false" },
     { property: "dayRangeMode", description: t("props.calendarTimeline.dayRangeMode"), type: "'full' | 'work'", default: "'full'" },
     { property: "workHours", description: t("props.calendarTimeline.workHours"), type: "{ startHour: number; endHour: number }", default: "{ startHour: 8, endHour: 17 }" },
     { property: "maxLanesPerRow", description: t("props.calendarTimeline.maxLanesPerRow"), type: "number", default: "3" },

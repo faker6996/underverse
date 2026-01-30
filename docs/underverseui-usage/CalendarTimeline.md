@@ -124,6 +124,8 @@ export function Example() {
         // - "work": working hours (default 08:00–17:00)
         dayRangeMode={dayRangeMode}
         workHours={{ startHour: 8, endHour: 17 }}
+        // Auto-expand row height to fit overlapping events (no +more)
+        autoRowHeight
         weekStartsOn={1}
         // locale/timeZone automatically follow the app/user settings by default
         // Modes:
@@ -224,6 +226,14 @@ Day view hỗ trợ 2 mode hiển thị theo giờ:
 
 // Working hours (08:00–17:00)
 <CalendarTimeline resources={resources} events={events} view="day" dayRangeMode="work" workHours={{ startHour: 8, endHour: 17 }} />
+```
+
+## Auto row height (fit overlapping events)
+
+Khi nhiều event **overlap** trên cùng 1 resource (tạo ra nhiều “lane”), bạn có thể bật `autoRowHeight` để component **tự tăng chiều cao hàng** để hiển thị hết (không gộp vào `+more`).
+
+```tsx
+<CalendarTimeline resources={resources} events={events} autoRowHeight />
 ```
 
 ## View-only mode
@@ -483,6 +493,7 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
 
   slotMinWidth?: number;
   dayTimeStepMinutes?: number;
+  autoRowHeight?: boolean | { maxRowHeight?: number; maxLanesPerRow?: number };
   dayRangeMode?: CalendarTimelineDayRangeMode;
   workHours?: { startHour: number; endHour: number };
   maxLanesPerRow?: number;
