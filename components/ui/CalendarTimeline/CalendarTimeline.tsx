@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Dot } from "lucide-react";
+import { Dot, Plus } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useLocale, useTranslations } from "@/lib/i18n/translation-adapter";
 import { Sheet } from "../Sheet";
@@ -663,6 +663,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   }>(null);
   const [preview, setPreview] = React.useState<{ eventId?: string; resourceId: string; start: Date; end: Date } | null>(null);
   const suppressNextEventClickRef = React.useRef(false);
+  const [hoverCell, setHoverCell] = React.useState<null | { resourceId: string; slotIdx: number; y: number }>(null);
   const autoScrollStateRef = React.useRef<{ dir: -1 | 0 | 1; speed: number; lastClientX: number; lastClientY: number }>({
     dir: 0,
     speed: 0,
@@ -905,7 +906,32 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   const onPointerMove = (e: React.PointerEvent) => {
     const drag = dragRef.current;
-    if (!drag || drag.pointerId !== e.pointerId) return;
+    if (!drag) {
+      if (isViewOnly) return;
+      if (!(interactions?.creatable ?? false)) return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest?.("[data-uv-ct-event]")) {
+        if (hoverCell) setHoverCell(null);
+        return;
+      }
+      const ctx = getPointerContext(e.clientX, e.clientY);
+      if (!ctx) {
+        if (hoverCell) setHoverCell(null);
+        return;
+      }
+      const rowEl = target?.closest?.("[data-uv-ct-row]") as HTMLElement | null;
+      if (!rowEl) {
+        if (hoverCell) setHoverCell(null);
+        return;
+      }
+      const rect = rowEl.getBoundingClientRect();
+      const y = clamp(e.clientY - rect.top, 0, rect.height);
+      if (!hoverCell || hoverCell.resourceId !== ctx.resourceId || hoverCell.slotIdx !== ctx.slotIdx || Math.abs(hoverCell.y - y) > 0.5) {
+        setHoverCell({ resourceId: ctx.resourceId, slotIdx: ctx.slotIdx, y });
+      }
+      return;
+    }
+    if (drag.pointerId !== e.pointerId) return;
     updateAutoScrollFromPointer(e.clientX, e.clientY);
     updateDragPreview(e.clientX, e.clientY);
   };
@@ -915,6 +941,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     if (!drag || drag.pointerId !== e.pointerId) return;
     dragRef.current = null;
     stopAutoScroll();
+    setHoverCell(null);
 
     if (!preview) {
       setPreview(null);
@@ -1109,6 +1136,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
           className="relative flex-1 overflow-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
+          onPointerLeave={() => setHoverCell(null)}
         >
           <div style={{ height: topSpacer }} />
           {rows.slice(startRow, endRow).map((row, idx) => {
@@ -1125,6 +1153,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
             const r = row.resource;
             const layout = layoutsByResource.get(r.id) ?? { visible: [], hidden: [], baseTop: lanePaddingY, eventHeight };
             const canMore = layout.hidden.length > 0 && !!onMoreClick;
+            const showCreateHint = !isViewOnly && (interactions?.creatable ?? false) && !preview && hoverCell?.resourceId === r.id;
 
             return (
               <div
@@ -1220,6 +1249,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                           ev.className,
                           isPreview && "ring-2 ring-primary/50 ring-offset-1 ring-offset-background scale-[1.02] z-10",
                         )}
+                        data-uv-ct-event
                         style={{
                           left,
                           top,
@@ -1288,6 +1318,25 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         );
                       })()
                     : null}
+
+                  {showCreateHint ? (
+                    <div
+                      className={cn(
+                        "pointer-events-none absolute z-20",
+                        "h-5 w-5 rounded-full",
+                        "bg-background/80 backdrop-blur-sm",
+                        "border border-border/60 shadow-xs",
+                        "flex items-center justify-center",
+                      )}
+                      style={{
+                        left: hoverCell!.slotIdx * slotWidth + slotWidth / 2 - 10,
+                        top: clamp(Math.round(hoverCell!.y - 10), 6, Math.max(6, h - 26)),
+                      }}
+                      aria-hidden
+                    >
+                      <Plus className="h-3.5 w-3.5 text-muted-foreground" />
+                    </div>
+                  ) : null}
 
                   {canMore ? (
                     <button
