@@ -293,7 +293,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   };
 
   const dropdownBody = (
-    <div data-combobox-dropdown data-state={open ? "open" : "closed"} className="w-full">
+    <div data-combobox-dropdown data-state={open ? "open" : "closed"} className="w-full rounded-2xl md:rounded-3xl overflow-hidden">
       {/* Header with selected count and clear */}
       {value.length > 0 && (
         <div className="px-3 py-2 border-b border-border/40 flex items-center justify-between bg-muted/30">
@@ -416,7 +416,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
       aria-controls={listboxId}
       aria-invalid={!!error}
       className={cn(
-        "group flex w-full items-center gap-2 rounded-2xl min-h-10 transition-all duration-200",
+        "group flex w-full items-center gap-2 rounded-full min-h-10 transition-all duration-200",
         "px-3 py-2",
         variantStyles[variant],
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary",
@@ -551,7 +551,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         placement="bottom-start"
         matchTriggerWidth
         className="z-9999"
-        contentClassName="p-0"
+        contentClassName="p-0 overflow-hidden rounded-2xl md:rounded-3xl"
       >
         {dropdownBody}
       </Popover>

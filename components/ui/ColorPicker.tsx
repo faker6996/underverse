@@ -398,7 +398,7 @@ export default function ColorPicker({
         placement="bottom-start"
         matchTriggerWidth={variant === "minimal"}
         contentWidth={contentWidthByVariant[variant]}
-        contentClassName={cn("p-3 rounded-xl border border-border bg-card shadow-lg", contentClassName)}
+        contentClassName={cn("p-3 rounded-2xl md:rounded-3xl border border-border bg-card shadow-lg", contentClassName)}
       >
         <div className="space-y-3">
           {/* Native input + eyedropper + copy + clear */}

@@ -214,7 +214,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           </button>
         }
         contentClassName={cn(
-          "w-auto p-0 rounded-2xl",
+          "w-auto p-0 rounded-2xl md:rounded-3xl",
           // Keep the popover usable on small viewports
           "max-w-[calc(100vw-1rem)] max-h-[calc(100vh-6rem)] overflow-auto",
         )}

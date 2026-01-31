@@ -472,7 +472,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         contentClassName={cn(
           "p-0",
           "backdrop-blur-xl bg-popover/95 border-border/40 shadow-2xl",
-          "rounded-2xl",
+          "rounded-2xl md:rounded-3xl",
           // Keep usable on small viewports (wheel scroll should stay within the popover if it overflows)
           "max-w-[calc(100vw-1rem)] max-h-[calc(100vh-6rem)] overflow-auto overscroll-contain",
           size === "sm" ? "p-4" : "p-5",
@@ -829,7 +829,7 @@ export const DateRangePicker: React.FC<{
       contentClassName={cn(
         "p-0",
         "backdrop-blur-xl bg-popover/95 border-border/40 shadow-2xl",
-        "rounded-2xl",
+        "rounded-2xl md:rounded-3xl",
         "max-w-[calc(100vw-1rem)] max-h-[calc(100vh-6rem)] overflow-auto overscroll-contain",
         size === "sm" ? "p-3" : "p-5",
         "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",

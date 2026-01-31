@@ -229,7 +229,13 @@ export const Combobox: React.FC<ComboboxProps> = ({
   };
 
   const dropdownBody = (
-    <div data-combobox-dropdown data-state={open ? "open" : "closed"} role="listbox" id={`${resolvedId}-listbox`} className="w-full">
+    <div
+      data-combobox-dropdown
+      data-state={open ? "open" : "closed"}
+      role="listbox"
+      id={`${resolvedId}-listbox`}
+      className="w-full rounded-2xl md:rounded-3xl overflow-hidden"
+    >
       {/* Search Input (only when many options) */}
       {enableSearch && (
         <div className="relative p-2.5 border-b border-border/30">
@@ -366,8 +372,8 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
   const labelSize = size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm";
 
-  // Radius based on size
-  const radiusClass = size === "sm" ? "rounded-lg" : "rounded-xl";
+  // Match DatePicker trigger style: fully rounded
+  const radiusClass = "rounded-full";
 
   const verticalGap = size === "sm" ? "space-y-1.5" : "space-y-2";
 
@@ -485,7 +491,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
           placement="bottom-start"
           matchTriggerWidth
           className="z-9999"
-          contentClassName="p-0"
+          contentClassName="p-0 overflow-hidden rounded-2xl md:rounded-3xl"
         >
           {dropdownBody}
         </Popover>
@@ -494,7 +500,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
           {triggerButtonInline}
           {open && (
             <div className="absolute left-0 top-full mt-1 z-50 w-full">
-              <div className="rounded-2xl border text-popover-foreground shadow-md backdrop-blur-sm bg-popover/95 border-border/60">
+              <div className="rounded-2xl md:rounded-3xl overflow-hidden border text-popover-foreground shadow-md backdrop-blur-sm bg-popover/95 border-border/60">
                 {dropdownBody}
               </div>
             </div>

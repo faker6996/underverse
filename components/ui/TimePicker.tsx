@@ -1227,7 +1227,9 @@ export default function TimePicker({
             </label>
           </div>
         )}
-        <div className={cn(panelSz.contentPadding, "rounded-2xl border border-border/60 bg-card/95 backdrop-blur-sm shadow-xl", className)}>
+        <div
+          className={cn(panelSz.contentPadding, "rounded-2xl md:rounded-3xl border border-border/60 bg-card/95 backdrop-blur-sm shadow-xl", className)}
+        >
           {timePickerContent}
         </div>
       </div>
@@ -1262,7 +1264,7 @@ export default function TimePicker({
         contentWidth={matchTriggerWidth ? undefined : contentWidth}
         contentClassName={cn(
           panelSz.contentPadding,
-          "rounded-2xl border bg-popover/98 backdrop-blur-md shadow-2xl",
+          "rounded-2xl md:rounded-3xl border bg-popover/98 backdrop-blur-md shadow-2xl",
           error && "border-destructive/40",
           success && "border-success/40",
           !error && !success && "border-border/60",
