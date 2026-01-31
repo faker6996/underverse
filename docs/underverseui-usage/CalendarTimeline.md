@@ -23,6 +23,188 @@ export function Example() {
 }
 ```
 
+## Visual Notes
+
+- **Weekend columns** (Saturday/Sunday) in **month/week** views are rendered with a subtle background tint (timezone-aware). “Today” highlight still takes precedence.
+
+## Usage Recipes
+
+### 1) Minimal (read-only)
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  interactions={{ mode: "view" }}
+/>
+```
+
+### 2) Controlled view + date
+
+```tsx
+const [view, setView] = React.useState<CalendarTimelineView>("month");
+const [date, setDate] = React.useState(new Date());
+
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  view={view}
+  onViewChange={setView}
+  date={date}
+  onDateChange={setDate}
+/>
+```
+
+### 3) Month view: shrink empty days to free space
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  view="month"
+  adaptiveSlotWidths={{ mode: "redistribute", emptySlotWidth: 32 }}
+/>
+```
+
+### 4) Day view: shrink empty hours but keep full-width grid
+
+Use when you want empty hour columns smaller, but the timeline still fills the container width.
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  view="day"
+  slotMinWidth={56}
+  adaptiveSlotWidths={{ mode: "shrink", emptySlotWidth: 44, fillContainer: true, fillDistribute: "event" }}
+/>
+```
+
+### 5) Day view header
+
+- `dayHeaderMode="full"`: show every hour label (legacy/default behavior)
+- `dayHeaderMode="smart"`: show start/…/end markers (opt-in)
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  view="day"
+  dayHeaderMode="full"
+/>
+```
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  view="day"
+  dayHeaderMode="smart"
+  daySlotCompression={true} // optional: also compress empty time columns in smart mode
+/>
+```
+
+### 6) Day view range (work hours vs 24h)
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  view="day"
+  dayRangeMode="work"
+  workHours={{ startHour: 8, endHour: 17 }}
+/>
+```
+
+### 7) Grouping + collapse
+
+```tsx
+const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>({ g1: false, g2: true });
+
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  groups={[
+    { id: "g1", label: "Group 1" },
+    { id: "g2", label: "Group 2" },
+  ]}
+  groupCollapsed={collapsed}
+  onGroupCollapsedChange={setCollapsed}
+/>
+```
+
+### 8) Interactions (create/drag/resize/delete)
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  interactions={{
+    mode: "edit",
+    creatable: true,
+    createMode: "drag",
+    draggableEvents: true,
+    resizableEvents: true,
+    deletableEvents: true,
+  }}
+  onCreateEvent={(draft) => console.log("create", draft)}
+  onEventMove={(args) => console.log("move", args)}
+  onEventResize={(args) => console.log("resize", args)}
+  onEventDelete={(args) => console.log("delete", args)}
+/>
+```
+
+### 9) “Create: click (custom)” flow
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  interactions={{ mode: "edit", creatable: true, createMode: "click" }}
+  onCreateEventClick={({ resourceId, start, end }) => {
+    // open your modal here
+    console.log("open create modal", { resourceId, start, end });
+  }}
+/>
+```
+
+### 10) Row height control (per-resource + autoRowHeight)
+
+```tsx
+const [rowHeights, setRowHeights] = React.useState<Record<string, number>>({});
+
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  rowHeights={rowHeights}
+  onRowHeightsChange={setRowHeights}
+  autoRowHeight // expand to fit overlapping events, reduce "+more"
+/>
+```
+
+### 11) Performance toggles (large datasets)
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  enableEventTooltips={false}
+  virtualization={{ enabled: true, overscan: 8 }}
+  columnVirtualization={{ overscan: 8 }} // day view only
+/>
+```
+
+### 12) Timezone + i18n
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  locale="vi-VN"
+  timeZone="Asia/Ho_Chi_Minh"
+/>
+```
+
 Ví dụ đầy đủ (month/week/day + timezone + group/collapse + drag/resize + resize layout):
 
 > Lưu ý: `export function Example()` trong file `.md` chỉ là snippet minh hoạ để bạn copy/paste, không có gì “cố định” trong component.
