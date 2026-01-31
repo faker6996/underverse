@@ -55,7 +55,7 @@ export const CalendarTimelineGridOverlay = React.memo(function CalendarTimelineG
       {slotLefts.slice(startIdx, endIdx).map((left, j) => {
         const i = startIdx + j;
         const isAnchor = dayAnchor ? Boolean(dayAnchor[i]) : true;
-        const opacityClass = activeView === "day" && dayAnchor ? (isAnchor ? "bg-border/25" : "bg-border/10") : "bg-border/20";
+        const opacityClass = activeView === "day" && dayAnchor ? (isAnchor ? "bg-border/35" : "bg-border/15") : "bg-border/30";
         return <div key={i} className={cn("absolute top-0 h-full w-px", opacityClass)} style={{ left }} aria-hidden />;
       })}
     </div>
