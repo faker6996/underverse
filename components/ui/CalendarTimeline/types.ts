@@ -78,6 +78,20 @@ export interface CalendarTimelineVirtualization {
   overscan?: number;
 }
 
+export type CalendarTimelineAdaptiveSlotWidths =
+  | boolean
+  | {
+      /**
+       * "shrink": empty slots get `emptySlotWidth`, event slots keep the fixed base width (default).
+       * "redistribute": keep the total grid width as in fixed mode, redistribute freed width to event slots (capped).
+       */
+      mode?: "shrink" | "redistribute";
+      /** Width (px) for empty slots (month/day only). Default: `slotMinWidth * 0.6` (bounded). */
+      emptySlotWidth?: number;
+      /** Cap (px) for event slot width when `mode="redistribute"`. Default: `baseSlotWidth * 2.5`. */
+      maxEventSlotWidth?: number;
+    };
+
 export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unknown>
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
   resources: CalendarTimelineResource<TResourceMeta>[];
@@ -175,6 +189,11 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   enableLayoutResize?: boolean | { column?: boolean; row?: boolean };
 
   slotMinWidth?: number; // min px per slot; timeline can overflow horizontally
+  /**
+   * Month/day only: make slots (columns) without any events smaller to free space for slots that have events.
+   * Week view is unaffected.
+   */
+  adaptiveSlotWidths?: CalendarTimelineAdaptiveSlotWidths;
   dayTimeStepMinutes?: number; // day view slot size
   /**
    * Day view horizontal range:

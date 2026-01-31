@@ -112,6 +112,10 @@ export function Example() {
         view={view}
         onViewChange={setView}
         size="md" // "sm" | "md" | "xl"
+        // Month/day only: make empty columns smaller to free space for columns with events
+        // - "shrink" (default): empty slots shrink, event slots keep base width
+        // - "redistribute": keep total grid width, redistribute freed width to event slots (capped)
+        adaptiveSlotWidths={{ mode: "shrink" }}
         enableLayoutResize
         resourceColumnWidth={resourceColumnWidth}
         onResourceColumnWidthChange={setResourceColumnWidth}

@@ -20,7 +20,15 @@ import { binarySearchFirstGE, binarySearchLastLE, clamp, intervalPack } from "./
 import { useClientWidth, useHorizontalScrollSync, useVirtualVariableRows } from "./hooks";
 import { getSizeConfig } from "./config";
 import { defaultEventTime, defaultMonthTitle, defaultSlotHeader } from "./defaults";
-import { buildRows, computeSlotStarts, eventsByResourceId, getGroupResourceCounts, normalizeEvents, resourcesById, type CalendarTimelineRow } from "./model";
+import {
+  buildRows,
+  computeSlotStarts,
+  eventsByResourceId,
+  getGroupResourceCounts,
+  normalizeEvents,
+  resourcesById,
+  type CalendarTimelineRow,
+} from "./model";
 import { CalendarTimelineHeader } from "./CalendarTimelineHeader";
 import { DefaultGroupRow, ResourceRowCell } from "./CalendarTimelineRowCells";
 import { Combobox } from "../Combobox";
@@ -71,6 +79,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   autoRowHeight,
   enableLayoutResize,
   slotMinWidth,
+  adaptiveSlotWidths,
   dayTimeStepMinutes = 60,
   dayRangeMode,
   workHours,
@@ -290,19 +299,107 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const bodyClientWidth = useClientWidth(bodyRef);
 
   const slotStarts = React.useMemo(() => slots.map((s) => s.start), [slots]);
-  const slotWidth = React.useMemo(() => {
-    const baseSlotWidth = activeView === "month" ? effectiveSlotMinWidth * 3 : activeView === "day" ? effectiveSlotMinWidth * 3 : effectiveSlotMinWidth;
+  const fixedSlotWidth = React.useMemo(() => {
+    const baseSlotWidth = activeView === "month" || activeView === "day" ? effectiveSlotMinWidth * 3 : effectiveSlotMinWidth;
 
     if (activeView !== "week") return baseSlotWidth;
     if (bodyClientWidth <= 0) return baseSlotWidth;
     if (slots.length <= 0) return baseSlotWidth;
     return Math.max(baseSlotWidth, bodyClientWidth / slots.length);
   }, [activeView, bodyClientWidth, effectiveSlotMinWidth, slots.length]);
-  const gridWidth = slots.length * slotWidth;
 
   const normalizedEvents = React.useMemo(() => {
     return normalizeEvents({ events: events as CalendarTimelineEvent<TEventMeta>[], range, view: activeView, timeZone: resolvedTimeZone });
   }, [events, range, activeView, resolvedTimeZone]);
+
+  const slotMetrics = React.useMemo(() => {
+    const n = slots.length;
+    const widths = new Array<number>(n).fill(fixedSlotWidth);
+
+    const isAdaptiveView = activeView === "month" || activeView === "day";
+    const adaptiveCfg = adaptiveSlotWidths;
+    const adaptiveEnabled = Boolean(adaptiveCfg) && isAdaptiveView;
+
+    if (!adaptiveEnabled || n === 0) {
+      const lefts = new Array<number>(n + 1);
+      lefts[0] = 0;
+      for (let i = 0; i < n; i++) lefts[i + 1] = lefts[i]! + widths[i]!;
+      const gridWidth = lefts[n] ?? 0;
+      const xToSlotIdx = (x: number) => clamp(Math.floor(x / Math.max(1, fixedSlotWidth)), 0, Math.max(0, n - 1));
+      return { slotWidths: widths, slotLefts: lefts, gridWidth, xToSlotIdx };
+    }
+
+    const cfg = typeof adaptiveCfg === "object" ? adaptiveCfg : {};
+    const mode = cfg.mode ?? "shrink";
+    const defaultEmptySlotWidth = Math.max(18, Math.round(effectiveSlotMinWidth * 0.6));
+    const emptySlotWidth = Math.max(12, Math.min(fixedSlotWidth, cfg.emptySlotWidth ?? defaultEmptySlotWidth));
+
+    // Mark which slots are covered by at least one event (any resource).
+    const diff = new Array<number>(n + 1).fill(0);
+    for (const ev of normalizedEvents) {
+      const startIdx = binarySearchLastLE(slotStarts, ev._start);
+      const endIdx = clamp(binarySearchFirstGE(slotStarts, ev._end), startIdx + 1, n);
+      diff[startIdx] = (diff[startIdx] ?? 0) + 1;
+      diff[endIdx] = (diff[endIdx] ?? 0) - 1;
+    }
+
+    const hasEvent = new Array<boolean>(n);
+    let running = 0;
+    let eventCount = 0;
+    for (let i = 0; i < n; i++) {
+      running += diff[i] ?? 0;
+      const covered = running > 0;
+      hasEvent[i] = covered;
+      if (covered) eventCount++;
+    }
+
+    // If everything is covered (or nothing is), keep the fixed layout.
+    if (eventCount === 0 || eventCount === n) {
+      const lefts = new Array<number>(n + 1);
+      lefts[0] = 0;
+      for (let i = 0; i < n; i++) lefts[i + 1] = lefts[i]! + widths[i]!;
+      const gridWidth = lefts[n] ?? 0;
+      const xToSlotIdx = (x: number) => clamp(Math.floor(x / Math.max(1, fixedSlotWidth)), 0, Math.max(0, n - 1));
+      return { slotWidths: widths, slotLefts: lefts, gridWidth, xToSlotIdx };
+    }
+
+    const emptyCount = n - eventCount;
+    let eventSlotWidth = fixedSlotWidth;
+
+    if (mode === "redistribute") {
+      const targetTotal = n * fixedSlotWidth;
+      const remaining = Math.max(0, targetTotal - emptyCount * emptySlotWidth);
+      const raw = remaining / Math.max(1, eventCount);
+      const maxEventSlotWidth = cfg.maxEventSlotWidth ?? fixedSlotWidth * 2.5;
+      eventSlotWidth = clamp(raw, fixedSlotWidth, Math.max(fixedSlotWidth, maxEventSlotWidth));
+    }
+
+    for (let i = 0; i < n; i++) widths[i] = hasEvent[i] ? eventSlotWidth : emptySlotWidth;
+
+    const lefts = new Array<number>(n + 1);
+    lefts[0] = 0;
+    for (let i = 0; i < n; i++) lefts[i + 1] = lefts[i]! + widths[i]!;
+    const gridWidth = lefts[n] ?? 0;
+
+    const xToSlotIdx = (x: number) => {
+      const xc = clamp(x, 0, Math.max(0, gridWidth - 0.001));
+      let lo = 0;
+      let hi = n - 1;
+      while (lo <= hi) {
+        const mid = (lo + hi) >> 1;
+        const left = lefts[mid] ?? 0;
+        const right = lefts[mid + 1] ?? gridWidth;
+        if (xc < left) hi = mid - 1;
+        else if (xc >= right) lo = mid + 1;
+        else return mid;
+      }
+      return clamp(lo, 0, Math.max(0, n - 1));
+    };
+
+    return { slotWidths: widths, slotLefts: lefts, gridWidth, xToSlotIdx };
+  }, [activeView, adaptiveSlotWidths, effectiveSlotMinWidth, fixedSlotWidth, normalizedEvents, slotStarts, slots.length]);
+
+  const { slotWidths, slotLefts, gridWidth, xToSlotIdx } = slotMetrics;
 
   const eventsByResource = React.useMemo(() => {
     return eventsByResourceId(normalizedEvents);
@@ -332,7 +429,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         locale: resolvedLocale,
         timeZone: resolvedTimeZone,
         view: activeView,
-      }) ?? defaultEventTime({ start: selectedEvent._start, end: selectedEvent._end, locale: resolvedLocale, timeZone: resolvedTimeZone, view: activeView })
+      }) ??
+      defaultEventTime({ start: selectedEvent._start, end: selectedEvent._end, locale: resolvedLocale, timeZone: resolvedTimeZone, view: activeView })
     );
   }, [activeView, formatters, resolvedLocale, resolvedTimeZone, selectedEvent]);
 
@@ -382,7 +480,9 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         return { startIdx, endIdx };
       });
       const { laneCount } = intervalPack(mapped);
-      const lanesToFit = Number.isFinite(effectiveMaxLanesPerRow) ? Math.max(1, Math.min(laneCount, effectiveMaxLanesPerRow)) : Math.max(1, laneCount);
+      const lanesToFit = Number.isFinite(effectiveMaxLanesPerRow)
+        ? Math.max(1, Math.min(laneCount, effectiveMaxLanesPerRow))
+        : Math.max(1, laneCount);
       const needed = lanePaddingY * 2 + lanesToFit * eventHeight + laneGap * Math.max(0, lanesToFit - 1);
       const next = typeof maxRowHeight === "number" && Number.isFinite(maxRowHeight) && maxRowHeight > 0 ? Math.min(needed, maxRowHeight) : needed;
       out.set(resourceId, next);
@@ -439,18 +539,15 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const topSpacer = virt ? virtualResult.topSpacer : 0;
   const bottomSpacer = virt ? virtualResult.bottomSpacer : 0;
 
-  const resizeRef = React.useRef<
-    | null
-    | {
-        mode: "column" | "row";
-        pointerId: number;
-        startX: number;
-        startY: number;
-        startWidth: number;
-        startHeight: number;
-        resourceId?: string;
-      }
-  >(null);
+  const resizeRef = React.useRef<null | {
+    mode: "column" | "row";
+    pointerId: number;
+    startX: number;
+    startY: number;
+    startWidth: number;
+    startHeight: number;
+    resourceId?: string;
+  }>(null);
 
   const setResourceColumnWidth = React.useCallback(
     (next: number) => {
@@ -462,11 +559,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   );
 
   const startResize = React.useCallback(
-    (
-      mode: "column" | "row",
-      e: React.PointerEvent,
-      args: { startWidth: number; startHeight: number; resourceId?: string },
-    ) => {
+    (mode: "column" | "row", e: React.PointerEvent, args: { startWidth: number; startHeight: number; resourceId?: string }) => {
       if (e.button !== 0 || e.ctrlKey) return;
       resizeRef.current = {
         mode,
@@ -616,7 +709,20 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     setCreateStartIdx(startIdx);
     setCreateEndIdx(Math.min(slots.length, startIdx + 1));
     setCreateOpen(true);
-  }, [activeDate, activeEventSheetOpen, activeView, canCreate, range.end, range.start, resolvedNow, resolvedTimeZone, resources, setEventSheetOpen, slotStarts, slots.length]);
+  }, [
+    activeDate,
+    activeEventSheetOpen,
+    activeView,
+    canCreate,
+    range.end,
+    range.start,
+    resolvedNow,
+    resolvedTimeZone,
+    resources,
+    setEventSheetOpen,
+    slotStarts,
+    slots.length,
+  ]);
 
   React.useEffect(() => {
     setCreateEndIdx((prev) => Math.min(slots.length, Math.max(prev, createStartIdx + 1)));
@@ -694,13 +800,13 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       // When creating events, users often drag to an hour boundary. If the pointer is
       // exactly on the boundary, bias to the left so a "04→06" drag doesn't become "04→07".
       const epsilon = opts?.biasLeft ? 0.01 : 0;
-      const slotIdx = clamp(Math.floor((x - epsilon) / slotWidth), 0, Math.max(0, slots.length - 1));
+      const slotIdx = xToSlotIdx(x - epsilon);
       const rowEl = el && body.contains(el) ? ((el.closest?.("[data-uv-ct-row]") as HTMLElement | null) ?? null) : null;
       const rid = rowEl?.dataset?.uvCtRow ?? opts?.fallbackResourceId ?? null;
       if (!rid) return null;
       return { slotIdx, resourceId: rid, x };
     },
-    [slotWidth, slots.length],
+    [xToSlotIdx],
   );
 
   const slotToDate = React.useCallback(
@@ -719,7 +825,11 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     (clientX: number, clientY: number) => {
       const drag = dragRef.current;
       if (!drag) return;
-      const ctx = getPointerContext(clientX, clientY, drag.mode === "create" ? { biasLeft: true, fallbackResourceId: drag.resourceId } : { fallbackResourceId: drag.resourceId });
+      const ctx = getPointerContext(
+        clientX,
+        clientY,
+        drag.mode === "create" ? { biasLeft: true, fallbackResourceId: drag.resourceId } : { fallbackResourceId: drag.resourceId },
+      );
       if (!ctx) return;
       const { slotIdx } = ctx;
 
@@ -1004,7 +1114,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
             sizeConfig.slotHeaderClass,
             s.isToday && "bg-primary/8 border-l-primary/40",
           )}
-          style={{ width: slotWidth, minWidth: slotWidth }}
+          style={{ width: slotWidths[idx], minWidth: slotWidths[idx] }}
           aria-label={formatters?.ariaSlotLabel?.(s.start, { view: activeView, locale: resolvedLocale, timeZone: resolvedTimeZone })}
         >
           <div className={cn("flex flex-col items-center", s.isToday && "relative")}>
@@ -1075,15 +1185,26 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         visible: visible.map((p) => ({
           ev: p.ev,
           lane: p.lane,
-          left: p.startIdx * slotWidth,
-          width: Math.max(1, (p.endIdx - p.startIdx) * slotWidth),
+          left: slotLefts[p.startIdx] ?? 0,
+          width: Math.max(1, (slotLefts[p.endIdx] ?? 0) - (slotLefts[p.startIdx] ?? 0)),
         })),
         hidden: hidden.map((h) => h.ev),
       });
     }
 
     return map;
-  }, [eventsByResource, getResourceRowHeight, laneGap, lanePaddingY, slotStarts, slots.length, slotWidth, effectiveMaxLanesPerRow, preview, eventHeight]);
+  }, [
+    eventsByResource,
+    eventHeight,
+    effectiveMaxLanesPerRow,
+    getResourceRowHeight,
+    laneGap,
+    lanePaddingY,
+    preview,
+    slotLefts,
+    slotStarts,
+    slots.length,
+  ]);
 
   return (
     <div
@@ -1145,7 +1266,10 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
             if (row.kind === "group") {
               return (
                 <div key={`rg_${row.group.id}_${rowIndex}`} className="flex" style={{ height: h }}>
-                  <div className="border-b border-border/30 bg-linear-to-r from-muted/15 to-muted/5" style={{ width: gridWidth, minWidth: gridWidth }} />
+                  <div
+                    className="border-b border-border/30 bg-linear-to-r from-muted/15 to-muted/5"
+                    style={{ width: gridWidth, minWidth: gridWidth }}
+                  />
                 </div>
               );
             }
@@ -1174,7 +1298,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                             s.isToday && "bg-primary/5 border-l-primary/30",
                             "hover:bg-muted/10",
                           )}
-                          style={{ width: slotWidth, minWidth: slotWidth }}
+                          style={{ width: slotWidths[i2], minWidth: slotWidths[i2] }}
                         />
                       ))}
                     </div>
@@ -1188,128 +1312,129 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                     const aria =
                       formatters?.ariaEventLabel?.(ev, { locale: resolvedLocale, timeZone: resolvedTimeZone }) ??
                       (typeof ev.title === "string" ? ev.title : "Event");
-                  const timeText =
-                    formatters?.eventTime?.({
-                      start: ev._start,
-                      end: ev._end,
-                      locale: resolvedLocale,
-                      timeZone: resolvedTimeZone,
-                      view: activeView,
-                    }) ?? defaultEventTime({ start: ev._start, end: ev._end, locale: resolvedLocale, timeZone: resolvedTimeZone, view: activeView });
+                    const timeText =
+                      formatters?.eventTime?.({
+                        start: ev._start,
+                        end: ev._end,
+                        locale: resolvedLocale,
+                        timeZone: resolvedTimeZone,
+                        view: activeView,
+                      }) ??
+                      defaultEventTime({ start: ev._start, end: ev._end, locale: resolvedLocale, timeZone: resolvedTimeZone, view: activeView });
 
-                  const node =
-                    renderEvent?.(ev, { left, width, lane, height: layout.eventHeight, timeText }) ??
-                    (() => {
-                      const showTime = layout.eventHeight >= 24;
-                      const titleMaxLines = showTime ? (layout.eventHeight >= 34 ? 2 : 1) : 1;
-                      const isPlainTitle = typeof ev.title === "string" || typeof ev.title === "number";
+                    const node =
+                      renderEvent?.(ev, { left, width, lane, height: layout.eventHeight, timeText }) ??
+                      (() => {
+                        const showTime = layout.eventHeight >= 24;
+                        const titleMaxLines = showTime ? (layout.eventHeight >= 34 ? 2 : 1) : 1;
+                        const isPlainTitle = typeof ev.title === "string" || typeof ev.title === "number";
 
-                      return (
-                        <div className="h-full px-2.5 flex items-center min-w-0 overflow-hidden">
-                          <div className="w-full grid grid-cols-[1fr_auto] gap-x-2 items-start min-w-0 overflow-hidden">
-                            <div
-                              className={cn("text-xs font-semibold leading-snug min-w-0 overflow-hidden", isPlainTitle ? "break-words" : "")}
-                              style={
-                                isPlainTitle
-                                  ? {
-                                      display: "-webkit-box",
-                                      WebkitBoxOrient: "vertical",
-                                      WebkitLineClamp: titleMaxLines as any,
-                                    }
-                                  : undefined
-                              }
-                            >
-                              {ev.title ?? null}
+                        return (
+                          <div className="h-full px-2.5 flex items-center min-w-0 overflow-hidden">
+                            <div className="w-full grid grid-cols-[1fr_auto] gap-x-2 items-start min-w-0 overflow-hidden">
+                              <div
+                                className={cn("text-xs font-semibold leading-snug min-w-0 overflow-hidden", isPlainTitle ? "break-words" : "")}
+                                style={
+                                  isPlainTitle
+                                    ? {
+                                        display: "-webkit-box",
+                                        WebkitBoxOrient: "vertical",
+                                        WebkitLineClamp: titleMaxLines as any,
+                                      }
+                                    : undefined
+                                }
+                              >
+                                {ev.title ?? null}
+                              </div>
+                              {showTime ? <div className="text-[11px] opacity-70 leading-snug whitespace-nowrap">{timeText}</div> : null}
                             </div>
-                            {showTime ? <div className="text-[11px] opacity-70 leading-snug whitespace-nowrap">{timeText}</div> : null}
                           </div>
-                        </div>
-                      );
-                    })();
+                        );
+                      })();
 
-                  const resource = resourceById.get(ev.resourceId);
-                  const tooltipTitle = ev.title || ev.id;
-                  const tooltipContent = (
-                    <div className="flex flex-col gap-0.5">
-                      <div className="font-semibold">{tooltipTitle}</div>
-                      <div className="text-xs opacity-80">{timeText}</div>
-                      {resource?.label ? <div className="text-xs opacity-70">{resource.label}</div> : null}
-                    </div>
-                  );
-
-                  return (
-                    <Tooltip key={ev.id} content={tooltipContent} placement="top" delay={{ open: 250, close: 0 }}>
-                      <div
-                        className={cn(
-                          "absolute rounded-lg border select-none cursor-pointer",
-                          "shadow-sm hover:shadow-md hover:scale-[1.02] hover:z-10",
-                          "transition-all duration-150 ease-out",
-                          "backdrop-blur-sm",
-                          "overflow-hidden",
-                          ev.className,
-                          isPreview && "ring-2 ring-primary/50 ring-offset-1 ring-offset-background scale-[1.02] z-10",
-                        )}
-                        data-uv-ct-event
-                        style={{
-                          left,
-                          top,
-                          width,
-                          height: layout.eventHeight,
-                          background: bg,
-                          borderColor: border,
-                          borderLeftWidth: 3,
-                        }}
-                        role="button"
-                        tabIndex={0}
-                        aria-label={aria}
-                        onContextMenu={(e) => {
-                          if (isViewOnly) return;
-                          if (!onEventDelete) return;
-                          if (interactions?.deletableEvents === false) return;
-                          e.preventDefault();
-                          e.stopPropagation();
-                          const ok = window.confirm(l.deleteConfirm);
-                          if (!ok) return;
-                          onEventDelete({ eventId: ev.id });
-                        }}
-                        onClick={() => {
-                          if (suppressNextEventClickRef.current) {
-                            suppressNextEventClickRef.current = false;
-                            return;
-                          }
-                          onEventClick?.(ev);
-                          if (effectiveEnableEventSheet) {
-                            setSelectedEventId(ev.id);
-                            setEventSheetOpen(true);
-                          }
-                        }}
-                        onDoubleClick={() => onEventDoubleClick?.(ev)}
-                        onPointerDown={(e) => onPointerDownEvent(e, ev, "move")}
-                      >
-                        {!isViewOnly && (interactions?.resizableEvents ?? true) && ev.resizable !== false ? (
-                          <>
-                            <div
-                              className="absolute left-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-l-lg transition-opacity"
-                              onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-start")}
-                            />
-                            <div
-                              className="absolute right-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-r-lg transition-opacity"
-                              onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-end")}
-                            />
-                          </>
-                        ) : null}
-                        {node}
+                    const resource = resourceById.get(ev.resourceId);
+                    const tooltipTitle = ev.title || ev.id;
+                    const tooltipContent = (
+                      <div className="flex flex-col gap-0.5">
+                        <div className="font-semibold">{tooltipTitle}</div>
+                        <div className="text-xs opacity-80">{timeText}</div>
+                        {resource?.label ? <div className="text-xs opacity-70">{resource.label}</div> : null}
                       </div>
-                    </Tooltip>
-                  );
-                })}
+                    );
+
+                    return (
+                      <Tooltip key={ev.id} content={tooltipContent} placement="top" delay={{ open: 250, close: 0 }}>
+                        <div
+                          className={cn(
+                            "absolute rounded-lg border select-none cursor-pointer",
+                            "shadow-sm hover:shadow-md hover:scale-[1.02] hover:z-10",
+                            "transition-all duration-150 ease-out",
+                            "backdrop-blur-sm",
+                            "overflow-hidden",
+                            ev.className,
+                            isPreview && "ring-2 ring-primary/50 ring-offset-1 ring-offset-background scale-[1.02] z-10",
+                          )}
+                          data-uv-ct-event
+                          style={{
+                            left,
+                            top,
+                            width,
+                            height: layout.eventHeight,
+                            background: bg,
+                            borderColor: border,
+                            borderLeftWidth: 3,
+                          }}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={aria}
+                          onContextMenu={(e) => {
+                            if (isViewOnly) return;
+                            if (!onEventDelete) return;
+                            if (interactions?.deletableEvents === false) return;
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const ok = window.confirm(l.deleteConfirm);
+                            if (!ok) return;
+                            onEventDelete({ eventId: ev.id });
+                          }}
+                          onClick={() => {
+                            if (suppressNextEventClickRef.current) {
+                              suppressNextEventClickRef.current = false;
+                              return;
+                            }
+                            onEventClick?.(ev);
+                            if (effectiveEnableEventSheet) {
+                              setSelectedEventId(ev.id);
+                              setEventSheetOpen(true);
+                            }
+                          }}
+                          onDoubleClick={() => onEventDoubleClick?.(ev)}
+                          onPointerDown={(e) => onPointerDownEvent(e, ev, "move")}
+                        >
+                          {!isViewOnly && (interactions?.resizableEvents ?? true) && ev.resizable !== false ? (
+                            <>
+                              <div
+                                className="absolute left-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-l-lg transition-opacity"
+                                onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-start")}
+                              />
+                              <div
+                                className="absolute right-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-r-lg transition-opacity"
+                                onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-end")}
+                              />
+                            </>
+                          ) : null}
+                          {node}
+                        </div>
+                      </Tooltip>
+                    );
+                  })}
 
                   {preview && preview.resourceId === r.id && !preview.eventId
                     ? (() => {
                         const startIdx = binarySearchLastLE(slotStarts, preview.start);
                         const endIdx = clamp(binarySearchFirstGE(slotStarts, preview.end), startIdx + 1, slots.length);
-                        const left = startIdx * slotWidth;
-                        const width = Math.max(1, (endIdx - startIdx) * slotWidth);
+                        const left = slotLefts[startIdx] ?? 0;
+                        const width = Math.max(1, (slotLefts[endIdx] ?? 0) - (slotLefts[startIdx] ?? 0));
                         return (
                           <div
                             className="absolute rounded-lg border-2 border-dashed border-primary/60 bg-primary/10 backdrop-blur-sm animate-pulse"
@@ -1329,7 +1454,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         "flex items-center justify-center",
                       )}
                       style={{
-                        left: hoverCell!.slotIdx * slotWidth + slotWidth / 2 - 10,
+                        left: (slotLefts[hoverCell!.slotIdx] ?? 0) + (slotWidths[hoverCell!.slotIdx] ?? fixedSlotWidth) / 2 - 10,
                         top: clamp(Math.round(hoverCell!.y - 10), 6, Math.max(6, h - 26)),
                       }}
                       aria-hidden
@@ -1369,29 +1494,29 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
           title={selectedEvent.title ?? "Event"}
           description={selectedTimeText || undefined}
         >
-          {renderEventSheet
-            ? renderEventSheet({
-                event: selectedEvent,
-                resource: selectedResource,
-                close: () => setEventSheetOpen(false),
-                locale: resolvedLocale,
-                timeZone: resolvedTimeZone,
-                view: activeView,
-              })
-            : (
-                <div className="space-y-3">
-                  {selectedResource?.label ? (
-                    <div>
-                      <div className="text-xs text-muted-foreground">{t("resourcesHeader")}</div>
-                      <div className="font-medium">{selectedResource.label}</div>
-                    </div>
-                  ) : null}
-                  <div>
-                    <div className="text-xs text-muted-foreground">ID</div>
-                    <div className="font-mono text-xs break-all">{selectedEvent.id}</div>
-                  </div>
+          {renderEventSheet ? (
+            renderEventSheet({
+              event: selectedEvent,
+              resource: selectedResource,
+              close: () => setEventSheetOpen(false),
+              locale: resolvedLocale,
+              timeZone: resolvedTimeZone,
+              view: activeView,
+            })
+          ) : (
+            <div className="space-y-3">
+              {selectedResource?.label ? (
+                <div>
+                  <div className="text-xs text-muted-foreground">{t("resourcesHeader")}</div>
+                  <div className="font-medium">{selectedResource.label}</div>
                 </div>
-              )}
+              ) : null}
+              <div>
+                <div className="text-xs text-muted-foreground">ID</div>
+                <div className="font-mono text-xs break-all">{selectedEvent.id}</div>
+              </div>
+            </div>
+          )}
         </Sheet>
       ) : null}
 
@@ -1418,21 +1543,11 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <div className="text-xs text-muted-foreground">{l.start}</div>
-                <Combobox
-                  options={createStartOptions}
-                  value={createStartIdx}
-                  onChange={(v) => setCreateStartIdx(Number(v))}
-                  placeholder={l.start}
-                />
+                <Combobox options={createStartOptions} value={createStartIdx} onChange={(v) => setCreateStartIdx(Number(v))} placeholder={l.start} />
               </div>
               <div className="space-y-2">
                 <div className="text-xs text-muted-foreground">{l.end}</div>
-                <Combobox
-                  options={createEndOptions}
-                  value={createEndIdx}
-                  onChange={(v) => setCreateEndIdx(Number(v))}
-                  placeholder={l.end}
-                />
+                <Combobox options={createEndOptions} value={createEndIdx} onChange={(v) => setCreateEndIdx(Number(v))} placeholder={l.end} />
               </div>
             </div>
 

@@ -168,6 +168,7 @@ export default function CalendarTimelineExample() {
           onDateChange={setDate}
           weekStartsOn={1}
           slotMinWidth={56}
+          adaptiveSlotWidths={{ mode: "redistribute", emptySlotWidth: 30 }}
           dayRangeMode={dayRangeMode}
           workHours={{ startHour: 8, endHour: 17 }}
           autoRowHeight={autoRowHeight}
