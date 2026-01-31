@@ -292,8 +292,8 @@ function WheelColumn({
           className="pointer-events-none absolute inset-x-2 top-1/2 -translate-y-1/2 rounded-lg bg-linear-to-r from-primary/20 via-primary/15 to-primary/20 border border-primary/30 shadow-sm shadow-primary/10"
           style={{ height: itemHeight }}
         />
-        <div className={cn("pointer-events-none absolute inset-x-0 top-0 bg-linear-to-b from-background/95 via-background/60 to-transparent z-10", ui.fadeHeight)} />
-        <div className={cn("pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-background/95 via-background/60 to-transparent z-10", ui.fadeHeight)} />
+        <div className={cn("pointer-events-none absolute inset-x-0 top-0 bg-linear-to-b from-muted/20 via-muted/5 to-transparent z-10", ui.fadeHeight)} />
+        <div className={cn("pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-muted/20 via-muted/5 to-transparent z-10", ui.fadeHeight)} />
 
         <div
           ref={scrollRef as any}
@@ -313,8 +313,12 @@ function WheelColumn({
           <div>
             {extendedItems.map((n, index) => {
               const dist = Math.abs(index - currentVirtual);
-              const scale = 1 - Math.min(dist * 0.12, 0.36);
-              const opacity = 1 - Math.min(dist * 0.22, 0.75);
+              // Make the outer two items feel "further away" to emphasize the center selection.
+              const distForVisual = Math.min(dist, 2);
+              const t = distForVisual / 2; // 0..1 (visible range)
+              const ease = t * t;
+              const scale = 1 - ease * 0.18;
+              const opacity = 1 - ease * 0.55;
               const isSelected = index === currentVirtual;
 
               return (
@@ -1067,7 +1071,7 @@ export default function TimePicker({
         contentWidth={matchTriggerWidth ? undefined : contentWidth}
         contentClassName={cn(
           panelSz.contentPadding,
-          "rounded-2xl border bg-popover/95 backdrop-blur-xl shadow-2xl",
+          "rounded-2xl border bg-popover/98 backdrop-blur-md shadow-2xl",
           error && "border-destructive/40",
           success && "border-success/40",
           !error && !success && "border-border/60",
