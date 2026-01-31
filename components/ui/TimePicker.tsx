@@ -156,18 +156,24 @@ function WheelColumn({
     [items.length, loop],
   );
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     const maxVirtual = Math.max(0, extendedItems.length - 1);
     const currentVirtual = clamp(Math.round(el.scrollTop / itemHeight), 0, maxVirtual);
-    const desiredVirtual = loop ? getNearestVirtualIndex(valueIndex, currentVirtual) : valueIndex;
+    // On first open, start from the middle copy so the list shows previous values (e.g. 58,59 above 00).
+    const desiredVirtual =
+      loop && lastVirtualIndexRef.current == null ? baseOffset + valueIndex : loop ? getNearestVirtualIndex(valueIndex, currentVirtual) : valueIndex;
     const nextTop = desiredVirtual * itemHeight;
     const delta = Math.abs(el.scrollTop - nextTop);
     if (delta > 1) {
-      // Keep it feeling continuous: smooth for small moves, auto for large corrections.
-      const behavior = animate && delta <= itemHeight * 1.5 ? "smooth" : "auto";
-      el.scrollTo({ top: nextTop, behavior });
+      // Avoid long animated scroll on mount/open (feels like "looping twice").
+      // Use smooth only for small adjustments.
+      if (animate && delta <= itemHeight * 1.5) {
+        el.scrollTo({ top: nextTop, behavior: "smooth" });
+      } else {
+        el.scrollTop = nextTop;
+      }
     }
     lastVirtualIndexRef.current = desiredVirtual;
     return () => {
@@ -177,7 +183,7 @@ function WheelColumn({
       }
       cancelAnimationFrame(rafRef.current);
     };
-  }, [animate, extendedItems.length, getNearestVirtualIndex, itemHeight, loop, scrollRef, valueIndex]);
+  }, [animate, baseOffset, extendedItems.length, getNearestVirtualIndex, itemHeight, loop, scrollRef, valueIndex]);
 
   React.useEffect(() => {
     const el = scrollRef.current;
@@ -270,7 +276,7 @@ function WheelColumn({
           if (centered > max) centered -= len;
           if (centered !== snappedVirtual) {
             lastVirtualIndexRef.current = centered;
-            el.scrollTo({ top: centered * itemHeight, behavior: "auto" });
+            el.scrollTop = centered * itemHeight;
           }
         }
       }, 120);
@@ -298,7 +304,7 @@ function WheelColumn({
         <div
           ref={scrollRef as any}
           className={cn(
-            "h-full overflow-y-auto overscroll-contain snap-y snap-mandatory scroll-smooth",
+            "h-full overflow-y-auto overscroll-contain snap-y snap-mandatory",
             "scrollbar-none",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xl",
           )}
@@ -748,8 +754,10 @@ export default function TimePicker({
   const timePickerContent = (
     <div className={panelSz.stackGap}>
       {/* Current Time Display */}
-      <div className="flex items-center justify-center py-2 px-3 rounded-xl bg-linear-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20">
-        <span className={cn(panelSz.timeText, "font-bold tabular-nums tracking-wide text-foreground")}>{display}</span>
+      <div className="flex items-center justify-center py-1">
+        <span className={cn(panelSz.timeText, "font-bold tabular-nums tracking-wide text-foreground underline underline-offset-8 decoration-primary/60")}>
+          {display}
+        </span>
       </div>
 
       {/* Manual Input */}
