@@ -29,6 +29,36 @@ export function Example() {
 }
 ```
 
+## Range Mode (min → max)
+
+Use `mode="range"` to allow selecting a value range with 2 thumbs:
+
+```tsx
+import React from "react";
+import { Slider } from "@underverse-ui/underverse";
+
+export function Example() {
+  const [range, setRange] = React.useState<[number, number]>([20, 80]);
+  return (
+    <Slider
+      mode="range"
+      min={0}
+      max={100}
+      step={1}
+      rangeValue={range}
+      onRangeValueChange={setRange}
+      label="Price range"
+      showValue
+      formatValue={(v) => `$${v}`}
+    />
+  );
+}
+```
+
+Behavior notes:
+- Dragging on the track chooses the nearest thumb (min/max) and moves it.
+- Both thumbs are independently draggable.
+
 Vi du day du:
 
 ```tsx
@@ -44,13 +74,18 @@ export function Example() {
 
 ```ts
 interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "size"> {
+  mode?: "single" | "range";
   value?: number;
   defaultValue?: number;
+  rangeValue?: [number, number];
+  defaultRangeValue?: [number, number];
   min?: number;
   max?: number;
   step?: number;
   onChange?: (value: number) => void;
   onValueChange?: (value: number) => void; // Alternative prop name for consistency
+  onRangeChange?: (value: [number, number]) => void;
+  onRangeValueChange?: (value: [number, number]) => void;
   onMouseUp?: () => void; // Called when mouse is released
   onTouchEnd?: () => void; // Called when touch ends
   label?: React.ReactNode;

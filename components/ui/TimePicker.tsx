@@ -105,6 +105,19 @@ function WheelColumn({
   const wheelDeltaRef = React.useRef(0);
   const scrollEndTimeoutRef = React.useRef<number | null>(null);
   const suppressScrollSelectUntilRef = React.useRef(0);
+  const suppressItemClickUntilRef = React.useRef(0);
+  const dragRef = React.useRef<{
+    pointerId: number;
+    startY: number;
+    startScrollTop: number;
+    moved: boolean;
+  } | null>(null);
+  const draggingRef = React.useRef(false);
+  const inertialRef = React.useRef(false);
+  const inertiaRafRef = React.useRef<number | null>(null);
+  const inertiaVelocityRef = React.useRef(0); // px/ms
+  const inertiaLastTimeRef = React.useRef(0);
+  const moveSamplesRef = React.useRef<Array<{ t: number; top: number }>>([]);
 
   const loop = true;
   const ui = React.useMemo(() => {
@@ -180,6 +193,10 @@ function WheelColumn({
       if (scrollEndTimeoutRef.current != null) {
         window.clearTimeout(scrollEndTimeoutRef.current);
         scrollEndTimeoutRef.current = null;
+      }
+      if (inertiaRafRef.current != null) {
+        cancelAnimationFrame(inertiaRafRef.current);
+        inertiaRafRef.current = null;
       }
       cancelAnimationFrame(rafRef.current);
     };
@@ -290,6 +307,162 @@ function WheelColumn({
     return getNearestVirtualIndex(valueIndex, from);
   }, [baseOffset, getNearestVirtualIndex, items.length, loop, valueIndex]);
 
+  const commitFromScrollTop = React.useCallback(
+    (behavior: ScrollBehavior) => {
+      const el = scrollRef.current;
+      if (!el) return;
+      if (items.length <= 0) return;
+      const len = items.length;
+      const maxVirtual = Math.max(0, extendedItems.length - 1);
+      const idxVirtual = clamp(Math.round(el.scrollTop / itemHeight), 0, maxVirtual);
+      const realIndex = ((idxVirtual % len) + len) % len;
+      const snappedVirtual = loop ? getNearestVirtualIndex(realIndex, idxVirtual) : realIndex;
+      lastVirtualIndexRef.current = snappedVirtual;
+      suppressScrollSelectUntilRef.current = Date.now() + 350;
+      if (behavior === "auto") el.scrollTop = snappedVirtual * itemHeight;
+      else el.scrollTo({ top: snappedVirtual * itemHeight, behavior });
+      onSelect(items[realIndex]!);
+
+      // Re-center to the middle copy so subsequent wheel steps feel continuous.
+      if (loop) {
+        const min = len;
+        const max = len * 2 - 1;
+        let centered = snappedVirtual;
+        if (centered < min) centered += len;
+        if (centered > max) centered -= len;
+        if (centered !== snappedVirtual) {
+          lastVirtualIndexRef.current = centered;
+          el.scrollTop = centered * itemHeight;
+        }
+      }
+    },
+    [extendedItems.length, getNearestVirtualIndex, itemHeight, items, loop, onSelect, scrollRef],
+  );
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse") return;
+    if (e.button !== 0) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    e.preventDefault();
+    setFocusedColumn(column);
+    draggingRef.current = true;
+    inertialRef.current = false;
+    if (inertiaRafRef.current != null) {
+      cancelAnimationFrame(inertiaRafRef.current);
+      inertiaRafRef.current = null;
+    }
+    if (scrollEndTimeoutRef.current != null) {
+      window.clearTimeout(scrollEndTimeoutRef.current);
+      scrollEndTimeoutRef.current = null;
+    }
+    dragRef.current = { pointerId: e.pointerId, startY: e.clientY, startScrollTop: el.scrollTop, moved: false };
+    moveSamplesRef.current = [{ t: performance.now(), top: el.scrollTop }];
+    try {
+      el.setPointerCapture(e.pointerId);
+    } catch {
+      // ignore
+    }
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = scrollRef.current;
+    const drag = dragRef.current;
+    if (!el || !drag) return;
+    if (e.pointerId !== drag.pointerId) return;
+    e.preventDefault();
+    const dy = e.clientY - drag.startY;
+    if (!drag.moved && Math.abs(dy) < 4) return;
+    if (!drag.moved) {
+      drag.moved = true;
+      suppressItemClickUntilRef.current = Date.now() + 400;
+    }
+    // Avoid triggering "select on scroll end" while the user is dragging.
+    suppressScrollSelectUntilRef.current = Date.now() + 500;
+    el.scrollTop = drag.startScrollTop - dy;
+
+    const now = performance.now();
+    const samples = moveSamplesRef.current;
+    samples.push({ t: now, top: el.scrollTop });
+    // Keep only the last ~120ms of samples for a stable flick velocity.
+    while (samples.length > 6 && samples[0] && now - samples[0].t > 120) samples.shift();
+    while (samples.length > 8) samples.shift();
+    if (samples.length >= 2) {
+      const oldest = samples[0]!;
+      const dt = now - oldest.t;
+      if (dt > 0) inertiaVelocityRef.current = (el.scrollTop - oldest.top) / dt;
+    }
+  };
+
+  const startInertia = React.useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    if (items.length <= 0) return;
+
+    inertialRef.current = true;
+    suppressItemClickUntilRef.current = Date.now() + 600;
+    inertiaLastTimeRef.current = performance.now();
+
+    const len = items.length;
+    const cycle = len * itemHeight;
+    const frictionPerFrame = 0.92; // per ~16ms
+
+    const tick = () => {
+      const now = performance.now();
+      const last = inertiaLastTimeRef.current || now;
+      const dt = Math.min(48, Math.max(0, now - last)); // clamp dt for stability
+      inertiaLastTimeRef.current = now;
+
+      let v = inertiaVelocityRef.current;
+      // Apply velocity
+      el.scrollTop += v * dt;
+
+      // Keep away from edges (content repeats, so wrapping is visually seamless).
+      if (loop && cycle > 0) {
+        if (el.scrollTop < cycle * 0.5) el.scrollTop += cycle;
+        else if (el.scrollTop > cycle * 2.5) el.scrollTop -= cycle;
+      }
+
+      // Exponential decay of velocity based on dt.
+      const decay = Math.pow(frictionPerFrame, dt / 16);
+      v *= decay;
+      inertiaVelocityRef.current = v;
+
+      if (Math.abs(v) < 0.03) {
+        inertialRef.current = false;
+        inertiaRafRef.current = null;
+        commitFromScrollTop("smooth");
+        return;
+      }
+
+      inertiaRafRef.current = requestAnimationFrame(tick);
+    };
+
+    inertiaRafRef.current = requestAnimationFrame(tick);
+  }, [commitFromScrollTop, itemHeight, items.length, loop, scrollRef]);
+
+  const endDrag = (pointerId: number) => {
+    const el = scrollRef.current;
+    const drag = dragRef.current;
+    if (!el || !drag) return;
+    if (pointerId !== drag.pointerId) return;
+    dragRef.current = null;
+    draggingRef.current = false;
+    try {
+      el.releasePointerCapture(pointerId);
+    } catch {
+      // ignore
+    }
+    const v = inertiaVelocityRef.current;
+    const shouldFlick = drag.moved && Math.abs(v) >= 0.35;
+    if (shouldFlick) {
+      startInertia();
+    } else {
+      inertialRef.current = false;
+      commitFromScrollTop("smooth");
+    }
+  };
+
   return (
     <div className={cn("flex-1", ui.columnWidth)}>
       <div className={cn(ui.label, "font-bold uppercase tracking-wider text-muted-foreground/70 text-center")}>{labelText}</div>
@@ -306,6 +479,7 @@ function WheelColumn({
           className={cn(
             "h-full overflow-y-auto overscroll-contain snap-y snap-mandatory",
             "scrollbar-none",
+            "select-none cursor-grab active:cursor-grabbing",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xl",
           )}
           style={{ paddingTop: paddingY, paddingBottom: paddingY }}
@@ -314,7 +488,15 @@ function WheelColumn({
           tabIndex={focused ? 0 : -1}
           onKeyDown={(e) => onKeyDown(e, column)}
           onFocus={() => setFocusedColumn(column)}
-          onScroll={handleScroll}
+          onScroll={() => {
+            if (draggingRef.current) return;
+            if (inertialRef.current) return;
+            handleScroll();
+          }}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={(e) => endDrag(e.pointerId)}
+          onPointerCancel={(e) => endDrag(e.pointerId)}
         >
           <div>
             {extendedItems.map((n, index) => {
@@ -343,6 +525,7 @@ function WheelColumn({
                     opacity,
                   }}
                   onClick={() => {
+                    if (Date.now() < suppressItemClickUntilRef.current) return;
                     const el = scrollRef.current;
                     if (!el) return;
                     suppressScrollSelectUntilRef.current = Date.now() + 350;

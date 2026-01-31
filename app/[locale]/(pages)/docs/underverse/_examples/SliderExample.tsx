@@ -16,6 +16,7 @@ export default function SliderExample() {
   const [value5, setValue5] = React.useState(0);
   const [value6, setValue6] = React.useState(500);
   const [value7, setValue7] = React.useState(50);
+  const [range, setRange] = React.useState<[number, number]>([200, 800]);
 
   const code =
     `import { Slider } from '@underverse-ui/underverse'\n` +
@@ -48,6 +49,18 @@ export default function SliderExample() {
     `  label=\"Temperature\" \n` +
     `  showValue \n` +
     `  formatValue={(val) => \`\${val}°C\`} \n` +
+    `/>\n\n` +
+    `// Range (min -> max)\n` +
+    `const [range, setRange] = useState([200, 800])\n` +
+    `<Slider\n` +
+    `  mode=\"range\"\n` +
+    `  min={0}\n` +
+    `  max={1000}\n` +
+    `  step={50}\n` +
+    `  rangeValue={range}\n` +
+    `  onRangeValueChange={setRange}\n` +
+    `  label=\"Range\"\n` +
+    `  showValue\n` +
     `/>\n\n` +
     `// Disabled\n` +
     `<Slider value={50} onValueChange={() => {}} label=\"Disabled Slider\" showValue disabled />`;
@@ -110,6 +123,22 @@ export default function SliderExample() {
         />
       </div>
 
+      {/* Range */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Range (min → max)</p>
+        <Slider
+          mode="range"
+          min={0}
+          max={1000}
+          step={50}
+          rangeValue={range}
+          onRangeValueChange={setRange}
+          label="Price Range"
+          showValue
+          formatValue={(val) => `$${val}`}
+        />
+      </div>
+
       {/* Disabled */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Disabled</p>
@@ -119,13 +148,18 @@ export default function SliderExample() {
   );
 
   const rows: PropsRow[] = [
+    { property: "mode", description: 'Slider mode: "single" or "range"', type: '"single" | "range"', default: '"single"' },
     { property: "value", description: t("props.slider.value"), type: "number", default: "-" },
     { property: "defaultValue", description: t("props.slider.defaultValue"), type: "number", default: "0" },
+    { property: "rangeValue", description: "Range value when mode is range", type: "[number, number]", default: "-" },
+    { property: "defaultRangeValue", description: "Default range value when uncontrolled", type: "[number, number]", default: "-" },
     { property: "min", description: t("props.slider.min"), type: "number", default: "0" },
     { property: "max", description: t("props.slider.max"), type: "number", default: "100" },
     { property: "step", description: t("props.slider.step"), type: "number", default: "1" },
     { property: "onChange", description: t("props.slider.onChange"), type: "(value: number) => void", default: "-" },
     { property: "onValueChange", description: t("props.slider.onValueChange"), type: "(value: number) => void", default: "-" },
+    { property: "onRangeChange", description: "Called when range changes (mode=range)", type: "(value: [number, number]) => void", default: "-" },
+    { property: "onRangeValueChange", description: "Alias for onRangeChange", type: "(value: [number, number]) => void", default: "-" },
     { property: "onMouseUp", description: t("props.slider.onMouseUp"), type: "() => void", default: "-" },
     { property: "onTouchEnd", description: t("props.slider.onTouchEnd"), type: "() => void", default: "-" },
     { property: "label", description: t("props.slider.label"), type: "React.ReactNode", default: "-" },
@@ -141,7 +175,34 @@ export default function SliderExample() {
     { property: "orientation", description: t("props.slider.orientation"), type: '"horizontal" | "vertical"', default: '"horizontal"' },
     { property: "noFocus", description: t("props.slider.noFocus"), type: "boolean", default: "false" },
   ];
-  const order = ["value","defaultValue","min","max","step","onChange","onValueChange","onMouseUp","onTouchEnd","label","labelClassName","containerClassName","trackClassName","thumbClassName","showValue","valueClassName","formatValue","size","disabled","orientation","noFocus"];
+  const order = [
+    "mode",
+    "value",
+    "defaultValue",
+    "rangeValue",
+    "defaultRangeValue",
+    "min",
+    "max",
+    "step",
+    "onChange",
+    "onValueChange",
+    "onRangeChange",
+    "onRangeValueChange",
+    "onMouseUp",
+    "onTouchEnd",
+    "label",
+    "labelClassName",
+    "containerClassName",
+    "trackClassName",
+    "thumbClassName",
+    "showValue",
+    "valueClassName",
+    "formatValue",
+    "size",
+    "disabled",
+    "orientation",
+    "noFocus",
+  ];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Slider.md" />;
 
   return (

@@ -10,7 +10,13 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 ## Behavior
 
 - `variant="inline"` renders content directly (no popover) and keeps a compact width (doesn’t force full-width layout).
-- Time columns (hour/min/sec) use fixed widths to avoid overly wide pickers inside popovers.
+- Popover dropdown width matches the trigger by default (`matchTriggerWidth=true`). Set `matchTriggerWidth={false}` to use the component’s default fixed dropdown widths.
+- `size` scales the trigger and the dropdown content (typography, paddings, wheel sizes).
+- The wheel is circular (wraps around). You can change values via:
+  - Mouse wheel/trackpad scroll
+  - Click a value
+  - Click-and-drag inside a column (mouse)
+  - Keyboard navigation (Arrow keys, Home/End, PageUp/PageDown)
 
 ## TimePicker
 
@@ -40,6 +46,7 @@ export function Example() {
       label={"Nhan"}
       placeholder={"Nhap..."}
       variant={"default"}
+      matchTriggerWidth
      />
   );
 }
@@ -57,11 +64,13 @@ export interface TimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   required?: boolean;
   format?: TimeFormat; // 24 or 12
   includeSeconds?: boolean;
-  minuteStep?: number; // default 5
-  secondStep?: number; // default 5
+  minuteStep?: number; // default 1
+  secondStep?: number; // default 1
   clearable?: boolean;
   /** Visual variant of the picker */
   variant?: TimePickerVariant;
+  /** Match dropdown width to trigger width */
+  matchTriggerWidth?: boolean;
   /** Show "Now" button */
   showNow?: boolean;
   /** Show time presets (Morning, Afternoon, Evening) */
@@ -89,4 +98,30 @@ export interface TimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   /** Callback when popover closes */
   onClose?: () => void;
 }
+```
+
+## Usage Recipes
+
+Match dropdown to trigger (default):
+
+```tsx
+<TimePicker matchTriggerWidth />
+```
+
+Use fixed dropdown width (ignores trigger width):
+
+```tsx
+<TimePicker matchTriggerWidth={false} />
+```
+
+Compact trigger + full-featured panel:
+
+```tsx
+<TimePicker variant="compact" showNow showPresets allowManualInput />
+```
+
+Small UI (compact layouts):
+
+```tsx
+<TimePicker size="sm" />
 ```
