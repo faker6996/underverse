@@ -129,3 +129,8 @@ export function startOfZonedWeek(date: Date, weekStartsOn: number, timeZone: str
   const diff = (weekday - weekStartsOn + 7) % 7;
   return new Date(zonedTimeToUtcMs({ year: p.year, month: p.month, day: p.day - diff, hour: 0, minute: 0, second: 0 }, timeZone));
 }
+
+export function getZonedWeekday(date: Date, timeZone: string) {
+  const p = getZonedParts(date, timeZone);
+  return new Date(Date.UTC(p.year, p.month - 1, p.day)).getUTCDay(); // 0=Sun..6=Sat
+}

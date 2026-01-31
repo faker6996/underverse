@@ -116,6 +116,14 @@ export function Example() {
         // - "shrink" (default): empty slots shrink, event slots keep base width
         // - "redistribute": keep total grid width, redistribute freed width to event slots (capped)
         adaptiveSlotWidths={{ mode: "shrink" }}
+        // Performance toggles for large datasets:
+        enableEventTooltips={false}
+        columnVirtualization={{ overscan: 6 }} // day view only
+        dayHeaderMode="full" // default; use "smart" if you want start/…/end markers in day view
+        daySlotCompression={false} // default; set true only if you want day columns to compress in "smart" mode
+        // Note: if `dayHeaderMode="full"`, day view keeps a safe minimum slot width so hour labels stay readable.
+        // Tip (day view): if you shrink empty columns and the grid becomes narrower than the viewport,
+        // you can set `adaptiveSlotWidths={{ ..., fillContainer: true, fillDistribute: "event" }}` to keep the grid full-width.
         enableLayoutResize
         resourceColumnWidth={resourceColumnWidth}
         onResourceColumnWidthChange={setResourceColumnWidth}

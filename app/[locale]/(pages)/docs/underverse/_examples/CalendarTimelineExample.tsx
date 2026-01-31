@@ -168,7 +168,13 @@ export default function CalendarTimelineExample() {
           onDateChange={setDate}
           weekStartsOn={1}
           slotMinWidth={56}
-          adaptiveSlotWidths={view === "day" ? { mode: "shrink", emptySlotWidth: 16 } : { mode: "redistribute", emptySlotWidth: 30 }}
+          // Day view: shrink empty hours to free space for hours that have events.
+          adaptiveSlotWidths={
+            view === "day" ? { mode: "shrink", emptySlotWidth: 44, fillContainer: true, fillDistribute: "event" } : { mode: "redistribute", emptySlotWidth: 30 }
+          }
+          columnVirtualization={view === "day" ? { overscan: 8 } : false}
+          dayHeaderMode="full"
+          daySlotCompression={false}
           dayRangeMode={dayRangeMode}
           workHours={{ startHour: 8, endHour: 17 }}
           autoRowHeight={autoRowHeight}

@@ -78,6 +78,13 @@ export interface CalendarTimelineVirtualization {
   overscan?: number;
 }
 
+export type CalendarTimelineColumnVirtualization =
+  | boolean
+  | {
+      /** Extra slots rendered on each side. Default: 6 */
+      overscan?: number;
+    };
+
 export type CalendarTimelineAdaptiveSlotWidths =
   | boolean
   | {
@@ -90,6 +97,17 @@ export type CalendarTimelineAdaptiveSlotWidths =
       emptySlotWidth?: number;
       /** Cap (px) for event slot width when `mode="redistribute"`. Default: `baseSlotWidth * 2.5`. */
       maxEventSlotWidth?: number;
+      /**
+       * Day view only: if enabled and the computed grid is narrower than the viewport, expand columns to fill the available width.
+       * Default: false.
+       */
+      fillContainer?: boolean;
+      /**
+       * Day view only (when `fillContainer`): where the extra width goes.
+       * - "event": distribute extra width to columns that have events (default)
+       * - "all": distribute extra width to all columns
+       */
+      fillDistribute?: "event" | "all";
     };
 
 export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unknown>
@@ -203,6 +221,28 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   /** Day view only (when `dayEventStyle="compact"`): max visual width (px). */
   dayEventMaxWidth?: number;
   dayTimeStepMinutes?: number; // day view slot size
+
+  /** Render tooltips on events (can be expensive for large datasets). Default: true. */
+  enableEventTooltips?: boolean;
+
+  /**
+   * Day view: header rendering mode.
+   * - "full": show every time slot label (default; matches legacy behavior)
+   * - "smart": show start/…/end markers to reduce clutter on dense timelines
+   */
+  dayHeaderMode?: "full" | "smart";
+
+  /**
+   * Day view: optionally compress empty time columns when `dayHeaderMode="smart"`.
+   * Default: false (keeps legacy column widths).
+   */
+  daySlotCompression?: boolean;
+
+  /**
+   * Day view only: virtualize columns in the header/overlay when there are many time slots (e.g. 5–15min step).
+   * Keeps scroll behavior the same but reduces DOM work.
+   */
+  columnVirtualization?: CalendarTimelineColumnVirtualization;
   /**
    * Day view horizontal range:
    * - "full": show 24h (default)

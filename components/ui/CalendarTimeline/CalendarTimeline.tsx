@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Dot, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useLocale, useTranslations } from "@/lib/i18n/translation-adapter";
 import { Sheet } from "../Sheet";
@@ -20,20 +20,20 @@ import { binarySearchFirstGE, binarySearchLastLE, clamp, intervalPack } from "./
 import { useClientWidth, useHorizontalScrollSync, useVirtualVariableRows } from "./hooks";
 import { getSizeConfig } from "./config";
 import { defaultEventTime, defaultMonthTitle, defaultSlotHeader } from "./defaults";
-import {
-  buildRows,
-  computeSlotStarts,
-  eventsByResourceId,
-  getGroupResourceCounts,
-  normalizeEvents,
-  resourcesById,
-  type CalendarTimelineRow,
-} from "./model";
+import { buildRows, getGroupResourceCounts, type CalendarTimelineRow } from "./model";
 import { CalendarTimelineHeader } from "./CalendarTimelineHeader";
 import { DefaultGroupRow, ResourceRowCell } from "./CalendarTimelineRowCells";
+import { CalendarTimelineGridOverlay } from "./CalendarTimelineGridOverlay";
+import { CalendarTimelineSlotHeaderCell } from "./CalendarTimelineSlotHeaderCell";
+import {
+  useDayHeaderMarks,
+  useLayoutsByResource,
+  useNormalizedEvents,
+  useSlotMetrics,
+  useTimelineSlots,
+  useVisibleSlotRange,
+} from "./internal-hooks";
 import { Combobox } from "../Combobox";
-
-type Slot = { start: Date; label: React.ReactNode; isToday: boolean };
 
 export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = unknown>({
   resources,
@@ -83,6 +83,10 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   dayEventStyle = "span",
   dayEventMaxWidth,
   dayTimeStepMinutes = 60,
+  enableEventTooltips = true,
+  dayHeaderMode = "full",
+  daySlotCompression = false,
+  columnVirtualization,
   dayRangeMode,
   workHours,
   maxLanesPerRow = 3,
@@ -269,27 +273,18 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   const groupResourceCounts = React.useMemo(() => getGroupResourceCounts(resources), [resources]);
 
-  const { slots, range } = React.useMemo((): { slots: Slot[]; range: { start: Date; end: Date } } => {
-    const { start, end, slotStarts } = computeSlotStarts({
-      view: activeView,
-      date: activeDate,
-      timeZone: resolvedTimeZone,
-      weekStartsOn,
-      dayTimeStepMinutes,
-      dayRangeMode,
-      workHours,
-    });
-    const todayStart = startOfZonedDay(resolvedNow, resolvedTimeZone).getTime();
-    const slotItems: Slot[] = slotStarts.map((s) => ({
-      start: s,
-      label:
-        formatters?.slotHeader?.(s, { view: activeView, locale: resolvedLocale, timeZone: resolvedTimeZone }) ??
-        defaultSlotHeader(s, activeView, resolvedLocale, resolvedTimeZone),
-      isToday: startOfZonedDay(s, resolvedTimeZone).getTime() === todayStart,
-    }));
-
-    return { slots: slotItems, range: { start, end } };
-  }, [activeView, activeDate, resolvedTimeZone, resolvedLocale, weekStartsOn, dayTimeStepMinutes, dayRangeMode, workHours, resolvedNow, formatters]);
+  const { slots, range, slotStarts, todaySlotIdx, weekendSlotIdxs } = useTimelineSlots({
+    activeView,
+    activeDate,
+    resolvedTimeZone,
+    resolvedLocale,
+    weekStartsOn,
+    dayTimeStepMinutes,
+    dayRangeMode,
+    workHours,
+    resolvedNow,
+    formatters,
+  });
 
   React.useEffect(() => {
     onRangeChange?.(range);
@@ -300,174 +295,39 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const headerRef = React.useRef<HTMLDivElement>(null);
   const bodyClientWidth = useClientWidth(bodyRef);
 
-  const slotStarts = React.useMemo(() => slots.map((s) => s.start), [slots]);
-  const fixedSlotWidth = React.useMemo(() => {
-    const baseSlotWidth = activeView === "month" || activeView === "day" ? effectiveSlotMinWidth * 3 : effectiveSlotMinWidth;
+  const { normalizedEvents, eventsByResource, resourceById } = useNormalizedEvents<TResourceMeta, TEventMeta>({
+    events: events as CalendarTimelineEvent<TEventMeta>[],
+    range,
+    activeView,
+    resolvedTimeZone,
+    resources,
+  });
 
-    if (activeView !== "week") return baseSlotWidth;
-    if (bodyClientWidth <= 0) return baseSlotWidth;
-    if (slots.length <= 0) return baseSlotWidth;
-    return Math.max(baseSlotWidth, bodyClientWidth / slots.length);
-  }, [activeView, bodyClientWidth, effectiveSlotMinWidth, slots.length]);
+  const dayHeaderSmart = activeView === "day" && dayHeaderMode === "smart";
+  const dayHeaderMarks = useDayHeaderMarks({ enabled: dayHeaderSmart, activeView, normalizedEvents, slotStarts, slotCount: slots.length });
 
-  const normalizedEvents = React.useMemo(() => {
-    return normalizeEvents({ events: events as CalendarTimelineEvent<TEventMeta>[], range, view: activeView, timeZone: resolvedTimeZone });
-  }, [events, range, activeView, resolvedTimeZone]);
+  const { fixedSlotWidth, slotWidths, slotLefts, slotHasEvent, gridWidth, xToSlotIdx } = useSlotMetrics({
+    activeView,
+    slotsLength: slots.length,
+    slotStarts,
+    normalizedEvents,
+    effectiveSlotMinWidth,
+    bodyClientWidth,
+    adaptiveSlotWidths,
+    dayHeaderMarks,
+    dayHeaderSmart,
+    daySlotCompression,
+  });
 
-  const dayHeaderMarks = React.useMemo(() => {
-    if (activeView !== "day") return null;
-    const n = slots.length;
-    const showTime = new Array<boolean>(n).fill(false);
-    const showEllipsis = new Array<boolean>(n).fill(false);
-
-    for (const ev of normalizedEvents) {
-      const startIdx = binarySearchLastLE(slotStarts, ev._start);
-      const endIdxRaw = binarySearchFirstGE(slotStarts, ev._end);
-      const endIdx = clamp(endIdxRaw, 0, n - 1);
-
-      if (startIdx >= 0 && startIdx < n) showTime[startIdx] = true;
-      if (endIdx >= 0 && endIdx < n) showTime[endIdx] = true;
-
-      const span = endIdx - startIdx;
-      if (span >= 3) {
-        const mid = clamp(Math.floor((startIdx + endIdx) / 2), 0, n - 1);
-        if (!showTime[mid]) showEllipsis[mid] = true;
-      }
-    }
-
-    const anchor = showTime.map((v, i) => v || showEllipsis[i]!);
-    return { showTime, showEllipsis, anchor };
-  }, [activeView, normalizedEvents, slotStarts, slots.length]);
-
-  const slotMetrics = React.useMemo(() => {
-    const n = slots.length;
-    const widths = new Array<number>(n).fill(fixedSlotWidth);
-
-    const isAdaptiveView = activeView === "month" || activeView === "day";
-    const adaptiveCfg = adaptiveSlotWidths;
-    const adaptiveEnabled = Boolean(adaptiveCfg) && isAdaptiveView;
-
-    if (!adaptiveEnabled || n === 0) {
-      const lefts = new Array<number>(n + 1);
-      lefts[0] = 0;
-      for (let i = 0; i < n; i++) lefts[i + 1] = lefts[i]! + widths[i]!;
-      const gridWidth = lefts[n] ?? 0;
-      const xToSlotIdx = (x: number) => clamp(Math.floor(x / Math.max(1, fixedSlotWidth)), 0, Math.max(0, n - 1));
-      return { slotWidths: widths, slotLefts: lefts, slotHasEvent: null as boolean[] | null, gridWidth, xToSlotIdx };
-    }
-
-    const cfg = typeof adaptiveCfg === "object" ? adaptiveCfg : {};
-    const mode = cfg.mode ?? "shrink";
-    const defaultEmptySlotWidth = Math.max(18, Math.round(effectiveSlotMinWidth * 0.6));
-    const minEmptySlotWidth = activeView === "month" ? Math.max(24, Math.round(effectiveSlotMinWidth * 0.45)) : 12;
-    const emptySlotWidth = Math.max(minEmptySlotWidth, Math.min(fixedSlotWidth, cfg.emptySlotWidth ?? defaultEmptySlotWidth));
-
-    const dayAnchorCompression = activeView === "day" && Boolean(dayHeaderMarks?.anchor);
-
-    // Day view special: compress long spans by keeping only anchor columns (start, …, end) wide.
-    if (dayAnchorCompression) {
-      const hasEvent = (dayHeaderMarks!.anchor as boolean[]).slice(0, n);
-      // Keep "compressed" slots still visible as a subtle grid.
-      const compressedEmptySlotWidth = clamp(emptySlotWidth, 12, 20);
-      for (let i = 0; i < n; i++) widths[i] = hasEvent[i] ? fixedSlotWidth : compressedEmptySlotWidth;
-
-      const lefts = new Array<number>(n + 1);
-      lefts[0] = 0;
-      for (let i = 0; i < n; i++) lefts[i + 1] = lefts[i]! + widths[i]!;
-      const gridWidth = lefts[n] ?? 0;
-
-      const xToSlotIdx = (x: number) => {
-        const xc = clamp(x, 0, Math.max(0, gridWidth - 0.001));
-        let lo = 0;
-        let hi = n - 1;
-        while (lo <= hi) {
-          const mid = (lo + hi) >> 1;
-          const left = lefts[mid] ?? 0;
-          const right = lefts[mid + 1] ?? gridWidth;
-          if (xc < left) hi = mid - 1;
-          else if (xc >= right) lo = mid + 1;
-          else return mid;
-        }
-        return clamp(lo, 0, Math.max(0, n - 1));
-      };
-
-      return { slotWidths: widths, slotLefts: lefts, slotHasEvent: hasEvent, gridWidth, xToSlotIdx };
-    }
-
-    // Mark which slots are covered by at least one event (any resource).
-    const diff = new Array<number>(n + 1).fill(0);
-    for (const ev of normalizedEvents) {
-      const startIdx = binarySearchLastLE(slotStarts, ev._start);
-      const endIdx = clamp(binarySearchFirstGE(slotStarts, ev._end), startIdx + 1, n);
-      diff[startIdx] = (diff[startIdx] ?? 0) + 1;
-      diff[endIdx] = (diff[endIdx] ?? 0) - 1;
-    }
-
-    const hasEvent = new Array<boolean>(n);
-    let running = 0;
-    let eventCount = 0;
-    for (let i = 0; i < n; i++) {
-      running += diff[i] ?? 0;
-      const covered = running > 0;
-      hasEvent[i] = covered;
-      if (covered) eventCount++;
-    }
-
-    // If everything is covered (or nothing is), keep the fixed layout.
-    if (eventCount === 0 || eventCount === n) {
-      const lefts = new Array<number>(n + 1);
-      lefts[0] = 0;
-      for (let i = 0; i < n; i++) lefts[i + 1] = lefts[i]! + widths[i]!;
-      const gridWidth = lefts[n] ?? 0;
-      const xToSlotIdx = (x: number) => clamp(Math.floor(x / Math.max(1, fixedSlotWidth)), 0, Math.max(0, n - 1));
-      return { slotWidths: widths, slotLefts: lefts, slotHasEvent: null as boolean[] | null, gridWidth, xToSlotIdx };
-    }
-
-    const emptyCount = n - eventCount;
-    let eventSlotWidth = fixedSlotWidth;
-
-    if (mode === "redistribute") {
-      const targetTotal = n * fixedSlotWidth;
-      const remaining = Math.max(0, targetTotal - emptyCount * emptySlotWidth);
-      const raw = remaining / Math.max(1, eventCount);
-      const maxEventSlotWidth = cfg.maxEventSlotWidth ?? fixedSlotWidth * 2.5;
-      eventSlotWidth = clamp(raw, fixedSlotWidth, Math.max(fixedSlotWidth, maxEventSlotWidth));
-    }
-
-    for (let i = 0; i < n; i++) widths[i] = hasEvent[i] ? eventSlotWidth : emptySlotWidth;
-
-    const lefts = new Array<number>(n + 1);
-    lefts[0] = 0;
-    for (let i = 0; i < n; i++) lefts[i + 1] = lefts[i]! + widths[i]!;
-    const gridWidth = lefts[n] ?? 0;
-
-    const xToSlotIdx = (x: number) => {
-      const xc = clamp(x, 0, Math.max(0, gridWidth - 0.001));
-      let lo = 0;
-      let hi = n - 1;
-      while (lo <= hi) {
-        const mid = (lo + hi) >> 1;
-        const left = lefts[mid] ?? 0;
-        const right = lefts[mid + 1] ?? gridWidth;
-        if (xc < left) hi = mid - 1;
-        else if (xc >= right) lo = mid + 1;
-        else return mid;
-      }
-      return clamp(lo, 0, Math.max(0, n - 1));
-    };
-
-    return { slotWidths: widths, slotLefts: lefts, slotHasEvent: hasEvent, gridWidth, xToSlotIdx };
-  }, [activeView, adaptiveSlotWidths, dayHeaderMarks, effectiveSlotMinWidth, fixedSlotWidth, normalizedEvents, slotStarts, slots.length]);
-
-  const { slotWidths, slotLefts, slotHasEvent, gridWidth, xToSlotIdx } = slotMetrics;
-
-  const eventsByResource = React.useMemo(() => {
-    return eventsByResourceId(normalizedEvents);
-  }, [normalizedEvents]);
-
-  const resourceById = React.useMemo(() => {
-    return resourcesById(resources);
-  }, [resources]);
+  const colVirtEnabled = Boolean(columnVirtualization) && activeView === "day";
+  const colVirtOverscan = typeof columnVirtualization === "object" ? (columnVirtualization.overscan ?? 6) : 6;
+  const visibleSlots = useVisibleSlotRange({
+    enabled: colVirtEnabled,
+    overscan: colVirtOverscan,
+    scrollRef: bodyRef,
+    slotLefts,
+    slotCount: slots.length,
+  });
 
   const selectedEvent = React.useMemo(() => {
     if (!activeSelectedEventId) return null;
@@ -598,6 +458,11 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const endRow = virt ? virtualResult.endIndex : rows.length;
   const topSpacer = virt ? virtualResult.topSpacer : 0;
   const bottomSpacer = virt ? virtualResult.bottomSpacer : 0;
+  const renderedRowsHeight = React.useMemo(() => {
+    let h = 0;
+    for (let i = startRow; i < endRow; i++) h += rowHeightsArray[i] ?? effectiveRowHeight;
+    return h;
+  }, [effectiveRowHeight, endRow, rowHeightsArray, startRow]);
 
   const resizeRef = React.useRef<null | {
     mode: "column" | "row";
@@ -1158,54 +1023,67 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     );
   };
 
-  const slotHeaderNodes = (
-    <div
-      className="flex"
-      style={{
-        width: gridWidth,
-        minWidth: gridWidth,
-      }}
-    >
-      {slots.map((s, idx) => (
-        <div
-          key={`${s.start.toISOString()}_${idx}`}
-          className={cn(
-            "shrink-0 border-l flex items-center justify-center transition-colors duration-150 overflow-hidden",
+  const slotHeaderNodes = React.useMemo(() => {
+    const startIdx = colVirtEnabled ? visibleSlots.startIdx : 0;
+    const endIdx = colVirtEnabled ? visibleSlots.endIdx : slots.length;
+    const leftSpacer = startIdx > 0 ? (slotLefts[startIdx] ?? 0) : 0;
+    const rightSpacer = gridWidth - (slotLefts[endIdx] ?? gridWidth);
+
+    return (
+      <div
+        className="flex"
+        style={{
+          width: gridWidth,
+          minWidth: gridWidth,
+        }}
+      >
+        {leftSpacer > 0 ? <div style={{ width: leftSpacer, minWidth: leftSpacer }} /> : null}
+        {slots.slice(startIdx, endIdx).map((s, j) => {
+          const idx = startIdx + j;
+          const borderClassName =
             activeView === "day" && dayHeaderMarks?.anchor
               ? dayHeaderMarks.anchor[idx]
                 ? "border-border/30"
                 : "border-border/10"
-              : "border-border/30",
-            sizeConfig.slotHeaderClass,
-            activeView !== "day" && s.isToday && "bg-primary/8 border-l-primary/40",
-          )}
-          style={{ width: slotWidths[idx], minWidth: slotWidths[idx] }}
-          aria-label={formatters?.ariaSlotLabel?.(s.start, { view: activeView, locale: resolvedLocale, timeZone: resolvedTimeZone })}
-        >
-          {(() => {
-            const label =
-              typeof s.label === "string" || typeof s.label === "number" ? (
-                <span className="truncate whitespace-nowrap">{s.label}</span>
-              ) : (
-                s.label
-              );
-
-            if (activeView === "day" && dayHeaderMarks) {
-              if (dayHeaderMarks.showEllipsis[idx]) return <span className="text-xs text-muted-foreground/70 select-none">…</span>;
-              if (!dayHeaderMarks.showTime[idx]) return null;
-            }
-
-            return (
-              <div className={cn("flex flex-col items-center min-w-0 overflow-hidden", activeView !== "day" && s.isToday && "relative")}>
-                {activeView !== "day" && s.isToday && <Dot className="absolute -top-2.5 h-4 w-4 text-primary animate-pulse" />}
-                {label}
-              </div>
-            );
-          })()}
-        </div>
-      ))}
-    </div>
-  );
+              : "border-border/30";
+          return (
+              <CalendarTimelineSlotHeaderCell
+                key={`${s.start.toISOString()}_${idx}`}
+                slotKey={`${s.start.toISOString()}_${idx}`}
+                idx={idx}
+                width={slotWidths[idx] ?? 0}
+                activeView={activeView}
+                isToday={s.isToday}
+                label={s.label}
+                ariaLabel={formatters?.ariaSlotLabel?.(s.start, { view: activeView, locale: resolvedLocale, timeZone: resolvedTimeZone })}
+                borderClassName={borderClassName}
+              className={cn(
+                sizeConfig.slotHeaderClass,
+                activeView !== "day" && s.isToday && "bg-primary/8 border-l-primary/40",
+                activeView !== "day" && !s.isToday && s.isWeekend && "bg-muted/15",
+              )}
+              dayHeaderMarks={dayHeaderMarks}
+            />
+          );
+        })}
+        {rightSpacer > 0 ? <div style={{ width: rightSpacer, minWidth: rightSpacer }} /> : null}
+      </div>
+    );
+  }, [
+    activeView,
+    colVirtEnabled,
+    dayHeaderMarks,
+    formatters,
+    gridWidth,
+    resolvedLocale,
+    resolvedTimeZone,
+    sizeConfig.slotHeaderClass,
+    slotLefts,
+    slotWidths,
+    slots,
+    visibleSlots.endIdx,
+    visibleSlots.startIdx,
+  ]);
 
   const Header = (
     <CalendarTimelineHeader
@@ -1228,64 +1106,18 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     />
   );
 
-  const layoutsByResource = React.useMemo(() => {
-    const map = new Map<
-      string,
-      {
-        baseTop: number;
-        eventHeight: number;
-        visible: Array<{ ev: CalendarTimelineEvent<TEventMeta> & { _start: Date; _end: Date }; left: number; width: number; lane: number }>;
-        hidden: Array<CalendarTimelineEvent<TEventMeta>>;
-      }
-    >();
-
-    for (const [resourceId, list] of eventsByResource.entries()) {
-      const mapped = list.map((ev) => {
-        const isPreview = preview?.eventId === ev.id && preview.resourceId === resourceId;
-        const s = isPreview ? preview!.start : ev._start;
-        const e = isPreview ? preview!.end : ev._end;
-        const startIdx = binarySearchLastLE(slotStarts, s);
-        const endIdx = clamp(binarySearchFirstGE(slotStarts, e), startIdx + 1, slots.length);
-        return { ev: { ...ev, _start: s, _end: e }, startIdx, endIdx };
-      });
-
-      const { packed, laneCount } = intervalPack(mapped);
-      const visible = packed.filter((p) => p.lane < effectiveMaxLanesPerRow);
-      const hidden = packed.filter((p) => p.lane >= effectiveMaxLanesPerRow);
-
-      const rowHeightPx = getResourceRowHeight(resourceId);
-      const visibleLaneCount = Math.max(1, Math.min(laneCount, effectiveMaxLanesPerRow));
-      const available = Math.max(0, rowHeightPx - lanePaddingY * 2 - laneGap * Math.max(0, visibleLaneCount - 1));
-      const fitPerLane = visibleLaneCount > 0 ? Math.floor(available / visibleLaneCount) : eventHeight;
-      const perLaneHeight = Math.max(9, Math.min(eventHeight, fitPerLane || eventHeight));
-      const baseTop = visibleLaneCount === 1 ? Math.max(0, Math.round((rowHeightPx - perLaneHeight) / 2)) : lanePaddingY;
-
-      map.set(resourceId, {
-        baseTop,
-        eventHeight: perLaneHeight,
-        visible: visible.map((p) => ({
-          ev: p.ev,
-          lane: p.lane,
-          left: slotLefts[p.startIdx] ?? 0,
-          width: Math.max(1, (slotLefts[p.endIdx] ?? 0) - (slotLefts[p.startIdx] ?? 0)),
-        })),
-        hidden: hidden.map((h) => h.ev),
-      });
-    }
-
-    return map;
-  }, [
+  const layoutsByResource = useLayoutsByResource<TEventMeta>({
     eventsByResource,
-    eventHeight,
-    effectiveMaxLanesPerRow,
+    preview,
+    slotStarts,
+    slotsLength: slots.length,
+    slotLefts,
     getResourceRowHeight,
     laneGap,
     lanePaddingY,
-    preview,
-    slotLefts,
-    slotStarts,
-    slots.length,
-  ]);
+    effectiveMaxLanesPerRow,
+    eventHeight,
+  });
 
   return (
     <div
@@ -1341,6 +1173,25 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
           onPointerLeave={() => setHoverCell(null)}
         >
           <div style={{ height: topSpacer }} />
+          {gridWidth > 0 && renderedRowsHeight > 0 ? (
+            <div
+              className="pointer-events-none absolute left-0 z-0"
+              style={{ top: topSpacer, width: gridWidth, height: renderedRowsHeight }}
+            >
+              <CalendarTimelineGridOverlay
+                gridWidth={gridWidth}
+                height={renderedRowsHeight}
+                slotLefts={slotLefts}
+                slotWidths={slotWidths}
+                activeView={activeView}
+                todaySlotIdx={todaySlotIdx}
+                dayAnchor={activeView === "day" ? dayHeaderMarks?.anchor : null}
+                weekendSlotIdxs={weekendSlotIdxs}
+                visibleStartIdx={colVirtEnabled ? visibleSlots.startIdx : undefined}
+                visibleEndIdx={colVirtEnabled ? visibleSlots.endIdx : undefined}
+              />
+            </div>
+          ) : null}
           {rows.slice(startRow, endRow).map((row, idx) => {
             const rowIndex = startRow + idx;
             const h = rowHeightsArray[rowIndex] ?? effectiveRowHeight;
@@ -1348,7 +1199,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
               return (
                 <div key={`rg_${row.group.id}_${rowIndex}`} className="flex" style={{ height: h }}>
                   <div
-                    className="border-b border-border/30 bg-linear-to-r from-muted/15 to-muted/5"
+                    className="relative z-10 border-b border-border/30 bg-linear-to-r from-muted/15 to-muted/5"
                     style={{ width: gridWidth, minWidth: gridWidth }}
                   />
                 </div>
@@ -1367,27 +1218,19 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                 style={{ height: h }}
                 data-uv-ct-row={r.id}
               >
-                <div className="relative shrink-0" style={{ width: gridWidth, minWidth: gridWidth, height: "100%" }}>
+                <div className="relative z-10 shrink-0" style={{ width: gridWidth, minWidth: gridWidth, height: "100%" }}>
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-border/25" />
                   <div className="absolute inset-0" onPointerDown={onPointerDownCell} onClick={onClickCell} data-uv-ct-timeline>
-                    <div className="absolute inset-0 flex">
-                      {slots.map((s, i2) => (
-                        <div
-                          key={`${r.id}_${i2}`}
-                          className={cn(
-                            "h-full border-l transition-colors duration-100",
-                            activeView === "day" && dayHeaderMarks?.anchor
-                              ? !dayHeaderMarks.anchor[i2]
-                                ? "border-border/10"
-                                : "border-border/20"
-                              : "border-border/20",
-                            activeView !== "day" && s.isToday && "bg-primary/5 border-l-primary/30",
-                            "hover:bg-muted/10",
-                          )}
-                          style={{ width: slotWidths[i2], minWidth: slotWidths[i2] }}
-                        />
-                      ))}
-                    </div>
+                    {hoverCell && hoverCell.resourceId === r.id ? (
+                      <div
+                        className="pointer-events-none absolute top-0 h-full bg-muted/10"
+                        style={{
+                          left: slotLefts[hoverCell.slotIdx] ?? 0,
+                          width: slotWidths[hoverCell.slotIdx] ?? fixedSlotWidth,
+                        }}
+                        aria-hidden
+                      />
+                    ) : null}
                   </div>
 
                   {layout.visible.map(({ ev, left, width, lane }) => {
@@ -1438,15 +1281,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         );
                       })();
 
-                    const resource = resourceById.get(ev.resourceId);
-                    const tooltipTitle = ev.title || ev.id;
-                    const tooltipContent = (
-                      <div className="flex flex-col gap-0.5">
-                        <div className="font-semibold">{tooltipTitle}</div>
-                        <div className="text-xs opacity-80">{timeText}</div>
-                        {resource?.label ? <div className="text-xs opacity-70">{resource.label}</div> : null}
-                      </div>
-                    );
+                  const resource = resourceById.get(ev.resourceId);
+                  const tooltipTitle = ev.title || ev.id;
 
                   const shouldCompact = activeView === "day" && dayEventStyle === "compact";
                   const defaultMaxVisual = clamp(Math.round(fixedSlotWidth * 1.2), 160, 360);
@@ -1454,42 +1290,41 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                   const visualWidth = shouldCompact ? Math.min(width, maxVisual) : width;
                   const isClipped = shouldCompact && width > visualWidth + 1;
 
-                  return (
-                    <Tooltip key={ev.id} content={tooltipContent} placement="top" delay={{ open: 250, close: 0 }}>
+                  const block = (
+                    <div
+                      className={cn("absolute select-none cursor-pointer", isPreview && "z-10")}
+                      data-uv-ct-event
+                      style={{ left, top, width, height: layout.eventHeight }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={aria}
+                      onContextMenu={(e) => {
+                        if (isViewOnly) return;
+                        if (!onEventDelete) return;
+                        if (interactions?.deletableEvents === false) return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const ok = window.confirm(l.deleteConfirm);
+                        if (!ok) return;
+                        onEventDelete({ eventId: ev.id });
+                      }}
+                      onClick={() => {
+                        if (suppressNextEventClickRef.current) {
+                          suppressNextEventClickRef.current = false;
+                          return;
+                        }
+                        onEventClick?.(ev);
+                        if (effectiveEnableEventSheet) {
+                          setSelectedEventId(ev.id);
+                          setEventSheetOpen(true);
+                        }
+                      }}
+                      onDoubleClick={() => onEventDoubleClick?.(ev)}
+                      onPointerDown={(e) => onPointerDownEvent(e, ev, "move")}
+                    >
                       <div
-                        className={cn("absolute select-none cursor-pointer", isPreview && "z-10")}
-                        data-uv-ct-event
-                        style={{ left, top, width, height: layout.eventHeight }}
-                        role="button"
-                        tabIndex={0}
-                        aria-label={aria}
-                        onContextMenu={(e) => {
-                          if (isViewOnly) return;
-                          if (!onEventDelete) return;
-                          if (interactions?.deletableEvents === false) return;
-                          e.preventDefault();
-                          e.stopPropagation();
-                          const ok = window.confirm(l.deleteConfirm);
-                          if (!ok) return;
-                          onEventDelete({ eventId: ev.id });
-                        }}
-                        onClick={() => {
-                          if (suppressNextEventClickRef.current) {
-                            suppressNextEventClickRef.current = false;
-                            return;
-                          }
-                          onEventClick?.(ev);
-                          if (effectiveEnableEventSheet) {
-                            setSelectedEventId(ev.id);
-                            setEventSheetOpen(true);
-                          }
-                        }}
-                        onDoubleClick={() => onEventDoubleClick?.(ev)}
-                        onPointerDown={(e) => onPointerDownEvent(e, ev, "move")}
-                      >
-                        <div
-                          className={cn(
-                            "relative h-full rounded-lg border overflow-hidden",
+                        className={cn(
+                          "relative h-full rounded-lg border overflow-hidden",
                             "shadow-sm hover:shadow-md hover:scale-[1.02]",
                             "transition-all duration-150 ease-out",
                             "backdrop-blur-sm",
@@ -1513,19 +1348,34 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                           ) : null}
                         </div>
 
-                        {!isViewOnly && (interactions?.resizableEvents ?? true) && ev.resizable !== false ? (
-                          <>
-                            <div
-                              className="absolute left-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-l-lg transition-opacity"
-                              onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-start")}
-                            />
-                            <div
-                              className="absolute right-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-r-lg transition-opacity"
-                              onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-end")}
-                            />
-                          </>
-                        ) : null}
-                      </div>
+                      {!isViewOnly && (interactions?.resizableEvents ?? true) && ev.resizable !== false ? (
+                        <>
+                          <div
+                            className="absolute left-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-l-lg transition-opacity"
+                            onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-start")}
+                          />
+                          <div
+                            className="absolute right-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-r-lg transition-opacity"
+                            onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-end")}
+                          />
+                        </>
+                      ) : null}
+                    </div>
+                  );
+
+                  if (!enableEventTooltips) return <React.Fragment key={ev.id}>{block}</React.Fragment>;
+
+                  const tooltipContent = (
+                    <div className="flex flex-col gap-0.5">
+                      <div className="font-semibold">{tooltipTitle}</div>
+                      <div className="text-xs opacity-80">{timeText}</div>
+                      {resource?.label ? <div className="text-xs opacity-70">{resource.label}</div> : null}
+                    </div>
+                  );
+
+                  return (
+                    <Tooltip key={ev.id} content={tooltipContent} placement="top" delay={{ open: 250, close: 0 }}>
+                      {block}
                     </Tooltip>
                   );
                 })}
