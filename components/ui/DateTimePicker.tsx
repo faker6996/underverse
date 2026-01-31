@@ -50,9 +50,11 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
   // Internal state for the popover interaction
   const [tempDate, setTempDate] = React.useState<Date | undefined>(value);
+  const [calendarMonth, setCalendarMonth] = React.useState<Date>(() => value ?? new Date());
 
   React.useEffect(() => {
     setTempDate(value);
+    setCalendarMonth(value ?? new Date());
   }, [value, open]);
 
   // Helper to get time string from date
@@ -88,6 +90,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
         }
         return newDate;
       });
+      setCalendarMonth(date);
     }
   };
 
@@ -227,10 +230,8 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
               value={tempDate}
               onSelect={handleDateSelect}
               selectMode="single"
-              month={tempDate}
-              onMonthChange={(m) => {
-                // optional: manage month state if needed
-              }}
+              month={calendarMonth}
+              onMonthChange={setCalendarMonth}
               minDate={minDate}
               maxDate={maxDate}
               className="border-0 shadow-none w-auto"

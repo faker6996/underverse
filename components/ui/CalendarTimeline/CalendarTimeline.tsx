@@ -200,7 +200,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const [internalDate, setInternalDate] = React.useState<Date>(() => defaultDate ?? new Date());
   const activeDate = isControlledDate ? (date as Date) : internalDate;
 
-  const resolvedNow = now ?? new Date();
+  const resolvedNow = React.useMemo(() => now ?? new Date(), [now]);
 
   const l: Required<CalendarTimelineLabels> = React.useMemo(
     () => ({
@@ -256,8 +256,6 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     },
     [activeDate, activeView, resolvedTimeZone, setDate],
   );
-
-  const goToday = React.useCallback(() => setDate(resolvedNow), [resolvedNow, setDate]);
 
   const [internalCollapsed, setInternalCollapsed] = React.useState<Record<string, boolean>>(() => defaultGroupCollapsed ?? {});
   const collapsed = groupCollapsed ?? internalCollapsed;
@@ -1096,7 +1094,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       activeView={activeView}
       sizeConfig={sizeConfig}
       navigate={navigate}
-      goToday={goToday}
+      now={resolvedNow}
+      onApplyDateTime={setDate}
       setView={setView}
       effectiveResourceColumnWidth={effectiveResourceColumnWidth}
       canResizeColumn={canResizeColumn}

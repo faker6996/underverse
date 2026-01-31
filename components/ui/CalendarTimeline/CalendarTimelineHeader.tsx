@@ -3,7 +3,11 @@
 import * as React from "react";
 import { Calendar, CalendarDays, CalendarRange, ChevronLeft, ChevronRight, GripVertical, Plus } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useLocale, useTranslations } from "@/lib/i18n/translation-adapter";
 import Button from "../Button";
+import CalendarComponent from "../Calendar";
+import { Popover } from "../Popover";
+import TimePicker from "../TimePicker";
 import type { CalendarTimelineView } from "./types";
 import type { CalendarTimelineSizeConfig } from "./config";
 
@@ -23,7 +27,8 @@ export function CalendarTimelineHeader(props: {
   activeView: CalendarTimelineView;
   sizeConfig: CalendarTimelineSizeConfig;
   navigate: (dir: -1 | 1) => void;
-  goToday: () => void;
+  now: Date;
+  onApplyDateTime: (date: Date) => void;
   setView: (view: CalendarTimelineView) => void;
   effectiveResourceColumnWidth: number | string;
   canResizeColumn: boolean;
@@ -41,7 +46,8 @@ export function CalendarTimelineHeader(props: {
     activeView,
     sizeConfig,
     navigate,
-    goToday,
+    now,
+    onApplyDateTime,
     setView,
     effectiveResourceColumnWidth,
     canResizeColumn,
@@ -49,6 +55,74 @@ export function CalendarTimelineHeader(props: {
     headerRef,
     slotHeaderNodes,
   } = props;
+
+  const dt = useTranslations("DateTimePicker");
+  const locale = useLocale();
+
+  const [todayOpen, setTodayOpen] = React.useState(false);
+  const [tempDate, setTempDate] = React.useState<Date>(() => now);
+  const [calendarMonth, setCalendarMonth] = React.useState<Date>(() => now);
+
+  React.useEffect(() => {
+    if (!todayOpen) return;
+    setTempDate(now);
+    setCalendarMonth(now);
+  }, [now, todayOpen]);
+
+  const monthLabel = React.useCallback(
+    (date: Date) =>
+      date.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", {
+        month: "long",
+        year: "numeric",
+      }),
+    [locale],
+  );
+
+  const weekdays = React.useMemo(() => {
+    switch (locale) {
+      case "vi":
+        return ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+      case "ko":
+        return ["일", "월", "화", "수", "목", "금", "토"];
+      case "ja":
+        return ["日", "月", "火", "水", "木", "金", "土"];
+      default:
+        return ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+    }
+  }, [locale]);
+
+  const getTimeString = React.useCallback((date: Date) => {
+    const h = date.getHours();
+    const m = date.getMinutes();
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+  }, []);
+
+  const handleDateSelect = React.useCallback((date: Date | Date[] | { start?: Date; end?: Date }) => {
+    if (!(date instanceof Date)) return;
+    setTempDate((prev) => {
+      const next = new Date(date);
+      next.setHours(prev.getHours(), prev.getMinutes(), prev.getSeconds());
+      return next;
+    });
+  }, []);
+
+  const handleTimeChange = React.useCallback((timeStr: string | undefined) => {
+    if (!timeStr) return;
+    const [hStr, mStr] = timeStr.split(":");
+    const h = parseInt(hStr, 10);
+    const m = parseInt(mStr, 10);
+    if (!Number.isFinite(h) || !Number.isFinite(m)) return;
+    setTempDate((prev) => {
+      const next = new Date(prev);
+      next.setHours(h, m, prev.getSeconds());
+      return next;
+    });
+  }, []);
+
+  const applyDateTime = React.useCallback(() => {
+    onApplyDateTime(tempDate);
+    setTodayOpen(false);
+  }, [onApplyDateTime, tempDate]);
 
   return (
     <div className="sticky top-0 z-30 bg-linear-to-b from-background via-background to-background/95 border-b border-border/40 backdrop-blur-xl">
@@ -65,14 +139,82 @@ export function CalendarTimelineHeader(props: {
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={goToday}
-              className={cn(sizeConfig.controlButtonTextClass, "rounded-full hover:bg-background/80 font-medium transition-all duration-200")}
+            <Popover
+              open={todayOpen}
+              onOpenChange={setTodayOpen}
+              placement="bottom-start"
+              trigger={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(sizeConfig.controlButtonTextClass, "rounded-full hover:bg-background/80 font-medium transition-all duration-200")}
+                >
+                  {labels.today}
+                </Button>
+              }
+              contentClassName={cn(
+                "w-auto p-0 rounded-2xl md:rounded-3xl overflow-hidden",
+              )}
             >
-              {labels.today}
-            </Button>
+              <div className="max-w-[calc(100vw-1rem)] max-h-[calc(100vh-6rem)] overflow-auto">
+                <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-border">
+                  <div className="p-2">
+                    <CalendarComponent
+                      value={tempDate}
+                      onSelect={handleDateSelect}
+                      selectMode="single"
+                      month={calendarMonth}
+                      onMonthChange={setCalendarMonth}
+                      className="border-0 shadow-none w-auto"
+                      size="sm"
+                      labels={{
+                        month: monthLabel,
+                        weekdays,
+                      }}
+                    />
+                  </div>
+                  <div className="p-2 flex flex-col gap-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-sm font-semibold text-muted-foreground">{dt?.("time") || "Time"}</div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="rounded-full text-muted-foreground hover:text-foreground"
+                        onClick={() => setTempDate(now)}
+                      >
+                        {labels.today}
+                      </Button>
+                    </div>
+                    <TimePicker
+                      variant="inline"
+                      value={getTimeString(tempDate)}
+                      onChange={handleTimeChange}
+                      format="24"
+                      includeSeconds={false}
+                      clearable={false}
+                      className="border-0 shadow-none p-0 bg-transparent rounded-none"
+                      size="sm"
+                    />
+                  </div>
+                </div>
+                <div className="p-3 border-t border-border flex justify-between items-center bg-muted/20">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-full text-muted-foreground hover:text-foreground"
+                    onClick={() => {
+                      setTempDate(now);
+                      setCalendarMonth(now);
+                    }}
+                  >
+                    {labels.today}
+                  </Button>
+                  <Button size="sm" onClick={applyDateTime} className="rounded-full">
+                    {dt?.("done") || "Done"}
+                  </Button>
+                </div>
+              </div>
+            </Popover>
             <Button
               variant="ghost"
               size="icon"
