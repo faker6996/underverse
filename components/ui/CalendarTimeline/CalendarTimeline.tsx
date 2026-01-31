@@ -80,6 +80,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   enableLayoutResize,
   slotMinWidth,
   adaptiveSlotWidths,
+  dayEventStyle = "span",
+  dayEventMaxWidth,
   dayTimeStepMinutes = 60,
   dayRangeMode,
   workHours,
@@ -312,6 +314,31 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     return normalizeEvents({ events: events as CalendarTimelineEvent<TEventMeta>[], range, view: activeView, timeZone: resolvedTimeZone });
   }, [events, range, activeView, resolvedTimeZone]);
 
+  const dayHeaderMarks = React.useMemo(() => {
+    if (activeView !== "day") return null;
+    const n = slots.length;
+    const showTime = new Array<boolean>(n).fill(false);
+    const showEllipsis = new Array<boolean>(n).fill(false);
+
+    for (const ev of normalizedEvents) {
+      const startIdx = binarySearchLastLE(slotStarts, ev._start);
+      const endIdxRaw = binarySearchFirstGE(slotStarts, ev._end);
+      const endIdx = clamp(endIdxRaw, 0, n - 1);
+
+      if (startIdx >= 0 && startIdx < n) showTime[startIdx] = true;
+      if (endIdx >= 0 && endIdx < n) showTime[endIdx] = true;
+
+      const span = endIdx - startIdx;
+      if (span >= 3) {
+        const mid = clamp(Math.floor((startIdx + endIdx) / 2), 0, n - 1);
+        if (!showTime[mid]) showEllipsis[mid] = true;
+      }
+    }
+
+    const anchor = showTime.map((v, i) => v || showEllipsis[i]!);
+    return { showTime, showEllipsis, anchor };
+  }, [activeView, normalizedEvents, slotStarts, slots.length]);
+
   const slotMetrics = React.useMemo(() => {
     const n = slots.length;
     const widths = new Array<number>(n).fill(fixedSlotWidth);
@@ -326,13 +353,46 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       for (let i = 0; i < n; i++) lefts[i + 1] = lefts[i]! + widths[i]!;
       const gridWidth = lefts[n] ?? 0;
       const xToSlotIdx = (x: number) => clamp(Math.floor(x / Math.max(1, fixedSlotWidth)), 0, Math.max(0, n - 1));
-      return { slotWidths: widths, slotLefts: lefts, gridWidth, xToSlotIdx };
+      return { slotWidths: widths, slotLefts: lefts, slotHasEvent: null as boolean[] | null, gridWidth, xToSlotIdx };
     }
 
     const cfg = typeof adaptiveCfg === "object" ? adaptiveCfg : {};
     const mode = cfg.mode ?? "shrink";
     const defaultEmptySlotWidth = Math.max(18, Math.round(effectiveSlotMinWidth * 0.6));
-    const emptySlotWidth = Math.max(12, Math.min(fixedSlotWidth, cfg.emptySlotWidth ?? defaultEmptySlotWidth));
+    const minEmptySlotWidth = activeView === "month" ? Math.max(24, Math.round(effectiveSlotMinWidth * 0.45)) : 12;
+    const emptySlotWidth = Math.max(minEmptySlotWidth, Math.min(fixedSlotWidth, cfg.emptySlotWidth ?? defaultEmptySlotWidth));
+
+    const dayAnchorCompression = activeView === "day" && Boolean(dayHeaderMarks?.anchor);
+
+    // Day view special: compress long spans by keeping only anchor columns (start, …, end) wide.
+    if (dayAnchorCompression) {
+      const hasEvent = (dayHeaderMarks!.anchor as boolean[]).slice(0, n);
+      // Keep "compressed" slots still visible as a subtle grid.
+      const compressedEmptySlotWidth = clamp(emptySlotWidth, 12, 20);
+      for (let i = 0; i < n; i++) widths[i] = hasEvent[i] ? fixedSlotWidth : compressedEmptySlotWidth;
+
+      const lefts = new Array<number>(n + 1);
+      lefts[0] = 0;
+      for (let i = 0; i < n; i++) lefts[i + 1] = lefts[i]! + widths[i]!;
+      const gridWidth = lefts[n] ?? 0;
+
+      const xToSlotIdx = (x: number) => {
+        const xc = clamp(x, 0, Math.max(0, gridWidth - 0.001));
+        let lo = 0;
+        let hi = n - 1;
+        while (lo <= hi) {
+          const mid = (lo + hi) >> 1;
+          const left = lefts[mid] ?? 0;
+          const right = lefts[mid + 1] ?? gridWidth;
+          if (xc < left) hi = mid - 1;
+          else if (xc >= right) lo = mid + 1;
+          else return mid;
+        }
+        return clamp(lo, 0, Math.max(0, n - 1));
+      };
+
+      return { slotWidths: widths, slotLefts: lefts, slotHasEvent: hasEvent, gridWidth, xToSlotIdx };
+    }
 
     // Mark which slots are covered by at least one event (any resource).
     const diff = new Array<number>(n + 1).fill(0);
@@ -360,7 +420,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       for (let i = 0; i < n; i++) lefts[i + 1] = lefts[i]! + widths[i]!;
       const gridWidth = lefts[n] ?? 0;
       const xToSlotIdx = (x: number) => clamp(Math.floor(x / Math.max(1, fixedSlotWidth)), 0, Math.max(0, n - 1));
-      return { slotWidths: widths, slotLefts: lefts, gridWidth, xToSlotIdx };
+      return { slotWidths: widths, slotLefts: lefts, slotHasEvent: null as boolean[] | null, gridWidth, xToSlotIdx };
     }
 
     const emptyCount = n - eventCount;
@@ -396,10 +456,10 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       return clamp(lo, 0, Math.max(0, n - 1));
     };
 
-    return { slotWidths: widths, slotLefts: lefts, gridWidth, xToSlotIdx };
-  }, [activeView, adaptiveSlotWidths, effectiveSlotMinWidth, fixedSlotWidth, normalizedEvents, slotStarts, slots.length]);
+    return { slotWidths: widths, slotLefts: lefts, slotHasEvent: hasEvent, gridWidth, xToSlotIdx };
+  }, [activeView, adaptiveSlotWidths, dayHeaderMarks, effectiveSlotMinWidth, fixedSlotWidth, normalizedEvents, slotStarts, slots.length]);
 
-  const { slotWidths, slotLefts, gridWidth, xToSlotIdx } = slotMetrics;
+  const { slotWidths, slotLefts, slotHasEvent, gridWidth, xToSlotIdx } = slotMetrics;
 
   const eventsByResource = React.useMemo(() => {
     return eventsByResourceId(normalizedEvents);
@@ -1110,17 +1170,38 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         <div
           key={`${s.start.toISOString()}_${idx}`}
           className={cn(
-            "shrink-0 border-l border-border/30 flex items-center justify-center transition-colors duration-150",
+            "shrink-0 border-l flex items-center justify-center transition-colors duration-150 overflow-hidden",
+            activeView === "day" && dayHeaderMarks?.anchor
+              ? dayHeaderMarks.anchor[idx]
+                ? "border-border/30"
+                : "border-border/10"
+              : "border-border/30",
             sizeConfig.slotHeaderClass,
-            s.isToday && "bg-primary/8 border-l-primary/40",
+            activeView !== "day" && s.isToday && "bg-primary/8 border-l-primary/40",
           )}
           style={{ width: slotWidths[idx], minWidth: slotWidths[idx] }}
           aria-label={formatters?.ariaSlotLabel?.(s.start, { view: activeView, locale: resolvedLocale, timeZone: resolvedTimeZone })}
         >
-          <div className={cn("flex flex-col items-center", s.isToday && "relative")}>
-            {s.isToday && <Dot className="absolute -top-2.5 h-4 w-4 text-primary animate-pulse" />}
-            {s.label}
-          </div>
+          {(() => {
+            const label =
+              typeof s.label === "string" || typeof s.label === "number" ? (
+                <span className="truncate whitespace-nowrap">{s.label}</span>
+              ) : (
+                s.label
+              );
+
+            if (activeView === "day" && dayHeaderMarks) {
+              if (dayHeaderMarks.showEllipsis[idx]) return <span className="text-xs text-muted-foreground/70 select-none">…</span>;
+              if (!dayHeaderMarks.showTime[idx]) return null;
+            }
+
+            return (
+              <div className={cn("flex flex-col items-center min-w-0 overflow-hidden", activeView !== "day" && s.isToday && "relative")}>
+                {activeView !== "day" && s.isToday && <Dot className="absolute -top-2.5 h-4 w-4 text-primary animate-pulse" />}
+                {label}
+              </div>
+            );
+          })()}
         </div>
       ))}
     </div>
@@ -1294,8 +1375,13 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         <div
                           key={`${r.id}_${i2}`}
                           className={cn(
-                            "h-full border-l border-border/20 transition-colors duration-100",
-                            s.isToday && "bg-primary/5 border-l-primary/30",
+                            "h-full border-l transition-colors duration-100",
+                            activeView === "day" && dayHeaderMarks?.anchor
+                              ? !dayHeaderMarks.anchor[i2]
+                                ? "border-border/10"
+                                : "border-border/20"
+                              : "border-border/20",
+                            activeView !== "day" && s.isToday && "bg-primary/5 border-l-primary/30",
                             "hover:bg-muted/10",
                           )}
                           style={{ width: slotWidths[i2], minWidth: slotWidths[i2] }}
@@ -1307,11 +1393,11 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                   {layout.visible.map(({ ev, left, width, lane }) => {
                     const top = layout.baseTop + lane * (layout.eventHeight + laneGap);
                     const isPreview = preview?.eventId === ev.id;
-                    const bg = ev.color ? ev.color : "hsl(var(--primary) / 0.15)";
-                    const border = ev.color ? ev.color : "hsl(var(--primary))";
-                    const aria =
-                      formatters?.ariaEventLabel?.(ev, { locale: resolvedLocale, timeZone: resolvedTimeZone }) ??
-                      (typeof ev.title === "string" ? ev.title : "Event");
+            const bg = ev.color ? ev.color : "hsl(var(--primary) / 0.15)";
+            const border = ev.color ? ev.color : "hsl(var(--primary))";
+            const aria =
+              formatters?.ariaEventLabel?.(ev, { locale: resolvedLocale, timeZone: resolvedTimeZone }) ??
+              (typeof ev.title === "string" ? ev.title : "Event");
                     const timeText =
                       formatters?.eventTime?.({
                         start: ev._start,
@@ -1362,72 +1448,87 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                       </div>
                     );
 
-                    return (
-                      <Tooltip key={ev.id} content={tooltipContent} placement="top" delay={{ open: 250, close: 0 }}>
+                  const shouldCompact = activeView === "day" && dayEventStyle === "compact";
+                  const defaultMaxVisual = clamp(Math.round(fixedSlotWidth * 1.2), 160, 360);
+                  const maxVisual = clamp(Math.round(dayEventMaxWidth ?? defaultMaxVisual), 80, 1200);
+                  const visualWidth = shouldCompact ? Math.min(width, maxVisual) : width;
+                  const isClipped = shouldCompact && width > visualWidth + 1;
+
+                  return (
+                    <Tooltip key={ev.id} content={tooltipContent} placement="top" delay={{ open: 250, close: 0 }}>
+                      <div
+                        className={cn("absolute select-none cursor-pointer", isPreview && "z-10")}
+                        data-uv-ct-event
+                        style={{ left, top, width, height: layout.eventHeight }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={aria}
+                        onContextMenu={(e) => {
+                          if (isViewOnly) return;
+                          if (!onEventDelete) return;
+                          if (interactions?.deletableEvents === false) return;
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const ok = window.confirm(l.deleteConfirm);
+                          if (!ok) return;
+                          onEventDelete({ eventId: ev.id });
+                        }}
+                        onClick={() => {
+                          if (suppressNextEventClickRef.current) {
+                            suppressNextEventClickRef.current = false;
+                            return;
+                          }
+                          onEventClick?.(ev);
+                          if (effectiveEnableEventSheet) {
+                            setSelectedEventId(ev.id);
+                            setEventSheetOpen(true);
+                          }
+                        }}
+                        onDoubleClick={() => onEventDoubleClick?.(ev)}
+                        onPointerDown={(e) => onPointerDownEvent(e, ev, "move")}
+                      >
                         <div
                           className={cn(
-                            "absolute rounded-lg border select-none cursor-pointer",
-                            "shadow-sm hover:shadow-md hover:scale-[1.02] hover:z-10",
+                            "relative h-full rounded-lg border overflow-hidden",
+                            "shadow-sm hover:shadow-md hover:scale-[1.02]",
                             "transition-all duration-150 ease-out",
                             "backdrop-blur-sm",
-                            "overflow-hidden",
                             ev.className,
-                            isPreview && "ring-2 ring-primary/50 ring-offset-1 ring-offset-background scale-[1.02] z-10",
+                            isPreview && "ring-2 ring-primary/50 ring-offset-1 ring-offset-background scale-[1.02]",
                           )}
-                          data-uv-ct-event
                           style={{
-                            left,
-                            top,
-                            width,
-                            height: layout.eventHeight,
+                            width: visualWidth,
+                            maxWidth: "100%",
+                            height: "100%",
                             background: bg,
                             borderColor: border,
                             borderLeftWidth: 3,
                           }}
-                          role="button"
-                          tabIndex={0}
-                          aria-label={aria}
-                          onContextMenu={(e) => {
-                            if (isViewOnly) return;
-                            if (!onEventDelete) return;
-                            if (interactions?.deletableEvents === false) return;
-                            e.preventDefault();
-                            e.stopPropagation();
-                            const ok = window.confirm(l.deleteConfirm);
-                            if (!ok) return;
-                            onEventDelete({ eventId: ev.id });
-                          }}
-                          onClick={() => {
-                            if (suppressNextEventClickRef.current) {
-                              suppressNextEventClickRef.current = false;
-                              return;
-                            }
-                            onEventClick?.(ev);
-                            if (effectiveEnableEventSheet) {
-                              setSelectedEventId(ev.id);
-                              setEventSheetOpen(true);
-                            }
-                          }}
-                          onDoubleClick={() => onEventDoubleClick?.(ev)}
-                          onPointerDown={(e) => onPointerDownEvent(e, ev, "move")}
                         >
-                          {!isViewOnly && (interactions?.resizableEvents ?? true) && ev.resizable !== false ? (
-                            <>
-                              <div
-                                className="absolute left-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-l-lg transition-opacity"
-                                onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-start")}
-                              />
-                              <div
-                                className="absolute right-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-r-lg transition-opacity"
-                                onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-end")}
-                              />
-                            </>
-                          ) : null}
                           {node}
+                          {isClipped ? (
+                            <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-linear-to-l from-background/50 to-transparent flex items-center justify-end pr-2">
+                              <span className="text-xs text-muted-foreground/80">…</span>
+                            </div>
+                          ) : null}
                         </div>
-                      </Tooltip>
-                    );
-                  })}
+
+                        {!isViewOnly && (interactions?.resizableEvents ?? true) && ev.resizable !== false ? (
+                          <>
+                            <div
+                              className="absolute left-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-l-lg transition-opacity"
+                              onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-start")}
+                            />
+                            <div
+                              className="absolute right-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-r-lg transition-opacity"
+                              onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-end")}
+                            />
+                          </>
+                        ) : null}
+                      </div>
+                    </Tooltip>
+                  );
+                })}
 
                   {preview && preview.resourceId === r.id && !preview.eventId
                     ? (() => {

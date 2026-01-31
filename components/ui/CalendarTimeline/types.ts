@@ -194,6 +194,14 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
    * Week view is unaffected.
    */
   adaptiveSlotWidths?: CalendarTimelineAdaptiveSlotWidths;
+  /**
+   * Day view: visual style for events that span many time slots.
+   * - "span": event blocks span the full duration on the timeline (default)
+   * - "compact": event blocks keep a capped visual width (still positioned at correct start)
+   */
+  dayEventStyle?: "span" | "compact";
+  /** Day view only (when `dayEventStyle="compact"`): max visual width (px). */
+  dayEventMaxWidth?: number;
   dayTimeStepMinutes?: number; // day view slot size
   /**
    * Day view horizontal range:
