@@ -1122,7 +1122,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   return (
     <div
       className={cn(
-        "border border-border/40 rounded-2xl overflow-hidden bg-background/95 backdrop-blur-sm",
+        "border border-border/40 rounded-2xl md:rounded-3xl overflow-hidden bg-background/95 backdrop-blur-sm",
         "shadow-sm hover:shadow-md transition-shadow duration-300",
         densityClass,
         className,
@@ -1285,16 +1285,20 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                   const tooltipTitle = ev.title || ev.id;
 
                   const shouldCompact = activeView === "day" && dayEventStyle === "compact";
+                  const eventInsetX = 2;
+                  const leftInset = left + eventInsetX;
+                  const widthInset = Math.max(1, width - eventInsetX * 2);
+
                   const defaultMaxVisual = clamp(Math.round(fixedSlotWidth * 1.2), 160, 360);
                   const maxVisual = clamp(Math.round(dayEventMaxWidth ?? defaultMaxVisual), 80, 1200);
-                  const visualWidth = shouldCompact ? Math.min(width, maxVisual) : width;
-                  const isClipped = shouldCompact && width > visualWidth + 1;
+                  const visualWidth = shouldCompact ? Math.min(widthInset, maxVisual) : widthInset;
+                  const isClipped = shouldCompact && widthInset > visualWidth + 1;
 
                   const block = (
                     <div
                       className={cn("absolute select-none cursor-pointer", isPreview && "z-10")}
                       data-uv-ct-event
-                      style={{ left, top, width, height: layout.eventHeight }}
+                      style={{ left: leftInset, top, width: widthInset, height: layout.eventHeight }}
                       role="button"
                       tabIndex={0}
                       aria-label={aria}
@@ -1386,10 +1390,16 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         const endIdx = clamp(binarySearchFirstGE(slotStarts, preview.end), startIdx + 1, slots.length);
                         const left = slotLefts[startIdx] ?? 0;
                         const width = Math.max(1, (slotLefts[endIdx] ?? 0) - (slotLefts[startIdx] ?? 0));
+                        const eventInsetX = 2;
                         return (
                           <div
                             className="absolute rounded-lg border-2 border-dashed border-primary/60 bg-primary/10 backdrop-blur-sm animate-pulse"
-                            style={{ left, top: layout.baseTop, width, height: layout.eventHeight }}
+                            style={{
+                              left: left + eventInsetX,
+                              top: layout.baseTop,
+                              width: Math.max(1, width - eventInsetX * 2),
+                              height: layout.eventHeight,
+                            }}
                           />
                         );
                       })()

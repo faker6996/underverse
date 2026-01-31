@@ -55,13 +55,13 @@ export function CalendarTimelineHeader(props: {
       <div className={cn("flex items-center justify-between gap-4", sizeConfig.headerPaddingClass)}>
         {/* Navigation Controls */}
         <div className="flex items-center gap-1.5 min-w-0">
-          <div className="flex items-center bg-muted/40 rounded-xl p-1 gap-0.5">
+          <div className="flex items-center bg-muted/40 rounded-full p-1 gap-0.5">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate(-1)}
               aria-label={labels.prev}
-              className={cn(sizeConfig.controlButtonIconClass, "rounded-lg hover:bg-background/80 transition-all duration-200")}
+              className={cn(sizeConfig.controlButtonIconClass, "rounded-full hover:bg-background/80 transition-all duration-200")}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -69,7 +69,7 @@ export function CalendarTimelineHeader(props: {
               variant="ghost"
               size="sm"
               onClick={goToday}
-              className={cn(sizeConfig.controlButtonTextClass, "rounded-lg hover:bg-background/80 font-medium transition-all duration-200")}
+              className={cn(sizeConfig.controlButtonTextClass, "rounded-full hover:bg-background/80 font-medium transition-all duration-200")}
             >
               {labels.today}
             </Button>
@@ -78,7 +78,7 @@ export function CalendarTimelineHeader(props: {
               size="icon"
               onClick={() => navigate(1)}
               aria-label={labels.next}
-              className={cn(sizeConfig.controlButtonIconClass, "rounded-lg hover:bg-background/80 transition-all duration-200")}
+              className={cn(sizeConfig.controlButtonIconClass, "rounded-full hover:bg-background/80 transition-all duration-200")}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -94,14 +94,14 @@ export function CalendarTimelineHeader(props: {
               icon={Plus}
               disabled={newEventDisabled}
               onClick={onNewEventClick}
-              className={cn(sizeConfig.controlButtonTextClass, "rounded-lg font-medium transition-all duration-200 gap-1.5")}
+              className={cn(sizeConfig.controlButtonTextClass, "rounded-full font-medium transition-all duration-200 gap-1.5")}
             >
               <span className="hidden sm:inline">{newEventLabel}</span>
             </Button>
           ) : null}
 
           {/* View Switcher */}
-          <div className="flex items-center bg-muted/40 rounded-xl p-1 gap-0.5">
+          <div className="flex items-center bg-muted/40 rounded-full p-1 gap-0.5">
             {(["month", "week", "day"] as CalendarTimelineView[]).map((v) => (
               <Button
                 key={v}
@@ -110,7 +110,7 @@ export function CalendarTimelineHeader(props: {
                 onClick={() => setView(v)}
                 className={cn(
                   sizeConfig.controlButtonTextClass,
-                  "rounded-lg font-medium transition-all duration-200 gap-1.5",
+                  "rounded-full font-medium transition-all duration-200 gap-1.5",
                   activeView === v
                     ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
                     : "hover:bg-background/80 text-muted-foreground hover:text-foreground",
