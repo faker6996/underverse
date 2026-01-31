@@ -25,6 +25,8 @@ export interface TimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   clearable?: boolean;
   /** Visual variant of the picker */
   variant?: TimePickerVariant;
+  /** Match dropdown width to trigger width */
+  matchTriggerWidth?: boolean;
   /** Show "Now" button */
   showNow?: boolean;
   /** Show time presets (Morning, Afternoon, Evening) */
@@ -56,6 +58,7 @@ export interface TimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElemen
 type Parts = { h: number; m: number; s: number; p?: "AM" | "PM" };
 
 const pad = (n: number) => n.toString().padStart(2, "0");
+const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 
 const WHEEL_ITEM_HEIGHT = {
   sm: 30,
@@ -66,6 +69,7 @@ const WHEEL_ITEM_HEIGHT = {
 const WHEEL_VISIBLE_ITEMS = 5;
 
 type WheelColumnKind = "hour" | "minute" | "second";
+type PickerSize = "sm" | "md" | "lg";
 
 function WheelColumn({
   labelText,
@@ -75,6 +79,7 @@ function WheelColumn({
   onSelect,
   scrollRef,
   itemHeight,
+  size,
   animate,
   focused,
   setFocusedColumn,
@@ -87,6 +92,7 @@ function WheelColumn({
   onSelect: (value: number) => void;
   scrollRef: React.RefObject<HTMLDivElement | null>;
   itemHeight: number;
+  size: PickerSize;
   animate: boolean;
   focused: boolean;
   setFocusedColumn: (col: WheelColumnKind) => void;
@@ -95,19 +101,75 @@ function WheelColumn({
   const height = itemHeight * WHEEL_VISIBLE_ITEMS;
   const paddingY = (height - itemHeight) / 2;
   const rafRef = React.useRef(0);
-  const lastIndexRef = React.useRef<number | null>(null);
+  const lastVirtualIndexRef = React.useRef<number | null>(null);
   const wheelDeltaRef = React.useRef(0);
   const scrollEndTimeoutRef = React.useRef<number | null>(null);
   const suppressScrollSelectUntilRef = React.useRef(0);
 
+  const loop = true;
+  const ui = React.useMemo(() => {
+    if (size === "sm") {
+      return {
+        columnWidth: "min-w-[64px] max-w-[84px]",
+        label: "text-[9px] mb-2",
+        selectedText: "text-base",
+        unselectedText: "text-sm",
+        fadeHeight: "h-10",
+      };
+    }
+    if (size === "lg") {
+      return {
+        columnWidth: "min-w-[80px] max-w-[110px]",
+        label: "text-[11px] mb-3",
+        selectedText: "text-xl",
+        unselectedText: "text-lg",
+        fadeHeight: "h-14",
+      };
+    }
+    return {
+      columnWidth: "min-w-[70px] max-w-[90px]",
+      label: "text-[10px] mb-3",
+      selectedText: "text-lg",
+      unselectedText: "text-base",
+      fadeHeight: "h-12",
+    };
+  }, [size]);
+  const baseOffset = React.useMemo(() => (loop ? items.length : 0), [items.length, loop]);
+  const extendedItems = React.useMemo(() => (loop ? [...items, ...items, ...items] : items), [items, loop]);
+  const getNearestVirtualIndex = React.useCallback(
+    (realIndex: number, fromVirtual: number) => {
+      const len = items.length;
+      if (len <= 0) return 0;
+      if (!loop) return clamp(realIndex, 0, Math.max(0, len - 1));
+      const candidates = [realIndex, realIndex + len, realIndex + 2 * len];
+      let best = candidates[0]!;
+      let bestDist = Math.abs(best - fromVirtual);
+      for (const c of candidates) {
+        const dist = Math.abs(c - fromVirtual);
+        if (dist < bestDist) {
+          best = c;
+          bestDist = dist;
+        }
+      }
+      return best;
+    },
+    [items.length, loop],
+  );
+
   React.useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const nextTop = Math.max(0, valueIndex) * itemHeight;
-    if (Math.abs(el.scrollTop - nextTop) > 1) {
-      el.scrollTo({ top: nextTop, behavior: animate ? "smooth" : "auto" });
+    const maxVirtual = Math.max(0, extendedItems.length - 1);
+    const currentVirtual = clamp(Math.round(el.scrollTop / itemHeight), 0, maxVirtual);
+    const desiredVirtual = loop ? getNearestVirtualIndex(valueIndex, currentVirtual) : valueIndex;
+    const nextTop = desiredVirtual * itemHeight;
+    const delta = Math.abs(el.scrollTop - nextTop);
+    if (delta > 1) {
+      // Keep it feeling continuous: smooth for small moves, auto for large corrections.
+      const behavior = animate && delta <= itemHeight * 1.5 ? "smooth" : "auto";
+      el.scrollTo({ top: nextTop, behavior });
     }
-    lastIndexRef.current = valueIndex;
+    lastVirtualIndexRef.current = desiredVirtual;
     return () => {
       if (scrollEndTimeoutRef.current != null) {
         window.clearTimeout(scrollEndTimeoutRef.current);
@@ -115,7 +177,7 @@ function WheelColumn({
       }
       cancelAnimationFrame(rafRef.current);
     };
-  }, [animate, itemHeight, scrollRef, valueIndex]);
+  }, [animate, extendedItems.length, getNearestVirtualIndex, itemHeight, loop, scrollRef, valueIndex]);
 
   React.useEffect(() => {
     const el = scrollRef.current;
@@ -152,21 +214,31 @@ function WheelColumn({
         wheelDeltaRef.current = 0;
       }
 
-      const fromIndex = lastIndexRef.current ?? valueIndex;
-      const nextIndex = Math.max(0, Math.min(items.length - 1, fromIndex + step));
-      if (nextIndex === fromIndex) return;
+      if (items.length <= 0) return;
+      const fromVirtual = lastVirtualIndexRef.current ?? (loop ? baseOffset + valueIndex : valueIndex);
+      let nextVirtual = fromVirtual + step;
+      if (!loop) {
+        nextVirtual = clamp(nextVirtual, 0, Math.max(0, items.length - 1));
+      } else {
+        const len = items.length;
+        const maxVirtual = Math.max(0, len * 3 - 1);
+        if (nextVirtual < 0) nextVirtual += len;
+        if (nextVirtual > maxVirtual) nextVirtual -= len;
+      }
+      if (nextVirtual === fromVirtual) return;
 
       lastStepAtRef.current = Date.now();
       lastStepSignRef.current = step;
-      lastIndexRef.current = nextIndex;
+      lastVirtualIndexRef.current = nextVirtual;
       suppressScrollSelectUntilRef.current = Date.now() + 350;
-      el.scrollTo({ top: nextIndex * itemHeight, behavior: animate ? "smooth" : "auto" });
-      onSelect(items[nextIndex]);
+      el.scrollTo({ top: nextVirtual * itemHeight, behavior: animate ? "smooth" : "auto" });
+      const realIndex = ((nextVirtual % items.length) + items.length) % items.length;
+      onSelect(items[realIndex]!);
     };
 
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
-  }, [animate, column, itemHeight, items, onSelect, scrollRef, setFocusedColumn, valueIndex]);
+  }, [animate, baseOffset, column, itemHeight, items, loop, onSelect, scrollRef, setFocusedColumn, valueIndex]);
 
   const handleScroll = () => {
     const el = scrollRef.current;
@@ -178,26 +250,50 @@ function WheelColumn({
         window.clearTimeout(scrollEndTimeoutRef.current);
       }
       scrollEndTimeoutRef.current = window.setTimeout(() => {
-        const idx = Math.max(0, Math.min(items.length - 1, Math.round(el.scrollTop / itemHeight)));
-        if (lastIndexRef.current === idx) return;
-        lastIndexRef.current = idx;
+        if (items.length <= 0) return;
+        const len = items.length;
+        const maxVirtual = Math.max(0, extendedItems.length - 1);
+        const idxVirtual = clamp(Math.round(el.scrollTop / itemHeight), 0, maxVirtual);
+        const realIndex = ((idxVirtual % len) + len) % len;
+        const snappedVirtual = loop ? getNearestVirtualIndex(realIndex, idxVirtual) : realIndex;
+        if (lastVirtualIndexRef.current !== snappedVirtual) lastVirtualIndexRef.current = snappedVirtual;
         suppressScrollSelectUntilRef.current = Date.now() + 350;
-        el.scrollTo({ top: idx * itemHeight, behavior: animate ? "smooth" : "auto" });
-        onSelect(items[idx]);
+        el.scrollTo({ top: snappedVirtual * itemHeight, behavior: animate ? "smooth" : "auto" });
+        onSelect(items[realIndex]!);
+
+        // Re-center to the middle copy after snapping so subsequent wheel steps stay continuous.
+        if (loop) {
+          const min = len;
+          const max = len * 2 - 1;
+          let centered = snappedVirtual;
+          if (centered < min) centered += len;
+          if (centered > max) centered -= len;
+          if (centered !== snappedVirtual) {
+            lastVirtualIndexRef.current = centered;
+            el.scrollTo({ top: centered * itemHeight, behavior: "auto" });
+          }
+        }
       }, 120);
     });
   };
 
+  const currentVirtual = React.useMemo(() => {
+    if (!loop || items.length <= 0) return valueIndex;
+    const fallback = baseOffset + valueIndex;
+    const from = lastVirtualIndexRef.current ?? fallback;
+    return getNearestVirtualIndex(valueIndex, from);
+  }, [baseOffset, getNearestVirtualIndex, items.length, loop, valueIndex]);
+
   return (
-    <div className="flex-1 min-w-[70px] max-w-[90px]">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-3 text-center">{labelText}</div>
+    <div className={cn("flex-1", ui.columnWidth)}>
+      <div className={cn(ui.label, "font-bold uppercase tracking-wider text-muted-foreground/70 text-center")}>{labelText}</div>
       <div className="relative rounded-xl bg-muted/30 overflow-hidden" style={{ height }}>
         <div
           className="pointer-events-none absolute inset-x-2 top-1/2 -translate-y-1/2 rounded-lg bg-linear-to-r from-primary/20 via-primary/15 to-primary/20 border border-primary/30 shadow-sm shadow-primary/10"
           style={{ height: itemHeight }}
         />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-linear-to-b from-background/95 via-background/60 to-transparent z-10" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-background/95 via-background/60 to-transparent z-10" />
+        <div className={cn("pointer-events-none absolute inset-x-0 top-0 bg-linear-to-b from-background/95 via-background/60 to-transparent z-10", ui.fadeHeight)} />
+        <div className={cn("pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-background/95 via-background/60 to-transparent z-10", ui.fadeHeight)} />
 
         <div
           ref={scrollRef as any}
@@ -215,21 +311,21 @@ function WheelColumn({
           onScroll={handleScroll}
         >
           <div>
-            {items.map((n, index) => {
-              const dist = Math.abs(index - valueIndex);
+            {extendedItems.map((n, index) => {
+              const dist = Math.abs(index - currentVirtual);
               const scale = 1 - Math.min(dist * 0.12, 0.36);
               const opacity = 1 - Math.min(dist * 0.22, 0.75);
-              const isSelected = index === valueIndex;
+              const isSelected = index === currentVirtual;
 
               return (
                 <button
-                  key={n}
+                  key={`${column}_${index}`}
                   type="button"
                   role="option"
                   aria-selected={isSelected}
                   className={cn(
                     "w-full snap-center flex items-center justify-center rounded-lg transition-all duration-200 font-bold tabular-nums",
-                    isSelected ? "text-primary text-lg" : "text-muted-foreground hover:text-foreground/70",
+                    isSelected ? cn("text-primary", ui.selectedText) : cn("text-muted-foreground hover:text-foreground/70", ui.unselectedText),
                   )}
                   style={{
                     height: itemHeight,
@@ -238,9 +334,12 @@ function WheelColumn({
                   }}
                   onClick={() => {
                     const el = scrollRef.current;
+                    if (!el) return;
                     suppressScrollSelectUntilRef.current = Date.now() + 350;
-                    el?.scrollTo({ top: index * itemHeight, behavior: animate ? "smooth" : "auto" });
-                    onSelect(n);
+                    lastVirtualIndexRef.current = index;
+                    el.scrollTo({ top: index * itemHeight, behavior: animate ? "smooth" : "auto" });
+                    const realIndex = ((index % items.length) + items.length) % items.length;
+                    onSelect(items[realIndex]!);
                   }}
                 >
                   {pad(n)}
@@ -310,6 +409,7 @@ export default function TimePicker({
   secondStep = 1,
   clearable = true,
   variant = "default",
+  matchTriggerWidth = true,
   showNow = false,
   showPresets = false,
   allowManualInput = false,
@@ -507,6 +607,55 @@ export default function TimePicker({
   const minutes: number[] = Array.from({ length: Math.ceil(60 / minuteStep) }, (_, i) => Math.min(59, i * minuteStep));
   const seconds: number[] = Array.from({ length: Math.ceil(60 / secondStep) }, (_, i) => Math.min(59, i * secondStep));
 
+  const panelSizeClasses: Record<PickerSize, { contentPadding: string; stackGap: string; timeText: string; inputSize: "sm" | "md"; icon: string; separatorPad: string; presetText: string; presetPadding: string; actionText: string; actionPadding: string; periodLabel: string; periodGap: string; periodButton: string }> =
+    {
+      sm: {
+        contentPadding: "p-4",
+        stackGap: "space-y-3",
+        timeText: "text-xl",
+        inputSize: "sm",
+        icon: "w-3 h-3",
+        separatorPad: "pt-6",
+        presetText: "text-[11px]",
+        presetPadding: "px-3 py-2",
+        actionText: "text-[11px]",
+        actionPadding: "px-3 py-2",
+        periodLabel: "text-[9px] mb-2",
+        periodGap: "gap-1.5",
+        periodButton: "px-3 py-2 text-xs",
+      },
+      md: {
+        contentPadding: "p-5",
+        stackGap: "space-y-4",
+        timeText: "text-2xl",
+        inputSize: "sm",
+        icon: "w-3.5 h-3.5",
+        separatorPad: "pt-8",
+        presetText: "text-xs",
+        presetPadding: "px-3 py-2.5",
+        actionText: "text-xs",
+        actionPadding: "px-4 py-2.5",
+        periodLabel: "text-[10px] mb-3",
+        periodGap: "gap-2",
+        periodButton: "px-4 py-3 text-sm",
+      },
+      lg: {
+        contentPadding: "p-6",
+        stackGap: "space-y-5",
+        timeText: "text-3xl",
+        inputSize: "md",
+        icon: "w-4 h-4",
+        separatorPad: "pt-9",
+        presetText: "text-sm",
+        presetPadding: "px-4 py-3",
+        actionText: "text-sm",
+        actionPadding: "px-5 py-3",
+        periodLabel: "text-[11px] mb-3",
+        periodGap: "gap-2",
+        periodButton: "px-5 py-3.5 text-base",
+      },
+    };
+
   const sizeClasses = {
     sm: { label: "text-xs", height: "h-8", padding: "px-2.5 py-1.5", text: "text-xs", icon: "w-3.5 h-3.5" },
     md: { label: "text-sm", height: "h-10", padding: "px-3 py-2", text: "text-sm", icon: "w-4 h-4" },
@@ -514,6 +663,7 @@ export default function TimePicker({
   };
 
   const sz = sizeClasses[size];
+  const panelSz = panelSizeClasses[size];
 
   const display = formatTime(parts, format, includeSeconds);
 
@@ -544,14 +694,14 @@ export default function TimePicker({
         <div className="flex items-center gap-2.5">
           <div
             className={cn(
-              "flex items-center justify-center rounded-md p-1.5 transition-all duration-300",
+              "flex items-center justify-center transition-colors duration-300",
               error
-                ? "bg-destructive/10 text-destructive"
+                ? "text-destructive"
                 : success
-                  ? "bg-success/10 text-success"
+                  ? "text-success"
                   : open
-                    ? "bg-primary/15 text-primary"
-                    : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+                    ? "text-primary"
+                    : "text-muted-foreground group-hover:text-primary",
             )}
           >
             <Clock className={cn(sz.icon, "transition-transform duration-300", open && "rotate-12")} />
@@ -592,10 +742,10 @@ export default function TimePicker({
   };
 
   const timePickerContent = (
-    <div className="space-y-4">
+    <div className={panelSz.stackGap}>
       {/* Current Time Display */}
       <div className="flex items-center justify-center py-2 px-3 rounded-xl bg-linear-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20">
-        <span className="text-2xl font-bold tabular-nums tracking-wide text-foreground">{display}</span>
+        <span className={cn(panelSz.timeText, "font-bold tabular-nums tracking-wide text-foreground")}>{display}</span>
       </div>
 
       {/* Manual Input */}
@@ -605,11 +755,11 @@ export default function TimePicker({
             placeholder={format === "12" ? "02:30 PM" : "14:30"}
             value={manualInput || display}
             onChange={(e) => handleManualInput(e.target.value)}
-            size="sm"
+            size={panelSz.inputSize}
             variant="outlined"
             className="pl-9"
           />
-          <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Clock className={cn("absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground", panelSz.icon)} />
         </div>
       )}
 
@@ -623,7 +773,9 @@ export default function TimePicker({
                 key={preset}
                 type="button"
                 className={cn(
-                  "group relative px-3 py-2.5 text-xs font-medium rounded-xl border border-border/50 overflow-hidden",
+                  "group relative font-medium rounded-xl border border-border/50 overflow-hidden",
+                  panelSz.presetPadding,
+                  panelSz.presetText,
                   "bg-linear-to-br from-background to-muted/30",
                   "hover:border-primary/40 hover:shadow-md transition-all duration-300",
                   animate && "hover:scale-[1.02] active:scale-[0.98]",
@@ -636,7 +788,7 @@ export default function TimePicker({
                   style={{ opacity: 0.08 }}
                 />
                 <div className="relative flex items-center gap-2">
-                  <Icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <Icon className={cn("text-muted-foreground group-hover:text-primary transition-colors", panelSz.icon)} />
                   <span className="text-foreground/80 group-hover:text-foreground transition-colors">{label}</span>
                 </div>
               </button>
@@ -653,7 +805,9 @@ export default function TimePicker({
               key={idx}
               type="button"
               className={cn(
-                "px-3 py-2.5 text-xs font-medium rounded-xl border border-border/50",
+                "font-medium rounded-xl border border-border/50",
+                panelSz.presetPadding,
+                panelSz.presetText,
                 "bg-linear-to-br from-background to-muted/30",
                 "hover:border-primary/40 hover:bg-primary/5 hover:shadow-md transition-all duration-300",
                 animate && "hover:scale-[1.02] active:scale-[0.98]",
@@ -682,6 +836,7 @@ export default function TimePicker({
               onSelect={setHourFromDisplay}
               scrollRef={hourScrollRef}
               itemHeight={itemHeight}
+              size={size}
               animate={animate}
               focused={focusedColumn === "hour"}
               setFocusedColumn={(col) => setFocusedColumn(col)}
@@ -691,7 +846,7 @@ export default function TimePicker({
         })()}
 
         {/* Separator */}
-        <div className="flex flex-col items-center justify-center pt-8">
+        <div className={cn("flex flex-col items-center justify-center", panelSz.separatorPad)}>
           <div className="flex flex-col gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
             <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
@@ -714,6 +869,7 @@ export default function TimePicker({
               }}
               scrollRef={minuteScrollRef}
               itemHeight={itemHeight}
+              size={size}
               animate={animate}
               focused={focusedColumn === "minute"}
               setFocusedColumn={(col) => setFocusedColumn(col)}
@@ -726,7 +882,7 @@ export default function TimePicker({
         {includeSeconds && (
           <>
             {/* Separator */}
-            <div className="flex flex-col items-center justify-center pt-8">
+            <div className={cn("flex flex-col items-center justify-center", panelSz.separatorPad)}>
               <div className="flex flex-col gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
                 <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
@@ -747,6 +903,7 @@ export default function TimePicker({
                   }}
                   scrollRef={secondScrollRef}
                   itemHeight={itemHeight}
+                  size={size}
                   animate={animate}
                   focused={focusedColumn === "second"}
                   setFocusedColumn={(col) => setFocusedColumn(col)}
@@ -759,10 +916,15 @@ export default function TimePicker({
 
         {/* AM/PM */}
         {format === "12" && (
-          <div className="flex-1 min-w-[70px] max-w-[90px]">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-3 text-center">Period</div>
+          <div
+            className={cn(
+              "flex-1",
+              size === "sm" ? "min-w-[64px] max-w-[84px]" : size === "lg" ? "min-w-[80px] max-w-[110px]" : "min-w-[70px] max-w-[90px]",
+            )}
+          >
+            <div className={cn(panelSz.periodLabel, "font-bold uppercase tracking-wider text-muted-foreground/70 text-center")}>Period</div>
             <div
-              className="flex flex-col gap-2 p-1 rounded-xl bg-muted/30"
+              className={cn("flex flex-col p-1 rounded-xl bg-muted/30", panelSz.periodGap)}
               role="radiogroup"
               aria-label="Select AM or PM"
               tabIndex={focusedColumn === "period" ? 0 : -1}
@@ -778,7 +940,8 @@ export default function TimePicker({
                     role="radio"
                     aria-checked={isSelected}
                     className={cn(
-                      "relative px-4 py-3 rounded-lg transition-all duration-300 text-sm font-bold overflow-hidden",
+                      "relative rounded-lg transition-all duration-300 font-bold overflow-hidden",
+                      panelSz.periodButton,
                       "focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1",
                       isSelected && "bg-linear-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25",
                       !isSelected && "text-muted-foreground hover:text-foreground hover:bg-muted/50",
@@ -811,7 +974,9 @@ export default function TimePicker({
             <button
               type="button"
               className={cn(
-                "flex-1 px-4 py-2.5 text-xs font-semibold rounded-xl",
+                "flex-1 font-semibold rounded-xl",
+                panelSz.actionPadding,
+                panelSz.actionText,
                 "bg-linear-to-r from-primary/10 to-primary/5 border border-primary/30",
                 "text-primary hover:from-primary/20 hover:to-primary/10 hover:border-primary/50",
                 "transition-all duration-300 flex items-center justify-center gap-2",
@@ -823,7 +988,7 @@ export default function TimePicker({
               }}
               aria-label="Set current time"
             >
-              <Clock className="w-3.5 h-3.5" />
+              <Clock className={panelSz.icon} />
               Now
             </button>
           )}
@@ -831,7 +996,9 @@ export default function TimePicker({
             <button
               type="button"
               className={cn(
-                "flex-1 px-4 py-2.5 text-xs font-semibold rounded-xl",
+                "flex-1 font-semibold rounded-xl",
+                panelSz.actionPadding,
+                panelSz.actionText,
                 "bg-linear-to-r from-destructive/10 to-destructive/5 border border-destructive/30",
                 "text-destructive hover:from-destructive/20 hover:to-destructive/10 hover:border-destructive/50",
                 "transition-all duration-300 flex items-center justify-center gap-2",
@@ -844,7 +1011,7 @@ export default function TimePicker({
               }}
               aria-label="Clear selected time"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className={panelSz.icon} />
               Clear
             </button>
           )}
@@ -865,7 +1032,9 @@ export default function TimePicker({
             </label>
           </div>
         )}
-        <div className={cn("p-5 rounded-2xl border border-border/60 bg-card/95 backdrop-blur-sm shadow-xl", className)}>{timePickerContent}</div>
+        <div className={cn(panelSz.contentPadding, "rounded-2xl border border-border/60 bg-card/95 backdrop-blur-sm shadow-xl", className)}>
+          {timePickerContent}
+        </div>
       </div>
     );
   }
@@ -894,9 +1063,11 @@ export default function TimePicker({
         open={open}
         onOpenChange={handleOpenChange}
         placement="bottom-start"
-        contentWidth={contentWidth}
+        matchTriggerWidth={matchTriggerWidth}
+        contentWidth={matchTriggerWidth ? undefined : contentWidth}
         contentClassName={cn(
-          "p-5 rounded-2xl border bg-popover/95 backdrop-blur-xl shadow-2xl",
+          panelSz.contentPadding,
+          "rounded-2xl border bg-popover/95 backdrop-blur-xl shadow-2xl",
           error && "border-destructive/40",
           success && "border-success/40",
           !error && !success && "border-border/60",
