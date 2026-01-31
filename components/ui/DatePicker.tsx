@@ -501,8 +501,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             <div className="flex items-center gap-2.5">
               <div
                 className={cn(
-                  "flex items-center justify-center rounded-lg p-1.5 transition-all duration-300",
-                  isOpen ? "bg-primary/15 text-primary" : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+                  "flex items-center justify-center transition-colors duration-300",
+                  isOpen ? "text-primary" : "text-muted-foreground group-hover:text-primary",
                 )}
               >
                 <Calendar className={cn(size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4", "transition-transform duration-300", isOpen && "scale-110")} />
@@ -851,9 +851,8 @@ export const DateRangePicker: React.FC<{
           <div className={cn("flex items-center", size === "sm" ? "gap-1.5" : "gap-2.5")}>
             <div
               className={cn(
-                "flex items-center justify-center rounded-lg transition-all duration-300",
-                size === "sm" ? "p-1" : "p-1.5",
-                isOpen ? "bg-primary/15 text-primary" : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+                "flex items-center justify-center transition-colors duration-300",
+                isOpen ? "text-primary" : "text-muted-foreground group-hover:text-primary",
               )}
             >
               <Calendar className={cn("transition-transform duration-300", size === "sm" ? "h-3 w-3" : "h-4 w-4", isOpen && "scale-110")} />

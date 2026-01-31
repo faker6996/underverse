@@ -35,6 +35,10 @@ export interface TimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   allowManualInput?: boolean;
   /** Custom presets with labels and times */
   customPresets?: Array<{ label: string; time: string }>;
+  /** Alias for minTime (e.g., "09:00") */
+  min?: string;
+  /** Alias for maxTime (e.g., "18:00") */
+  max?: string;
   /** Minimum allowed time (e.g., "09:00") */
   minTime?: string;
   /** Maximum allowed time (e.g., "18:00") */
@@ -607,6 +611,8 @@ export default function TimePicker({
   showPresets = false,
   allowManualInput = false,
   customPresets = [],
+  min,
+  max,
   minTime,
   maxTime,
   disabledTimes,
@@ -653,42 +659,73 @@ export default function TimePicker({
     [disabledTimes],
   );
 
+  const resolvedMinTime = minTime ?? min;
+  const resolvedMaxTime = maxTime ?? max;
+
+  const toSeconds = React.useCallback(
+    (p: Parts): number => {
+      let h = p.h;
+      if (format === "12") {
+        const period = p.p ?? (h >= 12 ? "PM" : "AM");
+        const base = h % 12; // 12 -> 0
+        h = period === "PM" ? base + 12 : base;
+      }
+      return h * 3600 + p.m * 60 + (includeSeconds ? p.s : 0);
+    },
+    [format, includeSeconds],
+  );
+
   // Check if time is within range
   const isTimeInRange = React.useCallback(
     (timeStr: string): boolean => {
-      if (!minTime && !maxTime) return true;
+      if (!resolvedMinTime && !resolvedMaxTime) return true;
       const parsed = parseTime(timeStr, format, includeSeconds);
       if (!parsed) return true;
 
-      if (minTime) {
-        const min = parseTime(minTime, format, includeSeconds);
-        if (min) {
-          const currentMinutes = parsed.h * 60 + parsed.m;
-          const minMinutes = min.h * 60 + min.m;
-          if (currentMinutes < minMinutes) return false;
-        }
+      const current = toSeconds(parsed);
+      if (resolvedMinTime) {
+        const minParsed = parseTime(resolvedMinTime, format, includeSeconds);
+        if (minParsed && current < toSeconds(minParsed)) return false;
       }
-
-      if (maxTime) {
-        const max = parseTime(maxTime, format, includeSeconds);
-        if (max) {
-          const currentMinutes = parsed.h * 60 + parsed.m;
-          const maxMinutes = max.h * 60 + max.m;
-          if (currentMinutes > maxMinutes) return false;
-        }
+      if (resolvedMaxTime) {
+        const maxParsed = parseTime(resolvedMaxTime, format, includeSeconds);
+        if (maxParsed && current > toSeconds(maxParsed)) return false;
       }
 
       return true;
     },
-    [minTime, maxTime, format, includeSeconds],
+    [format, includeSeconds, resolvedMaxTime, resolvedMinTime, toSeconds],
   );
 
-  const emit = (next: Parts | undefined) => {
-    const timeStr = next ? formatTime(next, format, includeSeconds) : undefined;
-    if (timeStr && !isTimeInRange(timeStr)) return;
-    if (timeStr && isTimeDisabled(timeStr)) return;
-    onChange?.(timeStr);
-  };
+  const canEmit = React.useCallback(
+    (next: Parts | undefined): boolean => {
+      const timeStr = next ? formatTime(next, format, includeSeconds) : undefined;
+      if (!timeStr) return true;
+      if (!isTimeInRange(timeStr)) return false;
+      if (isTimeDisabled(timeStr)) return false;
+      return true;
+    },
+    [format, includeSeconds, isTimeDisabled, isTimeInRange],
+  );
+
+  const emit = React.useCallback(
+    (next: Parts | undefined) => {
+      const timeStr = next ? formatTime(next, format, includeSeconds) : undefined;
+      if (!canEmit(next)) return;
+      onChange?.(timeStr);
+    },
+    [canEmit, format, includeSeconds, onChange],
+  );
+
+  const tryUpdate = React.useCallback(
+    (next: Parts) => {
+      if (!canEmit(next)) return false;
+      setParts(next);
+      emit(next);
+      return true;
+    },
+    [canEmit, emit],
+  );
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
@@ -745,8 +782,7 @@ export default function TimePicker({
         break;
     }
 
-    setParts(newParts);
-    emit(newParts);
+    tryUpdate(newParts);
   };
 
   const setNow = () => {
@@ -760,8 +796,7 @@ export default function TimePicker({
     } else {
       next = { h, m, s };
     }
-    setParts(next);
-    emit(next);
+    tryUpdate(next);
   };
 
   const setPreset = (preset: keyof typeof PRESETS) => {
@@ -772,8 +807,7 @@ export default function TimePicker({
     } else {
       next = { h, m, s };
     }
-    setParts(next);
-    emit(next);
+    tryUpdate(next);
   };
 
   const handleManualInput = (input: string) => {
@@ -782,8 +816,7 @@ export default function TimePicker({
     if (parsed) {
       const timeStr = formatTime(parsed, format, includeSeconds);
       if (isTimeInRange(timeStr) && !isTimeDisabled(timeStr)) {
-        setParts(parsed);
-        emit(parsed);
+        tryUpdate(parsed);
       }
     }
   };
@@ -791,8 +824,7 @@ export default function TimePicker({
   const handleCustomPreset = (time: string) => {
     const parsed = parseTime(time, format, includeSeconds);
     if (parsed) {
-      setParts(parsed);
-      emit(parsed);
+      tryUpdate(parsed);
     }
   };
 
@@ -930,8 +962,7 @@ export default function TimePicker({
             return period === "PM" ? base + 12 : base;
           })();
     const next: Parts = { ...parts, h: nextH, p: format === "12" ? period : parts.p };
-    setParts(next);
-    emit(next);
+    tryUpdate(next);
   };
 
   const timePickerContent = (
@@ -1059,8 +1090,7 @@ export default function TimePicker({
               valueIndex={minuteIndex}
               onSelect={(m) => {
                 const next = { ...parts, m };
-                setParts(next);
-                emit(next);
+                tryUpdate(next);
               }}
               scrollRef={minuteScrollRef}
               itemHeight={itemHeight}
@@ -1093,8 +1123,7 @@ export default function TimePicker({
                   valueIndex={secondIndex}
                   onSelect={(s) => {
                     const next = { ...parts, s };
-                    setParts(next);
-                    emit(next);
+                    tryUpdate(next);
                   }}
                   scrollRef={secondScrollRef}
                   itemHeight={itemHeight}
@@ -1148,8 +1177,7 @@ export default function TimePicker({
                       if (pVal === "AM" && hour >= 12) hour -= 12;
                       if (pVal === "PM" && hour < 12) hour += 12;
                       const next = { ...parts, p: pVal, h: hour };
-                      setParts(next);
-                      emit(next);
+                      tryUpdate(next);
                     }}
                   >
                     {isSelected && <div className="absolute inset-0 bg-linear-to-tr from-white/20 to-transparent" />}

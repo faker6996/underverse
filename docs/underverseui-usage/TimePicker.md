@@ -12,6 +12,7 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 - `variant="inline"` renders content directly (no popover) and keeps a compact width (doesn’t force full-width layout).
 - Popover dropdown width matches the trigger by default (`matchTriggerWidth=true`). Set `matchTriggerWidth={false}` to use the component’s default fixed dropdown widths.
 - `size` scales the trigger and the dropdown content (typography, paddings, wheel sizes).
+- Time range constraints: use `minTime`/`maxTime` or the aliases `min`/`max` (same format).
 - The wheel is circular (wraps around). You can change values via:
   - Mouse wheel/trackpad scroll
   - Click a value
@@ -79,6 +80,10 @@ export interface TimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   allowManualInput?: boolean;
   /** Custom presets with labels and times */
   customPresets?: Array<{ label: string; time: string }>;
+  /** Alias for minTime (e.g., "09:00") */
+  min?: string;
+  /** Alias for maxTime (e.g., "18:00") */
+  max?: string;
   /** Minimum allowed time (e.g., "09:00") */
   minTime?: string;
   /** Maximum allowed time (e.g., "18:00") */
@@ -124,4 +129,10 @@ Small UI (compact layouts):
 
 ```tsx
 <TimePicker size="sm" />
+```
+
+Restrict selectable time range:
+
+```tsx
+<TimePicker min="09:00" max="18:00" />
 ```
