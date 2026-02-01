@@ -16,10 +16,24 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 | Label support                                 | ✅     |
 | `focus-visible` ring (optional via `noFocus`) | ✅     |
 | Keyboard navigation (Arrow keys)              | ✅     |
+| ARIA labels for range mode                    | ✅     |
 
 ## Slider
 
 Props type: `SliderProps`
+
+A modern, premium slider component with **interactive tooltips**, **gradient fills**, and smooth animations. Perfect for value selection, range inputs, and settings controls.
+
+### ✨ Key Features
+
+- **Interactive Tooltips**: Hover/drag to see current value (enabled by default)
+- **Premium Gradients**: Beautiful gradient fills on progress tracks
+- **Smooth Animations**: Buttery smooth interactions with scale effects
+- **Range Mode**: Dual-thumb range selection with independent tooltips
+- **Size Variants**: Small, medium, and large options
+- **Custom Formatting**: Format displayed values (e.g., currency, temperature)
+
+### Basic Usage
 
 ```tsx
 import { Slider } from "@underverse-ui/underverse";
@@ -27,6 +41,39 @@ import { Slider } from "@underverse-ui/underverse";
 export function Example() {
   return <Slider />;
 }
+```
+
+### With Tooltip (Default Behavior)
+
+```tsx
+import React from "react";
+import { Slider } from "@underverse-ui/underverse";
+
+export function Example() {
+  const [value, setValue] = React.useState(50);
+
+  return <Slider value={value} onValueChange={setValue} label="Volume" showValue />;
+}
+```
+
+### Without Tooltip
+
+```tsx
+<Slider value={value} onValueChange={setValue} showTooltip={false} label="No Tooltip" />
+```
+
+### Gradient vs Solid Fill
+
+```tsx
+{
+  /* With gradient (default) */
+}
+<Slider value={value} onValueChange={setValue} />;
+
+{
+  /* Solid color fill */
+}
+<Slider value={value} onValueChange={setValue} useGradient={false} />;
 ```
 
 ## Range Mode (min → max)
@@ -56,21 +103,52 @@ export function Example() {
 ```
 
 Behavior notes:
+
 - Dragging on the track chooses the nearest thumb (min/max) and moves it.
 - Both thumbs are independently draggable.
+- Each thumb displays its own tooltip when hovered/dragged.
 
-Vi du day du:
+## Custom Value Formatting
+
+```tsx
+<Slider value={temperature} onValueChange={setTemperature} min={-20} max={40} label="Temperature" showValue formatValue={(val) => `${val}°C`} />
+```
+
+## Size Variants
+
+```tsx
+<Slider size="sm" label="Small" />
+<Slider size="md" label="Medium" />
+<Slider size="lg" label="Large" />
+```
+
+## Full Example
 
 ```tsx
 import React from "react";
 import { Slider } from "@underverse-ui/underverse";
 
 export function Example() {
-  const [value, setValue] = React.useState("");
+  const [value, setValue] = React.useState(50);
 
-  return <Slider value={value} onChange={setValue} label={"Nhan"} size={"md"} />;
+  return (
+    <Slider
+      value={value}
+      onChange={setValue}
+      label="Brightness"
+      size="md"
+      min={0}
+      max={100}
+      step={5}
+      showValue
+      showTooltip={true}
+      useGradient={true}
+    />
+  );
 }
 ```
+
+## Props Interface
 
 ```ts
 interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "size"> {
@@ -100,5 +178,21 @@ interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 
   disabled?: boolean;
   orientation?: "horizontal" | "vertical";
   noFocus?: boolean; // remove focus ring/outline styling
+
+  // ✨ New Props
+  showTooltip?: boolean; // Show tooltip on hover/drag (default: true)
+  tooltipClassName?: string; // Custom tooltip styling
+  useGradient?: boolean; // Use gradient fill for progress (default: true)
 }
 ```
+
+## Visual Enhancements (v2.0)
+
+The Slider component has been upgraded with premium UI/UX features:
+
+- **Interactive Tooltips**: Automatically displays current value when hovering or dragging
+- **Gradient Fills**: Beautiful gradient effects on progress tracks for a modern look
+- **Enhanced Shadows**: Premium shadow and glow effects on thumbs
+- **Smooth Transitions**: All interactions have refined 200ms transitions
+- **Scale Effects**: Thumbs scale on hover (110%) and active (105%) states
+- **Better Disabled State**: Improved visual feedback when disabled
