@@ -16,22 +16,24 @@ export default function SliderExample() {
   const [value5, setValue5] = React.useState(0);
   const [value6, setValue6] = React.useState(500);
   const [value7, setValue7] = React.useState(50);
+  const [value8, setValue8] = React.useState(60);
+  const [value9, setValue9] = React.useState(40);
   const [range, setRange] = React.useState<[number, number]>([200, 800]);
 
   const code =
     `import { Slider } from '@underverse-ui/underverse'\n` +
     `import { useState } from 'react'\n\n` +
-    `// Basic Slider\n` +
+    `// Basic Slider with Tooltip (default)\n` +
     `const [value, setValue] = useState(30)\n` +
     `<Slider value={value} onValueChange={setValue} />\n\n` +
-    `// With Label\n` +
-    `<Slider value={value} onValueChange={setValue} label=\"Volume\" />\n\n` +
-    `// With Value Display\n` +
-    `<Slider value={value} onValueChange={setValue} label=\"Brightness\" showValue />\n\n` +
+    `// With Label and Tooltip\n` +
+    `<Slider value={value} onValueChange={setValue} label="Volume" />\n\n` +
+    `// With Value Display and Tooltip\n` +
+    `<Slider value={value} onValueChange={setValue} label="Brightness" showValue />\n\n` +
     `// Sizes\n` +
-    `<Slider value={value} onValueChange={setValue} size=\"sm\" label=\"Small\" showValue />\n` +
-    `<Slider value={value} onValueChange={setValue} size=\"md\" label=\"Medium\" showValue />\n` +
-    `<Slider value={value} onValueChange={setValue} size=\"lg\" label=\"Large\" showValue />\n\n` +
+    `<Slider value={value} onValueChange={setValue} size="sm" label="Small" showValue />\n` +
+    `<Slider value={value} onValueChange={setValue} size="md" label="Medium" showValue />\n` +
+    `<Slider value={value} onValueChange={setValue} size="lg" label="Large" showValue />\n\n` +
     `// Custom Min/Max/Step\n` +
     `<Slider \n` +
     `  value={value} \n` +
@@ -39,37 +41,53 @@ export default function SliderExample() {
     `  min={0} \n` +
     `  max={1000} \n` +
     `  step={50} \n` +
-    `  label=\"Price Range\" \n` +
+    `  label="Price Range" \n` +
     `  showValue \n` +
     `/>\n\n` +
     `// Custom Format Value\n` +
     `<Slider \n` +
     `  value={value} \n` +
     `  onValueChange={setValue} \n` +
-    `  label=\"Temperature\" \n` +
+    `  label="Temperature" \n` +
     `  showValue \n` +
-    `  formatValue={(val) => \`\${val}°C\`} \n` +
+    `  formatValue={(val) => \\\`\${val}°C\\\`} \n` +
     `/>\n\n` +
-    `// Range (min -> max)\n` +
+    `// Without Tooltip\n` +
+    `<Slider \n` +
+    `  value={value} \n` +
+    `  onValueChange={setValue} \n` +
+    `  label="No Tooltip" \n` +
+    `  showValue \n` +
+    `  showTooltip={false} \n` +
+    `/>\n\n` +
+    `// Without Gradient (Solid Color)\n` +
+    `<Slider \n` +
+    `  value={value} \n` +
+    `  onValueChange={setValue} \n` +
+    `  label="Solid Color" \n` +
+    `  showValue \n` +
+    `  useGradient={false} \n` +
+    `/>\n\n` +
+    `// Range (min -> max) with Tooltips\n` +
     `const [range, setRange] = useState([200, 800])\n` +
     `<Slider\n` +
-    `  mode=\"range\"\n` +
+    `  mode="range"\n` +
     `  min={0}\n` +
     `  max={1000}\n` +
     `  step={50}\n` +
     `  rangeValue={range}\n` +
     `  onRangeValueChange={setRange}\n` +
-    `  label=\"Range\"\n` +
+    `  label="Range"\n` +
     `  showValue\n` +
     `/>\n\n` +
     `// Disabled\n` +
-    `<Slider value={50} onValueChange={() => {}} label=\"Disabled Slider\" showValue disabled />`;
+    `<Slider value={50} onValueChange={() => {}} label="Disabled Slider" showValue disabled />`;
 
   const demo = (
     <div className="space-y-6">
       {/* Basic Slider */}
       <div className="space-y-2">
-        <p className="text-sm font-medium">Basic Slider</p>
+        <p className="text-sm font-medium">Basic Slider (with tooltip)</p>
         <Slider value={value1} onValueChange={setValue1} />
       </div>
 
@@ -98,29 +116,25 @@ export default function SliderExample() {
       {/* Custom Min/Max/Step */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Custom Min/Max/Step</p>
-        <Slider
-          value={value6}
-          onValueChange={setValue6}
-          min={0}
-          max={1000}
-          step={50}
-          label="Price Range"
-          showValue
-        />
+        <Slider value={value6} onValueChange={setValue6} min={0} max={1000} step={50} label="Price Range" showValue />
       </div>
 
       {/* Custom Format Value */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Custom Format Value</p>
-        <Slider
-          value={value5}
-          onValueChange={setValue5}
-          min={-20}
-          max={40}
-          label="Temperature"
-          showValue
-          formatValue={(val) => `${val}°C`}
-        />
+        <Slider value={value5} onValueChange={setValue5} min={-20} max={40} label="Temperature" showValue formatValue={(val) => `${val}°C`} />
+      </div>
+
+      {/* Without Tooltip */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Without Tooltip</p>
+        <Slider value={value8} onValueChange={setValue8} label="No Tooltip" showValue showTooltip={false} />
+      </div>
+
+      {/* Without Gradient (Solid) */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Solid Color (No Gradient)</p>
+        <Slider value={value9} onValueChange={setValue9} label="Solid Color Fill" showValue useGradient={false} />
       </div>
 
       {/* Range */}
@@ -174,6 +188,9 @@ export default function SliderExample() {
     { property: "disabled", description: t("props.slider.disabled"), type: "boolean", default: "false" },
     { property: "orientation", description: t("props.slider.orientation"), type: '"horizontal" | "vertical"', default: '"horizontal"' },
     { property: "noFocus", description: t("props.slider.noFocus"), type: "boolean", default: "false" },
+    { property: "showTooltip", description: "Show tooltip with value on hover/drag", type: "boolean", default: "true" },
+    { property: "tooltipClassName", description: "Custom class for tooltip styling", type: "string", default: "-" },
+    { property: "useGradient", description: "Use gradient fill for progress track", type: "boolean", default: "true" },
   ];
   const order = [
     "mode",
@@ -202,6 +219,9 @@ export default function SliderExample() {
     "disabled",
     "orientation",
     "noFocus",
+    "showTooltip",
+    "tooltipClassName",
+    "useGradient",
   ];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Slider.md" />;
 

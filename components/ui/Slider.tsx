@@ -30,6 +30,9 @@ interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 
   disabled?: boolean;
   orientation?: "horizontal" | "vertical";
   noFocus?: boolean; // remove focus ring/outline styling
+  showTooltip?: boolean; // Show tooltip on hover/drag
+  tooltipClassName?: string;
+  useGradient?: boolean; // Use gradient fill for progress
 }
 
 const SIZE_STYLES = {
@@ -37,16 +40,19 @@ const SIZE_STYLES = {
     track: "h-1",
     thumb: "w-3 h-3",
     container: "py-1",
+    tooltip: "text-xs px-2 py-1",
   },
   md: {
     track: "h-2",
     thumb: "w-4 h-4",
     container: "py-2",
+    tooltip: "text-sm px-2.5 py-1.5",
   },
   lg: {
     track: "h-3",
     thumb: "w-5 h-5",
     container: "py-3",
+    tooltip: "text-sm px-3 py-2",
   },
 };
 
@@ -82,9 +88,12 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
       disabled = false,
       orientation = "horizontal",
       noFocus = true,
+      showTooltip = true,
+      tooltipClassName,
+      useGradient = true,
       ...props
     },
-    ref
+    ref,
   ) => {
     const isRange = mode === "range";
     const trackRef = React.useRef<HTMLDivElement>(null);
@@ -96,6 +105,8 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
     });
     const [activeThumb, setActiveThumb] = React.useState<"min" | "max" | null>(null);
     const dragRef = React.useRef<{ pointerId: number; thumb: "min" | "max" } | null>(null);
+    const [isHovering, setIsHovering] = React.useState(false);
+    const [isDragging, setIsDragging] = React.useState(false);
 
     const isControlled = value !== undefined;
     const currentValue = isControlled ? value : internalValue;
@@ -133,8 +144,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
         const nextVal = Number(e.target.value);
         const [curMin, curMax] = normalizedRange;
 
-        const next: [number, number] =
-          thumb === "min" ? [Math.min(nextVal, curMax), curMax] : [curMin, Math.max(nextVal, curMin)];
+        const next: [number, number] = thumb === "min" ? [Math.min(nextVal, curMax), curMax] : [curMin, Math.max(nextVal, curMin)];
 
         if (!isRangeControlled) setInternalRange(next);
         emitRange(next);
@@ -193,6 +203,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
       const thumb: "min" | "max" = distToMin <= distToMax ? "min" : "max";
 
       setActiveThumb(thumb);
+      setIsDragging(true);
       dragRef.current = { pointerId: e.pointerId, thumb };
       try {
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -200,8 +211,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
         // ignore
       }
 
-      const next: [number, number] =
-        thumb === "min" ? [Math.min(nextValue, curMax), curMax] : [curMin, Math.max(nextValue, curMin)];
+      const next: [number, number] = thumb === "min" ? [Math.min(nextValue, curMax), curMax] : [curMin, Math.max(nextValue, curMin)];
       if (!isRangeControlled) setInternalRange(next);
       emitRange(next);
     };
@@ -212,8 +222,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
       if (e.pointerId !== drag.pointerId) return;
       const nextValue = valueFromClientX(e.clientX);
       const [curMin, curMax] = normalizedRange;
-      const next: [number, number] =
-        drag.thumb === "min" ? [Math.min(nextValue, curMax), curMax] : [curMin, Math.max(nextValue, curMin)];
+      const next: [number, number] = drag.thumb === "min" ? [Math.min(nextValue, curMax), curMax] : [curMin, Math.max(nextValue, curMin)];
       if (!isRangeControlled) setInternalRange(next);
       emitRange(next);
     };
@@ -223,6 +232,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
       if (!drag) return;
       if (e.pointerId !== drag.pointerId) return;
       dragRef.current = null;
+      setIsDragging(false);
       onMouseUp?.();
       onTouchEnd?.();
       try {
@@ -237,6 +247,34 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
       // For now, defaulting to horizontal
     }
 
+    // Tooltip component
+    const Tooltip = ({ value, position }: { value: number; position: number }) => {
+      const shouldShow = showTooltip && !disabled && (isHovering || isDragging);
+      const displayVal = formatValue ? formatValue(value) : value.toString();
+
+      return (
+        <div
+          className={cn(
+            "absolute pointer-events-none transition-all duration-200 ease-out",
+            "bg-popover text-popover-foreground rounded-lg shadow-lg border border-border",
+            "whitespace-nowrap font-medium -translate-x-1/2 z-50",
+            sizeStyles.tooltip,
+            shouldShow ? "opacity-100 -translate-y-10 scale-100" : "opacity-0 -translate-y-8 scale-95",
+            tooltipClassName,
+          )}
+          style={{
+            left: `${position}%`,
+            bottom: "100%",
+          }}
+        >
+          {displayVal}
+          {/* Arrow */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-4 border-transparent border-t-border" />
+          <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-[3px] border-transparent border-t-popover -mt-px" />
+        </div>
+      );
+    };
+
     return (
       <div className={cn("w-full space-y-2", containerClassName)}>
         {/* Label and value display */}
@@ -248,19 +286,46 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
         )}
 
         {/* Slider container */}
-        <div ref={trackRef} className={cn("relative flex items-center", sizeStyles.container)}>
+        <div
+          ref={trackRef}
+          className={cn("relative flex items-center", sizeStyles.container)}
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+        >
           {/* Track background */}
-          <div className={cn("w-full rounded-full bg-secondary relative overflow-hidden", sizeStyles.track, trackClassName)}>
+          <div className={cn("w-full rounded-full bg-secondary relative overflow-hidden shadow-inner", sizeStyles.track, trackClassName)}>
             {/* Progress fill */}
             {isRange ? (
               <div
-                className="absolute top-0 h-full bg-primary rounded-full"
+                className={cn(
+                  "absolute top-0 h-full rounded-full transition-all duration-150",
+                  useGradient
+                    ? "bg-linear-to-r from-primary via-primary to-primary/80 shadow-[0_0_8px_rgba(var(--primary-rgb,147,51,234),0.3)]"
+                    : "bg-primary",
+                )}
                 style={{ left: `${rangeStartPct}%`, width: `${Math.max(0, rangeEndPct - rangeStartPct)}%` }}
               />
             ) : (
-              <div className="absolute left-0 top-0 h-full bg-primary rounded-full" style={{ width: `${percentage}%` }} />
+              <div
+                className={cn(
+                  "absolute left-0 top-0 h-full rounded-full transition-all duration-150",
+                  useGradient
+                    ? "bg-linear-to-r from-primary via-primary to-primary/80 shadow-[0_0_8px_rgba(var(--primary-rgb,147,51,234),0.3)]"
+                    : "bg-primary",
+                )}
+                style={{ width: `${percentage}%` }}
+              />
             )}
           </div>
+
+          {/* Tooltips */}
+          {!isRange && <Tooltip value={currentValue} position={percentage} />}
+          {isRange && (
+            <>
+              <Tooltip value={normalizedRange[0]} position={rangeStartPct} />
+              <Tooltip value={normalizedRange[1]} position={rangeEndPct} />
+            </>
+          )}
 
           {/* Actual input element */}
           {(() => {
@@ -272,23 +337,23 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
 
               // Webkit styles for thumb
               "[&::-webkit-slider-thumb]:appearance-none",
-              "[&::-webkit-slider-thumb]:bg-primary",
+              "[&::-webkit-slider-thumb]:bg-linear-to-br [&::-webkit-slider-thumb]:from-primary [&::-webkit-slider-thumb]:to-primary/80",
               "[&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-background",
               "[&::-webkit-slider-thumb]:rounded-full",
-              "[&::-webkit-slider-thumb]:shadow-md",
+              "[&::-webkit-slider-thumb]:shadow-[0_2px_8px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.05)]",
               "[&::-webkit-slider-thumb]:cursor-pointer",
-              "[&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-150",
+              "[&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-200 [&::-webkit-slider-thumb]:ease-out",
               size === "sm" && "[&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3",
               size === "md" && "[&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4",
               size === "lg" && "[&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5",
 
               // Firefox styles for thumb
-              "[&::-moz-range-thumb]:bg-primary",
+              "[&::-moz-range-thumb]:bg-linear-to-br [&::-moz-range-thumb]:from-primary [&::-moz-range-thumb]:to-primary/80",
               "[&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-background",
               "[&::-moz-range-thumb]:rounded-full",
-              "[&::-moz-range-thumb]:shadow-md",
+              "[&::-moz-range-thumb]:shadow-[0_2px_8px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.05)]",
               "[&::-moz-range-thumb]:cursor-pointer",
-              "[&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:duration-150",
+              "[&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:duration-200 [&::-moz-range-thumb]:ease-out",
               size === "sm" && "[&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:h-3",
               size === "md" && "[&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4",
               size === "lg" && "[&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5",
@@ -297,15 +362,19 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
               "[&::-moz-range-track]:bg-transparent",
               "[&::-moz-range-track]:border-transparent",
 
-              // Hover effects
-              "hover:[&::-webkit-slider-thumb]:scale-110 hover:[&::-webkit-slider-thumb]:shadow-lg",
-              "hover:[&::-moz-range-thumb]:scale-110 hover:[&::-moz-range-thumb]:shadow-lg",
+              // Hover effects - Enhanced premium look
+              "hover:[&::-webkit-slider-thumb]:scale-110 hover:[&::-webkit-slider-thumb]:shadow-[0_4px_16px_rgba(0,0,0,0.2),0_0_12px_rgba(var(--primary-rgb,147,51,234),0.4)]",
+              "hover:[&::-moz-range-thumb]:scale-110 hover:[&::-moz-range-thumb]:shadow-[0_4px_16px_rgba(0,0,0,0.2),0_0_12px_rgba(var(--primary-rgb,147,51,234),0.4)]",
+
+              // Active/dragging effects
+              "active:[&::-webkit-slider-thumb]:scale-105 active:[&::-webkit-slider-thumb]:shadow-[0_2px_12px_rgba(0,0,0,0.25),0_0_16px_rgba(var(--primary-rgb,147,51,234),0.5)]",
+              "active:[&::-moz-range-thumb]:scale-105 active:[&::-moz-range-thumb]:shadow-[0_2px_12px_rgba(0,0,0,0.25),0_0_16px_rgba(var(--primary-rgb,147,51,234),0.5)]",
 
               // Disabled styles
               disabled && [
                 "cursor-not-allowed opacity-50",
-                "[&::-webkit-slider-thumb]:cursor-not-allowed [&::-webkit-slider-thumb]:opacity-50",
-                "[&::-moz-range-thumb]:cursor-not-allowed [&::-moz-range-thumb]:opacity-50",
+                "[&::-webkit-slider-thumb]:cursor-not-allowed [&::-webkit-slider-thumb]:opacity-50 [&::-webkit-slider-thumb]:shadow-none",
+                "[&::-moz-range-thumb]:cursor-not-allowed [&::-moz-range-thumb]:opacity-50 [&::-moz-range-thumb]:shadow-none",
               ],
 
               className,
@@ -322,8 +391,16 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
                   step={step}
                   value={currentValue}
                   onChange={handleSingleChange}
-                  onMouseUp={onMouseUp}
-                  onTouchEnd={onTouchEnd}
+                  onMouseDown={() => setIsDragging(true)}
+                  onMouseUp={() => {
+                    setIsDragging(false);
+                    onMouseUp?.();
+                  }}
+                  onTouchStart={() => setIsDragging(true)}
+                  onTouchEnd={() => {
+                    setIsDragging(false);
+                    onTouchEnd?.();
+                  }}
                   disabled={disabled}
                   className={baseInputClassName}
                   {...props}
@@ -383,7 +460,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 Slider.displayName = "Slider";

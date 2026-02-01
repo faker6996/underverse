@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--inspect next dev",
     "dev_v2": "next dev --turbopack",
-    "build": "next build",
+    "build": "npm run fix:tailwind && next build",
     "start": "next start",
     "lint": "next lint",
     "docker:local:up": "docker compose -f docker-compose.local.yml up -d",
