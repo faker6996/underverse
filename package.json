@@ -25,7 +25,8 @@
     "release:underverse:minor": "npm --prefix packages/underverse run release minor -- && npm run build",
     "release:underverse:major": "npm --prefix packages/underverse run release major -- && npm run build",
     "release:underverse:beta": "npm --prefix packages/underverse run release -- --tag=beta && npm run build",
-    "dev:underverse": "npm --prefix packages/underverse run dev"
+    "dev:underverse": "npm --prefix packages/underverse run dev",
+    "fix:tailwind": "node scripts/fix-tailwind-arbitrary-values.js"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.18",

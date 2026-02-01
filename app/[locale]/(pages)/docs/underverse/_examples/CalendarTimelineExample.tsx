@@ -157,7 +157,7 @@ export default function CalendarTimelineExample() {
         </div>
       </div>
 
-      <div className="h-[520px]">
+      <div className="h-130">
         <CalendarTimeline<unknown, EventMeta>
           resources={resources}
           groups={groups}
@@ -292,7 +292,7 @@ export function Example() {
   ])
 
   return (
-    <div className="h-[520px]">
+    <div className="h-130">
       <CalendarTimeline
         resources={resources}
         groups={groups}

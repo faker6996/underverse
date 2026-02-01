@@ -127,7 +127,7 @@ function WheelColumn({
   const ui = React.useMemo(() => {
     if (size === "sm") {
       return {
-        columnWidth: "min-w-[64px] max-w-[84px]",
+        columnWidth: "min-w-16 max-w-21",
         label: "text-[9px] mb-2",
         selectedText: "text-base",
         unselectedText: "text-sm",
@@ -136,7 +136,7 @@ function WheelColumn({
     }
     if (size === "lg") {
       return {
-        columnWidth: "min-w-[80px] max-w-[110px]",
+        columnWidth: "min-w-20 max-w-27.5",
         label: "text-[11px] mb-3",
         selectedText: "text-xl",
         unselectedText: "text-lg",
@@ -144,7 +144,7 @@ function WheelColumn({
       };
     }
     return {
-      columnWidth: "min-w-[70px] max-w-[90px]",
+      columnWidth: "min-w-17.5 max-w-22.5",
       label: "text-[10px] mb-3",
       selectedText: "text-lg",
       unselectedText: "text-base",
@@ -1143,7 +1143,7 @@ export default function TimePicker({
           <div
             className={cn(
               "flex-1",
-              size === "sm" ? "min-w-[64px] max-w-[84px]" : size === "lg" ? "min-w-[80px] max-w-[110px]" : "min-w-[70px] max-w-[90px]",
+              size === "sm" ? "min-w-16 max-w-21" : size === "lg" ? "min-w-20 max-w-27.5" : "min-w-17.5 max-w-22.5",
             )}
           >
             <div className={cn(panelSz.periodLabel, "font-bold uppercase tracking-wider text-muted-foreground/70 text-center")}>Period</div>

@@ -46,11 +46,11 @@ const variantStyles = {
 };
 
 const sizeStyles = {
-  xs: "px-1.5 py-0.5 text-xs font-medium min-h-[18px]",
-  sm: "px-2 py-0.5 text-xs font-medium min-h-[20px]",
-  md: "px-2.5 py-1 text-xs font-medium min-h-[24px]",
-  lg: "px-3 py-1.5 text-sm font-medium min-h-[28px]",
-  xl: "px-4 py-2 text-sm font-semibold min-h-[32px]",
+  xs: "px-1.5 py-0.5 text-xs font-medium min-h-4.5",
+  sm: "px-2 py-0.5 text-xs font-medium min-h-5",
+  md: "px-2.5 py-1 text-xs font-medium min-h-6",
+  lg: "px-3 py-1.5 text-sm font-medium min-h-7",
+  xl: "px-4 py-2 text-sm font-semibold min-h-8",
 };
 
 const dotSizeStyles = {

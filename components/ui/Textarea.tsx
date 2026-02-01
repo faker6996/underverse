@@ -16,9 +16,9 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     const [isFocused, setIsFocused] = useState(false);
 
     const sizeClasses = {
-      sm: "px-3 py-2 text-sm min-h-[80px]",
-      md: "px-4 py-3 text-sm min-h-[100px]",
-      lg: "px-5 py-4 text-base min-h-[120px]",
+      sm: "px-3 py-2 text-sm min-h-20",
+      md: "px-4 py-3 text-sm min-h-25",
+      lg: "px-5 py-4 text-base min-h-30",
     };
 
     const variantClasses = {

@@ -341,7 +341,7 @@ export const TimelineItem = React.forwardRef<HTMLDivElement, TimelineItemProps>(
 
     const horizontalItem = (
       <div
-        className={cn("flex flex-col items-center gap-2 min-w-[200px]", ctx.animate && "animate-in fade-in-50 zoom-in-95 duration-500")}
+        className={cn("flex flex-col items-center gap-2 min-w-50", ctx.animate && "animate-in fade-in-50 zoom-in-95 duration-500")}
         style={{ animationDelay: ctx.animate ? `${(idx ?? 0) * 100}ms` : undefined }}
       >
         <Marker

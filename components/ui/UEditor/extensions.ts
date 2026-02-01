@@ -124,12 +124,12 @@ export function buildUEditorExtensions({
     TableRow,
     TableCell.configure({
       HTMLAttributes: {
-        class: "border border-border p-2 min-w-[100px]",
+        class: "border border-border p-2 min-w-25",
       },
     }),
     TableHeader.configure({
       HTMLAttributes: {
-        class: "border border-border p-2 bg-muted font-semibold min-w-[100px]",
+        class: "border border-border p-2 bg-muted font-semibold min-w-25",
       },
     }),
     CharacterCount.configure({
