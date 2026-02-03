@@ -172,7 +172,6 @@ export const Combobox: React.FC<ComboboxProps> = ({
     const itemDescription = getOptionDescription(item);
     const itemDisabled = getOptionDisabled(item);
     const isSelected = itemValue === value;
-    const isEven = index % 2 === 0;
 
     return (
       <li
@@ -193,7 +192,6 @@ export const Combobox: React.FC<ComboboxProps> = ({
           "dropdown-item group flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm",
           "outline-none focus:outline-none focus-visible:outline-none",
           "transition-all duration-150",
-          isEven && "bg-muted/40",
           !itemDisabled && "hover:bg-accent/70 hover:shadow-sm",
           !itemDisabled && "focus:bg-accent/80 focus:text-accent-foreground",
           index === activeIndex && !itemDisabled && "bg-accent/60",
