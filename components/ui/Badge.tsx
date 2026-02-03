@@ -100,6 +100,7 @@ export const Badge: React.FC<BadgeProps> = ({
     "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
     clickable && "cursor-pointer hover:shadow-sm active:scale-95",
     pulse && "animate-pulse",
+    "relative z-0", // Ensure badges stay below sticky headers (z-20, z-50)
     variantStyles[variant],
   );
 
