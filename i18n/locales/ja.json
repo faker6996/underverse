@@ -241,6 +241,9 @@
       "imageUpload": {
         "title": "ImageUpload"
       },
+      "fileUpload": {
+        "title": "ファイルアップロード"
+      },
       "notificationModal": {
         "title": "NotificationModal (with i18n)"
       },
@@ -1378,5 +1381,17 @@
     "collapseGroup": "グループを折りたたむ",
     "more": "+{n}件",
     "deleteConfirm": "このイベントを削除しますか？"
+  },
+  "FileUpload": {
+    "dragDropText": "ここにファイルをドラッグ＆ドロップ",
+    "browseFiles": "ファイルを選択",
+    "uploadFiles": "ファイルをアップロード",
+    "supportedFormats": "すべてのファイル形式に対応",
+    "uploadedFiles": "アップロードされたファイル",
+    "clearAll": "すべてクリア",
+    "fileTooLarge": "サイズ制限を超えています",
+    "maxFilesReached": "最大ファイル数に達しました",
+    "uploadSuccess": "アップロード成功",
+    "uploadFailed": "アップロード失敗"
   }
 }

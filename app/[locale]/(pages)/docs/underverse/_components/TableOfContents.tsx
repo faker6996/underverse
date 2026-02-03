@@ -127,6 +127,7 @@ const tocGroups: TocGroup[] = [
     sections: [
       { id: "smart-image", labelKey: "sections.smartImage.title" },
       { id: "image-upload", labelKey: "sections.imageUpload.title" },
+      { id: "file-upload", labelKey: "sections.fileUpload.title" },
       { id: "watermark", labelKey: "sections.watermark.title" },
       { id: "falling-icons", labelKey: "sections.fallingIcons.title" },
     ],

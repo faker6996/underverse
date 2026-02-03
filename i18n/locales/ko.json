@@ -241,6 +241,9 @@
       "imageUpload": {
         "title": "ImageUpload"
       },
+      "fileUpload": {
+        "title": "파일 업로드"
+      },
       "notificationModal": {
         "title": "NotificationModal (with i18n)"
       },
@@ -1378,5 +1381,17 @@
     "collapseGroup": "그룹 접기",
     "more": "+{n}개 더",
     "deleteConfirm": "이 이벤트를 삭제할까요?"
+  },
+  "FileUpload": {
+    "dragDropText": "여기에 파일을 드래그 앤 드롭하세요",
+    "browseFiles": "파일 선택",
+    "uploadFiles": "파일 업로드",
+    "supportedFormats": "모든 파일 형식 지원",
+    "uploadedFiles": "업로드된 파일",
+    "clearAll": "모두 지우기",
+    "fileTooLarge": "크기 제한 초과",
+    "maxFilesReached": "최대 파일 수 도달",
+    "uploadSuccess": "업로드 성공",
+    "uploadFailed": "업로드 실패"
   }
 }

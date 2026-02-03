@@ -55,6 +55,7 @@ const CalendarExample = dynamicImport(() => import("./_examples/CalendarExample"
 const CalendarTimelineExample = dynamicImport(() => import("./_examples/CalendarTimelineExample"), { ssr: false });
 const PaginationExample = dynamicImport(() => import("./_examples/PaginationExample"), { ssr: false });
 const ImageUploadExample = dynamicImport(() => import("./_examples/ImageUploadExample"), { ssr: false });
+const FileUploadExample = dynamicImport(() => import("./_examples/FileUploadExample"), { ssr: false });
 const AlertExample = dynamicImport(() => import("./_examples/AlertExample"), { ssr: false });
 const AccessDeniedExample = dynamicImport(() => import("./_examples/AccessDeniedExample"), { ssr: false });
 const ClientOnlyExample = dynamicImport(() => import("./_examples/ClientOnlyExample"), { ssr: false });
@@ -352,6 +353,10 @@ function DocsInner() {
 
               <DocSection id="image-upload" title={t("sections.imageUpload.title")}>
                 <ImageUploadExample />
+              </DocSection>
+
+              <DocSection id="file-upload" title={t("sections.fileUpload.title")}>
+                <FileUploadExample />
               </DocSection>
 
               <DocSection id="watermark" title={t("sections.watermark.title")}>

@@ -81,5 +81,17 @@
       "browseFiles": "Chọn tệp",
       "supportedFormats": "Hỗ trợ các định dạng ảnh"
     }
+  },
+  "FileUpload": {
+    "dragDropText": "Kéo & thả tệp vào đây",
+    "browseFiles": "Chọn tệp",
+    "uploadFiles": "Tải tệp lên",
+    "supportedFormats": "Hỗ trợ mọi định dạng tệp",
+    "uploadedFiles": "Tệp đã tải lên",
+    "clearAll": "Xóa tất cả",
+    "fileTooLarge": "vượt quá giới hạn kích thước",
+    "maxFilesReached": "Đã đạt giới hạn số tệp",
+    "uploadSuccess": "đã tải lên thành công",
+    "uploadFailed": "tải lên thất bại"
   }
 }

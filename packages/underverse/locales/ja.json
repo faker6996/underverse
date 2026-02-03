@@ -81,5 +81,17 @@
       "browseFiles": "ファイルを参照",
       "supportedFormats": "対応形式：画像"
     }
+  },
+  "FileUpload": {
+    "dragDropText": "ここにファイルをドラッグ＆ドロップ",
+    "browseFiles": "ファイルを選択",
+    "uploadFiles": "ファイルをアップロード",
+    "supportedFormats": "すべてのファイル形式に対応",
+    "uploadedFiles": "アップロードされたファイル",
+    "clearAll": "すべてクリア",
+    "fileTooLarge": "サイズ制限を超えています",
+    "maxFilesReached": "最大ファイル数に達しました",
+    "uploadSuccess": "アップロード成功",
+    "uploadFailed": "アップロード失敗"
   }
 }

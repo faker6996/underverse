@@ -241,6 +241,9 @@
       "imageUpload": {
         "title": "ImageUpload"
       },
+      "fileUpload": {
+        "title": "FileUpload"
+      },
       "notificationModal": {
         "title": "NotificationModal (with i18n)"
       },
@@ -1419,5 +1422,17 @@
     "collapseGroup": "Thu gọn nhóm",
     "more": "+{n} thêm",
     "deleteConfirm": "Xóa sự kiện này?"
+  },
+  "FileUpload": {
+    "dragDropText": "Kéo & thả tệp vào đây",
+    "browseFiles": "Chọn tệp",
+    "uploadFiles": "Tải tệp lên",
+    "supportedFormats": "Hỗ trợ mọi định dạng tệp",
+    "uploadedFiles": "Tệp đã tải lên",
+    "clearAll": "Xóa tất cả",
+    "fileTooLarge": "vượt quá giới hạn kích thước",
+    "maxFilesReached": "Đã đạt giới hạn số tệp",
+    "uploadSuccess": "đã tải lên thành công",
+    "uploadFailed": "tải lên thất bại"
   }
 }

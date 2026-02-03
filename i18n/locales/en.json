@@ -241,6 +241,9 @@
       "imageUpload": {
         "title": "ImageUpload"
       },
+      "fileUpload": {
+        "title": "FileUpload"
+      },
       "notificationModal": {
         "title": "NotificationModal (with i18n)"
       },
@@ -1386,5 +1389,17 @@
     "collapseGroup": "Collapse group",
     "more": "+{n} more",
     "deleteConfirm": "Delete this event?"
+  },
+  "FileUpload": {
+    "dragDropText": "Drag & drop files here",
+    "browseFiles": "Browse files",
+    "uploadFiles": "Upload files",
+    "supportedFormats": "All file types supported",
+    "uploadedFiles": "Uploaded files",
+    "clearAll": "Clear all",
+    "fileTooLarge": "exceeds size limit",
+    "maxFilesReached": "Maximum file limit reached",
+    "uploadSuccess": "uploaded successfully",
+    "uploadFailed": "upload failed"
   }
 }

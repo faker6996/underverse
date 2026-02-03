@@ -85,6 +85,8 @@ export { CategoryTreeSelect } from "../../../components/ui/CategoryTreeSelect";
 // Media
 export { default as SmartImage } from "../../../components/ui/SmartImage";
 export { default as ImageUpload } from "../../../components/ui/ImageUpload";
+export { default as FileUpload } from "../../../components/ui/FileUpload";
+export type { FileUploadProps, UploadedFile } from "../../../components/ui/FileUpload";
 export { Carousel } from "../../../components/ui/Carousel";
 export { default as FallingIcons } from "../../../components/ui/FallingIcons";
 export { default as List } from "../../../components/ui/List";
