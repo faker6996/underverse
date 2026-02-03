@@ -1168,8 +1168,9 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   return (
     <div
       className={cn(
-        "border border-border/40 rounded-2xl md:rounded-3xl overflow-hidden bg-background/95 backdrop-blur-sm",
-        "shadow-sm hover:shadow-md transition-shadow duration-300",
+        "rounded-2xl md:rounded-3xl overflow-hidden bg-card text-card-foreground backdrop-blur-sm",
+        "border border-border shadow-sm md:hover:shadow-md",
+        "transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft",
         densityClass,
         className,
       )}
@@ -1379,14 +1380,14 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         onDoubleClick={() => onEventDoubleClick?.(ev)}
                         onPointerDown={(e) => onPointerDownEvent(e, ev, "move")}
                       >
-                        <div
+                          <div
                           className={cn(
                             "relative h-full rounded-lg border overflow-hidden",
                             "shadow-sm hover:shadow-md hover:scale-[1.02]",
                             "transition-all duration-150 ease-out",
                             "backdrop-blur-sm",
                             ev.className,
-                            isPreview && "ring-2 ring-primary/50 ring-offset-1 ring-offset-background scale-[1.02]",
+                            isPreview && "ring-2 ring-primary/50 ring-offset-1 ring-offset-card scale-[1.02]",
                           )}
                           style={{
                             width: visualWidth,
@@ -1399,7 +1400,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         >
                           {node}
                           {isClipped ? (
-                            <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-linear-to-l from-background/50 to-transparent flex items-center justify-end pr-2">
+                            <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-linear-to-l from-card/50 to-transparent flex items-center justify-end pr-2">
                               <span className="text-xs text-muted-foreground/80">…</span>
                             </div>
                           ) : null}
@@ -1463,7 +1464,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                       className={cn(
                         "pointer-events-none absolute z-20",
                         "h-5 w-5 rounded-full",
-                        "bg-background/80 backdrop-blur-sm",
+                        "bg-card/80 backdrop-blur-sm",
                         "border border-border/60 shadow-xs",
                         "flex items-center justify-center",
                       )}

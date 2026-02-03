@@ -32,7 +32,7 @@ export function DefaultGroupRow(props: {
     >
       <span
         className={cn(
-          "inline-flex items-center justify-center w-5 h-5 rounded-md bg-background/60 transition-transform duration-200",
+          "inline-flex items-center justify-center w-5 h-5 rounded-md bg-card/60 transition-transform duration-200",
           collapsed ? "" : "rotate-180",
         )}
       >
@@ -56,7 +56,7 @@ export function ResourceRowCell<TResourceMeta>(props: {
   return (
     <div
       className={cn(
-        "h-full w-full flex items-center border-b border-border/30 bg-linear-to-r from-background to-background/95 relative",
+        "h-full w-full flex items-center border-b border-border/30 bg-linear-to-r from-card to-card/95 relative",
         sizeConfig.resourceRowClass,
         "hover:from-muted/30 hover:to-muted/10 transition-all duration-200 group/uv-ct-row-header",
       )}
@@ -91,4 +91,3 @@ export function ResourceRowCell<TResourceMeta>(props: {
     </div>
   );
 }
-

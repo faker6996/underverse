@@ -137,7 +137,7 @@ export function CalendarTimelineHeader(props: {
   }, [onApplyDateTime, tempDate]);
 
   return (
-    <div className="sticky top-0 z-30 bg-linear-to-b from-background via-background to-background/95 border-b border-border/40 backdrop-blur-xl">
+    <div className="sticky top-0 z-30 bg-linear-to-b from-card via-card to-card/95 border-b border-border/40 backdrop-blur-xl">
       <div className={cn("flex items-center justify-between gap-4", sizeConfig.headerPaddingClass)}>
         {/* Navigation Controls */}
         <div className="flex items-center gap-1.5 min-w-0">
@@ -147,7 +147,7 @@ export function CalendarTimelineHeader(props: {
               size="icon"
               onClick={() => navigate(-1)}
               aria-label={labels.prev}
-              className={cn(sizeConfig.controlButtonIconClass, "rounded-full hover:bg-background/80 transition-all duration-200")}
+              className={cn(sizeConfig.controlButtonIconClass, "rounded-full hover:bg-card/80 transition-all duration-200")}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -159,7 +159,7 @@ export function CalendarTimelineHeader(props: {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={cn(sizeConfig.controlButtonTextClass, "rounded-full hover:bg-background/80 font-medium transition-all duration-200")}
+                  className={cn(sizeConfig.controlButtonTextClass, "rounded-full hover:bg-card/80 font-medium transition-all duration-200")}
                 >
                   {labels.today}
                 </Button>
@@ -232,7 +232,7 @@ export function CalendarTimelineHeader(props: {
               size="icon"
               onClick={() => navigate(1)}
               aria-label={labels.next}
-              className={cn(sizeConfig.controlButtonIconClass, "rounded-full hover:bg-background/80 transition-all duration-200")}
+              className={cn(sizeConfig.controlButtonIconClass, "rounded-full hover:bg-card/80 transition-all duration-200")}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -264,16 +264,16 @@ export function CalendarTimelineHeader(props: {
                   size="sm"
                   onClick={() => setView(v)}
                   className={cn(
-                    sizeConfig.controlButtonTextClass,
-                    "rounded-full font-medium transition-all duration-200 gap-1.5",
-                    activeView === v
-                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
-                      : "hover:bg-background/80 text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {VIEW_ICONS[v]}
-                  <span className="hidden sm:inline">{labels[v]}</span>
-                </Button>
+                  sizeConfig.controlButtonTextClass,
+                  "rounded-full font-medium transition-all duration-200 gap-1.5",
+                  activeView === v
+                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
+                    : "hover:bg-card/80 text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {VIEW_ICONS[v]}
+                <span className="hidden sm:inline">{labels[v]}</span>
+              </Button>
               ))}
             </div>
           ) : null}
@@ -284,7 +284,7 @@ export function CalendarTimelineHeader(props: {
       <div className="flex border-t border-border/20">
         {showLeftColumn ? (
           <div
-            className="shrink-0 border-r border-border/30 bg-muted/20 flex items-center justify-center relative group/uv-ct-top-left"
+            className="shrink-0 border-r border-border/30 bg-card/60 flex items-center justify-center relative group/uv-ct-top-left"
             style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
           >
             <span className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">{resourcesHeaderLabel}</span>

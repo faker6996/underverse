@@ -26,6 +26,7 @@ export function Example() {
 ## Visual Notes
 
 - **Weekend columns** (Saturday/Sunday) in **month/week** views are rendered with a subtle background tint (timezone-aware). “Today” highlight still takes precedence.
+- CalendarTimeline uses **Card surface tokens** by default (`bg-card` / `text-card-foreground`) so it visually matches `Card`.
 
 ## Usage Recipes
 
