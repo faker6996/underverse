@@ -2,6 +2,23 @@
 
 import React from "react";
 import { useTranslations } from "next-intl";
+import {
+  Smartphone,
+  Laptop,
+  Home,
+  UtensilsCrossed,
+  Sofa,
+  Shirt,
+  Watch,
+  Headphones,
+  Monitor,
+  Tablet,
+  Camera,
+  Speaker,
+  Lamp,
+  Bed,
+  Package,
+} from "lucide-react";
 import { CategoryTreeSelect } from "@/components/ui/CategoryTreeSelect";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
@@ -15,12 +32,36 @@ export default function CategoryTreeSelectExample() {
   const [inlineSingle, setInlineSingle] = React.useState<number | null>(1);
 
   const categories = [
+    // Electronics
     { id: 1, name: "Electronics" },
-    { id: 2, name: "Phones", parent_id: 1 },
-    { id: 3, name: "Laptops", parent_id: 1 },
-    { id: 4, name: "Home" },
-    { id: 5, name: "Kitchen", parent_id: 4 },
-    { id: 6, name: "Furniture", parent_id: 4 },
+    { id: 2, name: "Phones", parent_id: 1, icon: <Smartphone className="w-4 h-4" /> },
+    { id: 3, name: "Laptops", parent_id: 1, icon: <Laptop className="w-4 h-4" /> },
+    { id: 4, name: "Tablets", parent_id: 1, icon: <Tablet className="w-4 h-4" /> },
+    { id: 5, name: "Monitors", parent_id: 1, icon: <Monitor className="w-4 h-4" /> },
+    { id: 6, name: "Audio", parent_id: 1, icon: <Headphones className="w-4 h-4" /> },
+    { id: 7, name: "Headphones", parent_id: 6, icon: <Headphones className="w-4 h-4" /> },
+    { id: 8, name: "Speakers", parent_id: 6, icon: <Speaker className="w-4 h-4" /> },
+    { id: 9, name: "Cameras", parent_id: 1, icon: <Camera className="w-4 h-4" /> },
+
+    // Fashion
+    { id: 10, name: "Fashion" },
+    { id: 11, name: "Men's Clothing", parent_id: 10, icon: <Shirt className="w-4 h-4" /> },
+    { id: 12, name: "Women's Clothing", parent_id: 10, icon: <Shirt className="w-4 h-4" /> },
+    { id: 13, name: "Accessories", parent_id: 10, icon: <Watch className="w-4 h-4" /> },
+    { id: 14, name: "Watches", parent_id: 13, icon: <Watch className="w-4 h-4" /> },
+
+    // Home & Living
+    { id: 15, name: "Home & Living" },
+    { id: 16, name: "Kitchen", parent_id: 15, icon: <UtensilsCrossed className="w-4 h-4" /> },
+    { id: 17, name: "Furniture", parent_id: 15, icon: <Sofa className="w-4 h-4" /> },
+    { id: 18, name: "Living Room", parent_id: 17, icon: <Sofa className="w-4 h-4" /> },
+    { id: 19, name: "Bedroom", parent_id: 17, icon: <Bed className="w-4 h-4" /> },
+    { id: 20, name: "Lighting", parent_id: 15, icon: <Lamp className="w-4 h-4" /> },
+
+    // Sports
+    { id: 21, name: "Sports & Outdoors" },
+    { id: 22, name: "Fitness", parent_id: 21, icon: <Package className="w-4 h-4" /> },
+    { id: 23, name: "Camping", parent_id: 21, icon: <Package className="w-4 h-4" /> },
   ];
 
   // Example i18n labels
@@ -30,7 +71,14 @@ export default function CategoryTreeSelectExample() {
   };
 
   const code =
-    `import { CategoryTreeSelect } from '@underverse-ui/underverse'\n\n` +
+    `import { CategoryTreeSelect } from '@underverse-ui/underverse'\n` +
+    `import { Smartphone, Laptop } from 'lucide-react'\n\n` +
+    `// Categories with custom icons\n` +
+    `const categories = [\n` +
+    `  { id: 1, name: "Electronics" },\n` +
+    `  { id: 2, name: "Phones", parent_id: 1, icon: <Smartphone className="w-4 h-4" /> },\n` +
+    `  { id: 3, name: "Laptops", parent_id: 1, icon: <Laptop className="w-4 h-4" /> },\n` +
+    `]\n\n` +
     `// 1) Multi-select (default)\n` +
     `<CategoryTreeSelect\n` +
     `  categories={categories}\n` +
@@ -45,13 +93,13 @@ export default function CategoryTreeSelectExample() {
     `  onChange={setSingleSelected}\n` +
     `  singleSelect               // NEW: only one node\n` +
     `/>\n\n` +
-    `// 3) Inline mode (always visible)\n` +
+    `// 3) Inline mode (always visible, no radio buttons)\n` +
     `<CategoryTreeSelect\n` +
     `  categories={categories}\n` +
     `  value={inlineSingle}\n` +
     `  onChange={setInlineSingle}\n` +
     `  singleSelect\n` +
-    `  inline                     // NEW: no dropdown\n` +
+    `  inline                     // NEW: no dropdown, no radio\n` +
     `  defaultExpanded\n` +
     `/>\n\n` +
     `// 4) With onNodeClick (navigation)\n` +

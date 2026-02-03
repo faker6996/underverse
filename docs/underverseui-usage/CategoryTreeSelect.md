@@ -8,6 +8,21 @@ Exports:
 
 ## Usage
 
+### With Custom Icons
+
+```tsx
+import { CategoryTreeSelect } from "@underverse-ui/underverse";
+import { Smartphone, Laptop, Home } from "lucide-react";
+
+const categories = [
+  { id: 1, name: "Electronics" },
+  { id: 2, name: "Phones", parent_id: 1, icon: <Smartphone className="w-4 h-4" /> },
+  { id: 3, name: "Laptops", parent_id: 1, icon: <Laptop className="w-4 h-4" /> },
+];
+
+<CategoryTreeSelect categories={categories} value={selected} onChange={setSelected} />;
+```
+
 ### Multi-select (default)
 
 ```tsx
@@ -31,6 +46,8 @@ const [selected, setSelected] = useState<number | null>(null);
 ```tsx
 <CategoryTreeSelect categories={categories} value={selected} onChange={setSelected} singleSelect inline defaultExpanded />
 ```
+
+**Note:** In inline mode with `singleSelect`, radio buttons are automatically hidden for a cleaner navigation experience.
 
 ### With onNodeClick (for navigation)
 
@@ -91,6 +108,7 @@ interface Category {
   id: number;
   name: string;
   parent_id?: number | null;
+  icon?: React.ReactNode; // Optional custom icon
 }
 
 interface CategoryTreeSelectLabels {

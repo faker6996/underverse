@@ -8,6 +8,7 @@ interface Category {
   id: number;
   name: string;
   parent_id?: number | null;
+  icon?: React.ReactNode;
 }
 
 interface CategoryTreeSelectLabels {
@@ -171,8 +172,9 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     return (
       <div key={category.id} className="animate-in fade-in-50 duration-200" style={{ animationDelay: `${level * 30}ms` }}>
         <div
+          onClick={() => !viewOnly && handleSelect(category.id, category)}
           className={cn(
-            "relative flex items-center gap-2.5 px-3 py-2.5 transition-all duration-200 rounded-lg",
+            "relative flex items-center gap-2.5 px-3 py-2.5 min-h-11 transition-all duration-200 rounded-lg",
             // Không phân biệt parent/child - đồng bộ màu
             !viewOnly && "cursor-pointer",
             !viewOnly && !isSelected && "hover:bg-accent/50",
@@ -193,9 +195,9 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
               }}
               className={cn(
                 "p-1.5 rounded-lg transition-all duration-200",
-                "hover:bg-accent hover:scale-110 active:scale-95",
+                "hover:scale-110 active:scale-95",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-                isExpanded && "bg-accent/50 text-primary",
+                isExpanded && "text-primary",
               )}
             >
               <div className={cn("transition-transform duration-200", isExpanded && "rotate-90")}>
@@ -209,57 +211,20 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           {viewOnly ? (
             // View-only mode: just display the name with folder icon
             <div className="flex items-center gap-2.5">
-              {hasChildren ? (
+              {category.icon ? (
+                <div className="w-4 h-4 flex items-center justify-center text-muted-foreground/60">{category.icon}</div>
+              ) : hasChildren ? (
                 <FolderTree className="w-4 h-4 text-muted-foreground/60" />
               ) : (
                 <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />
               )}
               <span className="text-sm font-medium">{category.name}</span>
             </div>
-          ) : singleSelect ? (
-            // Single select mode: radio-style indicator
-            <div onClick={() => handleSelect(category.id, category)} className="flex items-center gap-2.5 flex-1">
-              <div
-                className={cn(
-                  "w-5 h-5 border-2 rounded-full flex items-center justify-center transition-all duration-200",
-                  isSelected ? "border-primary bg-primary/10 shadow-sm shadow-primary/20" : "border-muted-foreground/30 hover:border-primary/50",
-                )}
-              >
-                {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-linear-to-br from-primary to-primary/80 shadow-sm" />}
-              </div>
-              <span
-                className={cn(
-                  "text-sm transition-all duration-200",
-                  isSelected ? "font-semibold text-primary" : "text-foreground/80 hover:text-foreground",
-                )}
-              >
-                {category.name}
-              </span>
-              {hasChildren && !isSelected && (
-                <span className="ml-auto text-[10px] font-medium text-muted-foreground/50 bg-muted/50 px-1.5 py-0.5 rounded-md">
-                  {children.length}
-                </span>
-              )}
-            </div>
           ) : (
-            // Multi select mode: checkbox-style indicator
-            <div onClick={() => handleSelect(category.id, category)} className="flex items-center gap-2.5 flex-1">
-              <div
-                className={cn(
-                  "w-5 h-5 border-2 rounded-lg flex items-center justify-center transition-all duration-200",
-                  isSelected
-                    ? "bg-linear-to-br from-primary to-primary/80 border-primary shadow-sm shadow-primary/25"
-                    : "border-muted-foreground/30 hover:border-primary/50 hover:bg-primary/5",
-                )}
-              >
-                {isSelected && <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />}
-              </div>
-              <span
-                className={cn(
-                  "text-sm transition-all duration-200",
-                  isSelected ? "font-semibold text-primary" : "text-foreground/80 hover:text-foreground",
-                )}
-              >
+            // Single/Multi select mode: icon + text + badge
+            <div className="flex items-center gap-2.5 flex-1">
+              {category.icon && <div className="w-4 h-4 flex items-center justify-center text-current">{category.icon}</div>}
+              <span className={cn("text-sm transition-all duration-200", isSelected ? "font-semibold text-primary" : "text-foreground/80")}>
                 {category.name}
               </span>
               {hasChildren && !isSelected && (
@@ -323,13 +288,28 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
 
   // Dropdown mode: render trigger + popup
   const selectedCount = valueArray.length;
-  const displayText = singleSelect
-    ? selectedCount > 0
-      ? categories.find((c) => c.id === valueArray[0])?.name || placeholder
-      : placeholder
-    : selectedCount > 0
-      ? mergedLabels.selectedText(selectedCount)
-      : placeholder;
+
+  // Get display text based on selection
+  let displayText: string;
+  if (singleSelect) {
+    // Single select: show selected name or placeholder
+    displayText = selectedCount > 0 ? categories.find((c) => c.id === valueArray[0])?.name || placeholder : placeholder;
+  } else {
+    // Multi select: show names for 1-3 items, count for more
+    if (selectedCount === 0) {
+      displayText = placeholder;
+    } else if (selectedCount <= 3) {
+      // Show comma-separated names
+      const selectedNames = valueArray
+        .map((id) => categories.find((c) => c.id === id)?.name)
+        .filter(Boolean)
+        .join(", ");
+      displayText = selectedNames || placeholder;
+    } else {
+      // Show count
+      displayText = mergedLabels.selectedText(selectedCount);
+    }
+  }
 
   return (
     <div className={cn("relative", className)}>
@@ -376,7 +356,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           <div
             className={cn(
               "absolute z-20 mt-2 w-full max-h-80 overflow-auto",
-              "rounded-2xl md:rounded-3xl overflow-hidden border border-border/40 bg-popover/95 text-popover-foreground",
+              "rounded-2xl md:rounded-3xl border border-border/40 bg-popover/95 text-popover-foreground",
               "shadow-2xl backdrop-blur-xl",
               "p-2",
               "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
