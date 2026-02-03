@@ -109,6 +109,11 @@ export function startOfZonedMonth(date: Date, timeZone: string) {
   return new Date(zonedTimeToUtcMs({ year: p.year, month: p.month, day: 1, hour: 0, minute: 0, second: 0 }, timeZone));
 }
 
+export function startOfZonedYear(date: Date, timeZone: string) {
+  const p = getZonedParts(date, timeZone);
+  return new Date(zonedTimeToUtcMs({ year: p.year, month: 1, day: 1, hour: 0, minute: 0, second: 0 }, timeZone));
+}
+
 export function addZonedDays(date: Date, days: number, timeZone: string) {
   const p = getZonedParts(date, timeZone);
   return new Date(zonedTimeToUtcMs({ ...p, day: p.day + days }, timeZone));
@@ -121,6 +126,10 @@ export function addZonedMonths(date: Date, months: number, timeZone: string) {
   const daysInTargetMonth = new Date(Date.UTC(next.year, next.month, 0)).getUTCDate();
   const clampedDay = Math.min(p.day, daysInTargetMonth);
   return new Date(zonedTimeToUtcMs({ year: next.year, month: next.month, day: clampedDay, hour: p.hour, minute: p.minute, second: p.second }, timeZone));
+}
+
+export function addZonedYears(date: Date, years: number, timeZone: string) {
+  return addZonedMonths(date, years * 12, timeZone);
 }
 
 export function startOfZonedWeek(date: Date, weekStartsOn: number, timeZone: string) {

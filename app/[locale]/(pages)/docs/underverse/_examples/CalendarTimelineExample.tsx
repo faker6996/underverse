@@ -54,6 +54,10 @@ export default function CalendarTimelineExample() {
   const [createMode, setCreateMode] = React.useState<CreateMode>("drag");
   const [dayRangeMode, setDayRangeMode] = React.useState<DayRangeMode>("work");
   const [autoRowHeight, setAutoRowHeight] = React.useState(true);
+  const [onlyMonth, setOnlyMonth] = React.useState(false);
+  const [hideResourceColumn, setHideResourceColumn] = React.useState(false);
+  const [monthCompact, setMonthCompact] = React.useState(true);
+  const [monthEventMaxWidth, setMonthEventMaxWidth] = React.useState(180);
   const [customCreateOpen, setCustomCreateOpen] = React.useState(false);
   const [customCreateTitle, setCustomCreateTitle] = React.useState("New event");
   const [customCreateDraft, setCustomCreateDraft] = React.useState<null | { resourceId: string; start: Date; end: Date }>(null);
@@ -66,6 +70,17 @@ export default function CalendarTimelineExample() {
   const [events, setEvents] = React.useState<Array<CalendarTimelineEvent<EventMeta>>>(() => {
     const d0 = todayUtc;
     return [
+      // Long month-view span (to demo monthEventStyle="compact")
+      {
+        id: "e-long",
+        resourceId: "r-a",
+        title: "Long event (month)",
+        start: `${ymd(addUtcDays(d0, 5))}T00:00:00Z`,
+        end: `${ymd(addUtcDays(d0, 25))}T00:00:00Z`,
+        color: "var(--warning-soft)",
+        draggable: true,
+        resizable: true,
+      },
       {
         id: "e-1",
         resourceId: "r-a",
@@ -129,6 +144,40 @@ export default function CalendarTimelineExample() {
             Mode: View
           </Button>
           <Button
+            variant={onlyMonth ? "default" : "ghost"}
+            size="sm"
+            onClick={() => {
+              setOnlyMonth((v) => {
+                const next = !v;
+                if (next) setView("month");
+                return next;
+              });
+            }}
+          >
+            Only month
+          </Button>
+          <Button variant={hideResourceColumn ? "default" : "ghost"} size="sm" onClick={() => setHideResourceColumn((v) => !v)}>
+            Hide resources
+          </Button>
+          <Button variant={monthCompact ? "default" : "ghost"} size="sm" onClick={() => setMonthCompact((v) => !v)} disabled={!onlyMonth && view !== "month"}>
+            Month: Compact
+          </Button>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Month max width</span>
+            <Input
+              type="number"
+              min={48}
+              max={1200}
+              value={String(monthEventMaxWidth)}
+              onChange={(e) => {
+                const n = (e.target as HTMLInputElement).valueAsNumber;
+                if (!Number.isFinite(n)) return;
+                setMonthEventMaxWidth(Math.max(48, Math.min(1200, Math.round(n))));
+              }}
+              className="w-24"
+            />
+          </div>
+          <Button
             variant={createMode === "drag" ? "default" : "ghost"}
             size="sm"
             onClick={() => setCreateMode("drag")}
@@ -162,12 +211,16 @@ export default function CalendarTimelineExample() {
           resources={resources}
           groups={groups}
           events={events}
+          onlyView={onlyMonth ? "month" : undefined}
           view={view}
-          onViewChange={setView}
+          onViewChange={onlyMonth ? undefined : setView}
           date={date}
           onDateChange={setDate}
           weekStartsOn={1}
-          slotMinWidth={56}
+          hideResourceColumn={hideResourceColumn}
+          slotMinWidth={view === "month" && monthCompact ? undefined : 56}
+          monthEventStyle={monthCompact ? "compact" : "span"}
+          monthEventMaxWidth={monthEventMaxWidth}
           // Day view: shrink empty hours to free space for hours that have events.
           adaptiveSlotWidths={
             view === "day" ? { mode: "shrink", emptySlotWidth: 44, fillContainer: true, fillDistribute: "event" } : { mode: "redistribute", emptySlotWidth: 30 }
@@ -283,6 +336,7 @@ const groups = [{ id: 'g-1', label: 'Group 1' }]
 
 export function Example() {
   const [view, setView] = useState('day')
+  const [monthCompact, setMonthCompact] = useState(true)
   const [createMode, setCreateMode] = useState('drag') // 'drag' | 'click'
   const [dayRangeMode, setDayRangeMode] = useState('work') // 'full' | 'work'
   const [autoRowHeight, setAutoRowHeight] = useState(true)
@@ -299,6 +353,9 @@ export function Example() {
         events={events}
         view={view}
         onViewChange={setView}
+        // Month view: shorten long spans (visual width capped; start day stays correct)
+        monthEventStyle={monthCompact ? 'compact' : 'span'}
+        monthEventMaxWidth={180}
         dayRangeMode={dayRangeMode}
         workHours={{ startHour: 8, endHour: 17 }}
         autoRowHeight={autoRowHeight}
@@ -322,6 +379,41 @@ export function Example() {
   )
 }`;
 
+  const recipes = `// Month view: shorten long events (compact)
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  view="month"
+  monthEventStyle="compact"
+  monthEventMaxWidth={180}
+/>
+
+// Month view: compact + hide resource column + lock month
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  onlyView="month"
+  hideResourceColumn
+  monthEventStyle="compact"
+  monthEventMaxWidth={180}
+/>
+
+// Month view: custom event content (title + time text)
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  view="month"
+  monthEventStyle="compact"
+  renderEvent={(event, layout) => (
+    <div className="h-full px-2.5 flex items-center min-w-0 overflow-hidden">
+      <div className="w-full grid grid-cols-[1fr_auto] gap-x-2 items-center min-w-0 overflow-hidden">
+        <div className="text-xs font-semibold truncate">{event.title ?? event.id}</div>
+        <div className="text-[11px] opacity-70 leading-snug whitespace-nowrap">{layout.timeText}</div>
+      </div>
+    </div>
+  )}
+/>`;
+
   const rows: PropsRow[] = [
     { property: "resources", description: t("props.calendarTimeline.resources"), type: "CalendarTimelineResource[]", default: "-" },
     { property: "events", description: t("props.calendarTimeline.events"), type: "CalendarTimelineEvent[]", default: "-" },
@@ -340,6 +432,7 @@ export function Example() {
     { property: "eventSheetOpen", description: t("props.calendarTimeline.eventSheetOpen"), type: "boolean", default: "—" },
     { property: "defaultEventSheetOpen", description: t("props.calendarTimeline.defaultEventSheetOpen"), type: "boolean", default: "false" },
     { property: "onEventSheetOpenChange", description: t("props.calendarTimeline.onEventSheetOpenChange"), type: "(open: boolean) => void", default: "—" },
+    { property: "onlyView", description: t("props.calendarTimeline.onlyView"), type: "'month' | 'week' | 'day'", default: "—" },
     { property: "view", description: t("props.calendarTimeline.view"), type: "'month' | 'week' | 'day'", default: "'month'" },
     { property: "defaultView", description: t("props.calendarTimeline.defaultView"), type: "'month' | 'week' | 'day'", default: "'month'" },
     { property: "onViewChange", description: t("props.calendarTimeline.onViewChange"), type: "(view: CalendarTimelineView) => void", default: "—" },
@@ -355,9 +448,12 @@ export function Example() {
     { property: "groupCollapsed", description: t("props.calendarTimeline.groupCollapsed"), type: "Record<string, boolean>", default: "-" },
     { property: "defaultGroupCollapsed", description: t("props.calendarTimeline.defaultGroupCollapsed"), type: "Record<string, boolean>", default: "{}" },
     { property: "onGroupCollapsedChange", description: t("props.calendarTimeline.onGroupCollapsedChange"), type: "(next: Record<string, boolean>) => void", default: "—" },
+    { property: "hideResourceColumn", description: t("props.calendarTimeline.hideResourceColumn"), type: "boolean", default: "false" },
     { property: "resourceColumnWidth", description: t("props.calendarTimeline.resourceColumnWidth"), type: "number | string", default: "by size" },
     { property: "rowHeight", description: t("props.calendarTimeline.rowHeight"), type: "number", default: "by size" },
     { property: "slotMinWidth", description: t("props.calendarTimeline.slotMinWidth"), type: "number", default: "by size" },
+    { property: "monthEventStyle", description: t("props.calendarTimeline.monthEventStyle"), type: "'span' | 'compact'", default: "'span'" },
+    { property: "monthEventMaxWidth", description: t("props.calendarTimeline.monthEventMaxWidth"), type: "number", default: "—" },
     { property: "dayTimeStepMinutes", description: t("props.calendarTimeline.dayTimeStepMinutes"), type: "number", default: "60" },
     { property: "autoRowHeight", description: t("props.calendarTimeline.autoRowHeight"), type: "boolean | { maxRowHeight?: number; maxLanesPerRow?: number }", default: "false" },
     { property: "dayRangeMode", description: t("props.calendarTimeline.dayRangeMode"), type: "'full' | 'work'", default: "'full'" },
@@ -405,6 +501,7 @@ export function Example() {
       tabs={[
         { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
         { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
+        { value: "recipes", label: "Recipes", content: <CodeBlock code={recipes} /> },
         { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"

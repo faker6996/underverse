@@ -15,12 +15,13 @@ const VIEW_ICONS: Record<CalendarTimelineView, React.ReactNode> = {
   month: <CalendarRange className="h-4 w-4" />,
   week: <CalendarDays className="h-4 w-4" />,
   day: <Calendar className="h-4 w-4" />,
+  sprint: <CalendarDays className="h-4 w-4" />,
 };
 
 export function CalendarTimelineHeader(props: {
   title: string;
   resourcesHeaderLabel: string;
-  labels: { today: string; prev: string; next: string; month: string; week: string; day: string };
+  labels: { today: string; prev: string; next: string; month: string; week: string; day: string; sprint: string };
   newEventLabel: string;
   newEventDisabled?: boolean;
   onNewEventClick?: () => void;
@@ -61,7 +62,7 @@ export function CalendarTimelineHeader(props: {
   } = props;
 
   const resolvedAvailableViews = React.useMemo(
-    () => (availableViews?.length ? availableViews : (["month", "week", "day"] as CalendarTimelineView[])),
+    () => (availableViews?.length ? availableViews : (["month", "week", "day", "sprint"] as CalendarTimelineView[])),
     [availableViews],
   );
   const showViewSwitcher = resolvedAvailableViews.length > 1;

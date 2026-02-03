@@ -9,7 +9,7 @@ import type {
   CalendarTimelineResource,
   CalendarTimelineView,
 } from "./types";
-import { getZonedWeekday, startOfZonedDay as startOfZonedDayTz } from "./date";
+import { addZonedDays, getZonedWeekday, startOfZonedDay as startOfZonedDayTz } from "./date";
 import { binarySearchFirstGE, binarySearchLastLE, clamp, intervalPack } from "./layout";
 import { computeSlotStarts, eventsByResourceId, normalizeEvents, resourcesById, type NormalizedEvent } from "./model";
 import { defaultSlotHeader } from "./defaults";
@@ -53,13 +53,17 @@ export function useTimelineSlots(args: {
     });
 
     const todayStart = startOfZonedDayTz(resolvedNow, resolvedTimeZone).getTime();
+    const nowMs = resolvedNow.getTime();
     const slotItems: Slot[] = slotStarts.map((s) => ({
       start: s,
       label:
         formatters?.slotHeader?.(s, { view: activeView, locale: resolvedLocale, timeZone: resolvedTimeZone }) ??
         defaultSlotHeader(s, activeView, resolvedLocale, resolvedTimeZone),
-      isToday: startOfZonedDayTz(s, resolvedTimeZone).getTime() === todayStart,
-      isWeekend: activeView === "day" ? false : (() => {
+      isToday:
+        activeView === "sprint"
+          ? nowMs >= s.getTime() && nowMs < addZonedDays(s, 7, resolvedTimeZone).getTime()
+          : startOfZonedDayTz(s, resolvedTimeZone).getTime() === todayStart,
+      isWeekend: activeView === "day" || activeView === "sprint" ? false : (() => {
         const wd = getZonedWeekday(s, resolvedTimeZone);
         return wd === 0 || wd === 6;
       })(),

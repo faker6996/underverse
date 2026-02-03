@@ -1,5 +1,14 @@
 import type { CalendarTimelineDayRangeMode, CalendarTimelineEvent, CalendarTimelineGroup, CalendarTimelineResource, CalendarTimelineView } from "./types";
-import { addZonedDays, addZonedMonths, startOfZonedDay, startOfZonedMonth, startOfZonedWeek, toDate, zonedDateAtTime } from "./date";
+import {
+  addZonedDays,
+  addZonedMonths,
+  startOfZonedDay,
+  startOfZonedMonth,
+  startOfZonedWeek,
+  startOfZonedYear,
+  toDate,
+  zonedDateAtTime,
+} from "./date";
 import { clamp } from "./layout";
 
 export type CalendarTimelineRow<TResourceMeta = unknown> =
@@ -72,7 +81,16 @@ export function computeSlotStarts(args: {
 
   const baseDayStart = startOfZonedDay(date, timeZone);
   const start =
-    view === "month" ? startOfZonedMonth(date, timeZone) : view === "week" ? startOfZonedWeek(date, weekStartsOn, timeZone) : baseDayStart;
+    view === "month"
+      ? startOfZonedMonth(date, timeZone)
+      : view === "week"
+        ? startOfZonedWeek(date, weekStartsOn, timeZone)
+        : view === "sprint"
+          ? (() => {
+              const yearStart = startOfZonedYear(date, timeZone);
+              return startOfZonedWeek(yearStart, weekStartsOn, timeZone);
+            })()
+          : baseDayStart;
 
   if (view === "day") {
     const step = Math.max(5, Math.min(240, Math.trunc(dayTimeStepMinutes)));
@@ -93,6 +111,22 @@ export function computeSlotStarts(args: {
       slotStarts.push(new Date(cur));
     }
     return { start: start2, end, slotStarts };
+  }
+
+  if (view === "sprint") {
+    const yearStart = startOfZonedYear(date, timeZone);
+    const nextYearStart = startOfZonedYear(addZonedMonths(yearStart, 12, timeZone), timeZone);
+    const lastDayOfYear = addZonedDays(nextYearStart, -1, timeZone);
+    const lastSlotStart = startOfZonedWeek(lastDayOfYear, weekStartsOn, timeZone);
+    const end = addZonedDays(lastSlotStart, 7, timeZone);
+    const slotStarts: Date[] = [];
+    let cur = start;
+    let guard = 0;
+    while (cur.getTime() < end.getTime() && guard++ < 60) {
+      slotStarts.push(cur);
+      cur = addZonedDays(cur, 7, timeZone);
+    }
+    return { start, end, slotStarts };
   }
 
   const end = view === "month" ? startOfZonedMonth(addZonedMonths(start, 1, timeZone), timeZone) : addZonedDays(start, 7, timeZone);

@@ -1,6 +1,6 @@
 import type * as React from "react";
 
-export type CalendarTimelineView = "month" | "week" | "day";
+export type CalendarTimelineView = "month" | "week" | "day" | "sprint";
 export type CalendarTimelineDayRangeMode = "full" | "work";
 export type CalendarTimelineDateInput = Date | string | number;
 export type CalendarTimelineSize = "sm" | "md" | "xl";
@@ -40,6 +40,7 @@ export interface CalendarTimelineLabels {
   month?: string;
   week?: string;
   day?: string;
+  sprint?: string;
   newEvent?: string;
   createEventTitle?: string;
   create?: string;
@@ -233,6 +234,15 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   dayEventStyle?: "span" | "compact";
   /** Day view only (when `dayEventStyle="compact"`): max visual width (px). */
   dayEventMaxWidth?: number;
+
+  /**
+   * Month view: visual style for events that span many days.
+   * - "span": event blocks span the full duration on the timeline (default)
+   * - "compact": event blocks keep a capped visual width (still positioned at correct start)
+   */
+  monthEventStyle?: "span" | "compact";
+  /** Month view only (when `monthEventStyle="compact"`): max visual width (px). */
+  monthEventMaxWidth?: number;
   dayTimeStepMinutes?: number; // day view slot size
 
   /** Render tooltips on events (can be expensive for large datasets). Default: true. */

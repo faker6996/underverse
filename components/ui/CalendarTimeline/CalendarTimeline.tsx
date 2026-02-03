@@ -84,6 +84,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   adaptiveSlotWidths,
   dayEventStyle = "span",
   dayEventMaxWidth,
+  monthEventStyle = "span",
+  monthEventMaxWidth,
   dayTimeStepMinutes = 60,
   enableEventTooltips = true,
   dayHeaderMode = "full",
@@ -193,7 +195,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   }, [defaultRowHeight, isControlledRowHeight]);
 
   const effectiveRowHeight = isControlledRowHeight ? (rowHeight as number) : internalRowHeight;
-  const effectiveSlotMinWidth = slotMinWidth ?? sizeConfig.slotMinWidth;
+  const baseSlotMinWidth = slotMinWidth ?? sizeConfig.slotMinWidth;
 
   const colMin = minResourceColumnWidth ?? 160;
   const colMax = maxResourceColumnWidth ?? 520;
@@ -201,13 +203,27 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const rowMax = maxRowHeight ?? 120;
 
   const availableViews = React.useMemo(
-    () => (onlyView ? [onlyView] : (["month", "week", "day"] as CalendarTimelineView[])),
+    () => (onlyView ? [onlyView] : (["month", "week", "day", "sprint"] as CalendarTimelineView[])),
     [onlyView],
   );
 
   const isControlledView = view !== undefined;
   const [internalView, setInternalView] = React.useState<CalendarTimelineView>(() => onlyView ?? defaultView);
   const activeView = onlyView ? onlyView : isControlledView ? (view as CalendarTimelineView) : internalView;
+
+  const effectiveSlotMinWidth = React.useMemo(() => {
+    if (slotMinWidth == null) {
+      // Month view: "compact" events feel odd if each day column stays very wide.
+      if (activeView === "month" && monthEventStyle === "compact") {
+        return clamp(Math.round(sizeConfig.slotMinWidth * 0.55), 32, sizeConfig.slotMinWidth);
+      }
+      // Sprint-year view: many columns, so default to a smaller width.
+      if (activeView === "sprint") {
+        return clamp(Math.round(sizeConfig.slotMinWidth * 0.4), 18, 48);
+      }
+    }
+    return baseSlotMinWidth;
+  }, [activeView, baseSlotMinWidth, monthEventStyle, sizeConfig.slotMinWidth, slotMinWidth]);
 
   const isControlledDate = date !== undefined;
   const [internalDate, setInternalDate] = React.useState<Date>(() => defaultDate ?? new Date());
@@ -223,6 +239,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       month: labels?.month ?? t("month"),
       week: labels?.week ?? t("week"),
       day: labels?.day ?? t("day"),
+      sprint: labels?.sprint ?? t("sprint"),
       newEvent: labels?.newEvent ?? t("newEvent"),
       createEventTitle: labels?.createEventTitle ?? t("createEventTitle"),
       create: labels?.create ?? t("create"),
@@ -264,6 +281,10 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       }
       if (activeView === "week") {
         setDate(addZonedDays(base, dir * 7, resolvedTimeZone));
+        return;
+      }
+      if (activeView === "sprint") {
+        setDate(addZonedMonths(base, dir * 12, resolvedTimeZone));
         return;
       }
       setDate(addZonedDays(base, dir, resolvedTimeZone));
@@ -596,10 +617,17 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       return `${l.week} ${week} • ${rangeText}`;
     }
 
+    if (activeView === "sprint") {
+      const fmtYear = getDtf(resolvedLocale, resolvedTimeZone, { year: "numeric" });
+      const yearText = fmtYear.format(activeDate);
+      const count = Math.max(0, slots.length);
+      return `${l.sprint} • ${yearText} • ${t("sprints", { n: count })}`;
+    }
+
     // day
     const fmt = getDtf(resolvedLocale, resolvedTimeZone, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
     return fmt.format(range.start);
-  }, [activeDate, activeView, formatters, l.week, range.end, range.start, resolvedLocale, resolvedTimeZone]);
+  }, [activeDate, activeView, formatters, l.sprint, l.week, range.end, range.start, resolvedLocale, resolvedTimeZone, slots.length, t]);
 
   const createMode = interactions?.createMode ?? "drag";
   const canCreate = !isViewOnly && (interactions?.creatable ?? false) && !!onCreateEvent;
@@ -752,6 +780,9 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       if (activeView === "day") {
         const stepMs = Math.trunc(Math.max(5, Math.min(240, Math.trunc(dayTimeStepMinutes))) * 60_000);
         return { start, end: new Date(start.getTime() + stepMs) };
+      }
+      if (activeView === "sprint") {
+        return { start, end: addZonedDays(start, 7, resolvedTimeZone) };
       }
       return { start, end: addZonedDays(start, 1, resolvedTimeZone) };
     },
@@ -1101,7 +1132,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     <CalendarTimelineHeader
       title={title}
       resourcesHeaderLabel={t("resourcesHeader")}
-      labels={{ today: l.today, prev: l.prev, next: l.next, month: l.month, week: l.week, day: l.day }}
+      labels={{ today: l.today, prev: l.prev, next: l.next, month: l.month, week: l.week, day: l.day, sprint: l.sprint }}
       newEventLabel={l.newEvent}
       newEventDisabled={isViewOnly || !canCreate || resources.length === 0}
       onNewEventClick={isViewOnly ? undefined : openCreate}
@@ -1298,13 +1329,21 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                     const resource = resourceById.get(ev.resourceId);
                     const tooltipTitle = ev.title || ev.id;
 
-                    const shouldCompact = activeView === "day" && dayEventStyle === "compact";
+                    const shouldCompact =
+                      (activeView === "day" && dayEventStyle === "compact") || (activeView === "month" && monthEventStyle === "compact");
                     const eventInsetX = 2;
                     const leftInset = left + eventInsetX;
                     const widthInset = Math.max(1, width - eventInsetX * 2);
 
-                    const defaultMaxVisual = clamp(Math.round(fixedSlotWidth * 1.2), 160, 360);
-                    const maxVisual = clamp(Math.round(dayEventMaxWidth ?? defaultMaxVisual), 80, 1200);
+                    const defaultMaxVisual = (() => {
+                      if (activeView === "month") return clamp(Math.round(fixedSlotWidth * 2.5), 72, 360);
+                      return clamp(Math.round(fixedSlotWidth * 1.2), 160, 360);
+                    })();
+                    const maxVisual = clamp(
+                      Math.round(activeView === "month" ? (monthEventMaxWidth ?? defaultMaxVisual) : (dayEventMaxWidth ?? defaultMaxVisual)),
+                      48,
+                      1200,
+                    );
                     const visualWidth = shouldCompact ? Math.min(widthInset, maxVisual) : widthInset;
                     const isClipped = shouldCompact && widthInset > visualWidth + 1;
 
