@@ -55,7 +55,25 @@ const [date, setDate] = React.useState(new Date());
 />
 ```
 
-### 3) Month view: shrink empty days to free space
+### 3) Lock view (only month / only day)
+
+Use when you want to ship a single mode (no view switcher UI).
+
+```tsx
+<CalendarTimeline resources={resources} events={events} onlyView="month" />
+```
+
+```tsx
+<CalendarTimeline resources={resources} events={events} onlyView="day" />
+```
+
+### 4) Hide resource column (left labels)
+
+```tsx
+<CalendarTimeline resources={resources} events={events} hideResourceColumn />
+```
+
+### 5) Month view: shrink empty days to free space
 
 ```tsx
 <CalendarTimeline
@@ -66,7 +84,7 @@ const [date, setDate] = React.useState(new Date());
 />
 ```
 
-### 4) Day view: shrink empty hours but keep full-width grid
+### 6) Day view: shrink empty hours but keep full-width grid
 
 Use when you want empty hour columns smaller, but the timeline still fills the container width.
 
@@ -80,7 +98,7 @@ Use when you want empty hour columns smaller, but the timeline still fills the c
 />
 ```
 
-### 5) Day view header
+### 7) Day view header
 
 - `dayHeaderMode="full"`: show every hour label (legacy/default behavior)
 - `dayHeaderMode="smart"`: show start/…/end markers (opt-in)
@@ -104,7 +122,7 @@ Use when you want empty hour columns smaller, but the timeline still fills the c
 />
 ```
 
-### 6) Day view range (work hours vs 24h)
+### 8) Day view range (work hours vs 24h)
 
 ```tsx
 <CalendarTimeline
@@ -116,7 +134,7 @@ Use when you want empty hour columns smaller, but the timeline still fills the c
 />
 ```
 
-### 7) Grouping + collapse
+### 9) Grouping + collapse
 
 ```tsx
 const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>({ g1: false, g2: true });
@@ -133,7 +151,7 @@ const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>({ g1: 
 />
 ```
 
-### 8) Interactions (create/drag/resize/delete)
+### 10) Interactions (create/drag/resize/delete)
 
 ```tsx
 <CalendarTimeline
@@ -154,7 +172,7 @@ const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>({ g1: 
 />
 ```
 
-### 9) “Create: click (custom)” flow
+### 11) “Create: click (custom)” flow
 
 ```tsx
 <CalendarTimeline
@@ -168,7 +186,7 @@ const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>({ g1: 
 />
 ```
 
-### 10) Row height control (per-resource + autoRowHeight)
+### 12) Row height control (per-resource + autoRowHeight)
 
 ```tsx
 const [rowHeights, setRowHeights] = React.useState<Record<string, number>>({});
@@ -182,7 +200,7 @@ const [rowHeights, setRowHeights] = React.useState<Record<string, number>>({});
 />
 ```
 
-### 11) Performance toggles (large datasets)
+### 13) Performance toggles (large datasets)
 
 ```tsx
 <CalendarTimeline
@@ -194,7 +212,7 @@ const [rowHeights, setRowHeights] = React.useState<Record<string, number>>({});
 />
 ```
 
-### 12) Timezone + i18n
+### 14) Timezone + i18n
 
 ```tsx
 <CalendarTimeline
@@ -402,6 +420,8 @@ Click vào ô trống để bạn tự mở modal/sheet tạo event theo ý (cus
 - **Một resource (một hàng)** có thể có **nhiều event**. Nếu các event overlap, component sẽ tự xếp thành nhiều “lane”.
 - `maxLanesPerRow` giới hạn số lane hiển thị; phần dư sẽ vào “hidden” và hiển thị nút `+n more`.
 - `end` của event là **exclusive** (kết thúc không bao gồm). Ví dụ `04:00 → 06:00` là đúng 2 giờ.
+- `onlyView="month" | "week" | "day"` sẽ **lock** view và **ẩn view switcher** (bỏ qua `view/defaultView`).
+- `hideResourceColumn` sẽ **ẩn cột resource** bên trái (không hiện label/group toggle và không kéo resize row từ UI).
 - Khi **drag/move/resize** event, component sẽ **không mở Event Sheet** (chỉ click mới mở).
 - Ở **week view**, các slot sẽ **tự giãn để fill full chiều ngang** vùng timeline (nhưng vẫn tôn trọng `slotMinWidth` như giá trị tối thiểu).
 - Có nút **New event** ở header (khi bật `interactions.creatable` và có `onCreateEvent`) để tạo event bằng cách chọn **resource / start / end** theo đúng view hiện tại (month/week/day).

@@ -141,6 +141,12 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   onEventSheetOpenChange?: (open: boolean) => void;
 
   // view/date
+  /**
+   * Lock the timeline to a single view and hide the view switcher.
+   * When set, `view`/`defaultView` are ignored.
+   */
+  onlyView?: CalendarTimelineView;
+
   view?: CalendarTimelineView;
   defaultView?: CalendarTimelineView;
   onViewChange?: (view: CalendarTimelineView) => void;
@@ -164,6 +170,13 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   onGroupCollapsedChange?: (next: Record<string, boolean>) => void;
 
   // layout
+  /**
+   * Hide the left resource column (resource/group labels).
+   * The grid rows still render (one per resource), but the left labels, group toggles,
+   * and UI row-resize handles are not shown.
+   */
+  hideResourceColumn?: boolean;
+
   /** Controlled width of the left resource column (px or CSS width string). */
   resourceColumnWidth?: number | string;
   /** Default width of the left resource column when uncontrolled (px). */

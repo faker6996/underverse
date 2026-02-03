@@ -48,6 +48,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   eventSheetOpen,
   defaultEventSheetOpen,
   onEventSheetOpenChange,
+  onlyView,
   view,
   defaultView = "month",
   onViewChange,
@@ -63,6 +64,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   groupCollapsed,
   defaultGroupCollapsed,
   onGroupCollapsedChange,
+  hideResourceColumn,
   resourceColumnWidth,
   defaultResourceColumnWidth,
   onResourceColumnWidthChange,
@@ -139,6 +141,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     [isControlledEventSheetOpen, onEventSheetOpenChange, setSelectedEventId],
   );
 
+  const showResourceColumn = !hideResourceColumn;
+
   const sizeConfig = React.useMemo(() => getSizeConfig(size), [size]);
   const densityClass = sizeConfig.densityClass;
   const eventHeight = sizeConfig.eventHeight;
@@ -149,17 +153,19 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     const cfg = enableLayoutResize;
     if (!cfg) return false;
     if (isViewOnly) return false;
+    if (!showResourceColumn) return false;
     if (cfg === true) return true;
     return cfg.column !== false;
-  }, [enableLayoutResize, isViewOnly]);
+  }, [enableLayoutResize, isViewOnly, showResourceColumn]);
 
   const canResizeRow = React.useMemo(() => {
     const cfg = enableLayoutResize;
     if (!cfg) return false;
     if (isViewOnly) return false;
+    if (!showResourceColumn) return false;
     if (cfg === true) return true;
     return cfg.row !== false;
-  }, [enableLayoutResize, isViewOnly]);
+  }, [enableLayoutResize, isViewOnly, showResourceColumn]);
 
   const isControlledResourceColumnWidth = resourceColumnWidth !== undefined;
   const [internalResourceColumnWidth, setInternalResourceColumnWidth] = React.useState<number>(() => {
@@ -173,7 +179,9 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     setInternalResourceColumnWidth(defaultResourceColumnWidth);
   }, [defaultResourceColumnWidth, isControlledResourceColumnWidth]);
 
-  const effectiveResourceColumnWidth: number | string = isControlledResourceColumnWidth ? (resourceColumnWidth as any) : internalResourceColumnWidth;
+  const effectiveResourceColumnWidth: number | string = showResourceColumn
+    ? (isControlledResourceColumnWidth ? (resourceColumnWidth as any) : internalResourceColumnWidth)
+    : 0;
 
   const isControlledRowHeight = rowHeight !== undefined;
   const [internalRowHeight, setInternalRowHeight] = React.useState<number>(() => defaultRowHeight ?? sizeConfig.rowHeight);
@@ -192,9 +200,14 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const rowMin = minRowHeight ?? 36;
   const rowMax = maxRowHeight ?? 120;
 
+  const availableViews = React.useMemo(
+    () => (onlyView ? [onlyView] : (["month", "week", "day"] as CalendarTimelineView[])),
+    [onlyView],
+  );
+
   const isControlledView = view !== undefined;
-  const [internalView, setInternalView] = React.useState<CalendarTimelineView>(defaultView);
-  const activeView = isControlledView ? (view as CalendarTimelineView) : internalView;
+  const [internalView, setInternalView] = React.useState<CalendarTimelineView>(() => onlyView ?? defaultView);
+  const activeView = onlyView ? onlyView : isControlledView ? (view as CalendarTimelineView) : internalView;
 
   const isControlledDate = date !== undefined;
   const [internalDate, setInternalDate] = React.useState<Date>(() => defaultDate ?? new Date());
@@ -227,10 +240,11 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   const setView = React.useCallback(
     (next: CalendarTimelineView) => {
+      if (onlyView) return;
       if (!isControlledView) setInternalView(next);
       onViewChange?.(next);
     },
-    [isControlledView, onViewChange],
+    [isControlledView, onViewChange, onlyView],
   );
 
   const setDate = React.useCallback(
@@ -359,7 +373,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     }
   }, [activeEventSheetOpen, activeSelectedEventId, effectiveEnableEventSheet, selectedEvent, setEventSheetOpen]);
 
-  useHorizontalScrollSync({ bodyRef, headerRef, leftRef });
+  useHorizontalScrollSync({ bodyRef, headerRef, leftRef: showResourceColumn ? leftRef : undefined });
 
   const virt = virtualization?.enabled;
   const overscan = virtualization?.overscan ?? 8;
@@ -1092,6 +1106,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       newEventDisabled={isViewOnly || !canCreate || resources.length === 0}
       onNewEventClick={isViewOnly ? undefined : openCreate}
       activeView={activeView}
+      availableViews={availableViews}
+      showResourceColumn={showResourceColumn}
       sizeConfig={sizeConfig}
       navigate={navigate}
       now={resolvedNow}
@@ -1131,37 +1147,39 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       {Header}
       <div className="flex min-h-0">
         {/* Left column (resources / groups): vertical scroll sync with body */}
-        <div
-          ref={leftRef}
-          className="shrink-0 overflow-y-auto overflow-x-hidden scrollbar-none"
-          style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
-        >
-          <div style={{ height: topSpacer }} />
-          {rows.slice(startRow, endRow).map((row, idx) => {
-            const rowIndex = startRow + idx;
-            const h = rowHeightsArray[rowIndex] ?? effectiveRowHeight;
-            if (row.kind === "group") {
+        {showResourceColumn ? (
+          <div
+            ref={leftRef}
+            className="shrink-0 overflow-y-auto overflow-x-hidden scrollbar-none"
+            style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
+          >
+            <div style={{ height: topSpacer }} />
+            {rows.slice(startRow, endRow).map((row, idx) => {
+              const rowIndex = startRow + idx;
+              const h = rowHeightsArray[rowIndex] ?? effectiveRowHeight;
+              if (row.kind === "group") {
+                return (
+                  <div key={`lg_${row.group.id}_${rowIndex}`} style={{ height: h }}>
+                    {renderGroupRow(row.group)}
+                  </div>
+                );
+              }
+              const r = row.resource;
               return (
-                <div key={`lg_${row.group.id}_${rowIndex}`} style={{ height: h }}>
-                  {renderGroupRow(row.group)}
+                <div key={`lr_${r.id}_${rowIndex}`} style={{ height: h }}>
+                  <ResourceRowCell
+                    resource={r}
+                    sizeConfig={sizeConfig}
+                    canResizeRow={canResizeRow}
+                    beginResizeResourceRow={beginResizeResourceRow}
+                    renderResource={renderResource}
+                  />
                 </div>
               );
-            }
-            const r = row.resource;
-            return (
-              <div key={`lr_${r.id}_${rowIndex}`} style={{ height: h }}>
-                <ResourceRowCell
-                  resource={r}
-                  sizeConfig={sizeConfig}
-                  canResizeRow={canResizeRow}
-                  beginResizeResourceRow={beginResizeResourceRow}
-                  renderResource={renderResource}
-                />
-              </div>
-            );
-          })}
-          <div style={{ height: bottomSpacer }} />
-        </div>
+            })}
+            <div style={{ height: bottomSpacer }} />
+          </div>
+        ) : null}
 
         {/* Right grid: main scroll container (both axes) */}
         <div

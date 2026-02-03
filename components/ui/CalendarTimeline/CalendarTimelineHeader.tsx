@@ -25,6 +25,8 @@ export function CalendarTimelineHeader(props: {
   newEventDisabled?: boolean;
   onNewEventClick?: () => void;
   activeView: CalendarTimelineView;
+  availableViews?: CalendarTimelineView[];
+  showResourceColumn?: boolean;
   sizeConfig: CalendarTimelineSizeConfig;
   navigate: (dir: -1 | 1) => void;
   now: Date;
@@ -44,6 +46,8 @@ export function CalendarTimelineHeader(props: {
     newEventDisabled,
     onNewEventClick,
     activeView,
+    availableViews,
+    showResourceColumn,
     sizeConfig,
     navigate,
     now,
@@ -55,6 +59,13 @@ export function CalendarTimelineHeader(props: {
     headerRef,
     slotHeaderNodes,
   } = props;
+
+  const resolvedAvailableViews = React.useMemo(
+    () => (availableViews?.length ? availableViews : (["month", "week", "day"] as CalendarTimelineView[])),
+    [availableViews],
+  );
+  const showViewSwitcher = resolvedAvailableViews.length > 1;
+  const showLeftColumn = showResourceColumn ?? true;
 
   const dt = useTranslations("DateTimePicker");
   const locale = useLocale();
@@ -243,57 +254,61 @@ export function CalendarTimelineHeader(props: {
           ) : null}
 
           {/* View Switcher */}
-          <div className="flex items-center bg-muted/40 rounded-full p-1 gap-0.5">
-            {(["month", "week", "day"] as CalendarTimelineView[]).map((v) => (
-              <Button
-                key={v}
-                variant={activeView === v ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setView(v)}
-                className={cn(
-                  sizeConfig.controlButtonTextClass,
-                  "rounded-full font-medium transition-all duration-200 gap-1.5",
-                  activeView === v
-                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
-                    : "hover:bg-background/80 text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {VIEW_ICONS[v]}
-                <span className="hidden sm:inline">{labels[v]}</span>
-              </Button>
-            ))}
-          </div>
+          {showViewSwitcher ? (
+            <div className="flex items-center bg-muted/40 rounded-full p-1 gap-0.5">
+              {resolvedAvailableViews.map((v) => (
+                <Button
+                  key={v}
+                  variant={activeView === v ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setView(v)}
+                  className={cn(
+                    sizeConfig.controlButtonTextClass,
+                    "rounded-full font-medium transition-all duration-200 gap-1.5",
+                    activeView === v
+                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
+                      : "hover:bg-background/80 text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {VIEW_ICONS[v]}
+                  <span className="hidden sm:inline">{labels[v]}</span>
+                </Button>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
 
       {/* Slot Headers */}
       <div className="flex border-t border-border/20">
-        <div
-          className="shrink-0 border-r border-border/30 bg-muted/20 flex items-center justify-center relative group/uv-ct-top-left"
-          style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
-        >
-          <span className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">{resourcesHeaderLabel}</span>
-          {canResizeColumn && typeof effectiveResourceColumnWidth === "number" ? (
-            <div
-              role="separator"
-              aria-orientation="vertical"
-              aria-label="Resize resource column"
-              className={cn(
-                "absolute right-0 top-0 h-full w-3 cursor-col-resize z-20",
-                "bg-transparent hover:bg-primary/10 active:bg-primary/15",
-                "transition-all",
-                "opacity-0 pointer-events-none",
-                "group-hover/uv-ct-top-left:opacity-100 group-hover/uv-ct-top-left:pointer-events-auto",
-              )}
-              onPointerDown={beginResizeColumn}
-            >
-              <div className="absolute inset-y-2 left-1/2 w-px -translate-x-1/2 bg-border/70" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-70">
-                <GripVertical className="h-4 w-4 text-muted-foreground" />
+        {showLeftColumn ? (
+          <div
+            className="shrink-0 border-r border-border/30 bg-muted/20 flex items-center justify-center relative group/uv-ct-top-left"
+            style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
+          >
+            <span className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">{resourcesHeaderLabel}</span>
+            {canResizeColumn && typeof effectiveResourceColumnWidth === "number" ? (
+              <div
+                role="separator"
+                aria-orientation="vertical"
+                aria-label="Resize resource column"
+                className={cn(
+                  "absolute right-0 top-0 h-full w-3 cursor-col-resize z-20",
+                  "bg-transparent hover:bg-primary/10 active:bg-primary/15",
+                  "transition-all",
+                  "opacity-0 pointer-events-none",
+                  "group-hover/uv-ct-top-left:opacity-100 group-hover/uv-ct-top-left:pointer-events-auto",
+                )}
+                onPointerDown={beginResizeColumn}
+              >
+                <div className="absolute inset-y-2 left-1/2 w-px -translate-x-1/2 bg-border/70" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-70">
+                  <GripVertical className="h-4 w-4 text-muted-foreground" />
+                </div>
               </div>
-            </div>
-          ) : null}
-        </div>
+            ) : null}
+          </div>
+        ) : null}
         <div ref={headerRef} className="flex-1 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-none">
           {slotHeaderNodes}
         </div>
