@@ -1045,20 +1045,20 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                 : "border-border/10"
               : "border-border/30";
           return (
-              <CalendarTimelineSlotHeaderCell
-                key={`${s.start.toISOString()}_${idx}`}
-                slotKey={`${s.start.toISOString()}_${idx}`}
-                idx={idx}
-                width={slotWidths[idx] ?? 0}
-                activeView={activeView}
-                isToday={s.isToday}
-                label={s.label}
-                ariaLabel={formatters?.ariaSlotLabel?.(s.start, { view: activeView, locale: resolvedLocale, timeZone: resolvedTimeZone })}
-                borderClassName={borderClassName}
+            <CalendarTimelineSlotHeaderCell
+              key={`${s.start.toISOString()}_${idx}`}
+              slotKey={`${s.start.toISOString()}_${idx}`}
+              idx={idx}
+              width={slotWidths[idx] ?? 0}
+              activeView={activeView}
+              isToday={s.isToday}
+              label={s.label}
+              ariaLabel={formatters?.ariaSlotLabel?.(s.start, { view: activeView, locale: resolvedLocale, timeZone: resolvedTimeZone })}
+              borderClassName={borderClassName}
               className={cn(
                 sizeConfig.slotHeaderClass,
                 activeView !== "day" && s.isToday && "bg-primary/8 border-l-primary/40",
-                activeView !== "day" && !s.isToday && s.isWeekend && "bg-muted/15",
+                activeView !== "day" && !s.isToday && s.isWeekend && "bg-destructive/8 text-destructive-foreground",
               )}
               dayHeaderMarks={dayHeaderMarks}
             />
@@ -1173,10 +1173,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         >
           <div style={{ height: topSpacer }} />
           {gridWidth > 0 && renderedRowsHeight > 0 ? (
-            <div
-              className="pointer-events-none absolute left-0 z-0"
-              style={{ top: topSpacer, width: gridWidth, height: renderedRowsHeight }}
-            >
+            <div className="pointer-events-none absolute left-0 z-0" style={{ top: topSpacer, width: gridWidth, height: renderedRowsHeight }}>
               <CalendarTimelineGridOverlay
                 gridWidth={gridWidth}
                 height={renderedRowsHeight}
@@ -1235,11 +1232,11 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                   {layout.visible.map(({ ev, left, width, lane }) => {
                     const top = layout.baseTop + lane * (layout.eventHeight + laneGap);
                     const isPreview = preview?.eventId === ev.id;
-            const bg = ev.color ? ev.color : "hsl(var(--primary) / 0.15)";
-            const border = ev.color ? ev.color : "hsl(var(--primary))";
-            const aria =
-              formatters?.ariaEventLabel?.(ev, { locale: resolvedLocale, timeZone: resolvedTimeZone }) ??
-              (typeof ev.title === "string" ? ev.title : "Event");
+                    const bg = ev.color ? ev.color : "hsl(var(--primary) / 0.15)";
+                    const border = ev.color ? ev.color : "hsl(var(--primary))";
+                    const aria =
+                      formatters?.ariaEventLabel?.(ev, { locale: resolvedLocale, timeZone: resolvedTimeZone }) ??
+                      (typeof ev.title === "string" ? ev.title : "Event");
                     const timeText =
                       formatters?.eventTime?.({
                         start: ev._start,
@@ -1280,54 +1277,54 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                         );
                       })();
 
-                  const resource = resourceById.get(ev.resourceId);
-                  const tooltipTitle = ev.title || ev.id;
+                    const resource = resourceById.get(ev.resourceId);
+                    const tooltipTitle = ev.title || ev.id;
 
-                  const shouldCompact = activeView === "day" && dayEventStyle === "compact";
-                  const eventInsetX = 2;
-                  const leftInset = left + eventInsetX;
-                  const widthInset = Math.max(1, width - eventInsetX * 2);
+                    const shouldCompact = activeView === "day" && dayEventStyle === "compact";
+                    const eventInsetX = 2;
+                    const leftInset = left + eventInsetX;
+                    const widthInset = Math.max(1, width - eventInsetX * 2);
 
-                  const defaultMaxVisual = clamp(Math.round(fixedSlotWidth * 1.2), 160, 360);
-                  const maxVisual = clamp(Math.round(dayEventMaxWidth ?? defaultMaxVisual), 80, 1200);
-                  const visualWidth = shouldCompact ? Math.min(widthInset, maxVisual) : widthInset;
-                  const isClipped = shouldCompact && widthInset > visualWidth + 1;
+                    const defaultMaxVisual = clamp(Math.round(fixedSlotWidth * 1.2), 160, 360);
+                    const maxVisual = clamp(Math.round(dayEventMaxWidth ?? defaultMaxVisual), 80, 1200);
+                    const visualWidth = shouldCompact ? Math.min(widthInset, maxVisual) : widthInset;
+                    const isClipped = shouldCompact && widthInset > visualWidth + 1;
 
-                  const block = (
-                    <div
-                      className={cn("absolute select-none cursor-pointer", isPreview && "z-10")}
-                      data-uv-ct-event
-                      style={{ left: leftInset, top, width: widthInset, height: layout.eventHeight }}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={aria}
-                      onContextMenu={(e) => {
-                        if (isViewOnly) return;
-                        if (!onEventDelete) return;
-                        if (interactions?.deletableEvents === false) return;
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const ok = window.confirm(l.deleteConfirm);
-                        if (!ok) return;
-                        onEventDelete({ eventId: ev.id });
-                      }}
-                      onClick={() => {
-                        if (suppressNextEventClickRef.current) {
-                          suppressNextEventClickRef.current = false;
-                          return;
-                        }
-                        onEventClick?.(ev);
-                        if (effectiveEnableEventSheet) {
-                          setSelectedEventId(ev.id);
-                          setEventSheetOpen(true);
-                        }
-                      }}
-                      onDoubleClick={() => onEventDoubleClick?.(ev)}
-                      onPointerDown={(e) => onPointerDownEvent(e, ev, "move")}
-                    >
+                    const block = (
                       <div
-                        className={cn(
-                          "relative h-full rounded-lg border overflow-hidden",
+                        className={cn("absolute select-none cursor-pointer", isPreview && "z-10")}
+                        data-uv-ct-event
+                        style={{ left: leftInset, top, width: widthInset, height: layout.eventHeight }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={aria}
+                        onContextMenu={(e) => {
+                          if (isViewOnly) return;
+                          if (!onEventDelete) return;
+                          if (interactions?.deletableEvents === false) return;
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const ok = window.confirm(l.deleteConfirm);
+                          if (!ok) return;
+                          onEventDelete({ eventId: ev.id });
+                        }}
+                        onClick={() => {
+                          if (suppressNextEventClickRef.current) {
+                            suppressNextEventClickRef.current = false;
+                            return;
+                          }
+                          onEventClick?.(ev);
+                          if (effectiveEnableEventSheet) {
+                            setSelectedEventId(ev.id);
+                            setEventSheetOpen(true);
+                          }
+                        }}
+                        onDoubleClick={() => onEventDoubleClick?.(ev)}
+                        onPointerDown={(e) => onPointerDownEvent(e, ev, "move")}
+                      >
+                        <div
+                          className={cn(
+                            "relative h-full rounded-lg border overflow-hidden",
                             "shadow-sm hover:shadow-md hover:scale-[1.02]",
                             "transition-all duration-150 ease-out",
                             "backdrop-blur-sm",
@@ -1351,37 +1348,37 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                           ) : null}
                         </div>
 
-                      {!isViewOnly && (interactions?.resizableEvents ?? true) && ev.resizable !== false ? (
-                        <>
-                          <div
-                            className="absolute left-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-l-lg transition-opacity"
-                            onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-start")}
-                          />
-                          <div
-                            className="absolute right-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-r-lg transition-opacity"
-                            onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-end")}
-                          />
-                        </>
-                      ) : null}
-                    </div>
-                  );
+                        {!isViewOnly && (interactions?.resizableEvents ?? true) && ev.resizable !== false ? (
+                          <>
+                            <div
+                              className="absolute left-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-l-lg transition-opacity"
+                              onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-start")}
+                            />
+                            <div
+                              className="absolute right-0 top-0 h-full w-2 cursor-ew-resize opacity-0 hover:opacity-100 bg-primary/20 rounded-r-lg transition-opacity"
+                              onPointerDown={(e) => onPointerDownEvent(e, ev, "resize-end")}
+                            />
+                          </>
+                        ) : null}
+                      </div>
+                    );
 
-                  if (!enableEventTooltips) return <React.Fragment key={ev.id}>{block}</React.Fragment>;
+                    if (!enableEventTooltips) return <React.Fragment key={ev.id}>{block}</React.Fragment>;
 
-                  const tooltipContent = (
-                    <div className="flex flex-col gap-0.5">
-                      <div className="font-semibold">{tooltipTitle}</div>
-                      <div className="text-xs opacity-80">{timeText}</div>
-                      {resource?.label ? <div className="text-xs opacity-70">{resource.label}</div> : null}
-                    </div>
-                  );
+                    const tooltipContent = (
+                      <div className="flex flex-col gap-0.5">
+                        <div className="font-semibold">{tooltipTitle}</div>
+                        <div className="text-xs opacity-80">{timeText}</div>
+                        {resource?.label ? <div className="text-xs opacity-70">{resource.label}</div> : null}
+                      </div>
+                    );
 
-                  return (
-                    <Tooltip key={ev.id} content={tooltipContent} placement="top" delay={{ open: 250, close: 0 }}>
-                      {block}
-                    </Tooltip>
-                  );
-                })}
+                    return (
+                      <Tooltip key={ev.id} content={tooltipContent} placement="top" delay={{ open: 250, close: 0 }}>
+                        {block}
+                      </Tooltip>
+                    );
+                  })}
 
                   {preview && preview.resourceId === r.id && !preview.eventId
                     ? (() => {

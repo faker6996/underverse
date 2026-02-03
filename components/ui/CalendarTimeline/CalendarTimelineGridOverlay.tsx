@@ -17,8 +17,19 @@ export const CalendarTimelineGridOverlay = React.memo(function CalendarTimelineG
   visibleEndIdx?: number;
   className?: string;
 }) {
-  const { gridWidth, height, slotLefts, slotWidths, activeView, todaySlotIdx, dayAnchor, weekendSlotIdxs, visibleStartIdx, visibleEndIdx, className } =
-    props;
+  const {
+    gridWidth,
+    height,
+    slotLefts,
+    slotWidths,
+    activeView,
+    todaySlotIdx,
+    dayAnchor,
+    weekendSlotIdxs,
+    visibleStartIdx,
+    visibleEndIdx,
+    className,
+  } = props;
   const startIdx = Math.max(0, visibleStartIdx ?? 0);
   const endIdx = Math.min(slotWidths.length, visibleEndIdx ?? slotWidths.length);
 
@@ -36,7 +47,7 @@ export const CalendarTimelineGridOverlay = React.memo(function CalendarTimelineG
             if (showToday && idx === todaySlotIdx) return null;
             const left = slotLefts[idx] ?? 0;
             const width = slotWidths[idx] ?? 0;
-            return <div key={`we_${idx}`} className="absolute top-0 h-full bg-muted/10" style={{ left, width }} aria-hidden />;
+            return <div key={`we_${idx}`} className="absolute top-0 h-full bg-destructive/5" style={{ left, width }} aria-hidden />;
           })
         : null}
 
