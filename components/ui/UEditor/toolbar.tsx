@@ -92,7 +92,7 @@ export const ToolbarButton = React.forwardRef<
 
   if (title) {
     return (
-      <Tooltip content={title} placement="top" delay={{ open: 500, close: 0 }}>
+      <Tooltip content={title} placement="top" delay={{ open: 200, close: 0 }}>
         {button}
       </Tooltip>
     );
@@ -131,8 +131,7 @@ export const EditorToolbar = ({
     for (const file of files) {
       if (!file.type.startsWith("image/")) continue;
       try {
-        const src =
-          imageInsertMode === "upload" && uploadImage ? await uploadImage(file) : await fileToDataUrl(file);
+        const src = imageInsertMode === "upload" && uploadImage ? await uploadImage(file) : await fileToDataUrl(file);
         if (!src) continue;
         editor.chain().focus().setImage({ src, alt: file.name }).run();
         editor.commands.createParagraphNear();
@@ -150,11 +149,7 @@ export const EditorToolbar = ({
         <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("toolbar.bold")}>
           <BoldIcon className="w-4 h-4" />
         </ToolbarButton>
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          active={editor.isActive("italic")}
-          title={t("toolbar.italic")}
-        >
+        <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} title={t("toolbar.italic")}>
           <ItalicIcon className="w-4 h-4" />
         </ToolbarButton>
         <ToolbarButton
@@ -178,7 +173,12 @@ export const EditorToolbar = ({
           </ToolbarButton>
         }
       >
-        <DropdownMenuItem icon={Type} label={t("toolbar.normal")} onClick={() => editor.chain().focus().setParagraph().run()} active={editor.isActive("paragraph")} />
+        <DropdownMenuItem
+          icon={Type}
+          label={t("toolbar.normal")}
+          onClick={() => editor.chain().focus().setParagraph().run()}
+          active={editor.isActive("paragraph")}
+        />
         <DropdownMenuItem
           icon={Heading1Icon}
           label={t("toolbar.heading1")}
@@ -207,11 +207,7 @@ export const EditorToolbar = ({
       <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("toolbar.bold")}>
         <BoldIcon className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton
-        onClick={() => editor.chain().focus().toggleItalic().run()}
-        active={editor.isActive("italic")}
-        title={t("toolbar.italic")}
-      >
+      <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} title={t("toolbar.italic")}>
         <ItalicIcon className="w-4 h-4" />
       </ToolbarButton>
       <ToolbarButton
@@ -221,11 +217,7 @@ export const EditorToolbar = ({
       >
         <UnderlineIcon className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton
-        onClick={() => editor.chain().focus().toggleStrike().run()}
-        active={editor.isActive("strike")}
-        title={t("toolbar.strike")}
-      >
+      <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")} title={t("toolbar.strike")}>
         <StrikethroughIcon className="w-4 h-4" />
       </ToolbarButton>
       <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive("code")} title={t("toolbar.code")}>
@@ -421,7 +413,11 @@ export const EditorToolbar = ({
           </ToolbarButton>
         }
       >
-        <DropdownMenuItem icon={TableIcon} label={t("tableMenu.insert3x3")} onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} />
+        <DropdownMenuItem
+          icon={TableIcon}
+          label={t("tableMenu.insert3x3")}
+          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+        />
         <div className="my-1 border-t" />
         <DropdownMenuItem
           icon={ArrowDown}
@@ -454,7 +450,12 @@ export const EditorToolbar = ({
           onClick={() => editor.chain().focus().deleteColumn().run()}
           disabled={!editor.can().deleteColumn()}
         />
-        <DropdownMenuItem icon={Trash2} label={t("tableMenu.deleteRow")} onClick={() => editor.chain().focus().deleteRow().run()} disabled={!editor.can().deleteRow()} />
+        <DropdownMenuItem
+          icon={Trash2}
+          label={t("tableMenu.deleteRow")}
+          onClick={() => editor.chain().focus().deleteRow().run()}
+          disabled={!editor.can().deleteRow()}
+        />
         <DropdownMenuItem
           icon={Trash2}
           label={t("tableMenu.deleteTable")}
@@ -465,10 +466,18 @@ export const EditorToolbar = ({
 
       <ToolbarDivider />
 
-      <ToolbarButton onClick={() => editor.chain().focus().toggleSubscript().run()} active={editor.isActive("subscript")} title={t("toolbar.subscript")}>
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleSubscript().run()}
+        active={editor.isActive("subscript")}
+        title={t("toolbar.subscript")}
+      >
         <SubscriptIcon className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().toggleSuperscript().run()} active={editor.isActive("superscript")} title={t("toolbar.superscript")}>
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleSuperscript().run()}
+        active={editor.isActive("superscript")}
+        title={t("toolbar.superscript")}
+      >
         <SuperscriptIcon className="w-4 h-4" />
       </ToolbarButton>
 
