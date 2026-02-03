@@ -1,9 +1,8 @@
 "use client";
 
-import * as React from "react";
 import { cn } from "@/lib/utils/cn";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
-import Button from "./Button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import * as React from "react";
 import { Sheet } from "./Sheet";
 
 type SelectMode = "single" | "multiple" | "range";
@@ -355,9 +354,10 @@ export default function Calendar({
   const cellSz = CELL_EVENT_STYLES[size];
 
   const VARIANT_STYLES = {
-    default: "border border-border rounded-2xl bg-card",
-    bordered: "border-2 border-border rounded-2xl bg-card shadow-sm",
-    card: "border border-border rounded-3xl bg-card shadow-lg",
+    default: "border border-border/60 rounded-2xl md:rounded-3xl bg-linear-to-br from-card via-card to-card/95 shadow-sm backdrop-blur-sm",
+    bordered:
+      "border-2 border-border/70 rounded-2xl md:rounded-3xl bg-linear-to-br from-card via-card to-card/95 shadow-md hover:shadow-lg transition-shadow duration-300",
+    card: "border border-border/50 rounded-3xl bg-linear-to-br from-card via-background/95 to-card shadow-lg hover:shadow-xl transition-shadow duration-300 backdrop-blur-md",
     minimal: "bg-transparent",
   };
 
@@ -373,9 +373,9 @@ export default function Calendar({
       <div>
         {months > 1 && <div className="flex items-center justify-center mb-2 text-sm font-semibold">{monthLabel}</div>}
         {showWeekdays && (
-          <div className={cn("grid grid-cols-7", sz.grid, "mb-1 text-center text-muted-foreground font-medium")}>
+          <div className={cn("grid grid-cols-7", sz.grid, "mb-2 text-center text-muted-foreground/70 font-semibold uppercase tracking-wider")}>
             {weekdays.map((w) => (
-              <div key={`${monthLabel}-${w}`} className={cn(sz.head)}>
+              <div key={`${monthLabel}-${w}`} className={cn(sz.head, "transition-colors duration-200 hover:text-foreground")}>
                 {w}
               </div>
             ))}
@@ -402,37 +402,54 @@ export default function Calendar({
                 <div
                   key={`${monthLabel}-${idx}`}
                   className={cn(
-                    "rounded-xl border border-border/50 bg-background/40 overflow-hidden",
-                    "transition-colors duration-150",
+                    "rounded-3xl border border-border/50 overflow-hidden",
+                    "bg-linear-to-br from-background via-background to-background/90",
+                    "transition-all duration-300",
+                    "hover:shadow-lg hover:border-border/70",
                     animate && "will-change-transform",
                     cellSz.cell,
-                    !inMonth && "opacity-60",
-                    disabled && "opacity-40",
-                    highlightWeekends && isWeekend && "bg-accent/10",
-                    isToday && !selectedDay && "ring-1 ring-primary/40",
-                    selectedDay && "border-primary/50 bg-primary/10",
+                    !inMonth && "opacity-50",
+                    disabled && "opacity-40 cursor-not-allowed",
+                    highlightWeekends && isWeekend && "bg-linear-to-br from-destructive/5 via-destructive/3 to-background/90",
+                    isToday && !selectedDay && "ring-2 ring-primary/50 border-primary/30 shadow-md",
+                    selectedDay && "border-primary/60 bg-linear-to-br from-primary/10 via-primary/5 to-background/90 shadow-md",
+                    !disabled && "backdrop-blur-sm",
                   )}
                 >
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-border/30 bg-muted/20">
                     <button
                       type="button"
                       onClick={() => !disabled && handleClickDay(d)}
                       disabled={disabled}
                       className={cn(
-                        "inline-flex items-center justify-center rounded-lg px-2 py-1",
-                        "transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                        "inline-flex items-center justify-center rounded-xl px-2.5 py-1 font-semibold",
+                        "transition-all duration-200",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
                         cellSz.day,
-                        selectedDay ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground",
-                        disabled && "cursor-not-allowed hover:bg-transparent",
+                        selectedDay
+                          ? "bg-linear-to-br from-primary to-primary/90 text-primary-foreground shadow-sm"
+                          : "hover:bg-accent hover:text-accent-foreground hover:scale-105 active:scale-95",
+                        disabled && "cursor-not-allowed hover:bg-transparent hover:scale-100",
+                        isToday && !selectedDay && "ring-1 ring-primary/40 bg-primary/5",
                       )}
                       title={d.toDateString()}
                     >
                       {d.getDate()}
                     </button>
-                    {dayEvents.length > 0 && <span className="text-[11px] text-muted-foreground tabular-nums">{dayEvents.length}</span>}
+                    {dayEvents.length > 0 && (
+                      <span
+                        className={cn(
+                          "text-[11px] tabular-nums px-2 py-0.5 rounded-full font-medium",
+                          "bg-primary/10 text-primary",
+                          dayEvents.length > 5 && "bg-destructive/10 text-destructive",
+                        )}
+                      >
+                        {dayEvents.length}
+                      </span>
+                    )}
                   </div>
 
-                  <div className={cn("mt-2 space-y-1", dense ? "mt-1.5" : "mt-2")}>
+                  <div className={cn("space-y-1.5 p-2", dense ? "p-1.5" : "p-2")}>
                     {visibleEvents.map((e, i) => {
                       const key = e.id ?? `${k}-${i}`;
                       const node = renderEvent?.({ event: e, date: d });
@@ -443,21 +460,33 @@ export default function Calendar({
                           type="button"
                           onClick={() => handleEventActivate(e, d, k, i)}
                           className={cn(
-                            "w-full text-left rounded-lg px-2 py-1",
-                            "transition-colors duration-150 hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-                            "text-xs flex items-center gap-2",
+                            "group w-full text-left rounded-xl px-2.5 py-2",
+                            "transition-all duration-200",
+                            "hover:bg-accent/80 hover:shadow-sm hover:scale-[1.02] active:scale-[0.98]",
+                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                            "text-xs flex items-center gap-2.5",
+                            "border border-transparent hover:border-border/30",
                           )}
                           title={e.title}
                         >
-                          <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: e.color || "hsl(var(--primary))" }} />
-                          <span className="truncate flex-1">{e.title ?? "Event"}</span>
+                          <span
+                            className="h-2 w-2 rounded-full shrink-0 transition-transform duration-200 group-hover:scale-125"
+                            style={{ backgroundColor: e.color || "hsl(var(--primary))" }}
+                          />
+                          <span className="truncate flex-1 font-medium group-hover:text-foreground">{e.title ?? "Event"}</span>
                           {showEventBadges && e.badge && (
-                            <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{e.badge}</span>
+                            <span className="shrink-0 rounded-full bg-muted/80 px-2 py-0.5 text-[10px] text-muted-foreground font-medium backdrop-blur-sm">
+                              {e.badge}
+                            </span>
                           )}
                         </button>
                       );
                     })}
-                    {hiddenCount > 0 && <div className="px-2 text-[11px] text-muted-foreground">+{hiddenCount} more</div>}
+                    {hiddenCount > 0 && (
+                      <div className="px-2.5 py-1 text-[11px] text-muted-foreground/70 font-medium flex items-center gap-1.5">
+                        <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />+{hiddenCount} more
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -469,14 +498,16 @@ export default function Calendar({
                 onClick={() => handleClickDay(d)}
                 disabled={disabled}
                 className={cn(
-                  "rounded-lg flex items-center justify-center relative cursor-pointer",
+                  "rounded-xl flex items-center justify-center relative cursor-pointer",
+                  "transition-all duration-200 font-medium",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
                   sz.day,
-                  !inMonth && "text-muted-foreground/60",
+                  !inMonth && "text-muted-foreground/50",
                   disabled && "opacity-40 cursor-not-allowed",
-                  highlightWeekends && isWeekend && "bg-accent/10",
-                  isToday && !selectedDay && "ring-1 ring-primary/50",
-                  selectedDay && "bg-primary text-primary-foreground hover:bg-primary/90",
-                  !selectedDay && "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                  highlightWeekends && isWeekend && "bg-destructive/5",
+                  isToday && !selectedDay && "ring-2 ring-primary/60 bg-primary/5 font-bold",
+                  selectedDay && "bg-linear-to-br from-primary to-primary/90 text-primary-foreground shadow-md hover:shadow-lg hover:scale-105",
+                  !selectedDay && !disabled && "hover:bg-accent hover:text-accent-foreground hover:scale-105 active:scale-95",
                 )}
                 title={d.toDateString()}
               >
@@ -527,16 +558,21 @@ export default function Calendar({
   return (
     <div className={cn("w-full", className)} {...rest}>
       {showHeader && (
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3 px-1">
           <button
             onClick={() => goByView(-1)}
             disabled={prevDisabled}
-            className={cn("p-1 rounded-lg hover:bg-accent", prevDisabled && "opacity-40 cursor-not-allowed hover:bg-transparent")}
+            className={cn(
+              "p-2 rounded-full transition-all duration-200",
+              "hover:bg-accent hover:shadow-sm active:scale-95",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+              prevDisabled && "opacity-40 cursor-not-allowed hover:bg-transparent hover:shadow-none active:scale-100",
+            )}
             aria-label={labels?.prev || (display === "week" ? "Previous week" : "Previous month")}
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <div className="text-sm font-semibold">
+          <div className="text-sm font-semibold tracking-tight bg-linear-to-r from-foreground to-foreground/80 bg-clip-text">
             {display === "week"
               ? `${labels?.month ? labels.month(weekDays[0]) : weekDays[0].toLocaleDateString("en-US", { month: "short" })} ${weekDays[0].getDate()} – ${labels?.month ? labels.month(weekDays[6]) : weekDays[6].toLocaleDateString("en-US", { month: "short" })} ${weekDays[6].getDate()}`
               : labels?.month
@@ -546,7 +582,12 @@ export default function Calendar({
           <button
             onClick={() => goByView(1)}
             disabled={nextDisabled}
-            className={cn("p-1 rounded-lg hover:bg-accent", nextDisabled && "opacity-40 cursor-not-allowed hover:bg-transparent")}
+            className={cn(
+              "p-2 rounded-full transition-all duration-200",
+              "hover:bg-accent hover:shadow-sm active:scale-95",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+              nextDisabled && "opacity-40 cursor-not-allowed hover:bg-transparent hover:shadow-none active:scale-100",
+            )}
             aria-label={labels?.next || (display === "week" ? "Next week" : "Next month")}
           >
             <ChevronRight className="h-4 w-4" />
@@ -586,60 +627,89 @@ export default function Calendar({
                   <div
                     key={`wd-${idx}`}
                     className={cn(
-                      "rounded-xl border border-border/50 bg-background/40 overflow-hidden",
-                      "transition-colors duration-150",
+                      "rounded-3xl border border-border/50 overflow-hidden",
+                      "bg-linear-to-br from-background via-background to-background/90",
+                      "transition-all duration-300",
+                      "hover:shadow-lg hover:border-border/70",
                       cellSz.cell,
-                      disabled && "opacity-40",
-                      highlightWeekends && isWeekend && "bg-accent/10",
-                      isToday && !selectedDay && "ring-1 ring-primary/40",
-                      selectedDay && "border-primary/50 bg-primary/10",
+                      disabled && "opacity-40 cursor-not-allowed",
+                      highlightWeekends && isWeekend && "bg-linear-to-br from-destructive/5 via-destructive/3 to-background/90",
+                      isToday && !selectedDay && "ring-2 ring-primary/50 border-primary/30 shadow-md",
+                      selectedDay && "border-primary/60 bg-linear-to-br from-primary/10 via-primary/5 to-background/90 shadow-md",
+                      !disabled && "backdrop-blur-sm",
                     )}
                   >
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-border/30 bg-muted/20">
                       <button
                         type="button"
                         onClick={() => !disabled && handleClickDay(d)}
                         disabled={disabled}
                         className={cn(
-                          "inline-flex items-center justify-center rounded-lg px-2 py-1",
-                          "transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                          "inline-flex items-center justify-center rounded-xl px-2.5 py-1 font-semibold",
+                          "transition-all duration-200",
+                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
                           cellSz.day,
-                          selectedDay ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground",
-                          disabled && "cursor-not-allowed hover:bg-transparent",
+                          selectedDay
+                            ? "bg-linear-to-br from-primary to-primary/90 text-primary-foreground shadow-sm"
+                            : "hover:bg-accent hover:text-accent-foreground hover:scale-105 active:scale-95",
+                          disabled && "cursor-not-allowed hover:bg-transparent hover:scale-100",
+                          isToday && !selectedDay && "ring-1 ring-primary/40 bg-primary/5",
                         )}
                         title={d.toDateString()}
                       >
                         {d.getDate()}
                       </button>
-                      {dayEvents.length > 0 && <span className="text-[11px] text-muted-foreground tabular-nums">{dayEvents.length}</span>}
+                      {dayEvents.length > 0 && (
+                        <span
+                          className={cn(
+                            "text-[11px] tabular-nums px-2 py-0.5 rounded-full font-medium",
+                            "bg-primary/10 text-primary",
+                            dayEvents.length > 5 && "bg-destructive/10 text-destructive",
+                          )}
+                        >
+                          {dayEvents.length}
+                        </span>
+                      )}
                     </div>
 
-                    <div className={cn("mt-2 space-y-1", dense ? "mt-1.5" : "mt-2")}>
+                    <div className={cn("space-y-1.5 p-2", dense ? "p-1.5" : "p-2")}>
                       {visibleEvents.map((e, i) => {
-                      const key = e.id ?? `${k}-${i}`;
-                      const node = renderEvent?.({ event: e, date: d });
-                      if (node) return <div key={String(key)}>{node}</div>;
-                      return (
-                        <button
-                          key={String(key)}
-                          type="button"
-                          onClick={() => handleEventActivate(e, d, k, i)}
-                          className={cn(
-                            "w-full text-left rounded-lg px-2 py-1",
-                            "transition-colors duration-150 hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-                            "text-xs flex items-center gap-2",
+                        const key = e.id ?? `${k}-${i}`;
+                        const node = renderEvent?.({ event: e, date: d });
+                        if (node) return <div key={String(key)}>{node}</div>;
+                        return (
+                          <button
+                            key={String(key)}
+                            type="button"
+                            onClick={() => handleEventActivate(e, d, k, i)}
+                            className={cn(
+                              "group w-full text-left rounded-xl px-2.5 py-2",
+                              "transition-all duration-200",
+                              "hover:bg-accent/80 hover:shadow-sm hover:scale-[1.02] active:scale-[0.98]",
+                              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                              "text-xs flex items-center gap-2.5",
+                              "border border-transparent hover:border-border/30",
                             )}
                             title={e.title}
                           >
-                            <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: e.color || "hsl(var(--primary))" }} />
-                            <span className="truncate flex-1">{e.title ?? "Event"}</span>
+                            <span
+                              className="h-2 w-2 rounded-full shrink-0 transition-transform duration-200 group-hover:scale-125"
+                              style={{ backgroundColor: e.color || "hsl(var(--primary))" }}
+                            />
+                            <span className="truncate flex-1 font-medium group-hover:text-foreground">{e.title ?? "Event"}</span>
                             {showEventBadges && e.badge && (
-                              <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{e.badge}</span>
+                              <span className="shrink-0 rounded-full bg-muted/80 px-2 py-0.5 text-[10px] text-muted-foreground font-medium backdrop-blur-sm">
+                                {e.badge}
+                              </span>
                             )}
                           </button>
                         );
                       })}
-                      {hiddenCount > 0 && <div className="px-2 text-[11px] text-muted-foreground">+{hiddenCount} more</div>}
+                      {hiddenCount > 0 && (
+                        <div className="px-2.5 py-1 text-[11px] text-muted-foreground/70 font-medium flex items-center gap-1.5">
+                          <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />+{hiddenCount} more
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -664,7 +734,11 @@ export default function Calendar({
                   {dayEvents.length > 0 && (
                     <span className="absolute -bottom-1 inline-flex gap-0.5">
                       {dayEvents.slice(0, 3).map((e, i) => (
-                        <span key={String(e.id ?? i)} className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: e.color || "hsl(var(--primary))" }} />
+                        <span
+                          key={String(e.id ?? i)}
+                          className="h-1.5 w-1.5 rounded-full"
+                          style={{ backgroundColor: e.color || "hsl(var(--primary))" }}
+                        />
                       ))}
                     </span>
                   )}
