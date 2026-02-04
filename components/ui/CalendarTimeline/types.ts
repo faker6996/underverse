@@ -33,6 +33,16 @@ export interface CalendarTimelineEvent<TMeta = unknown> {
   resizable?: boolean;
 }
 
+export interface CalendarTimelineSprintDueDate {
+  title: React.ReactNode;
+  range_date: {
+    start: CalendarTimelineDateInput;
+    end: CalendarTimelineDateInput;
+  };
+}
+
+export type CalendarTimelineDueDateSprint = Record<string, CalendarTimelineSprintDueDate>;
+
 export interface CalendarTimelineLabels {
   today?: string;
   prev?: string;
@@ -151,6 +161,12 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   view?: CalendarTimelineView;
   defaultView?: CalendarTimelineView;
   onViewChange?: (view: CalendarTimelineView) => void;
+
+  /**
+   * Sprint view only: provide custom sprint titles (and ranges) so the header columns can display dynamic labels.
+   * If not provided, sprint headers fall back to "S01", "S02", ...
+   */
+  dueDateSprint?: CalendarTimelineDueDateSprint;
 
   date?: Date;
   defaultDate?: Date;

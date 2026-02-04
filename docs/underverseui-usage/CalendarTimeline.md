@@ -56,7 +56,26 @@ const [date, setDate] = React.useState(new Date());
 />
 ```
 
-### 3) Lock view (only month / only day)
+### 3) Sprint view (year = weeks)
+
+Use when you want to see the whole year as weekly “sprints” (typically 52–53 columns).
+
+```tsx
+<CalendarTimeline resources={resources} events={events} view="sprint" />
+```
+
+Optional: customize sprint column titles via `dueDateSprint` (if not provided, it falls back to `S01`, `S02`, …).
+
+```tsx
+const dueDateSprint = {
+  s1: { title: "Sprint 1", range_date: { start: "2026-01-01", end: "2026-01-08" } },
+  s2: { title: "Sprint 2", range_date: { start: "2026-01-08", end: "2026-01-15" } },
+};
+
+<CalendarTimeline resources={resources} events={events} view="sprint" dueDateSprint={dueDateSprint} />
+```
+
+### 4) Lock view (only month / only day / only sprint)
 
 Use when you want to ship a single mode (no view switcher UI).
 
@@ -68,13 +87,17 @@ Use when you want to ship a single mode (no view switcher UI).
 <CalendarTimeline resources={resources} events={events} onlyView="day" />
 ```
 
-### 4) Hide resource column (left labels)
+```tsx
+<CalendarTimeline resources={resources} events={events} onlyView="sprint" />
+```
+
+### 5) Hide resource column (left labels)
 
 ```tsx
 <CalendarTimeline resources={resources} events={events} hideResourceColumn />
 ```
 
-### 5) Month view: shrink empty days to free space
+### 6) Month view: shrink empty days to free space
 
 ```tsx
 <CalendarTimeline
@@ -85,7 +108,7 @@ Use when you want to ship a single mode (no view switcher UI).
 />
 ```
 
-### 6) Month view: shorten long events (compact)
+### 7) Month view: shorten long events (compact)
 
 Useful when you have events spanning many days and you want the UI to feel less “stretchy”.
 The event still starts at the correct day; only the **visual width** is capped and a subtle “…” indicator is shown.
@@ -95,7 +118,7 @@ When `monthEventStyle="compact"` and you don’t pass `slotMinWidth`, the compon
 <CalendarTimeline resources={resources} events={events} view="month" monthEventStyle="compact" monthEventMaxWidth={180} />
 ```
 
-### 7) Month view: compact + hide resource column + lock month
+### 8) Month view: compact + hide resource column + lock month
 
 Looks more like a classic “calendar strip” while still keeping per-resource rows.
 
@@ -110,7 +133,7 @@ Looks more like a classic “calendar strip” while still keeping per-resource 
 />
 ```
 
-### 8) Month view: custom event content (title + time text)
+### 9) Month view: custom event content (title + time text)
 
 Use `renderEvent` and read `layout.timeText` (already formatted by `formatters.eventTime` / default).
 
@@ -131,7 +154,7 @@ Use `renderEvent` and read `layout.timeText` (already formatted by `formatters.e
 />
 ```
 
-### 9) Day view: shrink empty hours but keep full-width grid
+### 10) Day view: shrink empty hours but keep full-width grid
 
 Use when you want empty hour columns smaller, but the timeline still fills the container width.
 
@@ -145,7 +168,7 @@ Use when you want empty hour columns smaller, but the timeline still fills the c
 />
 ```
 
-### 10) Day view header
+### 11) Day view header
 
 - `dayHeaderMode="full"`: show every hour label (legacy/default behavior)
 - `dayHeaderMode="smart"`: show start/…/end markers (opt-in)
@@ -169,7 +192,7 @@ Use when you want empty hour columns smaller, but the timeline still fills the c
 />
 ```
 
-### 11) Day view range (work hours vs 24h)
+### 12) Day view range (work hours vs 24h)
 
 ```tsx
 <CalendarTimeline
@@ -181,7 +204,7 @@ Use when you want empty hour columns smaller, but the timeline still fills the c
 />
 ```
 
-### 12) Grouping + collapse
+### 13) Grouping + collapse
 
 ```tsx
 const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>({ g1: false, g2: true });
@@ -198,7 +221,7 @@ const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>({ g1: 
 />
 ```
 
-### 13) Interactions (create/drag/resize/delete)
+### 14) Interactions (create/drag/resize/delete)
 
 ```tsx
 <CalendarTimeline
@@ -219,7 +242,7 @@ const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>({ g1: 
 />
 ```
 
-### 14) “Create: click (custom)” flow
+### 15) “Create: click (custom)” flow
 
 ```tsx
 <CalendarTimeline
@@ -233,7 +256,7 @@ const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>({ g1: 
 />
 ```
 
-### 15) Row height control (per-resource + autoRowHeight)
+### 16) Row height control (per-resource + autoRowHeight)
 
 ```tsx
 const [rowHeights, setRowHeights] = React.useState<Record<string, number>>({});
@@ -247,7 +270,7 @@ const [rowHeights, setRowHeights] = React.useState<Record<string, number>>({});
 />
 ```
 
-### 16) Performance toggles (large datasets)
+### 17) Performance toggles (large datasets)
 
 ```tsx
 <CalendarTimeline
@@ -259,7 +282,7 @@ const [rowHeights, setRowHeights] = React.useState<Record<string, number>>({});
 />
 ```
 
-### 17) Timezone + i18n
+### 18) Timezone + i18n
 
 ```tsx
 <CalendarTimeline
@@ -467,12 +490,13 @@ Click vào ô trống để bạn tự mở modal/sheet tạo event theo ý (cus
 - **Một resource (một hàng)** có thể có **nhiều event**. Nếu các event overlap, component sẽ tự xếp thành nhiều “lane”.
 - `maxLanesPerRow` giới hạn số lane hiển thị; phần dư sẽ vào “hidden” và hiển thị nút `+n more`.
 - `end` của event là **exclusive** (kết thúc không bao gồm). Ví dụ `04:00 → 06:00` là đúng 2 giờ.
-- `onlyView="month" | "week" | "day"` sẽ **lock** view và **ẩn view switcher** (bỏ qua `view/defaultView`).
+- `onlyView="month" | "week" | "day" | "sprint"` sẽ **lock** view và **ẩn view switcher** (bỏ qua `view/defaultView`).
 - `hideResourceColumn` sẽ **ẩn cột resource** bên trái (không hiện label/group toggle và không kéo resize row từ UI).
 - Month view: `monthEventStyle="compact"` sẽ **cắt ngắn hiển thị** của event dài ngày (giữ đúng start day).
+- Sprint view: `view="sprint"` hiển thị **cả năm** dưới dạng các cột theo **tuần** (mỗi cột = 1 sprint).
 - Khi **drag/move/resize** event, component sẽ **không mở Event Sheet** (chỉ click mới mở).
 - Ở **week view**, các slot sẽ **tự giãn để fill full chiều ngang** vùng timeline (nhưng vẫn tôn trọng `slotMinWidth` như giá trị tối thiểu).
-- Có nút **New event** ở header (khi bật `interactions.creatable` và có `onCreateEvent`) để tạo event bằng cách chọn **resource / start / end** theo đúng view hiện tại (month/week/day).
+- Có nút **New event** ở header (khi bật `interactions.creatable` và có `onCreateEvent`) để tạo event bằng cách chọn **resource / start / end** theo đúng view hiện tại (month/week/day/sprint).
 - Có mode **view-only**: `interactions.mode="view"` sẽ tắt create/drag/resize/delete và **ẩn nút New event**; click event vẫn mở sheet.
 
 ## Day view: 24h / Work hours
@@ -585,6 +609,7 @@ Nếu bạn muốn **tự custom UI tạo event** (mở modal/sheet riêng của
 Gợi ý:
 - `view="day"`: `start/end` theo step giờ (dựa trên `dayTimeStepMinutes`)
 - `view="week"`/`"month"`: `start/end` theo ngày
+- `view="sprint"`: `start/end` theo tuần (mỗi slot = 7 ngày)
 
 ## Layout Resize (Row/Column)
 
@@ -614,7 +639,7 @@ Chuột phải lên event để hiện confirm và xoá (cần cung cấp `onEve
 - **Uncontrolled**: dùng `defaultResourceColumnWidth` + `defaultRowHeights` (component tự quản lý state nội bộ).
 
 ```ts
-export type CalendarTimelineView = "month" | "week" | "day";
+export type CalendarTimelineView = "month" | "week" | "day" | "sprint";
 export type CalendarTimelineDayRangeMode = "full" | "work";
 export type CalendarTimelineDateInput = Date | string | number;
 export type CalendarTimelineSize = "sm" | "md" | "xl";
@@ -676,6 +701,11 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   defaultView?: CalendarTimelineView;
   onViewChange?: (view: CalendarTimelineView) => void;
 
+  dueDateSprint?: Record<
+    string,
+    { title: React.ReactNode; range_date: { start: CalendarTimelineDateInput; end: CalendarTimelineDateInput } }
+  >;
+
   date?: Date;
   defaultDate?: Date;
   onDateChange?: (date: Date) => void;
@@ -691,6 +721,7 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
     month?: string;
     week?: string;
     day?: string;
+    sprint?: string;
     newEvent?: string;
     createEventTitle?: string;
     create?: string;

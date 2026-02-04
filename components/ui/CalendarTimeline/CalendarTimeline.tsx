@@ -15,7 +15,7 @@ import type {
   CalendarTimelineResource,
   CalendarTimelineView,
 } from "./types";
-import { addZonedDays, addZonedMonths, getDtf, getIsoWeekInfo, localeToBCP47, startOfZonedDay } from "./date";
+import { addZonedDays, addZonedMonths, addZonedYears, getDtf, getIsoWeekInfo, localeToBCP47, startOfZonedDay, toDate } from "./date";
 import { binarySearchFirstGE, binarySearchLastLE, clamp, intervalPack } from "./layout";
 import { useClientWidth, useHorizontalScrollSync, useVirtualVariableRows } from "./hooks";
 import { getSizeConfig } from "./config";
@@ -52,6 +52,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   view,
   defaultView = "month",
   onViewChange,
+  dueDateSprint,
   date,
   defaultDate,
   onDateChange,
@@ -284,7 +285,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         return;
       }
       if (activeView === "sprint") {
-        setDate(addZonedMonths(base, dir * 12, resolvedTimeZone));
+        setDate(addZonedYears(base, dir, resolvedTimeZone));
         return;
       }
       setDate(addZonedDays(base, dir, resolvedTimeZone));
@@ -317,6 +318,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     workHours,
     resolvedNow,
     formatters,
+    dueDateSprint,
   });
 
   React.useEffect(() => {
@@ -645,11 +647,62 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     }));
   }, [resources]);
 
-  const slotPickerLabel = React.useMemo(() => {
+  const formatCreateBoundaryLabel = React.useMemo(() => {
     const timeFmt = getDtf(resolvedLocale, resolvedTimeZone, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
     const dayFmt = getDtf(resolvedLocale, resolvedTimeZone, { weekday: "short", month: "short", day: "numeric" });
-    return (d: Date) => (activeView === "day" ? timeFmt.format(d) : dayFmt.format(d));
-  }, [activeView, resolvedLocale, resolvedTimeZone]);
+    const yearFmt = getDtf(resolvedLocale, resolvedTimeZone, { year: "numeric" });
+
+    const sprintDefs = (() => {
+      if (!dueDateSprint) return [];
+      const out: Array<{ startMs: number; endMs: number; title: React.ReactNode }> = [];
+      for (const v of Object.values(dueDateSprint)) {
+        const startInput = v.range_date?.start;
+        const endInput = v.range_date?.end;
+        if (startInput == null || endInput == null) continue;
+        const startRaw = toDate(startInput);
+        const endRaw = toDate(endInput);
+        if (Number.isNaN(startRaw.getTime()) || Number.isNaN(endRaw.getTime())) continue;
+        const startMs = startOfZonedDay(startRaw, resolvedTimeZone).getTime();
+        const endMs = startOfZonedDay(endRaw, resolvedTimeZone).getTime();
+        if (endMs <= startMs) continue;
+        out.push({ startMs, endMs, title: v.title });
+      }
+      out.sort((a, b) => a.startMs - b.startMs);
+      return out;
+    })();
+
+    const sprintTitleForStart = (slotStart: Date, idx: number) => {
+      if (activeView !== "sprint") return null;
+      if (sprintDefs.length === 0) return null;
+      const sMs = startOfZonedDay(slotStart, resolvedTimeZone).getTime();
+      const match = sprintDefs.find((d) => sMs >= d.startMs && sMs < d.endMs) ?? sprintDefs[idx] ?? null;
+      if (!match) return null;
+      return typeof match.title === "string" || typeof match.title === "number" ? String(match.title) : null;
+    };
+
+    return (d: Date, opts?: { kind: "start" | "end"; boundaryIdx?: number }) => {
+      if (activeView === "day") return timeFmt.format(d);
+
+      if (activeView === "sprint") {
+        const y = yearFmt.format(d);
+        const idx = opts?.boundaryIdx;
+        if (typeof idx === "number") {
+          const slotStart = slotStarts[clamp(idx, 0, Math.max(0, slotStarts.length - 1))] ?? d;
+          const dynamicTitle = sprintTitleForStart(slotStart, idx);
+          if (dynamicTitle) return `${dynamicTitle} • ${dayFmt.format(d)}, ${y}`;
+
+          // Start boundaries use slotStarts[idx] (start of sprint idx+1)
+          // End boundaries use either slotStarts[idx] or range.end (idx === slotStarts.length)
+          const sprintNumber = opts?.kind === "start" ? idx + 1 : Math.min(idx + 1, Math.max(1, slotStarts.length));
+          const sprintText = `${l.sprint} ${String(sprintNumber).padStart(2, "0")}`;
+          const dateText = dayFmt.format(d);
+          return `${sprintText} • ${dateText}, ${y}`;
+        }
+      }
+
+      return dayFmt.format(d);
+    };
+  }, [activeView, dueDateSprint, l.sprint, resolvedLocale, resolvedTimeZone, slotStarts, slotStarts.length]);
 
   const openCreate = React.useCallback(() => {
     if (!canCreate) return;
@@ -694,17 +747,17 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   }, [createStartIdx, slots.length]);
 
   const createStartOptions = React.useMemo(() => {
-    return slotStarts.map((d, idx) => ({ label: slotPickerLabel(d), value: idx }));
-  }, [slotStarts, slotPickerLabel]);
+    return slotStarts.map((d, idx) => ({ label: formatCreateBoundaryLabel(d, { kind: "start", boundaryIdx: idx }), value: idx }));
+  }, [formatCreateBoundaryLabel, slotStarts]);
 
   const createEndOptions = React.useMemo(() => {
     const out: Array<{ label: string; value: number }> = [];
     for (let idx = createStartIdx + 1; idx <= slotStarts.length; idx++) {
       const boundary = idx >= slotStarts.length ? range.end : slotStarts[idx]!;
-      out.push({ label: slotPickerLabel(boundary), value: idx });
+      out.push({ label: formatCreateBoundaryLabel(boundary, { kind: "end", boundaryIdx: idx }), value: idx });
     }
     return out;
-  }, [createStartIdx, range.end, slotPickerLabel, slotStarts]);
+  }, [createStartIdx, formatCreateBoundaryLabel, range.end, slotStarts]);
 
   const commitCreate = React.useCallback(() => {
     if (!onCreateEvent) return;
@@ -1103,7 +1156,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
               className={cn(
                 sizeConfig.slotHeaderClass,
                 activeView !== "day" && s.isToday && "bg-primary/8 border-l-primary/40",
-                activeView !== "day" && !s.isToday && s.isWeekend && "bg-destructive/8 text-destructive-foreground",
+                activeView !== "day" && !s.isToday && s.isWeekend && "bg-muted/25",
               )}
               dayHeaderMarks={dayHeaderMarks}
             />

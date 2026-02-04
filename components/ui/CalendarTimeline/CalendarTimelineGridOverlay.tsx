@@ -47,7 +47,7 @@ export const CalendarTimelineGridOverlay = React.memo(function CalendarTimelineG
             if (showToday && idx === todaySlotIdx) return null;
             const left = slotLefts[idx] ?? 0;
             const width = slotWidths[idx] ?? 0;
-            return <div key={`we_${idx}`} className="absolute top-0 h-full bg-destructive/5" style={{ left, width }} aria-hidden />;
+            return <div key={`we_${idx}`} className="absolute top-0 h-full bg-muted/20" style={{ left, width }} aria-hidden />;
           })
         : null}
 

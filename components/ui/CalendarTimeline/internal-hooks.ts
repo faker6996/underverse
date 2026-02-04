@@ -4,12 +4,13 @@ import * as React from "react";
 import type {
   CalendarTimelineAdaptiveSlotWidths,
   CalendarTimelineDayRangeMode,
+  CalendarTimelineDueDateSprint,
   CalendarTimelineEvent,
   CalendarTimelineFormatters,
   CalendarTimelineResource,
   CalendarTimelineView,
 } from "./types";
-import { addZonedDays, getZonedWeekday, startOfZonedDay as startOfZonedDayTz } from "./date";
+import { addZonedDays, getDtf, getZonedWeekday, startOfZonedDay as startOfZonedDayTz, toDate } from "./date";
 import { binarySearchFirstGE, binarySearchLastLE, clamp, intervalPack } from "./layout";
 import { computeSlotStarts, eventsByResourceId, normalizeEvents, resourcesById, type NormalizedEvent } from "./model";
 import { defaultSlotHeader } from "./defaults";
@@ -27,6 +28,7 @@ export function useTimelineSlots(args: {
   workHours?: { startHour: number; endHour: number };
   resolvedNow: Date;
   formatters?: Pick<CalendarTimelineFormatters, "slotHeader">;
+  dueDateSprint?: CalendarTimelineDueDateSprint;
 }) {
   const {
     activeView,
@@ -39,6 +41,7 @@ export function useTimelineSlots(args: {
     workHours,
     resolvedNow,
     formatters,
+    dueDateSprint,
   } = args;
 
   const { slots, range } = React.useMemo((): { slots: Slot[]; range: { start: Date; end: Date } } => {
@@ -54,15 +57,77 @@ export function useTimelineSlots(args: {
 
     const todayStart = startOfZonedDayTz(resolvedNow, resolvedTimeZone).getTime();
     const nowMs = resolvedNow.getTime();
-    const slotItems: Slot[] = slotStarts.map((s) => ({
+
+    const sprintDefs = (() => {
+      if (activeView !== "sprint") return [];
+      if (!dueDateSprint) return [];
+      const out: Array<{ startMs: number; endMs: number; title: React.ReactNode }> = [];
+      for (const v of Object.values(dueDateSprint)) {
+        const startInput = v.range_date?.start;
+        const endInput = v.range_date?.end;
+        if (startInput == null || endInput == null) continue;
+        const startRaw = toDate(startInput);
+        const endRaw = toDate(endInput);
+        if (Number.isNaN(startRaw.getTime()) || Number.isNaN(endRaw.getTime())) continue;
+        const startMs = startOfZonedDayTz(startRaw, resolvedTimeZone).getTime();
+        const endMs = startOfZonedDayTz(endRaw, resolvedTimeZone).getTime();
+        if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) continue;
+        if (endMs <= startMs) continue;
+        out.push({ startMs, endMs, title: v.title });
+      }
+      out.sort((a, b) => a.startMs - b.startMs);
+      return out;
+    })();
+
+    const sprintRangeText = (() => {
+      if (activeView !== "sprint") return null;
+      const df = getDtf(resolvedLocale, resolvedTimeZone, { month: "short", day: "numeric" });
+      return (startMs: number, endMs: number) => {
+        const a = df.format(new Date(startMs));
+        const b = df.format(new Date(endMs - 1));
+        return a === b ? a : `${a}–${b}`;
+      };
+    })();
+
+    const matchSprintDef = (slotStart: Date, idx: number) => {
+      if (activeView !== "sprint") return null;
+      if (sprintDefs.length === 0) return null;
+      const sMs = startOfZonedDayTz(slotStart, resolvedTimeZone).getTime();
+      const byRange = sprintDefs.find((d) => sMs >= d.startMs && sMs < d.endMs) ?? null;
+      return byRange ?? sprintDefs[idx] ?? null;
+    };
+
+    const slotItems: Slot[] = slotStarts.map((s, idx) => ({
       start: s,
       label:
         formatters?.slotHeader?.(s, { view: activeView, locale: resolvedLocale, timeZone: resolvedTimeZone }) ??
-        defaultSlotHeader(s, activeView, resolvedLocale, resolvedTimeZone),
-      isToday:
-        activeView === "sprint"
-          ? nowMs >= s.getTime() && nowMs < addZonedDays(s, 7, resolvedTimeZone).getTime()
-          : startOfZonedDayTz(s, resolvedTimeZone).getTime() === todayStart,
+        (() => {
+          if (activeView !== "sprint") return defaultSlotHeader(s, activeView, resolvedLocale, resolvedTimeZone);
+
+          const match = matchSprintDef(s, idx);
+          if (match && sprintRangeText) {
+            const rangeText = sprintRangeText(match.startMs, match.endMs);
+            return React.createElement(
+              "span",
+              { className: "inline-flex flex-col items-center leading-tight" },
+              React.createElement("span", { className: "text-[11px] font-semibold text-foreground truncate max-w-[8rem]" }, match.title),
+              React.createElement("span", { className: "text-[10px] font-medium text-muted-foreground/70" }, rangeText),
+            );
+          }
+
+          return React.createElement(
+            "span",
+            { className: "inline-flex flex-col items-center leading-tight" },
+            React.createElement("span", { className: "text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70" }, "S"),
+            React.createElement("span", { className: "text-sm font-semibold text-foreground" }, String(idx + 1).padStart(2, "0")),
+          );
+        })(),
+      isToday: (() => {
+        if (activeView !== "sprint") return startOfZonedDayTz(s, resolvedTimeZone).getTime() === todayStart;
+        const match = matchSprintDef(s, idx);
+        const sprintEndMs = match ? match.endMs : addZonedDays(s, 7, resolvedTimeZone).getTime();
+        return nowMs >= s.getTime() && nowMs < sprintEndMs;
+      })(),
       isWeekend: activeView === "day" || activeView === "sprint" ? false : (() => {
         const wd = getZonedWeekday(s, resolvedTimeZone);
         return wd === 0 || wd === 6;
@@ -70,7 +135,19 @@ export function useTimelineSlots(args: {
     }));
 
     return { slots: slotItems, range: { start, end } };
-  }, [activeView, activeDate, dayRangeMode, dayTimeStepMinutes, formatters, resolvedLocale, resolvedNow, resolvedTimeZone, weekStartsOn, workHours]);
+  }, [
+    activeView,
+    activeDate,
+    dayRangeMode,
+    dayTimeStepMinutes,
+    dueDateSprint,
+    formatters,
+    resolvedLocale,
+    resolvedNow,
+    resolvedTimeZone,
+    weekStartsOn,
+    workHours,
+  ]);
 
   const slotStarts = React.useMemo(() => slots.map((s) => s.start), [slots]);
   const todaySlotIdx = React.useMemo(() => slots.findIndex((s) => s.isToday), [slots]);
