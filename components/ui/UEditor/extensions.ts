@@ -33,6 +33,7 @@ import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import { common, createLowlight } from "lowlight";
 import { SlashCommand } from "./slash-command";
 import { ClipboardImages } from "./clipboard-images";
+import { EmojiSuggestion } from "./emoji-suggestion";
 import ResizableImage from "./resizable-image";
 
 const lowlight = createLowlight(common);
@@ -143,5 +144,6 @@ export function buildUEditorExtensions({
       emptyNodeClass: "is-empty",
     }),
     SlashCommand,
+    EmojiSuggestion,
   ];
 }

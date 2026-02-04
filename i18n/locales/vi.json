@@ -1348,7 +1348,8 @@
       "normal": "Văn bản thường",
       "heading1": "Tiêu đề 1",
       "heading2": "Tiêu đề 2",
-      "heading3": "Tiêu đề 3"
+      "heading3": "Tiêu đề 3",
+      "emoji": "Chèn Emoji"
     },
     "slashCommand": {
       "basicBlocks": "Khối cơ bản",

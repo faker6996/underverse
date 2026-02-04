@@ -101,6 +101,48 @@ Display content without editing capabilities:
 - **Tables** (with row/column operations, header support)
 - **Images** (paste/drop/upload; base64 by default)
 - **Horizontal Divider**
+- **Emojis** (Messenger-style picker + colon autocomplete)
+
+### Emoji Features
+
+UEditor includes a comprehensive emoji system with 740+ emojis:
+
+**Insertion Methods:**
+1. **Toolbar Button** - Click the 😊 emoji button to open a Messenger-style picker
+2. **Colon Autocomplete** - Type `:` followed by emoji name (e.g., `:smile`, `:heart`)
+3. **Search** - Search emojis by name in the picker
+
+**Messenger-Style Picker:**
+- All emoji categories in a single scrollable list
+- Bottom navigation bar with category icons
+- Auto-highlighting of active category based on scroll position
+- Smooth scroll-to-category on icon click
+- Real-time search functionality
+- 9-column responsive grid layout
+
+**Categories:**
+- 😊 Smileys & People (286 emojis)
+- 🌿 Animals & Nature (45 emojis)
+- 🍴 Food & Drink (60 emojis)
+- 💪 Activity (30 emojis)
+- 💡 Objects (27 emojis)
+- # Symbols (40 emojis)
+- 🚩 Flags (252 emojis)
+
+**Usage Examples:**
+```tsx
+// Toolbar button - opens Messenger-style picker
+// Click emoji button → Browse/search → Click emoji to insert
+
+// Colon autocomplete
+// Type: :smile
+// Shows: 😀 😃 😄 😁 😊 😇 🙂 ...
+// Press Enter to insert
+
+// Search in picker
+// Type "happy" → Shows all happy-related emojis
+```
+
 
 ### Table Features
 
@@ -131,6 +173,11 @@ Display content without editing capabilities:
   - Navigate with `↑` `↓` arrow keys
   - Select with `Enter`
   - Cancel with `Escape`
+- **Emoji Autocomplete**: Type `:` to trigger emoji suggestions
+  - Search by emoji name (e.g., `:smile`, `:heart`, `:fire`)
+  - Grid display with keyboard navigation
+  - 8-column layout, max 64 emojis
+  - Navigate with arrow keys, select with `Enter`
 - **Tooltip Integration**: Uses `Tooltip` component for toolbar button hints
 - **Keyboard Shortcuts**: Standard shortcuts for all formatting
 - **Undo/Redo**: Full history support

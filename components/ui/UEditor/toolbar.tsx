@@ -27,6 +27,7 @@ import {
   Palette,
   Quote as QuoteIcon,
   Redo as RedoIcon,
+  Smile,
   Strikethrough as StrikethroughIcon,
   Subscript as SubscriptIcon,
   Superscript as SuperscriptIcon,
@@ -42,6 +43,7 @@ import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu";
 import { Tooltip } from "../Tooltip";
 import { EditorColorPalette, useEditorColors } from "./colors";
 import { ImageInput } from "./inputs";
+import { EmojiPicker } from "./emoji-picker";
 import type { UEditorVariant } from "./types";
 
 type UploadImageFn = (file: File) => Promise<string> | string;
@@ -167,7 +169,7 @@ export const EditorToolbar = ({
     <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-linear-to-r from-muted/30 to-transparent">
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.textStyle")} className="px-2 w-auto gap-1">
+          <ToolbarButton onClick={() => { }} title={t("toolbar.textStyle")} className="px-2 w-auto gap-1">
             <Type className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
@@ -228,7 +230,7 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} title={t("colors.textColor")}>
+          <ToolbarButton onClick={() => { }} title={t("colors.textColor")}>
             <Palette className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
@@ -250,7 +252,7 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} active={editor.isActive("highlight")} title={t("colors.highlight")}>
+          <ToolbarButton onClick={() => { }} active={editor.isActive("highlight")} title={t("colors.highlight")}>
             <Highlighter className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
@@ -274,7 +276,23 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.alignment")}>
+          <ToolbarButton onClick={() => { }} title={t("toolbar.emoji")}>
+            <Smile className="w-4 h-4" />
+          </ToolbarButton>
+        }
+      >
+        <EmojiPicker
+          onSelect={(emoji) => {
+            editor.chain().focus().insertContent(emoji).run();
+          }}
+        />
+      </DropdownMenu>
+
+      <ToolbarDivider />
+
+      <DropdownMenu
+        trigger={
+          <ToolbarButton onClick={() => { }} title={t("toolbar.alignment")}>
             <AlignLeft className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
@@ -310,7 +328,7 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.bulletList")}>
+          <ToolbarButton onClick={() => { }} title={t("toolbar.bulletList")}>
             <ListIcon className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
@@ -341,7 +359,7 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.quote")}>
+          <ToolbarButton onClick={() => { }} title={t("toolbar.quote")}>
             <QuoteIcon className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
@@ -365,7 +383,7 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.image")}>
+          <ToolbarButton onClick={() => { }} title={t("toolbar.image")}>
             <ImageIcon className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
@@ -407,7 +425,7 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.table")}>
+          <ToolbarButton onClick={() => { }} title={t("toolbar.table")}>
             <TableIcon className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
