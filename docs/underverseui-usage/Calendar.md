@@ -51,6 +51,7 @@ export function Example() {
       maxEventsPerDay={3}
       showEventBadges
       highlightWeekends
+      highlightHolidays
       enableEventSheet
       onEventClick={(event) => console.log(event)}
     />
@@ -58,7 +59,64 @@ export function Example() {
 }
 ```
 
+### Holidays highlighting (Vietnamese holidays)
+
+```tsx
+import React from "react";
+import { Calendar, VIETNAM_HOLIDAYS } from "@underverse-ui/underverse";
+
+export function Example() {
+  return (
+    <Calendar
+      highlightWeekends
+      highlightHolidays
+      holidays={VIETNAM_HOLIDAYS} // Default value - Vietnamese national holidays
+      weekendTextColor="text-destructive"
+      holidayTextColor="text-destructive"
+    />
+  );
+}
+```
+
+### Custom holidays
+
+```tsx
+import React from "react";
+import { Calendar, CalendarHoliday } from "@underverse-ui/underverse";
+
+const US_HOLIDAYS: CalendarHoliday[] = [
+  { date: "01-01", name: "New Year", recurring: true },
+  { date: "07-04", name: "Independence Day", recurring: true },
+  { date: "12-25", name: "Christmas", recurring: true },
+];
+
+export function Example() {
+  return (
+    <Calendar
+      highlightHolidays
+      holidays={US_HOLIDAYS}
+      holidayTextColor="text-blue-500"
+    />
+  );
+}
+```
+
 ```ts
+export interface CalendarHoliday {
+  date: Date | string; // MM-DD format for recurring, or full date for specific year
+  name?: string;
+  recurring?: boolean; // true = same date every year (MM-DD)
+}
+
+/** Vietnamese national holidays (recurring annually) */
+export const VIETNAM_HOLIDAYS: CalendarHoliday[] = [
+  { date: "01-01", name: "Tết Dương lịch", recurring: true },
+  { date: "04-30", name: "Giải phóng miền Nam", recurring: true },
+  { date: "05-01", name: "Quốc tế Lao động", recurring: true },
+  { date: "09-02", name: "Quốc khánh", recurring: true },
+  { date: "03-10", name: "Giỗ Tổ Hùng Vương", recurring: true },
+];
+
 export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "value" | "onSelect"> {
   month?: Date; // visible month
   defaultMonth?: Date;
@@ -97,6 +155,14 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   showEventBadges?: boolean;
   /** Highlight weekends */
   highlightWeekends?: boolean;
+  /** Custom weekend text color class (default: text-destructive) */
+  weekendTextColor?: string;
+  /** Highlight holidays */
+  highlightHolidays?: boolean;
+  /** Custom holiday text color class (default: text-destructive) */
+  holidayTextColor?: string;
+  /** List of holidays to highlight (default: VIETNAM_HOLIDAYS) */
+  holidays?: CalendarHoliday[];
   /** Render mode for each day cell (compact dots vs large cell with event list) */
   cellMode?: "compact" | "events";
   /** Max events shown per day (events cell mode) */
