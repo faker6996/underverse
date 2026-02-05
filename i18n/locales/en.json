@@ -341,6 +341,7 @@
         "disabledDates": "List or predicate to disable specific dates.",
         "cellMode": "Day cell mode: compact dots or large event list.",
         "maxEventsPerDay": "Maximum number of visible events per day (events mode).",
+        "showEventCount": "Show event count badge in day cell header (events mode).",
         "onEventClick": "Event click handler (events mode).",
         "renderEvent": "Custom renderer for an event row (events mode).",
         "showEventBadges": "Show event badge text (events mode).",

@@ -10,6 +10,7 @@ import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 export default function CalendarExample() {
   const t = useTranslations("DocsUnderverse");
   const [selected, setSelected] = React.useState<Date | undefined>(new Date());
+  const [showEventCount, setShowEventCount] = React.useState(true);
   const events = React.useMemo(
     () => [
       { id: "today-1", date: new Date(), title: "Today", color: "#f59e0b", badge: "1" },
@@ -28,11 +29,7 @@ export default function CalendarExample() {
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <p className="text-sm font-medium mb-2">Single select</p>
-          <Calendar
-            value={selected}
-            onSelect={(v) => (typeof v === "object" && v instanceof Date ? setSelected(v) : undefined)}
-            events={events}
-          />
+          <Calendar value={selected} onSelect={(v) => (typeof v === "object" && v instanceof Date ? setSelected(v) : undefined)} events={events} />
           <div className="text-xs text-muted-foreground font-mono mt-2">{selected?.toDateString() || "—"}</div>
         </div>
         <div>
@@ -44,11 +41,21 @@ export default function CalendarExample() {
           <Calendar display="week" events={events} />
         </div>
         <div className="md:col-span-2">
-          <p className="text-sm font-medium mb-2">Events mode (large cells)</p>
+          <div className="flex items-center gap-4 mb-2">
+            <p className="text-sm font-medium">Events mode (large cells)</p>
+            <button
+              type="button"
+              className={`text-xs px-2 py-1 rounded ${showEventCount ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+              onClick={() => setShowEventCount((v) => !v)}
+            >
+              showEventCount: {showEventCount ? "true" : "false"}
+            </button>
+          </div>
           <Calendar
             size="lg"
             cellMode="events"
             maxEventsPerDay={3}
+            showEventCount={showEventCount}
             showEventBadges
             highlightWeekends
             events={events}
@@ -122,6 +129,7 @@ export default function CalendarExample() {
     `  size='lg'\n` +
     `  cellMode='events'\n` +
     `  maxEventsPerDay={3}\n` +
+    `  showEventCount={true} // Set to false to hide "+N more" indicator\n` +
     `  showEventBadges\n` +
     `  highlightWeekends\n` +
     `  events={events}\n` +
@@ -159,6 +167,7 @@ export default function CalendarExample() {
     { property: "disabledDates", description: t("props.calendar.disabledDates"), type: "Date[] | (date: Date) => boolean", default: "-" },
     { property: "cellMode", description: t("props.calendar.cellMode"), type: "'compact' | 'events'", default: "'compact'" },
     { property: "maxEventsPerDay", description: t("props.calendar.maxEventsPerDay"), type: "number", default: "3" },
+    { property: "showEventCount", description: t("props.calendar.showEventCount"), type: "boolean", default: "true" },
     { property: "onEventClick", description: t("props.calendar.onEventClick"), type: "(event: CalendarEvent, date: Date) => void", default: "-" },
     { property: "renderEvent", description: t("props.calendar.renderEvent"), type: "(args) => ReactNode", default: "-" },
     { property: "showEventBadges", description: t("props.calendar.showEventBadges"), type: "boolean", default: "false" },
@@ -169,7 +178,12 @@ export default function CalendarExample() {
     { property: "selectedEventId", description: t("props.calendar.selectedEventId"), type: "string | number", default: "-" },
     { property: "eventSheetOpen", description: t("props.calendar.eventSheetOpen"), type: "boolean", default: "-" },
     { property: "onEventSheetOpenChange", description: t("props.calendar.onEventSheetOpenChange"), type: "(open: boolean) => void", default: "-" },
-    { property: "onSelectedEventIdChange", description: t("props.calendar.onSelectedEventIdChange"), type: "(id?: string | number) => void", default: "-" },
+    {
+      property: "onSelectedEventIdChange",
+      description: t("props.calendar.onSelectedEventIdChange"),
+      type: "(id?: string | number) => void",
+      default: "-",
+    },
   ];
   const docs = <PropsDocsTable rows={rows} markdownFile="Calendar.md" />;
 

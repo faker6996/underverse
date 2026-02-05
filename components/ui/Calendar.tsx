@@ -66,6 +66,8 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   cellMode?: CellMode;
   /** Max events shown per day (events cell mode) */
   maxEventsPerDay?: number;
+  /** Show the event count badge in day cell header (events cell mode). Default: true */
+  showEventCount?: boolean;
   /** Fired when clicking an event in a day cell (events cell mode) */
   onEventClick?: (event: CalendarEvent, date: Date) => void;
   /** Customize event rendering (events cell mode) */
@@ -171,6 +173,7 @@ export default function Calendar({
   highlightWeekends = false,
   cellMode = "compact",
   maxEventsPerDay = 3,
+  showEventCount = true,
   onEventClick,
   renderEvent,
   enableEventSheet,
@@ -426,10 +429,8 @@ export default function Calendar({
                     >
                       {d.getDate()}
                     </span>
-                    {dayEvents.length > 0 && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground font-medium">
-                        {dayEvents.length}
-                      </span>
+                    {dayEvents.length > 0 && showEventCount && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground font-medium">{dayEvents.length}</span>
                     )}
                   </div>
 
@@ -457,9 +458,7 @@ export default function Calendar({
                           <div className="flex items-center gap-2">
                             <span className="truncate flex-1">{e.title ?? "Event"}</span>
                             {showEventBadges && e.badge && (
-                              <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-muted/60 text-muted-foreground">
-                                {e.badge}
-                              </span>
+                              <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-muted/60 text-muted-foreground">{e.badge}</span>
                             )}
                           </div>
                         </button>
@@ -622,20 +621,11 @@ export default function Calendar({
                     )}
                   >
                     <div className="flex items-center justify-between px-2.5 py-1.5">
-                      <span
-                        className={cn(
-                          "font-semibold tabular-nums",
-                          cellSz.day,
-                          isToday && "text-primary",
-                          selectedDay && "text-primary",
-                        )}
-                      >
+                      <span className={cn("font-semibold tabular-nums", cellSz.day, isToday && "text-primary", selectedDay && "text-primary")}>
                         {d.getDate()}
                       </span>
-                      {dayEvents.length > 0 && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground font-medium">
-                          {dayEvents.length}
-                        </span>
+                      {dayEvents.length > 0 && showEventCount && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground font-medium">{dayEvents.length}</span>
                       )}
                     </div>
 
@@ -663,9 +653,7 @@ export default function Calendar({
                             <div className="flex items-center gap-2">
                               <span className="truncate flex-1">{e.title ?? "Event"}</span>
                               {showEventBadges && e.badge && (
-                                <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-muted/60 text-muted-foreground">
-                                  {e.badge}
-                                </span>
+                                <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-muted/60 text-muted-foreground">{e.badge}</span>
                               )}
                             </div>
                           </button>

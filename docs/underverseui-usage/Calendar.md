@@ -3,6 +3,7 @@
 Source: `components/ui/Calendar.tsx`
 
 Exports:
+
 - Calendar
 
 Note: Usage snippets are minimal; fill required props from the props type below.
@@ -26,12 +27,7 @@ import React from "react";
 import { Calendar } from "@underverse-ui/underverse";
 
 export function Example() {
-  return (
-    <Calendar
-      variant={"default"}
-      size={"md"}
-     />
-  );
+  return <Calendar variant={"default"} size={"md"} />;
 }
 ```
 
@@ -63,7 +59,7 @@ export function Example() {
 ```
 
 ```ts
-export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'defaultValue' | 'value' | 'onSelect'> {
+export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "value" | "onSelect"> {
   month?: Date; // visible month
   defaultMonth?: Date;
   onMonthChange?: (next: Date) => void;
@@ -105,6 +101,8 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   cellMode?: "compact" | "events";
   /** Max events shown per day (events cell mode) */
   maxEventsPerDay?: number;
+  /** Show the event count badge in day cell header (events cell mode). Default: true */
+  showEventCount?: boolean;
   /** Fired when clicking an event in a day cell (events cell mode) */
   onEventClick?: (event: CalendarEvent, date: Date) => void;
   /** Customize event rendering (events cell mode) */

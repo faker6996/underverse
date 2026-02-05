@@ -334,6 +334,7 @@
         "disabledDates": "Danh sách hoặc hàm để vô hiệu hoá các ngày cụ thể.",
         "cellMode": "Chế độ ô ngày: compact (chấm) hoặc events (danh sách).",
         "maxEventsPerDay": "Số sự kiện hiển thị tối đa mỗi ngày (events mode).",
+        "showEventCount": "Hiển thị số đếm event ở góc ô ngày (events mode).",
         "onEventClick": "Hàm xử lý click sự kiện (events mode).",
         "renderEvent": "Tuỳ biến render 1 dòng sự kiện (events mode).",
         "showEventBadges": "Hiển thị badge của sự kiện (events mode).",
