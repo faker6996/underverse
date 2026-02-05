@@ -523,7 +523,7 @@ export const EMOJI_LIST: EmojiCategory[] = [
       { emoji: "🇦🇴", name: "flag_angola" },
       { emoji: "🇦🇶", name: "flag_antarctica" },
       { emoji: "🇦🇷", name: "flag_argentina" },
-      { emoji: "🇦🇸", name: "flag_samoa" },
+      { emoji: "🇦🇸", name: "flag_american_samoa" },
       { emoji: "🇦🇹", name: "flag_austria" },
       { emoji: "🇦🇺", name: "flag_australia" },
       { emoji: "🇦🇼", name: "flag_aruba" },

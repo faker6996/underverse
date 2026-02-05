@@ -277,6 +277,9 @@
       "colorPicker": {
         "title": "ColorPicker"
       },
+      "emojiPicker": {
+        "title": "EmojiPicker"
+      },
       "pagination": {
         "title": "Pagination (with i18n)"
       },

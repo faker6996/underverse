@@ -75,6 +75,7 @@ const ChartExample = dynamicImport(() => import("./_examples/ChartExample"), { s
 const DocGroupSection = dynamicImport(() => import("./_components/DocGroupSection"), { ssr: false });
 const DonationCard = dynamicImport(() => import("./_components/DonationCard"), { ssr: false });
 const UEditorExample = dynamicImport(() => import("./_examples/UEditorExample"), { ssr: false });
+const EmojiPickerExample = dynamicImport(() => import("./_examples/EmojiPickerExample"), { ssr: false });
 
 export default function UnderverseGuidePage() {
   return <DocsContent />;
@@ -226,6 +227,10 @@ function DocsInner() {
 
               <DocSection id="color-picker" title={t("sections.colorPicker.title")}>
                 <ColorPickerExample />
+              </DocSection>
+
+              <DocSection id="emoji-picker" title={t("sections.emojiPicker.title")}>
+                <EmojiPickerExample />
               </DocSection>
 
               <DocSection id="combobox" title={t("sections.combobox.title")}>
