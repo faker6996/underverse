@@ -164,6 +164,25 @@ export const Combobox: React.FC<ComboboxProps> = ({
     return groups;
   }, [filteredOptions, groupBy]);
 
+  // Size styles for dropdown items
+  const itemSizeStyles = {
+    sm: "px-2.5 py-1.5 text-xs gap-2",
+    md: "px-3 py-2.5 text-sm gap-3",
+    lg: "px-4 py-3 text-base gap-3",
+  } as const;
+
+  const iconSizeStyles = {
+    sm: "w-4 h-4",
+    md: "w-5 h-5",
+    lg: "w-6 h-6",
+  } as const;
+
+  const checkIconSizeStyles = {
+    sm: "h-3.5 w-3.5",
+    md: "h-4 w-4",
+    lg: "h-5 w-5",
+  } as const;
+
   // Render single option
   const renderOptionItem = (item: ComboboxOption, index: number) => {
     const itemValue = getOptionValue(item);
@@ -189,7 +208,8 @@ export const Combobox: React.FC<ComboboxProps> = ({
           animationDelay: open ? `${Math.min(index * 15, 150)}ms` : "0ms",
         }}
         className={cn(
-          "dropdown-item group flex cursor-pointer items-center gap-3 rounded-full px-3 py-2.5 text-sm",
+          "dropdown-item group flex cursor-pointer items-center rounded-full",
+          itemSizeStyles[size],
           "outline-none focus:outline-none focus-visible:outline-none",
           "transition-all duration-150",
           !itemDisabled && "hover:bg-accent/70 hover:shadow-sm",
@@ -201,7 +221,9 @@ export const Combobox: React.FC<ComboboxProps> = ({
       >
         {/* Icon */}
         {itemIcon && (
-          <span className={cn("shrink-0 w-5 h-5 flex items-center justify-center", isSelected ? "text-primary" : "text-muted-foreground")}>
+          <span
+            className={cn("shrink-0 flex items-center justify-center", iconSizeStyles[size], isSelected ? "text-primary" : "text-muted-foreground")}
+          >
             {itemIcon}
           </span>
         )}
@@ -212,14 +234,16 @@ export const Combobox: React.FC<ComboboxProps> = ({
         ) : (
           <div className="flex-1 min-w-0">
             <span className="block truncate">{itemLabel}</span>
-            {itemDescription && <span className="block text-xs text-muted-foreground truncate mt-0.5">{itemDescription}</span>}
+            {itemDescription && (
+              <span className={cn("block text-muted-foreground truncate mt-0.5", size === "sm" ? "text-[10px]" : "text-xs")}>{itemDescription}</span>
+            )}
           </div>
         )}
 
         {/* Selected indicator */}
         {isSelected && showSelectedIcon && (
           <span className="shrink-0 ml-auto">
-            <Check className="h-4 w-4 text-primary" />
+            <Check className={cn(checkIconSizeStyles[size], "text-primary")} />
           </span>
         )}
       </li>
@@ -236,9 +260,14 @@ export const Combobox: React.FC<ComboboxProps> = ({
     >
       {/* Search Input (only when many options) */}
       {enableSearch && (
-        <div className="relative p-2.5 border-b border-border/30">
+        <div className={cn("relative border-b border-border/30", size === "sm" ? "p-2" : size === "lg" ? "p-3" : "p-2.5")}>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 transition-colors peer-focus:text-primary" />
+            <Search
+              className={cn(
+                "absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 transition-colors peer-focus:text-primary",
+                size === "sm" ? "h-3.5 w-3.5" : size === "lg" ? "h-5 w-5" : "h-4 w-4",
+              )}
+            />
             <input
               ref={inputRef}
               value={query}
@@ -271,7 +300,8 @@ export const Combobox: React.FC<ComboboxProps> = ({
               }}
               placeholder={searchPlaceholder}
               className={cn(
-                "peer w-full rounded-xl bg-muted/40 py-2.5 pl-9 pr-3 text-sm",
+                "peer w-full rounded-xl bg-muted/40 pr-3",
+                size === "sm" ? "py-1.5 pl-8 text-xs" : size === "lg" ? "py-3 pl-10 text-base" : "py-2.5 pl-9 text-sm",
                 "border border-transparent",
                 "focus:outline-none focus:bg-background focus:border-primary/30 focus:ring-2 focus:ring-primary/10",
                 "transition-all duration-200",
@@ -286,7 +316,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
                 onClick={() => setQuery("")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
               >
-                <X className="h-3.5 w-3.5" />
+                <X className={cn(size === "sm" ? "h-3 w-3" : size === "lg" ? "h-4 w-4" : "h-3.5 w-3.5")} />
               </button>
             )}
           </div>
@@ -295,7 +325,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
       {/* Options List */}
       <div className="overflow-y-auto overscroll-contain" style={{ maxHeight }}>
-        <div className="p-1.5">
+        <div className={cn(size === "sm" ? "p-1" : size === "lg" ? "p-2" : "p-1.5")}>
           {loading ? (
             <div className="px-3 py-10 text-center">
               <div className="flex flex-col items-center gap-3 animate-in fade-in-0 zoom-in-95 duration-300">

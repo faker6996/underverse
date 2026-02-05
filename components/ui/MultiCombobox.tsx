@@ -260,7 +260,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         }}
         style={{ animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms" }}
         className={cn(
-          "dropdown-item flex cursor-pointer items-center gap-3 rounded-lg transition-all duration-200",
+          "dropdown-item flex cursor-pointer items-center gap-3 rounded-full transition-all duration-200",
           sizeStyles[size].item,
           "hover:bg-accent/70 hover:shadow-sm",
           index === activeIndex && "bg-accent/60",
