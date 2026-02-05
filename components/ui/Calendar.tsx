@@ -445,7 +445,7 @@ export default function Calendar({
                           type="button"
                           onClick={() => handleEventActivate(e, d, k, i)}
                           className={cn(
-                            "group w-full text-left rounded-lg px-2.5 py-1.5",
+                            "group w-full text-left rounded-r-lg px-2.5 py-1.5",
                             "transition-all duration-150",
                             "hover:bg-accent/50 hover:shadow-sm hover:-translate-y-0.5",
                             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
@@ -640,7 +640,7 @@ export default function Calendar({
                             type="button"
                             onClick={() => handleEventActivate(e, d, k, i)}
                             className={cn(
-                              "group w-full text-left rounded-lg px-2.5 py-1.5",
+                              "group w-full text-left rounded-r-lg px-2.5 py-1.5",
                               "transition-all duration-150",
                               "hover:bg-accent/50 hover:shadow-sm hover:-translate-y-0.5",
                               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
