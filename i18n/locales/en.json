@@ -281,6 +281,9 @@
       "timePicker": {
         "title": "TimePicker"
       },
+      "monthYearPicker": {
+        "title": "MonthYearPicker"
+      },
       "colorPicker": {
         "title": "ColorPicker"
       },
@@ -467,6 +470,32 @@
         "minuteStep": "Minute increment for the list.",
         "secondStep": "Second increment for the list.",
         "clearable": "Show Clear button inside popover."
+      },
+      "monthYearPicker": {
+        "value": "Controlled value (Date or '{ month: number, year: number }').",
+        "defaultValue": "Initial value when uncontrolled.",
+        "onChange": "Callback when value changes.",
+        "placeholder": "Placeholder text when empty.",
+        "disabled": "Disable the control.",
+        "size": "Size of the trigger (sm, md, lg).",
+        "label": "Label text above the control.",
+        "required": "Show required indicator.",
+        "clearable": "Allow clearing the value.",
+        "variant": "Display variant (default, compact, inline).",
+        "monthNames": "Custom month names (array of 12 strings).",
+        "shortMonthNames": "Short month names (used for trigger button).",
+        "minYear": "Minimum selectable year.",
+        "maxYear": "Maximum selectable year.",
+        "minDate": "Minimum date (for validation).",
+        "maxDate": "Maximum date (for validation).",
+        "error": "Error message or error state.",
+        "success": "Success state.",
+        "helperText": "Helper text below input.",
+        "animate": "Enable animations.",
+        "showThisMonth": "Show 'This Month' button.",
+        "columnLabels": "Labels for columns (month, year).",
+        "onOpen": "Callback when picker opens.",
+        "onClose": "Callback when picker closes."
       },
       "colorPicker": {
         "value": "Controlled color value (#RRGGBB or rgba).",

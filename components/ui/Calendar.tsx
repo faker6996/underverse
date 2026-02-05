@@ -1,10 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils/cn";
-import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import * as React from "react";
 import { Sheet } from "./Sheet";
-import { Popover } from "./Popover";
+import { MonthYearPicker } from "./MonthYearPicker";
 
 type SelectMode = "single" | "multiple" | "range";
 type Variant = "default" | "bordered" | "card" | "minimal";
@@ -619,92 +619,24 @@ export default function Calendar({
             <ChevronLeft className="h-4 w-4" />
           </button>
           {showMonthYearPicker && cellMode === "events" && display !== "week" ? (
-            <Popover
-              trigger={
-                <button
-                  type="button"
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg",
-                    "border border-border/50 bg-background/80",
-                    "text-sm font-semibold cursor-pointer",
-                    "hover:bg-accent hover:border-border transition-all duration-200",
-                    "focus:outline-none focus:ring-2 focus:ring-primary/30",
-                  )}
-                >
-                  <span>
-                    {monthNames[view.getMonth()]} {view.getFullYear()}
-                  </span>
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                </button>
-              }
-              placement="bottom"
-            >
-              <div className="flex gap-0 p-2">
-                {/* Month column */}
-                <div className="flex flex-col">
-                  <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider text-center mb-1 px-2">Tháng</div>
-                  <div className="h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-1">
-                    {monthNames.map((name, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => {
-                          const next = new Date(view.getFullYear(), idx, 1);
-                          if (!isControlledMonth) setView(next);
-                          onMonthChange?.(next);
-                        }}
-                        className={cn(
-                          "w-full px-3 py-1.5 text-sm text-left rounded-md transition-colors",
-                          "hover:bg-accent",
-                          view.getMonth() === idx && "bg-primary text-primary-foreground hover:bg-primary/90",
-                        )}
-                      >
-                        {name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                {/* Year column */}
-                <div className="flex flex-col border-l border-border/50 pl-2">
-                  <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider text-center mb-1 px-2">Năm</div>
-                  <div
-                    className="h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
-                    ref={(el) => {
-                      // Auto-scroll to current year on mount
-                      if (el) {
-                        const currentYearBtn = el.querySelector('[data-current-year="true"]');
-                        if (currentYearBtn) {
-                          currentYearBtn.scrollIntoView({ block: "center" });
-                        }
-                      }
-                    }}
-                  >
-                    {Array.from(
-                      { length: (yearRange?.[1] ?? new Date().getFullYear() + 10) - (yearRange?.[0] ?? new Date().getFullYear() - 50) + 1 },
-                      (_, i) => (yearRange?.[0] ?? new Date().getFullYear() - 50) + i,
-                    ).map((year) => (
-                      <button
-                        key={year}
-                        type="button"
-                        data-current-year={view.getFullYear() === year}
-                        onClick={() => {
-                          const next = new Date(year, view.getMonth(), 1);
-                          if (!isControlledMonth) setView(next);
-                          onMonthChange?.(next);
-                        }}
-                        className={cn(
-                          "w-full px-3 py-1.5 text-sm text-left rounded-md transition-colors",
-                          "hover:bg-accent",
-                          view.getFullYear() === year && "bg-primary text-primary-foreground hover:bg-primary/90",
-                        )}
-                      >
-                        {year}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Popover>
+            <MonthYearPicker
+              value={{ month: view.getMonth(), year: view.getFullYear() }}
+              onChange={(v) => {
+                if (!v) return;
+                const next = new Date(v.year, v.month, 1);
+                if (!isControlledMonth) setView(next);
+                onMonthChange?.(next);
+              }}
+              monthNames={monthNames}
+              minYear={yearRange?.[0]}
+              maxYear={yearRange?.[1]}
+              size="sm"
+              showThisMonth={false}
+              clearable={false}
+              variant="default"
+              columnLabels={{ month: "Tháng", year: "Năm" }}
+              className="w-auto"
+            />
           ) : (
             <div className="text-sm font-semibold tracking-tight bg-linear-to-r from-foreground to-foreground/80 bg-clip-text">
               {display === "week"

@@ -274,6 +274,9 @@
       "timePicker": {
         "title": "TimePicker"
       },
+      "monthYearPicker": {
+        "title": "MonthYearPicker"
+      },
       "colorPicker": {
         "title": "ColorPicker"
       },
@@ -460,6 +463,32 @@
         "minuteStep": "Bước tăng phút trong danh sách.",
         "secondStep": "Bước tăng giây trong danh sách.",
         "clearable": "Hiển thị nút Clear trong popover."
+      },
+      "monthYearPicker": {
+        "value": "Giá trị điều khiển (Date hoặc '{ month: number, year: number }').",
+        "defaultValue": "Giá trị ban đầu khi uncontrolled.",
+        "onChange": "Callback khi giá trị thay đổi.",
+        "placeholder": "Placeholder khi chưa chọn.",
+        "disabled": "Vô hiệu hoá điều khiển.",
+        "size": "Kích thước nút chọn (sm, md, lg).",
+        "label": "Nhãn hiển thị phía trên.",
+        "required": "Hiển thị dấu bắt buộc.",
+        "clearable": "Cho phép xoá giá trị.",
+        "variant": "Kiểu hiển thị (default, compact, inline).",
+        "monthNames": "Tên các tháng tuỳ chỉnh (mảng 12 chuỗi).",
+        "shortMonthNames": "Tên ngắn các tháng (dùng cho nút trigger).",
+        "minYear": "Năm nhỏ nhất có thể chọn.",
+        "maxYear": "Năm lớn nhất có thể chọn.",
+        "minDate": "Ngày nhỏ nhất (dùng cho validation).",
+        "maxDate": "Ngày lớn nhất (dùng cho validation).",
+        "error": "Thông báo lỗi hoặc trạng thái lỗi.",
+        "success": "Trạng thái thành công.",
+        "helperText": "Text gợi ý bên dưới.",
+        "animate": "Bật hiệu ứng chuyển động.",
+        "showThisMonth": "Hiển thị nút 'Tháng này'.",
+        "columnLabels": "Nhãn cho các cột (month, year).",
+        "onOpen": "Callback khi mở picker.",
+        "onClose": "Callback khi đóng picker."
       },
       "colorPicker": {
         "value": "Giá trị màu điều khiển (#RRGGBB hoặc rgba).",

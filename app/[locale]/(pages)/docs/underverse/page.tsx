@@ -51,6 +51,7 @@ const DatePickerExample = dynamicImport(() => import("./_examples/DatePickerExam
 const ColorPickerExample = dynamicImport(() => import("./_examples/ColorPickerExample"), { ssr: false });
 const TimePickerExample = dynamicImport(() => import("./_examples/TimePickerExample"), { ssr: false });
 const DateTimePickerExample = dynamicImport(() => import("./_examples/DateTimePickerExample"), { ssr: false });
+const MonthYearPickerExample = dynamicImport(() => import("./_examples/MonthYearPickerExample"), { ssr: false });
 const CalendarExample = dynamicImport(() => import("./_examples/CalendarExample"), { ssr: false });
 const CalendarTimelineExample = dynamicImport(() => import("./_examples/CalendarTimelineExample"), { ssr: false });
 const PaginationExample = dynamicImport(() => import("./_examples/PaginationExample"), { ssr: false });
@@ -215,6 +216,10 @@ function DocsInner() {
 
               <DocSection id="date-time-picker" title={t("sections.dateTimePicker.title")}>
                 <DateTimePickerExample />
+              </DocSection>
+
+              <DocSection id="month-year-picker" title={t("sections.monthYearPicker.title")}>
+                <MonthYearPickerExample />
               </DocSection>
 
               <DocSection id="calendar" title={t("sections.calendar.title")}>

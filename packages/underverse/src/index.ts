@@ -56,6 +56,8 @@ export { DateTimePicker } from "../../../components/ui/DateTimePicker";
 export type { DateTimePickerProps } from "../../../components/ui/DateTimePicker";
 export { default as TimePicker } from "../../../components/ui/TimePicker";
 export type { TimePickerProps } from "../../../components/ui/TimePicker";
+export { default as MonthYearPicker, MonthYearPicker as MonthYearPickerBase } from "../../../components/ui/MonthYearPicker";
+export type { MonthYearPickerProps } from "../../../components/ui/MonthYearPicker";
 export { default as Calendar } from "../../../components/ui/Calendar";
 export type { CalendarProps, CalendarEvent } from "../../../components/ui/Calendar";
 export { default as CalendarTimeline } from "../../../components/ui/CalendarTimeline";
