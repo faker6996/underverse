@@ -1082,7 +1082,8 @@
         "onNodeClick": "노드 클릭 시 콜백(네비게이션에 유용).",
         "viewOnly": "읽기 전용 트리 뷰로 렌더링(선택 기능 없음).",
         "defaultExpanded": "모든 노드를 기본 확장.",
-        "labels": "로컬라이제이션용 i18n 라벨 (emptyText, selectedText).",
+        "enableSearch": "카테고리 필터링을 위한 검색 입력 표시(기본: categories.length > 10일 때 자동).",
+        "labels": "로컬라이제이션용 i18n 라벨 (emptyText, selectedText, searchPlaceholder, noResultsText).",
         "className": "컨테이너의 커스텀 클래스."
       },
       "imageUpload": {

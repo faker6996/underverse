@@ -10,6 +10,21 @@ type Variant = "default" | "bordered" | "card" | "minimal";
 type DisplayMode = "month" | "week" | "year";
 type CellMode = "compact" | "events";
 
+export interface CalendarHoliday {
+  date: Date | string; // MM-DD format for recurring, or full date for specific year
+  name?: string;
+  recurring?: boolean; // true = same date every year (MM-DD)
+}
+
+/** Vietnamese national holidays (recurring annually) */
+export const VIETNAM_HOLIDAYS: CalendarHoliday[] = [
+  { date: "01-01", name: "Tết Dương lịch", recurring: true },
+  { date: "04-30", name: "Giải phóng miền Nam", recurring: true },
+  { date: "05-01", name: "Quốc tế Lao động", recurring: true },
+  { date: "09-02", name: "Quốc khánh", recurring: true },
+  { date: "03-10", name: "Giỗ Tổ Hùng Vương", recurring: true }, // Lunar 10/3, simplified
+];
+
 export interface CalendarEvent {
   date: Date | string;
   id?: string | number;
@@ -62,6 +77,14 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   showEventBadges?: boolean;
   /** Highlight weekends */
   highlightWeekends?: boolean;
+  /** Custom weekend text color class (default: text-destructive) */
+  weekendTextColor?: string;
+  /** Highlight holidays */
+  highlightHolidays?: boolean;
+  /** Custom holiday text color class (default: text-destructive) */
+  holidayTextColor?: string;
+  /** List of holidays to highlight */
+  holidays?: CalendarHoliday[];
   /** Render mode for each day cell (compact dots vs large cell with event list) */
   cellMode?: CellMode;
   /** Max events shown per day (events cell mode) */
@@ -118,6 +141,24 @@ function startOfWeek(d: Date, weekStartsOn: number) {
   return new Date(s.getFullYear(), s.getMonth(), s.getDate());
 }
 
+function isHoliday(d: Date, holidays: CalendarHoliday[]): CalendarHoliday | undefined {
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mmdd = `${mm}-${dd}`;
+
+  for (const h of holidays) {
+    if (h.recurring) {
+      // MM-DD format
+      if (h.date === mmdd) return h;
+    } else {
+      // Full date comparison
+      const hDate = h.date instanceof Date ? h.date : new Date(h.date);
+      if (isSameDay(d, hDate)) return h;
+    }
+  }
+  return undefined;
+}
+
 function getMonthGrid(view: Date, weekStartsOn: number) {
   const start = startOfMonth(view);
   const end = endOfMonth(view);
@@ -171,6 +212,10 @@ export default function Calendar({
   animate = false,
   showEventBadges = false,
   highlightWeekends = false,
+  weekendTextColor = "text-destructive",
+  highlightHolidays = false,
+  holidayTextColor = "text-destructive",
+  holidays = VIETNAM_HOLIDAYS,
   cellMode = "compact",
   maxEventsPerDay = 3,
   showEventCount = true,
@@ -393,6 +438,8 @@ export default function Calendar({
             const dayEvents = byDay.get(k) || [];
             const disabled = isDateDisabled(d);
             const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+            const holidayMatch = isHoliday(d, holidays);
+            const isHolidayDay = highlightHolidays && !!holidayMatch;
 
             const customDay = renderDay?.({ date: d, isCurrentMonth: inMonth, isToday, isSelected: selectedDay, events: dayEvents });
             if (customDay) return <React.Fragment key={`${monthLabel}-${idx}`}>{customDay}</React.Fragment>;
@@ -413,15 +460,19 @@ export default function Calendar({
                     !inMonth && "opacity-40",
                     disabled && "opacity-30 cursor-not-allowed",
                     highlightWeekends && isWeekend && "bg-destructive/5",
+                    isHolidayDay && "bg-destructive/5",
                     isToday && !selectedDay && "ring-2 ring-primary/40 border-primary/50",
                     selectedDay && "border-primary/60 bg-primary/5",
                   )}
+                  title={holidayMatch?.name}
                 >
                   <div className="flex items-center justify-between px-2.5 py-1.5">
                     <span
                       className={cn(
                         "font-semibold tabular-nums",
                         cellSz.day,
+                        highlightWeekends && isWeekend && weekendTextColor,
+                        isHolidayDay && holidayTextColor,
                         isToday && "text-primary",
                         selectedDay && "text-primary",
                         !inMonth && "text-muted-foreground/50",
@@ -487,11 +538,14 @@ export default function Calendar({
                   !inMonth && "text-muted-foreground/50",
                   disabled && "opacity-40 cursor-not-allowed",
                   highlightWeekends && isWeekend && "bg-destructive/5",
+                  highlightWeekends && isWeekend && !selectedDay && weekendTextColor,
+                  isHolidayDay && "bg-destructive/5",
+                  isHolidayDay && !selectedDay && holidayTextColor,
                   isToday && !selectedDay && "ring-2 ring-primary/60 bg-primary/5 font-bold",
                   selectedDay && "bg-linear-to-br from-primary to-primary/90 text-primary-foreground shadow-md hover:shadow-lg hover:scale-105",
                   !selectedDay && !disabled && "hover:bg-accent hover:text-accent-foreground hover:scale-105 active:scale-95",
                 )}
-                title={d.toDateString()}
+                title={holidayMatch?.name || d.toDateString()}
               >
                 {d.getDate()}
                 {dayEvents.length > 0 && (
@@ -597,6 +651,8 @@ export default function Calendar({
               const dayEvents = byDay.get(k) || [];
               const disabled = isDateDisabled(d);
               const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+              const holidayMatch = isHoliday(d, holidays);
+              const isHolidayDay = highlightHolidays && !!holidayMatch;
 
               const customDay = renderDay?.({ date: d, isCurrentMonth: inMonth, isToday, isSelected: selectedDay, events: dayEvents });
               if (customDay) return <React.Fragment key={`wd-${idx}`}>{customDay}</React.Fragment>;
@@ -616,12 +672,23 @@ export default function Calendar({
                       cellSz.cell,
                       disabled && "opacity-30 cursor-not-allowed",
                       highlightWeekends && isWeekend && "bg-destructive/5",
+                      isHolidayDay && "bg-destructive/5",
                       isToday && !selectedDay && "ring-2 ring-primary/40 border-primary/50",
                       selectedDay && "border-primary/60 bg-primary/5",
                     )}
+                    title={holidayMatch?.name}
                   >
                     <div className="flex items-center justify-between px-2.5 py-1.5">
-                      <span className={cn("font-semibold tabular-nums", cellSz.day, isToday && "text-primary", selectedDay && "text-primary")}>
+                      <span
+                        className={cn(
+                          "font-semibold tabular-nums",
+                          cellSz.day,
+                          highlightWeekends && isWeekend && weekendTextColor,
+                          isHolidayDay && holidayTextColor,
+                          isToday && "text-primary",
+                          selectedDay && "text-primary",
+                        )}
+                      >
                         {d.getDate()}
                       </span>
                       {dayEvents.length > 0 && showEventCount && (
@@ -681,6 +748,8 @@ export default function Calendar({
                     isToday && !selectedDay && "ring-1 ring-primary/50",
                     selectedDay && "bg-primary text-primary-foreground hover:bg-primary/90",
                     !selectedDay && "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                    !selectedDay && highlightHolidays && isHoliday(d, holidays) && holidayTextColor,
+                    !selectedDay && !(highlightHolidays && isHoliday(d, holidays)) && isWeekend && weekendTextColor,
                   )}
                   title={d.toDateString()}
                 >

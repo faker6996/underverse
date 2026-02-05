@@ -1082,7 +1082,8 @@
         "onNodeClick": "ノードクリック時のコールバック（ナビゲーションに便利）。",
         "viewOnly": "読み取り専用ツリービューとしてレンダリング（選択機能なし）。",
         "defaultExpanded": "すべてのノードをデフォルトで展開。",
-        "labels": "ローカライゼーション用の i18n ラベル（emptyText, selectedText）。",
+        "enableSearch": "カテゴリを絞り込む検索入力を表示（デフォルト: categories.length > 10 のとき自動）。",
+        "labels": "ローカライゼーション用の i18n ラベル（emptyText, selectedText, searchPlaceholder, noResultsText）。",
         "className": "コンテナのカスタムクラス。"
       },
       "imageUpload": {

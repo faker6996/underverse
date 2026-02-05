@@ -68,6 +68,8 @@ export default function CategoryTreeSelectExample() {
   const labels = {
     emptyText: "No categories available",
     selectedText: (count: number) => `${count} categories selected`,
+    searchPlaceholder: "Search categories...",
+    noResultsText: "No categories match your search",
   };
 
   const code =
@@ -168,6 +170,7 @@ export default function CategoryTreeSelectExample() {
     { property: "onNodeClick", description: t("props.categoryTreeSelect.onNodeClick"), type: "(node: Category) => void", default: "-" },
     { property: "viewOnly", description: t("props.categoryTreeSelect.viewOnly"), type: "boolean", default: "false" },
     { property: "defaultExpanded", description: t("props.categoryTreeSelect.defaultExpanded"), type: "boolean", default: "false" },
+    { property: "enableSearch", description: t("props.categoryTreeSelect.enableSearch"), type: "boolean", default: "categories.length > 10" },
     { property: "labels", description: t("props.categoryTreeSelect.labels"), type: "CategoryTreeSelectLabels", default: "-" },
     { property: "className", description: t("props.categoryTreeSelect.className"), type: "string", default: "-" },
   ];

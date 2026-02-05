@@ -98,6 +98,7 @@ interface CategoryTreeSelectProps {
   disabled?: boolean;
   viewOnly?: boolean; // Read-only tree
   defaultExpanded?: boolean; // Expand all nodes by default
+  enableSearch?: boolean; // Show search input (default: categories.length > 10)
   inline?: boolean; // Always visible, no dropdown
   onNodeClick?: (node: Category) => void; // Click callback
   labels?: CategoryTreeSelectLabels;
@@ -114,5 +115,7 @@ interface Category {
 interface CategoryTreeSelectLabels {
   emptyText?: string;
   selectedText?: (count: number) => string;
+  searchPlaceholder?: string;
+  noResultsText?: string;
 }
 ```

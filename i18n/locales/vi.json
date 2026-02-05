@@ -1083,7 +1083,8 @@
         "onNodeClick": "Callback khi click vào node (hữu ích cho navigation).",
         "viewOnly": "Hiển thị dạng cây chỉ đọc (không có chức năng chọn).",
         "defaultExpanded": "Mở rộng tất cả các node mặc định.",
-        "labels": "Nhãn i18n cho đa ngôn ngữ (emptyText, selectedText).",
+        "enableSearch": "Hiển thị ô tìm kiếm để lọc danh mục (mặc định: tự bật khi categories.length > 10).",
+        "labels": "Nhãn i18n cho đa ngôn ngữ (emptyText, selectedText, searchPlaceholder, noResultsText).",
         "className": "Class tuỳ chỉnh cho container."
       },
       "imageUpload": {

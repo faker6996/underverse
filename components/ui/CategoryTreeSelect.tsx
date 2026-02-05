@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { ChevronRight, ChevronDown, Check, FolderTree, Layers } from "lucide-react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { ChevronRight, ChevronDown, Check, FolderTree, Layers, Search, SearchX, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 interface Category {
@@ -16,6 +16,10 @@ interface CategoryTreeSelectLabels {
   emptyText?: string;
   /** Text shown when categories are selected, receives count as parameter */
   selectedText?: (count: number) => string;
+  /** Placeholder text for search input (when enabled) */
+  searchPlaceholder?: string;
+  /** Text shown when search yields no results */
+  noResultsText?: string;
 }
 
 // Base props shared between multi and single select
@@ -27,6 +31,11 @@ interface CategoryTreeSelectBaseProps {
   viewOnly?: boolean;
   /** Default expanded state for all nodes */
   defaultExpanded?: boolean;
+  /**
+   * Enable search input for filtering categories.
+   * Default: auto-enabled when `categories.length > 10` (similar to MultiCombobox).
+   */
+  enableSearch?: boolean;
   /** i18n labels for localization */
   labels?: CategoryTreeSelectLabels;
   /** When true, render tree directly without dropdown trigger */
@@ -56,6 +65,8 @@ type CategoryTreeSelectProps = CategoryTreeSelectMultiProps | CategoryTreeSelect
 const defaultLabels: Required<CategoryTreeSelectLabels> = {
   emptyText: "No categories",
   selectedText: (count) => `${count} selected`,
+  searchPlaceholder: "Search...",
+  noResultsText: "No results found",
 };
 
 export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
@@ -65,6 +76,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     disabled,
     viewOnly = false,
     defaultExpanded = false,
+    enableSearch,
     labels,
     inline = false,
     onNodeClick,
@@ -74,6 +86,8 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
 
   const [isOpen, setIsOpen] = useState(false);
   const [expandedNodes, setExpandedNodes] = useState<Set<number>>(new Set());
+  const [query, setQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   // Merge user labels with defaults
   const mergedLabels = { ...defaultLabels, ...labels };
@@ -81,18 +95,87 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   // Normalize value to array for internal use
   const valueArray: number[] = singleSelect ? (props.value != null ? [props.value as number] : []) : (props.value as number[] | undefined) || [];
 
-  // Build tree structure
-  const parentCategories = categories.filter((c) => !c.parent_id);
-  const childrenMap = new Map<number, Category[]>();
+  const { parentCategories, childrenMap, byId } = useMemo(() => {
+    const byId = new Map<number, Category>();
+    const childrenMap = new Map<number, Category[]>();
+    const parentCategories: Category[] = [];
 
-  categories.forEach((cat) => {
-    if (cat.parent_id) {
-      if (!childrenMap.has(cat.parent_id)) {
-        childrenMap.set(cat.parent_id, []);
+    for (const cat of categories) byId.set(cat.id, cat);
+
+    for (const cat of categories) {
+      if (cat.parent_id == null) {
+        parentCategories.push(cat);
+        continue;
       }
+      if (!childrenMap.has(cat.parent_id)) childrenMap.set(cat.parent_id, []);
       childrenMap.get(cat.parent_id)!.push(cat);
     }
-  });
+
+    return { parentCategories, childrenMap, byId };
+  }, [categories]);
+
+  const isSearchEnabled = useMemo(() => (enableSearch ?? categories.length > 10), [enableSearch, categories.length]);
+  const normalizedQuery = useMemo(() => query.trim().toLowerCase(), [query]);
+  const isSearchMode = isSearchEnabled && normalizedQuery.length > 0;
+
+  const visibleIds = useMemo(() => {
+    if (!isSearchMode) return null;
+
+    const matches = categories.filter((c) => c.name.toLowerCase().includes(normalizedQuery));
+    if (matches.length === 0) return new Set<number>();
+
+    const visible = new Set<number>();
+
+    const addAncestors = (cat: Category) => {
+      let cur: Category | undefined = cat;
+      let guard = 0;
+      while (cur && cur.parent_id != null && guard++ < categories.length) {
+        const pid = cur.parent_id;
+        if (typeof pid !== "number") break;
+        if (visible.has(pid)) {
+          cur = byId.get(pid);
+          continue;
+        }
+        visible.add(pid);
+        cur = byId.get(pid);
+      }
+    };
+
+    const addDescendants = (rootId: number) => {
+      const stack: number[] = [rootId];
+      let guard = 0;
+      while (stack.length > 0 && guard++ < categories.length * 3) {
+        const id = stack.pop()!;
+        const children = childrenMap.get(id) ?? [];
+        for (const child of children) {
+          if (visible.has(child.id)) continue;
+          visible.add(child.id);
+          stack.push(child.id);
+        }
+      }
+    };
+
+    for (const m of matches) {
+      visible.add(m.id);
+      addAncestors(m);
+      addDescendants(m.id);
+    }
+
+    return visible;
+  }, [byId, categories, childrenMap, isSearchMode, normalizedQuery]);
+
+  // Clear search query when dropdown closes (keeps inline/viewOnly mode persistent)
+  useEffect(() => {
+    if (!isOpen) setQuery("");
+  }, [isOpen]);
+
+  // Auto-focus search input when dropdown opens (when enabled)
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!isSearchEnabled) return;
+    const t = setTimeout(() => searchInputRef.current?.focus(), 50);
+    return () => clearTimeout(t);
+  }, [isOpen, isSearchEnabled]);
 
   // Initialize expanded nodes
   useEffect(() => {
@@ -103,6 +186,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   }, [viewOnly, inline, defaultExpanded, categories]);
 
   const toggleExpand = (id: number) => {
+    if (isSearchMode) return;
     const newExpanded = new Set(expandedNodes);
     if (newExpanded.has(id)) {
       newExpanded.delete(id);
@@ -163,9 +247,10 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   };
 
   const renderCategory = (category: Category, level: number = 0) => {
-    const children = childrenMap.get(category.id) || [];
+    const allChildren = childrenMap.get(category.id) || [];
+    const children = isSearchMode ? allChildren.filter((c) => visibleIds?.has(c.id)) : allChildren;
     const hasChildren = children.length > 0;
-    const isExpanded = expandedNodes.has(category.id);
+    const isExpanded = hasChildren && (isSearchMode || expandedNodes.has(category.id));
     const isSelected = valueArray.includes(category.id);
     const isParent = level === 0;
 
@@ -198,7 +283,9 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
                 "hover:scale-110 active:scale-95",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
                 isExpanded && "text-primary",
+                isSearchMode && "opacity-60 cursor-not-allowed hover:scale-100 active:scale-100",
               )}
+              disabled={isSearchMode}
             >
               <div className={cn("transition-transform duration-200", isExpanded && "rotate-90")}>
                 <ChevronRight className="w-4 h-4" />
@@ -246,18 +333,64 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     );
   };
 
+  const renderSearch = () => {
+    if (!isSearchEnabled) return null;
+
+    return (
+      <div className="sticky top-0 z-10 px-1 pt-1 pb-2 bg-popover/80 backdrop-blur-xl">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            ref={searchInputRef}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={mergedLabels.searchPlaceholder}
+            className={cn(
+              "w-full h-10 rounded-full px-10 pr-10 text-sm",
+              "bg-background/70 border border-border/60",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary/40",
+            )}
+          />
+          {query.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                searchInputRef.current?.focus();
+              }}
+              className={cn(
+                "absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full",
+                "flex items-center justify-center",
+                "text-muted-foreground hover:text-foreground hover:bg-accent/40 transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+              )}
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const effectiveParentCategories = useMemo(() => {
+    if (!isSearchMode) return parentCategories;
+    return parentCategories.filter((c) => visibleIds?.has(c.id));
+  }, [isSearchMode, parentCategories, visibleIds]);
+
   // Render tree content
   const renderTreeContent = () => (
     <div className="space-y-0.5">
-      {parentCategories.length === 0 ? (
+      {effectiveParentCategories.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center mb-3">
-            <Layers className="w-6 h-6 text-muted-foreground/50" />
+            {isSearchMode ? <SearchX className="w-6 h-6 text-muted-foreground/50" /> : <Layers className="w-6 h-6 text-muted-foreground/50" />}
           </div>
-          <span className="text-sm text-muted-foreground">{mergedLabels.emptyText}</span>
+          <span className="text-sm text-muted-foreground">{isSearchMode ? mergedLabels.noResultsText : mergedLabels.emptyText}</span>
         </div>
       ) : (
-        parentCategories.map((cat) => renderCategory(cat))
+        effectiveParentCategories.map((cat) => renderCategory(cat))
       )}
     </div>
   );
@@ -266,6 +399,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   if (viewOnly) {
     return (
       <div className={cn("rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-3 shadow-sm", disabled && "opacity-50", className)}>
+        {renderSearch()}
         {renderTreeContent()}
       </div>
     );
@@ -281,6 +415,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           className,
         )}
       >
+        {renderSearch()}
         {renderTreeContent()}
       </div>
     );
@@ -362,6 +497,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
               "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
             )}
           >
+            {renderSearch()}
             {renderTreeContent()}
           </div>
         </>

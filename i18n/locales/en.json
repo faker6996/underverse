@@ -1090,7 +1090,8 @@
         "onNodeClick": "Callback when clicking a node (useful for navigation).",
         "viewOnly": "Render as read-only tree view (no select functionality).",
         "defaultExpanded": "Expand all nodes by default.",
-        "labels": "i18n labels for localization (emptyText, selectedText).",
+        "enableSearch": "Show search input to filter categories (default: auto when categories.length > 10).",
+        "labels": "i18n labels for localization (emptyText, selectedText, searchPlaceholder, noResultsText).",
         "className": "Custom class for container."
       },
       "imageUpload": {
