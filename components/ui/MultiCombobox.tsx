@@ -414,8 +414,8 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
       aria-controls={listboxId}
       aria-invalid={!!error}
       className={cn(
-        "group flex w-full items-center gap-2 rounded-full min-h-10 transition-all duration-200",
-        "px-3 py-2",
+        "group flex w-full items-center gap-2 rounded-full transition-all duration-200",
+        sizeStyles[size].trigger,
         variantStyles[variant],
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary",
         "disabled:cursor-not-allowed disabled:opacity-50",
@@ -423,7 +423,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         !!error && "border-destructive focus-visible:ring-destructive/30",
       )}
     >
-      <div className="flex items-center gap-1.5 flex-wrap min-h-6 flex-1">
+      <div className={cn("flex items-center gap-1.5 flex-wrap flex-1", size === "sm" ? "min-h-4" : size === "lg" ? "min-h-8" : "min-h-6")}>
         {value.length > 0 ? (
           showTags ? (
             <>
@@ -435,7 +435,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
                   <span
                     key={option.value}
                     className={cn(
-                      "inline-flex items-center gap-1.5 bg-primary/10 text-primary rounded-lg transition-all duration-200",
+                      "inline-flex items-center gap-1.5 bg-primary/10 text-primary rounded-full transition-all duration-200",
                       "hover:bg-primary/20",
                       sizeStyles[size].tag,
                     )}

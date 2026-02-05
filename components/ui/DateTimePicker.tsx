@@ -26,6 +26,8 @@ export interface DateTimePickerProps {
   doneLabel?: string;
   /** Label for the "Clear" button */
   clearLabel?: string;
+  /** Size variant */
+  size?: "sm" | "md" | "lg";
 }
 
 export const DateTimePicker: React.FC<DateTimePickerProps> = ({
@@ -42,11 +44,46 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   required,
   doneLabel,
   clearLabel,
+  size = "md",
 }) => {
   const t = useTranslations("DateTimePicker");
   const locale = useLocale();
 
   const [open, setOpen] = React.useState(false);
+
+  // Size styles for consistent sizing
+  const sizeStyles = {
+    sm: {
+      trigger: "h-8 px-2.5 py-1.5 text-sm md:h-7 md:text-xs",
+      icon: "h-3.5 w-3.5",
+      label: "text-xs",
+      buttonSize: "sm" as const,
+      calendarSize: "sm" as const,
+      timePickerSize: "sm" as const,
+      padding: "p-2",
+      gap: "gap-2",
+    },
+    md: {
+      trigger: "h-10 px-3 py-2 text-sm",
+      icon: "h-4 w-4",
+      label: "text-sm",
+      buttonSize: "sm" as const,
+      calendarSize: "md" as const,
+      timePickerSize: "md" as const,
+      padding: "p-3",
+      gap: "gap-3",
+    },
+    lg: {
+      trigger: "h-12 px-4 py-3 text-base",
+      icon: "h-5 w-5",
+      label: "text-base",
+      buttonSize: "md" as const,
+      calendarSize: "lg" as const,
+      timePickerSize: "lg" as const,
+      padding: "p-4",
+      gap: "gap-4",
+    },
+  } as const;
 
   // Internal state for the popover interaction
   const [tempDate, setTempDate] = React.useState<Date | undefined>(value);
@@ -178,7 +215,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   return (
     <div className={cn("space-y-1.5", className)}>
       {label && (
-        <label className="text-sm font-medium text-foreground flex items-center gap-1">
+        <label className={cn(sizeStyles[size].label, "font-medium text-foreground flex items-center gap-1")}>
           {label} {required && <span className="text-destructive">*</span>}
         </label>
       )}
@@ -191,7 +228,8 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
             type="button"
             disabled={disabled}
             className={cn(
-              "flex w-full items-center justify-between rounded-full border border-input bg-background px-3 py-2 text-sm",
+              "flex w-full items-center justify-between rounded-full border border-input bg-background",
+              sizeStyles[size].trigger,
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               disabled && "opacity-50 cursor-not-allowed",
               !displayValue && "text-muted-foreground",
@@ -209,10 +247,10 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
                   }}
                   className="hover:text-foreground p-0.5 rounded-md hover:bg-accent"
                 >
-                  <X className="h-4 w-4" />
+                  <X className={sizeStyles[size].icon} />
                 </span>
               )}
-              <CalendarIcon className="h-4 w-4" />
+              <CalendarIcon className={sizeStyles[size].icon} />
             </div>
           </button>
         }
@@ -225,7 +263,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       >
         <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-border">
           {/* Calendar Section */}
-          <div className="p-2">
+          <div className={sizeStyles[size].padding}>
             <Calendar
               value={tempDate}
               onSelect={handleDateSelect}
@@ -235,7 +273,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
               minDate={minDate}
               maxDate={maxDate}
               className="border-0 shadow-none w-auto"
-              size="sm"
+              size={sizeStyles[size].calendarSize}
               labels={{
                 month: monthLabel,
                 weekdays: weekdays,
@@ -244,8 +282,8 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           </div>
 
           {/* Time Picker Section */}
-          <div className="p-2 flex flex-col gap-3">
-            <div className="text-sm font-semibold text-muted-foreground text-center">{t?.("time") || "Time"}</div>
+          <div className={cn(sizeStyles[size].padding, "flex flex-col", sizeStyles[size].gap)}>
+            <div className={cn(sizeStyles[size].label, "font-semibold text-muted-foreground text-center")}>{t?.("time") || "Time"}</div>
             <TimePicker
               variant="inline"
               value={getTimeString(tempDate)}
@@ -254,17 +292,17 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
               includeSeconds={includeSeconds}
               clearable={false}
               className="border-0 shadow-none p-0 bg-transparent rounded-none"
-              size="sm"
+              size={sizeStyles[size].timePickerSize}
             />
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="p-3 border-t border-border flex justify-between items-center bg-muted/20">
-          <Button variant="ghost" size="sm" onClick={handleClear} className="text-muted-foreground hover:text-foreground">
+        <div className={cn(sizeStyles[size].padding, "border-t border-border flex justify-between items-center bg-muted/20")}>
+          <Button variant="ghost" size={sizeStyles[size].buttonSize} onClick={handleClear} className="text-muted-foreground hover:text-foreground">
             {clearLabel || t?.("clear") || "Clear"}
           </Button>
-          <Button size="sm" onClick={handleApply}>
+          <Button size={sizeStyles[size].buttonSize} onClick={handleApply}>
             {doneLabel || t?.("done") || "Done"}
           </Button>
         </div>

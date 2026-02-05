@@ -259,7 +259,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
         <div
           onClick={() => !viewOnly && handleSelect(category.id, category)}
           className={cn(
-            "relative flex items-center gap-2.5 px-3 py-2.5 min-h-11 transition-all duration-200 rounded-lg",
+            "relative flex items-center gap-2.5 px-3 py-2.5 min-h-11 transition-all duration-200 rounded-full",
             // Không phân biệt parent/child - đồng bộ màu
             !viewOnly && "cursor-pointer",
             !viewOnly && !isSelected && "hover:bg-accent/50",
