@@ -91,13 +91,7 @@ const US_HOLIDAYS: CalendarHoliday[] = [
 ];
 
 export function Example() {
-  return (
-    <Calendar
-      highlightHolidays
-      holidays={US_HOLIDAYS}
-      holidayTextColor="text-blue-500"
-    />
-  );
+  return <Calendar highlightHolidays holidays={US_HOLIDAYS} holidayTextColor="text-blue-500" />;
 }
 ```
 
