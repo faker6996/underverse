@@ -52,12 +52,41 @@ export function Example() {
       showEventBadges
       highlightWeekends
       highlightHolidays
+      showMonthYearPicker
       enableEventSheet
       onEventClick={(event) => console.log(event)}
     />
   );
 }
 ```
+
+### Month/Year picker
+
+```tsx
+import React from "react";
+import { Calendar } from "@underverse-ui/underverse";
+
+const VIETNAMESE_MONTHS = [
+  "Tháng 1",
+  "Tháng 2",
+  "Tháng 3",
+  "Tháng 4",
+  "Tháng 5",
+  "Tháng 6",
+  "Tháng 7",
+  "Tháng 8",
+  "Tháng 9",
+  "Tháng 10",
+  "Tháng 11",
+  "Tháng 12",
+];
+
+export function Example() {
+  return <Calendar cellMode="events" showMonthYearPicker monthNames={VIETNAMESE_MONTHS} yearRange={[2020, 2030]} />;
+}
+```
+
+````
 
 ### Holidays highlighting (Vietnamese holidays)
 
@@ -76,7 +105,7 @@ export function Example() {
     />
   );
 }
-```
+````
 
 ### Custom holidays
 
@@ -163,6 +192,12 @@ export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   maxEventsPerDay?: number;
   /** Show the event count badge in day cell header (events cell mode). Default: true */
   showEventCount?: boolean;
+  /** Show month/year picker dropdowns in header (events cell mode). Default: false */
+  showMonthYearPicker?: boolean;
+  /** Month names for month picker (default: English) */
+  monthNames?: string[];
+  /** Year range for year picker [startYear, endYear] */
+  yearRange?: [number, number];
   /** Fired when clicking an event in a day cell (events cell mode) */
   onEventClick?: (event: CalendarEvent, date: Date) => void;
   /** Customize event rendering (events cell mode) */

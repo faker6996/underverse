@@ -11,6 +11,8 @@ export default function CalendarExample() {
   const t = useTranslations("DocsUnderverse");
   const [selected, setSelected] = React.useState<Date | undefined>(new Date());
   const [showEventCount, setShowEventCount] = React.useState(true);
+  const [showMonthYearPicker, setShowMonthYearPicker] = React.useState(true);
+  const [highlightHolidays, setHighlightHolidays] = React.useState(true);
   const events = React.useMemo(
     () => [
       { id: "today-1", date: new Date(), title: "Today", color: "#f59e0b", badge: "1" },
@@ -41,7 +43,7 @@ export default function CalendarExample() {
           <Calendar display="week" events={events} />
         </div>
         <div className="md:col-span-2">
-          <div className="flex items-center gap-4 mb-2">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
             <p className="text-sm font-medium">Events mode (large cells)</p>
             <button
               type="button"
@@ -50,12 +52,28 @@ export default function CalendarExample() {
             >
               showEventCount: {showEventCount ? "true" : "false"}
             </button>
+            <button
+              type="button"
+              className={`text-xs px-2 py-1 rounded ${showMonthYearPicker ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+              onClick={() => setShowMonthYearPicker((v) => !v)}
+            >
+              showMonthYearPicker: {showMonthYearPicker ? "true" : "false"}
+            </button>
+            <button
+              type="button"
+              className={`text-xs px-2 py-1 rounded ${highlightHolidays ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+              onClick={() => setHighlightHolidays((v) => !v)}
+            >
+              highlightHolidays: {highlightHolidays ? "true" : "false"}
+            </button>
           </div>
           <Calendar
             size="lg"
             cellMode="events"
             maxEventsPerDay={3}
             showEventCount={showEventCount}
+            showMonthYearPicker={showMonthYearPicker}
+            highlightHolidays={highlightHolidays}
             showEventBadges
             highlightWeekends
             events={events}
@@ -129,9 +147,11 @@ export default function CalendarExample() {
     `  size='lg'\n` +
     `  cellMode='events'\n` +
     `  maxEventsPerDay={3}\n` +
-    `  showEventCount={true} // Set to false to hide "+N more" indicator\n` +
-    `  showEventBadges\n` +
+    `  showEventCount={true} // Set to false to hide event count badge\n` +
+    `  showMonthYearPicker={true} // Show month/year dropdown picker\n` +
+    `  highlightHolidays={true} // Highlight Vietnamese holidays\n` +
     `  highlightWeekends\n` +
+    `  showEventBadges\n` +
     `  events={events}\n` +
     `  enableEventSheet\n` +
     `/>\n\n` +
@@ -168,6 +188,13 @@ export default function CalendarExample() {
     { property: "cellMode", description: t("props.calendar.cellMode"), type: "'compact' | 'events'", default: "'compact'" },
     { property: "maxEventsPerDay", description: t("props.calendar.maxEventsPerDay"), type: "number", default: "3" },
     { property: "showEventCount", description: t("props.calendar.showEventCount"), type: "boolean", default: "true" },
+    { property: "showMonthYearPicker", description: t("props.calendar.showMonthYearPicker"), type: "boolean", default: "false" },
+    { property: "monthNames", description: t("props.calendar.monthNames"), type: "string[]", default: "English months" },
+    { property: "yearRange", description: t("props.calendar.yearRange"), type: "[number, number]", default: "[-50, +10]" },
+    { property: "highlightHolidays", description: t("props.calendar.highlightHolidays"), type: "boolean", default: "false" },
+    { property: "holidayTextColor", description: t("props.calendar.holidayTextColor"), type: "string", default: "'text-destructive'" },
+    { property: "holidays", description: t("props.calendar.holidays"), type: "CalendarHoliday[]", default: "VIETNAM_HOLIDAYS" },
+    { property: "weekendTextColor", description: t("props.calendar.weekendTextColor"), type: "string", default: "'text-destructive'" },
     { property: "onEventClick", description: t("props.calendar.onEventClick"), type: "(event: CalendarEvent, date: Date) => void", default: "-" },
     { property: "renderEvent", description: t("props.calendar.renderEvent"), type: "(args) => ReactNode", default: "-" },
     { property: "showEventBadges", description: t("props.calendar.showEventBadges"), type: "boolean", default: "false" },

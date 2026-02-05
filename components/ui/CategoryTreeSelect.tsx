@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronRight, ChevronDown, Check, FolderTree, Layers, Search, SearchX, X } from "lucide-react";
+import { ChevronRight, ChevronDown, FolderTree, Layers, Search, SearchX, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 interface Category {
@@ -114,7 +114,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     return { parentCategories, childrenMap, byId };
   }, [categories]);
 
-  const isSearchEnabled = useMemo(() => (enableSearch ?? categories.length > 10), [enableSearch, categories.length]);
+  const isSearchEnabled = useMemo(() => enableSearch ?? categories.length > 10, [enableSearch, categories.length]);
   const normalizedQuery = useMemo(() => query.trim().toLowerCase(), [query]);
   const isSearchMode = isSearchEnabled && normalizedQuery.length > 0;
 
@@ -337,18 +337,20 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     if (!isSearchEnabled) return null;
 
     return (
-      <div className="sticky top-0 z-10 px-1 pt-1 pb-2 bg-popover/80 backdrop-blur-xl">
+      <div className="sticky top-0 z-10 border-b border-border/30 bg-popover/85 backdrop-blur-xl px-2.5 py-2.5">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 transition-colors peer-focus:text-primary" />
           <input
             ref={searchInputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={mergedLabels.searchPlaceholder}
             className={cn(
-              "w-full h-10 rounded-full px-10 pr-10 text-sm",
-              "bg-background/70 border border-border/60",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary/40",
+              "peer w-full rounded-full bg-muted/40 py-2.5 pl-9 pr-9 text-sm",
+              "border border-transparent",
+              "focus:outline-none focus:bg-background focus:border-primary/30 focus:ring-2 focus:ring-primary/10",
+              "transition-all duration-200",
+              "placeholder:text-muted-foreground/50",
             )}
           />
           {query.length > 0 && (
@@ -359,9 +361,9 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
                 searchInputRef.current?.focus();
               }}
               className={cn(
-                "absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full",
+                "absolute right-3 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full",
                 "flex items-center justify-center",
-                "text-muted-foreground hover:text-foreground hover:bg-accent/40 transition-colors",
+                "text-muted-foreground/80 hover:text-foreground hover:bg-muted transition-colors",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
               )}
               aria-label="Clear search"
