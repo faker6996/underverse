@@ -346,10 +346,10 @@ export default function Calendar({
   const sz = SIZE_STYLES[size];
 
   const CELL_EVENT_STYLES = {
-    sm: { cell: dense ? "min-h-20 p-1.5" : "min-h-24 p-2", day: "text-[12px]" },
-    md: { cell: dense ? "min-h-28 p-2" : "min-h-32 p-2.5", day: "text-sm" },
-    lg: { cell: dense ? "min-h-36 p-2.5" : "min-h-40 p-3", day: "text-base" },
-    xl: { cell: dense ? "min-h-44 p-3" : "min-h-52 p-3.5", day: "text-lg" },
+    sm: { cell: dense ? "min-h-24" : "min-h-28", day: "text-sm" },
+    md: { cell: dense ? "min-h-32" : "min-h-36", day: "text-base" },
+    lg: { cell: dense ? "min-h-40" : "min-h-44", day: "text-lg" },
+    xl: { cell: dense ? "min-h-48" : "min-h-52", day: "text-xl" },
   } as const;
   const cellSz = CELL_EVENT_STYLES[size];
 
@@ -402,54 +402,38 @@ export default function Calendar({
                 <div
                   key={`${monthLabel}-${idx}`}
                   className={cn(
-                    "rounded-3xl border border-border/50 overflow-hidden",
-                    "bg-linear-to-br from-background via-background to-background/90",
-                    "transition-all duration-300",
-                    "hover:shadow-lg hover:border-border/70",
-                    animate && "will-change-transform",
+                    "rounded-2xl border border-border/40 overflow-hidden",
+                    "bg-card/50 backdrop-blur-sm",
+                    "transition-all duration-200",
+                    "hover:border-border/60 hover:shadow-sm",
                     cellSz.cell,
-                    !inMonth && "opacity-50",
-                    disabled && "opacity-40 cursor-not-allowed",
-                    highlightWeekends && isWeekend && "bg-linear-to-br from-destructive/5 via-destructive/3 to-background/90",
-                    isToday && !selectedDay && "ring-2 ring-primary/50 border-primary/30 shadow-md",
-                    selectedDay && "border-primary/60 bg-linear-to-br from-primary/10 via-primary/5 to-background/90 shadow-md",
-                    !disabled && "backdrop-blur-sm",
+                    !inMonth && "opacity-40",
+                    disabled && "opacity-30 cursor-not-allowed",
+                    highlightWeekends && isWeekend && "bg-destructive/5",
+                    isToday && !selectedDay && "ring-2 ring-primary/40 border-primary/50",
+                    selectedDay && "border-primary/60 bg-primary/5",
                   )}
                 >
-                  <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-border/30 bg-muted/20">
-                    <button
-                      type="button"
-                      onClick={() => !disabled && handleClickDay(d)}
-                      disabled={disabled}
+                  <div className="flex items-center justify-between px-2.5 py-1.5">
+                    <span
                       className={cn(
-                        "inline-flex items-center justify-center rounded-xl px-2.5 py-1 font-semibold",
-                        "transition-all duration-200",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                        "font-semibold tabular-nums",
                         cellSz.day,
-                        selectedDay
-                          ? "bg-linear-to-br from-primary to-primary/90 text-primary-foreground shadow-sm"
-                          : "hover:bg-accent hover:text-accent-foreground hover:scale-105 active:scale-95",
-                        disabled && "cursor-not-allowed hover:bg-transparent hover:scale-100",
-                        isToday && !selectedDay && "ring-1 ring-primary/40 bg-primary/5",
+                        isToday && "text-primary",
+                        selectedDay && "text-primary",
+                        !inMonth && "text-muted-foreground/50",
                       )}
-                      title={d.toDateString()}
                     >
                       {d.getDate()}
-                    </button>
+                    </span>
                     {dayEvents.length > 0 && (
-                      <span
-                        className={cn(
-                          "text-[11px] tabular-nums px-2 py-0.5 rounded-full font-medium",
-                          "bg-primary/10 text-primary",
-                          dayEvents.length > 5 && "bg-destructive/10 text-destructive",
-                        )}
-                      >
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground font-medium">
                         {dayEvents.length}
                       </span>
                     )}
                   </div>
 
-                  <div className={cn("space-y-1.5 p-2", dense ? "p-1.5" : "p-2")}>
+                  <div className="space-y-1 px-2 pb-2">
                     {visibleEvents.map((e, i) => {
                       const key = e.id ?? `${k}-${i}`;
                       const node = renderEvent?.({ event: e, date: d });
@@ -460,25 +444,24 @@ export default function Calendar({
                           type="button"
                           onClick={() => handleEventActivate(e, d, k, i)}
                           className={cn(
-                            "group w-full text-left rounded-xl px-2.5 py-2",
-                            "transition-all duration-200",
-                            "hover:bg-accent/80 hover:shadow-sm hover:scale-[1.02] active:scale-[0.98]",
-                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-                            "text-xs flex items-center gap-2.5",
-                            "border border-transparent hover:border-border/30",
+                            "group w-full text-left rounded-lg px-2.5 py-1.5",
+                            "transition-all duration-150",
+                            "hover:bg-accent/50 hover:shadow-sm hover:-translate-y-0.5",
+                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+                            "text-sm font-medium",
+                            "border-l-[3px] bg-card/80",
                           )}
+                          style={{ borderLeftColor: e.color || "hsl(var(--primary))" }}
                           title={e.title}
                         >
-                          <span
-                            className="h-2 w-2 rounded-full shrink-0 transition-transform duration-200 group-hover:scale-125"
-                            style={{ backgroundColor: e.color || "hsl(var(--primary))" }}
-                          />
-                          <span className="truncate flex-1 font-medium group-hover:text-foreground">{e.title ?? "Event"}</span>
-                          {showEventBadges && e.badge && (
-                            <span className="shrink-0 rounded-full bg-muted/80 px-2 py-0.5 text-[10px] text-muted-foreground font-medium backdrop-blur-sm">
-                              {e.badge}
-                            </span>
-                          )}
+                          <div className="flex items-center gap-2">
+                            <span className="truncate flex-1">{e.title ?? "Event"}</span>
+                            {showEventBadges && e.badge && (
+                              <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-muted/60 text-muted-foreground">
+                                {e.badge}
+                              </span>
+                            )}
+                          </div>
                         </button>
                       );
                     })}
@@ -627,52 +610,36 @@ export default function Calendar({
                   <div
                     key={`wd-${idx}`}
                     className={cn(
-                      "rounded-3xl border border-border/50 overflow-hidden",
-                      "bg-linear-to-br from-background via-background to-background/90",
-                      "transition-all duration-300",
-                      "hover:shadow-lg hover:border-border/70",
+                      "rounded-2xl border border-border/40 overflow-hidden",
+                      "bg-card/50 backdrop-blur-sm",
+                      "transition-all duration-200",
+                      "hover:border-border/60 hover:shadow-sm",
                       cellSz.cell,
-                      disabled && "opacity-40 cursor-not-allowed",
-                      highlightWeekends && isWeekend && "bg-linear-to-br from-destructive/5 via-destructive/3 to-background/90",
-                      isToday && !selectedDay && "ring-2 ring-primary/50 border-primary/30 shadow-md",
-                      selectedDay && "border-primary/60 bg-linear-to-br from-primary/10 via-primary/5 to-background/90 shadow-md",
-                      !disabled && "backdrop-blur-sm",
+                      disabled && "opacity-30 cursor-not-allowed",
+                      highlightWeekends && isWeekend && "bg-destructive/5",
+                      isToday && !selectedDay && "ring-2 ring-primary/40 border-primary/50",
+                      selectedDay && "border-primary/60 bg-primary/5",
                     )}
                   >
-                    <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-border/30 bg-muted/20">
-                      <button
-                        type="button"
-                        onClick={() => !disabled && handleClickDay(d)}
-                        disabled={disabled}
+                    <div className="flex items-center justify-between px-2.5 py-1.5">
+                      <span
                         className={cn(
-                          "inline-flex items-center justify-center rounded-xl px-2.5 py-1 font-semibold",
-                          "transition-all duration-200",
-                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                          "font-semibold tabular-nums",
                           cellSz.day,
-                          selectedDay
-                            ? "bg-linear-to-br from-primary to-primary/90 text-primary-foreground shadow-sm"
-                            : "hover:bg-accent hover:text-accent-foreground hover:scale-105 active:scale-95",
-                          disabled && "cursor-not-allowed hover:bg-transparent hover:scale-100",
-                          isToday && !selectedDay && "ring-1 ring-primary/40 bg-primary/5",
+                          isToday && "text-primary",
+                          selectedDay && "text-primary",
                         )}
-                        title={d.toDateString()}
                       >
                         {d.getDate()}
-                      </button>
+                      </span>
                       {dayEvents.length > 0 && (
-                        <span
-                          className={cn(
-                            "text-[11px] tabular-nums px-2 py-0.5 rounded-full font-medium",
-                            "bg-primary/10 text-primary",
-                            dayEvents.length > 5 && "bg-destructive/10 text-destructive",
-                          )}
-                        >
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted/60 text-muted-foreground font-medium">
                           {dayEvents.length}
                         </span>
                       )}
                     </div>
 
-                    <div className={cn("space-y-1.5 p-2", dense ? "p-1.5" : "p-2")}>
+                    <div className="space-y-1 px-2 pb-2">
                       {visibleEvents.map((e, i) => {
                         const key = e.id ?? `${k}-${i}`;
                         const node = renderEvent?.({ event: e, date: d });
@@ -683,25 +650,24 @@ export default function Calendar({
                             type="button"
                             onClick={() => handleEventActivate(e, d, k, i)}
                             className={cn(
-                              "group w-full text-left rounded-xl px-2.5 py-2",
-                              "transition-all duration-200",
-                              "hover:bg-accent/80 hover:shadow-sm hover:scale-[1.02] active:scale-[0.98]",
-                              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-                              "text-xs flex items-center gap-2.5",
-                              "border border-transparent hover:border-border/30",
+                              "group w-full text-left rounded-lg px-2.5 py-1.5",
+                              "transition-all duration-150",
+                              "hover:bg-accent/50 hover:shadow-sm hover:-translate-y-0.5",
+                              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+                              "text-sm font-medium",
+                              "border-l-[3px] bg-card/80",
                             )}
+                            style={{ borderLeftColor: e.color || "hsl(var(--primary))" }}
                             title={e.title}
                           >
-                            <span
-                              className="h-2 w-2 rounded-full shrink-0 transition-transform duration-200 group-hover:scale-125"
-                              style={{ backgroundColor: e.color || "hsl(var(--primary))" }}
-                            />
-                            <span className="truncate flex-1 font-medium group-hover:text-foreground">{e.title ?? "Event"}</span>
-                            {showEventBadges && e.badge && (
-                              <span className="shrink-0 rounded-full bg-muted/80 px-2 py-0.5 text-[10px] text-muted-foreground font-medium backdrop-blur-sm">
-                                {e.badge}
-                              </span>
-                            )}
+                            <div className="flex items-center gap-2">
+                              <span className="truncate flex-1">{e.title ?? "Event"}</span>
+                              {showEventBadges && e.badge && (
+                                <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-muted/60 text-muted-foreground">
+                                  {e.badge}
+                                </span>
+                              )}
+                            </div>
                           </button>
                         );
                       })}
