@@ -189,7 +189,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
           animationDelay: open ? `${Math.min(index * 15, 150)}ms` : "0ms",
         }}
         className={cn(
-          "dropdown-item group flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm",
+          "dropdown-item group flex cursor-pointer items-center gap-3 rounded-full px-3 py-2.5 text-sm",
           "outline-none focus:outline-none focus-visible:outline-none",
           "transition-all duration-150",
           !itemDisabled && "hover:bg-accent/70 hover:shadow-sm",

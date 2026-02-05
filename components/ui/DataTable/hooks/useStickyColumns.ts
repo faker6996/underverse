@@ -62,7 +62,7 @@ export function useStickyColumns<T>(columns: DataTableColumn<T>[], visibleKeys: 
       "sticky z-10",
       col.fixed === "left" && "left-0 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)]",
       col.fixed === "right" && "right-0 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.15)]",
-      isStripedRow ? "bg-muted!" : "bg-card!",
+      isStripedRow ? "bg-muted/50!" : "bg-card!",
     );
   }, []);
 
