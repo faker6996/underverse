@@ -203,14 +203,31 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const rowMin = minRowHeight ?? 36;
   const rowMax = maxRowHeight ?? 120;
 
-  const availableViews = React.useMemo(
-    () => (onlyView ? [onlyView] : (["month", "week", "day", "sprint"] as CalendarTimelineView[])),
-    [onlyView],
-  );
+  const viewList = React.useMemo(() => (Array.isArray(view) ? view : undefined), [view]);
 
-  const isControlledView = view !== undefined;
-  const [internalView, setInternalView] = React.useState<CalendarTimelineView>(() => onlyView ?? defaultView);
+  const availableViews = React.useMemo(() => {
+    if (onlyView) return [onlyView];
+    if (viewList?.length) return viewList;
+    return ["month", "week", "day", "sprint"] as CalendarTimelineView[];
+  }, [onlyView, viewList]);
+
+  const isControlledView = view !== undefined && !Array.isArray(view);
+  const [internalView, setInternalView] = React.useState<CalendarTimelineView>(() => {
+    if (onlyView) return onlyView;
+    if (viewList?.length) {
+      if (defaultView && viewList.includes(defaultView)) return defaultView;
+      return viewList[0] ?? defaultView ?? "month";
+    }
+    return defaultView ?? "month";
+  });
   const activeView = onlyView ? onlyView : isControlledView ? (view as CalendarTimelineView) : internalView;
+
+  React.useEffect(() => {
+    if (onlyView || isControlledView) return;
+    if (!availableViews.includes(internalView)) {
+      setInternalView(availableViews[0] ?? "month");
+    }
+  }, [availableViews, internalView, isControlledView, onlyView]);
 
   const effectiveSlotMinWidth = React.useMemo(() => {
     if (slotMinWidth == null) {
@@ -259,10 +276,11 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   const setView = React.useCallback(
     (next: CalendarTimelineView) => {
       if (onlyView) return;
+      if (!availableViews.includes(next)) return;
       if (!isControlledView) setInternalView(next);
       onViewChange?.(next);
     },
-    [isControlledView, onViewChange, onlyView],
+    [availableViews, isControlledView, onViewChange, onlyView],
   );
 
   const setDate = React.useCallback(

@@ -91,6 +91,20 @@ Use when you want to ship a single mode (no view switcher UI).
 <CalendarTimeline resources={resources} events={events} onlyView="sprint" />
 ```
 
+### 4.1) Chỉ hiển thị một số view (ví dụ: month/week/day, ẩn sprint)
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  view={["month", "week", "day"]}
+  defaultView="month"
+/>
+```
+
+> Khi `view` là **mảng**, component hiểu đây là **danh sách view được phép hiển thị**.  
+> View đang active sẽ dùng `defaultView` (nếu có trong list) hoặc **phần tử đầu tiên**.
+
 ### 5) Hide resource column (left labels)
 
 ```tsx
@@ -491,6 +505,7 @@ Click vào ô trống để bạn tự mở modal/sheet tạo event theo ý (cus
 - `maxLanesPerRow` giới hạn số lane hiển thị; phần dư sẽ vào “hidden” và hiển thị nút `+n more`.
 - `end` của event là **exclusive** (kết thúc không bao gồm). Ví dụ `04:00 → 06:00` là đúng 2 giờ.
 - `onlyView="month" | "week" | "day" | "sprint"` sẽ **lock** view và **ẩn view switcher** (bỏ qua `view/defaultView`).
+- `view={["month","week","day"]}` (mảng) sẽ **giới hạn các view được hiển thị** trong switcher; view active lấy từ `defaultView` (nếu có) hoặc phần tử đầu tiên.
 - `hideResourceColumn` sẽ **ẩn cột resource** bên trái (không hiện label/group toggle và không kéo resize row từ UI).
 - Month view: `monthEventStyle="compact"` sẽ **cắt ngắn hiển thị** của event dài ngày (giữ đúng start day).
 - Sprint view: `view="sprint"` hiển thị **cả năm** dưới dạng các cột theo **tuần** (mỗi cột = 1 sprint).
@@ -697,7 +712,7 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   defaultEventSheetOpen?: boolean;
   onEventSheetOpenChange?: (open: boolean) => void;
 
-  view?: CalendarTimelineView;
+  view?: CalendarTimelineView | CalendarTimelineView[];
   defaultView?: CalendarTimelineView;
   onViewChange?: (view: CalendarTimelineView) => void;
 

@@ -158,7 +158,13 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
    */
   onlyView?: CalendarTimelineView;
 
-  view?: CalendarTimelineView;
+  /**
+   * Active view (controlled) or allowed views list.
+   * - string: controls the current view
+   * - array: restricts which views are shown; the active view falls back to
+   *   `defaultView` (if included) or the first entry.
+   */
+  view?: CalendarTimelineView | CalendarTimelineView[];
   defaultView?: CalendarTimelineView;
   onViewChange?: (view: CalendarTimelineView) => void;
 
