@@ -34,6 +34,3 @@ coverage/
 *.local
 *.log
 *.tgz
-
-# Audio files (too large for git)
-public/music/*.mp3
