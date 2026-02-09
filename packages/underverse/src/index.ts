@@ -99,6 +99,8 @@ export { default as Timeline } from "../../../components/ui/Timeline";
 export { TimelineItem } from "../../../components/ui/Timeline";
 export { default as ColorPicker } from "../../../components/ui/ColorPicker";
 export type { ColorPickerProps } from "../../../components/ui/ColorPicker";
+export { MusicPlayer, default as MusicPlayerDefault } from "../../../components/ui/MusicPlayer";
+export type { Song, MusicPlayerProps } from "../../../components/ui/MusicPlayer";
 export { default as Grid } from "../../../components/ui/Grid";
 export { GridItem } from "../../../components/ui/Grid";
 export type { GridProps, GridItemProps } from "../../../components/ui/Grid";

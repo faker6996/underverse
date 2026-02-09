@@ -83,6 +83,9 @@
     }
   },
   "DocsUnderverse": {
+    "preview": "Preview",
+    "code": "Code",
+    "propsTab": "Props",
     "propsTable": {
       "property": "Property",
       "description": "Description",
@@ -234,6 +237,9 @@
       },
       "fallingIcons": {
         "title": "FallingIcons"
+      },
+      "musicPlayer": {
+        "title": "MusicPlayer"
       },
       "categoryTreeSelect": {
         "title": "CategoryTreeSelect"

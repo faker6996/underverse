@@ -83,6 +83,9 @@
     }
   },
   "DocsUnderverse": {
+    "preview": "Xem trước",
+    "code": "Mã nguồn",
+    "propsTab": "Thuộc tính",
     "propsTable": {
       "property": "Thuộc tính",
       "description": "Mô tả",
@@ -234,6 +237,9 @@
       },
       "fallingIcons": {
         "title": "FallingIcons"
+      },
+      "musicPlayer": {
+        "title": "Trình phát nhạc"
       },
       "categoryTreeSelect": {
         "title": "CategoryTreeSelect"

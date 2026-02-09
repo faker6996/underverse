@@ -83,6 +83,9 @@
     }
   },
   "DocsUnderverse": {
+    "preview": "プレビュー",
+    "code": "コード",
+    "propsTab": "プロパティ",
     "propsTable": {
       "property": "プロパティ",
       "description": "説明",
@@ -234,6 +237,9 @@
       },
       "fallingIcons": {
         "title": "FallingIcons"
+      },
+      "musicPlayer": {
+        "title": "音楽プレーヤー"
       },
       "categoryTreeSelect": {
         "title": "CategoryTreeSelect"

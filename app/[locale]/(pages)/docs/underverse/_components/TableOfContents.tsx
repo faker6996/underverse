@@ -132,6 +132,7 @@ const tocGroups: TocGroup[] = [
       { id: "file-upload", labelKey: "sections.fileUpload.title" },
       { id: "watermark", labelKey: "sections.watermark.title" },
       { id: "falling-icons", labelKey: "sections.fallingIcons.title" },
+      { id: "music-player", labelKey: "sections.musicPlayer.title" },
     ],
   },
   {

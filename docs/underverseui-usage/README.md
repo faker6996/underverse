@@ -107,6 +107,7 @@ Underverse UI là thư viện UI components cho React/Next.js với hỗ trợ �
 | [Carousel](./Carousel.md)         | Image carousel          | -    |
 | [FallingIcons](./FallingIcons.md) | Falling icons animation | -    |
 | [Watermark](./Watermark.md)       | Watermark overlay       | -    |
+| [MusicPlayer](./MusicPlayer.md)   | Music player            | -    |
 
 ### Misc & Utilities
 

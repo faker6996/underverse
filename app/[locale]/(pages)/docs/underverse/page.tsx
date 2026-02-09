@@ -44,6 +44,7 @@ const WatermarkExample = dynamicImport(() => import("./_examples/WatermarkExampl
 const TimelineExample = dynamicImport(() => import("./_examples/TimelineExample"), { ssr: false });
 const SmartImageExample = dynamicImport(() => import("./_examples/SmartImageExample"), { ssr: false });
 const FallingIconsExample = dynamicImport(() => import("./_examples/FallingIconsExample"), { ssr: false });
+const MusicPlayerExample = dynamicImport(() => import("./_examples/MusicPlayerExample"), { ssr: false });
 const CategoryTreeSelectExample = dynamicImport(() => import("./_examples/CategoryTreeSelectExample"), { ssr: false });
 const InputExample = dynamicImport(() => import("./_examples/InputExample"), { ssr: false });
 const TagInputExample = dynamicImport(() => import("./_examples/TagInputExample"), { ssr: false });
@@ -375,6 +376,10 @@ function DocsInner() {
 
               <DocSection id="falling-icons" title={t("sections.fallingIcons.title")}>
                 <FallingIconsExample />
+              </DocSection>
+
+              <DocSection id="music-player" title={t("sections.musicPlayer.title")}>
+                <MusicPlayerExample />
               </DocSection>
             </DocGroupSection>
 
