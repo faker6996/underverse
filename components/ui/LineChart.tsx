@@ -1,15 +1,26 @@
 "use client";
 
-import React, { useMemo, useState, useRef } from "react";
+import React, { useMemo, useState, useRef, useCallback } from "react";
 import { ChartTooltip } from "./ChartTooltip";
+import { getCatmullRomSpline, getPathLength } from "./chart-utils";
 
 export interface LineChartDataPoint {
   label: string;
   value: number;
 }
 
-export interface LineChartProps {
+export interface LineChartSeries {
+  name: string;
   data: LineChartDataPoint[];
+  color: string;
+  fillColor?: string;
+}
+
+export interface LineChartProps {
+  /** Single series data (backward compatible) */
+  data?: LineChartDataPoint[];
+  /** Multi-series data */
+  series?: LineChartSeries[];
   width?: number;
   height?: number;
   color?: string;
@@ -18,13 +29,20 @@ export interface LineChartProps {
   showGrid?: boolean;
   showLabels?: boolean;
   showValues?: boolean;
+  /** Show legend (auto-enabled for multi-series) */
+  showLegend?: boolean;
   animated?: boolean;
   curved?: boolean;
+  /** Custom value formatter for labels and tooltips */
+  formatValue?: (value: number) => string;
+  /** Horizontal reference lines */
+  referenceLines?: { value: number; color?: string; label?: string; strokeDasharray?: string }[];
   className?: string;
 }
 
 export function LineChart({
   data,
+  series,
   width = 400,
   height = 200,
   color = "currentColor",
@@ -33,8 +51,11 @@ export function LineChart({
   showGrid = true,
   showLabels = true,
   showValues = false,
+  showLegend,
   animated = true,
   curved = true,
+  formatValue,
+  referenceLines = [],
   className = "",
 }: LineChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -47,55 +68,67 @@ export function LineChart({
     y: number;
     label: string;
     value: number;
+    items?: { label: string; value: number; color: string }[];
   } | null>(null);
 
-  const { minValue, maxValue, points, linePath, areaPath } = useMemo(() => {
-    if (!data.length) return { minValue: 0, maxValue: 0, points: [], linePath: "", areaPath: "" };
+  const [hiddenSeries, setHiddenSeries] = useState<Set<string>>(new Set());
+  const toggleSeries = useCallback((name: string) => {
+    setHiddenSeries((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  }, []);
 
-    const values = data.map((d) => d.value);
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const range = max - min || 1;
+  // Normalize to multi-series format for internal processing
+  const normalizedSeries = useMemo(() => {
+    if (series && series.length > 0) return series;
+    if (data && data.length > 0) return [{ name: "", data, color, fillColor }];
+    return [];
+  }, [series, data, color, fillColor]);
 
-    const pts = data.map((d, i) => ({
-      x: padding.left + (i / (data.length - 1 || 1)) * chartWidth,
-      y: padding.top + chartHeight - ((d.value - min) / range) * chartHeight,
-      ...d,
-    }));
+  const isMultiSeries = normalizedSeries.length > 1;
 
-    let path = "";
-    let area = "";
-
-    if (curved && pts.length > 2) {
-      // Catmull-Rom spline for smooth curves
-      path = `M ${pts[0].x} ${pts[0].y}`;
-      area = `M ${pts[0].x} ${padding.top + chartHeight} L ${pts[0].x} ${pts[0].y}`;
-
-      for (let i = 0; i < pts.length - 1; i++) {
-        const p0 = pts[Math.max(0, i - 1)];
-        const p1 = pts[i];
-        const p2 = pts[i + 1];
-        const p3 = pts[Math.min(pts.length - 1, i + 2)];
-
-        const cp1x = p1.x + (p2.x - p0.x) / 6;
-        const cp1y = p1.y + (p2.y - p0.y) / 6;
-        const cp2x = p2.x - (p3.x - p1.x) / 6;
-        const cp2y = p2.y - (p3.y - p1.y) / 6;
-
-        path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
-        area += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
-      }
-      area += ` L ${pts[pts.length - 1].x} ${padding.top + chartHeight} Z`;
-    } else {
-      path = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
-      area =
-        `M ${pts[0].x} ${padding.top + chartHeight} ` +
-        pts.map((p) => `L ${p.x} ${p.y}`).join(" ") +
-        ` L ${pts[pts.length - 1].x} ${padding.top + chartHeight} Z`;
+  const { minValue, maxValue, processedSeries, labels } = useMemo(() => {
+    if (!normalizedSeries.length || !normalizedSeries[0]?.data?.length) {
+      return { minValue: 0, maxValue: 0, processedSeries: [], labels: [] };
     }
 
-    return { minValue: min, maxValue: max, points: pts, linePath: path, areaPath: area };
-  }, [data, chartWidth, chartHeight, curved, padding.left, padding.top]);
+    const allLabels = normalizedSeries[0].data.map((d) => d.label);
+    const allValues = normalizedSeries.flatMap((s) => s.data.map((d) => d.value));
+    const min = Math.min(...allValues);
+    const max = Math.max(...allValues);
+    const range = max - min || 1;
+
+    const processed = normalizedSeries.map((s) => {
+      const pts = s.data.map((d, i) => ({
+        x: padding.left + (i / (s.data.length - 1 || 1)) * chartWidth,
+        y: padding.top + chartHeight - ((d.value - min) / range) * chartHeight,
+        ...d,
+      }));
+
+      let linePath = "";
+      let areaPath = "";
+
+      if (curved && pts.length > 2) {
+        linePath = getCatmullRomSpline(pts);
+        areaPath = `${linePath} L ${pts[pts.length - 1].x} ${padding.top + chartHeight} L ${pts[0].x} ${padding.top + chartHeight} Z`;
+      } else {
+        linePath = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+        areaPath =
+          `M ${pts[0].x} ${padding.top + chartHeight} ` +
+          pts.map((p) => `L ${p.x} ${p.y}`).join(" ") +
+          ` L ${pts[pts.length - 1].x} ${padding.top + chartHeight} Z`;
+      }
+
+      const lineLength = getPathLength(pts);
+
+      return { ...s, points: pts, linePath, areaPath, lineLength };
+    });
+
+    return { minValue: min, maxValue: max, processedSeries: processed, labels: allLabels };
+  }, [normalizedSeries, chartWidth, chartHeight, curved, padding.left, padding.top]);
 
   const gridLines = useMemo(() => {
     const lines = [];
@@ -118,63 +151,128 @@ export function LineChart({
               <g key={i}>
                 <line x1={padding.left} y1={line.y} x2={width - padding.right} y2={line.y} stroke="currentColor" strokeDasharray="4 4" />
                 <text x={padding.left - 8} y={line.y + 4} textAnchor="end" fontSize="10" fill="currentColor" className="text-muted-foreground">
-                  {line.value.toFixed(0)}
+                  {formatValue ? formatValue(line.value) : line.value.toFixed(0)}
                 </text>
               </g>
             ))}
           </g>
         )}
 
-        {/* Area fill */}
-        {fillColor && areaPath && <path d={areaPath} fill={fillColor} opacity={0.2} className={animated ? "animate-[fadeIn_0.6s_ease-out]" : ""} />}
+        {/* Area fills */}
+        {processedSeries.map(
+          (s, si) =>
+            s.fillColor &&
+            s.areaPath && (
+              <path
+                key={`area-${si}`}
+                d={s.areaPath}
+                fill={s.fillColor}
+                className="transition-opacity duration-300"
+                opacity={hiddenSeries.has(s.name) ? 0 : 0.15}
+                style={animated ? { opacity: 0, animation: `fadeIn 0.6s ease-out ${si * 0.1}s forwards` } : undefined}
+              />
+            ),
+        )}
 
-        {/* Line */}
-        {linePath && (
+        {/* Lines */}
+        {processedSeries.map((s, si) => (
           <path
-            d={linePath}
+            key={`line-${si}`}
+            d={s.linePath}
             fill="none"
-            stroke={color}
+            stroke={s.color}
             strokeWidth={2}
             strokeLinecap="round"
             strokeLinejoin="round"
-            className={animated ? "animate-[drawLine_1s_ease-out]" : ""}
+            className="transition-opacity duration-300"
+            opacity={hiddenSeries.has(s.name) ? 0 : 1}
             style={
               animated
                 ? {
-                    strokeDasharray: 1000,
-                    strokeDashoffset: 0,
-                    animation: "drawLine 1s ease-out forwards",
+                    strokeDasharray: s.lineLength,
+                    strokeDashoffset: s.lineLength,
+                    animation: `drawLine 1s ease-out ${si * 0.15}s forwards`,
                   }
                 : undefined
             }
           />
-        )}
+        ))}
 
         {/* Dots */}
         {showDots &&
-          points.map((point, i) => (
-            <g
-              key={i}
-              onMouseEnter={() => setHoveredPoint({ x: point.x, y: point.y, label: point.label, value: point.value })}
-              onMouseLeave={() => setHoveredPoint(null)}
-              className="cursor-pointer"
-            >
-              <circle
-                cx={point.x}
-                cy={point.y}
-                r={hoveredPoint?.x === point.x ? 6 : 4}
-                fill={color}
-                className={`transition-all duration-150 ${animated ? "animate-[scaleIn_0.3s_ease-out]" : ""}`}
-                style={animated ? { animationDelay: `${i * 0.05}s`, animationFillMode: "both" } : undefined}
+          processedSeries.map(
+            (s, si) =>
+              !hiddenSeries.has(s.name) &&
+              s.points.map((point, i) => (
+                <g
+                  key={`dot-${si}-${i}`}
+                  onMouseEnter={() => {
+                    if (isMultiSeries) {
+                      const items = processedSeries
+                        .filter((ps) => !hiddenSeries.has(ps.name))
+                        .map((ps) => ({
+                          label: ps.name,
+                          value: ps.points[i]?.value ?? 0,
+                          color: ps.color,
+                        }));
+                      setHoveredPoint({ x: point.x, y: point.y, label: point.label, value: point.value, items });
+                    } else {
+                      setHoveredPoint({ x: point.x, y: point.y, label: point.label, value: point.value });
+                    }
+                  }}
+                  onMouseLeave={() => setHoveredPoint(null)}
+                  className="cursor-pointer"
+                >
+                  <circle
+                    cx={point.x}
+                    cy={point.y}
+                    r={hoveredPoint?.x === point.x ? 6 : 4}
+                    fill={s.color}
+                    className={`transition-all duration-150 ${animated ? "animate-[scaleIn_0.3s_ease-out]" : ""}`}
+                    style={animated ? { animationDelay: `${si * 0.15 + i * 0.05}s`, animationFillMode: "both" } : undefined}
+                  />
+                  <circle cx={point.x} cy={point.y} r={16} fill="transparent" />
+                  {showValues && (
+                    <text
+                      x={point.x}
+                      y={point.y - 12}
+                      textAnchor="middle"
+                      fontSize="10"
+                      fontWeight="500"
+                      className="text-foreground"
+                      fill="currentColor"
+                    >
+                      {formatValue ? formatValue(point.value) : point.value}
+                    </text>
+                  )}
+                </g>
+              )),
+          )}
+
+        {/* Reference lines */}
+        {referenceLines.map((ref, i) => {
+          const range = maxValue - minValue || 1;
+          const y = padding.top + chartHeight - ((ref.value - minValue) / range) * chartHeight;
+          return (
+            <g key={`ref-${i}`} className="pointer-events-none">
+              <line
+                x1={padding.left}
+                y1={y}
+                x2={padding.left + chartWidth}
+                y2={y}
+                stroke={ref.color || "#ef4444"}
+                strokeWidth={1.5}
+                strokeDasharray={ref.strokeDasharray || "6 4"}
+                opacity={0.7}
               />
-              <circle cx={point.x} cy={point.y} r={16} fill="transparent" />
-              {showValues && (
-                <text x={point.x} y={point.y - 12} textAnchor="middle" fontSize="10" fontWeight="500" className="text-foreground" fill="currentColor">
-                  {point.value}
+              {ref.label && (
+                <text x={padding.left + chartWidth + 4} y={y + 4} fontSize="10" fill={ref.color || "#ef4444"} fontWeight="500">
+                  {ref.label}
                 </text>
               )}
             </g>
-          ))}
+          );
+        })}
 
         {/* Hover crosshair */}
         {hoveredPoint && (
@@ -184,35 +282,28 @@ export function LineChart({
               y1={padding.top}
               x2={hoveredPoint.x}
               y2={padding.top + chartHeight}
-              stroke={color}
+              stroke="currentColor"
               strokeWidth={1}
               strokeDasharray="4 4"
-              opacity={0.5}
-            />
-            <line
-              x1={padding.left}
-              y1={hoveredPoint.y}
-              x2={padding.left + chartWidth}
-              y2={hoveredPoint.y}
-              stroke={color}
-              strokeWidth={1}
-              strokeDasharray="4 4"
-              opacity={0.5}
+              opacity={0.3}
+              className="text-foreground"
             />
           </g>
         )}
 
         {/* X-axis labels */}
         {showLabels &&
-          points.map((point, i) => (
-            <text key={i} x={point.x} y={height - 10} textAnchor="middle" fontSize="10" className="text-muted-foreground" fill="currentColor">
-              {point.label}
-            </text>
-          ))}
+          labels.map((lbl, i) => {
+            const x = padding.left + (i / (labels.length - 1 || 1)) * chartWidth;
+            return (
+              <text key={i} x={x} y={height - 10} textAnchor="middle" fontSize="10" className="text-muted-foreground" fill="currentColor">
+                {lbl}
+              </text>
+            );
+          })}
 
         <style>{`
           @keyframes drawLine {
-            from { stroke-dashoffset: 1000; }
             to { stroke-dashoffset: 0; }
           }
           @keyframes scaleIn {
@@ -221,10 +312,25 @@ export function LineChart({
           }
           @keyframes fadeIn {
             from { opacity: 0; }
-            to { opacity: 0.2; }
+            to { opacity: 0.15; }
           }
         `}</style>
       </svg>
+
+      {/* Legend */}
+      {(showLegend ?? isMultiSeries) && isMultiSeries && (
+        <div className="flex items-center justify-center gap-6 mt-2">
+          {normalizedSeries.map((s, i) => (
+            <div key={i} className="flex items-center gap-2 text-sm cursor-pointer select-none" onClick={() => toggleSeries(s.name)}>
+              <div
+                className="w-3 h-3 rounded-md transition-opacity"
+                style={{ backgroundColor: s.color, opacity: hiddenSeries.has(s.name) ? 0.3 : 1 }}
+              />
+              <span className={hiddenSeries.has(s.name) ? "text-muted-foreground/40 line-through" : "text-muted-foreground"}>{s.name}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Tooltip with Portal */}
       <ChartTooltip
@@ -232,9 +338,11 @@ export function LineChart({
         y={hoveredPoint?.y ?? 0}
         visible={!!hoveredPoint}
         label={hoveredPoint?.label}
-        value={hoveredPoint?.value}
-        color={color}
+        value={!isMultiSeries ? hoveredPoint?.value : undefined}
+        items={isMultiSeries ? hoveredPoint?.items : undefined}
+        color={!isMultiSeries ? processedSeries[0]?.color || color : undefined}
         containerRef={svgRef}
+        formatter={formatValue ? (v) => formatValue(Number(v)) : undefined}
       />
     </>
   );

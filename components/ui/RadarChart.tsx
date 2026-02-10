@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useRef } from "react";
+import React, { useMemo, useState, useRef, useCallback } from "react";
 import { ChartTooltip } from "./ChartTooltip";
 
 export interface RadarChartDataPoint {
@@ -23,6 +23,8 @@ export interface RadarChartProps {
   showLegend?: boolean;
   showValues?: boolean;
   animated?: boolean;
+  /** Custom value formatter */
+  formatValue?: (value: number) => string;
   className?: string;
 }
 
@@ -34,6 +36,7 @@ export function RadarChart({
   showLegend = true,
   showValues = false,
   animated = true,
+  formatValue,
   className = "",
 }: RadarChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -46,6 +49,16 @@ export function RadarChart({
     axis: string;
     items: { label: string; value: number; color: string }[];
   } | null>(null);
+
+  const [hiddenSeries, setHiddenSeries] = useState<Set<string>>(new Set());
+  const toggleSeries = useCallback((name: string) => {
+    setHiddenSeries((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  }, []);
 
   const { axes, processedSeries, levelPaths } = useMemo(() => {
     if (!series.length || !series[0]?.data?.length) {
@@ -127,88 +140,91 @@ export function RadarChart({
         </g>
 
         {/* Data polygons */}
-        {processedSeries.map((s, i) => (
-          <g key={i}>
-            <path
-              d={s.path}
-              fill={s.color}
-              fillOpacity={s.fillOpacity ?? 0.2}
-              stroke={s.color}
-              strokeWidth={2}
-              strokeLinejoin="round"
-              className="transition-all duration-300"
-              style={
-                animated
-                  ? {
-                      opacity: 0,
-                      transform: "scale(0)",
-                      transformOrigin: `${center}px ${center}px`,
-                      animation: `radarPop 0.5s ease-out ${i * 0.15}s forwards`,
-                    }
-                  : undefined
-              }
-            />
-
-            {/* Data points */}
-            {s.points.map((point, j) => (
-              <g
-                key={j}
-                onMouseEnter={() => {
-                  const items = processedSeries.map((ps) => ({
-                    label: ps.name,
-                    value: ps.points[j]?.value ?? 0,
-                    color: ps.color,
-                  }));
-                  setHoveredPoint({
-                    x: point.x,
-                    y: point.y,
-                    axis: series[0]?.data[j]?.axis ?? "",
-                    items,
-                  });
-                }}
-                onMouseLeave={() => setHoveredPoint(null)}
-                className="cursor-pointer"
-              >
-                <circle
-                  cx={point.x}
-                  cy={point.y}
-                  r={hoveredPoint?.axis === series[0]?.data[j]?.axis ? 6 : 4}
+        {processedSeries.map(
+          (s, i) =>
+            !hiddenSeries.has(s.name) && (
+              <g key={i}>
+                <path
+                  d={s.path}
                   fill={s.color}
-                  className="transition-all duration-150"
+                  fillOpacity={s.fillOpacity ?? 0.2}
+                  stroke={s.color}
+                  strokeWidth={2}
+                  strokeLinejoin="round"
+                  className="transition-all duration-300"
                   style={
                     animated
                       ? {
                           opacity: 0,
                           transform: "scale(0)",
-                          transformOrigin: `${point.x}px ${point.y}px`,
-                          animation: `dotPop 0.3s ease-out ${i * 0.15 + j * 0.05 + 0.3}s forwards`,
+                          transformOrigin: `${center}px ${center}px`,
+                          animation: `radarPop 0.5s ease-out ${i * 0.15}s forwards`,
                         }
                       : undefined
                   }
                 />
-                <circle cx={point.x} cy={point.y} r={12} fill="transparent" />
-              </g>
-            ))}
 
-            {/* Values */}
-            {showValues &&
-              s.points.map((point, j) => (
-                <text
-                  key={`val-${j}`}
-                  x={point.x}
-                  y={point.y - 10}
-                  textAnchor="middle"
-                  fontSize="10"
-                  fontWeight="500"
-                  className="text-foreground"
-                  fill="currentColor"
-                  style={animated ? { opacity: 0, animation: `fadeIn 0.3s ease-out ${i * 0.15 + 0.5}s forwards` } : undefined}
-                >
-                  {point.value}
-                </text>
-              ))}
-          </g>
-        ))}
+                {/* Data points */}
+                {s.points.map((point, j) => (
+                  <g
+                    key={j}
+                    onMouseEnter={() => {
+                      const items = processedSeries.map((ps) => ({
+                        label: ps.name,
+                        value: ps.points[j]?.value ?? 0,
+                        color: ps.color,
+                      }));
+                      setHoveredPoint({
+                        x: point.x,
+                        y: point.y,
+                        axis: series[0]?.data[j]?.axis ?? "",
+                        items,
+                      });
+                    }}
+                    onMouseLeave={() => setHoveredPoint(null)}
+                    className="cursor-pointer"
+                  >
+                    <circle
+                      cx={point.x}
+                      cy={point.y}
+                      r={hoveredPoint?.axis === series[0]?.data[j]?.axis ? 6 : 4}
+                      fill={s.color}
+                      className="transition-all duration-150"
+                      style={
+                        animated
+                          ? {
+                              opacity: 0,
+                              transform: "scale(0)",
+                              transformOrigin: `${point.x}px ${point.y}px`,
+                              animation: `dotPop 0.3s ease-out ${i * 0.15 + j * 0.05 + 0.3}s forwards`,
+                            }
+                          : undefined
+                      }
+                    />
+                    <circle cx={point.x} cy={point.y} r={12} fill="transparent" />
+                  </g>
+                ))}
+
+                {/* Values */}
+                {showValues &&
+                  s.points.map((point, j) => (
+                    <text
+                      key={`val-${j}`}
+                      x={point.x}
+                      y={point.y - 10}
+                      textAnchor="middle"
+                      fontSize="10"
+                      fontWeight="500"
+                      className="text-foreground"
+                      fill="currentColor"
+                      style={animated ? { opacity: 0, animation: `fadeIn 0.3s ease-out ${i * 0.15 + 0.5}s forwards` } : undefined}
+                    >
+                      {point.value}
+                    </text>
+                  ))}
+              </g>
+            ),
+        )}
 
         {/* Axis labels */}
         {showLabels && (
@@ -255,11 +271,15 @@ export function RadarChart({
           {series.map((s, i) => (
             <div
               key={i}
-              className="flex items-center gap-2 text-sm"
+              className="flex items-center gap-2 text-sm cursor-pointer select-none"
               style={animated ? { opacity: 0, animation: `fadeIn 0.3s ease-out ${i * 0.1 + 0.5}s forwards` } : undefined}
+              onClick={() => toggleSeries(s.name)}
             >
-              <div className="w-3 h-3 rounded-md" style={{ backgroundColor: s.color }} />
-              <span className="text-muted-foreground">{s.name}</span>
+              <div
+                className="w-3 h-3 rounded-md transition-opacity"
+                style={{ backgroundColor: s.color, opacity: hiddenSeries.has(s.name) ? 0.3 : 1 }}
+              />
+              <span className={hiddenSeries.has(s.name) ? "text-muted-foreground/40 line-through" : "text-muted-foreground"}>{s.name}</span>
             </div>
           ))}
         </div>

@@ -107,9 +107,9 @@ export type { GridProps, GridItemProps } from "../../../components/ui/Grid";
 
 // Charts (pure SVG, no external dependencies)
 export { LineChart } from "../../../components/ui/LineChart";
-export type { LineChartProps, LineChartDataPoint } from "../../../components/ui/LineChart";
+export type { LineChartProps, LineChartDataPoint, LineChartSeries } from "../../../components/ui/LineChart";
 export { BarChart } from "../../../components/ui/BarChart";
-export type { BarChartProps, BarChartDataPoint } from "../../../components/ui/BarChart";
+export type { BarChartProps, BarChartDataPoint, BarChartSeries } from "../../../components/ui/BarChart";
 export { PieChart } from "../../../components/ui/PieChart";
 export type { PieChartProps, PieChartDataPoint } from "../../../components/ui/PieChart";
 export { AreaChart } from "../../../components/ui/AreaChart";

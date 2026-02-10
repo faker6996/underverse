@@ -19,6 +19,10 @@ export interface PieChartProps {
   showPercentage?: boolean;
   animated?: boolean;
   startAngle?: number;
+  /** Custom center content for donut chart */
+  renderCenter?: (total: number) => React.ReactNode;
+  /** Custom value formatter */
+  formatValue?: (value: number) => string;
   className?: string;
 }
 
@@ -32,6 +36,8 @@ export function PieChart({
   showPercentage = true,
   animated = true,
   startAngle = -90,
+  renderCenter,
+  formatValue,
   className = "",
 }: PieChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -155,23 +161,30 @@ export function PieChart({
                   fill="currentColor"
                   style={animated ? { opacity: 0, animation: `fadeIn 0.3s ease-out ${i * 0.1 + 0.3}s forwards` } : undefined}
                 >
-                  {showPercentage ? `${(seg.percentage * 100).toFixed(0)}%` : seg.value}
+                  {showPercentage ? `${(seg.percentage * 100).toFixed(0)}%` : formatValue ? formatValue(seg.value) : seg.value}
                 </text>
               )}
             </g>
           ))}
 
           {/* Center text for donut */}
-          {donut && (
-            <g>
-              <text x={center} y={center - 5} textAnchor="middle" fontSize="12" className="text-muted-foreground" fill="currentColor">
-                Total
-              </text>
-              <text x={center} y={center + 15} textAnchor="middle" fontSize="18" fontWeight="600" className="text-foreground" fill="currentColor">
-                {total}
-              </text>
-            </g>
-          )}
+          {donut &&
+            (renderCenter ? (
+              <foreignObject x={center - donutWidth} y={center - donutWidth / 2} width={donutWidth * 2} height={donutWidth}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%" }}>
+                  {renderCenter(total)}
+                </div>
+              </foreignObject>
+            ) : (
+              <g>
+                <text x={center} y={center - 5} textAnchor="middle" fontSize="12" className="text-muted-foreground" fill="currentColor">
+                  Total
+                </text>
+                <text x={center} y={center + 15} textAnchor="middle" fontSize="18" fontWeight="600" className="text-foreground" fill="currentColor">
+                  {formatValue ? formatValue(total) : total}
+                </text>
+              </g>
+            ))}
         </g>
 
         <style>{`
@@ -203,7 +216,9 @@ export function PieChart({
             >
               <div className="w-3 h-3 rounded-md shrink-0" style={{ backgroundColor: seg.color }} />
               <span className="text-muted-foreground">{seg.label}</span>
-              <span className="text-foreground font-medium ml-auto">{showPercentage ? `${(seg.percentage * 100).toFixed(0)}%` : seg.value}</span>
+              <span className="text-foreground font-medium ml-auto">
+                {showPercentage ? `${(seg.percentage * 100).toFixed(0)}%` : formatValue ? formatValue(seg.value) : seg.value}
+              </span>
             </div>
           ))}
         </div>

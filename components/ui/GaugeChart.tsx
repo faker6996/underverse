@@ -16,6 +16,10 @@ export interface GaugeChartProps {
   animated?: boolean;
   startAngle?: number;
   endAngle?: number;
+  /** Color zones on the gauge arc */
+  zones?: { min: number; max: number; color: string }[];
+  /** Custom value formatter */
+  formatValue?: (value: number) => string;
   className?: string;
 }
 
@@ -33,12 +37,14 @@ export function GaugeChart({
   animated = true,
   startAngle = -135,
   endAngle = 135,
+  zones,
+  formatValue,
   className = "",
 }: GaugeChartProps) {
   const center = size / 2;
   const radius = center - thickness / 2 - 10;
 
-  const { backgroundPath, valuePath, percentage, needleAngle } = useMemo(() => {
+  const { backgroundPath, valuePath, percentage, needleAngle, zonePaths } = useMemo(() => {
     const normalizedValue = Math.min(Math.max(value, min), max);
     const pct = (normalizedValue - min) / (max - min);
     const totalAngle = endAngle - startAngle;
@@ -59,13 +65,20 @@ export function GaugeChart({
       return `M ${startPoint.x} ${startPoint.y} A ${radius} ${radius} 0 ${largeArc} 1 ${endPoint.x} ${endPoint.y}`;
     };
 
+    const zonePaths = (zones ?? []).map((zone) => {
+      const zoneStart = startAngle + ((Math.max(zone.min, min) - min) / (max - min)) * totalAngle;
+      const zoneEnd = startAngle + ((Math.min(zone.max, max) - min) / (max - min)) * totalAngle;
+      return { path: createArc(zoneStart, zoneEnd), color: zone.color };
+    });
+
     return {
       backgroundPath: createArc(startAngle, endAngle),
       valuePath: createArc(startAngle, currentAngle),
       percentage: pct,
       needleAngle: currentAngle,
+      zonePaths,
     };
-  }, [value, min, max, center, radius, startAngle, endAngle]);
+  }, [value, min, max, center, radius, startAngle, endAngle, zones]);
 
   const needleLength = radius - 10;
   const needleAngleRad = (needleAngle * Math.PI) / 180;
@@ -83,6 +96,11 @@ export function GaugeChart({
         strokeLinecap="round"
         className={!backgroundColor ? "text-muted-foreground/20" : ""}
       />
+
+      {/* Zone arcs */}
+      {zonePaths.map((zone, i) => (
+        <path key={`zone-${i}`} d={zone.path} fill="none" stroke={zone.color} strokeWidth={thickness} strokeLinecap="round" opacity={0.35} />
+      ))}
 
       {/* Value arc */}
       <path
@@ -160,7 +178,7 @@ export function GaugeChart({
             fill="currentColor"
             style={animated ? { opacity: 0, animation: "fadeIn 0.5s ease-out 0.5s forwards" } : undefined}
           >
-            {value}
+            {formatValue ? formatValue(value) : value}
           </text>
           {label && (
             <text
