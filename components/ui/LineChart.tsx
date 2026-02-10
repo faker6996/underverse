@@ -37,6 +37,8 @@ export interface LineChartProps {
   formatValue?: (value: number) => string;
   /** Horizontal reference lines */
   referenceLines?: { value: number; color?: string; label?: string; strokeDasharray?: string }[];
+  /** Custom class for axis labels */
+  labelClassName?: string;
   className?: string;
 }
 
@@ -56,6 +58,7 @@ export function LineChart({
   curved = true,
   formatValue,
   referenceLines = [],
+  labelClassName,
   className = "",
 }: LineChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -158,7 +161,14 @@ export function LineChart({
             {gridLines.map((line, i) => (
               <g key={i}>
                 <line x1={padding.left} y1={line.y} x2={width - padding.right} y2={line.y} stroke="currentColor" strokeDasharray="4 4" />
-                <text x={padding.left - 8} y={line.y + 4} textAnchor="end" fontSize="10" fill="currentColor" className="text-muted-foreground">
+                <text
+                  x={padding.left - 8}
+                  y={line.y + 4}
+                  textAnchor="end"
+                  fontSize="10"
+                  fill="currentColor"
+                  className={labelClassName || "text-muted-foreground"}
+                >
                   {formatValue ? formatValue(line.value) : line.value.toFixed(0)}
                 </text>
               </g>
@@ -306,7 +316,15 @@ export function LineChart({
           labels.map((lbl, i) => {
             const x = padding.left + (i / (labels.length - 1 || 1)) * chartWidth;
             return (
-              <text key={i} x={x} y={height - 10} textAnchor="middle" fontSize="10" className="text-muted-foreground" fill="currentColor">
+              <text
+                key={i}
+                x={x}
+                y={height - 10}
+                textAnchor="middle"
+                fontSize="10"
+                className={labelClassName || "text-muted-foreground"}
+                fill="currentColor"
+              >
                 {lbl}
               </text>
             );

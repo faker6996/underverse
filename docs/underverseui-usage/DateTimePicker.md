@@ -42,10 +42,13 @@ export interface DateTimePickerProps {
   format?: "12" | "24";
   includeSeconds?: boolean;
   label?: string;
+  labelClassName?: string;
   required?: boolean;
   /** Label for the "Done" button */
   doneLabel?: string;
   /** Label for the "Clear" button */
   clearLabel?: string;
+  /** Size variant */
+  size?: "sm" | "md" | "lg";
 }
 ```

@@ -107,6 +107,7 @@ export interface DatePickerProps {
   disabled?: boolean;
   size?: "sm" | "md";
   label?: string;
+  labelClassName?: string;
   required?: boolean;
   todayLabel?: string;
   clearLabel?: string;

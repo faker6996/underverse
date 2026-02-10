@@ -47,6 +47,7 @@ interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
   label?: string;
+  labelClassName?: string;
   size?: "sm" | "md" | "lg";
   variant?: "default" | "success" | "warning" | "danger";
   disabled?: boolean;

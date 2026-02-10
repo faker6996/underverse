@@ -23,6 +23,8 @@ export interface MonthYearPickerProps extends Omit<React.HTMLAttributes<HTMLDivE
   size?: PickerSize;
   /** Label text */
   label?: string;
+  /** Custom class for label */
+  labelClassName?: string;
   /** Required field */
   required?: boolean;
   /** Show clear button */
@@ -582,6 +584,7 @@ export default function MonthYearPicker({
   disabled = false,
   size = "md",
   label,
+  labelClassName,
   required,
   clearable = true,
   variant = "default",
@@ -908,7 +911,7 @@ export default function MonthYearPicker({
     return (
       <div className={cn("w-full", className)} {...rest}>
         {label && (
-          <label className={cn(sz.label, "block mb-1.5 font-medium text-foreground/80")}>
+          <label className={cn(sz.label, "block mb-1.5 font-medium text-foreground/80", labelClassName)}>
             {label}
             {required && <span className="text-destructive ml-0.5">*</span>}
           </label>
@@ -924,7 +927,7 @@ export default function MonthYearPicker({
   return (
     <div className={cn("w-full", className)} {...rest}>
       {label && (
-        <label className={cn(sz.label, "block mb-1.5 font-medium text-foreground/80")}>
+        <label className={cn(sz.label, "block mb-1.5 font-medium text-foreground/80", labelClassName)}>
           {label}
           {required && <span className="text-destructive ml-0.5">*</span>}
         </label>

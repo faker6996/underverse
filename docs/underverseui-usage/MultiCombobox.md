@@ -136,6 +136,7 @@ export interface MultiComboboxProps {
   size?: "sm" | "md" | "lg";
   variant?: "default" | "outline" | "ghost";
   label?: string;
+  labelClassName?: string;
   title?: string;
   required?: boolean;
   displayFormat?: (option: MultiComboboxOption) => string;

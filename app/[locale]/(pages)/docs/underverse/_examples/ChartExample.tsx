@@ -94,7 +94,7 @@ const codeExample = `import {
   GaugeChart,
 } from '@underverse-ui/underverse';
 
-// LineChart
+// LineChart — single series
 <LineChart
   data={[
     { label: "Jan", value: 40 },
@@ -108,9 +108,35 @@ const codeExample = `import {
   showGrid
   curved
   animated
+  formatValue={(v) => \`$\${v}k\`}
+  labelClassName="text-xs text-muted-foreground"
 />
 
-// BarChart
+// LineChart — multi-series
+<LineChart
+  series={[
+    {
+      name: "Revenue",
+      color: "#3b82f6",
+      data: [{ label: "Jan", value: 40 }, ...],
+    },
+    {
+      name: "Profit",
+      color: "#10b981",
+      data: [{ label: "Jan", value: 20 }, ...],
+    },
+  ]}
+  width={400}
+  height={200}
+  showDots
+  showGrid
+  showLegend
+  curved
+  animated
+  referenceLines={[{ value: 35, label: "Target", color: "#f59e0b" }]}
+/>
+
+// BarChart — single series
 <BarChart
   data={[
     { label: "A", value: 40, color: "#3b82f6" },
@@ -122,7 +148,27 @@ const codeExample = `import {
   animated
 />
 
-// PieChart (donut)
+// BarChart — multi-series (grouped)
+<BarChart
+  series={[
+    { name: "2023", color: "#3b82f6", data: [...] },
+    { name: "2024", color: "#10b981", data: [...] },
+  ]}
+  width={400}
+  height={200}
+  showLegend
+  animated
+/>
+
+// BarChart — multi-series (stacked)
+<BarChart
+  series={[...]}
+  stacked
+  showLegend
+  animated
+/>
+
+// PieChart (donut with custom center)
 <PieChart
   data={[
     { label: "Desktop", value: 45, color: "#3b82f6" },
@@ -133,6 +179,12 @@ const codeExample = `import {
   donutWidth={40}
   showLegend
   animated
+  renderCenter={({ total }) => (
+    <div className="text-center">
+      <div className="text-2xl font-bold">{total}</div>
+      <div className="text-xs text-muted-foreground">Total</div>
+    </div>
+  )}
 />
 
 // AreaChart with multiple series
@@ -164,7 +216,7 @@ const codeExample = `import {
   animated
 />
 
-// GaugeChart
+// GaugeChart with color zones
 <GaugeChart
   value={72}
   min={0}
@@ -173,6 +225,12 @@ const codeExample = `import {
   color="#3b82f6"
   label="Performance"
   animated
+  zones={[
+    { min: 0, max: 30, color: "#ef4444" },
+    { min: 30, max: 70, color: "#f59e0b" },
+    { min: 70, max: 100, color: "#10b981" },
+  ]}
+  formatValue={(v) => \`\${v}%\`}
 />
 
 // Sparkline (mini chart)
@@ -194,18 +252,21 @@ Pure SVG chart components with CSS animations. No external chart libraries requi
 - **Responsive** - Configurable width/height
 - **Themed** - Uses system colors (\`currentColor\`, Tailwind classes)
 - **TypeScript** - Full type definitions
+- **Multi-series** - LineChart, BarChart, AreaChart, RadarChart support multiple data series
+- **Interactive Legend** - Click legend items to show/hide series
+- **Custom Formatting** - \`formatValue\` callback for tooltips and labels
 
 ### Available Charts
 
 | Component | Description |
 |-----------|-------------|
-| \`LineChart\` | Line chart with dots, grid, labels, curved/straight lines |
-| \`BarChart\` | Vertical or horizontal bar chart |
-| \`PieChart\` | Pie or donut chart with legend |
+| \`LineChart\` | Line chart with dots, grid, labels, curved/straight lines. Supports multi-series, reference lines |
+| \`BarChart\` | Vertical or horizontal bar chart. Supports multi-series (grouped & stacked) |
+| \`PieChart\` | Pie or donut chart with legend. Supports custom donut center via \`renderCenter\` |
 | \`AreaChart\` | Area chart, supports multiple series and stacking |
 | \`Sparkline\` | Minimal inline chart for dashboards |
 | \`RadarChart\` | Radar/spider chart for multi-dimensional comparison |
-| \`GaugeChart\` | Gauge with needle for metrics/KPIs |
+| \`GaugeChart\` | Gauge with needle for metrics/KPIs. Supports color zones |
 
 ### Common Props
 
@@ -218,6 +279,30 @@ Pure SVG chart components with CSS animations. No external chart libraries requi
 | \`showGrid\` | \`boolean\` | Show grid lines |
 | \`showLabels\` | \`boolean\` | Show axis labels |
 | \`className\` | \`string\` | Additional CSS classes |
+| \`labelClassName\` | \`string\` | Custom CSS class for chart label text |
+| \`formatValue\` | \`(value: number) => string\` | Custom formatter for tooltip / axis values |
+| \`emptyText\` | \`string\` | Text displayed when data is empty |
+
+### LineChart / BarChart Multi-series Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| \`series\` | \`Array<{ name, data, color }>\` | Multiple data series (overrides \`data\`) |
+| \`showLegend\` | \`boolean\` | Show interactive legend (auto-shown for multi-series) |
+| \`stacked\` | \`boolean\` | (BarChart only) Stack bars instead of grouping |
+| \`referenceLines\` | \`Array<{ value, label?, color? }>\` | (LineChart only) Horizontal reference lines |
+
+### PieChart Extra Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| \`renderCenter\` | \`(info: { total }) => ReactNode\` | Custom content in donut center (uses foreignObject) |
+
+### GaugeChart Extra Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| \`zones\` | \`Array<{ min, max, color }>\` | Color zone arcs on the gauge background |
 `;
 
 export default function ChartExample() {

@@ -27,6 +27,9 @@ export interface TagInputProps {
   /** Label hiển thị phía trên input */
   label?: string;
 
+  /** Custom class for label */
+  labelClassName?: string;
+
   /** Ẩn nút Search */
   hideSearchButton?: boolean;
 
@@ -71,6 +74,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       placeholder,
       placeholderWithTags,
       label,
+      labelClassName,
       hideSearchButton = false,
       hideClearButton = false,
       className,
@@ -222,6 +226,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
               "block font-medium transition-colors duration-200",
               size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
               disabled ? "text-muted-foreground" : isFocused ? "text-primary" : "text-foreground",
+              labelClassName,
             )}
           >
             {label}

@@ -25,6 +25,8 @@ export interface RadarChartProps {
   animated?: boolean;
   /** Custom value formatter */
   formatValue?: (value: number) => string;
+  /** Custom class for axis labels */
+  labelClassName?: string;
   className?: string;
 }
 
@@ -37,6 +39,7 @@ export function RadarChart({
   showValues = false,
   animated = true,
   formatValue,
+  labelClassName,
   className = "",
 }: RadarChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -228,7 +231,7 @@ export function RadarChart({
 
         {/* Axis labels */}
         {showLabels && (
-          <g className="text-muted-foreground">
+          <g className={labelClassName || "text-muted-foreground"}>
             {axes.map((axis, i) => (
               <text key={i} x={axis.labelX} y={axis.labelY} textAnchor="middle" dominantBaseline="middle" fontSize="11" fill="currentColor">
                 {axis.label}

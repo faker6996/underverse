@@ -117,6 +117,8 @@ interface RadioGroupItemProps {
   className?: string;
   children?: React.ReactNode;
   label?: string;
+  /** Custom class for label */
+  labelClassName?: string;
   description?: string;
   icon?: React.ComponentType<{ className?: string }>;
 }
@@ -143,7 +145,7 @@ const sizeStyles = {
 };
 
 export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItemProps>(
-  ({ value, id, disabled, className, children, label, description, icon }, ref) => {
+  ({ value, id, disabled, className, children, label, labelClassName, description, icon }, ref) => {
     const { value: selectedValue, onValueChange, name, disabled: groupDisabled, size = "md", variant = "default" } = useRadioGroup();
 
     const isDisabled = disabled || groupDisabled;
@@ -193,7 +195,7 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 {Icon && <Icon className="h-4 w-4 text-foreground" />}
-                <label htmlFor={radioId} className={cn("font-medium text-foreground cursor-pointer", sizeStyles[size].text)}>
+                <label htmlFor={radioId} className={cn("font-medium text-foreground cursor-pointer", sizeStyles[size].text, labelClassName)}>
                   {label || children}
                 </label>
               </div>
@@ -287,6 +289,7 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
               "disabled:cursor-not-allowed disabled:opacity-50",
               sizeStyles[size].text,
               isDisabled && "cursor-not-allowed opacity-50",
+              labelClassName,
             )}
           >
             <div className="flex items-center gap-2">

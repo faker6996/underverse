@@ -20,6 +20,8 @@ export interface GaugeChartProps {
   zones?: { min: number; max: number; color: string }[];
   /** Custom value formatter */
   formatValue?: (value: number) => string;
+  /** Custom class for min/max/value labels */
+  labelClassName?: string;
   className?: string;
 }
 
@@ -39,6 +41,7 @@ export function GaugeChart({
   endAngle = 135,
   zones,
   formatValue,
+  labelClassName,
   className = "",
 }: GaugeChartProps) {
   const center = size / 2;
@@ -143,7 +146,7 @@ export function GaugeChart({
 
       {/* Min/Max labels */}
       {showMinMax && (
-        <g className="text-muted-foreground">
+        <g className={labelClassName || "text-muted-foreground"}>
           <text
             x={center + (radius + 20) * Math.cos((startAngle * Math.PI) / 180)}
             y={center + (radius + 20) * Math.sin((startAngle * Math.PI) / 180) + 5}

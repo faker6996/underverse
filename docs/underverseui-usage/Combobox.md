@@ -122,6 +122,7 @@ export interface ComboboxProps {
   emptyText?: string;
   usePortal?: boolean;
   label?: string;
+  labelClassName?: string;
   required?: boolean;
   fontBold?: boolean;
   loading?: boolean;

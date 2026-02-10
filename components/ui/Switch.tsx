@@ -3,10 +3,12 @@
 import * as React from "react";
 import { cn } from "@/lib/utils/cn";
 
-interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
   label?: string;
+  /** Custom class for label */
+  labelClassName?: string;
   size?: "sm" | "md" | "lg";
   variant?: "default" | "success" | "warning" | "danger";
   disabled?: boolean;
@@ -16,6 +18,7 @@ export const Switch: React.FC<SwitchProps> = ({
   checked,
   onCheckedChange,
   label,
+  labelClassName,
   size = "md",
   variant = "default",
   disabled = false,
@@ -28,18 +31,18 @@ export const Switch: React.FC<SwitchProps> = ({
     sm: {
       track: "w-8 h-4",
       handle: "w-3 h-3",
-      translate: "translate-x-4"
+      translate: "translate-x-4",
     },
     md: {
-      track: "w-11 h-6", 
+      track: "w-11 h-6",
       handle: "w-5 h-5",
-      translate: "translate-x-5"
+      translate: "translate-x-5",
     },
     lg: {
       track: "w-14 h-8",
-      handle: "w-7 h-7", 
-      translate: "translate-x-6"
-    }
+      handle: "w-7 h-7",
+      translate: "translate-x-6",
+    },
   };
 
   const variantClasses = {
@@ -62,13 +65,7 @@ export const Switch: React.FC<SwitchProps> = ({
   } as const;
 
   return (
-    <label 
-      className={cn(
-        "inline-flex items-center gap-3 cursor-pointer select-none",
-        disabled && "cursor-not-allowed opacity-50",
-        className
-      )}
-    >
+    <label className={cn("inline-flex items-center gap-3 cursor-pointer select-none", disabled && "cursor-not-allowed opacity-50", className)}>
       <div
         className={cn(
           "relative inline-flex rounded-full align-middle",
@@ -78,23 +75,23 @@ export const Switch: React.FC<SwitchProps> = ({
           disabled && "opacity-50",
         )}
       >
-        <input 
-          type="checkbox" 
+        <input
+          type="checkbox"
           className="sr-only peer"
-          checked={checked} 
+          checked={checked}
           disabled={disabled}
           onChange={(e) => !disabled && onCheckedChange(e.target.checked)}
-          {...props} 
+          {...props}
         />
-        
+
         {/* Background track */}
-        <div 
+        <div
           className={cn(
             "block w-full h-full rounded-full transition-colors duration-200 ease-out border",
-            checked ? variantClasses[variant].active : variantClasses[variant].inactive
-          )} 
+            checked ? variantClasses[variant].active : variantClasses[variant].inactive,
+          )}
         />
-        
+
         {/* Handle */}
         <div
           className={cn(
@@ -104,7 +101,7 @@ export const Switch: React.FC<SwitchProps> = ({
             checked ? sizeClasses[size].translate : "translate-x-0",
             !disabled && "hover:scale-[1.02]",
             isPressed && "scale-95",
-            disabled && "opacity-70"
+            disabled && "opacity-70",
           )}
           onMouseDown={() => !disabled && setIsPressed(true)}
           onMouseUp={() => setIsPressed(false)}
@@ -113,14 +110,9 @@ export const Switch: React.FC<SwitchProps> = ({
           {/* empty thumb */}
         </div>
       </div>
-      
+
       {label && (
-        <span
-          className={cn(
-            "text-sm font-medium text-foreground transition-colors",
-            disabled && "text-muted-foreground"
-          )}
-        >
+        <span className={cn("text-sm font-medium text-foreground transition-colors", disabled && "text-muted-foreground", labelClassName)}>
           {label}
         </span>
       )}

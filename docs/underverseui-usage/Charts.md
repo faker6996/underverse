@@ -9,18 +9,24 @@ Pure SVG chart components with CSS animations. No external chart libraries requi
 - **Responsive** - Configurable width/height
 - **Themed** - Uses system colors (`currentColor`, Tailwind classes)
 - **TypeScript** - Full type definitions
+- **Multi-series** - LineChart, BarChart, AreaChart, RadarChart support multiple data series with interactive legends
+- **Custom Formatting** - `formatValue` callback for custom tooltip and axis label formatting
+- **Interactive Legend** - Click legend items to show/hide series dynamically
+- **Reference Lines** - LineChart supports horizontal reference lines with labels
+- **Color Zones** - GaugeChart supports color zones for visual zones
+- **Custom Center** - PieChart/DonutChart supports custom center content via `renderCenter`
 
 ## Available Charts
 
-| Component    | Description                                         |
-| ------------ | --------------------------------------------------- |
-| `LineChart`  | Line chart with dots, grid, labels, curved/straight |
-| `BarChart`   | Vertical or horizontal bar chart                    |
-| `PieChart`   | Pie or donut chart with legend                      |
-| `AreaChart`  | Area chart, supports multiple series and stacking   |
-| `Sparkline`  | Minimal inline chart for dashboards                 |
-| `RadarChart` | Radar/spider chart for multi-dimensional comparison |
-| `GaugeChart` | Gauge with needle for metrics/KPIs                  |
+| Component    | Description                                                                                           |
+| ------------ | ----------------------------------------------------------------------------------------------------- |
+| `LineChart`  | Line chart with dots, grid, labels, curved/straight. Multi-series, reference lines, custom formatting |
+| `BarChart`   | Vertical or horizontal bar chart. Multi-series support (grouped & stacked)                            |
+| `PieChart`   | Pie or donut chart with legend. Custom center content via `renderCenter`                              |
+| `AreaChart`  | Area chart, supports multiple series and stacking                                                     |
+| `Sparkline`  | Minimal inline chart for dashboards                                                                   |
+| `RadarChart` | Radar/spider chart for multi-dimensional comparison                                                   |
+| `GaugeChart` | Gauge with needle for metrics/KPIs. Color zones support                                               |
 
 ## Installation
 
@@ -53,20 +59,25 @@ const data = [
 
 ### LineChart Props
 
-| Prop         | Type                   | Default        | Description                    |
-| ------------ | ---------------------- | -------------- | ------------------------------ |
-| `data`       | `LineChartDataPoint[]` | required       | Array of `{ label, value }`    |
-| `width`      | `number`               | `400`          | Chart width in pixels          |
-| `height`     | `number`               | `200`          | Chart height in pixels         |
-| `color`      | `string`               | `currentColor` | Line color                     |
-| `fillColor`  | `string`               | -              | Area fill color                |
-| `showDots`   | `boolean`              | `true`         | Show data points               |
-| `showGrid`   | `boolean`              | `true`         | Show grid lines                |
-| `showLabels` | `boolean`              | `true`         | Show X-axis labels             |
-| `showValues` | `boolean`              | `false`        | Show values above dots         |
-| `curved`     | `boolean`              | `true`         | Use curved lines (Catmull-Rom) |
-| `animated`   | `boolean`              | `true`         | Enable animations              |
-| `className`  | `string`               | -              | Additional CSS classes         |
+| Prop             | Type                          | Default        | Description                                        |
+| ---------------- | ----------------------------- | -------------- | -------------------------------------------------- |
+| `data`           | `LineChartDataPoint[]`        | optional       | Array of `{ label, value }` (simple single series) |
+| `series`         | `LineChartSeries[]`           | optional       | Multi-series data (overrides `data`)               |
+| `width`          | `number`                      | `400`          | Chart width in pixels                              |
+| `height`         | `number`                      | `200`          | Chart height in pixels                             |
+| `color`          | `string`                      | `currentColor` | Line color (used when no series)                   |
+| `fillColor`      | `string`                      | -              | Area fill color                                    |
+| `showDots`       | `boolean`                     | `true`         | Show data points                                   |
+| `showGrid`       | `boolean`                     | `true`         | Show grid lines                                    |
+| `showLabels`     | `boolean`                     | `true`         | Show X-axis labels                                 |
+| `showValues`     | `boolean`                     | `false`        | Show values above dots                             |
+| `showLegend`     | `boolean`                     | `false`        | Show legend (auto-enabled for multi-series)        |
+| `curved`         | `boolean`                     | `true`         | Use curved lines (Catmull-Rom)                     |
+| `formatValue`    | `(value: number) => string`   | -              | Custom formatter for tooltip/axis values           |
+| `labelClassName` | `string`                      | -              | Custom CSS class for axis labels                   |
+| `referenceLines` | `{ value, label?, color? }[]` | -              | Horizontal reference lines                         |
+| `animated`       | `boolean`                     | `true`         | Enable animations                                  |
+| `className`      | `string`                      | -              | Additional CSS classes                             |
 
 ## BarChart
 
@@ -89,19 +100,24 @@ const data = [
 
 ### BarChart Props
 
-| Prop         | Type                  | Default        | Description                         |
-| ------------ | --------------------- | -------------- | ----------------------------------- |
-| `data`       | `BarChartDataPoint[]` | required       | Array of `{ label, value, color? }` |
-| `width`      | `number`              | `400`          | Chart width in pixels               |
-| `height`     | `number`              | `200`          | Chart height in pixels              |
-| `color`      | `string`              | `currentColor` | Default bar color                   |
-| `horizontal` | `boolean`             | `false`        | Horizontal bars                     |
-| `showGrid`   | `boolean`             | `true`         | Show grid lines                     |
-| `showLabels` | `boolean`             | `true`         | Show axis labels                    |
-| `showValues` | `boolean`             | `true`         | Show values on bars                 |
-| `barRadius`  | `number`              | `4`            | Border radius of bars               |
-| `barGap`     | `number`              | `0.3`          | Gap between bars (0-1)              |
-| `animated`   | `boolean`             | `true`         | Enable animations                   |
+| Prop             | Type                        | Default        | Description                                         |
+| ---------------- | --------------------------- | -------------- | --------------------------------------------------- |
+| `data`           | `BarChartDataPoint[]`       | optional       | Array of `{ label, value, color? }` (simple series) |
+| `series`         | `BarChartSeries[]`          | optional       | Multi-series data (overrides `data`)                |
+| `width`          | `number`                    | `400`          | Chart width in pixels                               |
+| `height`         | `number`                    | `200`          | Chart height in pixels                              |
+| `color`          | `string`                    | `currentColor` | Default bar color                                   |
+| `horizontal`     | `boolean`                   | `false`        | Horizontal bars                                     |
+| `showGrid`       | `boolean`                   | `true`         | Show grid lines                                     |
+| `showLabels`     | `boolean`                   | `true`         | Show axis labels                                    |
+| `showValues`     | `boolean`                   | `true`         | Show values on bars                                 |
+| `showLegend`     | `boolean`                   | `false`        | Show legend (auto-enabled for multi-series)         |
+| `stacked`        | `boolean`                   | `false`        | Stack bars (for multi-series)                       |
+| `barRadius`      | `number`                    | `4`            | Border radius of bars                               |
+| `barGap`         | `number`                    | `0.3`          | Gap between bars (0-1)                              |
+| `formatValue`    | `(value: number) => string` | -              | Custom formatter for values                         |
+| `labelClassName` | `string`                    | -              | Custom CSS class for axis labels                    |
+| `animated`       | `boolean`                   | `true`         | Enable animations                                   |
 
 ## PieChart
 
@@ -123,17 +139,20 @@ const data = [
 
 ### PieChart Props
 
-| Prop             | Type                  | Default  | Description                        |
-| ---------------- | --------------------- | -------- | ---------------------------------- |
-| `data`           | `PieChartDataPoint[]` | required | Array of `{ label, value, color }` |
-| `size`           | `number`              | `200`    | Chart size in pixels               |
-| `donut`          | `boolean`             | `false`  | Render as donut chart              |
-| `donutWidth`     | `number`              | `40`     | Width of donut ring                |
-| `showLabels`     | `boolean`             | `true`   | Show labels around chart           |
-| `showLegend`     | `boolean`             | `true`   | Show legend                        |
-| `showPercentage` | `boolean`             | `true`   | Show percentages                   |
-| `startAngle`     | `number`              | `-90`    | Starting angle in degrees          |
-| `animated`       | `boolean`             | `true`   | Enable animations                  |
+| Prop             | Type                             | Default  | Description                        |
+| ---------------- | -------------------------------- | -------- | ---------------------------------- |
+| `data`           | `PieChartDataPoint[]`            | required | Array of `{ label, value, color }` |
+| `size`           | `number`                         | `200`    | Chart size in pixels               |
+| `donut`          | `boolean`                        | `false`  | Render as donut chart              |
+| `donutWidth`     | `number`                         | `40`     | Width of donut ring                |
+| `showLabels`     | `boolean`                        | `true`   | Show labels around chart           |
+| `showLegend`     | `boolean`                        | `true`   | Show legend                        |
+| `showPercentage` | `boolean`                        | `true`   | Show percentages                   |
+| `formatValue`    | `(value: number) => string`      | -        | Custom formatter for values        |
+| `labelClassName` | `string`                         | -        | Custom CSS class for labels        |
+| `renderCenter`   | `({ total }) => React.ReactNode` | -        | Custom center content (donut only) |
+| `startAngle`     | `number`                         | `-90`    | Starting angle in degrees          |
+| `animated`       | `boolean`                        | `true`   | Enable animations                  |
 
 ## AreaChart
 
@@ -166,18 +185,20 @@ const series = [
 
 ### AreaChart Props
 
-| Prop         | Type                | Default  | Description                            |
-| ------------ | ------------------- | -------- | -------------------------------------- |
-| `series`     | `AreaChartSeries[]` | required | Array of series with name, color, data |
-| `width`      | `number`            | `400`    | Chart width in pixels                  |
-| `height`     | `number`            | `200`    | Chart height in pixels                 |
-| `showDots`   | `boolean`           | `true`   | Show data points                       |
-| `showGrid`   | `boolean`           | `true`   | Show grid lines                        |
-| `showLabels` | `boolean`           | `true`   | Show X-axis labels                     |
-| `showLegend` | `boolean`           | `true`   | Show legend                            |
-| `stacked`    | `boolean`           | `false`  | Stack areas                            |
-| `curved`     | `boolean`           | `true`   | Use curved lines                       |
-| `animated`   | `boolean`           | `true`   | Enable animations                      |
+| Prop             | Type                        | Default  | Description                            |
+| ---------------- | --------------------------- | -------- | -------------------------------------- |
+| `series`         | `AreaChartSeries[]`         | required | Array of series with name, color, data |
+| `width`          | `number`                    | `400`    | Chart width in pixels                  |
+| `height`         | `number`                    | `200`    | Chart height in pixels                 |
+| `showDots`       | `boolean`                   | `true`   | Show data points                       |
+| `showGrid`       | `boolean`                   | `true`   | Show grid lines                        |
+| `showLabels`     | `boolean`                   | `true`   | Show X-axis labels                     |
+| `showLegend`     | `boolean`                   | `true`   | Show legend                            |
+| `stacked`        | `boolean`                   | `false`  | Stack areas                            |
+| `curved`         | `boolean`                   | `true`   | Use curved lines                       |
+| `formatValue`    | `(value: number) => string` | -        | Custom formatter for values            |
+| `labelClassName` | `string`                    | -        | Custom CSS class for axis labels       |
+| `animated`       | `boolean`                   | `true`   | Enable animations                      |
 
 ## RadarChart
 
@@ -203,15 +224,17 @@ const series = [
 
 ### RadarChart Props
 
-| Prop         | Type                 | Default  | Description                            |
-| ------------ | -------------------- | -------- | -------------------------------------- |
-| `series`     | `RadarChartSeries[]` | required | Array of series with name, color, data |
-| `size`       | `number`             | `300`    | Chart size in pixels                   |
-| `levels`     | `number`             | `5`      | Number of concentric levels            |
-| `showLabels` | `boolean`            | `true`   | Show axis labels                       |
-| `showLegend` | `boolean`            | `true`   | Show legend                            |
-| `showValues` | `boolean`            | `false`  | Show values at data points             |
-| `animated`   | `boolean`            | `true`   | Enable animations                      |
+| Prop             | Type                        | Default  | Description                            |
+| ---------------- | --------------------------- | -------- | -------------------------------------- |
+| `series`         | `RadarChartSeries[]`        | required | Array of series with name, color, data |
+| `size`           | `number`                    | `300`    | Chart size in pixels                   |
+| `levels`         | `number`                    | `5`      | Number of concentric levels            |
+| `showLabels`     | `boolean`                   | `true`   | Show axis labels                       |
+| `showLegend`     | `boolean`                   | `true`   | Show legend                            |
+| `showValues`     | `boolean`                   | `false`  | Show values at data points             |
+| `formatValue`    | `(value: number) => string` | -        | Custom formatter for values            |
+| `labelClassName` | `string`                    | -        | Custom CSS class for axis labels       |
+| `animated`       | `boolean`                   | `true`   | Enable animations                      |
 
 ## GaugeChart
 
@@ -223,21 +246,24 @@ import { GaugeChart } from "@underverse-ui/underverse";
 
 ### GaugeChart Props
 
-| Prop              | Type      | Default        | Description               |
-| ----------------- | --------- | -------------- | ------------------------- |
-| `value`           | `number`  | required       | Current value             |
-| `min`             | `number`  | `0`            | Minimum value             |
-| `max`             | `number`  | `100`          | Maximum value             |
-| `size`            | `number`  | `200`          | Chart size in pixels      |
-| `thickness`       | `number`  | `20`           | Arc thickness             |
-| `color`           | `string`  | `currentColor` | Arc color                 |
-| `backgroundColor` | `string`  | -              | Background arc color      |
-| `showValue`       | `boolean` | `true`         | Show value in center      |
-| `showMinMax`      | `boolean` | `true`         | Show min/max labels       |
-| `label`           | `string`  | -              | Label text below value    |
-| `startAngle`      | `number`  | `-135`         | Starting angle in degrees |
-| `endAngle`        | `number`  | `135`          | Ending angle in degrees   |
-| `animated`        | `boolean` | `true`         | Enable animations         |
+| Prop              | Type                        | Default        | Description                       |
+| ----------------- | --------------------------- | -------------- | --------------------------------- |
+| `value`           | `number`                    | required       | Current value                     |
+| `min`             | `number`                    | `0`            | Minimum value                     |
+| `max`             | `number`                    | `100`          | Maximum value                     |
+| `size`            | `number`                    | `200`          | Chart size in pixels              |
+| `thickness`       | `number`                    | `20`           | Arc thickness                     |
+| `color`           | `string`                    | `currentColor` | Arc color                         |
+| `backgroundColor` | `string`                    | -              | Background arc color              |
+| `showValue`       | `boolean`                   | `true`         | Show value in center              |
+| `showMinMax`      | `boolean`                   | `true`         | Show min/max labels               |
+| `label`           | `string`                    | -              | Label text below value            |
+| `formatValue`     | `(value: number) => string` | -              | Custom formatter for center value |
+| `labelClassName`  | `string`                    | -              | Custom CSS class for label text   |
+| `zones`           | `{ min, max, color }[]`     | -              | Color zone arcs on background     |
+| `startAngle`      | `number`                    | `-135`         | Starting angle in degrees         |
+| `endAngle`        | `number`                    | `135`          | Ending angle in degrees           |
+| `animated`        | `boolean`                   | `true`         | Enable animations                 |
 
 ## Sparkline
 

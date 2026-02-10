@@ -21,6 +21,8 @@ export interface DateTimePickerProps {
   format?: "12" | "24";
   includeSeconds?: boolean;
   label?: string;
+  /** Custom class for label */
+  labelClassName?: string;
   required?: boolean;
   /** Label for the "Done" button */
   doneLabel?: string;
@@ -41,6 +43,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   format = "24",
   includeSeconds = false,
   label,
+  labelClassName,
   required,
   doneLabel,
   clearLabel,
@@ -215,7 +218,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   return (
     <div className={cn("space-y-1.5", className)}>
       {label && (
-        <label className={cn(sizeStyles[size].label, "font-medium text-foreground flex items-center gap-1")}>
+        <label className={cn(sizeStyles[size].label, "font-medium text-foreground flex items-center gap-1", labelClassName)}>
           {label} {required && <span className="text-destructive">*</span>}
         </label>
       )}

@@ -36,6 +36,8 @@ export interface BarChartProps {
   barGap?: number;
   /** Custom value formatter */
   formatValue?: (value: number) => string;
+  /** Custom class for axis labels */
+  labelClassName?: string;
   className?: string;
 }
 
@@ -55,6 +57,7 @@ export function BarChart({
   barRadius = 4,
   barGap = 0.3,
   formatValue,
+  labelClassName,
   className = "",
 }: BarChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -209,14 +212,28 @@ export function BarChart({
                 {horizontal ? (
                   <>
                     <line x1={line.x} y1={line.y1} x2={line.x} y2={line.y2} stroke="currentColor" strokeDasharray="4 4" />
-                    <text x={line.x} y={height - 8} textAnchor="middle" fontSize="10" className="text-muted-foreground" fill="currentColor">
+                    <text
+                      x={line.x}
+                      y={height - 8}
+                      textAnchor="middle"
+                      fontSize="10"
+                      className={labelClassName || "text-muted-foreground"}
+                      fill="currentColor"
+                    >
                       {formatValue ? formatValue(line.value) : line.value.toFixed(0)}
                     </text>
                   </>
                 ) : (
                   <>
                     <line x1={line.x1} y1={line.y} x2={line.x2} y2={line.y} stroke="currentColor" strokeDasharray="4 4" />
-                    <text x={padding.left - 8} y={line.y! + 4} textAnchor="end" fontSize="10" className="text-muted-foreground" fill="currentColor">
+                    <text
+                      x={padding.left - 8}
+                      y={line.y! + 4}
+                      textAnchor="end"
+                      fontSize="10"
+                      className={labelClassName || "text-muted-foreground"}
+                      fill="currentColor"
+                    >
                       {formatValue ? formatValue(line.value) : line.value.toFixed(0)}
                     </text>
                   </>
@@ -306,7 +323,7 @@ export function BarChart({
                 y={horizontal ? padding.top + (gi + 0.5) * (chartHeight / barGroups.length) + 4 : height - 10}
                 textAnchor={horizontal ? "end" : "middle"}
                 fontSize="10"
-                className="text-muted-foreground"
+                className={labelClassName || "text-muted-foreground"}
                 fill="currentColor"
               >
                 {group.label}

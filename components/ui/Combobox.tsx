@@ -25,6 +25,8 @@ export interface ComboboxProps {
   emptyText?: string;
   usePortal?: boolean;
   label?: string;
+  /** Custom class for label */
+  labelClassName?: string;
   required?: boolean;
   fontBold?: boolean;
   loading?: boolean;
@@ -80,6 +82,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   allowClear = false,
   usePortal = true,
   label,
+  labelClassName,
   required,
   fontBold = false,
   loading = false,
@@ -504,6 +507,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
               labelSize,
               "font-medium transition-colors duration-200",
               disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary",
+              labelClassName,
             )}
           >
             {label}

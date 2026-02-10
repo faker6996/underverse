@@ -32,6 +32,8 @@ export interface MultiComboboxProps {
   size?: "sm" | "md" | "lg";
   variant?: "default" | "outline" | "ghost";
   label?: string;
+  /** Custom class for label */
+  labelClassName?: string;
   title?: string;
   required?: boolean;
   displayFormat?: (option: MultiComboboxOption) => string;
@@ -78,6 +80,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   size = "md",
   variant = "default",
   label,
+  labelClassName,
   title,
   required,
   displayFormat = (option) => option.label,
@@ -518,6 +521,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
               size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
               "font-medium transition-colors duration-200",
               disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary",
+              labelClassName,
             )}
           >
             {title}
@@ -535,6 +539,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
             labelSize,
             "font-medium transition-colors duration-200",
             disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary",
+            labelClassName,
           )}
         >
           {label}

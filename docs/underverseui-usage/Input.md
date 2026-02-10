@@ -56,6 +56,7 @@ export function Example() {
 ```ts
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
   label?: string;
+  labelClassName?: string;
   error?: string;
   description?: string;
   variant?: "default" | "filled" | "outlined" | "minimal";

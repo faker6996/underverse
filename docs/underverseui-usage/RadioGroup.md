@@ -101,6 +101,7 @@ interface RadioGroupItemProps {
   className?: string;
   children?: React.ReactNode;
   label?: string;
+  labelClassName?: string;
   description?: string;
   icon?: React.ComponentType<{ className?: string }>;
 }

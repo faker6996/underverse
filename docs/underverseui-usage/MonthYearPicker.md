@@ -141,6 +141,8 @@ export interface MonthYearPickerProps extends Omit<React.HTMLAttributes<HTMLDivE
   size?: "sm" | "md" | "lg";
   /** Label text */
   label?: string;
+  /** Custom class for label */
+  labelClassName?: string;
   /** Required field */
   required?: boolean;
   /** Show clear button */

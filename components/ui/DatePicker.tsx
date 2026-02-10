@@ -18,6 +18,8 @@ export interface DatePickerProps {
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
   label?: string;
+  /** Custom class for label */
+  labelClassName?: string;
   required?: boolean;
   todayLabel?: string;
   clearLabel?: string;
@@ -39,6 +41,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   disabled = false,
   size = "md",
   label,
+  labelClassName,
   required,
   todayLabel,
   clearLabel,
@@ -511,6 +514,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               labelSize,
               "font-semibold transition-colors duration-300 cursor-pointer",
               disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary hover:text-primary",
+              labelClassName,
             )}
           >
             {label}

@@ -3,6 +3,7 @@
 Source: `components/ui/TagInput.tsx`
 
 Exports:
+
 - TagInput
 - TagInputBase
 
@@ -29,15 +30,7 @@ import { TagInput } from "@underverse-ui/underverse";
 export function Example() {
   const [value, setValue] = React.useState("");
 
-  return (
-    <TagInput
-      value={value}
-      onChange={setValue}
-      onSearch={"Gia tri"}
-      label={"Nhan"}
-      placeholder={"Nhap..."}
-     />
-  );
+  return <TagInput value={value} onChange={setValue} onSearch={"Gia tri"} label={"Nhan"} placeholder={"Nhap..."} />;
 }
 ```
 
@@ -63,6 +56,9 @@ export interface TagInputProps {
 
   /** Label hiển thị phía trên input */
   label?: string;
+
+  /** Custom class for label */
+  labelClassName?: string;
 
   /** Ẩn nút Search */
   hideSearchButton?: boolean;
@@ -120,15 +116,7 @@ import { TagInputBase } from "@underverse-ui/underverse";
 export function Example() {
   const [value, setValue] = React.useState("");
 
-  return (
-    <TagInputBase
-      value={value}
-      onChange={setValue}
-      onSearch={"Gia tri"}
-      label={"Nhan"}
-      placeholder={"Nhap..."}
-     />
-  );
+  return <TagInputBase value={value} onChange={setValue} onSearch={"Gia tri"} label={"Nhan"} placeholder={"Nhap..."} />;
 }
 ```
 
@@ -154,6 +142,9 @@ export interface TagInputProps {
 
   /** Label hiển thị phía trên input */
   label?: string;
+
+  /** Custom class for label */
+  labelClassName?: string;
 
   /** Ẩn nút Search */
   hideSearchButton?: boolean;

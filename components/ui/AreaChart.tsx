@@ -31,6 +31,8 @@ export interface AreaChartProps {
   formatValue?: (value: number) => string;
   /** Text shown when data is empty */
   emptyText?: string;
+  /** Custom class for axis labels */
+  labelClassName?: string;
   className?: string;
 }
 
@@ -47,6 +49,7 @@ export function AreaChart({
   curved = true,
   formatValue,
   emptyText = "No data",
+  labelClassName,
   className = "",
 }: AreaChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -176,7 +179,14 @@ export function AreaChart({
             {gridLines.map((line, i) => (
               <g key={i}>
                 <line x1={padding.left} y1={line.y} x2={width - padding.right} y2={line.y} stroke="currentColor" strokeDasharray="4 4" />
-                <text x={padding.left - 8} y={line.y + 4} textAnchor="end" fontSize="10" className="text-muted-foreground" fill="currentColor">
+                <text
+                  x={padding.left - 8}
+                  y={line.y + 4}
+                  textAnchor="end"
+                  fontSize="10"
+                  className={labelClassName || "text-muted-foreground"}
+                  fill="currentColor"
+                >
                   {formatValue ? formatValue(line.value) : line.value.toFixed(0)}
                 </text>
               </g>
@@ -279,7 +289,7 @@ export function AreaChart({
 
         {/* X-axis labels */}
         {showLabels && (
-          <g className="text-muted-foreground">
+          <g className={labelClassName || "text-muted-foreground"}>
             {labels.map((label, i) => {
               const x = padding.left + (i / (labels.length - 1)) * chartWidth;
               return (

@@ -23,6 +23,8 @@ export interface PieChartProps {
   renderCenter?: (total: number) => React.ReactNode;
   /** Custom value formatter */
   formatValue?: (value: number) => string;
+  /** Custom class for labels */
+  labelClassName?: string;
   className?: string;
 }
 
@@ -38,6 +40,7 @@ export function PieChart({
   startAngle = -90,
   renderCenter,
   formatValue,
+  labelClassName,
   className = "",
 }: PieChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -157,7 +160,7 @@ export function PieChart({
                   y={seg.labelY}
                   textAnchor={seg.labelX > center ? "start" : "end"}
                   fontSize="10"
-                  className="text-foreground"
+                  className={labelClassName || "text-foreground"}
                   fill="currentColor"
                   style={animated ? { opacity: 0, animation: `fadeIn 0.3s ease-out ${i * 0.1 + 0.3}s forwards` } : undefined}
                 >

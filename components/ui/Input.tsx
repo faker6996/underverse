@@ -8,6 +8,8 @@ import { Eye, EyeOff, Search, X, AlertCircle, CheckCircle, Loader2 } from "lucid
 
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
   label?: string;
+  /** Custom class for label */
+  labelClassName?: string;
   error?: string;
   description?: string;
   variant?: "default" | "filled" | "outlined" | "minimal";
@@ -27,6 +29,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
       label,
+      labelClassName,
       error,
       description,
       className,
@@ -186,6 +189,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 // default color and highlight while any descendant focused
                 disabled ? "text-muted-foreground" : cn("text-foreground group-focus-within:text-primary", success && "text-primary"),
                 errMsg && "text-destructive",
+                labelClassName,
               )}
             >
               {label}
@@ -607,6 +611,8 @@ NumberInput.displayName = "NumberInput";
 // Textarea - multi-line text input
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
+  /** Custom class for label */
+  labelClassName?: string;
   error?: string;
   description?: string;
   variant?: "default" | "filled" | "outlined" | "minimal";
@@ -616,7 +622,7 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
-    { label, error, description, variant = "default", resize = "vertical", counter = false, className, required, value, maxLength, ...props },
+  ({ label, labelClassName, error, description, variant = "default", resize = "vertical", counter = false, className, required, value, maxLength, ...props },
     ref,
   ) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -650,6 +656,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                 "text-sm font-medium transition-colors duration-200",
                 isFocused ? "text-primary" : "text-foreground",
                 error && "text-destructive",
+                labelClassName,
               )}
             >
               {label}
