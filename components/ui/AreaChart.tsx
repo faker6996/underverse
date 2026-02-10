@@ -50,6 +50,7 @@ export function AreaChart({
   className = "",
 }: AreaChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const clipId = useRef(`area-clip-${Math.random().toString(36).slice(2, 8)}`).current;
   const padding = { top: 20, right: 20, bottom: 40, left: 50 };
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
@@ -162,6 +163,13 @@ export function AreaChart({
   return (
     <div ref={containerRef} className={`relative flex flex-col gap-4 ${className}`}>
       <svg width={width} height={height} className="overflow-visible" style={{ fontFamily: "inherit" }}>
+        {/* Clip path to prevent spline overshoot below baseline */}
+        <defs>
+          <clipPath id={clipId}>
+            <rect x={padding.left} y={padding.top} width={chartWidth} height={chartHeight} />
+          </clipPath>
+        </defs>
+
         {/* Grid */}
         {showGrid && (
           <g className="text-muted-foreground/20">
@@ -176,48 +184,52 @@ export function AreaChart({
           </g>
         )}
 
-        {/* Areas (render in reverse order for proper stacking) */}
-        {[...processedSeries].reverse().map((s, i) => (
-          <path
-            key={`area-${i}`}
-            d={s.areaPath}
-            fill={s.color}
-            fillOpacity={hiddenSeries.has(s.name) ? 0 : (s.fillOpacity ?? 0.3)}
-            className="transition-all duration-300"
-            style={
-              animated
-                ? {
-                    opacity: 0,
-                    animation: `fadeIn 0.5s ease-out ${i * 0.1}s forwards`,
-                  }
-                : undefined
-            }
-          />
-        ))}
+        {/* Areas (render in reverse order for proper stacking) — clipped to chart bounds */}
+        <g clipPath={`url(#${clipId})`}>
+          {[...processedSeries].reverse().map((s, i) => (
+            <path
+              key={`area-${i}`}
+              d={s.areaPath}
+              fill={s.color}
+              fillOpacity={hiddenSeries.has(s.name) ? 0 : (s.fillOpacity ?? 0.3)}
+              className="transition-all duration-300"
+              style={
+                animated
+                  ? {
+                      opacity: 0,
+                      animation: `fadeIn 0.5s ease-out ${i * 0.1}s forwards`,
+                    }
+                  : undefined
+              }
+            />
+          ))}
+        </g>
 
-        {/* Lines */}
-        {processedSeries.map((s, i) => (
-          <path
-            key={`line-${i}`}
-            d={s.linePath}
-            fill="none"
-            stroke={s.color}
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="transition-opacity duration-300"
-            opacity={hiddenSeries.has(s.name) ? 0 : 1}
-            style={
-              animated
-                ? {
-                    strokeDasharray: s.lineLength,
-                    strokeDashoffset: s.lineLength,
-                    animation: `drawLine 1s ease-out ${i * 0.1}s forwards`,
-                  }
-                : undefined
-            }
-          />
-        ))}
+        {/* Lines — clipped to chart bounds */}
+        <g clipPath={`url(#${clipId})`}>
+          {processedSeries.map((s, i) => (
+            <path
+              key={`line-${i}`}
+              d={s.linePath}
+              fill="none"
+              stroke={s.color}
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-opacity duration-300"
+              opacity={hiddenSeries.has(s.name) ? 0 : 1}
+              style={
+                animated
+                  ? {
+                      strokeDasharray: s.lineLength,
+                      strokeDashoffset: s.lineLength,
+                      animation: `drawLine 1s ease-out ${i * 0.1}s forwards`,
+                    }
+                  : undefined
+              }
+            />
+          ))}
+        </g>
 
         {/* Dots */}
         {showDots &&

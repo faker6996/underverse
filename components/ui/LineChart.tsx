@@ -59,6 +59,7 @@ export function LineChart({
   className = "",
 }: LineChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const clipId = useRef(`line-clip-${Math.random().toString(36).slice(2, 8)}`).current;
   const padding = { top: 20, right: 20, bottom: 40, left: 40 };
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
@@ -144,6 +145,13 @@ export function LineChart({
   return (
     <>
       <svg ref={svgRef} width={width} height={height} className={`overflow-visible ${className}`} style={{ fontFamily: "inherit" }}>
+        {/* Clip path to prevent spline overshoot */}
+        <defs>
+          <clipPath id={clipId}>
+            <rect x={padding.left} y={padding.top} width={chartWidth} height={chartHeight} />
+          </clipPath>
+        </defs>
+
         {/* Grid */}
         {showGrid && (
           <g className="text-muted-foreground/20">
@@ -158,45 +166,47 @@ export function LineChart({
           </g>
         )}
 
-        {/* Area fills */}
-        {processedSeries.map(
-          (s, si) =>
-            s.fillColor &&
-            s.areaPath && (
-              <path
-                key={`area-${si}`}
-                d={s.areaPath}
-                fill={s.fillColor}
-                className="transition-opacity duration-300"
-                opacity={hiddenSeries.has(s.name) ? 0 : 0.15}
-                style={animated ? { opacity: 0, animation: `fadeIn 0.6s ease-out ${si * 0.1}s forwards` } : undefined}
-              />
-            ),
-        )}
+        {/* Area fills + Lines — clipped to chart bounds to prevent spline overshoot */}
+        <g clipPath={`url(#${clipId})`}>
+          {processedSeries.map(
+            (s, si) =>
+              s.fillColor &&
+              s.areaPath && (
+                <path
+                  key={`area-${si}`}
+                  d={s.areaPath}
+                  fill={s.fillColor}
+                  className="transition-opacity duration-300"
+                  opacity={hiddenSeries.has(s.name) ? 0 : 0.15}
+                  style={animated ? { opacity: 0, animation: `fadeIn 0.6s ease-out ${si * 0.1}s forwards` } : undefined}
+                />
+              ),
+          )}
 
-        {/* Lines */}
-        {processedSeries.map((s, si) => (
-          <path
-            key={`line-${si}`}
-            d={s.linePath}
-            fill="none"
-            stroke={s.color}
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="transition-opacity duration-300"
-            opacity={hiddenSeries.has(s.name) ? 0 : 1}
-            style={
-              animated
-                ? {
-                    strokeDasharray: s.lineLength,
-                    strokeDashoffset: s.lineLength,
-                    animation: `drawLine 1s ease-out ${si * 0.15}s forwards`,
-                  }
-                : undefined
-            }
-          />
-        ))}
+          {/* Lines */}
+          {processedSeries.map((s, si) => (
+            <path
+              key={`line-${si}`}
+              d={s.linePath}
+              fill="none"
+              stroke={s.color}
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-opacity duration-300"
+              opacity={hiddenSeries.has(s.name) ? 0 : 1}
+              style={
+                animated
+                  ? {
+                      strokeDasharray: s.lineLength,
+                      strokeDashoffset: s.lineLength,
+                      animation: `drawLine 1s ease-out ${si * 0.15}s forwards`,
+                    }
+                  : undefined
+              }
+            />
+          ))}
+        </g>
 
         {/* Dots */}
         {showDots &&
