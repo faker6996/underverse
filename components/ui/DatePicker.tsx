@@ -108,7 +108,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       footerMargin: "mt-3 pt-2 gap-1.5",
     },
     md: {
-      trigger: "px-3 py-2.5 text-sm h-11",
+      trigger: "px-3 py-2.5 text-sm h-10",
       dayCell: "w-8 h-8 text-sm",
       monthCell: "w-8 h-8 text-sm",
       navButton: "p-2",
@@ -125,7 +125,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       footerMargin: "mt-4 pt-3 gap-2",
     },
     lg: {
-      trigger: "px-4 py-3 text-base h-14",
+      trigger: "px-4 py-3 text-base h-12",
       dayCell: "w-10 h-10 text-base",
       monthCell: "w-10 h-10 text-base",
       navButton: "p-2.5",
@@ -660,7 +660,7 @@ export const DateRangePicker: React.FC<{
       footerMargin: "mt-3 pt-2 gap-1.5",
     },
     md: {
-      trigger: "px-3 py-2.5 text-sm h-11",
+      trigger: "px-3 py-2.5 text-sm h-10",
       dayCell: "w-8 h-8 text-sm",
       monthCell: "w-8 h-8 text-sm",
       navButton: "p-2",
@@ -677,7 +677,7 @@ export const DateRangePicker: React.FC<{
       footerMargin: "mt-4 pt-3 gap-2",
     },
     lg: {
-      trigger: "px-4 py-3 text-base h-14",
+      trigger: "px-4 py-3 text-base h-12",
       dayCell: "w-10 h-10 text-base",
       monthCell: "w-10 h-10 text-base",
       navButton: "p-2.5",
