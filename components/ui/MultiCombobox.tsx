@@ -426,7 +426,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         !!error && "border-destructive focus-visible:ring-destructive/30",
       )}
     >
-      <div className={cn("flex items-center gap-1.5 flex-wrap flex-1", size === "sm" ? "min-h-4" : size === "lg" ? "min-h-8" : "min-h-6")}>
+      <div className={cn("flex items-center gap-1.5 flex-1 overflow-hidden", size === "sm" ? "min-h-4" : size === "lg" ? "min-h-8" : "min-h-6")}>
         {value.length > 0 ? (
           showTags ? (
             <>
@@ -438,7 +438,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
                   <span
                     key={option.value}
                     className={cn(
-                      "inline-flex items-center gap-1.5 bg-primary/10 text-primary rounded-full transition-all duration-200",
+                      "inline-flex items-center gap-1.5 bg-primary/10 text-primary rounded-full transition-all duration-200 shrink-0",
                       "hover:bg-primary/20",
                       sizeStyles[size].tag,
                     )}
@@ -469,7 +469,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
                 );
               })}
               {hiddenCount > 0 && (
-                <span className={cn("inline-flex items-center bg-muted text-muted-foreground rounded-lg", sizeStyles[size].tag)}>
+                <span className={cn("inline-flex items-center bg-muted text-muted-foreground rounded-lg shrink-0", sizeStyles[size].tag)}>
                   +{hiddenCount} more
                 </span>
               )}
