@@ -115,7 +115,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
   // Filter options based on query (only when search enabled)
   const filteredOptions = React.useMemo(
-    () => (enableSearch ? options.filter((o) => getOptionLabel(o).toLowerCase().includes(query.toLowerCase())) : options),
+    () => (enableSearch ? options.filter((o) => getOptionLabel(o).toLowerCase().includes(query.trim().toLowerCase())) : options),
     [options, query, enableSearch],
   );
 

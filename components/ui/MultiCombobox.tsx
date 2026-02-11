@@ -125,7 +125,8 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
     () =>
       enableSearch
         ? normalizedOptions.filter(
-            (opt) => opt.label.toLowerCase().includes(query.toLowerCase()) || opt.description?.toLowerCase().includes(query.toLowerCase()),
+            (opt) =>
+              opt.label.toLowerCase().includes(query.trim().toLowerCase()) || opt.description?.toLowerCase().includes(query.trim().toLowerCase()),
           )
         : normalizedOptions,
     [normalizedOptions, query, enableSearch],
