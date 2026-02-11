@@ -438,7 +438,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
                   <span
                     key={option.value}
                     className={cn(
-                      "inline-flex items-center gap-1.5 bg-primary/10 text-primary rounded-full transition-all duration-200 shrink-0",
+                      "inline-flex items-center gap-1.5 bg-primary/10 text-primary rounded-full transition-all duration-200 min-w-0",
                       "hover:bg-primary/20",
                       sizeStyles[size].tag,
                     )}

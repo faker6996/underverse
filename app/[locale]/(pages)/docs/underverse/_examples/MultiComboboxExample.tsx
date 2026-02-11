@@ -21,6 +21,7 @@ export default function MultiComboboxExample() {
   const [valueGrouped, setValueGrouped] = React.useState<string[]>([]);
   const [valueError, setValueError] = React.useState<string[]>([]);
   const [valueVariant, setValueVariant] = React.useState<string[]>([]);
+  const [valueLongNames, setValueLongNames] = React.useState<string[]>(["user1", "user2", "user3", "user4", "user5"]);
 
   const options = ["React", "Next.js", "Tailwind", "TypeScript", "Node.js"];
   const disabledOptions = ["Next.js"];
@@ -45,6 +46,17 @@ export default function MultiComboboxExample() {
     { value: "postgres", label: "PostgreSQL", icon: <Database className="w-4 h-4" />, group: "Database" },
     { value: "mongodb", label: "MongoDB", icon: <Database className="w-4 h-4" />, group: "Database" },
     { value: "redis", label: "Redis", icon: <Zap className="w-4 h-4" />, group: "Database" },
+  ];
+
+  // Options with long labels (Vietnamese names) to test overflow
+  const longNameOptions = [
+    { value: "user1", label: "Bùi Mạnh Đạt" },
+    { value: "user2", label: "Bùi Thị Thu Thảo" },
+    { value: "user3", label: "Nguyễn Văn An" },
+    { value: "user4", label: "Trần Thị Bích Ngọc" },
+    { value: "user5", label: "Lê Hoàng Phương Anh" },
+    { value: "user6", label: "Phạm Minh Quân" },
+    { value: "user7", label: "Đặng Thị Hồng Nhung" },
   ];
 
   // Advanced options using objects (>10 items) to demonstrate displayFormat + search
@@ -211,10 +223,27 @@ export default function MultiComboboxExample() {
         />
       </div>
 
-      {/* Section 8: Advanced */}
+      {/* Section 8: Long Names Overflow Test */}
       <div className="space-y-3">
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-linear-to-r from-primary to-secondary text-white flex items-center justify-center text-xs">8</span>
+          <span className="w-6 h-6 rounded-full bg-destructive/10 text-destructive flex items-center justify-center text-xs">8</span>
+          Long Names (Overflow Test)
+        </h4>
+        <MultiCombobox
+          options={longNameOptions}
+          value={valueLongNames}
+          onChange={setValueLongNames}
+          maxTagsVisible={2}
+          label="Add Users"
+          placeholder="Select users"
+          helperText="Test with long Vietnamese names and maxTagsVisible=2"
+        />
+      </div>
+
+      {/* Section 9: Advanced */}
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <span className="w-6 h-6 rounded-full bg-linear-to-r from-primary to-secondary text-white flex items-center justify-center text-xs">9</span>
           Advanced (Many Options + Search)
         </h4>
         <MultiCombobox
