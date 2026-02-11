@@ -622,7 +622,20 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
-  ({ label, labelClassName, error, description, variant = "default", resize = "vertical", counter = false, className, required, value, maxLength, ...props },
+    {
+      label,
+      labelClassName,
+      error,
+      description,
+      variant = "default",
+      resize = "vertical",
+      counter = false,
+      className,
+      required,
+      value,
+      maxLength,
+      ...props
+    },
     ref,
   ) => {
     const [isFocused, setIsFocused] = useState(false);
