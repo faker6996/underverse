@@ -92,6 +92,7 @@ interface DataTableProps<T> {
   onQueryChange?: (q: DataTableQuery) => void; // server-side
   caption?: React.ReactNode;
   toolbar?: React.ReactNode;
+  size?: "sm" | "md" | "lg"; // default: "md"
   enableColumnVisibilityToggle?: boolean;
   enableDensityToggle?: boolean;
   enableHeaderAlignToggle?: boolean;
@@ -117,6 +118,24 @@ interface DataTableProps<T> {
     alignRight?: string;
   };
 }
+```
+
+### Size presets
+
+`DataTable` hỗ trợ `size` để đồng bộ kích thước với các component khác:
+
+- `sm` -> UI compact, map density mặc định là `compact`
+- `md` -> mặc định, map density mặc định là `normal`
+- `lg` -> UI lớn hơn, map density mặc định là `comfortable`
+
+Ví dụ:
+
+```tsx
+<DataTable
+  columns={columns}
+  data={data}
+  size="md"
+/>
 ```
 
 ## DataTableColumn

@@ -147,6 +147,7 @@ export default function DataTableExample() {
 <DataTable<Row>
   columns={columns}
   data={rows}
+  size="md" // sm | md | lg
   loading={loading}
   total={total}
   page={page}
@@ -372,7 +373,7 @@ const groupedColumns: DataTableColumn<User>[] = [
                     { property: "rowKey", description: td("props.dataTable.rowKey"), type: "(row: T) => string | number", default: "-" },
                     { property: "loading", description: td("props.dataTable.loading"), type: "boolean", default: "false" },
                     { property: "page", description: td("props.dataTable.page"), type: "number", default: "1" },
-                    { property: "pageSize", description: td("props.dataTable.pageSize"), type: "number", default: "10" },
+                    { property: "pageSize", description: td("props.dataTable.pageSize"), type: "number", default: "20" },
                     { property: "pageSizeOptions", description: td("props.dataTable.pageSizeOptions"), type: "number[]", default: "-" },
                     { property: "total", description: td("props.dataTable.total"), type: "number", default: "0" },
                     {
@@ -383,6 +384,7 @@ const groupedColumns: DataTableColumn<User>[] = [
                     },
                     { property: "caption", description: td("props.dataTable.caption"), type: "React.ReactNode", default: "-" },
                     { property: "toolbar", description: td("props.dataTable.toolbar"), type: "React.ReactNode", default: "-" },
+                    { property: "size", description: td("props.dataTable.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
                     { property: "striped", description: td("props.dataTable.striped"), type: "boolean", default: "true" },
                     { property: "columnDividers", description: td("props.dataTable.columnDividers"), type: "boolean", default: "false" },
                     { property: "enableDensityToggle", description: td("props.dataTable.enableDensityToggle"), type: "boolean", default: "true" },

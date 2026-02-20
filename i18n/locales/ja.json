@@ -1126,6 +1126,7 @@
         "onQueryChange": "サーバー側クエリ変更ハンドラ。",
         "caption": "キャプションノード。",
         "toolbar": "ツールバーノード。",
+        "size": "表示サイズプリセット（sm, md, lg）。既定: md。",
         "striped": "ストライプ行。",
         "columnDividers": "垂直方向の列区切り線を表示。",
         "enableDensityToggle": "密度切替を許可。",

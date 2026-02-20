@@ -1163,6 +1163,7 @@
         "onQueryChange": "Hàm thay đổi truy vấn (server).",
         "caption": "Nội dung caption.",
         "toolbar": "Thanh công cụ.",
+        "size": "Kích thước hiển thị (sm, md, lg). Mặc định: md.",
         "striped": "Hàng kẻ sọc.",
         "columnDividers": "Đường chia cột.",
         "enableDensityToggle": "Bật đổi density.",

@@ -126,7 +126,7 @@ export { default as ClientOnly } from "../../../components/ui/ClientOnly";
 export * from "../../../components/ui/Loading";
 // ThemeToggle depends on app-specific ThemeContext, not exported to keep package neutral
 export { default as DataTable } from "../../../components/ui/DataTable";
-export type { DataTableColumn, DataTableQuery, Sorter } from "../../../components/ui/DataTable";
+export type { DataTableColumn, DataTableDensity, DataTableQuery, DataTableSize, Sorter } from "../../../components/ui/DataTable";
 export * from "../../../components/ui/Table";
 export * from "../../../components/ui/Form";
 export { default as NotificationModal } from "../../../components/ui/NotificationModal";

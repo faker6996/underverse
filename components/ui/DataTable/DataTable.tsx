@@ -17,7 +17,13 @@ import { useStickyColumns } from "./hooks/useStickyColumns";
 import { getColumnWidth } from "./utils/columns";
 import { buildHeaderRows, getLeafColumns, filterVisibleColumns } from "./utils/headers";
 import { validateColumns } from "./utils/validation";
-import type { DataTableColumn, DataTableProps, Sorter } from "./types";
+import type { DataTableColumn, DataTableDensity, DataTableProps, DataTableSize, Sorter } from "./types";
+
+const SIZE_TO_DENSITY: Record<DataTableSize, DataTableDensity> = {
+  sm: "compact",
+  md: "normal",
+  lg: "comfortable",
+};
 
 export function DataTable<T extends Record<string, any>>({
   columns,
@@ -31,6 +37,7 @@ export function DataTable<T extends Record<string, any>>({
   onQueryChange,
   caption,
   toolbar,
+  size = "md",
   enableColumnVisibilityToggle = true,
   enableDensityToggle = true,
   enableHeaderAlignToggle = false,
@@ -47,7 +54,7 @@ export function DataTable<T extends Record<string, any>>({
   const [visibleCols, setVisibleCols] = React.useState<string[]>(() => columns.filter((c) => c.visible !== false).map((c) => c.key));
   const [filters, setFilters] = React.useState<Record<string, any>>({});
   const [sort, setSort] = React.useState<Sorter>(null);
-  const [density, setDensity] = React.useState<"compact" | "normal" | "comfortable">("normal");
+  const [density, setDensity] = React.useState<DataTableDensity>(() => SIZE_TO_DENSITY[size]);
   const [curPage, setCurPage] = React.useState(page);
 
   const { curPageSize, setCurPageSize } = usePageSizeStorage({ pageSize, storageKey });
@@ -74,6 +81,10 @@ export function DataTable<T extends Record<string, any>>({
     setCurPage(page);
   }, [page]);
 
+  React.useEffect(() => {
+    setDensity(SIZE_TO_DENSITY[size]);
+  }, [size]);
+
   const isServerMode = Boolean(onQueryChange);
   const hasEmittedQuery = React.useRef(false);
   React.useEffect(() => {
@@ -87,6 +98,9 @@ export function DataTable<T extends Record<string, any>>({
 
   const densityRowClass = density === "compact" ? "h-9" : density === "comfortable" ? "h-14" : "h-12";
   const cellPadding = density === "compact" ? "py-1.5 px-3" : density === "comfortable" ? "py-3 px-4" : "py-2.5 px-4";
+  const headerTitleClass = size === "sm" ? "text-xs" : size === "lg" ? "text-[15px]" : "text-sm";
+  const headerMinHeightClass = size === "sm" ? "min-h-9" : size === "lg" ? "min-h-11" : "min-h-10";
+  const sortIconClass = size === "sm" ? "w-3.5 h-3.5" : size === "lg" ? "w-4 h-4" : "w-3.5 h-3.5";
 
   const visibleColsSet = React.useMemo(() => new Set(visibleCols), [visibleCols]);
 
@@ -118,7 +132,7 @@ export function DataTable<T extends Record<string, any>>({
   const renderFilterControl = (col: DataTableColumn<T>) => {
     if (!col.filter) return null;
     const k = col.key;
-    const commonProps = { className: "h-8 w-full text-sm" } as any;
+    const commonProps = { className: "w-full", size } as const;
 
     if (col.filter.type === "text") {
       return (
@@ -139,7 +153,7 @@ export function DataTable<T extends Record<string, any>>({
       return (
         <Combobox
           options={["", ...options]}
-          size="sm"
+          size={size}
           className="w-full"
           value={filters[k] ?? ""}
           onChange={(v) => {
@@ -154,6 +168,7 @@ export function DataTable<T extends Record<string, any>>({
     if (col.filter.type === "date") {
       return (
         <DatePicker
+          size={size}
           placeholder={col.filter.placeholder || `Select ${String(col.title)}`}
           value={filters[k] || null}
           onChange={(d) => {
@@ -177,13 +192,14 @@ export function DataTable<T extends Record<string, any>>({
       return (
         <div
           className={cn(
-            "flex items-center gap-1 min-h-10",
+            "flex items-center gap-1",
+            headerMinHeightClass,
             col.align === "right" && "justify-end",
             col.align === "center" && "justify-center",
             !col.align && "justify-start",
           )}
         >
-          <span className="font-medium text-sm whitespace-nowrap">{col.title}</span>
+          <span className={cn("font-medium whitespace-nowrap", headerTitleClass)}>{col.title}</span>
         </div>
       );
     }
@@ -194,7 +210,7 @@ export function DataTable<T extends Record<string, any>>({
 
     const titleContent = (
       <div className="flex items-center gap-1">
-        <span className="font-medium text-sm whitespace-nowrap">{col.title}</span>
+        <span className={cn("font-medium whitespace-nowrap", headerTitleClass)}>{col.title}</span>
         {col.sortable && (
           <button
             className={cn(
@@ -212,7 +228,7 @@ export function DataTable<T extends Record<string, any>>({
             aria-label="Sort"
             title={`Sort by ${String(col.title)}`}
           >
-            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" className="inline-block">
+            <svg viewBox="0 0 20 20" fill="none" className={cn("inline-block", sortIconClass)}>
               <path
                 d="M7 8l3-3 3 3"
                 stroke="currentColor"
@@ -274,7 +290,8 @@ export function DataTable<T extends Record<string, any>>({
     return (
       <div
         className={cn(
-          "flex items-center gap-2 select-none min-h-10",
+          "flex items-center gap-2 select-none",
+          headerMinHeightClass,
           isRightAlign && "justify-end",
           isCenterAlign && "justify-center",
           !isRightAlign && !isCenterAlign && "justify-start",
@@ -377,12 +394,11 @@ export function DataTable<T extends Record<string, any>>({
   }, [data, isServerMode, filters, sort, columns]);
 
   const totalItems = isServerMode ? total : processedData.length;
-  const displayedData = isServerMode
-    ? data
-    : React.useMemo(() => {
-        const start = (curPage - 1) * curPageSize;
-        return processedData.slice(start, start + curPageSize);
-      }, [processedData, curPage, curPageSize]);
+  const displayedData = React.useMemo(() => {
+    if (isServerMode) return data;
+    const start = (curPage - 1) * curPageSize;
+    return processedData.slice(start, start + curPageSize);
+  }, [isServerMode, data, processedData, curPage, curPageSize]);
 
   return (
     <div className={cn("space-y-2", className)}>
@@ -395,6 +411,7 @@ export function DataTable<T extends Record<string, any>>({
         enableDensityToggle={enableDensityToggle}
         enableColumnVisibilityToggle={enableColumnVisibilityToggle}
         enableHeaderAlignToggle={enableHeaderAlignToggle}
+        size={size}
         density={density}
         setDensity={setDensity}
         setHeaderAlign={setHeaderAlign}
@@ -403,7 +420,13 @@ export function DataTable<T extends Record<string, any>>({
       />
 
       <div
-        className={cn("relative rounded-2xl md:rounded-3xl border border-border/50", loading && "opacity-60 pointer-events-none")}
+        className={cn(
+          "relative rounded-2xl md:rounded-3xl border border-border/50 bg-card overflow-hidden",
+          loading && "opacity-60 pointer-events-none",
+        )}
+      >
+        <div
+          className="thin-scrollbar w-full"
         style={
           stickyHeader
             ? {
@@ -415,7 +438,7 @@ export function DataTable<T extends Record<string, any>>({
         }
       >
         <Table
-          containerClassName={cn("border-0 md:border-0 rounded-none md:rounded-none shadow-none bg-transparent", "overflow-visible")}
+          disableContainer
           className={cn(
             "table-fixed",
             stickyHeader && ["[&_thead]:sticky", "[&_thead]:top-0", "[&_thead]:z-20", "[&_thead]:shadow-[0_1px_3px_rgba(0,0,0,0.1)]"],
@@ -448,7 +471,6 @@ export function DataTable<T extends Record<string, any>>({
               </TableRow>
             ) : (
               displayedData.map((row, idx) => {
-                const isLastRow = idx === displayedData.length - 1;
                 return (
                   <TableRow
                     key={getRowKey(row, idx)}
@@ -475,8 +497,6 @@ export function DataTable<T extends Record<string, any>>({
                               col.align === "right" && "text-right",
                               col.align === "center" && "text-center",
                               showBorderLeft && "border-l border-border/60",
-                              isLastRow && col === leafColumns[0] && "rounded-bl-2xl md:rounded-bl-3xl",
-                              isLastRow && col === leafColumns[leafColumns.length - 1] && "rounded-br-2xl md:rounded-br-3xl",
                               getStickyCellClass(col, isStripedRow),
                               !col.fixed && isStripedRow && "bg-muted/50",
                             ) as string
@@ -493,6 +513,7 @@ export function DataTable<T extends Record<string, any>>({
           </TableBody>
         </Table>
       </div>
+      </div>
 
       <DataTablePagination
         totalItems={totalItems}
@@ -501,10 +522,10 @@ export function DataTable<T extends Record<string, any>>({
         setCurPage={setCurPage}
         pageSizeOptions={pageSizeOptions}
         setCurPageSize={setCurPageSize}
+        size={size}
       />
     </div>
   );
 }
 
 export default DataTable;
-

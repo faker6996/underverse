@@ -3,21 +3,28 @@ import { cn } from "@/lib/utils/cn";
 
 interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
   containerClassName?: string;
+  disableContainer?: boolean;
 }
 
-const Table = React.forwardRef<HTMLTableElement, TableProps>(({ className, containerClassName, ...props }, ref) => (
-  <div
-    className={cn(
-      "relative w-full overflow-auto",
-      "rounded-2xl md:rounded-3xl border border-border",
-      "bg-card text-card-foreground shadow-sm",
-      "backdrop-blur-sm transition-all duration-300",
-      containerClassName,
-    )}
-  >
-    <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
-  </div>
-));
+const Table = React.forwardRef<HTMLTableElement, TableProps>(({ className, containerClassName, disableContainer = false, ...props }, ref) => {
+  if (disableContainer) {
+    return <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />;
+  }
+
+  return (
+    <div
+      className={cn(
+        "relative w-full overflow-auto",
+        "rounded-2xl md:rounded-3xl border border-border",
+        "bg-card text-card-foreground shadow-sm",
+        "backdrop-blur-sm transition-all duration-300",
+        containerClassName,
+      )}
+    >
+      <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
+    </div>
+  );
+});
 Table.displayName = "Table";
 
 interface TableHeaderProps extends React.HTMLAttributes<HTMLTableSectionElement> {

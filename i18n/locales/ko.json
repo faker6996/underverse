@@ -1126,6 +1126,7 @@
         "onQueryChange": "서버 쿼리 변경 핸들러.",
         "caption": "캡션 노드.",
         "toolbar": "툴바 노드.",
+        "size": "시각적 크기 프리셋(sm, md, lg). 기본값: md.",
         "striped": "스트라이프 행.",
         "columnDividers": "세로 열 구분선 표시.",
         "enableDensityToggle": "밀도 토글 허용.",

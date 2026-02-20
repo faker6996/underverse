@@ -1170,6 +1170,7 @@
         "onQueryChange": "Server-side query change handler.",
         "caption": "Caption node.",
         "toolbar": "Toolbar node.",
+        "size": "Visual size preset (sm, md, lg). Default: md.",
         "striped": "Striped rows.",
         "columnDividers": "Show vertical column dividers.",
         "enableDensityToggle": "Allow density toggle.",

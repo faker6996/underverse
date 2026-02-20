@@ -1,6 +1,8 @@
 import type React from "react";
 
 export type FilterType = "text" | "select" | "date";
+export type DataTableSize = "sm" | "md" | "lg";
+export type DataTableDensity = "compact" | "normal" | "comfortable";
 
 export type DataTableColumn<T> = {
   key: string; // unique key
@@ -77,6 +79,8 @@ export interface DataTableProps<T> {
   onQueryChange?: (q: DataTableQuery) => void; // server-side
   caption?: React.ReactNode;
   toolbar?: React.ReactNode;
+  /** Visual size preset. Maps to component scales in the table UI. */
+  size?: DataTableSize;
   enableColumnVisibilityToggle?: boolean;
   enableDensityToggle?: boolean;
   enableHeaderAlignToggle?: boolean;
@@ -92,4 +96,3 @@ export interface DataTableProps<T> {
   maxHeight?: number | string;
   labels?: DataTableLabels;
 }
-
