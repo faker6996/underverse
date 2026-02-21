@@ -592,7 +592,7 @@ Ví dụ: tự xuống dòng + tối đa 1–2 dòng tuỳ theo `layout.height`:
       <div className="h-full px-2.5 flex items-center min-w-0 overflow-hidden">
         <div className="w-full grid grid-cols-[1fr_auto] gap-x-2 items-start min-w-0 overflow-hidden">
           <div
-            className="text-xs font-semibold leading-snug min-w-0 overflow-hidden break-words"
+            className="text-xs font-semibold leading-snug min-w-0 overflow-hidden wrap-break-word"
             style={{ display: \"-webkit-box\", WebkitBoxOrient: \"vertical\", WebkitLineClamp: maxLines as any }}
           >
             {event.title}

@@ -110,7 +110,7 @@ function DocsInner() {
       <DonationCard />
 
       <div className="container mx-auto px-4 py-10">
-        <div className="flex gap-8 max-w-screen-2xl mx-auto">
+        <div className="flex gap-8 max-w-(--breakpoint-2xl) mx-auto">
           {/* Main Content */}
           <main className="flex-1 min-w-0 max-w-none space-y-14">
             <div>

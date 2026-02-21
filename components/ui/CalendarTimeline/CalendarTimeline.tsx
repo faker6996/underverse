@@ -1379,7 +1379,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
                           <div className="h-full px-2.5 flex items-center min-w-0 overflow-hidden">
                             <div className="w-full grid grid-cols-[1fr_auto] gap-x-2 items-start min-w-0 overflow-hidden">
                               <div
-                                className={cn("text-xs font-semibold leading-snug min-w-0 overflow-hidden", isPlainTitle ? "break-words" : "")}
+                                className={cn("text-xs font-semibold leading-snug min-w-0 overflow-hidden", isPlainTitle ? "wrap-break-word" : "")}
                                 style={
                                   isPlainTitle
                                     ? {

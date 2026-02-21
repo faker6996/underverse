@@ -475,7 +475,7 @@ export function DataTable<T extends Record<string, any>>({
                 return (
                   <TableRow
                     key={getRowKey(row, idx)}
-                    className={cn(densityRowClass, isStripedRow ? "bg-[var(--surface-1)]" : "bg-[var(--surface-0)]")}
+                    className={cn(densityRowClass, isStripedRow ? "bg-surface-1" : "bg-surface-0")}
                     style={{
                       contentVisibility: "auto",
                       containIntrinsicSize: density === "compact" ? "0 36px" : density === "comfortable" ? "0 56px" : "0 48px",

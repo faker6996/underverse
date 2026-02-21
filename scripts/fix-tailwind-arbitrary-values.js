@@ -30,7 +30,7 @@ const TOKEN_BOUNDARY_REGEX_PART = '(^|[\\s"\'`{}()[\\],])';
 
 // Match Tailwind arbitrary px values, including variant prefixes like:
 // - sm:w-[720px]  -> sm:w-180
-// - dark:hover:!min-w-[180px] -> dark:hover:!min-w-45
+// - dark:hover:min-w-[180px]! -> dark:hover:min-w-45!
 //
 // Notes:
 // - We intentionally allow matching inside any string/template literal content

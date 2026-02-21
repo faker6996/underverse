@@ -110,7 +110,7 @@ export function useTimelineSlots(args: {
             return React.createElement(
               "span",
               { className: "inline-flex flex-col items-center leading-tight" },
-              React.createElement("span", { className: "text-[11px] font-semibold text-foreground truncate max-w-[8rem]" }, match.title),
+              React.createElement("span", { className: "text-[11px] font-semibold text-foreground truncate max-w-32" }, match.title),
               React.createElement("span", { className: "text-[10px] font-medium text-muted-foreground/70" }, rangeText),
             );
           }

@@ -52,7 +52,7 @@ export function useStickyColumns<T>(columns: DataTableColumn<T>[], visibleKeys: 
       "sticky",
       col.fixed === "left" && "left-0 shadow-[2px_0_6px_-3px_rgba(0,0,0,0.08)]",
       col.fixed === "right" && "right-0 shadow-[-2px_0_6px_-3px_rgba(0,0,0,0.08)]",
-      "z-50 !bg-muted",
+      "z-50 bg-muted!",
     );
   }, []);
 
@@ -62,7 +62,7 @@ export function useStickyColumns<T>(columns: DataTableColumn<T>[], visibleKeys: 
       "sticky z-10",
       col.fixed === "left" && "left-0 shadow-[2px_0_6px_-3px_rgba(0,0,0,0.08)]",
       col.fixed === "right" && "right-0 shadow-[-2px_0_6px_-3px_rgba(0,0,0,0.08)]",
-      isStripedRow ? "!bg-[var(--surface-1)]" : "!bg-[var(--surface-0)]",
+      isStripedRow ? "bg-(--surface-1)!" : "bg-(--surface-0)!",
     );
   }, []);
 
