@@ -471,10 +471,11 @@ export function DataTable<T extends Record<string, any>>({
               </TableRow>
             ) : (
               displayedData.map((row, idx) => {
+                const isStripedRow = striped && idx % 2 === 0;
                 return (
                   <TableRow
                     key={getRowKey(row, idx)}
-                    className={cn(densityRowClass)}
+                    className={cn(densityRowClass, isStripedRow ? "bg-[var(--surface-1)]" : "bg-[var(--surface-0)]")}
                     style={{
                       contentVisibility: "auto",
                       containIntrinsicSize: density === "compact" ? "0 36px" : density === "comfortable" ? "0 56px" : "0 48px",
@@ -482,7 +483,6 @@ export function DataTable<T extends Record<string, any>>({
                   >
                     {leafColumns.map((col, colIdx) => {
                       const value = col.dataIndex ? row[col.dataIndex as keyof T] : undefined;
-                      const isStripedRow = striped && idx % 2 === 0;
                       const prevCol = colIdx > 0 ? leafColumns[colIdx - 1] : null;
                       const isAfterFixedLeft = prevCol?.fixed === "left";
                       const showBorderLeft = columnDividers && colIdx > 0 && !isAfterFixedLeft && !col.fixed;
@@ -498,7 +498,6 @@ export function DataTable<T extends Record<string, any>>({
                               col.align === "center" && "text-center",
                               showBorderLeft && "border-l border-border/60",
                               getStickyCellClass(col, isStripedRow),
-                              !col.fixed && isStripedRow && "bg-muted/50",
                             ) as string
                           }
                         >

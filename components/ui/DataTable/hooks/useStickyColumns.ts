@@ -50,9 +50,9 @@ export function useStickyColumns<T>(columns: DataTableColumn<T>[], visibleKeys: 
     if (!col.fixed) return "";
     return cn(
       "sticky",
-      col.fixed === "left" && "left-0 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)]",
-      col.fixed === "right" && "right-0 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.15)]",
-      "z-50 bg-muted!",
+      col.fixed === "left" && "left-0 shadow-[2px_0_6px_-3px_rgba(0,0,0,0.08)]",
+      col.fixed === "right" && "right-0 shadow-[-2px_0_6px_-3px_rgba(0,0,0,0.08)]",
+      "z-50 !bg-muted",
     );
   }, []);
 
@@ -60,9 +60,9 @@ export function useStickyColumns<T>(columns: DataTableColumn<T>[], visibleKeys: 
     if (!col.fixed) return "";
     return cn(
       "sticky z-10",
-      col.fixed === "left" && "left-0 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)]",
-      col.fixed === "right" && "right-0 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.15)]",
-      isStripedRow ? "bg-muted/50!" : "bg-card!",
+      col.fixed === "left" && "left-0 shadow-[2px_0_6px_-3px_rgba(0,0,0,0.08)]",
+      col.fixed === "right" && "right-0 shadow-[-2px_0_6px_-3px_rgba(0,0,0,0.08)]",
+      isStripedRow ? "!bg-[var(--surface-1)]" : "!bg-[var(--surface-0)]",
     );
   }, []);
 
