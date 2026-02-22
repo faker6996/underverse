@@ -34,6 +34,18 @@ export function useStickyColumns<T>(columns: DataTableColumn<T>[], visibleKeys: 
     return positions;
   }, [leafColumns]);
 
+  // Only render a separator shadow on the boundary between sticky and non-sticky regions:
+  // - left fixed block: shadow on the right edge of the last left-fixed column
+  // - right fixed block: shadow on the left edge of the first right-fixed column
+  const { leftBoundaryKey, rightBoundaryKey } = React.useMemo(() => {
+    const leftFixed = leafColumns.filter((c) => c.fixed === "left");
+    const rightFixed = leafColumns.filter((c) => c.fixed === "right");
+    return {
+      leftBoundaryKey: leftFixed.length > 0 ? leftFixed[leftFixed.length - 1].key : null,
+      rightBoundaryKey: rightFixed.length > 0 ? rightFixed[0].key : null,
+    };
+  }, [leafColumns]);
+
   const getStickyColumnStyle = React.useCallback(
     (col: DataTableColumn<T>): React.CSSProperties => {
       if (!col.fixed) return {};
@@ -46,25 +58,40 @@ export function useStickyColumns<T>(columns: DataTableColumn<T>[], visibleKeys: 
     [stickyPositions],
   );
 
-  const getStickyHeaderClass = React.useCallback((col: DataTableColumn<T>) => {
-    if (!col.fixed) return "";
-    return cn(
-      "sticky",
-      col.fixed === "left" && "left-0 shadow-[2px_0_6px_-3px_rgba(0,0,0,0.08)]",
-      col.fixed === "right" && "right-0 shadow-[-2px_0_6px_-3px_rgba(0,0,0,0.08)]",
-      "z-50 bg-muted!",
-    );
-  }, []);
+  const getBoundaryShadowClass = React.useCallback(
+    (col: DataTableColumn<T>) => {
+      if (col.fixed === "left" && col.key === leftBoundaryKey) {
+        return "border-r border-border/80 shadow-[10px_0_16px_-10px_rgba(0,0,0,0.55)]";
+      }
+      if (col.fixed === "right" && col.key === rightBoundaryKey) {
+        return "border-l border-border/80 shadow-[-10px_0_16px_-10px_rgba(0,0,0,0.55)]";
+      }
+      return "";
+    },
+    [leftBoundaryKey, rightBoundaryKey],
+  );
 
-  const getStickyCellClass = React.useCallback((col: DataTableColumn<T>, isStripedRow: boolean) => {
-    if (!col.fixed) return "";
-    return cn(
-      "sticky z-10",
-      col.fixed === "left" && "left-0 shadow-[2px_0_6px_-3px_rgba(0,0,0,0.08)]",
-      col.fixed === "right" && "right-0 shadow-[-2px_0_6px_-3px_rgba(0,0,0,0.08)]",
-      isStripedRow ? "bg-(--surface-1)!" : "bg-(--surface-0)!",
-    );
-  }, []);
+  const getStickyHeaderClass = React.useCallback(
+    (col: DataTableColumn<T>) => {
+      if (!col.fixed) return "";
+      return cn("sticky", col.fixed === "left" && "left-0", col.fixed === "right" && "right-0", getBoundaryShadowClass(col), "z-50 !bg-muted");
+    },
+    [getBoundaryShadowClass],
+  );
+
+  const getStickyCellClass = React.useCallback(
+    (col: DataTableColumn<T>, isStripedRow: boolean) => {
+      if (!col.fixed) return "";
+      return cn(
+        "sticky z-10",
+        col.fixed === "left" && "left-0",
+        col.fixed === "right" && "right-0",
+        getBoundaryShadowClass(col),
+        isStripedRow ? "!bg-surface-1" : "!bg-surface-0",
+      );
+    },
+    [getBoundaryShadowClass],
+  );
 
   /**
    * Get sticky style for header cells (including group headers).
