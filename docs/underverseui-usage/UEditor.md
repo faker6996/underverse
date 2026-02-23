@@ -72,7 +72,25 @@ To transform only on save:
 - Replace only the `src` value with returned URL.
 - Keep other image attributes (`alt`, `width`, `height`, `style`, etc.) unchanged.
 - Leave non-base64 images unchanged (`http(s)://`, `/path`, relative URLs).
-- Return `{ html, uploaded, errors }` so app can block save or continue.
+- Return `{ html, uploaded, inlineImageUrls, inlineUploaded, errors }` so app can block save or continue.
+
+### Avoid Duplicate Inline Image vs Attachment
+
+If your app also stores attachments (gallery/files), use `inlineImageUrls` to filter out URLs that already exist inline:
+
+```tsx
+import { normalizeImageUrl } from "@/components/ui/UEditor";
+
+const prepared = await editorRef.current?.prepareContentForSave({ throwOnError: true });
+const inlineSet = new Set((prepared?.inlineImageUrls ?? []).map(normalizeImageUrl));
+
+const dedupedAttachments = attachments.filter((item) => !inlineSet.has(normalizeImageUrl(item.url)));
+
+await api.savePost({
+  content: prepared?.html ?? "",
+  attachments: dedupedAttachments,
+});
+```
 
 If you want hard failure, use:
 
@@ -139,6 +157,8 @@ type UEditorRef = {
   prepareContentForSave: (options?: { throwOnError?: boolean }) => Promise<{
     html: string;
     uploaded: Array<{ url: string; file?: File; meta?: Record<string, unknown> }>;
+    inlineImageUrls: string[];
+    inlineUploaded: Array<{ index: number; url: string; file?: File; meta?: Record<string, unknown> }>;
     errors: Array<{ index: number; reason: string }>;
   }>;
 };
@@ -147,8 +167,15 @@ type UEditorRef = {
 Notes:
 
 - `uploaded` contains successful uploads in processing order.
+- `inlineImageUrls` contains all `<img src>` values from final HTML after transform.
+- `inlineUploaded` contains successful transformed inline uploads with source `index` (base64 image order).
 - `errors` contains per-image failures with index in base64 image order.
 - If `throwOnError` is `true`, method throws `UEditorPrepareContentForSaveError` with `error.result`.
+
+Helper exports for URL matching:
+
+- `extractImageSrcsFromHtml(html): string[]`
+- `normalizeImageUrl(url): string`
 
 ## Features
 

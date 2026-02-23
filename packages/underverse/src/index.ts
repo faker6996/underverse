@@ -187,10 +187,13 @@ export { useSmartTranslations, useSmartLocale, ForceInternalTranslationsProvider
 // Excluded: NotificationBell (depends on project-specific API, auth, and sockets)
 export { default as UEditor } from "../../../components/ui/UEditor";
 export {
+  extractImageSrcsFromHtml,
+  normalizeImageUrl,
   prepareUEditorContentForSave,
   UEditorPrepareContentForSaveError,
 } from "../../../components/ui/UEditor";
 export type {
+  UEditorInlineUploadedItem,
   UEditorPrepareContentForSaveOptions,
   UEditorPrepareContentForSaveResult,
   UEditorProps,

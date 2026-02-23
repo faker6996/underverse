@@ -4,9 +4,18 @@ export type UEditorUploadImageForSave = (file: File) => Promise<UEditorUploadIma
 
 export type UEditorPrepareContentUploadMeta = Record<string, unknown>;
 
+export type UEditorInlineUploadedItem = {
+  index: number;
+  url: string;
+  file?: File;
+  meta?: UEditorPrepareContentUploadMeta;
+};
+
 export type UEditorPrepareContentForSaveResult = {
   html: string;
   uploaded: Array<{ url: string; file?: File; meta?: UEditorPrepareContentUploadMeta }>;
+  inlineImageUrls: string[];
+  inlineUploaded: UEditorInlineUploadedItem[];
   errors: Array<{ index: number; reason: string }>;
 };
 

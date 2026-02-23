@@ -107,6 +107,46 @@ function getErrorReason(error: unknown): string {
   return "Unknown upload error.";
 }
 
+function decodeHtmlEntities(value: string): string {
+  return value
+    .replace(/&quot;/gi, "\"")
+    .replace(/&#39;/gi, "'")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&nbsp;/gi, " ");
+}
+
+export function normalizeImageUrl(url: string): string {
+  const input = decodeHtmlEntities(url.trim());
+  if (!input) return "";
+  if (isDataImageUrl(input)) return input;
+
+  const isAbsolute = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(input);
+  if (!isAbsolute) {
+    return input.split("#")[0] ?? input;
+  }
+
+  try {
+    const parsed = new URL(input);
+    parsed.hash = "";
+
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      parsed.hostname = parsed.hostname.toLowerCase();
+      if ((parsed.protocol === "http:" && parsed.port === "80") || (parsed.protocol === "https:" && parsed.port === "443")) {
+        parsed.port = "";
+      }
+      if (parsed.pathname.length > 1 && parsed.pathname.endsWith("/")) {
+        parsed.pathname = parsed.pathname.slice(0, -1);
+      }
+    }
+
+    return parsed.toString();
+  } catch {
+    return input.split("#")[0] ?? input;
+  }
+}
+
 function replaceSrcInTag(match: ImgTagMatch, nextSrc: string): string {
   if (!match.srcAttr) return match.tag;
 
@@ -154,6 +194,34 @@ function collectImgTagMatches(html: string): ImgTagMatch[] {
   return matches;
 }
 
+export function extractImageSrcsFromHtml(html: string): string[] {
+  if (!html || !html.includes("<img")) return [];
+
+  return collectImgTagMatches(html)
+    .map((match) => decodeHtmlEntities(match.srcAttr?.value.trim() ?? ""))
+    .filter(Boolean);
+}
+
+function createResult({
+  html,
+  uploaded,
+  inlineUploaded,
+  errors,
+}: {
+  html: string;
+  uploaded: UEditorPrepareContentForSaveResult["uploaded"];
+  inlineUploaded: UEditorPrepareContentForSaveResult["inlineUploaded"];
+  errors: UEditorPrepareContentForSaveResult["errors"];
+}): UEditorPrepareContentForSaveResult {
+  return {
+    html,
+    uploaded,
+    inlineImageUrls: extractImageSrcsFromHtml(html),
+    inlineUploaded,
+    errors,
+  };
+}
+
 export class UEditorPrepareContentForSaveError extends Error {
   readonly result: UEditorPrepareContentForSaveResult;
 
@@ -176,12 +244,12 @@ export async function prepareUEditorContentForSave({
   uploadImageForSave?: UEditorUploadImageForSave;
 }): Promise<UEditorPrepareContentForSaveResult> {
   if (!html || !html.includes("<img")) {
-    return { html, uploaded: [], errors: [] };
+    return createResult({ html, uploaded: [], inlineUploaded: [], errors: [] });
   }
 
   const imgMatches = collectImgTagMatches(html);
   if (imgMatches.length === 0) {
-    return { html, uploaded: [], errors: [] };
+    return createResult({ html, uploaded: [], inlineUploaded: [], errors: [] });
   }
 
   const base64Candidates: Base64Candidate[] = [];
@@ -199,21 +267,23 @@ export async function prepareUEditorContentForSave({
   }
 
   if (base64Candidates.length === 0) {
-    return { html, uploaded: [], errors: [] };
+    return createResult({ html, uploaded: [], inlineUploaded: [], errors: [] });
   }
 
   if (!uploadImageForSave) {
-    return {
+    return createResult({
       html,
       uploaded: [],
+      inlineUploaded: [],
       errors: base64Candidates.map((item) => ({
         index: item.index,
         reason: "`uploadImageForSave` is required to transform base64 images before save.",
       })),
-    };
+    });
   }
 
   const uploaded: UEditorPrepareContentForSaveResult["uploaded"] = [];
+  const inlineUploaded: UEditorPrepareContentForSaveResult["inlineUploaded"] = [];
   const errors: UEditorPrepareContentForSaveResult["errors"] = [];
   const replacements = new Map<string, string>();
 
@@ -245,10 +315,16 @@ export async function prepareUEditorContentForSave({
       file: item.file,
       meta: item.meta,
     });
+    inlineUploaded.push({
+      index: item.candidate.index,
+      url: item.url,
+      file: item.file,
+      meta: item.meta,
+    });
   }
 
   if (replacements.size === 0) {
-    return { html, uploaded, errors };
+    return createResult({ html, uploaded, inlineUploaded, errors });
   }
 
   let transformed = "";
@@ -266,5 +342,5 @@ export async function prepareUEditorContentForSave({
 
   transformed += html.slice(cursor);
 
-  return { html: transformed, uploaded, errors };
+  return createResult({ html: transformed, uploaded, inlineUploaded, errors });
 }
