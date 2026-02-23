@@ -14,12 +14,38 @@ npm install @underverse-ui/underverse
 
 ```tsx
 import UEditor from "@/components/ui/UEditor";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import type { UEditorRef } from "@/components/ui/UEditor";
 
 export default function Example() {
+  const editorRef = useRef<UEditorRef>(null);
   const [content, setContent] = useState("<p>Hello world!</p>");
 
-  return <UEditor content={content} onChange={setContent} placeholder="Type '/' for commands..." variant="notion" showCharacterCount />;
+  const handleSave = async () => {
+    const prepared = await editorRef.current?.prepareContentForSave({ throwOnError: true });
+    await api.savePost({ content: prepared?.html ?? "" });
+  };
+
+  return (
+    <>
+      <UEditor
+        ref={editorRef}
+        content={content}
+        onChange={setContent}
+        uploadImageForSave={async (file) => {
+          const fd = new FormData();
+          fd.append("file", file);
+          const res = await fetch("/api/upload", { method: "POST", body: fd });
+          const data = await res.json();
+          return data.url;
+        }}
+        placeholder="Type '/' for commands..."
+        variant="notion"
+        showCharacterCount
+      />
+      <button onClick={handleSave}>Save</button>
+    </>
+  );
 }
 ```
 
@@ -27,6 +53,32 @@ export default function Example() {
 
 - Paste (`Ctrl+V`), drag & drop, and toolbar file picker all insert images as base64 (`data:`) by default.
 - If you want to upload immediately, set `imageInsertMode="upload"` and provide `uploadImage(file)` to return the final URL.
+- For teams that prefer base64 while editing but URL-only in DB, keep `imageInsertMode="base64"` and call `prepareContentForSave()` before saving.
+
+## Base64 During Edit, Upload Before Save (Opt-in)
+
+Default behavior is unchanged: existing screens still work with base64 image preview while editing.
+
+To transform only on save:
+
+1. Pass `uploadImageForSave`.
+2. Hold a `ref`.
+3. Call `prepareContentForSave()` before sending content to backend.
+
+`prepareContentForSave()` will:
+
+- Scan HTML for `<img src="data:image/...;base64,...">`.
+- Upload each base64 image through `uploadImageForSave`.
+- Replace only the `src` value with returned URL.
+- Keep other image attributes (`alt`, `width`, `height`, `style`, etc.) unchanged.
+- Leave non-base64 images unchanged (`http(s)://`, `/path`, relative URLs).
+- Return `{ html, uploaded, errors }` so app can block save or continue.
+
+If you want hard failure, use:
+
+```tsx
+await editorRef.current?.prepareContentForSave({ throwOnError: true });
+```
 
 ## Variants
 
@@ -63,6 +115,7 @@ Display content without editing capabilities:
 | `onHtmlChange`       | `(html: string) => void`             | `undefined`                  | Alias for onChange.                           |
 | `onJsonChange`       | `(json: object) => void`             | `undefined`                  | Callback with JSON structure of content.      |
 | `uploadImage`        | `(file: File) => Promise<string> \| string` | `undefined`            | Image upload handler (used when `imageInsertMode="upload"`). Must return the image URL. |
+| `uploadImageForSave` | `(file: File) => Promise<string \| { url: string; [k: string]: any }>` | `undefined` | Optional upload handler used by `prepareContentForSave()` to transform base64 images before save. |
 | `imageInsertMode`    | `"base64" \| "upload"`               | `"base64"`                   | Insert images as base64 (default) or upload via `uploadImage`. |
 | `placeholder`        | `string`                             | `"Type '/' for commands..."` | Placeholder text when empty.                  |
 | `className`          | `string`                             | `undefined`                  | Additional CSS classes for the container.     |
@@ -76,6 +129,26 @@ Display content without editing capabilities:
 | `minHeight`          | `number \| string`                   | `"200px"`                    | Minimum height of editor area.                |
 | `maxHeight`          | `number \| string`                   | `"auto"`                     | Maximum height with scroll.                   |
 | `variant`            | `"default" \| "minimal" \| "notion"` | `"default"`                  | UI style variant.                             |
+
+## Ref API
+
+`UEditor` exposes an imperative ref API:
+
+```ts
+type UEditorRef = {
+  prepareContentForSave: (options?: { throwOnError?: boolean }) => Promise<{
+    html: string;
+    uploaded: Array<{ url: string; file?: File; meta?: Record<string, unknown> }>;
+    errors: Array<{ index: number; reason: string }>;
+  }>;
+};
+```
+
+Notes:
+
+- `uploaded` contains successful uploads in processing order.
+- `errors` contains per-image failures with index in base64 image order.
+- If `throwOnError` is `true`, method throws `UEditorPrepareContentForSaveError` with `error.result`.
 
 ## Features
 

@@ -1,9 +1,30 @@
+export type UEditorUploadImageForSaveResult = string | ({ url: string } & Record<string, unknown>);
+
+export type UEditorUploadImageForSave = (file: File) => Promise<UEditorUploadImageForSaveResult>;
+
+export type UEditorPrepareContentUploadMeta = Record<string, unknown>;
+
+export type UEditorPrepareContentForSaveResult = {
+  html: string;
+  uploaded: Array<{ url: string; file?: File; meta?: UEditorPrepareContentUploadMeta }>;
+  errors: Array<{ index: number; reason: string }>;
+};
+
+export type UEditorPrepareContentForSaveOptions = {
+  throwOnError?: boolean;
+};
+
+export interface UEditorRef {
+  prepareContentForSave: (options?: UEditorPrepareContentForSaveOptions) => Promise<UEditorPrepareContentForSaveResult>;
+}
+
 export interface UEditorProps {
   content?: string;
   onChange?: (content: string) => void;
   onHtmlChange?: (html: string) => void;
   onJsonChange?: (json: object) => void;
   uploadImage?: (file: File) => Promise<string> | string;
+  uploadImageForSave?: UEditorUploadImageForSave;
   imageInsertMode?: "base64" | "upload";
   placeholder?: string;
   className?: string;

@@ -1,21 +1,23 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { cn } from "@/lib/utils/cn";
 import { buildUEditorExtensions } from "./extensions";
-import type { UEditorProps } from "./types";
+import type { UEditorPrepareContentForSaveResult, UEditorProps, UEditorRef } from "./types";
 import { EditorToolbar } from "./toolbar";
 import { CustomBubbleMenu, CustomFloatingMenu } from "./menus";
 import { CharacterCountDisplay } from "./CharacterCount";
+import { prepareUEditorContentForSave, UEditorPrepareContentForSaveError } from "./prepare-content-for-save";
 
-const UEditor = ({
+const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   content = "",
   onChange,
   onHtmlChange,
   onJsonChange,
   uploadImage,
+  uploadImageForSave,
   imageInsertMode = "base64",
   placeholder,
   className,
@@ -29,9 +31,10 @@ const UEditor = ({
   minHeight = "200px",
   maxHeight = "auto",
   variant = "default",
-}: UEditorProps) => {
+}: UEditorProps, ref) => {
   const t = useTranslations("UEditor");
   const effectivePlaceholder = placeholder ?? t("placeholder");
+  const inFlightPrepareRef = useRef<Promise<UEditorPrepareContentForSaveResult> | null>(null);
 
   const extensions = useMemo(
     () => buildUEditorExtensions({ placeholder: effectivePlaceholder, maxCharacters, uploadImage, imageInsertMode, editable }),
@@ -153,6 +156,30 @@ const UEditor = ({
     },
   });
 
+  useImperativeHandle(
+    ref,
+    () => ({
+      prepareContentForSave: async ({ throwOnError = false } = {}) => {
+        if (!inFlightPrepareRef.current) {
+          const htmlSnapshot = editor?.getHTML() ?? content ?? "";
+          inFlightPrepareRef.current = prepareUEditorContentForSave({
+            html: htmlSnapshot,
+            uploadImageForSave,
+          }).finally(() => {
+            inFlightPrepareRef.current = null;
+          });
+        }
+
+        const result = await inFlightPrepareRef.current;
+        if (throwOnError && result.errors.length > 0) {
+          throw new UEditorPrepareContentForSaveError(result);
+        }
+        return result;
+      },
+    }),
+    [content, editor, uploadImageForSave],
+  );
+
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       if (editor.isEmpty && content) {
@@ -201,6 +228,8 @@ const UEditor = ({
       {showCharacterCount && <CharacterCountDisplay editor={editor} maxCharacters={maxCharacters} />}
     </div>
   );
-};
+});
+
+UEditor.displayName = "UEditor";
 
 export default UEditor;
