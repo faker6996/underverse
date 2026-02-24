@@ -112,7 +112,7 @@ export const Badge: React.FC<BadgeProps> = ({
   };
 
   const baseClasses = cn(
-    "inline-flex items-center border transition-all duration-200",
+    "inline-flex items-center rounded-md border transition-all duration-200 tracking-wide",
     "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
     variantStyles[variant],
     clickable && clickableVariantStyles[variant],
@@ -161,7 +161,7 @@ export const Badge: React.FC<BadgeProps> = ({
   }
 
   return (
-    <span className={cn(baseClasses, "rounded-full gap-1", sizeStyles[size], className)} onClick={handleClick} role="status">
+    <span className={cn(baseClasses, "gap-1", sizeStyles[size], className)} onClick={handleClick} role="status">
       {Icon && (
         <Icon
           className={cn(
