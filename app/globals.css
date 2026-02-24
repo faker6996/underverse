@@ -268,16 +268,6 @@ body {
     @apply text-primary underline-offset-4 hover:underline;
   }
 }
-.scrollbar-none {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge legacy */
-}
-.scrollbar-none::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
 /* OverlayScrollbars theme */
 .os-theme-underverse {
   --os-size: 9px;

@@ -33,7 +33,9 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
         )}
         {...props}
       >
-        <div className={cn("h-full w-full overflow-y-auto scroll-area-viewport", contentClassName)}>{children}</div>
+        <div className={cn("h-full w-full overflow-y-auto scroll-area-viewport custom-scrollbar", contentClassName)} data-os-scrollbar>
+          {children}
+        </div>
       </div>
     );
   },

@@ -492,12 +492,13 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
           <div
             className={cn(
-              "absolute z-20 mt-2 w-full max-h-80 overflow-auto",
+              "absolute z-20 mt-2 w-full max-h-80 overflow-auto custom-scrollbar",
               "rounded-2xl md:rounded-3xl border border-border/40 bg-popover/95 text-popover-foreground",
               "shadow-2xl backdrop-blur-xl",
               "p-2",
               "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
             )}
+            data-os-scrollbar
           >
             {renderSearch()}
             {renderTreeContent()}

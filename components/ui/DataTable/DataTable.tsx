@@ -426,7 +426,7 @@ export function DataTable<T extends Record<string, any>>({
         )}
       >
         <div
-          className="thin-scrollbar custom-scrollbar w-full"
+          className="custom-scrollbar w-full"
           data-os-scrollbar
         style={
           stickyHeader

@@ -1253,7 +1253,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         {showResourceColumn ? (
           <div
             ref={leftRef}
-            className="shrink-0 overflow-y-auto overflow-x-hidden scrollbar-none"
+            className="shrink-0 overflow-y-auto overflow-x-hidden"
             style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
           >
             <div style={{ height: topSpacer }} />
@@ -1287,7 +1287,8 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         {/* Right grid: main scroll container (both axes) */}
         <div
           ref={bodyRef}
-          className="relative flex-1 overflow-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
+          className="relative flex-1 overflow-auto custom-scrollbar"
+          data-os-scrollbar
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerLeave={() => setHoverCell(null)}

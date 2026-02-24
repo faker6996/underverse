@@ -14,12 +14,13 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ className, conta
   return (
     <div
       className={cn(
-        "relative w-full overflow-auto",
+        "relative w-full overflow-auto custom-scrollbar",
         "rounded-2xl md:rounded-3xl border border-border",
         "bg-card text-card-foreground shadow-sm",
         "backdrop-blur-sm transition-all duration-300",
         containerClassName,
       )}
+      data-os-scrollbar
     >
       <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
     </div>

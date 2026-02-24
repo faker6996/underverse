@@ -482,7 +482,6 @@ function WheelColumn({
           ref={scrollRef as any}
           className={cn(
             "h-full overflow-y-auto overscroll-contain snap-y snap-mandatory",
-            "scrollbar-none",
             "select-none cursor-grab active:cursor-grabbing",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xl",
           )}

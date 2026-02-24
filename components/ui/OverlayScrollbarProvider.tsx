@@ -32,7 +32,7 @@ export default function OverlayScrollbarProvider() {
 
     const shouldSkip = (element: HTMLElement) => {
       if (element === document.body) return true;
-      if (element.classList.contains("scrollbar-none")) return true;
+      if (element.hasAttribute("data-os-ignore")) return true;
       if (element.hasAttribute("data-overlayscrollbars")) return true;
       return false;
     };
