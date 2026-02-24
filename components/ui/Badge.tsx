@@ -31,26 +31,42 @@ interface BadgeProps {
 }
 
 const variantStyles = {
-  default: "bg-muted text-muted-foreground border-border/50 hover:bg-muted/80",
-  primary: "bg-primary text-primary-foreground border-primary/20 hover:bg-primary/90",
-  secondary: "bg-secondary text-secondary-foreground border-secondary/20 hover:bg-secondary/90",
-  success: "bg-success text-success-foreground border-success/20 hover:bg-success/90",
-  warning: "bg-warning text-warning-foreground border-warning/20 hover:bg-warning/90",
-  danger: "bg-destructive text-destructive-foreground border-destructive/20 hover:bg-destructive/90",
-  destructive: "bg-destructive text-destructive-foreground border-destructive/20 hover:bg-destructive/90",
-  info: "bg-info text-info-foreground border-info/20 hover:bg-info/90",
-  outline: "bg-transparent text-foreground border-border hover:bg-accent/50",
-  ghost: "bg-transparent hover:bg-accent/20 hover:text-accent-foreground border-transparent transition-colors",
-  transparent: "bg-transparent text-foreground border-transparent hover:bg-accent/30",
-  gradient: "bg-linear-to-r from-primary to-secondary text-primary-foreground border-transparent hover:from-primary/90 hover:to-secondary/90",
+  default: "bg-muted text-muted-foreground border-border/50",
+  primary: "bg-primary text-primary-foreground border-primary/20",
+  secondary: "bg-secondary text-secondary-foreground border-secondary/20",
+  success: "bg-success text-success-foreground border-success/20",
+  warning: "bg-warning text-warning-foreground border-warning/20",
+  danger: "bg-destructive text-destructive-foreground border-destructive/20",
+  destructive: "bg-destructive text-destructive-foreground border-destructive/20",
+  info: "bg-info text-info-foreground border-info/20",
+  outline: "bg-transparent text-foreground border-border",
+  ghost: "bg-transparent text-foreground border-transparent",
+  transparent: "bg-transparent text-foreground border-transparent",
+  gradient: "bg-linear-to-r from-primary to-secondary text-primary-foreground border-transparent",
+};
+
+// Hover styles chỉ dùng khi clickable=true
+const clickableVariantStyles = {
+  default: "hover:bg-muted/80",
+  primary: "hover:bg-primary/90",
+  secondary: "hover:bg-secondary/90",
+  success: "hover:bg-success/90",
+  warning: "hover:bg-warning/90",
+  danger: "hover:bg-destructive/90",
+  destructive: "hover:bg-destructive/90",
+  info: "hover:bg-info/90",
+  outline: "hover:bg-accent/50",
+  ghost: "hover:bg-accent/20 hover:text-accent-foreground",
+  transparent: "hover:bg-accent/30",
+  gradient: "hover:from-primary/90 hover:to-secondary/90",
 };
 
 const sizeStyles = {
   xs: "px-1.5 py-0.5 text-xs font-medium min-h-4.5",
   sm: "px-2 py-0.5 text-xs font-medium min-h-5",
   md: "px-2.5 py-1 text-xs font-medium min-h-6",
-  lg: "px-3 py-1.5 text-sm font-medium min-h-7",
-  xl: "px-4 py-2 text-sm font-semibold min-h-8",
+  lg: "px-3 py-1 text-xs font-medium min-h-6.5",
+  xl: "px-3.5 py-1.5 text-sm font-medium min-h-7",
 };
 
 const dotSizeStyles = {
@@ -98,10 +114,11 @@ export const Badge: React.FC<BadgeProps> = ({
   const baseClasses = cn(
     "inline-flex items-center border transition-all duration-200",
     "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
+    variantStyles[variant],
+    clickable && clickableVariantStyles[variant],
     clickable && "cursor-pointer hover:shadow-sm active:scale-95",
     pulse && "animate-pulse",
     "relative z-0", // Ensure badges stay below sticky headers (z-20, z-50)
-    variantStyles[variant],
   );
 
   if (dot) {
