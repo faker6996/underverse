@@ -40,33 +40,35 @@ export function Example() {
 }
 ```
 
-## Overlay Scrollbars (recommended)
+## Overlay Scrollbars (opt-in)
 
-Use the exported provider to enable overlay scrollbars (no layout width loss):
+Underverse uses component-level overlay scrollbars. No global selector scan and no app-wide MutationObserver.
 
 ```tsx
 import "overlayscrollbars/overlayscrollbars.css";
-import { OverlayScrollbarProvider } from "@underverse-ui/underverse";
+import { OverlayScrollbarProvider, ScrollArea, DataTable } from "@underverse-ui/underverse";
 
 export function App() {
   return (
-    <>
-      <OverlayScrollbarProvider
-        enabled
-        theme="os-theme-underverse"
-        autoHide="leave"
-      />
-      {/* app */}
-    </>
+    <OverlayScrollbarProvider theme="os-theme-underverse" autoHide="leave">
+      <ScrollArea className="h-56" useOverlayScrollbar />
+      <DataTable columns={columns} data={rows} useOverlayScrollbar />
+    </OverlayScrollbarProvider>
   );
 }
 ```
 
 Behavior:
 
-- Provider initializes globally by default on common scroll selectors (`.overflow-*`, `textarea`) and `[data-os-scrollbar]`.
-- Provider can run globally via custom `selector` (for example: `.overflow-auto, .overflow-y-auto, .overflow-x-auto, [data-os-scrollbar]`).
+- Provider is config-only (context defaults), not an auto-mount global scanner.
+- Enable per component via `useOverlayScrollbar`.
+- Hard skip: `html`, `body`, `[data-radix-portal]`, `[role="dialog"]`, `[aria-modal="true"]`, `[data-sonner-toaster]`.
 - Use `data-os-ignore` on a node to opt out.
+
+Useful APIs:
+
+- `OverlayScrollArea` (dedicated heavy-scroll wrapper)
+- `useOverlayScrollbarTarget(ref, options)` for custom component internals
 
 ## i18n Notes
 

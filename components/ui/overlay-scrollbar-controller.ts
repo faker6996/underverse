@@ -1,15 +1,5 @@
 import type { OverlayScrollbars as OSInstance, PartialOptions } from "overlayscrollbars";
 
-export const DEFAULT_OVERLAY_SCROLLBAR_SELECTOR = [
-  ".overflow-auto",
-  ".overflow-y-auto",
-  ".overflow-x-auto",
-  ".overflow-scroll",
-  ".overflow-y-scroll",
-  ".overflow-x-scroll",
-  "textarea",
-  "[data-os-scrollbar]",
-].join(", ");
 export const DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE = [
   "html",
   "body",
@@ -20,19 +10,71 @@ export const DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE = [
   "[data-sonner-toaster]",
 ].join(", ");
 
+export interface OverlayScrollbarBehavior {
+  enabled: boolean;
+  theme: string;
+  visibility: "visible" | "hidden" | "auto";
+  autoHide: "never" | "scroll" | "leave" | "move";
+  autoHideDelay: number;
+  dragScroll: boolean;
+  clickScroll: boolean;
+  /**
+   * Exclude selector list applied both on current node and ancestors.
+   * `html` and `body` are always skipped even if excluded list changes.
+   */
+  exclude: string;
+}
+
+export const DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR: OverlayScrollbarBehavior = {
+  enabled: true,
+  theme: "os-theme-underverse",
+  visibility: "auto",
+  autoHide: "leave",
+  autoHideDelay: 600,
+  dragScroll: true,
+  clickScroll: false,
+  exclude: DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
+};
+
+export function resolveOverlayScrollbarBehavior(overrides: Partial<OverlayScrollbarBehavior> = {}): OverlayScrollbarBehavior {
+  return {
+    ...DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR,
+    ...overrides,
+  };
+}
+
+export function buildOverlayScrollbarOptions(config: OverlayScrollbarBehavior): PartialOptions {
+  return {
+    scrollbars: {
+      theme: config.theme,
+      visibility: config.visibility,
+      autoHide: config.autoHide,
+      autoHideDelay: config.autoHideDelay,
+      dragScroll: config.dragScroll,
+      clickScroll: config.clickScroll,
+    },
+  };
+}
+
 type CreateInstance = (element: HTMLElement, options: PartialOptions) => OSInstance;
-type ObserverLike = {
-  observe(target: ParentNode, options: MutationObserverInit): void;
+
+type IntersectionObserverLike = {
+  observe(target: Element): void;
   disconnect(): void;
 };
 
+type IntersectionObserverCallbackLike = (entries: Array<{ isIntersecting?: boolean; intersectionRatio?: number }>) => void;
+
+type CreateIntersectionObserver = (callback: IntersectionObserverCallbackLike) => IntersectionObserverLike;
+
 interface OverlayScrollbarControllerConfig {
-  selector: string;
-  exclude: string;
+  element: HTMLElement;
+  enabled: boolean;
+  exclude?: string;
   options: PartialOptions;
   createInstance: CreateInstance;
-  root?: ParentNode | HTMLElement;
-  createObserver?: (callback: MutationCallback) => ObserverLike;
+  isVisible?: (element: HTMLElement) => boolean;
+  createIntersectionObserver?: CreateIntersectionObserver;
   requestAnimationFrameImpl?: (callback: FrameRequestCallback) => number;
   cancelAnimationFrameImpl?: (id: number) => void;
 }
@@ -60,103 +102,131 @@ function safeClosest(element: HTMLElement, selector: string): Element | null {
   }
 }
 
-function shouldSkipElement(element: HTMLElement, excludeSelectors: string[], ancestorExcludeSelectors: string[]) {
+export function shouldSkipOverlayScrollbarElement(element: HTMLElement, exclude = DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE): boolean {
+  if (!element) return true;
+
   const tagName = element.tagName?.toLowerCase?.() ?? "";
   if (tagName === "body" || tagName === "html") return true;
-  if (element.classList.contains("scrollbar-none")) return true;
-  if (element.hasAttribute("data-overlayscrollbars")) return true;
+  if (element.classList?.contains("scrollbar-none")) return true;
+  if (element.hasAttribute?.("data-os-ignore")) return true;
+  if (element.hasAttribute?.("data-overlayscrollbars")) return true;
 
+  const excludeSelectors = splitSelectorList(exclude);
   if (excludeSelectors.some((selector) => safeMatches(element, selector))) return true;
+
+  const ancestorExcludeSelectors = excludeSelectors.filter((item) => item !== "html" && item !== "body");
   if (ancestorExcludeSelectors.some((selector) => safeClosest(element, selector))) return true;
 
   return false;
 }
 
+export function isOverlayScrollbarElementVisible(element: HTMLElement): boolean {
+  if (!element?.isConnected) return false;
+
+  if (typeof element.getClientRects === "function") {
+    const rects = element.getClientRects();
+    if (!rects || rects.length === 0) return false;
+  }
+
+  if (typeof window !== "undefined" && typeof window.getComputedStyle === "function") {
+    const style = window.getComputedStyle(element);
+    if (style.display === "none" || style.visibility === "hidden") return false;
+  }
+
+  return true;
+}
+
+function createDefaultIntersectionObserver(callback: IntersectionObserverCallbackLike): IntersectionObserverLike | null {
+  if (typeof window === "undefined" || typeof window.IntersectionObserver !== "function") return null;
+
+  const observer = new window.IntersectionObserver((entries) => {
+    callback(
+      entries.map((entry) => ({
+        isIntersecting: entry.isIntersecting,
+        intersectionRatio: entry.intersectionRatio,
+      })),
+    );
+  });
+
+  return observer;
+}
+
 export function createOverlayScrollbarController({
-  selector,
-  exclude,
+  element,
+  enabled,
+  exclude = DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
   options,
   createInstance,
-  root = document.body,
-  createObserver,
-  requestAnimationFrameImpl = requestAnimationFrame,
-  cancelAnimationFrameImpl = cancelAnimationFrame,
+  isVisible = isOverlayScrollbarElementVisible,
+  createIntersectionObserver,
+  requestAnimationFrameImpl = (callback) => {
+    if (typeof window === "undefined" || typeof window.requestAnimationFrame !== "function") return 0;
+    return window.requestAnimationFrame(callback);
+  },
+  cancelAnimationFrameImpl = (id) => {
+    if (typeof window === "undefined" || typeof window.cancelAnimationFrame !== "function") return;
+    window.cancelAnimationFrame(id);
+  },
 }: OverlayScrollbarControllerConfig) {
-  const instances = new Map<HTMLElement, OSInstance>();
-  const excludeSelectors = splitSelectorList(exclude);
-  const ancestorExcludeSelectors = excludeSelectors.filter((item) => item !== "html" && item !== "body");
+  let instance: OSInstance | null = null;
+  let observer: IntersectionObserverLike | null = null;
   let rafId = 0;
 
-  const init = (element: HTMLElement) => {
-    if (shouldSkipElement(element, excludeSelectors, ancestorExcludeSelectors)) return;
-    if (instances.has(element)) return;
-    instances.set(element, createInstance(element, options));
-  };
+  const tryInit = () => {
+    if (instance) return;
+    if (!enabled) return;
+    if (!element?.isConnected) return;
+    if (shouldSkipOverlayScrollbarElement(element, exclude)) return;
+    if (!isVisible(element)) return;
 
-  const scan = (root: ParentNode | HTMLElement) => {
-    if (root instanceof HTMLElement && safeMatches(root, selector)) {
-      init(root);
-    }
+    instance = createInstance(element, options);
 
-    if (!("querySelectorAll" in root)) return;
-
-    try {
-      root.querySelectorAll<HTMLElement>(selector).forEach(init);
-    } catch {
-      // Invalid selector should not break the app.
+    if (observer) {
+      observer.disconnect();
+      observer = null;
     }
   };
 
-  const cleanup = () => {
-    instances.forEach((instance, element) => {
-      if (!element.isConnected) {
-        instance.destroy();
-        instances.delete(element);
-      }
-    });
-  };
-
-  scan(root);
-
-  const onMutations: MutationCallback = (mutations) => {
-    if (rafId) return;
-
+  if (enabled && !shouldSkipOverlayScrollbarElement(element, exclude)) {
     rafId = requestAnimationFrameImpl(() => {
       rafId = 0;
-      const roots = new Set<ParentNode | HTMLElement>();
-
-      mutations.forEach((mutation) => {
-        if (mutation.target && (typeof (mutation.target as ParentNode).querySelectorAll === "function" || mutation.target instanceof HTMLElement)) {
-          roots.add(mutation.target);
-        }
-
-        Array.from(mutation.addedNodes).forEach((node) => {
-          if (node instanceof HTMLElement) {
-            roots.add(node);
-          }
-        });
-      });
-
-      roots.forEach(scan);
-      cleanup();
+      tryInit();
     });
-  };
 
-  const observer = createObserver ? createObserver(onMutations) : new MutationObserver(onMutations);
+    const observerFactory = createIntersectionObserver ?? createDefaultIntersectionObserver;
+    observer = observerFactory
+      ? observerFactory((entries) => {
+          const isIntersecting = entries.some((entry) => entry.isIntersecting || (entry.intersectionRatio ?? 0) > 0);
+          if (!isIntersecting) return;
+          tryInit();
+        })
+      : null;
 
-  observer.observe(root, { childList: true, subtree: true, attributes: true });
-
-  const destroy = () => {
-    if (rafId) cancelAnimationFrameImpl(rafId);
-    observer.disconnect();
-    instances.forEach((instance) => instance.destroy());
-    instances.clear();
-  };
+    if (observer) {
+      observer.observe(element);
+    }
+  }
 
   return {
-    destroy,
-    scan,
-    cleanup,
-    getInstanceCount: () => instances.size,
+    destroy() {
+      if (rafId) cancelAnimationFrameImpl(rafId);
+      rafId = 0;
+
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+
+      if (instance) {
+        instance.destroy();
+        instance = null;
+      }
+    },
+    refresh() {
+      tryInit();
+    },
+    getInstanceCount() {
+      return instance ? 1 : 0;
+    },
   };
 }

@@ -87,6 +87,7 @@ export default function CategoryTreeSelectExample() {
     `  value={selected}\n` +
     `  onChange={setSelected}\n` +
     `  placeholder="Select categories"\n` +
+    `  useOverlayScrollbar\n` +
     `/>\n\n` +
     `// 2) Single-select mode\n` +
     `<CategoryTreeSelect\n` +
@@ -121,7 +122,14 @@ export default function CategoryTreeSelectExample() {
       {/* 1) Multi-select */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Multi-select (default)</p>
-        <CategoryTreeSelect categories={categories} value={selected} onChange={setSelected} placeholder="Select categories" labels={labels} />
+        <CategoryTreeSelect
+          categories={categories}
+          value={selected}
+          onChange={setSelected}
+          placeholder="Select categories"
+          labels={labels}
+          useOverlayScrollbar
+        />
         <div className="text-sm text-muted-foreground">Selected: {selected.join(", ") || "(none)"}</div>
       </div>
 
@@ -171,6 +179,7 @@ export default function CategoryTreeSelectExample() {
     { property: "viewOnly", description: t("props.categoryTreeSelect.viewOnly"), type: "boolean", default: "false" },
     { property: "defaultExpanded", description: t("props.categoryTreeSelect.defaultExpanded"), type: "boolean", default: "false" },
     { property: "enableSearch", description: t("props.categoryTreeSelect.enableSearch"), type: "boolean", default: "categories.length > 10" },
+    { property: "useOverlayScrollbar", description: "Enable OverlayScrollbars for dropdown tree viewport", type: "boolean", default: "false" },
     { property: "labels", description: t("props.categoryTreeSelect.labels"), type: "CategoryTreeSelectLabels", default: "-" },
     { property: "className", description: t("props.categoryTreeSelect.className"), type: "string", default: "-" },
   ];

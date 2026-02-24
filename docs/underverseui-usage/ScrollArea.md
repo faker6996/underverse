@@ -33,6 +33,11 @@ import { ScrollArea } from "@underverse-ui/underverse";
   Content with padding...
 </ScrollArea>
 
+// With overlay scrollbar (opt-in)
+<ScrollArea className="h-48" useOverlayScrollbar>
+  <div className="p-4">Long content...</div>
+</ScrollArea>
+
 // With variant and outlined
 <ScrollArea variant="muted" outlined className="h-48">
   <div className="p-4">Muted with border</div>
@@ -47,6 +52,8 @@ interface ScrollAreaProps extends HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "muted" | "primary" | "accent";
   /** Show thin border like Card */
   outlined?: boolean;
+  /** Enable OverlayScrollbars for this scroll viewport. Default: false */
+  useOverlayScrollbar?: boolean;
 }
 ```
 
@@ -58,5 +65,6 @@ interface ScrollAreaProps extends HTMLAttributes<HTMLDivElement> {
 | `contentClassName` | `string`                                        | -           | CSS class for inner scrollable viewport (set padding here) |
 | `variant`          | `"default" \| "muted" \| "primary" \| "accent"` | `"default"` | Background color variant                                   |
 | `outlined`         | `boolean`                                       | `false`     | Show thin border with rounded corners                      |
+| `useOverlayScrollbar` | `boolean`                                    | `false`     | Bật OverlayScrollbars cho viewport này                     |
 
 > **Note**: ScrollArea không có padding mặc định. Thêm padding qua `contentClassName` hoặc wrap content trong div với padding.

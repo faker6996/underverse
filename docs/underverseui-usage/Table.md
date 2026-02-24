@@ -34,7 +34,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 
 export function Example() {
   return (
-    <Table>
+    <Table useOverlayScrollbar>
       <TableHeader>
         <TableRow>
           <TableHead>Ten</TableHead>
@@ -55,8 +55,19 @@ export function Example() {
 ```ts
 interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
   containerClassName?: string;
+  disableContainer?: boolean;
+  /** Enable OverlayScrollbars on table container. Default: false */
+  useOverlayScrollbar?: boolean;
 }
 ```
+
+### Table props quick reference
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `containerClassName` | `string` | - | Class cho wrapper cuộn ngoài của table |
+| `disableContainer` | `boolean` | `false` | Render thẳng `<table>` không bọc container |
+| `useOverlayScrollbar` | `boolean` | `false` | Bật OverlayScrollbars cho container cuộn |
 
 ## TableHeader
 

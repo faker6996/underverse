@@ -97,6 +97,7 @@ export function PropsDocsTable({
         total={0}
         page={1}
         pageSize={data.length}
+        useOverlayScrollbar
         className={className ?? "text-sm"}
       />
     </div>

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils/cn";
 import { ChevronDown, Search, SearchX, Check, X, Loader2, Sparkles } from "lucide-react";
 import { useShadCNAnimations } from "@/lib/utils/shadcn-animations";
 import { Popover } from "./Popover";
+import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 
 // --- PROPS ---
 export type ComboboxOption = string | { label: string; value: any; icon?: React.ReactNode; description?: string; disabled?: boolean };
@@ -39,6 +40,8 @@ export interface ComboboxProps {
   renderValue?: (option: ComboboxOption) => React.ReactNode;
   error?: string;
   helperText?: string;
+  /** Enable OverlayScrollbars on dropdown options list. Default: false */
+  useOverlayScrollbar?: boolean;
 }
 
 // Helper functions
@@ -94,6 +97,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   renderValue,
   error,
   helperText,
+  useOverlayScrollbar = false,
 }) => {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
@@ -104,6 +108,9 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
   const listRef = React.useRef<(HTMLLIElement | null)[]>([]);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const optionsViewportRef = React.useRef<HTMLDivElement>(null);
+
+  useOverlayScrollbarTarget(optionsViewportRef, { enabled: useOverlayScrollbar });
 
   // Stable ids for accessibility
   const autoId = useId();
@@ -327,7 +334,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
       )}
 
       {/* Options List */}
-      <div className="overflow-y-auto overscroll-contain" style={{ maxHeight }}>
+      <div ref={optionsViewportRef} className="overflow-y-auto overscroll-contain" style={{ maxHeight }}>
         <div className={cn(size === "sm" ? "p-1" : size === "lg" ? "p-2" : "p-1.5")}>
           {loading ? (
             <div className="px-3 py-10 text-center">

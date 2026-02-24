@@ -94,5 +94,7 @@ export interface DataTableProps<T> {
   stickyHeader?: boolean;
   /** Chiều cao tối đa của bảng khi bật stickyHeader (mặc định: 500px) */
   maxHeight?: number | string;
+  /** Enable OverlayScrollbars on table viewport. Default: false */
+  useOverlayScrollbar?: boolean;
   labels?: DataTableLabels;
 }

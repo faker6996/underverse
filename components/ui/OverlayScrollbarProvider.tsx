@@ -1,64 +1,116 @@
 "use client";
 
-import { useEffect } from "react";
-import { OverlayScrollbars, type PartialOptions } from "overlayscrollbars";
+import React, { createContext, useContext, useEffect, useMemo } from "react";
+import { OverlayScrollbars } from "overlayscrollbars";
 import {
+  buildOverlayScrollbarOptions,
   createOverlayScrollbarController,
-  DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
-  DEFAULT_OVERLAY_SCROLLBAR_SELECTOR,
+  DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR,
+  resolveOverlayScrollbarBehavior,
+  type OverlayScrollbarBehavior,
 } from "@/components/ui/overlay-scrollbar-controller";
 
-export interface OverlayScrollbarProviderProps {
-  enabled?: boolean;
-  theme?: string;
-  visibility?: "visible" | "hidden" | "auto";
-  autoHide?: "never" | "scroll" | "leave" | "move";
-  autoHideDelay?: number;
-  dragScroll?: boolean;
-  clickScroll?: boolean;
+const OverlayScrollbarConfigContext = createContext<OverlayScrollbarBehavior>(DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR);
+
+export interface OverlayScrollbarProviderProps extends Partial<OverlayScrollbarBehavior> {
+  children?: React.ReactNode;
+  /** @deprecated Global selector scanning is removed. Kept only for backward compatibility. */
   selector?: string;
-  exclude?: string;
 }
 
-export function OverlayScrollbarProvider({
-  enabled = true,
-  theme = "os-theme-underverse",
-  visibility = "auto",
-  autoHide = "leave",
-  autoHideDelay = 600,
-  dragScroll = true,
-  clickScroll = false,
-  selector = DEFAULT_OVERLAY_SCROLLBAR_SELECTOR,
-  exclude = DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
-}: OverlayScrollbarProviderProps = {}) {
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!enabled) return;
+export interface UseOverlayScrollbarTargetOptions extends Partial<OverlayScrollbarBehavior> {}
 
-    const options: PartialOptions = {
-      scrollbars: {
+export function OverlayScrollbarProvider({
+  enabled = DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR.enabled,
+  theme = DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR.theme,
+  visibility = DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR.visibility,
+  autoHide = DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR.autoHide,
+  autoHideDelay = DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR.autoHideDelay,
+  dragScroll = DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR.dragScroll,
+  clickScroll = DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR.clickScroll,
+  exclude = DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR.exclude,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  selector,
+  children,
+}: OverlayScrollbarProviderProps = {}) {
+  const value = useMemo(
+    () =>
+      resolveOverlayScrollbarBehavior({
+        enabled,
         theme,
         visibility,
         autoHide,
         autoHideDelay,
         dragScroll,
         clickScroll,
-      },
-    };
+        exclude,
+      }),
+    [enabled, theme, visibility, autoHide, autoHideDelay, dragScroll, clickScroll, exclude],
+  );
+
+  return <OverlayScrollbarConfigContext.Provider value={value}>{children ?? null}</OverlayScrollbarConfigContext.Provider>;
+}
+
+export function useOverlayScrollbarTarget<T extends HTMLElement>(
+  targetRef: React.RefObject<T | null>,
+  options: UseOverlayScrollbarTargetOptions = {},
+) {
+  const inherited = useContext(OverlayScrollbarConfigContext);
+
+  const resolved = useMemo(
+    () =>
+      resolveOverlayScrollbarBehavior({
+        ...inherited,
+        ...options,
+      }),
+    [
+      inherited.enabled,
+      inherited.theme,
+      inherited.visibility,
+      inherited.autoHide,
+      inherited.autoHideDelay,
+      inherited.dragScroll,
+      inherited.clickScroll,
+      inherited.exclude,
+      options.enabled,
+      options.theme,
+      options.visibility,
+      options.autoHide,
+      options.autoHideDelay,
+      options.dragScroll,
+      options.clickScroll,
+      options.exclude,
+    ],
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const target = targetRef.current;
+    if (!target) return;
 
     const controller = createOverlayScrollbarController({
-      selector,
-      exclude,
-      options,
+      element: target,
+      enabled: resolved.enabled,
+      exclude: resolved.exclude,
+      options: buildOverlayScrollbarOptions(resolved),
       createInstance: (element, instanceOptions) => OverlayScrollbars(element, instanceOptions),
     });
 
     return () => {
       controller.destroy();
     };
-  }, [enabled, theme, visibility, autoHide, autoHideDelay, dragScroll, clickScroll, selector, exclude]);
-
-  return null;
+  }, [
+    targetRef,
+    resolved.enabled,
+    resolved.theme,
+    resolved.visibility,
+    resolved.autoHide,
+    resolved.autoHideDelay,
+    resolved.dragScroll,
+    resolved.clickScroll,
+    resolved.exclude,
+  ]);
 }
 
 export default OverlayScrollbarProvider;

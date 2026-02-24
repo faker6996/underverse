@@ -1,7 +1,8 @@
 "use client";
 
-import { forwardRef, TextareaHTMLAttributes, useState } from "react";
+import { forwardRef, TextareaHTMLAttributes, useCallback, useRef, useState } from "react";
 import { cn } from "@/lib/utils/cn";
+import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 
 export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
@@ -9,11 +10,30 @@ export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElemen
   description?: string;
   variant?: "default" | "filled" | "outlined";
   size?: "sm" | "md" | "lg";
+  /** Enable OverlayScrollbars on textarea viewport. Default: false */
+  useOverlayScrollbar?: boolean;
 }
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ label, error, description, className, required, variant = "default", size = "md", ...rest }, ref) => {
+  ({ label, error, description, className, required, variant = "default", size = "md", useOverlayScrollbar = false, ...rest }, ref) => {
     const [isFocused, setIsFocused] = useState(false);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    useOverlayScrollbarTarget(textareaRef, { enabled: useOverlayScrollbar });
+
+    const setTextareaRefs = useCallback(
+      (node: HTMLTextAreaElement | null) => {
+        textareaRef.current = node;
+        if (typeof ref === "function") {
+          ref(node);
+          return;
+        }
+        if (ref) {
+          (ref as { current: HTMLTextAreaElement | null }).current = node;
+        }
+      },
+      [ref],
+    );
 
     const sizeClasses = {
       sm: "px-3 py-2 text-sm min-h-20",
@@ -55,14 +75,13 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
 
         <div className="relative group">
           <textarea
-            ref={ref}
-           
+            ref={setTextareaRefs}
             required={required}
             aria-invalid={!!error}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             className={cn(
-              "w-full rounded-2xl transition-all duration-200 ease-soft resize-y",
+              "w-full rounded-2xl transition-all duration-200 ease-soft resize-y overflow-y-auto",
               "text-foreground placeholder:text-muted-foreground",
               "focus:outline-none shadow-sm focus:shadow-md",
               "backdrop-blur-sm",

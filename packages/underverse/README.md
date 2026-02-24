@@ -137,34 +137,36 @@ import { Form, FormField, FormItem, FormLabel, FormMessage } from "@underverse-u
 
 ### Overlay Scrollbars (Optional, Recommended)
 
-Use `OverlayScrollbarProvider` to get overlay scrollbars (no layout space taken) across your app and Underverse components.
-See release notes in `CHANGELOG.md` for migration details by version.
+Underverse now uses **opt-in, component-level** OverlayScrollbars.
+There is no global DOM scanning, no default global mount, and no app-wide MutationObserver.
 
 ```tsx
 import "overlayscrollbars/overlayscrollbars.css";
-import { OverlayScrollbarProvider } from "@underverse-ui/underverse";
+import { OverlayScrollbarProvider, ScrollArea, DataTable } from "@underverse-ui/underverse";
 
 function App() {
   return (
-    <>
-      <OverlayScrollbarProvider
-        enabled
-        theme="os-theme-underverse"
-        autoHide="leave"
-        autoHideDelay={600}
+    <OverlayScrollbarProvider theme="os-theme-underverse" autoHide="leave">
+      <ScrollArea className="h-56" useOverlayScrollbar>
+        {/* long content */}
+      </ScrollArea>
+
+      <DataTable
+        columns={columns}
+        data={rows}
+        useOverlayScrollbar
       />
-      {/* your app */}
-    </>
+    </OverlayScrollbarProvider>
   );
 }
 ```
 
 Provider behavior:
 
-- Initializes globally by default on common scroll containers (`.overflow-*`, `textarea`) and `[data-os-scrollbar]`.
-- Does **not** initialize on `document.body` / `document.documentElement`.
-- Skips portal/dialog trees (`[data-radix-portal]`, `[role="dialog"]`, `[aria-modal="true"]`, `[data-sonner-toaster]`).
-- Per-node opt-out is available via `data-os-ignore`.
+- Provider is **configuration only** (theme/options context).
+- Scrollbars initialize only on components explicitly enabled via `useOverlayScrollbar`.
+- Hard skip targets: `html`, `body`, `[data-radix-portal]`, `[role="dialog"]`, `[aria-modal="true"]`, `[data-sonner-toaster]`.
+- Per-node opt-out remains available via `data-os-ignore`.
 
 Provider props:
 
@@ -175,23 +177,30 @@ Provider props:
 - `autoHideDelay?: number`
 - `dragScroll?: boolean`
 - `clickScroll?: boolean`
-- `selector?: string` default: `.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll, .overflow-y-scroll, .overflow-x-scroll, textarea, [data-os-scrollbar]`
 - `exclude?: string` default: `html, body, [data-os-ignore], [data-radix-portal], [role='dialog'], [aria-modal='true'], [data-sonner-toaster]`
+- `selector?: string` (deprecated, ignored; kept for backward compatibility)
 
-Custom selector mode example:
+Component-level enable flags:
 
-```tsx
-<OverlayScrollbarProvider
-  selector=".overflow-auto, .overflow-y-auto, .overflow-x-auto, [data-os-scrollbar]"
-/>
-```
+- `ScrollArea`: `useOverlayScrollbar?: boolean` (default `false`)
+- `Table`: `useOverlayScrollbar?: boolean` (default `false`)
+- `DataTable`: `useOverlayScrollbar?: boolean` (default `false`)
+- `Combobox`: `useOverlayScrollbar?: boolean` (default `false`)
+- `MultiCombobox`: `useOverlayScrollbar?: boolean` (default `false`)
+- `CategoryTreeSelect`: `useOverlayScrollbar?: boolean` (default `false`)
+- `Textarea`: `useOverlayScrollbar?: boolean` (default `false`)
+- `OverlayScrollArea`: dedicated wrapper for heavy scroll zones (`enabled` default `true`)
 
-Migration notes:
+When to use:
 
-- Remove any local DOM-scanning scrollbar provider in your app.
-- Keep a single `OverlayScrollbarProvider` mounted once at app root.
-- You no longer need to add `data-os-scrollbar` to every Underverse component manually.
-- Use `data-os-scrollbar` only for custom scroll nodes that are not covered by your selector.
+- Long virtualized/table/list panels
+- Fixed-height navigation panels and log viewers
+
+When not to use:
+
+- Normal form fields
+- Short modal/dialog content
+- Full page root scrolling
 
 ### Standalone React (Vite, CRA, etc.)
 
@@ -253,7 +262,7 @@ function App() {
 
 ### Navigation & Structure
 
-- `Breadcrumb`, `Tabs` (includes `SimpleTabs`, `PillTabs`, `VerticalTabs`), `DropdownMenu`, `Pagination`, `Section`, `ScrollArea`
+- `Breadcrumb`, `Tabs` (includes `SimpleTabs`, `PillTabs`, `VerticalTabs`), `DropdownMenu`, `Pagination`, `Section`, `ScrollArea`, `OverlayScrollArea`
 
 ### Data Display
 

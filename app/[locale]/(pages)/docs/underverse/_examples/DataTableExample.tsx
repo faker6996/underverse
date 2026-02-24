@@ -159,6 +159,7 @@ export default function DataTableExample() {
   columnDividers
   enableHeaderAlignToggle  // New: toggle header alignment
   storageKey="example-table"  // Lưu pageSize vào localStorage
+  useOverlayScrollbar // bật OverlayScrollbars cho viewport bảng
   labels={{ density: '...', columns: '...', headerAlign: '...' }}
 />`;
 
@@ -258,6 +259,7 @@ export default function DataTableExample() {
       storageKey="example-table"
       stickyHeader
       maxHeight={400}
+      useOverlayScrollbar
       labels={{
         density: t("density"),
         columns: t("columns"),
@@ -288,6 +290,7 @@ export default function DataTableExample() {
       storageKey="example-table-grouped"
       stickyHeader
       maxHeight={400}
+      useOverlayScrollbar
       labels={{
         density: t("density"),
         columns: t("columns"),
@@ -387,6 +390,7 @@ const groupedColumns: DataTableColumn<User>[] = [
                     { property: "size", description: td("props.dataTable.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
                     { property: "striped", description: td("props.dataTable.striped"), type: "boolean", default: "true" },
                     { property: "columnDividers", description: td("props.dataTable.columnDividers"), type: "boolean", default: "false" },
+                    { property: "useOverlayScrollbar", description: "Enable OverlayScrollbars for table viewport", type: "boolean", default: "false" },
                     { property: "enableDensityToggle", description: td("props.dataTable.enableDensityToggle"), type: "boolean", default: "true" },
                     {
                       property: "enableColumnVisibilityToggle",

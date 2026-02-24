@@ -5,6 +5,7 @@ import { DatePicker } from "@/components/ui/DatePicker";
 import Input from "@/components/ui/Input";
 import { Popover } from "@/components/ui/Popover";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
+import { useOverlayScrollbarTarget } from "@/components/ui/OverlayScrollbarProvider";
 import { cn } from "@/lib/utils/cn";
 import { useTranslations } from "@/lib/i18n/translation-adapter";
 import { Filter as FilterIcon } from "lucide-react";
@@ -47,6 +48,7 @@ export function DataTable<T extends Record<string, any>>({
   storageKey,
   stickyHeader = true,
   maxHeight = 500,
+  useOverlayScrollbar = false,
   labels,
 }: DataTableProps<T>) {
   const t = useTranslations("Common");
@@ -400,6 +402,9 @@ export function DataTable<T extends Record<string, any>>({
     return processedData.slice(start, start + curPageSize);
   }, [isServerMode, data, processedData, curPage, curPageSize]);
 
+  const viewportRef = React.useRef<HTMLDivElement>(null);
+  useOverlayScrollbarTarget(viewportRef, { enabled: useOverlayScrollbar });
+
   return (
     <div className={cn("space-y-2", className)}>
       <DataTableToolbar
@@ -426,86 +431,86 @@ export function DataTable<T extends Record<string, any>>({
         )}
       >
         <div
+          ref={viewportRef}
           className={cn("w-full overflow-x-auto", stickyHeader && "overflow-y-auto")}
           style={stickyHeader ? { maxHeight: typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight } : undefined}
         >
-        <Table
-          disableContainer
-          className={cn(
-            "table-fixed",
-            stickyHeader && ["[&_thead]:sticky", "[&_thead]:top-0", "[&_thead]:z-20", "[&_thead]:shadow-[0_1px_3px_rgba(0,0,0,0.1)]"],
-          )}
-          style={{ minWidth: totalColumnsWidth > 0 ? `${totalColumnsWidth}px` : undefined }}
-        >
-          <TableHeader>{renderHeader}</TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={leafColumns.length} className="text-center py-8">
-                  <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    <span className="text-sm">{t("loading")}…</span>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : !displayedData || displayedData.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={leafColumns.length} className="text-center py-6 text-muted-foreground">
-                  {t("noData")}
-                </TableCell>
-              </TableRow>
-            ) : (
-              displayedData.map((row, idx) => {
-                const isStripedRow = striped && idx % 2 === 0;
-                return (
-                  <TableRow
-                    key={getRowKey(row, idx)}
-                    className={cn(densityRowClass, isStripedRow ? "bg-surface-1" : "bg-surface-0")}
-                    style={{
-                      contentVisibility: "auto",
-                      containIntrinsicSize: density === "compact" ? "0 36px" : density === "comfortable" ? "0 56px" : "0 48px",
-                    }}
-                  >
-                    {leafColumns.map((col, colIdx) => {
-                      const value = col.dataIndex ? row[col.dataIndex as keyof T] : undefined;
-                      const prevCol = colIdx > 0 ? leafColumns[colIdx - 1] : null;
-                      const isAfterFixedLeft = prevCol?.fixed === "left";
-                      const showBorderLeft = columnDividers && colIdx > 0 && !isAfterFixedLeft && !col.fixed;
-
-                      return (
-                        <TableCell
-                          key={col.key}
-                          style={getStickyColumnStyle(col)}
-                          className={
-                            cn(
-                              cellPadding,
-                              col.align === "right" && "text-right",
-                              col.align === "center" && "text-center",
-                              showBorderLeft && "border-l border-border/60",
-                              getStickyCellClass(col, isStripedRow),
-                            ) as string
-                          }
-                        >
-                          {col.render ? col.render(value, row, idx) : String(value ?? "")}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })
+          <Table
+            disableContainer
+            className={cn(
+              "table-fixed",
+              stickyHeader && ["[&_thead]:sticky", "[&_thead]:top-0", "[&_thead]:z-20", "[&_thead]:shadow-[0_1px_3px_rgba(0,0,0,0.1)]"],
             )}
-          </TableBody>
-        </Table>
-      </div>
-      </div>
+            style={{ minWidth: totalColumnsWidth > 0 ? `${totalColumnsWidth}px` : undefined }}
+          >
+            <TableHeader>{renderHeader}</TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={leafColumns.length} className="text-center py-8">
+                    <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      <span className="text-sm">{t("loading")}…</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : !displayedData || displayedData.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={leafColumns.length} className="text-center py-6 text-muted-foreground">
+                    {t("noData")}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                displayedData.map((row, idx) => {
+                  const isStripedRow = striped && idx % 2 === 0;
+                  return (
+                    <TableRow
+                      key={getRowKey(row, idx)}
+                      className={cn(densityRowClass, isStripedRow ? "bg-surface-1" : "bg-surface-0")}
+                      style={{
+                        contentVisibility: "auto",
+                        containIntrinsicSize: density === "compact" ? "0 36px" : density === "comfortable" ? "0 56px" : "0 48px",
+                      }}
+                    >
+                      {leafColumns.map((col, colIdx) => {
+                        const value = col.dataIndex ? row[col.dataIndex as keyof T] : undefined;
+                        const prevCol = colIdx > 0 ? leafColumns[colIdx - 1] : null;
+                        const isAfterFixedLeft = prevCol?.fixed === "left";
+                        const showBorderLeft = columnDividers && colIdx > 0 && !isAfterFixedLeft && !col.fixed;
 
+                        return (
+                          <TableCell
+                            key={col.key}
+                            style={getStickyColumnStyle(col)}
+                            className={
+                              cn(
+                                cellPadding,
+                                col.align === "right" && "text-right",
+                                col.align === "center" && "text-center",
+                                showBorderLeft && "border-l border-border/60",
+                                getStickyCellClass(col, isStripedRow),
+                              ) as string
+                            }
+                          >
+                            {col.render ? col.render(value, row, idx) : String(value ?? "")}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
       <DataTablePagination
         totalItems={totalItems}
         curPage={curPage}

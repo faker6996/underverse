@@ -35,23 +35,19 @@ export function Example() {
 
 ```tsx
 import "overlayscrollbars/overlayscrollbars.css";
-import { OverlayScrollbarProvider } from "@underverse-ui/underverse";
+import { OverlayScrollbarProvider, ScrollArea } from "@underverse-ui/underverse";
 
 export default function App() {
   return (
-    <>
-      <OverlayScrollbarProvider
-        enabled
-        theme="os-theme-underverse"
-        autoHide="leave"
-      />
-      {/* app */}
-    </>
+    <OverlayScrollbarProvider theme="os-theme-underverse" autoHide="leave">
+      <ScrollArea className="h-56" useOverlayScrollbar />
+    </OverlayScrollbarProvider>
   );
 }
 ```
 
 Notes:
-- Provider default target: `.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll, .overflow-y-scroll, .overflow-x-scroll, textarea, [data-os-scrollbar]`.
-- Optional global mode: `selector=\".overflow-auto, .overflow-y-auto, .overflow-x-auto, [data-os-scrollbar]\"`.
+- Provider is config-only (no global selector scanning).
+- Enable per component via `useOverlayScrollbar`.
+- For custom components use `useOverlayScrollbarTarget(ref, options)`.
 - Opt-out attribute: `data-os-ignore`.

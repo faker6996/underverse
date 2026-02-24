@@ -87,6 +87,7 @@ Underverse UI là thư viện UI components cho React/Next.js với hỗ trợ �
 | [Pagination](./Pagination.md)     | Pagination controls   | ✅   |
 | [Section](./Section.md)           | Section container     | -    |
 | [ScrollArea](./ScrollArea.md)     | Scrollable area       | -    |
+| [OverlayScrollArea](./OverlayScrollArea.md) | Overlay scrollbar wrapper | -    |
 
 ### Data Display
 
@@ -143,6 +144,31 @@ Components với i18n support tự động:
 ---
 
 ## Usage Patterns
+
+### Overlay Scrollbar (Opt-in)
+
+Underverse dùng mô hình opt-in cho OverlayScrollbars:
+
+- Không quét DOM global.
+- Không auto mount provider mặc định.
+- Bật theo từng component qua `useOverlayScrollbar`.
+
+Ví dụ:
+
+```tsx
+import "overlayscrollbars/overlayscrollbars.css";
+import { OverlayScrollbarProvider, ScrollArea } from "@underverse-ui/underverse";
+
+function App() {
+  return (
+    <OverlayScrollbarProvider theme="os-theme-underverse">
+      <ScrollArea className="h-56" useOverlayScrollbar>
+        ...
+      </ScrollArea>
+    </OverlayScrollbarProvider>
+  );
+}
+```
 
 ### Standalone React (Vite, CRA)
 

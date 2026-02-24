@@ -25,13 +25,13 @@
     },
     {
       "id": "overlay-scrollbar-provider",
-      "title": "Enable overlay scrollbars",
-      "code": "import \"overlayscrollbars/overlayscrollbars.css\";\nimport { OverlayScrollbarProvider } from \"@underverse-ui/underverse\";\n\nexport function App(){\n  return <><OverlayScrollbarProvider enabled theme=\"os-theme-underverse\" autoHide=\"leave\" />{/* app */}</>;\n}\n"
+      "title": "Enable overlay scrollbars (opt-in)",
+      "code": "import \"overlayscrollbars/overlayscrollbars.css\";\nimport { OverlayScrollbarProvider, ScrollArea } from \"@underverse-ui/underverse\";\n\nexport function App(){\n  return (\n    <OverlayScrollbarProvider theme=\"os-theme-underverse\" autoHide=\"leave\">\n      <ScrollArea className=\"h-56\" useOverlayScrollbar>{/* content */}</ScrollArea>\n    </OverlayScrollbarProvider>\n  );\n}\n"
     },
     {
-      "id": "overlay-scrollbar-global-selector",
-      "title": "Enable global selector mode",
-      "code": "import \"overlayscrollbars/overlayscrollbars.css\";\nimport { OverlayScrollbarProvider } from \"@underverse-ui/underverse\";\n\nexport function App(){\n  return <><OverlayScrollbarProvider selector=\".overflow-auto, .overflow-y-auto, .overflow-x-auto, [data-os-scrollbar]\" />{/* app */}</>;\n}\n"
+      "id": "overlay-scrollbar-custom-component",
+      "title": "Custom component with overlay scrollbar hook",
+      "code": "import { useRef } from \"react\";\nimport { useOverlayScrollbarTarget } from \"@underverse-ui/underverse\";\n\nexport function LogPanel(){\n  const ref = useRef<HTMLDivElement>(null);\n  useOverlayScrollbarTarget(ref, { enabled: true });\n\n  return <div ref={ref} className=\"h-64 overflow-y-auto\">...</div>;\n}\n"
     },
     {
       "id": "api-discovery-order",

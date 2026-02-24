@@ -2,7 +2,7 @@
   "package": "@underverse-ui/underverse",
   "version": "1.0.34",
   "sourceEntry": "src/index.ts",
-  "totalExports": 207,
+  "totalExports": 211,
   "exports": [
     {
       "name": "*",
@@ -855,6 +855,20 @@
       "aliasOf": "default"
     },
     {
+      "name": "OverlayScrollArea",
+      "kind": "value",
+      "source": "../../../components/ui/OverlayScrollArea",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "OverlayScrollAreaProps",
+      "kind": "type",
+      "source": "../../../components/ui/OverlayScrollArea",
+      "reexport": true,
+      "local": false
+    },
+    {
       "name": "OverlayScrollbarProvider",
       "kind": "value",
       "source": "../../../components/ui/OverlayScrollbarProvider",
@@ -1405,6 +1419,20 @@
       "name": "UploadedFile",
       "kind": "type",
       "source": "../../../components/ui/FileUpload",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "useOverlayScrollbarTarget",
+      "kind": "value",
+      "source": "../../../components/ui/OverlayScrollbarProvider",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "UseOverlayScrollbarTargetOptions",
+      "kind": "type",
+      "source": "../../../components/ui/OverlayScrollbarProvider",
       "reexport": true,
       "local": false
     },

@@ -260,6 +260,7 @@ export default function MultiComboboxExample() {
           searchPlaceholder="Type to search..."
           placeholder="Search and select"
           displayFormat={(opt) => `${opt.label}`}
+          useOverlayScrollbar
           helperText="Supports keyboard navigation and search"
         />
       </div>
@@ -295,6 +296,7 @@ export default function MultiComboboxExample() {
     { property: "groupBy", description: "Function to get group name", type: "(option) => string", default: "-" },
     { property: "renderOption", description: "Custom render for options", type: "(option, isSelected) => ReactNode", default: "-" },
     { property: "renderTag", description: "Custom render for tags", type: "(option, onRemove) => ReactNode", default: "-" },
+    { property: "useOverlayScrollbar", description: "Enable OverlayScrollbars for dropdown options list", type: "boolean", default: "false" },
     { property: "error", description: "Error message to display", type: "string", default: "-" },
     { property: "helperText", description: "Helper text below component", type: "string", default: "-" },
     { property: "maxTagsVisible", description: "Max number of visible tags", type: "number", default: "3" },

@@ -30,7 +30,9 @@ export default function TextareaExample() {
     `// Required Field\n` +
     `<Textarea label="Required field" required placeholder="This field is required..." />\n\n` +
     `// Disabled\n` +
-    `<Textarea label="Disabled" disabled value="This textarea is disabled" />`;
+    `<Textarea label="Disabled" disabled value="This textarea is disabled" />\n\n` +
+    `// Overlay Scrollbar (opt-in)\n` +
+    `<Textarea label="Log Viewer" useOverlayScrollbar className="h-28 resize-none" value={longText} readOnly />`;
 
   const demo = (
     <div className="space-y-6">
@@ -88,6 +90,20 @@ export default function TextareaExample() {
       <div className="space-y-2">
         <Textarea label="Disabled" disabled value="This textarea is disabled" />
       </div>
+
+      {/* Overlay Scrollbar */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Overlay Scrollbar (opt-in)</p>
+        <Textarea
+          label="Log Viewer"
+          useOverlayScrollbar
+          className="h-28 resize-none"
+          value={Array.from({ length: 24 })
+            .map((_, i) => `[${String(i + 1).padStart(2, "0")}] Event line for testing scrollbar behavior`)
+            .join("\n")}
+          readOnly
+        />
+      </div>
     </div>
   );
 
@@ -103,9 +119,10 @@ export default function TextareaExample() {
     { property: "value", description: t("props.textarea.value"), type: "string", default: "—" },
     { property: "onChange", description: t("props.textarea.onChange"), type: "(e: React.ChangeEvent<HTMLTextAreaElement>) => void", default: "—" },
     { property: "placeholder", description: t("props.textarea.placeholder"), type: "string", default: "—" },
+    { property: "useOverlayScrollbar", description: "Enable OverlayScrollbars on textarea viewport", type: "boolean", default: "false" },
     { property: "className", description: t("props.textarea.className"), type: "string", default: "—" },
   ];
-  const order = ["label","variant","size","description","error","maxLength","required","disabled","value","onChange","placeholder","className"];
+  const order = ["label","variant","size","description","error","maxLength","required","disabled","value","onChange","placeholder","useOverlayScrollbar","className"];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Textarea.md" />;
 
   return (
@@ -120,4 +137,3 @@ export default function TextareaExample() {
     />
   );
 }
-

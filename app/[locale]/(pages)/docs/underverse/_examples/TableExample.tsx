@@ -23,7 +23,7 @@ export default function TableExample() {
     `  { name: 'Charlie', role: 'Manager', email: 'charlie@example.com' },\n` +
     `]\n\n` +
     `// 1) Basic table\n` +
-    `<Table containerClassName=\"max-w-xl\">\n` +
+    `<Table containerClassName=\"max-w-xl\" useOverlayScrollbar>\n` +
     `  <TableHeader>\n` +
     `    <TableRow>\n` +
     `      <TableHead>Name</TableHead>\n` +
@@ -116,7 +116,7 @@ export default function TableExample() {
   const demo = (
     <div className="space-y-6">
       {/* 1) Basic table */}
-      <Table containerClassName="max-w-xl">
+      <Table containerClassName="max-w-xl" useOverlayScrollbar>
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
@@ -214,6 +214,7 @@ export default function TableExample() {
   const docsRows: PropsRow[] = [
     { property: "Table.containerClassName", description: t("props.table.Table.containerClassName"), type: "string", default: "-" },
     { property: "Table.className", description: t("props.table.Table.className"), type: "string", default: "-" },
+    { property: "Table.useOverlayScrollbar", description: "Enable OverlayScrollbars for table container", type: "boolean", default: "false" },
     { property: "TableHeader.filterRow", description: t("props.table.TableHeader.filterRow"), type: "React.ReactNode", default: "-" },
     { property: "TableHeader.className", description: t("props.table.TableHeader.className"), type: "string", default: "-" },
     { property: "TableBody.className", description: t("props.table.TableBody.className"), type: "string", default: "-" },
@@ -237,4 +238,3 @@ export default function TableExample() {
     />
   );
 }
-

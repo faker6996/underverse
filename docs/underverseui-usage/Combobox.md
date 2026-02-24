@@ -135,5 +135,7 @@ export interface ComboboxProps {
   renderValue?: (option: ComboboxOption) => React.ReactNode;
   error?: string; // Error message
   helperText?: string; // Helper text
+  /** Enable OverlayScrollbars on dropdown options list. Default: false */
+  useOverlayScrollbar?: boolean;
 }
 ```

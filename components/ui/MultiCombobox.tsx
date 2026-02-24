@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils/cn";
 import { ChevronDown, Search, Check, SearchX, Loader2, X, Sparkles } from "lucide-react";
 import { useShadCNAnimations } from "@/lib/utils/shadcn-animations";
 import { Popover } from "./Popover";
+import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 
 export interface MultiComboboxOption {
   value: string;
@@ -49,6 +50,8 @@ export interface MultiComboboxProps {
   error?: string;
   helperText?: string;
   maxTagsVisible?: number;
+  /** Enable OverlayScrollbars on dropdown options list. Default: false */
+  useOverlayScrollbar?: boolean;
 }
 
 // Helper functions
@@ -95,12 +98,16 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   error,
   helperText,
   maxTagsVisible = 3,
+  useOverlayScrollbar = false,
 }) => {
   const [query, setQuery] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
+  const optionsListRef = React.useRef<HTMLUListElement>(null);
+
+  useOverlayScrollbarTarget(optionsListRef, { enabled: useOverlayScrollbar });
 
   const triggerRef = React.useRef<HTMLButtonElement>(null);
 
@@ -351,7 +358,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         id={listboxId}
         role="listbox"
         aria-multiselectable="true"
-       
+        ref={optionsListRef}
         style={{ maxHeight }}
         className={cn("overflow-y-auto p-1.5", size === "lg" ? "text-base" : size === "sm" ? "text-xs" : "text-sm")}
       >

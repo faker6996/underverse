@@ -103,6 +103,8 @@ interface CategoryTreeSelectProps {
   onNodeClick?: (node: Category) => void; // Click callback
   labels?: CategoryTreeSelectLabels;
   className?: string;
+  /** Enable OverlayScrollbars for dropdown tree viewport. Default: false */
+  useOverlayScrollbar?: boolean;
 }
 
 interface Category {

@@ -1,31 +1,42 @@
+"use client";
+
 import React from "react";
 import { cn } from "@/lib/utils/cn";
+import { useOverlayScrollbarTarget } from "@/components/ui/OverlayScrollbarProvider";
 
 interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
   containerClassName?: string;
   disableContainer?: boolean;
+  /** Enable OverlayScrollbars on table container. Default: false */
+  useOverlayScrollbar?: boolean;
 }
 
-const Table = React.forwardRef<HTMLTableElement, TableProps>(({ className, containerClassName, disableContainer = false, ...props }, ref) => {
-  if (disableContainer) {
-    return <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />;
-  }
+const Table = React.forwardRef<HTMLTableElement, TableProps>(
+  ({ className, containerClassName, disableContainer = false, useOverlayScrollbar = false, ...props }, ref) => {
+    const containerRef = React.useRef<HTMLDivElement>(null);
 
-  return (
-    <div
-      className={cn(
-        "relative w-full overflow-auto custom-scrollbar",
-        "rounded-2xl md:rounded-3xl border border-border",
-        "bg-card text-card-foreground shadow-sm",
-        "backdrop-blur-sm transition-all duration-300",
-        containerClassName,
-      )}
-     
-    >
-      <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
-    </div>
-  );
-});
+    useOverlayScrollbarTarget(containerRef, { enabled: !disableContainer && useOverlayScrollbar });
+
+    if (disableContainer) {
+      return <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />;
+    }
+
+    return (
+      <div
+        ref={containerRef}
+        className={cn(
+          "relative w-full overflow-auto",
+          "rounded-2xl md:rounded-3xl border border-border",
+          "bg-card text-card-foreground shadow-sm",
+          "backdrop-blur-sm transition-all duration-300",
+          containerClassName,
+        )}
+      >
+        <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
+      </div>
+    );
+  },
+);
 Table.displayName = "Table";
 
 interface TableHeaderProps extends React.HTMLAttributes<HTMLTableSectionElement> {

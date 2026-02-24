@@ -152,5 +152,7 @@ export interface MultiComboboxProps {
   error?: string; // Error message
   helperText?: string; // Helper text
   maxTagsVisible?: number; // Max visible tags (default: 3)
+  /** Enable OverlayScrollbars on dropdown options list. Default: false */
+  useOverlayScrollbar?: boolean;
 }
 ```

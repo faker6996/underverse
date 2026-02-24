@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronRight, ChevronDown, FolderTree, Layers, Search, SearchX, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 
 interface Category {
   id: number;
@@ -44,6 +45,8 @@ interface CategoryTreeSelectBaseProps {
   onNodeClick?: (node: Category) => void;
   /** Custom class for the tree container */
   className?: string;
+  /** Enable OverlayScrollbars for dropdown tree viewport. Default: false */
+  useOverlayScrollbar?: boolean;
 }
 
 // Multi-select mode (default)
@@ -81,6 +84,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     inline = false,
     onNodeClick,
     className,
+    useOverlayScrollbar = false,
     singleSelect = false,
   } = props;
 
@@ -88,6 +92,9 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   const [expandedNodes, setExpandedNodes] = useState<Set<number>>(new Set());
   const [query, setQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const dropdownViewportRef = useRef<HTMLDivElement | null>(null);
+
+  useOverlayScrollbarTarget(dropdownViewportRef, { enabled: useOverlayScrollbar });
 
   // Merge user labels with defaults
   const mergedLabels = { ...defaultLabels, ...labels };
@@ -491,8 +498,9 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
         <>
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
           <div
+            ref={dropdownViewportRef}
             className={cn(
-              "absolute z-20 mt-2 w-full max-h-80 overflow-auto custom-scrollbar",
+              "absolute z-20 mt-2 w-full max-h-80 overflow-auto",
               "rounded-2xl md:rounded-3xl border border-border/40 bg-popover/95 text-popover-foreground",
               "shadow-2xl backdrop-blur-xl",
               "p-2",

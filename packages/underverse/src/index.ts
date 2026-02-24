@@ -48,6 +48,8 @@ export { Pagination, SimplePagination, CompactPagination } from "../../../compon
 export type { PaginationProps, SimplePaginationProps, CompactPaginationProps } from "../../../components/ui/Pagination";
 export { default as Section } from "../../../components/ui/Section";
 export { ScrollArea } from "../../../components/ui/ScrollArea";
+export { OverlayScrollArea } from "../../../components/ui/OverlayScrollArea";
+export type { OverlayScrollAreaProps } from "../../../components/ui/OverlayScrollArea";
 
 // Pickers / inputs
 export { DatePicker, DateRangePicker } from "../../../components/ui/DatePicker";
@@ -126,6 +128,8 @@ export { default as ClientOnly } from "../../../components/ui/ClientOnly";
 export * from "../../../components/ui/Loading";
 export { default as OverlayScrollbarProvider } from "../../../components/ui/OverlayScrollbarProvider";
 export type { OverlayScrollbarProviderProps } from "../../../components/ui/OverlayScrollbarProvider";
+export { useOverlayScrollbarTarget } from "../../../components/ui/OverlayScrollbarProvider";
+export type { UseOverlayScrollbarTargetOptions } from "../../../components/ui/OverlayScrollbarProvider";
 // ThemeToggle depends on app-specific ThemeContext, not exported to keep package neutral
 export { default as DataTable } from "../../../components/ui/DataTable";
 export type { DataTableColumn, DataTableDensity, DataTableQuery, DataTableSize, Sorter } from "../../../components/ui/DataTable";

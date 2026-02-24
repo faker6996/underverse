@@ -3,8 +3,8 @@ import test from "node:test";
 
 import {
   createOverlayScrollbarController,
-  DEFAULT_OVERLAY_SCROLLBAR_SELECTOR,
   DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
+  shouldSkipOverlayScrollbarElement,
 } from "../../../components/ui/overlay-scrollbar-controller.ts";
 
 class FakeClassList {
@@ -22,15 +22,6 @@ class FakeClassList {
       if (token) this.values.add(token);
     });
     this.owner._syncClassAttribute();
-    this.owner._notifyAttributesMutation();
-  }
-
-  remove(...tokens) {
-    tokens.forEach((token) => {
-      this.values.delete(token);
-    });
-    this.owner._syncClassAttribute();
-    this.owner._notifyAttributesMutation();
   }
 
   setFromString(value) {
@@ -39,32 +30,14 @@ class FakeClassList {
   }
 }
 
-class FakeMutationObserver {
-  constructor(callback, registry) {
-    this.callback = callback;
-    this.registry = registry;
-    this.observations = [];
-    registry.add(this);
-  }
-
-  observe(target, options) {
-    this.observations.push({ target, options });
-  }
-
-  disconnect() {
-    this.observations = [];
-    this.registry.delete(this);
-  }
-}
-
 class FakeElement {
-  constructor(tagName, observerBus) {
+  constructor(tagName = "div") {
     this.tagName = String(tagName || "div").toUpperCase();
     this.attributes = new Map();
-    this.children = [];
     this.parentElement = null;
-    this.isConnected = false;
-    this._observerBus = observerBus;
+    this.children = [];
+    this.isConnected = true;
+    this._visible = true;
     this.classList = new FakeClassList(this);
   }
 
@@ -73,7 +46,6 @@ class FakeElement {
     child.parentElement = this;
     this.children.push(child);
     child._setConnected(this.isConnected);
-    this._observerBus.notify({ target: this, addedNodes: [child] });
     return child;
   }
 
@@ -83,7 +55,6 @@ class FakeElement {
     this.children.splice(index, 1);
     child.parentElement = null;
     child._setConnected(false);
-    this._observerBus.notify({ target: this, addedNodes: [] });
     return child;
   }
 
@@ -92,15 +63,14 @@ class FakeElement {
     const attrValue = String(value);
     this.attributes.set(attr, attrValue);
     if (attr === "class") this.classList.setFromString(attrValue);
-    this._notifyAttributesMutation();
-  }
-
-  getAttribute(name) {
-    return this.attributes.get(String(name)) ?? null;
   }
 
   hasAttribute(name) {
     return this.attributes.has(String(name));
+  }
+
+  getAttribute(name) {
+    return this.attributes.get(String(name)) ?? null;
   }
 
   matches(selectorList) {
@@ -120,16 +90,23 @@ class FakeElement {
     return null;
   }
 
-  querySelectorAll(selectorList) {
-    const results = [];
-    const visit = (node) => {
-      node.children.forEach((child) => {
-        if (child.matches(selectorList)) results.push(child);
-        visit(child);
-      });
-    };
-    visit(this);
-    return results;
+  getClientRects() {
+    return this._visible ? [{ width: 1, height: 1 }] : [];
+  }
+
+  setVisible(next) {
+    this._visible = Boolean(next);
+  }
+
+  _setConnected(next) {
+    this.isConnected = next;
+    this.children.forEach((child) => child._setConnected(next));
+  }
+
+  _syncClassAttribute() {
+    const value = Array.from(this.classList.values).join(" ");
+    if (value) this.attributes.set("class", value);
+    else this.attributes.delete("class");
   }
 
   _matchesSingle(selector) {
@@ -151,314 +128,206 @@ class FakeElement {
 
     return this.tagName.toLowerCase() === selector.toLowerCase();
   }
+}
 
-  _syncClassAttribute() {
-    const value = Array.from(this.classList.values).join(" ");
-    if (value) this.attributes.set("class", value);
-    else this.attributes.delete("class");
+class FakeIntersectionObserver {
+  constructor(callback) {
+    this.callback = callback;
+    this.disconnected = false;
+    this.observed = [];
   }
 
-  _notifyAttributesMutation() {
-    this._observerBus.notify({ target: this, addedNodes: [] });
+  observe(target) {
+    this.observed.push(target);
   }
 
-  _setConnected(next) {
-    this.isConnected = next;
-    this.children.forEach((child) => child._setConnected(next));
+  disconnect() {
+    this.disconnected = true;
+    this.observed = [];
+  }
+
+  emit(entries) {
+    this.callback(entries);
   }
 }
 
-function createFakeObserverBus() {
-  const observers = new Set();
-  return {
-    observers,
-    createObserver(callback) {
-      return new FakeMutationObserver(callback, observers);
-    },
-    notify(record) {
-      observers.forEach((observer) => {
-        observer.observations.forEach(({ target, options }) => {
-          const sameTarget = target === record.target;
-          const inSubtree = options?.subtree && isDescendant(record.target, target);
-          if (!sameTarget && !inSubtree) return;
-          observer.callback([record], observer);
-        });
-      });
-    },
-  };
-}
-
-function isDescendant(node, possibleAncestor) {
-  let cursor = node;
-  while (cursor) {
-    if (cursor === possibleAncestor) return true;
-    cursor = cursor.parentElement ?? null;
-  }
-  return false;
-}
-
-function createFakeDom() {
-  const observerBus = createFakeObserverBus();
-  const html = new FakeElement("html", observerBus);
-  const body = new FakeElement("body", observerBus);
-  html._setConnected(true);
-  html.appendChild(body);
-
-  return {
-    html,
-    body,
-    createElement(tagName, attrs = {}) {
-      const element = new FakeElement(tagName, observerBus);
-      Object.entries(attrs).forEach(([key, value]) => element.setAttribute(key, value));
-      return element;
-    },
-    createObserver: observerBus.createObserver,
-  };
-}
-
-function createRaf() {
+function createImmediateRaf() {
   let id = 0;
-  const timers = new Map();
+  const cancelled = new Set();
+
   return {
     raf(callback) {
       id += 1;
-      const timeout = setTimeout(() => {
-        timers.delete(id);
+      const currentId = id;
+      Promise.resolve().then(() => {
+        if (cancelled.has(currentId)) return;
         callback(Date.now());
-      }, 0);
-      timers.set(id, timeout);
-      return id;
+      });
+      return currentId;
     },
-    caf(nextId) {
-      const timeout = timers.get(nextId);
-      if (timeout) clearTimeout(timeout);
-      timers.delete(nextId);
+    caf(currentId) {
+      cancelled.add(currentId);
     },
   };
 }
 
 async function flush() {
-  await new Promise((resolve) => setTimeout(resolve, 5));
+  await Promise.resolve();
+  await Promise.resolve();
 }
 
-async function withFakeHTMLElement(run) {
-  const prevHTMLElement = globalThis.HTMLElement;
-  globalThis.HTMLElement = FakeElement;
-  try {
-    return await run();
-  } finally {
-    globalThis.HTMLElement = prevHTMLElement;
-  }
-}
+test("shouldSkipOverlayScrollbarElement blocks root and excluded trees", () => {
+  const html = new FakeElement("html");
+  const body = new FakeElement("body");
+  const dialog = new FakeElement("div");
+  const child = new FakeElement("div");
+  dialog.setAttribute("role", "dialog");
+  dialog.appendChild(child);
 
-test("init by selector only", async () =>
-  withFakeHTMLElement(async () => {
-    const dom = createFakeDom();
-    const raf = createRaf();
-    const created = [];
+  assert.equal(shouldSkipOverlayScrollbarElement(html, DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE), true);
+  assert.equal(shouldSkipOverlayScrollbarElement(body, DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE), true);
+  assert.equal(shouldSkipOverlayScrollbarElement(child, DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE), true);
+});
 
-    const marked = dom.createElement("div", { id: "marked", "data-os-scrollbar": "true" });
-    const plain = dom.createElement("div", { id: "plain", class: "overflow-auto" });
-    dom.body.appendChild(marked);
-    dom.body.appendChild(plain);
+test("controller initializes only when enabled and visible", async () => {
+  const target = new FakeElement("div");
+  target.setVisible(false);
 
-    const controller = createOverlayScrollbarController({
-      selector: "[data-os-scrollbar]",
-      exclude: DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
-      options: {},
-      root: dom.body,
-      createObserver: dom.createObserver,
-      requestAnimationFrameImpl: raf.raf,
-      cancelAnimationFrameImpl: raf.caf,
-      createInstance: (element) => {
-        created.push(element.getAttribute("id"));
-        return { destroy() {} };
-      },
-    });
+  const raf = createImmediateRaf();
+  const created = [];
+  const destroyed = [];
+  let observer = null;
 
-    await flush();
-    assert.deepEqual(created, ["marked"]);
+  const controller = createOverlayScrollbarController({
+    element: target,
+    enabled: true,
+    exclude: DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
+    options: {},
+    isVisible: (element) => element.getClientRects().length > 0,
+    createIntersectionObserver: (callback) => {
+      observer = new FakeIntersectionObserver(callback);
+      return observer;
+    },
+    requestAnimationFrameImpl: raf.raf,
+    cancelAnimationFrameImpl: raf.caf,
+    createInstance: (element) => {
+      created.push(element);
+      return {
+        destroy() {
+          destroyed.push(element);
+        },
+      };
+    },
+  });
 
-    controller.destroy();
-  }));
+  await flush();
+  assert.equal(created.length, 0);
 
-test("default selector covers overflow classes without manual marker", async () =>
-  withFakeHTMLElement(async () => {
-    const dom = createFakeDom();
-    const raf = createRaf();
-    const created = [];
+  target.setVisible(true);
+  observer.emit([{ isIntersecting: true, intersectionRatio: 1 }]);
+  await flush();
 
-    const overflowNode = dom.createElement("div", { id: "overflow", class: "overflow-auto" });
-    dom.body.appendChild(overflowNode);
+  assert.equal(created.length, 1);
+  assert.equal(controller.getInstanceCount(), 1);
 
-    const controller = createOverlayScrollbarController({
-      selector: DEFAULT_OVERLAY_SCROLLBAR_SELECTOR,
-      exclude: DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
-      options: {},
-      root: dom.body,
-      createObserver: dom.createObserver,
-      requestAnimationFrameImpl: raf.raf,
-      cancelAnimationFrameImpl: raf.caf,
-      createInstance: (element) => {
-        created.push(element.getAttribute("id"));
-        return { destroy() {} };
-      },
-    });
+  controller.destroy();
+  assert.equal(destroyed.length, 1);
+  assert.equal(controller.getInstanceCount(), 0);
+});
 
-    await flush();
-    assert.deepEqual(created, ["overflow"]);
-    controller.destroy();
-  }));
+test("controller skips portal / dialog / toaster trees", async () => {
+  const portalRoot = new FakeElement("div");
+  portalRoot.setAttribute("data-radix-portal", "true");
+  const target = new FakeElement("div");
+  portalRoot.appendChild(target);
 
-test("skip by exclude selector", async () =>
-  withFakeHTMLElement(async () => {
-    const dom = createFakeDom();
-    const raf = createRaf();
-    const created = [];
+  const raf = createImmediateRaf();
+  let created = 0;
 
-    dom.body.appendChild(dom.createElement("div", { id: "ok", "data-os-scrollbar": "true" }));
-    dom.body.appendChild(dom.createElement("div", { id: "ignored", "data-os-scrollbar": "true", "data-os-ignore": "true" }));
+  const controller = createOverlayScrollbarController({
+    element: target,
+    enabled: true,
+    exclude: DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
+    options: {},
+    requestAnimationFrameImpl: raf.raf,
+    cancelAnimationFrameImpl: raf.caf,
+    createInstance: () => {
+      created += 1;
+      return { destroy() {} };
+    },
+  });
 
-    const dialog = dom.createElement("div", { role: "dialog" });
-    dialog.appendChild(dom.createElement("div", { id: "dialog-child", "data-os-scrollbar": "true" }));
-    dom.body.appendChild(dialog);
+  await flush();
+  assert.equal(created, 0);
+  assert.equal(controller.getInstanceCount(), 0);
 
-    const controller = createOverlayScrollbarController({
-      selector: "[data-os-scrollbar]",
-      exclude: DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
-      options: {},
-      root: dom.body,
-      createObserver: dom.createObserver,
-      requestAnimationFrameImpl: raf.raf,
-      cancelAnimationFrameImpl: raf.caf,
-      createInstance: (element) => {
-        created.push(element.getAttribute("id"));
-        return { destroy() {} };
-      },
-    });
+  controller.destroy();
+});
 
-    await flush();
-    assert.deepEqual(created, ["ok"]);
-    controller.destroy();
-  }));
+test("controller respects disabled flag", async () => {
+  const target = new FakeElement("div");
+  const raf = createImmediateRaf();
+  let created = 0;
 
-test("dynamic node add/remove with cleanup", async () =>
-  withFakeHTMLElement(async () => {
-    const dom = createFakeDom();
-    const raf = createRaf();
-    const created = [];
-    const destroyed = [];
+  const controller = createOverlayScrollbarController({
+    element: target,
+    enabled: false,
+    exclude: DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
+    options: {},
+    requestAnimationFrameImpl: raf.raf,
+    cancelAnimationFrameImpl: raf.caf,
+    createInstance: () => {
+      created += 1;
+      return { destroy() {} };
+    },
+  });
 
-    const controller = createOverlayScrollbarController({
-      selector: "[data-os-scrollbar]",
-      exclude: DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
-      options: {},
-      root: dom.body,
-      createObserver: dom.createObserver,
-      requestAnimationFrameImpl: raf.raf,
-      cancelAnimationFrameImpl: raf.caf,
-      createInstance: (element) => {
-        created.push(element);
-        return {
-          destroy() {
-            destroyed.push(element);
-          },
-        };
-      },
-    });
+  await flush();
+  assert.equal(created, 0);
+  assert.equal(controller.getInstanceCount(), 0);
 
-    const dynamic = dom.createElement("div", { id: "dynamic", "data-os-scrollbar": "true" });
-    dom.body.appendChild(dynamic);
-    await flush();
-    assert.equal(created.length, 1);
-    assert.equal(controller.getInstanceCount(), 1);
+  controller.destroy();
+});
 
-    dom.body.removeChild(dynamic);
-    await flush();
-    assert.equal(destroyed.length, 1);
-    assert.equal(controller.getInstanceCount(), 0);
-    controller.destroy();
-  }));
+test("controller skips data-os-ignore and scrollbar-none", async () => {
+  const ignored = new FakeElement("div");
+  ignored.setAttribute("data-os-ignore", "true");
 
-test("portal safety with wide selector", async () =>
-  withFakeHTMLElement(async () => {
-    const dom = createFakeDom();
-    const raf = createRaf();
-    const created = [];
+  const hiddenScrollbar = new FakeElement("div");
+  hiddenScrollbar.classList.add("scrollbar-none");
 
-    const normal = dom.createElement("div", { id: "normal", class: "overflow-auto" });
-    dom.body.appendChild(normal);
+  const raf = createImmediateRaf();
+  let created = 0;
 
-    const portalRoot = dom.createElement("div", { "data-radix-portal": "true" });
-    portalRoot.appendChild(dom.createElement("div", { id: "portal-child", class: "overflow-auto" }));
-    dom.body.appendChild(portalRoot);
+  const one = createOverlayScrollbarController({
+    element: ignored,
+    enabled: true,
+    exclude: DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
+    options: {},
+    requestAnimationFrameImpl: raf.raf,
+    cancelAnimationFrameImpl: raf.caf,
+    createInstance: () => {
+      created += 1;
+      return { destroy() {} };
+    },
+  });
 
-    const dialogRoot = dom.createElement("div", { role: "dialog" });
-    dialogRoot.appendChild(dom.createElement("div", { id: "dialog-child", class: "overflow-y-auto" }));
-    dom.body.appendChild(dialogRoot);
+  const two = createOverlayScrollbarController({
+    element: hiddenScrollbar,
+    enabled: true,
+    exclude: DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
+    options: {},
+    requestAnimationFrameImpl: raf.raf,
+    cancelAnimationFrameImpl: raf.caf,
+    createInstance: () => {
+      created += 1;
+      return { destroy() {} };
+    },
+  });
 
-    const controller = createOverlayScrollbarController({
-      selector: ".overflow-auto, .overflow-y-auto, .overflow-x-auto, [data-os-scrollbar]",
-      exclude: DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
-      options: {},
-      root: dom.body,
-      createObserver: dom.createObserver,
-      requestAnimationFrameImpl: raf.raf,
-      cancelAnimationFrameImpl: raf.caf,
-      createInstance: (element) => {
-        created.push(element.getAttribute("id"));
-        return { destroy() {} };
-      },
-    });
+  await flush();
+  assert.equal(created, 0);
 
-    await flush();
-    assert.deepEqual(created, ["normal"]);
-    assert.doesNotThrow(() => {
-      dom.body.removeChild(portalRoot);
-      dom.body.removeChild(dialogRoot);
-    });
-    controller.destroy();
-  }));
-
-test("destroy cleanup prevents memory leaks", async () =>
-  withFakeHTMLElement(async () => {
-    const dom = createFakeDom();
-    const raf = createRaf();
-    const destroyed = [];
-    let createCount = 0;
-
-    const one = dom.createElement("div", { "data-os-scrollbar": "true" });
-    const two = dom.createElement("div", { "data-os-scrollbar": "true" });
-    dom.body.appendChild(one);
-    dom.body.appendChild(two);
-
-    const controller = createOverlayScrollbarController({
-      selector: "[data-os-scrollbar]",
-      exclude: DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
-      options: {},
-      root: dom.body,
-      createObserver: dom.createObserver,
-      requestAnimationFrameImpl: raf.raf,
-      cancelAnimationFrameImpl: raf.caf,
-      createInstance: (element) => {
-        createCount += 1;
-        return {
-          destroy() {
-            destroyed.push(element);
-          },
-        };
-      },
-    });
-
-    await flush();
-    assert.equal(createCount, 2);
-    assert.equal(controller.getInstanceCount(), 2);
-
-    controller.destroy();
-    assert.equal(destroyed.length, 2);
-    assert.equal(controller.getInstanceCount(), 0);
-
-    dom.body.appendChild(dom.createElement("div", { "data-os-scrollbar": "true" }));
-    await flush();
-    assert.equal(createCount, 2);
-  }));
+  one.destroy();
+  two.destroy();
+});

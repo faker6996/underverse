@@ -227,6 +227,7 @@ export default function ComboboxExample() {
           required
           size="md"
           usePortal
+          useOverlayScrollbar
           fontBold
           helperText="Supports keyboard navigation and search"
         />
@@ -261,6 +262,7 @@ export default function ComboboxExample() {
     { property: "groupBy", description: "Function to get group name from option", type: "(option: ComboboxOption) => string", default: "-" },
     { property: "renderOption", description: "Custom render function for options", type: "(option, isSelected) => ReactNode", default: "-" },
     { property: "renderValue", description: "Custom render function for selected value", type: "(option) => ReactNode", default: "-" },
+    { property: "useOverlayScrollbar", description: "Enable OverlayScrollbars for dropdown options list", type: "boolean", default: "false" },
     { property: "error", description: "Error message to display", type: "string", default: "-" },
     { property: "helperText", description: "Helper text below the combobox", type: "string", default: "-" },
   ];

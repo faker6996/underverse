@@ -4,7 +4,6 @@ import Script from "next/script";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import GlobalFallingIcons from "@/components/ui/GlobalFallingIcons";
-import OverlayScrollbarProvider from "@/components/ui/OverlayScrollbarProvider";
 import { getOrganizationSchema, getSoftwareApplicationSchema } from "@/lib/seo/structured-data";
 
 // Configure Inter font with Vietnamese support
@@ -115,7 +114,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             } catch {}
           `}
         </Script>
-        <OverlayScrollbarProvider />
         <GlobalFallingIcons />
         {children}
       </body>

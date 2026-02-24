@@ -12,7 +12,7 @@ export default function ScrollAreaExample() {
   const code =
     `import { ScrollArea } from '@underverse-ui/underverse'\n\n` +
     `// 1) Basic - no default padding\n` +
-    `<ScrollArea className="h-32 w-full border border-border rounded-md">\n` +
+    `<ScrollArea className="h-32 w-full border border-border rounded-md" useOverlayScrollbar>\n` +
     `  <div className="p-3 space-y-2">\n` +
     `    {Array.from({ length: 20 }).map((_, i) => (\n` +
     `      <div key={i} className="text-sm">Dòng {i + 1}</div>\n` +
@@ -50,7 +50,7 @@ export default function ScrollAreaExample() {
       {/* 1) Basic - no padding */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Basic (no default padding)</p>
-        <ScrollArea className="h-32 w-full border border-border rounded-md">
+        <ScrollArea className="h-32 w-full border border-border rounded-md" useOverlayScrollbar>
           <div className="p-3 space-y-2">
             {Array.from({ length: 20 }).map((_, i) => (
               <div key={i} className="text-sm">
@@ -109,9 +109,10 @@ export default function ScrollAreaExample() {
     { property: "contentClassName", description: t("props.scrollArea.contentClassName"), type: "string", default: "-" },
     { property: "variant", description: t("props.scrollArea.variant"), type: '"default" | "muted" | "primary" | "accent"', default: '"default"' },
     { property: "outlined", description: t("props.scrollArea.outlined"), type: "boolean", default: "false" },
+    { property: "useOverlayScrollbar", description: "Enable OverlayScrollbars for viewport", type: "boolean", default: "false" },
     { property: "children", description: t("props.scrollArea.children"), type: "React.ReactNode", default: "-" },
   ];
-  const order = ["className", "contentClassName", "variant", "outlined", "children"];
+  const order = ["className", "contentClassName", "variant", "outlined", "useOverlayScrollbar", "children"];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="ScrollArea.md" />;
 
   return (

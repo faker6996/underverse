@@ -1,6 +1,6 @@
 # DataTable
 
-Source: `components/ui/DataTable.tsx`
+Source: `components/ui/DataTable/DataTable.tsx`
 
 Exports:
 
@@ -75,7 +75,7 @@ export function Example() {
     { name: "San pham B", price: "240.000d" },
   ];
 
-  return <DataTable columns={columns} data={data} total={data.length} page={1} pageSize={10} />;
+  return <DataTable columns={columns} data={data} total={data.length} page={1} pageSize={10} useOverlayScrollbar />;
 }
 ```
 
@@ -106,6 +106,8 @@ interface DataTableProps<T> {
   stickyHeader?: boolean;
   /** Chiều cao tối đa của bảng khi bật stickyHeader. Mặc định là 500px */
   maxHeight?: number | string;
+  /** Enable OverlayScrollbars on table viewport. Default: false */
+  useOverlayScrollbar?: boolean;
   labels?: {
     density?: string;
     columns?: string;
@@ -258,6 +260,7 @@ DataTable hỗ trợ cố định header khi cuộn dọc. Mặc định đượ
   data={data}
   stickyHeader={true} // Mặc định là true
   maxHeight={400} // Chiều cao tối đa, mặc định 500px
+  useOverlayScrollbar={true}
 />
 ```
 
@@ -267,6 +270,7 @@ DataTable hỗ trợ cố định header khi cuộn dọc. Mặc định đượ
 | -------------- | ---------------- | ------- | ---------------------------------------------- |
 | `stickyHeader` | `boolean`        | `true`  | Cố định header khi cuộn dọc                    |
 | `maxHeight`    | `number\|string` | `500`   | Chiều cao tối đa của bảng (px hoặc CSS string) |
+| `useOverlayScrollbar` | `boolean` | `false` | Bật OverlayScrollbars cho viewport cuộn của DataTable |
 
 ### Tính năng
 

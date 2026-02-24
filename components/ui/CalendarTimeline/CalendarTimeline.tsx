@@ -1288,7 +1288,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         {/* Right grid: main scroll container (both axes) */}
         <div
           ref={bodyRef}
-          className="relative flex-1 overflow-auto custom-scrollbar"
+          className="relative flex-1 overflow-auto"
          
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}

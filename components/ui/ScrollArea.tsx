@@ -1,5 +1,8 @@
+"use client";
+
 import { cn } from "@/lib/utils/cn";
-import { forwardRef, HTMLAttributes } from "react";
+import { forwardRef, type HTMLAttributes, useRef } from "react";
+import { useOverlayScrollbarTarget } from "@/components/ui/OverlayScrollbarProvider";
 
 interface ScrollAreaProps extends HTMLAttributes<HTMLDivElement> {
   className?: string;
@@ -8,6 +11,8 @@ interface ScrollAreaProps extends HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "muted" | "primary" | "accent";
   /** Show thin border like Card */
   outlined?: boolean;
+  /** Enable OverlayScrollbars for this scroll viewport. Default: false */
+  useOverlayScrollbar?: boolean;
 }
 
 const variantClasses = {
@@ -21,7 +26,11 @@ const variantClasses = {
 // cleanly clip the scrollbar at the edges.
 // Note: No default padding - use className or contentClassName to add padding as needed.
 export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
-  ({ className, contentClassName, children, variant = "default", outlined = false, ...props }, ref) => {
+  ({ className, contentClassName, children, variant = "default", outlined = false, useOverlayScrollbar = false, ...props }, ref) => {
+    const viewportRef = useRef<HTMLDivElement>(null);
+
+    useOverlayScrollbarTarget(viewportRef, { enabled: useOverlayScrollbar });
+
     return (
       <div
         ref={ref}
@@ -33,7 +42,7 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
         )}
         {...props}
       >
-        <div className={cn("h-full w-full overflow-y-auto scroll-area-viewport custom-scrollbar", contentClassName)}>
+        <div ref={viewportRef} className={cn("h-full w-full overflow-y-auto scroll-area-viewport", contentClassName)}>
           {children}
         </div>
       </div>
