@@ -20,7 +20,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(({ className, conta
         "backdrop-blur-sm transition-all duration-300",
         containerClassName,
       )}
-      data-os-scrollbar
+     
     >
       <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
     </div>

@@ -426,18 +426,9 @@ export function DataTable<T extends Record<string, any>>({
         )}
       >
         <div
-          className="custom-scrollbar w-full"
-          data-os-scrollbar
-        style={
-          stickyHeader
-            ? {
-                maxHeight: typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight,
-                overflowY: "auto",
-                overflowX: "auto",
-              }
-            : { overflowX: "auto" }
-        }
-      >
+          className={cn("w-full overflow-x-auto", stickyHeader && "overflow-y-auto")}
+          style={stickyHeader ? { maxHeight: typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight } : undefined}
+        >
         <Table
           disableContainer
           className={cn(

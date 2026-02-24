@@ -143,7 +143,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect, onClose }) =
             {/* Emoji Grid - Messenger Style */}
             <div
                 ref={scrollContainerRef}
-                data-os-scrollbar
+               
                 className="overflow-y-auto px-3 py-2 shrink"
                 style={{ height: "20rem" }}
             >

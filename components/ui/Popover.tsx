@@ -379,7 +379,7 @@ export const Popover: React.FC<PopoverProps> = ({
             >
               <div
                 {...contentProps}
-                data-os-scrollbar={contentScrollable ? true : undefined}
+               
                 className={cn(
                   "rounded-2xl md:rounded-3xl border bg-popover text-popover-foreground shadow-md",
                   "backdrop-blur-sm bg-popover/95 border-border/60 p-4",

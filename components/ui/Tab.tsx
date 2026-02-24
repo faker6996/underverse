@@ -122,7 +122,7 @@ export const Tabs: React.FC<TabsProps> = ({
   return (
     <div className={cn("w-full", orientation === "vertical" && "flex gap-6")}>
       {/* Tab List */}
-      <div className={containerClasses} role="tablist" aria-orientation={orientation} data-os-scrollbar={orientation === "horizontal" ? true : undefined}>
+      <div className={containerClasses} role="tablist" aria-orientation={orientation}>
         {tabs.map((tab, index) => {
           const isActive = active === tab.value;
           const Icon = tab.icon;

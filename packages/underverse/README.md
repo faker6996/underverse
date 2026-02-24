@@ -138,6 +138,7 @@ import { Form, FormField, FormItem, FormLabel, FormMessage } from "@underverse-u
 ### Overlay Scrollbars (Optional, Recommended)
 
 Use `OverlayScrollbarProvider` to get overlay scrollbars (no layout space taken) across your app and Underverse components.
+See release notes in `CHANGELOG.md` for migration details by version.
 
 ```tsx
 import "overlayscrollbars/overlayscrollbars.css";
@@ -160,16 +161,37 @@ function App() {
 
 Provider behavior:
 
-- Initializes **only** on elements marked with `data-os-scrollbar`.
+- Initializes globally by default on common scroll containers (`.overflow-*`, `textarea`) and `[data-os-scrollbar]`.
 - Does **not** initialize on `document.body` / `document.documentElement`.
 - Skips portal/dialog trees (`[data-radix-portal]`, `[role="dialog"]`, `[aria-modal="true"]`, `[data-sonner-toaster]`).
 - Per-node opt-out is available via `data-os-ignore`.
+
+Provider props:
+
+- `enabled?: boolean`
+- `theme?: string`
+- `visibility?: "visible" | "hidden" | "auto"`
+- `autoHide?: "never" | "scroll" | "leave" | "move"`
+- `autoHideDelay?: number`
+- `dragScroll?: boolean`
+- `clickScroll?: boolean`
+- `selector?: string` default: `.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll, .overflow-y-scroll, .overflow-x-scroll, textarea, [data-os-scrollbar]`
+- `exclude?: string` default: `html, body, [data-os-ignore], [data-radix-portal], [role='dialog'], [aria-modal='true'], [data-sonner-toaster]`
+
+Custom selector mode example:
+
+```tsx
+<OverlayScrollbarProvider
+  selector=".overflow-auto, .overflow-y-auto, .overflow-x-auto, [data-os-scrollbar]"
+/>
+```
 
 Migration notes:
 
 - Remove any local DOM-scanning scrollbar provider in your app.
 - Keep a single `OverlayScrollbarProvider` mounted once at app root.
-- If you have custom app-level scroll containers outside Underverse components, add `data-os-scrollbar` to those nodes.
+- You no longer need to add `data-os-scrollbar` to every Underverse component manually.
+- Use `data-os-scrollbar` only for custom scroll nodes that are not covered by your selector.
 
 ### Standalone React (Vite, CRA, etc.)
 

@@ -40,7 +40,11 @@ import { OverlayScrollbarProvider } from "@underverse-ui/underverse";
 export default function App() {
   return (
     <>
-      <OverlayScrollbarProvider enabled theme="os-theme-underverse" autoHide="leave" />
+      <OverlayScrollbarProvider
+        enabled
+        theme="os-theme-underverse"
+        autoHide="leave"
+      />
       {/* app */}
     </>
   );
@@ -48,5 +52,6 @@ export default function App() {
 ```
 
 Notes:
-- Provider target: `[data-os-scrollbar]` only.
+- Provider default target: `.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll, .overflow-y-scroll, .overflow-x-scroll, textarea, [data-os-scrollbar]`.
+- Optional global mode: `selector=\".overflow-auto, .overflow-y-auto, .overflow-x-auto, [data-os-scrollbar]\"`.
 - Opt-out attribute: `data-os-ignore`.

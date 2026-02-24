@@ -327,7 +327,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
       )}
 
       {/* Options List */}
-      <div data-os-scrollbar className="overflow-y-auto overscroll-contain" style={{ maxHeight }}>
+      <div className="overflow-y-auto overscroll-contain" style={{ maxHeight }}>
         <div className={cn(size === "sm" ? "p-1" : size === "lg" ? "p-2" : "p-1.5")}>
           {loading ? (
             <div className="px-3 py-10 text-center">

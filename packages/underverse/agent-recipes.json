@@ -29,6 +29,11 @@
       "code": "import \"overlayscrollbars/overlayscrollbars.css\";\nimport { OverlayScrollbarProvider } from \"@underverse-ui/underverse\";\n\nexport function App(){\n  return <><OverlayScrollbarProvider enabled theme=\"os-theme-underverse\" autoHide=\"leave\" />{/* app */}</>;\n}\n"
     },
     {
+      "id": "overlay-scrollbar-global-selector",
+      "title": "Enable global selector mode",
+      "code": "import \"overlayscrollbars/overlayscrollbars.css\";\nimport { OverlayScrollbarProvider } from \"@underverse-ui/underverse\";\n\nexport function App(){\n  return <><OverlayScrollbarProvider selector=\".overflow-auto, .overflow-y-auto, .overflow-x-auto, [data-os-scrollbar]\" />{/* app */}</>;\n}\n"
+    },
+    {
       "id": "api-discovery-order",
       "title": "How agents should discover API",
       "steps": [

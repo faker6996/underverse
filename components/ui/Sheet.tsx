@@ -227,7 +227,7 @@ export const Sheet: React.FC<SheetProps> = ({
 
         {/* Content */}
         <div
-          data-os-scrollbar
+         
           className="flex-1 overflow-auto p-4"
           style={{
             opacity: open && !isAnimating ? 1 : 0,

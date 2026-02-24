@@ -537,7 +537,6 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           sizeStyles[size].contentPadding,
           "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
         )}
-        contentScrollable
         trigger={
           <button
             ref={triggerRef}
@@ -951,7 +950,6 @@ export const DateRangePicker: React.FC<{
         size === "sm" ? "p-3" : "p-5",
         "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
       )}
-      contentScrollable
       trigger={
         <button
           type="button"

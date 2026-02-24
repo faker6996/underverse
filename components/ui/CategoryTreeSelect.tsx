@@ -498,7 +498,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
               "p-2",
               "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
             )}
-            data-os-scrollbar
+           
           >
             {renderSearch()}
             {renderTreeContent()}

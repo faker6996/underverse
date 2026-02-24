@@ -343,7 +343,7 @@ export function Carousel({
       {/* Thumbnail navigation */}
       {showThumbnails && totalSlides > slidesToShow && (
         <div
-          data-os-scrollbar
+         
           className={cn(
             "absolute bottom-0 left-0 right-0 flex gap-2 p-4 bg-linear-to-t from-black/50 to-transparent overflow-x-auto",
             isHorizontal ? "flex-row" : "flex-col",

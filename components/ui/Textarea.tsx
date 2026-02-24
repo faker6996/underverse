@@ -56,6 +56,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         <div className="relative group">
           <textarea
             ref={ref}
+           
             required={required}
             aria-invalid={!!error}
             onFocus={() => setIsFocused(true)}

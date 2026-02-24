@@ -96,7 +96,6 @@ export function buildUEditorExtensions({
     CodeBlockLowlight.configure({
       lowlight,
       HTMLAttributes: {
-        "data-os-scrollbar": "true",
         class: "rounded-lg bg-[#1e1e1e] p-4 font-mono text-sm overflow-x-auto",
       },
     }),

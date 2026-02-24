@@ -27,6 +27,7 @@
   },
   "files": [
     "dist",
+    "CHANGELOG.md",
     "AGENTS.md",
     "api-reference.json",
     "llms.txt",
@@ -37,6 +38,7 @@
     "dev": "tsup --config tsup.config.ts --watch",
     "generate:api": "node ./scripts/generate-api-reference.mjs",
     "verify:agent-metadata": "npm run generate:api && node ./scripts/verify-agent-metadata.mjs",
+    "test:overlay-scrollbar": "node --test --experimental-strip-types ./tests/overlay-scrollbar-provider.test.mjs",
     "build": "npm run generate:api && tsup --config tsup.config.ts",
     "clean": "rimraf dist",
     "prepublishOnly": "npm run clean && npm run build",
