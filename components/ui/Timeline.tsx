@@ -198,6 +198,7 @@ const TimelineRoot = React.forwardRef<HTMLDivElement, TimelineProps>(
       <TimelineContext.Provider value={{ align, variant, size, mode, lineColor, lineStyle, itemClassName, animate, dense, showLine }}>
         <div
           ref={ref}
+          data-os-scrollbar={mode === "horizontal" ? true : undefined}
           className={cn("relative", mode === "horizontal" && "flex gap-4 overflow-x-auto", mode === "vertical" && "space-y-0", className)}
           {...rest}
         >

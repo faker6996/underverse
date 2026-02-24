@@ -12,6 +12,8 @@ interface PopoverProps {
   children: React.ReactNode;
   className?: string;
   contentClassName?: string;
+  contentProps?: React.HTMLAttributes<HTMLDivElement>;
+  contentScrollable?: boolean;
   placement?: PopoverPlacement;
   modal?: boolean;
   disabled?: boolean;
@@ -145,6 +147,8 @@ export const Popover: React.FC<PopoverProps> = ({
   children,
   className,
   contentClassName,
+  contentProps,
+  contentScrollable = false,
   placement = "bottom",
   modal = false,
   disabled = false,
@@ -362,7 +366,7 @@ export const Popover: React.FC<PopoverProps> = ({
             <div
               ref={panelRef}
               data-state="open"
-              role="dialog"
+              role={modal ? "dialog" : undefined}
               aria-modal={modal || undefined}
               style={{
                 transformOrigin: getTransformOrigin(initialPlacement.side, initialPlacement.align),
@@ -374,12 +378,15 @@ export const Popover: React.FC<PopoverProps> = ({
               )}
             >
               <div
+                {...contentProps}
+                data-os-scrollbar={contentScrollable ? true : undefined}
                 className={cn(
                   "rounded-2xl md:rounded-3xl border bg-popover text-popover-foreground shadow-md",
                   "backdrop-blur-sm bg-popover/95 border-border/60 p-4",
+                  contentProps?.className,
                   contentClassName,
                 )}
-                tabIndex={-1}
+                tabIndex={contentProps?.tabIndex ?? -1}
               >
                 {children}
               </div>

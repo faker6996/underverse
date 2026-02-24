@@ -347,7 +347,7 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
 
       {/* Playlist */}
       {showPlaylist && (
-        <div className="bg-muted/50 backdrop-blur-sm max-h-96 overflow-y-auto border-t border-border">
+        <div data-os-scrollbar className="bg-muted/50 backdrop-blur-sm max-h-96 overflow-y-auto border-t border-border">
           <div className="p-4">
             <h3 className="text-lg font-semibold text-foreground mb-3">Playlist ({playlist.length} songs)</h3>
             <div className="space-y-2">

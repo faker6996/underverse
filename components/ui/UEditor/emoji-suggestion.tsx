@@ -71,7 +71,7 @@ const EmojiList = forwardRef<EmojiListRef, EmojiListProps>((props, ref) => {
     }
 
     return (
-        <div className="w-80 max-h-80 overflow-y-auto bg-card border border-border rounded-2xl shadow-lg">
+        <div data-os-scrollbar className="w-80 max-h-80 overflow-y-auto bg-card border border-border rounded-2xl shadow-lg">
             <div className="px-3 py-2 border-b bg-muted/30">
                 <div className="flex items-center gap-2">
                     <Smile className="w-4 h-4 text-primary" />

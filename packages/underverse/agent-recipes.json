@@ -26,7 +26,7 @@
     {
       "id": "overlay-scrollbar-provider",
       "title": "Enable overlay scrollbars",
-      "code": "import \"overlayscrollbars/overlayscrollbars.css\";\nimport { OverlayScrollbarProvider } from \"@underverse-ui/underverse\";\n\nexport function App(){\n  return <><OverlayScrollbarProvider />{/* app */}</>;\n}\n"
+      "code": "import \"overlayscrollbars/overlayscrollbars.css\";\nimport { OverlayScrollbarProvider } from \"@underverse-ui/underverse\";\n\nexport function App(){\n  return <><OverlayScrollbarProvider enabled theme=\"os-theme-underverse\" autoHide=\"leave\" />{/* app */}</>;\n}\n"
     },
     {
       "id": "api-discovery-order",
@@ -39,4 +39,3 @@
     }
   ]
 }
-

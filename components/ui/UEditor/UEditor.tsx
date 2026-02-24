@@ -218,6 +218,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
 
       <EditorContent
         editor={editor}
+        data-os-scrollbar
         className="flex-1 overflow-y-auto"
         style={{
           minHeight,

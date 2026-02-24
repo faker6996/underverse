@@ -170,7 +170,7 @@ const SlashCommandMenu = ({ editor, onClose, filterText = "" }: { editor: Editor
   }
 
   return (
-    <div ref={menuRef} className="w-72 max-h-80 overflow-y-auto">
+    <div ref={menuRef} data-os-scrollbar className="w-72 max-h-80 overflow-y-auto">
       <div className="px-3 py-2 border-b">
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("slashCommand.basicBlocks")}</span>
       </div>

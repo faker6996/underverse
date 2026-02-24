@@ -125,6 +125,7 @@ export type { GaugeChartProps } from "../../../components/ui/GaugeChart";
 export { default as ClientOnly } from "../../../components/ui/ClientOnly";
 export * from "../../../components/ui/Loading";
 export { default as OverlayScrollbarProvider } from "../../../components/ui/OverlayScrollbarProvider";
+export type { OverlayScrollbarProviderProps } from "../../../components/ui/OverlayScrollbarProvider";
 // ThemeToggle depends on app-specific ThemeContext, not exported to keep package neutral
 export { default as DataTable } from "../../../components/ui/DataTable";
 export type { DataTableColumn, DataTableDensity, DataTableQuery, DataTableSize, Sorter } from "../../../components/ui/DataTable";

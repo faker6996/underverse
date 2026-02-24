@@ -168,7 +168,7 @@ export function CalendarTimelineHeader(props: {
                 "w-auto p-0 rounded-2xl md:rounded-3xl overflow-hidden",
               )}
             >
-              <div className="max-w-[calc(100vw-1rem)] max-h-[calc(100vh-6rem)] overflow-auto">
+              <div data-os-scrollbar className="max-w-[calc(100vw-1rem)] max-h-[calc(100vh-6rem)] overflow-auto">
                 <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-border">
                   <div className="p-2">
                     <CalendarComponent
@@ -310,7 +310,7 @@ export function CalendarTimelineHeader(props: {
             ) : null}
           </div>
         ) : null}
-        <div ref={headerRef} className="flex-1 min-w-0 overflow-x-auto overflow-y-hidden">
+        <div ref={headerRef} data-os-scrollbar className="flex-1 min-w-0 overflow-x-auto overflow-y-hidden">
           {slotHeaderNodes}
         </div>
       </div>

@@ -77,7 +77,7 @@ const CommandList = forwardRef<CommandListRef, CommandListProps>((props, ref) =>
   }
 
   return (
-    <div ref={listRef} className="w-72 max-h-80 overflow-y-auto bg-card border border-border rounded-2xl shadow-lg">
+    <div ref={listRef} data-os-scrollbar className="w-72 max-h-80 overflow-y-auto bg-card border border-border rounded-2xl shadow-lg">
       <div className="px-3 py-2 border-b">
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Basic Blocks</span>
       </div>

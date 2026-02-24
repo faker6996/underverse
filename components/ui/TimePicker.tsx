@@ -480,6 +480,7 @@ function WheelColumn({
 
         <div
           ref={scrollRef as any}
+          data-os-scrollbar
           className={cn(
             "h-full overflow-y-auto overscroll-contain snap-y snap-mandatory",
             "select-none cursor-grab active:cursor-grabbing",

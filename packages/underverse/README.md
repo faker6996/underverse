@@ -146,12 +146,30 @@ import { OverlayScrollbarProvider } from "@underverse-ui/underverse";
 function App() {
   return (
     <>
-      <OverlayScrollbarProvider />
+      <OverlayScrollbarProvider
+        enabled
+        theme="os-theme-underverse"
+        autoHide="leave"
+        autoHideDelay={600}
+      />
       {/* your app */}
     </>
   );
 }
 ```
+
+Provider behavior:
+
+- Initializes **only** on elements marked with `data-os-scrollbar`.
+- Does **not** initialize on `document.body` / `document.documentElement`.
+- Skips portal/dialog trees (`[data-radix-portal]`, `[role="dialog"]`, `[aria-modal="true"]`, `[data-sonner-toaster]`).
+- Per-node opt-out is available via `data-os-ignore`.
+
+Migration notes:
+
+- Remove any local DOM-scanning scrollbar provider in your app.
+- Keep a single `OverlayScrollbarProvider` mounted once at app root.
+- If you have custom app-level scroll containers outside Underverse components, add `data-os-scrollbar` to those nodes.
 
 ### Standalone React (Vite, CRA, etc.)
 

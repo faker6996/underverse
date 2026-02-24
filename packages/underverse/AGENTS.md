@@ -51,12 +51,18 @@ import { OverlayScrollbarProvider } from "@underverse-ui/underverse";
 export function App() {
   return (
     <>
-      <OverlayScrollbarProvider />
+      <OverlayScrollbarProvider enabled theme="os-theme-underverse" autoHide="leave" />
       {/* app */}
     </>
   );
 }
 ```
+
+Behavior:
+
+- Provider initializes only on `[data-os-scrollbar]`.
+- Underverse components already mark their internal scroll containers.
+- Use `data-os-ignore` on a node to opt out.
 
 ## i18n Notes
 

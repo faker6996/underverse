@@ -262,6 +262,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           // Keep the popover usable on small viewports
           "max-w-[calc(100vw-1rem)] max-h-[calc(100vh-6rem)] overflow-auto",
         )}
+        contentScrollable
         placement="bottom-end"
       >
         <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-border">

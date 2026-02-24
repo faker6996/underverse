@@ -1253,6 +1253,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         {showResourceColumn ? (
           <div
             ref={leftRef}
+            data-os-scrollbar
             className="shrink-0 overflow-y-auto overflow-x-hidden"
             style={{ width: effectiveResourceColumnWidth, minWidth: effectiveResourceColumnWidth }}
           >

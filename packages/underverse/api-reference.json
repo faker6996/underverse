@@ -2,7 +2,7 @@
   "package": "@underverse-ui/underverse",
   "version": "1.0.32",
   "sourceEntry": "src/index.ts",
-  "totalExports": 206,
+  "totalExports": 207,
   "exports": [
     {
       "name": "*",
@@ -861,6 +861,13 @@
       "reexport": true,
       "local": false,
       "aliasOf": "default"
+    },
+    {
+      "name": "OverlayScrollbarProviderProps",
+      "kind": "type",
+      "source": "../../../components/ui/OverlayScrollbarProvider",
+      "reexport": true,
+      "local": false
     },
     {
       "name": "PageLoading",

@@ -351,6 +351,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         id={listboxId}
         role="listbox"
         aria-multiselectable="true"
+        data-os-scrollbar
         style={{ maxHeight }}
         className={cn("overflow-y-auto p-1.5", size === "lg" ? "text-base" : size === "sm" ? "text-xs" : "text-sm")}
       >

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { OverlayScrollbars, type PartialOptions } from "overlayscrollbars";
+import { OverlayScrollbars, type OverlayScrollbars as OSInstance, type PartialOptions } from "overlayscrollbars";
 
-const EXPLICIT_SELECTOR = [".thin-scrollbar", ".scrollbar-thin", ".custom-scrollbar", "[data-os-scrollbar]"].join(", ");
+const SCROLLABLE_SELECTOR = "[data-os-scrollbar]";
 
 const PORTAL_EXCLUDE_SELECTOR = [
   "[data-radix-portal]",
@@ -12,41 +12,64 @@ const PORTAL_EXCLUDE_SELECTOR = [
   "[data-sonner-toaster]",
 ].join(", ");
 
-const OPTIONS: PartialOptions = {
-  scrollbars: {
-    theme: "os-theme-underverse",
-    visibility: "auto",
-    autoHide: "leave",
-    autoHideDelay: 600,
-    dragScroll: true,
-    clickScroll: false,
-  },
-};
+export interface OverlayScrollbarProviderProps {
+  enabled?: boolean;
+  theme?: string;
+  visibility?: "visible" | "hidden" | "auto";
+  autoHide?: "never" | "scroll" | "leave" | "move";
+  autoHideDelay?: number;
+  dragScroll?: boolean;
+  clickScroll?: boolean;
+}
 
 function shouldSkip(element: HTMLElement) {
   if (element === document.body || element === document.documentElement) return true;
+  if (element.classList.contains("scrollbar-none")) return true;
   if (element.hasAttribute("data-os-ignore")) return true;
   if (element.hasAttribute("data-overlayscrollbars")) return true;
   if (element.closest(PORTAL_EXCLUDE_SELECTOR)) return true;
   return false;
 }
 
-export function OverlayScrollbarProvider() {
+export function OverlayScrollbarProvider({
+  enabled = true,
+  theme = "os-theme-underverse",
+  visibility = "auto",
+  autoHide = "leave",
+  autoHideDelay = 600,
+  dragScroll = true,
+  clickScroll = false,
+}: OverlayScrollbarProviderProps = {}) {
   useEffect(() => {
-    const instances = new Map<HTMLElement, ReturnType<typeof OverlayScrollbars>>();
+    if (typeof window === "undefined") return;
+    if (!enabled) return;
+
+    const options: PartialOptions = {
+      scrollbars: {
+        theme,
+        visibility,
+        autoHide,
+        autoHideDelay,
+        dragScroll,
+        clickScroll,
+      },
+    };
+
+    const instances = new Map<HTMLElement, OSInstance>();
     let rafId = 0;
 
     const init = (element: HTMLElement) => {
       if (shouldSkip(element)) return;
       if (instances.has(element)) return;
-      instances.set(element, OverlayScrollbars(element, OPTIONS));
+      instances.set(element, OverlayScrollbars(element, options));
     };
 
     const scan = (root: ParentNode | HTMLElement) => {
-      if (root instanceof HTMLElement && root.matches(EXPLICIT_SELECTOR)) {
+      if (root instanceof HTMLElement && root.matches(SCROLLABLE_SELECTOR)) {
         init(root);
       }
-      root.querySelectorAll<HTMLElement>(EXPLICIT_SELECTOR).forEach(init);
+      if (!("querySelectorAll" in root)) return;
+      root.querySelectorAll<HTMLElement>(SCROLLABLE_SELECTOR).forEach(init);
     };
 
     const cleanup = () => {
@@ -91,7 +114,7 @@ export function OverlayScrollbarProvider() {
       instances.forEach((instance) => instance.destroy());
       instances.clear();
     };
-  }, []);
+  }, [enabled, theme, visibility, autoHide, autoHideDelay, dragScroll, clickScroll]);
 
   return null;
 }
