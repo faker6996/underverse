@@ -436,7 +436,7 @@ function DocsInner() {
           </Sheet>
 
           {/* Desktop Sidebar - Table of Contents on the right (sticky) */}
-          <aside className="hidden lg:block w-64 shrink-0 sticky top-20 self-start max-h-[calc(100vh-5rem)] overflow-auto">
+          <aside className="hidden lg:block w-72 xl:w-80 shrink-0 sticky top-20 self-start max-h-[calc(100vh-5rem)] overflow-auto">
             <TableOfContents />
           </aside>
         </div>

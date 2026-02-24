@@ -44,6 +44,7 @@
     "react-dom": ">=18",
     "next": ">=13",
     "next-intl": ">=4",
+    "overlayscrollbars": ">=2",
     "lucide-react": ">=0.400.0",
     "class-variance-authority": ">=0.7.0",
     "react-hook-form": ">=7.0.0",

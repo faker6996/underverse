@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "overlayscrollbars/overlayscrollbars.css";
 @config "../tailwind.config.ts";
 
 :root {
@@ -271,59 +272,32 @@ body {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE/Edge legacy */
 }
-
-/* Custom scrollbar - Firefox only (supports scrollbar-width natively without arrows) */
-@-moz-document url-prefix() {
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-  }
-  .dark *,
-  .dark {
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-  }
-}
-
-/* Custom scrollbar - Webkit/Blink (Chrome, Edge, Safari) */
-*::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.35);
-}
-
-*::-webkit-scrollbar-button {
+.scrollbar-none::-webkit-scrollbar {
   display: none;
   width: 0;
   height: 0;
 }
 
-*::-webkit-scrollbar-button:start:decrement,
-*::-webkit-scrollbar-button:end:increment {
-  display: none;
+/* OverlayScrollbars theme */
+.os-theme-underverse {
+  --os-size: 9px;
+  --os-padding-perpendicular: 2px;
+  --os-padding-axis: 2px;
+  --os-track-border-radius: 999px;
+  --os-handle-border-radius: 999px;
+  --os-handle-interactive-area-offset: 3px;
+  --os-track-bg: transparent;
+  --os-track-bg-hover: transparent;
+  --os-track-bg-active: transparent;
+  --os-handle-bg: rgba(0, 0, 0, 0.24);
+  --os-handle-bg-hover: rgba(0, 0, 0, 0.38);
+  --os-handle-bg-active: rgba(0, 0, 0, 0.5);
 }
 
-*::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
-.dark *::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-.dark *::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.35);
+.dark .os-theme-underverse {
+  --os-handle-bg: rgba(255, 255, 255, 0.22);
+  --os-handle-bg-hover: rgba(255, 255, 255, 0.35);
+  --os-handle-bg-active: rgba(255, 255, 255, 0.48);
 }
 
 

@@ -4,6 +4,7 @@ import Script from "next/script";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import GlobalFallingIcons from "@/components/ui/GlobalFallingIcons";
+import OverlayScrollbarProvider from "@/components/ui/OverlayScrollbarProvider";
 import { getOrganizationSchema, getSoftwareApplicationSchema } from "@/lib/seo/structured-data";
 
 // Configure Inter font with Vietnamese support
@@ -96,14 +97,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const softwareSchema = getSoftwareApplicationSchema();
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-overlayscrollbars-initialize>
       <head>
         {/* Organization Schema */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
         {/* SoftwareApplication Schema */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
       </head>
-      <body className={`${inter.variable} antialiased`} suppressHydrationWarning={true}>
+      <body className={`${inter.variable} antialiased`} suppressHydrationWarning={true} data-overlayscrollbars-initialize>
         <Script id="theme-init" strategy="beforeInteractive">
           {`
             try {
@@ -114,6 +115,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             } catch {}
           `}
         </Script>
+        <OverlayScrollbarProvider />
         <GlobalFallingIcons />
         {children}
       </body>

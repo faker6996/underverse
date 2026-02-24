@@ -120,6 +120,24 @@ import { Form, FormField, FormItem, FormLabel, FormMessage } from "@underverse-u
 
 ## �🚀 Quick Start
 
+### Overlay Scrollbars (Optional, Recommended)
+
+Use `OverlayScrollbarProvider` to get overlay scrollbars (no layout space taken) across your app and Underverse components.
+
+```tsx
+import "overlayscrollbars/overlayscrollbars.css";
+import { OverlayScrollbarProvider } from "@underverse-ui/underverse";
+
+function App() {
+  return (
+    <>
+      <OverlayScrollbarProvider />
+      {/* your app */}
+    </>
+  );
+}
+```
+
 ### Standalone React (Vite, CRA, etc.)
 
 ```tsx
