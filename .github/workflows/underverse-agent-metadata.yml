@@ -1,0 +1,39 @@
+name: Underverse Agent Metadata
+
+on:
+  pull_request:
+    paths:
+      - "components/ui/**"
+      - "packages/underverse/**"
+      - "lib/**"
+  push:
+    branches: [main]
+    paths:
+      - "components/ui/**"
+      - "packages/underverse/**"
+      - "lib/**"
+
+jobs:
+  verify-agent-metadata:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install package dependencies
+        run: npm install
+        working-directory: packages/underverse
+
+      - name: Verify agent-readable metadata
+        run: npm run verify:agent-metadata
+        working-directory: packages/underverse
+

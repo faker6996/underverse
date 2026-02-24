@@ -26,12 +26,18 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "AGENTS.md",
+    "api-reference.json",
+    "llms.txt",
+    "agent-recipes.json"
   ],
   "sideEffects": false,
   "scripts": {
     "dev": "tsup --config tsup.config.ts --watch",
-    "build": "tsup --config tsup.config.ts",
+    "generate:api": "node ./scripts/generate-api-reference.mjs",
+    "verify:agent-metadata": "npm run generate:api && node ./scripts/verify-agent-metadata.mjs",
+    "build": "npm run generate:api && tsup --config tsup.config.ts",
     "clean": "rimraf dist",
     "prepublishOnly": "npm run clean && npm run build",
     "release": "node ./scripts/release.mjs",

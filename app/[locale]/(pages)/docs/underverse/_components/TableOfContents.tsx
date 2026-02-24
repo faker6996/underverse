@@ -294,7 +294,7 @@ export default function TableOfContents() {
       onScroll={() => {
         lastUserScrollTs.current = Date.now();
       }}
-      className="sticky top-20 h-[calc(100vh-6rem)] overflow-y-auto pb-4"
+      className="h-[calc(100vh-6rem)] overflow-y-auto pb-4"
     >
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground/70">{t("tableOfContents")}</h3>

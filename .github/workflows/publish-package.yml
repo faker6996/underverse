@@ -39,12 +39,20 @@ jobs:
         run: npm install
         working-directory: packages/underverse
 
+      - name: Verify agent-readable metadata
+        run: npm run verify:agent-metadata
+        working-directory: packages/underverse
+
       - name: Build package
         run: npm run build
         working-directory: packages/underverse
 
       - name: Bump version (patch)
         run: npm version patch --no-git-tag-version
+        working-directory: packages/underverse
+
+      - name: Regenerate API metadata after version bump
+        run: npm run generate:api
         working-directory: packages/underverse
 
       # Use Token Auth (Granular Token) + Provenance
@@ -60,6 +68,6 @@ jobs:
           git config --local user.name "github-actions[bot]"
           cd packages/underverse
           VERSION=$(node -p "require('./package.json').version")
-          git add package.json
+          git add package.json api-reference.json
           git commit -m "chore: bump @underverse-ui/underverse to v$VERSION [skip ci]" || echo "No changes to commit"
           git push

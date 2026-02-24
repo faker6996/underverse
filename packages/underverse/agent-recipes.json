@@ -1,0 +1,42 @@
+{
+  "package": "@underverse-ui/underverse",
+  "schemaVersion": 1,
+  "recipes": [
+    {
+      "id": "install-basic",
+      "title": "Install for React",
+      "steps": [
+        "npm i @underverse-ui/underverse",
+        "npm i react react-dom"
+      ]
+    },
+    {
+      "id": "install-next",
+      "title": "Install for Next.js",
+      "steps": [
+        "npm i @underverse-ui/underverse",
+        "npm i react react-dom next next-intl"
+      ]
+    },
+    {
+      "id": "first-component",
+      "title": "Use first component",
+      "code": "import { Button } from \"@underverse-ui/underverse\";\n\nexport function Example(){\n  return <Button>Click</Button>;\n}\n"
+    },
+    {
+      "id": "overlay-scrollbar-provider",
+      "title": "Enable overlay scrollbars",
+      "code": "import \"overlayscrollbars/overlayscrollbars.css\";\nimport { OverlayScrollbarProvider } from \"@underverse-ui/underverse\";\n\nexport function App(){\n  return <><OverlayScrollbarProvider />{/* app */}</>;\n}\n"
+    },
+    {
+      "id": "api-discovery-order",
+      "title": "How agents should discover API",
+      "steps": [
+        "Read api-reference.json first",
+        "Read dist/index.d.ts second",
+        "Read AGENTS.md and README.md for integration notes"
+      ]
+    }
+  ]
+}
+

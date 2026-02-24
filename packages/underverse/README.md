@@ -30,6 +30,21 @@ A comprehensive UI component library for React/Next.js applications, extracted f
 - Peer dependencies: `react`, `react-dom`
 - Optional: `next`, `next-intl` (for Next.js projects)
 
+## Agent-Readable Metadata
+
+For coding agents and automation tools:
+
+- `AGENTS.md`: concise usage and integration rules.
+- `api-reference.json`: generated export index from `src/index.ts`.
+- `llms.txt`: compact LLM-friendly quickstart.
+- `agent-recipes.json`: structured setup/use recipes.
+
+Regenerate API metadata:
+
+```bash
+npm run generate:api
+```
+
 ## Installation
 
 ```bash

@@ -1,0 +1,49 @@
+# @underverse-ui/underverse
+
+Short machine-readable guide for coding assistants.
+
+- Import from: `@underverse-ui/underverse`
+- Do not deep-import internal source files.
+- Primary API index: `api-reference.json`
+- Human + agent usage rules: `AGENTS.md`
+- Framework recipes: `agent-recipes.json`
+
+## Install
+
+```bash
+npm i @underverse-ui/underverse
+npm i react react-dom
+```
+
+Optional peers for Next.js / i18n:
+
+```bash
+npm i next next-intl
+```
+
+## Basic usage
+
+```tsx
+import { Button } from "@underverse-ui/underverse";
+
+export function Example() {
+  return <Button>Click</Button>;
+}
+```
+
+## Overlay scrollbars
+
+```tsx
+import "overlayscrollbars/overlayscrollbars.css";
+import { OverlayScrollbarProvider } from "@underverse-ui/underverse";
+
+export default function App() {
+  return (
+    <>
+      <OverlayScrollbarProvider />
+      {/* app */}
+    </>
+  );
+}
+```
+
