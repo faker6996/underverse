@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "react-jsx",
     "module": "ESNext",
     "moduleResolution": "Bundler",
@@ -17,16 +13,10 @@
     "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@underverse-ui/underverse": [
-        "packages/underverse/src/index.ts"
-      ]
+      "@/*": ["./*"],
+      "@underverse-ui/underverse": ["packages/underverse/src/index.ts"]
     },
-    "types": [
-      "@types/node"
-    ],
+    "types": ["@types/node"],
     "allowJs": true,
     "skipLibCheck": true,
     "incremental": true,
@@ -36,15 +26,7 @@
       }
     ]
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.mts",
-    "**/*.cts",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
-  ],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts", ".next/types/**/*.ts", ".next/dev/types/**/*.ts"],
   "exclude": [
     "node_modules",
     "app/api/**",
