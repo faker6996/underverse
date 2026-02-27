@@ -15,11 +15,13 @@ export function useHorizontalScrollSync(args: {
     if (!body || !header) return;
 
     let raf = 0;
-    let syncing = false;
+    let pendingSource: "body" | "header" | "left" | null = null;
 
-    const syncFrom = (source: "body" | "header" | "left") => {
-      if (syncing) return;
-      syncing = true;
+    const flush = () => {
+      raf = 0;
+      const source = pendingSource;
+      pendingSource = null;
+      if (!source) return;
 
       if (source === "header") {
         const x = header.scrollLeft;
@@ -33,18 +35,19 @@ export function useHorizontalScrollSync(args: {
         if (header.scrollLeft !== x) header.scrollLeft = x;
         if (left && left.scrollTop !== y) left.scrollTop = y;
       }
-
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        syncing = false;
-      });
     };
 
-    const onBodyScroll = () => syncFrom("body");
-    const onHeaderScroll = () => syncFrom("header");
-    const onLeftScroll = () => syncFrom("left");
+    const scheduleSync = (source: "body" | "header" | "left") => {
+      pendingSource = source;
+      if (raf) return;
+      raf = requestAnimationFrame(flush);
+    };
 
-    syncFrom("body");
+    const onBodyScroll = () => scheduleSync("body");
+    const onHeaderScroll = () => scheduleSync("header");
+    const onLeftScroll = () => scheduleSync("left");
+
+    scheduleSync("body");
     body.addEventListener("scroll", onBodyScroll, { passive: true });
     header.addEventListener("scroll", onHeaderScroll, { passive: true });
     left?.addEventListener("scroll", onLeftScroll, { passive: true });
@@ -70,6 +73,10 @@ export function useVirtualRows(args: {
   const [scrollTop, setScrollTop] = React.useState(0);
 
   React.useEffect(() => {
+    if (!enabled) {
+      setViewportHeight(0);
+      return;
+    }
     const el = scrollRef.current;
     if (!el) return;
     const update = () => setViewportHeight(el.clientHeight);
@@ -77,15 +84,33 @@ export function useVirtualRows(args: {
     const ro = new ResizeObserver(update);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [scrollRef]);
+  }, [enabled, scrollRef]);
 
   React.useEffect(() => {
+    if (!enabled) {
+      setScrollTop(0);
+      return;
+    }
     const el = scrollRef.current;
     if (!el) return;
-    const onScroll = () => setScrollTop(el.scrollTop);
+    let raf = 0;
+    let nextTop = el.scrollTop;
+    const commit = () => {
+      raf = 0;
+      setScrollTop(nextTop);
+    };
+    const onScroll = () => {
+      nextTop = el.scrollTop;
+      if (raf) return;
+      raf = requestAnimationFrame(commit);
+    };
+    setScrollTop(nextTop);
     el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [scrollRef]);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      el.removeEventListener("scroll", onScroll);
+    };
+  }, [enabled, scrollRef]);
 
   return React.useMemo(() => {
     if (!enabled) {
@@ -123,6 +148,10 @@ export function useVirtualVariableRows(args: {
   const [scrollTop, setScrollTop] = React.useState(0);
 
   React.useEffect(() => {
+    if (!enabled) {
+      setViewportHeight(0);
+      return;
+    }
     const el = scrollRef.current;
     if (!el) return;
     const update = () => setViewportHeight(el.clientHeight);
@@ -130,15 +159,33 @@ export function useVirtualVariableRows(args: {
     const ro = new ResizeObserver(update);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [scrollRef]);
+  }, [enabled, scrollRef]);
 
   React.useEffect(() => {
+    if (!enabled) {
+      setScrollTop(0);
+      return;
+    }
     const el = scrollRef.current;
     if (!el) return;
-    const onScroll = () => setScrollTop(el.scrollTop);
+    let raf = 0;
+    let nextTop = el.scrollTop;
+    const commit = () => {
+      raf = 0;
+      setScrollTop(nextTop);
+    };
+    const onScroll = () => {
+      nextTop = el.scrollTop;
+      if (raf) return;
+      raf = requestAnimationFrame(commit);
+    };
+    setScrollTop(nextTop);
     el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [scrollRef]);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      el.removeEventListener("scroll", onScroll);
+    };
+  }, [enabled, scrollRef]);
 
   const prefix = React.useMemo(() => {
     const out = new Array(itemCount + 1);

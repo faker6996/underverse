@@ -508,10 +508,22 @@ export function useVisibleSlotRange(args: {
     const ro = new ResizeObserver(updateWidth);
     ro.observe(el);
 
-    const onScroll = () => setScrollLeft(el.scrollLeft);
+    let raf = 0;
+    let nextLeft = el.scrollLeft;
+    const commit = () => {
+      raf = 0;
+      setScrollLeft(nextLeft);
+    };
+    const onScroll = () => {
+      nextLeft = el.scrollLeft;
+      if (raf) return;
+      raf = requestAnimationFrame(commit);
+    };
+    setScrollLeft(nextLeft);
     el.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
+      if (raf) cancelAnimationFrame(raf);
       ro.disconnect();
       el.removeEventListener("scroll", onScroll);
     };

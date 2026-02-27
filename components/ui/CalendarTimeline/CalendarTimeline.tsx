@@ -416,7 +416,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   useHorizontalScrollSync({ bodyRef, headerRef, leftRef: showResourceColumn ? leftRef : undefined });
 
-  const virt = virtualization?.enabled;
+  const virt = virtualization == null ? rows.length > 60 : Boolean(virtualization.enabled);
   const overscan = virtualization?.overscan ?? 8;
 
   const isControlledRowHeights = rowHeights !== undefined;
@@ -803,9 +803,19 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     startClientX: number;
     startClientY: number;
   }>(null);
-  const [preview, setPreview] = React.useState<{ eventId?: string; resourceId: string; start: Date; end: Date } | null>(null);
+  const [preview, setPreviewState] = React.useState<{ eventId?: string; resourceId: string; start: Date; end: Date } | null>(null);
+  const previewRef = React.useRef<{ eventId?: string; resourceId: string; start: Date; end: Date } | null>(null);
+  const setPreview = React.useCallback((next: { eventId?: string; resourceId: string; start: Date; end: Date } | null) => {
+    previewRef.current = next;
+    setPreviewState(next);
+  }, []);
   const suppressNextEventClickRef = React.useRef(false);
-  const [hoverCell, setHoverCell] = React.useState<null | { resourceId: string; slotIdx: number; y: number }>(null);
+  const [hoverCell, setHoverCellState] = React.useState<null | { resourceId: string; slotIdx: number; y: number }>(null);
+  const hoverCellRef = React.useRef<null | { resourceId: string; slotIdx: number; y: number }>(null);
+  const setHoverCell = React.useCallback((next: null | { resourceId: string; slotIdx: number; y: number }) => {
+    hoverCellRef.current = next;
+    setHoverCellState(next);
+  }, []);
   const autoScrollStateRef = React.useRef<{ dir: -1 | 0 | 1; speed: number; lastClientX: number; lastClientY: number }>({
     dir: 0,
     speed: 0,
@@ -813,6 +823,10 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     lastClientY: 0,
   });
   const autoScrollRafRef = React.useRef<number | null>(null);
+  const dragPreviewRafRef = React.useRef<number | null>(null);
+  const dragPreviewPointRef = React.useRef<{ x: number; y: number } | null>(null);
+  const hoverCellRafRef = React.useRef<number | null>(null);
+  const hoverCellPendingRef = React.useRef<null | { resourceId: string; slotIdx: number; y: number }>(null);
 
   const stopAutoScroll = React.useCallback(() => {
     if (autoScrollRafRef.current != null) cancelAnimationFrame(autoScrollRafRef.current);
@@ -913,6 +927,52 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     [getPointerContext, range.end, range.start, slotToDate, slots.length],
   );
 
+  const flushDragPreview = React.useCallback(() => {
+    dragPreviewRafRef.current = null;
+    const point = dragPreviewPointRef.current;
+    if (!point) return;
+    updateDragPreview(point.x, point.y);
+  }, [updateDragPreview]);
+
+  const scheduleDragPreview = React.useCallback(
+    (clientX: number, clientY: number) => {
+      dragPreviewPointRef.current = { x: clientX, y: clientY };
+      if (dragPreviewRafRef.current != null) return;
+      dragPreviewRafRef.current = requestAnimationFrame(flushDragPreview);
+    },
+    [flushDragPreview],
+  );
+
+  const applyHoverCell = React.useCallback(
+    (next: null | { resourceId: string; slotIdx: number; y: number }) => {
+      const prev = hoverCellRef.current;
+      const same =
+        (prev == null && next == null) ||
+        (prev != null &&
+          next != null &&
+          prev.resourceId === next.resourceId &&
+          prev.slotIdx === next.slotIdx &&
+          Math.abs(prev.y - next.y) <= 0.5);
+      if (same) return;
+      setHoverCell(next);
+    },
+    [setHoverCell],
+  );
+
+  const flushHoverCell = React.useCallback(() => {
+    hoverCellRafRef.current = null;
+    applyHoverCell(hoverCellPendingRef.current);
+  }, [applyHoverCell]);
+
+  const scheduleHoverCell = React.useCallback(
+    (next: null | { resourceId: string; slotIdx: number; y: number }) => {
+      hoverCellPendingRef.current = next;
+      if (hoverCellRafRef.current != null) return;
+      hoverCellRafRef.current = requestAnimationFrame(flushHoverCell);
+    },
+    [flushHoverCell],
+  );
+
   const autoScrollTick = React.useCallback(() => {
     const drag = dragRef.current;
     const body = bodyRef.current;
@@ -972,6 +1032,13 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   );
 
   React.useEffect(() => stopAutoScroll, [stopAutoScroll]);
+
+  React.useEffect(() => {
+    return () => {
+      if (dragPreviewRafRef.current != null) cancelAnimationFrame(dragPreviewRafRef.current);
+      if (hoverCellRafRef.current != null) cancelAnimationFrame(hoverCellRafRef.current);
+    };
+  }, []);
 
   const onPointerDownEvent = (e: React.PointerEvent, ev: CalendarTimelineEvent<TEventMeta> & { _start: Date; _end: Date }, mode: DragMode) => {
     if (e.button !== 0 || e.ctrlKey) return;
@@ -1060,63 +1127,81 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
       if (!(interactions?.creatable ?? false)) return;
       const target = e.target as HTMLElement | null;
       if (target?.closest?.("[data-uv-ct-event]")) {
-        if (hoverCell) setHoverCell(null);
+        scheduleHoverCell(null);
         return;
       }
       const ctx = getPointerContext(e.clientX, e.clientY);
       if (!ctx) {
-        if (hoverCell) setHoverCell(null);
+        scheduleHoverCell(null);
         return;
       }
       const rowEl = target?.closest?.("[data-uv-ct-row]") as HTMLElement | null;
       if (!rowEl) {
-        if (hoverCell) setHoverCell(null);
+        scheduleHoverCell(null);
         return;
       }
       const rect = rowEl.getBoundingClientRect();
       const y = clamp(e.clientY - rect.top, 0, rect.height);
-      if (!hoverCell || hoverCell.resourceId !== ctx.resourceId || hoverCell.slotIdx !== ctx.slotIdx || Math.abs(hoverCell.y - y) > 0.5) {
-        setHoverCell({ resourceId: ctx.resourceId, slotIdx: ctx.slotIdx, y });
-      }
+      scheduleHoverCell({ resourceId: ctx.resourceId, slotIdx: ctx.slotIdx, y });
       return;
     }
     if (drag.pointerId !== e.pointerId) return;
     updateAutoScrollFromPointer(e.clientX, e.clientY);
-    updateDragPreview(e.clientX, e.clientY);
+    scheduleDragPreview(e.clientX, e.clientY);
   };
 
   const onPointerUp = (e: React.PointerEvent) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== e.pointerId) return;
+    if (dragPreviewRafRef.current != null) {
+      cancelAnimationFrame(dragPreviewRafRef.current);
+      dragPreviewRafRef.current = null;
+    }
+    updateDragPreview(e.clientX, e.clientY);
+    const committedPreview = previewRef.current;
     dragRef.current = null;
     stopAutoScroll();
+    hoverCellPendingRef.current = null;
+    if (hoverCellRafRef.current != null) {
+      cancelAnimationFrame(hoverCellRafRef.current);
+      hoverCellRafRef.current = null;
+    }
     setHoverCell(null);
 
-    if (!preview) {
+    if (!committedPreview) {
       setPreview(null);
       return;
     }
 
     if (drag.mode === "create" && onCreateEvent) {
-      onCreateEvent({ resourceId: preview.resourceId, start: preview.start, end: preview.end });
+      onCreateEvent({ resourceId: committedPreview.resourceId, start: committedPreview.start, end: committedPreview.end });
       setPreview(null);
       return;
     }
 
-    if (drag.mode === "move" && preview.eventId && onEventMove) {
-      onEventMove({ eventId: preview.eventId, resourceId: preview.resourceId, start: preview.start, end: preview.end });
+    if (drag.mode === "move" && committedPreview.eventId && onEventMove) {
+      onEventMove({ eventId: committedPreview.eventId, resourceId: committedPreview.resourceId, start: committedPreview.start, end: committedPreview.end });
       setPreview(null);
       return;
     }
 
-    if ((drag.mode === "resize-start" || drag.mode === "resize-end") && preview.eventId && onEventResize) {
-      onEventResize({ eventId: preview.eventId, start: preview.start, end: preview.end });
+    if ((drag.mode === "resize-start" || drag.mode === "resize-end") && committedPreview.eventId && onEventResize) {
+      onEventResize({ eventId: committedPreview.eventId, start: committedPreview.start, end: committedPreview.end });
       setPreview(null);
       return;
     }
 
     setPreview(null);
   };
+
+  const onBodyPointerLeave = React.useCallback(() => {
+    hoverCellPendingRef.current = null;
+    if (hoverCellRafRef.current != null) {
+      cancelAnimationFrame(hoverCellRafRef.current);
+      hoverCellRafRef.current = null;
+    }
+    setHoverCell(null);
+  }, [setHoverCell]);
 
   const renderGroupRow = (g: CalendarTimelineGroup) => {
     const isCollapsed = !!collapsed[g.id];
@@ -1292,7 +1377,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
          
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          onPointerLeave={() => setHoverCell(null)}
+          onPointerLeave={onBodyPointerLeave}
         >
           <div style={{ height: topSpacer }} />
           {gridWidth > 0 && renderedRowsHeight > 0 ? (
