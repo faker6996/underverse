@@ -1,6 +1,6 @@
 # DataTable
 
-Source: `components/ui/DataTable/DataTable.tsx`
+Source: `packages/underverse/src/components/DataTable/DataTable.tsx`
 
 Exports:
 

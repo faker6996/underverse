@@ -109,6 +109,7 @@ Underverse UI là thư viện UI components cho React/Next.js với hỗ trợ �
 | [FallingIcons](./FallingIcons.md) | Falling icons animation | -    |
 | [Watermark](./Watermark.md)       | Watermark overlay       | -    |
 | [MusicPlayer](./MusicPlayer.md)   | Music player            | -    |
+| [UEditor](./UEditor.md)          | Rich text editor       | ✅   |
 
 ### Misc & Utilities
 
@@ -116,7 +117,6 @@ Underverse UI là thư viện UI components cho React/Next.js với hỗ trợ �
 | --------------------------------------------------------- | ---------------------------- |
 | [ClientOnly](./ClientOnly.md)                             | Client-side only render      |
 | [Loading](./Loading.md)                                   | Loading spinners             |
-| [FloatingContacts](./FloatingContacts.md)                 | Floating contact buttons     |
 | [AccessDenied](./AccessDenied.md)                         | Access denied page           |
 | [OverlayControls](./OverlayControls.md)                   | Overlay control buttons      |
 | [ThemeToggleHeadless](./ThemeToggleHeadless.md)           | Theme toggle (headless)      |

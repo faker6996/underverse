@@ -13,9 +13,8 @@ npm install @underverse-ui/underverse
 ## Usage
 
 ```tsx
-import UEditor from "@/components/ui/UEditor";
+import UEditor, { type UEditorRef } from "@underverse-ui/underverse";
 import { useRef, useState } from "react";
-import type { UEditorRef } from "@/components/ui/UEditor";
 
 export default function Example() {
   const editorRef = useRef<UEditorRef>(null);
@@ -79,7 +78,7 @@ To transform only on save:
 If your app also stores attachments (gallery/files), use `inlineImageUrls` to filter out URLs that already exist inline:
 
 ```tsx
-import { normalizeImageUrl } from "@/components/ui/UEditor";
+import { normalizeImageUrl } from "@underverse-ui/underverse";
 
 const prepared = await editorRef.current?.prepareContentForSave({ throwOnError: true });
 const inlineSet = new Set((prepared?.inlineImageUrls ?? []).map(normalizeImageUrl));

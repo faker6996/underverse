@@ -2,33 +2,20 @@
 
 Source: `components/ui/FloatingContacts.tsx`
 
-Exports:
-- FloatingContacts
+Status:
+- App-only component
+- Not exported from `@underverse-ui/underverse`
 
-Note: Usage snippets are minimal; fill required props from the props type below.
+Reason:
+- Depends on Next.js routing APIs and app-specific environment variables.
 
-## FloatingContacts
-
-Props type: `FloatingContactsProps`
+Use it only from the app source:
 
 ```tsx
-import { FloatingContacts } from "@underverse-ui/underverse";
+import FloatingContacts from "@/components/ui/FloatingContacts";
 
 export function Example() {
   return <FloatingContacts />;
-}
-```
-
-Vi du day du:
-
-```tsx
-import React from "react";
-import { FloatingContacts } from "@underverse-ui/underverse";
-
-export function Example() {
-  return (
-    <FloatingContacts />
-  );
 }
 ```
 

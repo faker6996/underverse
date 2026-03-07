@@ -1,6 +1,6 @@
 "use client";
 
-export { default } from "./CalendarTimeline/CalendarTimeline";
+export { default } from "../../packages/underverse/src/components/CalendarTimeline";
 export type {
   CalendarTimelineDayRangeMode,
   CalendarTimelineDateInput,
@@ -14,4 +14,4 @@ export type {
   CalendarTimelineSize,
   CalendarTimelineView,
   CalendarTimelineVirtualization,
-} from "./CalendarTimeline/types";
+} from "../../packages/underverse/src/components/CalendarTimeline";

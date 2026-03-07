@@ -20,6 +20,13 @@ dist/
 **/dist/
 build/
 coverage/
+.turbo/
+.cache/
+.contentlayer/
+.test-build/
+playwright-report/
+test-results/
+*.tsbuildinfo
 
 # Env
 .env

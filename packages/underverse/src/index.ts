@@ -2,9 +2,9 @@
 // Note: Components that are coupled to app-specific APIs are intentionally excluded.
 
 // Core primitives
-export { default as Button } from "../../../components/ui/Button";
-export type { ButtonProps } from "../../../components/ui/Button";
-export { default as Badge } from "../../../components/ui/Badge";
+export { default as Button } from "./components/Button";
+export type { ButtonProps } from "./components/Button";
+export { default as Badge } from "./components/Badge";
 export {
   Badge as BadgeBase,
   NotificationBadge,
@@ -13,56 +13,56 @@ export {
   InteractiveBadge,
   GradientBadge,
   PulseBadge,
-} from "../../../components/ui/Badge";
-export { default as Card } from "../../../components/ui/Card";
-export { Checkbox } from "../../../components/ui/CheckBox";
-export type { CheckboxProps } from "../../../components/ui/CheckBox";
-export { default as Input } from "../../../components/ui/Input";
-export type { InputProps } from "../../../components/ui/Input";
-export { PasswordInput, NumberInput, SearchInput } from "../../../components/ui/Input";
-export { default as TagInput, TagInput as TagInputBase } from "../../../components/ui/TagInput";
-export type { TagInputProps } from "../../../components/ui/TagInput";
-export { default as Textarea } from "../../../components/ui/Textarea";
-export { default as Switch } from "../../../components/ui/Switch";
-export { Label } from "../../../components/ui/label";
-export { default as Avatar } from "../../../components/ui/Avatar";
-export { default as Skeleton } from "../../../components/ui/Skeleton";
-export * from "../../../components/ui/Skeleton";
-export * from "../../../components/ui/Progress";
+} from "./components/Badge";
+export { default as Card } from "./components/Card";
+export { Checkbox } from "./components/CheckBox";
+export type { CheckboxProps } from "./components/CheckBox";
+export { default as Input } from "./components/Input";
+export type { InputProps, SearchInputProps, PasswordInputProps, NumberInputProps, TextareaProps } from "./components/Input";
+export { PasswordInput, NumberInput, SearchInput, Textarea } from "./components/Input";
+export { default as TagInput, TagInput as TagInputBase } from "./components/TagInput";
+export type { TagInputProps } from "./components/TagInput";
+export { default as Switch } from "./components/Switch";
+export { Label } from "./components/label";
+export { default as Avatar } from "./components/Avatar";
+export { default as Skeleton } from "./components/Skeleton";
+export * from "./components/Skeleton";
+export * from "./components/Progress";
 
 // Feedback / overlays
-export { default as Modal } from "../../../components/ui/Modal";
-export { default as ToastProvider, useToast } from "../../../components/ui/Toast";
-export { Tooltip } from "../../../components/ui/Tooltip";
-export { Popover } from "../../../components/ui/Popover";
-export { Sheet, Drawer, SlideOver, BottomSheet, SidebarSheet } from "../../../components/ui/Sheet";
-export { default as Alert } from "../../../components/ui/Alert";
-export { GlobalLoading, PageLoading, InlineLoading, ButtonLoading } from "../../../components/ui/GlobalLoading";
+export { default as Modal } from "./components/Modal";
+export { default as ToastProvider, useToast } from "./components/Toast";
+export { Tooltip } from "./components/Tooltip";
+export { Popover } from "./components/Popover";
+export { Sheet, Drawer, SlideOver, BottomSheet, SidebarSheet } from "./components/Sheet";
+export { default as Alert } from "./components/Alert";
+export { GlobalLoading, PageLoading, InlineLoading, ButtonLoading } from "./components/GlobalLoading";
 
 // Navigation / structure
-export { default as Breadcrumb } from "../../../components/ui/Breadcrumb";
-export { Tabs, SimpleTabs, PillTabs, VerticalTabs } from "../../../components/ui/Tab";
-export { default as DropdownMenu } from "../../../components/ui/DropdownMenu";
-export { DropdownMenuItem, DropdownMenuSeparator, SelectDropdown } from "../../../components/ui/DropdownMenu";
-export { Pagination, SimplePagination, CompactPagination } from "../../../components/ui/Pagination";
-export type { PaginationProps, SimplePaginationProps, CompactPaginationProps } from "../../../components/ui/Pagination";
-export { default as Section } from "../../../components/ui/Section";
-export { ScrollArea } from "../../../components/ui/ScrollArea";
-export { OverlayScrollArea } from "../../../components/ui/OverlayScrollArea";
-export type { OverlayScrollAreaProps } from "../../../components/ui/OverlayScrollArea";
+export { default as Breadcrumb } from "./components/Breadcrumb";
+export { Tabs, SimpleTabs, PillTabs, VerticalTabs } from "./components/Tab";
+export { default as DropdownMenu } from "./components/DropdownMenu";
+export { DropdownMenuItem, DropdownMenuSeparator, SelectDropdown } from "./components/DropdownMenu";
+export { Pagination, SimplePagination, CompactPagination } from "./components/Pagination";
+export type { PaginationProps, SimplePaginationProps, CompactPaginationProps } from "./components/Pagination";
+export { default as Section } from "./components/Section";
+export { ScrollArea } from "./components/ScrollArea";
+export type { ScrollAreaProps } from "./components/ScrollArea";
+export { OverlayScrollArea } from "./components/OverlayScrollArea";
+export type { OverlayScrollAreaProps } from "./components/OverlayScrollArea";
 
 // Pickers / inputs
-export { DatePicker, DateRangePicker } from "../../../components/ui/DatePicker";
-export type { DatePickerProps } from "../../../components/ui/DatePicker";
-export { DateTimePicker } from "../../../components/ui/DateTimePicker";
-export type { DateTimePickerProps } from "../../../components/ui/DateTimePicker";
-export { default as TimePicker } from "../../../components/ui/TimePicker";
-export type { TimePickerProps } from "../../../components/ui/TimePicker";
-export { default as MonthYearPicker, MonthYearPicker as MonthYearPickerBase } from "../../../components/ui/MonthYearPicker";
-export type { MonthYearPickerProps } from "../../../components/ui/MonthYearPicker";
-export { default as Calendar } from "../../../components/ui/Calendar";
-export type { CalendarProps, CalendarEvent } from "../../../components/ui/Calendar";
-export { default as CalendarTimeline } from "../../../components/ui/CalendarTimeline";
+export { DatePicker, DateRangePicker, CompactDatePicker } from "./components/DatePicker";
+export type { DatePickerProps, DateRangePickerProps } from "./components/DatePicker";
+export { DateTimePicker } from "./components/DateTimePicker";
+export type { DateTimePickerProps } from "./components/DateTimePicker";
+export { default as TimePicker } from "./components/TimePicker";
+export type { TimePickerProps } from "./components/TimePicker";
+export { default as MonthYearPicker, MonthYearPicker as MonthYearPickerBase } from "./components/MonthYearPicker";
+export type { MonthYearPickerProps } from "./components/MonthYearPicker";
+export { default as Calendar, VIETNAM_HOLIDAYS } from "./components/Calendar";
+export type { CalendarProps, CalendarEvent, CalendarHoliday } from "./components/Calendar";
+export { default as CalendarTimeline } from "./components/CalendarTimeline";
 export type {
   CalendarTimelineProps,
   CalendarTimelineView,
@@ -76,81 +76,87 @@ export type {
   CalendarTimelineFormatters,
   CalendarTimelineInteractions,
   CalendarTimelineVirtualization,
-} from "../../../components/ui/CalendarTimeline";
-export { Combobox } from "../../../components/ui/Combobox";
-export type { ComboboxProps } from "../../../components/ui/Combobox";
-export { MultiCombobox } from "../../../components/ui/MultiCombobox";
-export type { MultiComboboxProps } from "../../../components/ui/MultiCombobox";
-export { RadioGroup, RadioGroupItem } from "../../../components/ui/RadioGroup";
-export { Slider } from "../../../components/ui/Slider";
-export { default as OverlayControls } from "../../../components/ui/OverlayControls";
-export { CategoryTreeSelect } from "../../../components/ui/CategoryTreeSelect";
+} from "./components/CalendarTimeline";
+export { Combobox } from "./components/Combobox";
+export type { ComboboxOption, ComboboxProps } from "./components/Combobox";
+export { MultiCombobox } from "./components/MultiCombobox";
+export type { MultiComboboxOption, MultiComboboxProps } from "./components/MultiCombobox";
+export { RadioGroup, RadioGroupItem } from "./components/RadioGroup";
+export { Slider } from "./components/Slider";
+export type { SliderProps } from "./components/Slider";
+export { default as OverlayControls } from "./components/OverlayControls";
+export type { OverlayControlsProps } from "./components/OverlayControls";
+export { CategoryTreeSelect } from "./components/CategoryTreeSelect";
 
 // Media
-export { default as SmartImage } from "../../../components/ui/SmartImage";
-export { default as ImageUpload } from "../../../components/ui/ImageUpload";
-export { default as FileUpload } from "../../../components/ui/FileUpload";
-export type { FileUploadProps, UploadedFile } from "../../../components/ui/FileUpload";
-export { Carousel } from "../../../components/ui/Carousel";
-export { default as FallingIcons } from "../../../components/ui/FallingIcons";
-export { default as List } from "../../../components/ui/List";
-export { ListItem } from "../../../components/ui/List";
-export { default as Watermark } from "../../../components/ui/Watermark";
-export type { WatermarkProps } from "../../../components/ui/Watermark";
-export { default as Timeline } from "../../../components/ui/Timeline";
-export { TimelineItem } from "../../../components/ui/Timeline";
-export { default as ColorPicker } from "../../../components/ui/ColorPicker";
-export type { ColorPickerProps } from "../../../components/ui/ColorPicker";
-export { MusicPlayer, default as MusicPlayerDefault } from "../../../components/ui/MusicPlayer";
-export type { Song, MusicPlayerProps } from "../../../components/ui/MusicPlayer";
-export { default as Grid } from "../../../components/ui/Grid";
-export { GridItem } from "../../../components/ui/Grid";
-export type { GridProps, GridItemProps } from "../../../components/ui/Grid";
+export { default as SmartImage } from "./components/SmartImage";
+export { default as ImageUpload } from "./components/ImageUpload";
+export type { ImageUploadProps, UploadedImage } from "./components/ImageUpload";
+export { default as FileUpload } from "./components/FileUpload";
+export type { FileUploadProps, UploadedFile } from "./components/FileUpload";
+export { Carousel } from "./components/Carousel";
+export { default as FallingIcons } from "./components/FallingIcons";
+export { default as List } from "./components/List";
+export { ListItem } from "./components/List";
+export { default as Watermark } from "./components/Watermark";
+export type { WatermarkProps } from "./components/Watermark";
+export { default as Timeline } from "./components/Timeline";
+export { TimelineItem } from "./components/Timeline";
+export { default as ColorPicker } from "./components/ColorPicker";
+export type { ColorPickerProps } from "./components/ColorPicker";
+export { MusicPlayer, default as MusicPlayerDefault } from "./components/MusicPlayer";
+export type { Song, MusicPlayerProps } from "./components/MusicPlayer";
+export { default as Grid } from "./components/Grid";
+export { GridItem } from "./components/Grid";
+export type { GridProps, GridItemProps } from "./components/Grid";
 
 // Charts (pure SVG, no external dependencies)
-export { LineChart } from "../../../components/ui/LineChart";
-export type { LineChartProps, LineChartDataPoint, LineChartSeries } from "../../../components/ui/LineChart";
-export { BarChart } from "../../../components/ui/BarChart";
-export type { BarChartProps, BarChartDataPoint, BarChartSeries } from "../../../components/ui/BarChart";
-export { PieChart } from "../../../components/ui/PieChart";
-export type { PieChartProps, PieChartDataPoint } from "../../../components/ui/PieChart";
-export { AreaChart } from "../../../components/ui/AreaChart";
-export type { AreaChartProps, AreaChartDataPoint, AreaChartSeries } from "../../../components/ui/AreaChart";
-export { Sparkline } from "../../../components/ui/Sparkline";
-export type { SparklineProps, SparklineDataPoint } from "../../../components/ui/Sparkline";
-export { RadarChart } from "../../../components/ui/RadarChart";
-export type { RadarChartProps, RadarChartDataPoint, RadarChartSeries } from "../../../components/ui/RadarChart";
-export { GaugeChart } from "../../../components/ui/GaugeChart";
-export type { GaugeChartProps } from "../../../components/ui/GaugeChart";
+export { LineChart } from "./components/LineChart";
+export type { LineChartProps, LineChartDataPoint, LineChartSeries } from "./components/LineChart";
+export { BarChart } from "./components/BarChart";
+export type { BarChartProps, BarChartDataPoint, BarChartSeries } from "./components/BarChart";
+export { PieChart } from "./components/PieChart";
+export type { PieChartProps, PieChartDataPoint } from "./components/PieChart";
+export { AreaChart } from "./components/AreaChart";
+export type { AreaChartProps, AreaChartDataPoint, AreaChartSeries } from "./components/AreaChart";
+export { Sparkline } from "./components/Sparkline";
+export type { SparklineProps, SparklineDataPoint } from "./components/Sparkline";
+export { RadarChart } from "./components/RadarChart";
+export type { RadarChartProps, RadarChartDataPoint, RadarChartSeries } from "./components/RadarChart";
+export { GaugeChart } from "./components/GaugeChart";
+export type { GaugeChartProps } from "./components/GaugeChart";
 
 // Misc
-export { default as ClientOnly } from "../../../components/ui/ClientOnly";
-export * from "../../../components/ui/Loading";
-export { default as OverlayScrollbarProvider } from "../../../components/ui/OverlayScrollbarProvider";
-export type { OverlayScrollbarProviderProps } from "../../../components/ui/OverlayScrollbarProvider";
-export { useOverlayScrollbarTarget } from "../../../components/ui/OverlayScrollbarProvider";
-export type { UseOverlayScrollbarTargetOptions } from "../../../components/ui/OverlayScrollbarProvider";
+export { default as ClientOnly } from "./components/ClientOnly";
+export * from "./components/Loading";
+export * from "./components/GlobalLoading";
+export { loading } from "./utils/loading";
+export type { LoadingState } from "./utils/loading";
+export { default as OverlayScrollbarProvider } from "./components/OverlayScrollbarProvider";
+export type { OverlayScrollbarProviderProps } from "./components/OverlayScrollbarProvider";
+export { useOverlayScrollbarTarget } from "./components/OverlayScrollbarProvider";
+export type { UseOverlayScrollbarTargetOptions } from "./components/OverlayScrollbarProvider";
 // ThemeToggle depends on app-specific ThemeContext, not exported to keep package neutral
-export { default as DataTable } from "../../../components/ui/DataTable";
-export type { DataTableColumn, DataTableDensity, DataTableQuery, DataTableSize, Sorter } from "../../../components/ui/DataTable";
-export * from "../../../components/ui/Table";
-export * from "../../../components/ui/Form";
-export { default as NotificationModal } from "../../../components/ui/NotificationModal";
-export { default as FloatingContacts } from "../../../components/ui/FloatingContacts";
-export { default as AccessDenied } from "../../../components/ui/AccessDenied";
+export { default as DataTable } from "./components/DataTable";
+export type { DataTableColumn, DataTableDensity, DataTableLabels, DataTableProps, DataTableQuery, DataTableSize, FilterType, Sorter } from "./components/DataTable";
+export * from "./components/Table";
+export * from "./components/Form";
+export { default as NotificationModal } from "./components/NotificationModal";
+export { default as AccessDenied } from "./components/AccessDenied";
+export type { AccessDeniedProps } from "./components/AccessDenied";
 
 // Headless, package-safe utilities
 // Export headless components under simple names
-export { default as ThemeToggle } from "../../../components/ui/ThemeToggleHeadless";
-export type { ThemeToggleHeadlessProps as ThemeToggleProps, ThemeMode } from "../../../components/ui/ThemeToggleHeadless";
-export { default as LanguageSwitcher } from "../../../components/ui/LanguageSwitcherHeadless";
-export type { LanguageSwitcherHeadlessProps as LanguageSwitcherProps, LanguageOption } from "../../../components/ui/LanguageSwitcherHeadless";
+export { default as ThemeToggle } from "./components/ThemeToggleHeadless";
+export type { ThemeToggleHeadlessProps as ThemeToggleProps, ThemeMode } from "./components/ThemeToggleHeadless";
+export { default as LanguageSwitcher } from "./components/LanguageSwitcherHeadless";
+export type { LanguageSwitcherHeadlessProps as LanguageSwitcherProps, LanguageOption } from "./components/LanguageSwitcherHeadless";
 
 // Back-compat (optional): keep headless aliases
-export { default as ThemeToggleHeadless } from "../../../components/ui/ThemeToggleHeadless";
-export type { ThemeToggleHeadlessProps } from "../../../components/ui/ThemeToggleHeadless";
-export { default as LanguageSwitcherHeadless } from "../../../components/ui/LanguageSwitcherHeadless";
-export type { LanguageSwitcherHeadlessProps } from "../../../components/ui/LanguageSwitcherHeadless";
+export { default as ThemeToggleHeadless } from "./components/ThemeToggleHeadless";
+export type { ThemeToggleHeadlessProps } from "./components/ThemeToggleHeadless";
+export { default as LanguageSwitcherHeadless } from "./components/LanguageSwitcherHeadless";
+export type { LanguageSwitcherHeadlessProps } from "./components/LanguageSwitcherHeadless";
 
 // ============================================================================
 // UTILITIES (standalone, no Next.js dependencies)
@@ -168,7 +174,7 @@ export type { SupportedLocale } from "./utils/date";
 export { shadcnAnimationStyles, useShadCNAnimations, injectAnimationStyles, getAnimationStyles } from "./utils/animations";
 
 // Constants for styling
-export { VARIANT_STYLES_BTN, SIZE_STYLES_BTN } from "../../../lib/constants/constants-ui/button";
+export { VARIANT_STYLES_BTN, SIZE_STYLES_BTN } from "./constants/button";
 export { VARIANT_STYLES_ALERT } from "../../../lib/constants/constants-ui/alert";
 
 // ============================================================================
@@ -191,13 +197,13 @@ export type { UnderverseProviderProps } from "../../../lib/i18n/translation-adap
 export { useSmartTranslations, useSmartLocale, ForceInternalTranslationsProvider } from "./hooks/useSmartTranslations";
 
 // Excluded: NotificationBell (depends on project-specific API, auth, and sockets)
-export { default as UEditor } from "../../../components/ui/UEditor";
+export { default as UEditor } from "./components/UEditor";
 export {
   extractImageSrcsFromHtml,
   normalizeImageUrl,
   prepareUEditorContentForSave,
   UEditorPrepareContentForSaveError,
-} from "../../../components/ui/UEditor";
+} from "./components/UEditor";
 export type {
   UEditorInlineUploadedItem,
   UEditorPrepareContentForSaveOptions,
@@ -207,7 +213,7 @@ export type {
   UEditorUploadImageForSave,
   UEditorUploadImageForSaveResult,
   UEditorVariant,
-} from "../../../components/ui/UEditor";
+} from "./components/UEditor";
 
 // i18n messages for next-intl consumers
 // Provide ready-to-merge messages so apps can easily integrate underverse UI texts.

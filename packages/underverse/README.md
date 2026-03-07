@@ -270,11 +270,11 @@ function App() {
 
 ### Media Components
 
-- `SmartImage`, `ImageUpload`, `Carousel`
+- `SmartImage`, `ImageUpload`, `Carousel`, `UEditor`
 
 ### Utilities
 
-- `ClientOnly`, `Loading`, `NotificationModal`, `FloatingContacts`, `AccessDenied`
+- `ClientOnly`, `Loading`, `NotificationModal`, `AccessDenied`, `OverlayControls`
 - Headless controls: `ThemeToggle`, `LanguageSwitcher`
 - Utility functions: `cn`, `DateUtils`, style constants
 
@@ -282,7 +282,8 @@ function App() {
 
 - Library is i18n‑agnostic: components have sensible English defaults and accept text via props.
 - If your app uses `next-intl`, you can merge our ready‑made messages to localize built‑in texts.
-- `NotificationBell` is not exported (depends on project‑specific API/socket implementations).
+- `NotificationBell` is not exported (depends on project-specific API/socket implementations).
+- `FloatingContacts` remains app-only and is not exported from the package.
 
 ---
 
@@ -499,11 +500,11 @@ function App() {
 
 ### Media Components
 
-- `SmartImage`, `ImageUpload`, `Carousel`, `FallingIcons`, `Watermark`
+- `SmartImage`, `ImageUpload`, `Carousel`, `FallingIcons`, `Watermark`, `UEditor`
 
 ### Utilities
 
-- `ClientOnly`, `Loading`, `NotificationModal`, `FloatingContacts`, `AccessDenied`
+- `ClientOnly`, `Loading`, `NotificationModal`, `AccessDenied`, `OverlayControls`
 - `ThemeToggle`, `LanguageSwitcher` (headless)
 - `cn`, `DateUtils`, `useShadCNAnimations`
 
@@ -650,7 +651,7 @@ import {
 import { Table, DataTable, List, Grid, Timeline, Watermark } from "@underverse-ui/underverse";
 
 // Media
-import { SmartImage, ImageUpload, Carousel, FallingIcons } from "@underverse-ui/underverse";
+import { SmartImage, ImageUpload, Carousel, FallingIcons, UEditor } from "@underverse-ui/underverse";
 
 // Utilities
 import {
@@ -661,7 +662,6 @@ import {
   ClientOnly,
   Loading,
   NotificationModal,
-  FloatingContacts,
   AccessDenied,
   ThemeToggle,
   LanguageSwitcher,

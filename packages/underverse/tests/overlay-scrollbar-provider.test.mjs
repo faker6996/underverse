@@ -5,7 +5,7 @@ import {
   createOverlayScrollbarController,
   DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
   shouldSkipOverlayScrollbarElement,
-} from "../../../components/ui/overlay-scrollbar-controller.ts";
+} from "../src/utils/overlay-scrollbar-controller.ts";
 
 class FakeClassList {
   constructor(owner) {

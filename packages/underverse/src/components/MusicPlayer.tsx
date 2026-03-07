@@ -13,7 +13,7 @@ export interface Song {
   endTime?: number; // Timestamp kết thúc (giây) cho file mp3 dài
 }
 
-interface MusicPlayerProps {
+export interface MusicPlayerProps {
   playlist?: Song[];
   autoPlay?: boolean;
   showPlaylist?: boolean;
@@ -264,7 +264,7 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
   }, [currentSongIndex, currentSong.startTime, isPlaying]);
 
   return (
-    <div className={`bg-card dark:bg-card border border-border rounded-2xl shadow-2xl overflow-hidden ${className}`}>
+    <div className={`underverse-music-player bg-card dark:bg-card border border-border rounded-2xl shadow-2xl overflow-hidden ${className}`}>
       <audio ref={audioRef} src={currentSong.audioUrl} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={playNext} />
 
       <div className="p-6">
@@ -372,8 +372,8 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
         </div>
       )}
 
-      <style jsx>{`
-        input[type="range"]::-webkit-slider-thumb {
+      <style>{`
+        .underverse-music-player input[type="range"]::-webkit-slider-thumb {
           -webkit-appearance: none;
           appearance: none;
           width: 16px;
@@ -384,7 +384,7 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        input[type="range"]::-moz-range-thumb {
+        .underverse-music-player input[type="range"]::-moz-range-thumb {
           width: 16px;
           height: 16px;
           border-radius: 50%;
@@ -394,7 +394,7 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        input[type="range"]::-webkit-slider-runnable-track {
+        .underverse-music-player input[type="range"]::-webkit-slider-runnable-track {
           background: linear-gradient(to right, hsl(var(--primary)) var(--progress, 0%), hsl(var(--muted)) var(--progress, 0%));
         }
       `}</style>

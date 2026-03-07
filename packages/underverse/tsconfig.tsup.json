@@ -3,6 +3,7 @@
   "compilerOptions": {
     "incremental": false,
     "noEmit": false,
+    "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
