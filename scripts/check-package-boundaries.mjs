@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const ROOT = '/Users/tran_van_bach/Desktop/project/nextJs/underverse';
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(SCRIPT_DIR, '..');
 const PACKAGE_SRC = path.join(ROOT, 'packages/underverse/src');
 const INDEX_FILE = path.join(PACKAGE_SRC, 'index.ts');
 
