@@ -1,28 +1,28 @@
 "use client";
 
-import { useState, useRef, useCallback, useMemo } from "react";
 import {
-  Upload,
-  X,
-  File,
-  FileText,
-  FileImage,
-  FileVideo,
-  FileAudio,
-  FileArchive,
-  FileCode,
-  FileSpreadsheet,
-  Loader2,
-  Check,
   AlertCircle,
-  Trash2,
-  Eye,
+  Check,
   Download,
+  Eye,
+  File,
+  FileArchive,
+  FileAudio,
+  FileCode,
+  FileImage,
+  FileSpreadsheet,
+  FileText,
+  FileVideo,
+  Loader2,
+  Trash2,
+  Upload,
 } from "lucide-react";
+import { useCallback, useMemo, useRef, useState } from "react";
+
+import { useSmartTranslations } from "../hooks/useSmartTranslations";
 import { cn } from "../utils/cn";
 import Button from "./Button";
 import { useToast } from "./Toast";
-import { useSmartTranslations } from "../hooks/useSmartTranslations";
 
 // ============================================================================
 // TYPES
