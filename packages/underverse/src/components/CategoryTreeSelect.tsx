@@ -6,14 +6,14 @@ import { cn } from "../utils/cn";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { Label } from "./label";
 
-interface Category {
+export interface Category {
   id: number;
   name: string;
   parent_id?: number | null;
   icon?: React.ReactNode;
 }
 
-interface CategoryTreeSelectLabels {
+export interface CategoryTreeSelectLabels {
   /** Text shown when no categories available */
   emptyText?: string;
   /** Text shown when categories are selected, receives count as parameter */
@@ -25,7 +25,7 @@ interface CategoryTreeSelectLabels {
 }
 
 // Base props shared between multi and single select
-interface CategoryTreeSelectBaseProps {
+export interface CategoryTreeSelectBaseProps {
   id?: string;
   label?: string;
   labelClassName?: string;
@@ -60,20 +60,20 @@ interface CategoryTreeSelectBaseProps {
 }
 
 // Multi-select mode (default)
-interface CategoryTreeSelectMultiProps extends CategoryTreeSelectBaseProps {
+export interface CategoryTreeSelectMultiProps extends CategoryTreeSelectBaseProps {
   singleSelect?: false;
   value?: number[];
   onChange?: (selectedIds: number[]) => void;
 }
 
 // Single-select mode
-interface CategoryTreeSelectSingleProps extends CategoryTreeSelectBaseProps {
+export interface CategoryTreeSelectSingleProps extends CategoryTreeSelectBaseProps {
   singleSelect: true;
   value?: number | null;
   onChange?: (selectedId: number | null) => void;
 }
 
-type CategoryTreeSelectProps = CategoryTreeSelectMultiProps | CategoryTreeSelectSingleProps;
+export type CategoryTreeSelectProps = CategoryTreeSelectMultiProps | CategoryTreeSelectSingleProps;
 
 const defaultLabels: Required<CategoryTreeSelectLabels> = {
   emptyText: "No categories",

@@ -87,6 +87,14 @@ export type { SliderProps } from "./components/Slider";
 export { default as OverlayControls } from "./components/OverlayControls";
 export type { OverlayControlsProps } from "./components/OverlayControls";
 export { CategoryTreeSelect } from "./components/CategoryTreeSelect";
+export type {
+  Category,
+  CategoryTreeSelectLabels,
+  CategoryTreeSelectBaseProps,
+  CategoryTreeSelectMultiProps,
+  CategoryTreeSelectSingleProps,
+  CategoryTreeSelectProps,
+} from "./components/CategoryTreeSelect";
 
 // Media
 export { default as SmartImage } from "./components/SmartImage";
