@@ -31,6 +31,12 @@ export function Example() {
     // Basic with image
     <Avatar src="https://example.com/avatar.jpg" alt="User" />
 
+    // Sizes
+    <Avatar size="sm" fallback="AB" />
+    <Avatar size="md" fallback="CD" />
+    <Avatar size="lg" fallback="EF" />
+    <Avatar size="xl" fallback="GH" />
+
     // With status indicator (default: online, shown)
     <Avatar src="..." showStatus status="online" />
     <Avatar src="..." showStatus status="busy" />
@@ -56,7 +62,7 @@ interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   src?: string;
   alt?: string;
   fallback?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   /** Show status indicator dot (default: true) */
   showStatus?: boolean;
   /** Status type (default: "online") */
@@ -74,7 +80,7 @@ interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
 | `src`               | `string`                                              | -          | Image source URL                |
 | `alt`               | `string`                                              | `"avatar"` | Accessible image description    |
 | `fallback`          | `string`                                              | `"?"`      | Fallback letters when no image  |
-| `size`              | `"sm" \| "md" \| "lg"`                                | `"md"`     | Avatar size                     |
+| `size`              | `"sm" \| "md" \| "lg" \| "xl"`                        | `"md"`     | Avatar size                     |
 | `showStatus`        | `boolean`                                             | `true`     | Show status indicator dot       |
 | `status`            | `"online" \| "offline" \| "busy" \| "away" \| "none"` | `"online"` | Status type with color          |
 | `hideStatusOnHover` | `boolean`                                             | `true`     | Fade status dot to 50% on hover |

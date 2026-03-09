@@ -8,7 +8,7 @@ interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   src?: string;
   alt?: string;
   fallback?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   /** Show status indicator dot */
   showStatus?: boolean;
   /** Status type: online, offline, busy, away, none */
@@ -22,6 +22,7 @@ const sizeClasses: Record<NonNullable<AvatarProps["size"]>, string> = {
   sm: "h-8 w-8 text-sm",
   md: "h-10 w-10 text-base",
   lg: "h-14 w-14 text-lg",
+  xl: "h-20 w-20 text-xl",
 };
 
 const statusColors: Record<StatusType, string> = {
@@ -36,6 +37,7 @@ const statusDotSizes: Record<NonNullable<AvatarProps["size"]>, string> = {
   sm: "w-2 h-2 border",
   md: "w-3 h-3 border-2",
   lg: "w-4 h-4 border-2",
+  xl: "w-5 h-5 border-[3px]",
 };
 
 export const Avatar = ({

@@ -16,16 +16,18 @@ export default function AvatarExample() {
     `// Sizes\n` +
     `<Avatar size="sm" fallback="AB" />\n` +
     `<Avatar size="md" fallback="CD" />\n` +
-    `<Avatar size="lg" fallback="EF" />\n\n` +
+    `<Avatar size="lg" fallback="EF" />\n` +
+    `<Avatar size="xl" fallback="GH" />\n\n` +
     `// With Images\n` +
     `<Avatar size="sm" src="https://picsum.photos/seed/user1/80" alt="User 1" />\n` +
     `<Avatar size="md" src="https://picsum.photos/seed/user2/100" alt="User 2" />\n` +
-    `<Avatar size="lg" src="https://picsum.photos/seed/user3/120" alt="User 3" />\n\n` +
+    `<Avatar size="lg" src="https://picsum.photos/seed/user3/120" alt="User 3" />\n` +
+    `<Avatar size="xl" src="https://picsum.photos/seed/user4/160" alt="User 4" />\n\n` +
     `// With Status Indicator\n` +
     `<Avatar size="sm" src="..." showStatus status="online" />\n` +
     `<Avatar size="md" src="..." showStatus status="busy" />\n` +
     `<Avatar size="lg" src="..." showStatus status="away" />\n` +
-    `<Avatar size="md" src="..." showStatus status="offline" />\n\n` +
+    `<Avatar size="xl" src="..." showStatus status="offline" />\n\n` +
     `// Status - always visible (no hide on hover)\n` +
     `<Avatar size="md" src="..." showStatus status="online" hideStatusOnHover={false} />\n\n` +
     `// Interactive (with onClick)\n` +
@@ -38,27 +40,29 @@ export default function AvatarExample() {
       {/* Sizes */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Sizes</p>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <Avatar size="sm" fallback="AB" />
           <Avatar size="md" fallback="CD" />
           <Avatar size="lg" fallback="EF" />
+          <Avatar size="xl" fallback="GH" />
         </div>
       </div>
 
       {/* With Images */}
       <div className="space-y-2">
         <p className="text-sm font-medium">With Images</p>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <Avatar size="sm" src="https://picsum.photos/seed/user1/80" alt="User 1" />
           <Avatar size="md" src="https://picsum.photos/seed/user2/100" alt="User 2" />
           <Avatar size="lg" src="https://picsum.photos/seed/user3/120" alt="User 3" />
+          <Avatar size="xl" src="https://picsum.photos/seed/user4/160" alt="User 4" />
         </div>
       </div>
 
       {/* With Status Indicator */}
       <div className="space-y-2">
         <p className="text-sm font-medium">With Status Indicator (hover to hide)</p>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-end gap-4">
           <div className="text-center">
             <Avatar size="sm" src="https://picsum.photos/seed/status1/80" alt="Online" showStatus status="online" />
             <p className="text-xs text-muted-foreground mt-1">online</p>
@@ -72,7 +76,7 @@ export default function AvatarExample() {
             <p className="text-xs text-muted-foreground mt-1">away</p>
           </div>
           <div className="text-center">
-            <Avatar size="md" src="https://picsum.photos/seed/status4/100" alt="Offline" showStatus status="offline" />
+            <Avatar size="xl" src="https://picsum.photos/seed/status4/160" alt="Offline" showStatus status="offline" />
             <p className="text-xs text-muted-foreground mt-1">offline</p>
           </div>
         </div>
@@ -126,8 +130,8 @@ export default function AvatarExample() {
     { property: "src", description: t("props.avatar.src"), type: "string", default: "—" },
     { property: "alt", description: t("props.avatar.alt"), type: "string", default: "—" },
     { property: "fallback", description: t("props.avatar.fallback"), type: "string", default: "—" },
-    { property: "size", description: t("props.avatar.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
-    { property: "showStatus", description: t("props.avatar.showStatus"), type: "boolean", default: "false" },
+    { property: "size", description: t("props.avatar.size"), type: '"sm" | "md" | "lg" | "xl"', default: '"md"' },
+    { property: "showStatus", description: t("props.avatar.showStatus"), type: "boolean", default: "true" },
     { property: "status", description: t("props.avatar.status"), type: '"online" | "offline" | "busy" | "away" | "none"', default: '"online"' },
     { property: "hideStatusOnHover", description: t("props.avatar.hideStatusOnHover"), type: "boolean", default: "true" },
     { property: "className", description: t("props.avatar.className"), type: "string", default: "—" },
