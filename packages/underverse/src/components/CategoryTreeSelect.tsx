@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { ChevronRight, ChevronDown, FolderTree, Layers, Search, SearchX, X } from "lucide-react";
 import { cn } from "../utils/cn";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
+import { Label } from "./label";
 
 interface Category {
   id: number;
@@ -25,9 +26,18 @@ interface CategoryTreeSelectLabels {
 
 // Base props shared between multi and single select
 interface CategoryTreeSelectBaseProps {
+  id?: string;
+  label?: string;
+  labelClassName?: string;
   categories: Category[];
   placeholder?: string;
   disabled?: boolean;
+  required?: boolean;
+  size?: "sm" | "md" | "lg";
+  variant?: "default" | "outline" | "ghost" | "filled";
+  allowClear?: boolean;
+  error?: string;
+  helperText?: string;
   /** When true, renders as a read-only tree view without select functionality */
   viewOnly?: boolean;
   /** Default expanded state for all nodes */
@@ -74,9 +84,18 @@ const defaultLabels: Required<CategoryTreeSelectLabels> = {
 
 export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   const {
+    id,
+    label,
+    labelClassName,
     categories,
     placeholder = "Select category",
     disabled,
+    required = false,
+    size = "md",
+    variant = "default",
+    allowClear = false,
+    error,
+    helperText,
     viewOnly = false,
     defaultExpanded = false,
     enableSearch,
@@ -95,6 +114,13 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   const dropdownViewportRef = useRef<HTMLDivElement | null>(null);
 
   useOverlayScrollbarTarget(dropdownViewportRef, { enabled: useOverlayScrollbar });
+
+  const autoId = useId();
+  const resolvedId = id ? String(id) : `category-tree-select-${autoId}`;
+  const labelId = label ? `${resolvedId}-label` : undefined;
+  const helperId = helperText && !error ? `${resolvedId}-helper` : undefined;
+  const errorId = error ? `${resolvedId}-error` : undefined;
+  const describedBy = errorId || helperId;
 
   // Merge user labels with defaults
   const mergedLabels = { ...defaultLabels, ...labels };
@@ -404,12 +430,51 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     </div>
   );
 
+  const renderLabel = () =>
+    label ? (
+      <div className="flex items-center justify-between">
+        <Label
+          id={labelId}
+          htmlFor={resolvedId}
+          className={cn(
+            size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
+            disabled ? "text-muted-foreground" : "text-foreground",
+            error && "text-destructive",
+            labelClassName,
+          )}
+        >
+          {label}
+          {required && <span className="ml-1 text-destructive">*</span>}
+        </Label>
+      </div>
+    ) : null;
+
+  const renderAssistiveText = () =>
+    error ? (
+      <p id={errorId} className="text-sm text-destructive">
+        {error}
+      </p>
+    ) : helperText ? (
+      <p id={helperId} className="text-sm text-muted-foreground">
+        {helperText}
+      </p>
+    ) : null;
+
   // View-only mode: render tree directly without interactivity
   if (viewOnly) {
     return (
-      <div className={cn("rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-3 shadow-sm", disabled && "opacity-50", className)}>
-        {renderSearch()}
-        {renderTreeContent()}
+      <div className={cn("w-full space-y-2", className)}>
+        {renderLabel()}
+        <div
+          id={resolvedId}
+          aria-labelledby={labelId}
+          aria-describedby={describedBy}
+          className={cn("rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-3 shadow-sm", disabled && "opacity-50")}
+        >
+          {renderSearch()}
+          {renderTreeContent()}
+        </div>
+        {renderAssistiveText()}
       </div>
     );
   }
@@ -417,21 +482,79 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   // Inline mode: render tree directly with selection capability
   if (inline) {
     return (
-      <div
-        className={cn(
-          "rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-3 shadow-sm",
-          disabled && "opacity-50 pointer-events-none",
-          className,
-        )}
-      >
-        {renderSearch()}
-        {renderTreeContent()}
+      <div className={cn("w-full space-y-2", className)}>
+        {renderLabel()}
+        <div
+          id={resolvedId}
+          aria-labelledby={labelId}
+          aria-describedby={describedBy}
+          className={cn("rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-3 shadow-sm", disabled && "opacity-50 pointer-events-none")}
+        >
+          {renderSearch()}
+          {renderTreeContent()}
+        </div>
+        {renderAssistiveText()}
       </div>
     );
   }
 
   // Dropdown mode: render trigger + popup
   const selectedCount = valueArray.length;
+
+  const triggerSizeStyles = {
+    sm: {
+      button: "h-8 px-3 py-1.5 text-sm md:h-7 md:text-xs",
+      iconWrap: "p-1",
+      icon: "w-3.5 h-3.5 md:w-3 md:h-3",
+      text: "text-xs md:text-[11px]",
+      badge: "px-1.5 py-0.5 text-[10px]",
+      actionIcon: "w-3.5 h-3.5",
+      clearIcon: "h-3 w-3",
+    },
+    md: {
+      button: "h-10 px-3 py-2.5 text-sm",
+      iconWrap: "p-1.5",
+      icon: "w-4 h-4",
+      text: "text-sm",
+      badge: "px-2 py-0.5 text-xs",
+      actionIcon: "w-4 h-4",
+      clearIcon: "h-3.5 w-3.5",
+    },
+    lg: {
+      button: "h-12 px-4 py-3 text-base",
+      iconWrap: "p-1.5",
+      icon: "w-5 h-5",
+      text: "text-base",
+      badge: "px-2.5 py-1 text-sm",
+      actionIcon: "w-5 h-5",
+      clearIcon: "h-4 w-4",
+    },
+  } as const;
+
+  const triggerVariantStyles = {
+    default: "border border-input bg-background shadow-sm hover:border-primary/50",
+    outline: "border-2 border-input bg-transparent hover:border-primary",
+    ghost: "border border-transparent bg-muted/50 hover:bg-muted",
+    filled: "border border-transparent bg-muted/70 hover:bg-muted",
+  } as const;
+
+  const clearSelection = () => {
+    if (!props.onChange) return;
+
+    if (singleSelect) {
+      (props.onChange as (selectedId: number | null) => void)(null);
+      return;
+    }
+
+    (props.onChange as (selectedIds: number[]) => void)([]);
+  };
+
+  const handleClear = (event: React.MouseEvent | React.KeyboardEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    clearSelection();
+    setIsOpen(false);
+  };
 
   // Get display text based on selection
   let displayText: string;
@@ -456,42 +579,77 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   }
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("w-full space-y-2", className)}>
+      {renderLabel()}
+      <div className="relative">
       <button
+        id={resolvedId}
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
+        role="combobox"
+        aria-haspopup="tree"
+        aria-expanded={isOpen}
+        aria-controls={`${resolvedId}-tree`}
+        aria-labelledby={labelId}
+        aria-describedby={describedBy}
+        aria-invalid={!!error}
         className={cn(
-          // Modern trigger button styling
-          "group flex w-full items-center justify-between px-3 py-2.5",
-          "bg-background/80 backdrop-blur-sm border border-border/60",
-          "rounded-full h-11 text-sm",
-          "hover:bg-accent/10 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
-          "transition-all duration-300 ease-out",
+          "group flex w-full items-center justify-between rounded-full transition-all duration-200",
+          "backdrop-blur-sm",
+          triggerSizeStyles[size].button,
+          triggerVariantStyles[variant],
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           disabled && "opacity-50 cursor-not-allowed hover:transform-none hover:shadow-none",
           isOpen && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
+          error && "border-destructive focus-visible:ring-destructive/30",
         )}
       >
-        <div className="flex items-center gap-2.5">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5 text-left">
           <div
             className={cn(
-              "flex items-center justify-center rounded-lg p-1.5 transition-all duration-300",
+              "shrink-0 flex items-center justify-center rounded-lg transition-all duration-300",
+              triggerSizeStyles[size].iconWrap,
               isOpen ? "bg-primary/15 text-primary" : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
             )}
           >
-            <FolderTree className={cn("w-4 h-4 transition-transform duration-300", isOpen && "scale-110")} />
+            <FolderTree className={cn(triggerSizeStyles[size].icon, "transition-transform duration-300", isOpen && "scale-110")} />
           </div>
-          <span className={cn("font-medium transition-colors duration-200", selectedCount === 0 ? "text-muted-foreground" : "text-foreground")}>
+          <span
+            className={cn(
+              "min-w-0 flex-1 truncate font-medium transition-colors duration-200",
+              triggerSizeStyles[size].text,
+              selectedCount === 0 ? "text-muted-foreground" : "text-foreground",
+            )}
+            title={displayText}
+          >
             {displayText}
           </span>
-          {selectedCount > 0 && !singleSelect && (
-            <span className="ml-1 px-2 py-0.5 text-xs font-bold rounded-full bg-primary/15 text-primary">{selectedCount}</span>
-          )}
         </div>
-        <span className={cn("transition-all duration-300 text-muted-foreground group-hover:text-foreground", isOpen && "rotate-180 text-primary")}>
-          <ChevronDown className="w-4 h-4" />
-        </span>
+        <div className="ml-2 flex shrink-0 items-center gap-1.5">
+          {allowClear && selectedCount > 0 && !disabled && (
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label="Clear selection"
+              onClick={handleClear}
+              onKeyDown={(event) => (event.key === "Enter" || event.key === " ") && handleClear(event)}
+              className={cn(
+                "opacity-0 group-hover:opacity-100 transition-all duration-200",
+                "p-1 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+              )}
+            >
+              <X className={triggerSizeStyles[size].clearIcon} />
+            </div>
+          )}
+          {selectedCount > 0 && !singleSelect && (
+            <span className={cn("rounded-full bg-primary/15 font-bold text-primary", triggerSizeStyles[size].badge)}>{selectedCount}</span>
+          )}
+          <span className={cn("transition-all duration-300 text-muted-foreground group-hover:text-foreground", isOpen && "rotate-180 text-primary")}>
+            <ChevronDown className={triggerSizeStyles[size].actionIcon} />
+          </span>
+        </div>
       </button>
 
       {isOpen && !disabled && (
@@ -499,6 +657,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
           <div
             ref={dropdownViewportRef}
+            id={`${resolvedId}-tree`}
             className={cn(
               "absolute z-20 mt-2 w-full max-h-80 overflow-auto",
               "rounded-2xl md:rounded-3xl border border-border/40 bg-popover/95 text-popover-foreground",
@@ -513,6 +672,8 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           </div>
         </>
       )}
+      </div>
+      {renderAssistiveText()}
     </div>
   );
 }

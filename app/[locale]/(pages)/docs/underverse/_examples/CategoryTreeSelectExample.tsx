@@ -30,6 +30,7 @@ export default function CategoryTreeSelectExample() {
   const [selectedInit, setSelectedInit] = React.useState<number[]>([1, 2]);
   const [singleSelected, setSingleSelected] = React.useState<number | null>(null);
   const [inlineSingle, setInlineSingle] = React.useState<number | null>(1);
+  const [withFieldState, setWithFieldState] = React.useState<number[]>([]);
 
   const categories = [
     // Electronics
@@ -86,7 +87,12 @@ export default function CategoryTreeSelectExample() {
     `  categories={categories}\n` +
     `  value={selected}\n` +
     `  onChange={setSelected}\n` +
+    `  label="Categories"\n` +
+    `  helperText="Choose one or more categories"\n` +
     `  placeholder="Select categories"\n` +
+    `  size="md"\n` +
+    `  variant="default"\n` +
+    `  allowClear\n` +
     `  useOverlayScrollbar\n` +
     `/>\n\n` +
     `// 2) Single-select mode\n` +
@@ -126,11 +132,32 @@ export default function CategoryTreeSelectExample() {
           categories={categories}
           value={selected}
           onChange={setSelected}
+          label="Categories"
+          helperText="Choose one or more categories"
           placeholder="Select categories"
+          size="md"
+          variant="default"
+          allowClear
           labels={labels}
           useOverlayScrollbar
         />
         <div className="text-sm text-muted-foreground">Selected: {selected.join(", ") || "(none)"}</div>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Field states</p>
+        <CategoryTreeSelect
+          categories={categories}
+          value={withFieldState}
+          onChange={setWithFieldState}
+          label="Department tree"
+          required
+          placeholder="Choose departments"
+          helperText={withFieldState.length > 0 ? "Selection is valid." : undefined}
+          error={withFieldState.length === 0 ? "Pick at least one department." : undefined}
+          allowClear
+          variant="outline"
+        />
       </div>
 
       {/* 2) Single-select dropdown */}
@@ -173,6 +200,14 @@ export default function CategoryTreeSelectExample() {
     { property: "onChange", description: t("props.categoryTreeSelect.onChange"), type: "(ids | id) => void", default: "-" },
     { property: "placeholder", description: t("props.categoryTreeSelect.placeholder"), type: "string", default: '"Select category"' },
     { property: "disabled", description: t("props.categoryTreeSelect.disabled"), type: "boolean", default: "false" },
+    { property: "label", description: t("props.categoryTreeSelect.label"), type: "string", default: "-" },
+    { property: "labelClassName", description: t("props.categoryTreeSelect.labelClassName"), type: "string", default: "-" },
+    { property: "required", description: t("props.categoryTreeSelect.required"), type: "boolean", default: "false" },
+    { property: "size", description: t("props.categoryTreeSelect.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "variant", description: t("props.categoryTreeSelect.variant"), type: '"default" | "outline" | "ghost" | "filled"', default: '"default"' },
+    { property: "allowClear", description: t("props.categoryTreeSelect.allowClear"), type: "boolean", default: "false" },
+    { property: "error", description: t("props.categoryTreeSelect.error"), type: "string", default: "-" },
+    { property: "helperText", description: t("props.categoryTreeSelect.helperText"), type: "string", default: "-" },
     { property: "singleSelect", description: t("props.categoryTreeSelect.singleSelect"), type: "boolean", default: "false" },
     { property: "inline", description: t("props.categoryTreeSelect.inline"), type: "boolean", default: "false" },
     { property: "onNodeClick", description: t("props.categoryTreeSelect.onNodeClick"), type: "(node: Category) => void", default: "-" },

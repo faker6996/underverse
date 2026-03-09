@@ -33,6 +33,22 @@ const [selected, setSelected] = useState<number[]>([]);
 <CategoryTreeSelect categories={categories} value={selected} onChange={setSelected} placeholder="Select categories" />;
 ```
 
+### Combobox-like trigger
+
+```tsx
+<CategoryTreeSelect
+  categories={categories}
+  value={selected}
+  onChange={setSelected}
+  label="Categories"
+  helperText="Choose one or more categories"
+  placeholder="Select categories"
+  size="md"
+  variant="default"
+  allowClear
+/>
+```
+
 ### Single-select mode
 
 ```tsx
@@ -96,6 +112,14 @@ interface CategoryTreeSelectProps {
 
   placeholder?: string;
   disabled?: boolean;
+  label?: string;
+  labelClassName?: string;
+  required?: boolean;
+  size?: "sm" | "md" | "lg";
+  variant?: "default" | "outline" | "ghost" | "filled";
+  allowClear?: boolean;
+  error?: string;
+  helperText?: string;
   viewOnly?: boolean; // Read-only tree
   defaultExpanded?: boolean; // Expand all nodes by default
   enableSearch?: boolean; // Show search input (default: categories.length > 10)
