@@ -1,8 +1,8 @@
 {
   "package": "@underverse-ui/underverse",
-  "version": "1.0.40",
+  "version": "1.0.41",
   "sourceEntry": "src/index.ts",
-  "totalExports": 232,
+  "totalExports": 238,
   "exports": [
     {
       "name": "*",
@@ -323,8 +323,50 @@
       "local": false
     },
     {
+      "name": "Category",
+      "kind": "type",
+      "source": "./components/CategoryTreeSelect",
+      "reexport": true,
+      "local": false
+    },
+    {
       "name": "CategoryTreeSelect",
       "kind": "value",
+      "source": "./components/CategoryTreeSelect",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "CategoryTreeSelectBaseProps",
+      "kind": "type",
+      "source": "./components/CategoryTreeSelect",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "CategoryTreeSelectLabels",
+      "kind": "type",
+      "source": "./components/CategoryTreeSelect",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "CategoryTreeSelectMultiProps",
+      "kind": "type",
+      "source": "./components/CategoryTreeSelect",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "CategoryTreeSelectProps",
+      "kind": "type",
+      "source": "./components/CategoryTreeSelect",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "CategoryTreeSelectSingleProps",
+      "kind": "type",
       "source": "./components/CategoryTreeSelect",
       "reexport": true,
       "local": false
