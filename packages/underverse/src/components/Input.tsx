@@ -22,6 +22,8 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   hint?: string;
   counter?: boolean;
   maxLength?: number;
+  /** Custom content rendered inside the input container (positioned absolutely) */
+  rightAddon?: React.ReactNode;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -46,6 +48,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       type = "text",
       value,
       maxLength,
+      rightAddon,
       ...rest
     },
     ref,
@@ -158,6 +161,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       onClear: _onClear,
       hint: _hint,
       counter: _counter,
+      rightAddon: _rightAddon,
       ...restInput
     } = rest as any;
 
@@ -318,6 +322,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               </button>
             )}
           </div>
+
+          {/* Right Addon (e.g. NumberInput steppers) */}
+          {rightAddon}
 
           {/* Focus Indicator for minimal variant */}
           {variant === "minimal" && (
@@ -527,80 +534,93 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
       }
     };
 
-    return (
-      <div className="relative">
-        <Input
-          ref={ref}
-          type={formatThousands ? "text" : "number"}
-          min={min}
-          max={max}
-          step={step}
-          rightIcon={showSteppers ? undefined : props.rightIcon}
-          value={displayValue}
-          onChange={(e) => {
-            if (!onChange) return;
-            if (!formatThousands) return onChange(e);
-            const raw = e.target.value;
-            const parsed = parse(raw);
-            if (Number.isNaN(parsed)) {
-              setDisplayValue("");
-              onChange({ target: { value: "" } } as any);
-            } else {
-              const bounded = Math.min(Math.max(parsed, min ?? -Infinity), max ?? Infinity);
-              setDisplayValue(format(bounded));
-              onChange({ target: { value: bounded.toString() } } as any);
-            }
-          }}
-          {...props}
+    const inputSize = props.size || "md";
+
+    const stepperSizeStyles = {
+      sm: { width: "w-7", icon: { width: 8, height: 5, path: { up: "M4 1L7 4H1L4 1Z", down: "M4 4L1 1H7L4 4Z" } } },
+      md: { width: "w-9", icon: { width: 10, height: 6, path: { up: "M5 1L9 5H1L5 1Z", down: "M5 5L1 1H9L5 5Z" } } },
+      lg: { width: "w-11", icon: { width: 12, height: 7, path: { up: "M6 1L11 6H1L6 1Z", down: "M6 6L1 1H11L6 6Z" } } },
+    };
+
+    const ss = stepperSizeStyles[inputSize];
+
+    const stepperAddon = showSteppers ? (
+      <div className={cn("absolute right-0 inset-y-0 flex flex-col border-l border-border rounded-r-full overflow-hidden", ss.width)}>
+        <button
+          type="button"
+          onClick={handleIncrement}
+          disabled={max !== undefined && currentValue >= max}
           className={cn(
-            showSteppers && [
-              "pr-12",
-              // Hide native browser steppers
-              "[&::-webkit-outer-spin-button]:appearance-none",
-              "[&::-webkit-inner-spin-button]:appearance-none",
-              "[&::-webkit-inner-spin-button]:m-0",
-              "appearance-none",
-            ],
-            props.className,
+            "flex-1 flex items-center justify-center transition-colors",
+            "hover:bg-accent active:bg-accent/80",
+            "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-inset",
+            "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent",
+            "text-muted-foreground hover:text-foreground",
           )}
-        />
-        {showSteppers && (
-          <div className="absolute right-4 top-1/2 -translate-y-1/7 flex flex-col gap-0.5">
-            <button
-              type="button"
-              onClick={handleIncrement}
-              disabled={max !== undefined && currentValue >= max}
-              className={cn(
-                "flex items-center justify-center w-4 h-4 rounded-md transition-colors",
-                "hover:bg-accent focus:outline-none focus:bg-accent",
-                "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent",
-                "text-muted-foreground hover:text-foreground",
-              )}
-              aria-label="Increase value"
-            >
-              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" className="shrink-0">
-                <path d="M4 2L6 6H2L4 2Z" fill="currentColor" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              onClick={handleDecrement}
-              disabled={min !== undefined && currentValue <= min}
-              className={cn(
-                "flex items-center justify-center w-4 h-4 rounded-md transition-colors",
-                "hover:bg-accent focus:outline-none focus:bg-accent",
-                "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent",
-                "text-muted-foreground hover:text-foreground",
-              )}
-              aria-label="Decrease value"
-            >
-              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" className="shrink-0">
-                <path d="M4 6L2 2H6L4 6Z" fill="currentColor" />
-              </svg>
-            </button>
-          </div>
-        )}
+          aria-label="Increase value"
+        >
+          <svg width={ss.icon.width} height={ss.icon.height} viewBox={`0 0 ${ss.icon.width} ${ss.icon.height}`} fill="none" className="shrink-0">
+            <path d={ss.icon.path.up} fill="currentColor" />
+          </svg>
+        </button>
+        <div className="h-px bg-border" />
+        <button
+          type="button"
+          onClick={handleDecrement}
+          disabled={min !== undefined && currentValue <= min}
+          className={cn(
+            "flex-1 flex items-center justify-center transition-colors",
+            "hover:bg-accent active:bg-accent/80",
+            "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-inset",
+            "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent",
+            "text-muted-foreground hover:text-foreground",
+          )}
+          aria-label="Decrease value"
+        >
+          <svg width={ss.icon.width} height={ss.icon.height} viewBox={`0 0 ${ss.icon.width} ${ss.icon.height}`} fill="none" className="shrink-0">
+            <path d={ss.icon.path.down} fill="currentColor" />
+          </svg>
+        </button>
       </div>
+    ) : undefined;
+
+    return (
+      <Input
+        ref={ref}
+        type={formatThousands ? "text" : "number"}
+        min={min}
+        max={max}
+        step={step}
+        rightIcon={showSteppers ? undefined : props.rightIcon}
+        rightAddon={stepperAddon}
+        value={displayValue}
+        onChange={(e) => {
+          if (!onChange) return;
+          if (!formatThousands) return onChange(e);
+          const raw = e.target.value;
+          const parsed = parse(raw);
+          if (Number.isNaN(parsed)) {
+            setDisplayValue("");
+            onChange({ target: { value: "" } } as any);
+          } else {
+            const bounded = Math.min(Math.max(parsed, min ?? -Infinity), max ?? Infinity);
+            setDisplayValue(format(bounded));
+            onChange({ target: { value: bounded.toString() } } as any);
+          }
+        }}
+        {...props}
+        className={cn(
+          showSteppers && [
+            "pr-12",
+            // Hide native browser steppers
+            "[&::-webkit-outer-spin-button]:appearance-none",
+            "[&::-webkit-inner-spin-button]:appearance-none",
+            "[&::-webkit-inner-spin-button]:m-0",
+            "appearance-none",
+          ],
+          props.className,
+        )}
+      />
     );
   },
 );
