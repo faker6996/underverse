@@ -81,7 +81,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             className={cn(
-              "w-full rounded-2xl transition-all duration-200 ease-soft resize-y overflow-y-auto",
+              "w-full rounded-2xl md:rounded-3xl transition-all duration-200 ease-soft resize-y overflow-y-auto",
               "text-foreground placeholder:text-muted-foreground",
               "focus:outline-none shadow-sm focus:shadow-md",
               "backdrop-blur-sm",
@@ -104,7 +104,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           )}
 
           {/* Focus glow effect */}
-          {isFocused && variant !== "outlined" && <div className="absolute inset-0 rounded-2xl bg-primary/5 -z-10 animate-pulse" />}
+          {isFocused && variant !== "outlined" && <div className="absolute inset-0 rounded-2xl md:rounded-3xl bg-primary/5 -z-10 animate-pulse" />}
         </div>
 
         {description && (

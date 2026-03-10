@@ -698,7 +698,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           className={cn(
-            "w-full rounded-2xl px-4 py-3 text-sm text-foreground transition-all duration-200",
+            "w-full rounded-2xl md:rounded-3xl px-4 py-3 text-sm text-foreground transition-all duration-200",
             "placeholder:text-muted-foreground focus:outline-none min-h-20",
             "disabled:cursor-not-allowed disabled:opacity-50",
             variantStyles[variant],
