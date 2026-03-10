@@ -104,7 +104,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           )}
 
           {/* Focus glow effect */}
-          {isFocused && variant !== "outlined" && <div className="absolute inset-0 rounded-lg bg-primary/5 -z-10 animate-pulse" />}
+          {isFocused && variant !== "outlined" && <div className="absolute inset-0 rounded-2xl bg-primary/5 -z-10 animate-pulse" />}
         </div>
 
         {description && (
