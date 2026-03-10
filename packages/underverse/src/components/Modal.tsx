@@ -25,10 +25,10 @@ interface ModalProps {
 }
 
 const sizeStyles = {
-  sm: "max-w-sm",
-  md: "max-w-md",
-  lg: "max-w-lg",
-  xl: "max-w-xl",
+  sm: "max-w-md",
+  md: "max-w-2xl",
+  lg: "max-w-4xl",
+  xl: "max-w-6xl",
   full: "max-w-full",
 };
 
@@ -175,7 +175,7 @@ const Modal: React.FC<ModalProps> = ({
 
   const modalContent = (
     <div
-      className={cn("fixed inset-0 z-9999 flex items-center justify-center", overlayClassName)}
+      className={cn("fixed inset-0 z-9999 flex items-center justify-center p-4 md:p-6", overlayClassName)}
       style={{ overscrollBehavior: "contain" }}
       onMouseDown={handleOverlayMouseDown}
       onMouseUp={handleOverlayMouseUp}

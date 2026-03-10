@@ -8,6 +8,25 @@ Exports:
 
 Note: Modal đã được cải tiến để hỗ trợ các portal components (DatePicker, Popover, DropdownMenu) bên trong mà không bị đóng khi click.
 
+## Size Scale
+
+Current width scale:
+
+| Size | Width class | Recommended use |
+| --- | --- | --- |
+| `sm` | `max-w-md` | Confirmations, prompts, short content |
+| `md` | `max-w-2xl` | Default forms and standard workflows |
+| `lg` | `max-w-4xl` | Denser layouts and comparison views |
+| `xl` | `max-w-6xl` | Data-heavy detail panels and media review |
+| `full` | `max-w-full` | Immersive, canvas-like layouts |
+
+Notes:
+
+- Modal keeps `w-full`, then limits width using the selected `size`.
+- The overlay container adds viewport gutter, so dialogs do not stick to screen edges on smaller screens.
+- If `width` is provided, it overrides the preset `size` width classes.
+- `fullWidth` is mainly useful with `size="full"` when you want the dialog to stretch across the available viewport width.
+
 ## Accessibility (Web Interface Guidelines Compliant)
 
 | Feature                        | Status      |
@@ -58,6 +77,17 @@ export function Example() {
       </button>
       <Modal isOpen={open} onClose={() => setOpen(false)} title="Xac nhan" description="Ban co chac chan muon tiep tuc?">
         <div className="text-sm">Day la noi dung trong modal.</div>
+      </Modal>
+
+      <Modal isOpen={open} onClose={() => setOpen(false)} size="sm" title="Compact confirm">
+        <div className="text-sm">Useful for short decisions.</div>
+      </Modal>
+
+      <Modal isOpen={open} onClose={() => setOpen(false)} size="lg" title="Workspace modal">
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="rounded-xl border border-border bg-muted/30 p-3">Panel A</div>
+          <div className="rounded-xl border border-border bg-muted/30 p-3">Panel B</div>
+        </div>
       </Modal>
     </>
   );

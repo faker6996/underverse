@@ -24,6 +24,22 @@ export default function ModalExample() {
   const [open11, setOpen11] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(undefined);
 
+  const renderSizeContent = (title: string, note: string, panels: number) => (
+    <div className="space-y-4">
+      <div className="space-y-1">
+        <p className="text-sm font-medium">{title}</p>
+        <p className="text-sm text-muted-foreground">{note}</p>
+      </div>
+      <div className={panels > 1 ? "grid gap-3 sm:grid-cols-2 xl:grid-cols-3" : "grid gap-3"}>
+        {Array.from({ length: panels }).map((_, idx) => (
+          <div key={`${title}-${idx}`} className="rounded-xl border border-border bg-muted/30 p-3 text-sm">
+            Content block {idx + 1}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   const code =
     `import { Button, Modal } from '@underverse-ui/underverse'\n\n` +
     `// Basic Modal\n` +
@@ -33,11 +49,11 @@ export default function ModalExample() {
     `  <p>Modal content here</p>\n` +
     `</Modal>\n\n` +
     `// Sizes\n` +
-    `<Modal isOpen={open} onClose={() => setOpen(false)} size="sm" title="Small">...</Modal>\n` +
-    `<Modal isOpen={open} onClose={() => setOpen(false)} size="md" title="Medium">...</Modal>\n` +
-    `<Modal isOpen={open} onClose={() => setOpen(false)} size="lg" title="Large">...</Modal>\n` +
-    `<Modal isOpen={open} onClose={() => setOpen(false)} size="xl" title="Extra Large">...</Modal>\n` +
-    `<Modal isOpen={open} onClose={() => setOpen(false)} size="full" fullWidth title="Full Width">...</Modal>\n\n` +
+    `<Modal isOpen={open} onClose={() => setOpen(false)} size="sm" title="Compact confirm">...</Modal> // max-w-md\n` +
+    `<Modal isOpen={open} onClose={() => setOpen(false)} size="md" title="Form dialog">...</Modal> // max-w-2xl\n` +
+    `<Modal isOpen={open} onClose={() => setOpen(false)} size="lg" title="Workspace">...</Modal> // max-w-4xl\n` +
+    `<Modal isOpen={open} onClose={() => setOpen(false)} size="xl" title="Detailed review">...</Modal> // max-w-6xl\n` +
+    `<Modal isOpen={open} onClose={() => setOpen(false)} size="full" fullWidth title="Immersive canvas">...</Modal>\n\n` +
     `// With Description\n` +
     `<Modal\n` +
     `  isOpen={open}\n` +
@@ -95,6 +111,7 @@ export default function ModalExample() {
       {/* Sizes */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Sizes</p>
+        <p className="text-sm text-muted-foreground">The size scale now changes the dialog footprint more aggressively so each step feels distinct on desktop.</p>
         <div className="flex flex-wrap gap-2">
           <Button size="sm" variant="outline" onClick={() => setOpen2(true)}>
             Small (sm)
@@ -112,23 +129,23 @@ export default function ModalExample() {
             Full width
           </Button>
         </div>
-        <Modal isOpen={open2} onClose={() => setOpen2(false)} size="sm" title="Small Modal">
-          <p className="text-sm">This is a small modal (sm)</p>
+        <Modal isOpen={open2} onClose={() => setOpen2(false)} size="sm" title="Small Modal" description="Compact prompts and confirmations">
+          {renderSizeContent("Compact dialog", "Best for short decisions, alerts, and single-step actions.", 1)}
         </Modal>
-        <Modal isOpen={open6} onClose={() => setOpen6(false)} size="md" title="Medium Modal">
-          <p className="text-sm">This is a medium modal (md)</p>
+        <Modal isOpen={open6} onClose={() => setOpen6(false)} size="md" title="Medium Modal" description="Comfortable width for standard forms">
+          {renderSizeContent("Form-ready width", "Good default for forms, summaries, and short workflows.", 2)}
         </Modal>
-        <Modal isOpen={open3} onClose={() => setOpen3(false)} size="lg" title="Large Modal">
-          <p className="text-sm">This is a large modal (lg)</p>
+        <Modal isOpen={open3} onClose={() => setOpen3(false)} size="lg" title="Large Modal" description="Enough room for denser layouts">
+          {renderSizeContent("Workspace modal", "Useful when content starts needing comparison or multiple sections.", 3)}
         </Modal>
-        <Modal isOpen={open4} onClose={() => setOpen4(false)} size="xl" title="Extra Large Modal">
-          <p className="text-sm">This is an extra large modal (xl)</p>
+        <Modal isOpen={open4} onClose={() => setOpen4(false)} size="xl" title="Extra Large Modal" description="Expanded surface for reviews and dashboards">
+          {renderSizeContent("Detail-heavy surface", "Ideal for richer data views, media previews, and side-by-side context.", 4)}
         </Modal>
         <Modal isOpen={open9} onClose={() => setOpen9(false)} size="full" fullWidth title="Full Width Modal">
           <div className="space-y-3">
-            <p className="text-sm">Full width modal stretches edge to edge for immersive layouts.</p>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              {Array.from({ length: 3 }).map((_, idx) => (
+            <p className="text-sm">Full width modal stretches edge to edge for immersive layouts and canvas-style workflows.</p>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-5">
+              {Array.from({ length: 5 }).map((_, idx) => (
                 <div key={idx} className="rounded-md border border-border bg-muted/30 p-3 text-sm">
                   Panel {idx + 1}
                 </div>
