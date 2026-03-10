@@ -36,18 +36,18 @@ const gradientDirectionMap: Record<GradientDirection, string> = {
 
 const spacingClasses = {
   none: "",
-  sm: "py-6",
-  md: "py-8",
-  lg: "py-12",
-  xl: "py-16",
+  sm: "py-6 max-md:py-4",
+  md: "py-8 max-md:py-6",
+  lg: "py-12 max-md:py-8",
+  xl: "py-16 max-md:py-10",
 };
 
 const paddingXClasses = {
   none: "",
-  sm: "px-2 md:px-4",
+  sm: "px-2 md:px-4 max-md:px-3",
   md: "px-4 md:px-6",
-  lg: "px-6 md:px-8",
-  xl: "px-8 md:px-12",
+  lg: "px-6 md:px-8 max-md:px-5",
+  xl: "px-8 md:px-12 max-md:px-6",
 };
 
 const Section = React.forwardRef<HTMLElement, SectionProps>(
@@ -87,7 +87,7 @@ const Section = React.forwardRef<HTMLElement, SectionProps>(
           variant === "gradient" ? getGradientClasses() : variantClasses[variant],
           spacingClasses[spacing],
           paddingXClasses[paddingX],
-          outlined && "rounded-2xl md:rounded-3xl border border-border/60",
+          outlined && "rounded-2xl md:rounded-3xl border border-border/60 max-md:rounded-xl",
           contained && "container mx-auto",
           className,
         )}

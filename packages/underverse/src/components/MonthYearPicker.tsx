@@ -149,7 +149,7 @@ function WheelColumn({
       return {
         columnWidth: column === "month" ? "min-w-24 max-w-32" : "min-w-16 max-w-20",
         label: "text-[9px] mb-2",
-        selectedText: "text-base",
+        selectedText: "text-base font-extrabold",
         unselectedText: "text-sm",
         fadeHeight: "h-10",
       };
@@ -158,7 +158,7 @@ function WheelColumn({
       return {
         columnWidth: column === "month" ? "min-w-32 max-w-40" : "min-w-20 max-w-24",
         label: "text-[11px] mb-3",
-        selectedText: "text-xl",
+        selectedText: "text-xl font-extrabold",
         unselectedText: "text-lg",
         fadeHeight: "h-14",
       };
@@ -166,7 +166,7 @@ function WheelColumn({
     return {
       columnWidth: column === "month" ? "min-w-28 max-w-36" : "min-w-18 max-w-22",
       label: "text-[10px] mb-3",
-      selectedText: "text-lg",
+      selectedText: "text-lg font-extrabold",
       unselectedText: "text-base",
       fadeHeight: "h-12",
     };
@@ -490,17 +490,13 @@ function WheelColumn({
   return (
     <div className={cn("flex-1", ui.columnWidth)}>
       <div className={cn(ui.label, "font-bold uppercase tracking-wider text-muted-foreground/70 text-center")}>{labelText}</div>
-      <div className="relative rounded-xl bg-muted/30 overflow-hidden" style={{ height }}>
+      <div className="relative rounded-xl overflow-hidden" style={{ height }}>
         <div
-          className="pointer-events-none absolute inset-x-2 top-1/2 -translate-y-1/2 rounded-lg bg-linear-to-r from-primary/20 via-primary/15 to-primary/20 border border-primary/30 shadow-sm shadow-primary/10"
-          style={{ height: itemHeight }}
-        />
-        <div
-          className={cn("pointer-events-none absolute inset-x-0 top-0 bg-linear-to-b from-muted/20 via-muted/5 to-transparent z-10", ui.fadeHeight)}
+          className={cn("pointer-events-none absolute inset-x-0 top-0 bg-linear-to-b from-background/55 via-background/15 to-transparent z-10", ui.fadeHeight)}
         />
         <div
           className={cn(
-            "pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-muted/20 via-muted/5 to-transparent z-10",
+            "pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-background/55 via-background/15 to-transparent z-10",
             ui.fadeHeight,
           )}
         />
@@ -512,8 +508,10 @@ function WheelColumn({
             "h-full overflow-y-auto overscroll-contain snap-y snap-mandatory",
             "select-none cursor-grab active:cursor-grabbing",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xl",
+            "[scrollbar-width:none] [-ms-overflow-style:none]",
+            "[&::-webkit-scrollbar]:hidden",
           )}
-          style={{ paddingTop: paddingY, paddingBottom: paddingY }}
+          style={{ paddingTop: paddingY, paddingBottom: paddingY, paddingLeft: 2, paddingRight: 2 }}
           role="listbox"
           aria-label={`Select ${labelText.toLowerCase()}`}
           tabIndex={focused ? 0 : -1}
@@ -746,8 +744,10 @@ export default function MonthYearPicker({
   };
 
   const sz = sizeClasses[size];
-  const panelSz = panelSizeClasses[size];
-  const itemHeight = WHEEL_ITEM_HEIGHT[size];
+  const effectivePanelSize: PickerSize = variant === "compact" ? (size === "lg" ? "md" : "sm") : size;
+  const panelSz = panelSizeClasses[effectivePanelSize];
+  const compactPanel = variant === "compact";
+  const itemHeight = WHEEL_ITEM_HEIGHT[effectivePanelSize];
 
   const monthIndex = parts.month;
   const yearIndex = years.indexOf(parts.year);
@@ -800,12 +800,12 @@ export default function MonthYearPicker({
       </button>
     );
 
-  const contentWidth = variant === "compact" ? 280 : 340;
+  const contentWidth = variant === "compact" ? 252 : 340;
 
   const pickerContent = (
-    <div className={panelSz.stackGap}>
+    <div className={cn(panelSz.stackGap, compactPanel && "space-y-2.5")}>
       {/* Current Display */}
-      <div className="flex items-center justify-center py-1">
+      <div className={cn("flex items-center justify-center py-1", compactPanel && "py-0.5")}>
         <span
           className={cn(
             panelSz.displayText,
@@ -817,7 +817,7 @@ export default function MonthYearPicker({
       </div>
 
       {/* Wheel Columns */}
-      <div className="flex gap-3">
+      <div className={cn("flex gap-3", compactPanel && "gap-2")}>
         <WheelColumn
           labelText={columnLabels.month ?? "Month"}
           column="month"
@@ -827,7 +827,7 @@ export default function MonthYearPicker({
           onSelect={(m) => tryUpdate({ ...parts, month: m })}
           scrollRef={monthScrollRef}
           itemHeight={itemHeight}
-          size={size}
+          size={effectivePanelSize}
           animate={animate}
           focused={focusedColumn === "month"}
           setFocusedColumn={setFocusedColumn}
@@ -842,7 +842,7 @@ export default function MonthYearPicker({
           onSelect={(y) => tryUpdate({ ...parts, year: y })}
           scrollRef={yearScrollRef}
           itemHeight={itemHeight}
-          size={size}
+          size={effectivePanelSize}
           animate={animate}
           focused={focusedColumn === "year"}
           setFocusedColumn={setFocusedColumn}
@@ -852,7 +852,7 @@ export default function MonthYearPicker({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2 pt-2 border-t border-border/40">
+      <div className={cn("flex items-center gap-2 pt-2 border-t border-border/40", compactPanel && "gap-1.5 pt-2.5")}>
         {showThisMonth && (
           <button
             type="button"
@@ -940,7 +940,7 @@ export default function MonthYearPicker({
         contentWidth={contentWidth}
         matchTriggerWidth={matchTriggerWidth}
         disabled={disabled}
-        contentClassName={cn(panelSz.contentPadding, "rounded-2xl")}
+        contentClassName={cn(panelSz.contentPadding, compactPanel && "max-w-[calc(100vw-2rem)] p-4 rounded-2xl", "rounded-2xl")}
       >
         {pickerContent}
       </Popover>

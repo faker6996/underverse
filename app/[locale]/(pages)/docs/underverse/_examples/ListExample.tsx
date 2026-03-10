@@ -14,11 +14,11 @@ export default function ListExample() {
   const [selected, setSelected] = React.useState<number | null>(1);
 
   const demo = (
-    <div className="space-y-8">
+    <div className="divide-y divide-border/50 md:divide-y-0 md:space-y-8">
       {/* Variants */}
-      <div className="space-y-3">
+      <div className="space-y-3 py-4 md:py-0">
         <p className="text-sm font-semibold text-foreground/90">Variants (Custom padding applied via itemClassName)</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground">Card (p-3)</p>
             <List variant="card" inset divided itemClassName="p-3">
@@ -52,9 +52,9 @@ export default function ListExample() {
       </div>
 
       {/* Sizes - simulating sizes with custom padding */}
-      <div className="space-y-3">
+      <div className="space-y-3 py-4 md:py-0">
         <p className="text-sm font-semibold text-foreground/90">Sizes (Manual Padding)</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground">Small Padding (p-1)</p>
             <List variant="bordered" size="xs" divided itemClassName="p-1">
@@ -72,7 +72,7 @@ export default function ListExample() {
       </div>
 
       {/* With Avatars */}
-      <div className="space-y-3">
+      <div className="space-y-3 py-4 md:py-0">
         <p className="text-sm font-semibold text-foreground/90">With Avatars</p>
         <List variant="card" inset divided itemClassName="p-4">
           <List.Item
@@ -100,7 +100,7 @@ export default function ListExample() {
       </div>
 
       {/* With Actions */}
-      <div className="space-y-3">
+      <div className="space-y-3 py-4 md:py-0">
         <p className="text-sm font-semibold text-foreground/90">With Action Buttons</p>
         <List variant="bordered" inset divided itemClassName="p-2">
           <List.Item
@@ -132,7 +132,7 @@ export default function ListExample() {
       </div>
 
       {/* Custom Item Padding */}
-      <div className="space-y-3">
+      <div className="space-y-3 py-4 md:py-0">
         <p className="text-sm font-semibold text-foreground/90">Mixed Padding</p>
         <List variant="bordered" divided itemClassName="p-2">
           <List.Item label="Standard Item" description="Uses list-level padding (p-2)" />
@@ -141,7 +141,7 @@ export default function ListExample() {
       </div>
 
       {/* Collapsible Items */}
-      <div className="space-y-3">
+      <div className="space-y-3 py-4 md:py-0">
         <p className="text-sm font-semibold text-foreground/90">Collapsible Items</p>
         <List variant="card" inset divided itemClassName="p-4">
           <List.Item
@@ -181,7 +181,7 @@ export default function ListExample() {
       </div>
 
       {/* Selectable List */}
-      <div className="space-y-3">
+      <div className="space-y-3 py-4 md:py-0">
         <p className="text-sm font-semibold text-foreground/90">Selectable List</p>
         <List variant="outlined" inset divided itemClassName="p-3">
           <List.Item
@@ -215,13 +215,13 @@ export default function ListExample() {
       </div>
 
       {/* Loading State */}
-      <div className="space-y-3">
+      <div className="space-y-3 py-4 md:py-0">
         <p className="text-sm font-semibold text-foreground/90">Loading State</p>
         <List variant="card" inset loading loadingCount={4} itemClassName="p-2" />
       </div>
 
       {/* Empty State */}
-      <div className="space-y-3">
+      <div className="space-y-3 py-4 md:py-0">
         <p className="text-sm font-semibold text-foreground/90">Empty State</p>
         <List variant="bordered" emptyText="No items found" itemClassName="p-4" />
       </div>

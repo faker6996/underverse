@@ -117,12 +117,12 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
     // Variant styles
     const variantClasses = {
       plain: "",
-      outlined: "rounded-2xl md:rounded-3xl bg-card text-card-foreground border border-border shadow-sm",
-      soft: "rounded-2xl md:rounded-3xl bg-muted/40 border border-border/60",
-      bordered: "border border-border rounded-2xl md:rounded-3xl",
-      card: "rounded-2xl md:rounded-3xl bg-card shadow-md border border-border",
+      outlined: "rounded-2xl md:rounded-3xl bg-card text-card-foreground border border-border shadow-sm max-md:rounded-xl",
+      soft: "rounded-2xl md:rounded-3xl bg-muted/40 border border-border/60 max-md:rounded-xl",
+      bordered: "border border-border rounded-2xl md:rounded-3xl max-md:rounded-xl",
+      card: "rounded-2xl md:rounded-3xl bg-card shadow-md border border-border max-md:rounded-xl max-md:shadow-sm",
       flush: "",
-      striped: "rounded-2xl md:rounded-3xl border border-border overflow-hidden",
+      striped: "rounded-2xl md:rounded-3xl border border-border overflow-hidden max-md:rounded-xl",
     };
 
     // Loading state
@@ -130,7 +130,7 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
       return (
         <Comp
           ref={ref}
-          className={cn("group/list", variantClasses[variant], inset && "p-1.5 md:p-2", divided && "divide-y divide-border/60", className)}
+          className={cn("group/list", variantClasses[variant], inset && "p-1.5 md:p-2 max-md:p-1", divided && "divide-y divide-border/60", className)}
           {...rest}
         >
           {Array.from({ length: loadingCount }).map((_, i) => (
@@ -143,7 +143,7 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
     // Empty state
     if (!hasChildren && emptyText) {
       return (
-        <Comp ref={ref} className={cn("group/list", variantClasses[variant], inset && "p-1.5 md:p-2", className)} {...rest}>
+        <Comp ref={ref} className={cn("group/list", variantClasses[variant], inset && "p-1.5 md:p-2 max-md:p-1", className)} {...rest}>
           <div className="text-center py-8 text-muted-foreground text-sm">{emptyText}</div>
         </Comp>
       );
@@ -155,7 +155,7 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
         className={cn(
           "group/list",
           variantClasses[variant],
-          inset && "p-1.5 md:p-2",
+          inset && "p-1.5 md:p-2 max-md:p-1",
           divided && "divide-y divide-border/60",
           variant === "striped" && "[&>*:nth-child(even)]:bg-muted/30",
           className,
@@ -255,7 +255,7 @@ export const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
 
     const inner = (
       <>
-        <div className={cn("flex items-center gap-3", contentClassName, "group/item relative")} {...headerProps}>
+        <div className={cn("flex items-center gap-3 group/item relative max-md:gap-2.5", contentClassName)} {...headerProps}>
           {/* Avatar */}
           {avatar && (
             <div className={cn("shrink-0", sz.avatar)}>
@@ -283,7 +283,7 @@ export const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
           </div>
 
           {/* Action Button */}
-          {action && <div className="opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0">{action}</div>}
+          {action && <div className="opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0 max-md:opacity-100">{action}</div>}
 
           {/* Right Icon or Collapsible Icon */}
           {collapsible ? (
@@ -303,7 +303,7 @@ export const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
 
         {/* Expanded Content - padding also removed here? */}
         {collapsible && isExpanded && expandContent && (
-          <div className={cn("border-t border-border/50 bg-muted/20", contentClassName, "pt-3")}>{expandContent}</div>
+          <div className={cn("border-t border-border/50 bg-muted/20", contentClassName, "pt-3 max-md:pt-2.5")}>{expandContent}</div>
         )}
       </>
     );

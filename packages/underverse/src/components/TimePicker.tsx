@@ -129,7 +129,7 @@ function WheelColumn({
       return {
         columnWidth: "min-w-16 max-w-21",
         label: "text-[9px] mb-2",
-        selectedText: "text-base",
+        selectedText: "text-base font-extrabold",
         unselectedText: "text-sm",
         fadeHeight: "h-10",
       };
@@ -138,7 +138,7 @@ function WheelColumn({
       return {
         columnWidth: "min-w-20 max-w-27.5",
         label: "text-[11px] mb-3",
-        selectedText: "text-xl",
+        selectedText: "text-xl font-extrabold",
         unselectedText: "text-lg",
         fadeHeight: "h-14",
       };
@@ -146,7 +146,7 @@ function WheelColumn({
     return {
       columnWidth: "min-w-17.5 max-w-22.5",
       label: "text-[10px] mb-3",
-      selectedText: "text-lg",
+      selectedText: "text-lg font-extrabold",
       unselectedText: "text-base",
       fadeHeight: "h-12",
     };
@@ -470,13 +470,9 @@ function WheelColumn({
   return (
     <div className={cn("flex-1", ui.columnWidth)}>
       <div className={cn(ui.label, "font-bold uppercase tracking-wider text-muted-foreground/70 text-center")}>{labelText}</div>
-      <div className="relative rounded-xl bg-muted/30 overflow-hidden" style={{ height }}>
-        <div
-          className="pointer-events-none absolute inset-x-2 top-1/2 -translate-y-1/2 rounded-lg bg-linear-to-r from-primary/20 via-primary/15 to-primary/20 border border-primary/30 shadow-sm shadow-primary/10"
-          style={{ height: itemHeight }}
-        />
-        <div className={cn("pointer-events-none absolute inset-x-0 top-0 bg-linear-to-b from-muted/20 via-muted/5 to-transparent z-10", ui.fadeHeight)} />
-        <div className={cn("pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-muted/20 via-muted/5 to-transparent z-10", ui.fadeHeight)} />
+      <div className="relative rounded-xl overflow-hidden" style={{ height }}>
+        <div className={cn("pointer-events-none absolute inset-x-0 top-0 bg-linear-to-b from-background/55 via-background/15 to-transparent z-10", ui.fadeHeight)} />
+        <div className={cn("pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-background/55 via-background/15 to-transparent z-10", ui.fadeHeight)} />
 
         <div
           ref={scrollRef as any}
@@ -485,8 +481,10 @@ function WheelColumn({
             "h-full overflow-y-auto overscroll-contain snap-y snap-mandatory",
             "select-none cursor-grab active:cursor-grabbing",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xl",
+            "[scrollbar-width:none] [-ms-overflow-style:none]",
+            "[&::-webkit-scrollbar]:hidden",
           )}
-          style={{ paddingTop: paddingY, paddingBottom: paddingY }}
+          style={{ paddingTop: paddingY, paddingBottom: paddingY, paddingLeft: 2, paddingRight: 2 }}
           role="listbox"
           aria-label={`Select ${labelText.toLowerCase()}`}
           tabIndex={focused ? 0 : -1}
@@ -606,7 +604,7 @@ export default function TimePicker({
   secondStep = 1,
   clearable = true,
   variant = "default",
-  matchTriggerWidth = true,
+  matchTriggerWidth,
   showNow = false,
   showPresets = false,
   allowManualInput = false,
@@ -888,7 +886,11 @@ export default function TimePicker({
   };
 
   const sz = sizeClasses[size];
-  const panelSz = panelSizeClasses[size];
+  const effectivePanelSize: PickerSize =
+    variant === "compact" ? (size === "lg" ? "md" : "sm") : size;
+  const panelSz = panelSizeClasses[effectivePanelSize];
+  const shouldMatchTriggerWidth = matchTriggerWidth ?? (variant !== "compact");
+  const compactPanel = variant === "compact";
 
   const display = formatTime(parts, format, includeSeconds);
 
@@ -949,8 +951,9 @@ export default function TimePicker({
       </button>
     );
 
-  const contentWidth = variant === "compact" ? 240 : variant === "inline" ? 320 : includeSeconds ? 340 : 300;
-  const itemHeight = WHEEL_ITEM_HEIGHT[size];
+  const contentWidth =
+    variant === "compact" ? (includeSeconds ? 260 : 228) : variant === "inline" ? 320 : includeSeconds ? 340 : 300;
+  const itemHeight = WHEEL_ITEM_HEIGHT[effectivePanelSize];
 
   const setHourFromDisplay = (hourDisplay: number) => {
     const period = parts.p ?? (parts.h >= 12 ? "PM" : "AM");
@@ -966,9 +969,9 @@ export default function TimePicker({
   };
 
   const timePickerContent = (
-    <div className={panelSz.stackGap}>
+    <div className={cn(panelSz.stackGap, compactPanel && "space-y-2.5")}>
       {/* Current Time Display */}
-      <div className="flex items-center justify-center py-1">
+      <div className={cn("flex items-center justify-center py-1", compactPanel && "py-0.5")}>
         <span className={cn(panelSz.timeText, "font-bold tabular-nums tracking-wide text-foreground underline underline-offset-8 decoration-primary/60")}>
           {display}
         </span>
@@ -991,7 +994,7 @@ export default function TimePicker({
 
       {/* Presets */}
       {showPresets && (
-        <div className="grid grid-cols-2 gap-2">
+        <div className={cn("grid grid-cols-2 gap-2", compactPanel && "gap-1.5")}>
           {(Object.keys(PRESETS) as Array<keyof typeof PRESETS>).map((preset) => {
             const { icon: Icon, label, color } = PRESETS[preset];
             return (
@@ -1025,7 +1028,7 @@ export default function TimePicker({
 
       {/* Custom Presets */}
       {customPresets && customPresets.length > 0 && (
-        <div className="grid grid-cols-2 gap-2">
+        <div className={cn("grid grid-cols-2 gap-2", compactPanel && "gap-1.5")}>
           {customPresets.map((preset, idx) => (
             <button
               key={idx}
@@ -1048,7 +1051,7 @@ export default function TimePicker({
       )}
 
       {/* Time Selector */}
-      <div className="flex gap-2 justify-center items-stretch">
+      <div className={cn("flex gap-2 justify-center items-stretch", compactPanel && "gap-1.5")}>
         {/* Hours */}
         {(() => {
           const hourDisplay = format === "24" ? parts.h : parts.h % 12 || 12;
@@ -1062,7 +1065,7 @@ export default function TimePicker({
               onSelect={setHourFromDisplay}
               scrollRef={hourScrollRef}
               itemHeight={itemHeight}
-              size={size}
+              size={effectivePanelSize}
               animate={animate}
               focused={focusedColumn === "hour"}
               setFocusedColumn={(col) => setFocusedColumn(col)}
@@ -1072,7 +1075,7 @@ export default function TimePicker({
         })()}
 
         {/* Separator */}
-        <div className={cn("flex flex-col items-center justify-center", panelSz.separatorPad)}>
+        <div className={cn("flex flex-col items-center justify-center", panelSz.separatorPad, compactPanel && "pt-6")}>
           <div className="flex flex-col gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
             <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
@@ -1094,7 +1097,7 @@ export default function TimePicker({
               }}
               scrollRef={minuteScrollRef}
               itemHeight={itemHeight}
-              size={size}
+              size={effectivePanelSize}
               animate={animate}
               focused={focusedColumn === "minute"}
               setFocusedColumn={(col) => setFocusedColumn(col)}
@@ -1107,7 +1110,7 @@ export default function TimePicker({
         {includeSeconds && (
           <>
             {/* Separator */}
-            <div className={cn("flex flex-col items-center justify-center", panelSz.separatorPad)}>
+            <div className={cn("flex flex-col items-center justify-center", panelSz.separatorPad, compactPanel && "pt-6")}>
               <div className="flex flex-col gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
                 <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
@@ -1127,7 +1130,7 @@ export default function TimePicker({
                   }}
                   scrollRef={secondScrollRef}
                   itemHeight={itemHeight}
-                  size={size}
+                  size={effectivePanelSize}
                   animate={animate}
                   focused={focusedColumn === "second"}
                   setFocusedColumn={(col) => setFocusedColumn(col)}
@@ -1143,7 +1146,11 @@ export default function TimePicker({
           <div
             className={cn(
               "flex-1",
-              size === "sm" ? "min-w-16 max-w-21" : size === "lg" ? "min-w-20 max-w-27.5" : "min-w-17.5 max-w-22.5",
+              effectivePanelSize === "sm"
+                ? "min-w-16 max-w-21"
+                : effectivePanelSize === "lg"
+                  ? "min-w-20 max-w-27.5"
+                  : "min-w-17.5 max-w-22.5",
             )}
           >
             <div className={cn(panelSz.periodLabel, "font-bold uppercase tracking-wider text-muted-foreground/70 text-center")}>Period</div>
@@ -1192,7 +1199,7 @@ export default function TimePicker({
 
       {/* Action Buttons */}
       {(showNow || clearable) && (
-        <div className="flex items-center gap-2 pt-3 border-t border-border/50">
+        <div className={cn("flex items-center gap-2 pt-3 border-t border-border/50", compactPanel && "gap-1.5 pt-2.5")}>
           {showNow && (
             <button
               type="button"
@@ -1288,10 +1295,11 @@ export default function TimePicker({
         open={open}
         onOpenChange={handleOpenChange}
         placement="bottom-start"
-        matchTriggerWidth={matchTriggerWidth}
-        contentWidth={matchTriggerWidth ? undefined : contentWidth}
+        matchTriggerWidth={shouldMatchTriggerWidth}
+        contentWidth={shouldMatchTriggerWidth ? undefined : contentWidth}
         contentClassName={cn(
           panelSz.contentPadding,
+          compactPanel && "max-w-[calc(100vw-2rem)] p-4 rounded-2xl",
           "rounded-2xl md:rounded-3xl border bg-popover/98 backdrop-blur-md shadow-2xl",
           error && "border-destructive/40",
           success && "border-success/40",

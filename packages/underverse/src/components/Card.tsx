@@ -1,6 +1,6 @@
 "use client";
 // components/ui/Card.tsx
-import React, { useState } from "react";
+import React from "react";
 import { cn } from "../utils/cn";
 
 // Helper to detect padding classes per direction
@@ -46,40 +46,36 @@ const Card = ({
   onClick,
   ...rest
 }: CardProps) => {
-  const [isHovered, setIsHovered] = useState(false);
-
   return (
     <div
       className={cn(
-        "rounded-2xl md:rounded-3xl bg-card text-card-foreground transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft",
-        "shadow-sm md:hover:shadow-md border border-border",
+        "group rounded-2xl md:rounded-3xl bg-card text-card-foreground transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft max-md:rounded-xl",
+        "border border-border shadow-sm md:hover:shadow-md",
         hoverable && "md:hover:-translate-y-0.5 md:hover:border-primary/15",
-        clickable && "cursor-pointer active:translate-y-px md:hover:bg-accent/5",
+        clickable && "cursor-pointer active:translate-y-px active:bg-accent/5 md:hover:bg-accent/5",
         "backdrop-blur-sm",
         className,
       )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
       {...rest}
     >
-      <div className={cn("relative overflow-hidden rounded-2xl md:rounded-3xl", innerClassName)}>
+      <div className={cn("relative overflow-hidden rounded-2xl md:rounded-3xl max-md:rounded-xl", innerClassName)}>
         {(hoverable || clickable) && (
           <div
             className={cn(
-              "absolute inset-0 bg-linear-to-br from-primary/5 to-transparent transition-opacity duration-300",
-              isHovered ? "opacity-100" : "opacity-0",
+              "absolute inset-0 bg-linear-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300",
+              "md:group-hover:opacity-100",
             )}
           />
         )}
 
         {(title || description) && (
-          <div className="relative flex flex-col space-y-2 p-4 md:p-6">
+          <div className="relative flex flex-col space-y-2 p-4 md:p-6 max-md:space-y-1.5 max-md:p-3">
             {title && (
               <h3
                 className={cn(
-                  "text-base md:text-lg font-semibold leading-none tracking-tight transition-colors duration-200",
-                  isHovered && hoverable && "text-primary",
+                  "text-base md:text-lg font-semibold leading-none tracking-tight transition-colors duration-200 max-md:text-sm",
+                  hoverable && "md:group-hover:text-primary",
                 )}
               >
                 {title}
@@ -93,13 +89,13 @@ const Card = ({
           (() => {
             const padding = getPaddingInfo(contentClassName);
             const skipAllPadding = noPadding || padding.hasAll;
-            // Default X: px-4 md:px-6, Default Y: pt-0 pb-4 md:pb-6
-            const defaultPaddingX = !skipAllPadding && !padding.hasX ? "px-4 md:px-6" : "";
-            const defaultPaddingY = !skipAllPadding && !padding.hasY ? "pt-0 pb-4 md:pb-6" : "";
+            // Default X: px-3 sm:px-4 md:px-6, Default Y: pt-0 pb-3 sm:pb-4 md:pb-6
+            const defaultPaddingX = !skipAllPadding && !padding.hasX ? "px-4 md:px-6 max-md:px-3" : "";
+            const defaultPaddingY = !skipAllPadding && !padding.hasY ? "pt-0 pb-4 md:pb-6 max-md:pb-3" : "";
 
             return <div className={cn("relative", defaultPaddingX, defaultPaddingY, contentClassName)}>{children}</div>;
           })()}
-        {footer && <div className="relative flex items-center p-4 md:p-6 pt-0 border-t border-border mt-4">{footer}</div>}
+        {footer && <div className="relative flex items-center p-4 md:p-6 pt-0 border-t border-border mt-4 max-md:mt-3 max-md:p-3 max-md:pt-0">{footer}</div>}
       </div>
     </div>
   );

@@ -79,27 +79,48 @@ export function PropsDocsTable({
   return (
     <div className="space-y-4">
       {markdownFile && (
-        <div className="flex justify-end">
+        <div className="flex justify-start md:justify-end">
           <Button variant="outline" size="sm" onClick={handleDownload} icon={Download} className="gap-2">
             Download Docs
           </Button>
         </div>
       )}
-      <DataTable<PropsRow>
-        columns={localizedColumns}
-        data={data}
-        rowKey={(r: PropsRow) => r.property}
-        striped
-        enableDensityToggle={false}
-        enableColumnVisibilityToggle={false}
-        // server-mode trick to disable built-in pagination UI
-        onQueryChange={() => {}}
-        total={0}
-        page={1}
-        pageSize={data.length}
-        useOverlayScrollbar
-        className={className ?? "text-sm"}
-      />
+      <div className="divide-y divide-border/50 rounded-none border-y border-border/50 md:hidden">
+        {data.map((row) => (
+          <div key={row.property} className="space-y-2 px-0 py-4">
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-foreground">{row.property}</div>
+              {row.category && <div className="mt-1 text-xs text-muted-foreground">{row.category}</div>}
+            </div>
+            <p className="text-sm leading-6 text-muted-foreground">{row.description}</p>
+            <div className="grid grid-cols-1 gap-1.5 text-xs text-muted-foreground">
+              <div>
+                <span className="font-medium text-foreground/80">{t("propsTable.type")}:</span> {row.type}
+              </div>
+              <div>
+                <span className="font-medium text-foreground/80">{t("propsTable.default")}:</span> {row.default}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="hidden md:block">
+        <DataTable<PropsRow>
+          columns={localizedColumns}
+          data={data}
+          rowKey={(r: PropsRow) => r.property}
+          striped
+          enableDensityToggle={false}
+          enableColumnVisibilityToggle={false}
+          // server-mode trick to disable built-in pagination UI
+          onQueryChange={() => {}}
+          total={0}
+          page={1}
+          pageSize={data.length}
+          useOverlayScrollbar
+          className={className ?? "text-sm"}
+        />
+      </div>
     </div>
   );
 }

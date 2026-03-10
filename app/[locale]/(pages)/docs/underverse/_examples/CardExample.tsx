@@ -56,9 +56,9 @@ export default function CardExample() {
     `</Card>`;
 
   const demo = (
-    <div className="space-y-6">
+    <div className="divide-y divide-border/50 md:divide-y-0 md:space-y-6">
       {/* Basic Card */}
-      <div className="space-y-2">
+      <div className="space-y-2 py-4 md:py-0">
         <p className="text-sm font-medium">Basic Card</p>
         <Card title="Card Title" description="Card description here">
           <p className="text-sm">Card content can be any React node.</p>
@@ -66,7 +66,7 @@ export default function CardExample() {
       </div>
 
       {/* Card with Footer */}
-      <div className="space-y-2">
+      <div className="space-y-2 py-4 md:py-0">
         <p className="text-sm font-medium">Card with Footer</p>
         <Card
           title="Card with Footer"
@@ -87,7 +87,7 @@ export default function CardExample() {
       </div>
 
       {/* Hoverable Card */}
-      <div className="space-y-2">
+      <div className="space-y-2 py-4 md:py-0">
         <p className="text-sm font-medium">Hoverable Card</p>
         <Card title="Hoverable" description="Hover to see effect" hoverable>
           <p className="text-sm">This card has hover animations - try hovering over it!</p>
@@ -95,7 +95,7 @@ export default function CardExample() {
       </div>
 
       {/* Clickable Card */}
-      <div className="space-y-2">
+      <div className="space-y-2 py-4 md:py-0">
         <p className="text-sm font-medium">Clickable Card</p>
         <Card title="Clickable Card" description="Click me!" clickable onClick={() => setClickCount(clickCount + 1)}>
           <p className="text-sm">
@@ -105,9 +105,9 @@ export default function CardExample() {
       </div>
 
       {/* Smart Padding */}
-      <div className="space-y-2">
+      <div className="space-y-2 py-4 md:py-0">
         <p className="text-sm font-medium">Smart Padding</p>
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
           <Card title="Horizontal Only" contentClassName="px-8 border border-dashed">
             <p className="text-sm bg-accent/10">px-8 applied, default py kept</p>
           </Card>
@@ -118,7 +118,7 @@ export default function CardExample() {
       </div>
 
       {/* Custom Styling */}
-      <div className="space-y-2">
+      <div className="space-y-2 py-4 md:py-0">
         <p className="text-sm font-medium">Custom Styling</p>
         <Card
           title="Custom Styles"
@@ -131,7 +131,7 @@ export default function CardExample() {
       </div>
 
       {/* Combined Features */}
-      <div className="space-y-2">
+      <div className="space-y-2 py-4 md:py-0">
         <p className="text-sm font-medium">Combined Features</p>
         <Card
           title="Feature Complete"

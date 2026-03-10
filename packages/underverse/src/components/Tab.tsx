@@ -200,6 +200,7 @@ export const Tabs: React.FC<TabsProps> = ({
         className={cn(
           "bg-card rounded-2xl md:rounded-3xl border border-border/60 shadow-sm text-card-foreground transition-all duration-200",
           "backdrop-blur-sm",
+          "max-md:bg-transparent max-md:border-0 max-md:shadow-none max-md:rounded-none max-md:backdrop-blur-none",
           sizeStyles[size].content,
           orientation === "vertical" && "flex-1",
         )}
