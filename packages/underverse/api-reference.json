@@ -1,6 +1,6 @@
 {
   "package": "@underverse-ui/underverse",
-  "version": "1.0.42",
+  "version": "1.0.43",
   "sourceEntry": "src/index.ts",
   "totalExports": 238,
   "exports": [
