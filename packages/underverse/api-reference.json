@@ -1,8 +1,8 @@
 {
   "package": "@underverse-ui/underverse",
-  "version": "1.0.47",
+  "version": "1.0.48",
   "sourceEntry": "src/index.ts",
-  "totalExports": 238,
+  "totalExports": 239,
   "exports": [
     {
       "name": "*",
@@ -314,6 +314,13 @@
       "reexport": true,
       "local": false,
       "aliasOf": "default"
+    },
+    {
+      "name": "CardProps",
+      "kind": "type",
+      "source": "./components/Card",
+      "reexport": true,
+      "local": false
     },
     {
       "name": "Carousel",
