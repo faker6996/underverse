@@ -49,16 +49,35 @@ export function Example() {
 }
 ```
 
+### Custom content wrapper
+
+Use these props when the tab content already provides its own card, border, or spacing:
+
+```tsx
+<Tabs
+  tabs={tabs}
+  variant="underline"
+  noContentCard
+  noContentPadding
+  contentClassName="mt-4"
+  animateContent
+/>
+```
+
 ```ts
 interface TabsProps {
   tabs: Tab[];
   defaultValue?: string;
   className?: string;
+  contentClassName?: string;
   variant?: "default" | "pills" | "underline" | "card" | "underline-card";
   size?: "sm" | "md" | "lg";
   orientation?: "horizontal" | "vertical";
   onTabChange?: (value: string) => void;
   stretch?: boolean; // evenly distribute tabs (horizontal)
+  noContentCard?: boolean;
+  noContentPadding?: boolean;
+  animateContent?: boolean;
 }
 ```
 

@@ -22,6 +22,27 @@ export default function TabsExample() {
     { value: "settings", label: "Settings", icon: Settings, content: <div className="p-3">Settings content</div> },
   ];
 
+  const nestedCardTabs = [
+    {
+      value: "overview",
+      label: "Overview",
+      content: (
+        <div className="rounded-2xl md:rounded-3xl border border-border bg-card p-4 shadow-sm">
+          Inner card content without double wrapper styles.
+        </div>
+      ),
+    },
+    {
+      value: "activity",
+      label: "Activity",
+      content: (
+        <div className="rounded-2xl border border-border bg-muted/30 p-4">
+          Timeline or list content can keep its own spacing and border.
+        </div>
+      ),
+    },
+  ];
+
   const code =
     `import { Tabs } from '@underverse-ui/underverse'\n` +
     `import { Home, User, Settings } from 'lucide-react'\n\n` +
@@ -45,6 +66,8 @@ export default function TabsExample() {
     `<Tabs tabs={tabs} orientation="vertical" variant="card" />\n\n` +
     `// Stretch (evenly distribute)\n` +
     `<Tabs tabs={tabs} stretch />\n\n` +
+    `// Bare content panel (avoid nested card)\n` +
+    `<Tabs tabs={tabs} variant="underline" noContentCard noContentPadding contentClassName="mt-4" />\n\n` +
     `// Disabled Tab\n` +
     `const tabs = [\n` +
     `  { value: "a", label: "Active", content: <div>Active</div> },\n` +
@@ -107,6 +130,12 @@ export default function TabsExample() {
         <Tabs tabs={basicTabs} stretch variant="default" />
       </div>
 
+      {/* Nested card */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Bare Content Panel</p>
+        <Tabs tabs={nestedCardTabs} variant="underline" noContentCard noContentPadding contentClassName="mt-4" animateContent />
+      </div>
+
       {/* Disabled Tab */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Disabled Tab</p>
@@ -128,8 +157,12 @@ export default function TabsExample() {
     { property: "size", description: t("props.tabs.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
     { property: "orientation", description: t("props.tabs.orientation"), type: '"horizontal" | "vertical"', default: '"horizontal"' },
     { property: "stretch", description: t("props.tabs.stretch"), type: "boolean", default: "false" },
+    { property: "contentClassName", description: "Custom classes for the tab panel wrapper", type: "string", default: "—" },
+    { property: "noContentCard", description: "Disable the default card-style content wrapper", type: "boolean", default: "false" },
+    { property: "noContentPadding", description: "Disable the default content padding on the panel wrapper", type: "boolean", default: "false" },
+    { property: "animateContent", description: "Add a small fade transition when switching tabs", type: "boolean", default: "true" },
   ];
-  const order = ["tabs","variant","size","orientation","stretch"];
+  const order = ["tabs","variant","size","orientation","stretch","contentClassName","noContentCard","noContentPadding","animateContent"];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Tabs.md" />;
 
   return (
@@ -144,5 +177,4 @@ export default function TabsExample() {
     />
   );
 }
-
 

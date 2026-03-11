@@ -15,25 +15,32 @@ interface TabsProps {
   tabs: Tab[];
   defaultValue?: string;
   className?: string;
+  contentClassName?: string;
   variant?: "default" | "pills" | "underline" | "card" | "underline-card";
   size?: "sm" | "md" | "lg";
   orientation?: "horizontal" | "vertical";
   onTabChange?: (value: string) => void;
   stretch?: boolean; // evenly distribute tabs (horizontal)
+  noContentCard?: boolean;
+  noContentPadding?: boolean;
+  animateContent?: boolean;
 }
 
 const sizeStyles = {
   sm: {
     tab: "py-1.5 px-3 text-xs",
-    content: "mt-3 p-3",
+    contentGap: "mt-3",
+    contentPadding: "p-3",
   },
   md: {
     tab: "py-2.5 px-4 text-sm",
-    content: "mt-4 p-4",
+    contentGap: "mt-4",
+    contentPadding: "p-4",
   },
   lg: {
     tab: "py-3 px-6 text-base",
-    content: "mt-6 p-6",
+    contentGap: "mt-6",
+    contentPadding: "p-6",
   },
 };
 
@@ -74,11 +81,15 @@ export const Tabs: React.FC<TabsProps> = ({
   tabs,
   defaultValue,
   className,
+  contentClassName,
   variant = "default",
   size = "md",
   orientation = "horizontal",
   onTabChange,
   stretch = false,
+  noContentCard = false,
+  noContentPadding = false,
+  animateContent = true,
 }) => {
   const [active, setActive] = React.useState<string>(defaultValue || tabs[0]?.value);
   const [underlineStyle, setUnderlineStyle] = React.useState<React.CSSProperties>({});
@@ -111,16 +122,28 @@ export const Tabs: React.FC<TabsProps> = ({
   }, [active, variant, orientation, tabs]);
 
   const containerClasses = cn(
-    "w-full",
-    orientation === "horizontal" ? "flex space-x-1 overflow-x-auto" : "flex flex-col space-y-1",
+    "relative",
+    orientation === "horizontal" ? "w-full flex space-x-1 overflow-x-auto" : "flex flex-col space-y-1 shrink-0",
     variantStyles[variant].container,
     className,
   );
 
-  const activeTab = tabs.find((tab) => tab.value === active);
+  const activeIndex = tabs.findIndex((tab) => tab.value === active);
+  const activeTab = activeIndex >= 0 ? tabs[activeIndex] : tabs[0];
+  const panelId = `${baseId}-panel-${activeIndex >= 0 ? activeIndex : 0}`;
+  const tabId = `${baseId}-tab-${activeIndex >= 0 ? activeIndex : 0}`;
+  const contentWrapperClasses = cn(
+    orientation === "horizontal" && sizeStyles[size].contentGap,
+    orientation === "vertical" && "flex-1 min-w-0",
+    !noContentPadding && sizeStyles[size].contentPadding,
+    !noContentCard
+      ? "bg-card rounded-2xl md:rounded-3xl border border-border/60 shadow-sm text-card-foreground backdrop-blur-sm"
+      : "text-foreground",
+    contentClassName,
+  );
 
   return (
-    <div className={cn("w-full", orientation === "vertical" && "flex gap-6")}>
+    <div className={cn("w-full", orientation === "vertical" && "flex items-start gap-6")}>
       {/* Tab List */}
       <div className={containerClasses} role="tablist" aria-orientation={orientation}>
         {tabs.map((tab, index) => {
@@ -195,18 +218,17 @@ export const Tabs: React.FC<TabsProps> = ({
       {/* Tab Content */}
       <div
         role="tabpanel"
-        id={`${baseId}-panel-${tabs.findIndex((t) => t.value === active)}`}
-        aria-labelledby={`${baseId}-tab-${tabs.findIndex((t) => t.value === active)}`}
-        className={cn(
-          "bg-card rounded-2xl md:rounded-3xl border border-border/60 shadow-sm text-card-foreground transition-all duration-200",
-          "backdrop-blur-sm",
-          "max-md:bg-transparent max-md:border-0 max-md:shadow-none max-md:rounded-none max-md:backdrop-blur-none",
-          sizeStyles[size].content,
-          orientation === "vertical" && "flex-1",
-        )}
-        tabIndex={0}
+        id={panelId}
+        aria-labelledby={tabId}
+        className={cn("transition-all duration-200", contentWrapperClasses)}
       >
-        {activeTab?.content}
+        {animateContent ? (
+          <div key={activeTab?.value} className="animate-fade-in">
+            {activeTab?.content}
+          </div>
+        ) : (
+          activeTab?.content
+        )}
       </div>
     </div>
   );
@@ -241,10 +263,8 @@ interface VerticalTabsProps extends TabsProps {
 
 export const VerticalTabs: React.FC<VerticalTabsProps> = ({ sidebarWidth = "w-48", className, ...props }) => {
   return (
-    <div className={cn("flex gap-6", className)}>
-      <div className={cn(sidebarWidth, "shrink-0")}>
-        <Tabs {...props} orientation="vertical" variant="card" className="w-full" />
-      </div>
+    <div className={cn("w-full", className)}>
+      <Tabs {...props} orientation="vertical" variant="card" className={sidebarWidth} />
     </div>
   );
 };
