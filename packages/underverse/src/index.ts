@@ -15,6 +15,7 @@ export {
   PulseBadge,
 } from "./components/Badge";
 export { default as Card } from "./components/Card";
+export type { CardProps } from "./components/Card";
 export { Checkbox } from "./components/CheckBox";
 export type { CheckboxProps } from "./components/CheckBox";
 export { default as Input } from "./components/Input";

@@ -13,8 +13,7 @@ export default function CardExample() {
   const [clickCount, setClickCount] = React.useState(0);
 
   const code =
-    `import { Card } from '@underverse-ui/underverse'\n` +
-    `import Button from '@underverse-ui/underverse'\n\n` +
+    `import { Button, Card } from '@underverse-ui/underverse'\n\n` +
     `// Basic Card\n` +
     `<Card title="Card Title" description="Card description here">\n` +
     `  <p>Card content can be any React node.</p>\n` +
@@ -41,18 +40,25 @@ export default function CardExample() {
     `>\n` +
     `  <p>Clicked {count} times</p>\n` +
     `</Card>\n\n` +
-    `// Smart Padding Logic\n` +
-    `// 1. Only Horizontal Padding (Vertical keeps default)\n` +
+    `// Header / Footer layout hooks\n` +
+    `<Card\n` +
+    `  title="Project Status"\n` +
+    `  description="Updated 5 minutes ago"\n` +
+    `  headerClassName="flex-row items-center gap-3"\n` +
+    `  footer={<><span className="text-sm text-muted-foreground">Synced</span><Button size="sm">Open</Button></>}\n` +
+    `  footerClassName="justify-between"\n` +
+    `>\n` +
+    `  <p>Use headerClassName and footerClassName for layout tweaks.</p>\n` +
+    `</Card>\n\n` +
+    `// Content padding\n` +
     `<Card title="Horizontal Only" contentClassName="px-8">\n` +
-    `  <p>px-8 applied, default py kept</p>\n` +
+    `  <p>Horizontal padding is custom, default vertical padding is kept.</p>\n` +
     `</Card>\n\n` +
-    `// 2. Only Vertical Padding (Horizontal keeps default)\n` +
     `<Card title="Vertical Only" contentClassName="py-12">\n` +
-    `  <p>py-12 applied, default px kept</p>\n` +
+    `  <p>Vertical padding is custom, default horizontal padding is kept.</p>\n` +
     `</Card>\n\n` +
-    `// 3. Full Custom (Overrides all)\n` +
-    `<Card title="Full Custom" contentClassName="p-0">\n` +
-    `  <img src="/cover.jpg" className="w-full" />\n` +
+    `<Card title="Media Card" noPadding>\n` +
+    `  <img src="/cover.jpg" className="aspect-[16/9] w-full object-cover" alt="" />\n` +
     `</Card>`;
 
   const demo = (
@@ -117,6 +123,41 @@ export default function CardExample() {
         </div>
       </div>
 
+      <div className="space-y-2 py-4 md:py-0">
+        <p className="text-sm font-medium">Header / Footer Layout</p>
+        <Card
+          title={
+            <div className="flex items-center gap-2">
+              <span className="inline-block h-2.5 w-2.5 rounded-full bg-emerald-500" />
+              Project Status
+            </div>
+          }
+          description="Updated 5 minutes ago"
+          headerClassName="flex-row items-center gap-3"
+          footer={
+            <>
+              <span className="text-sm text-muted-foreground">Synced</span>
+              <Button size="sm">Open</Button>
+            </>
+          }
+          footerClassName="justify-between"
+        >
+          <p className="text-sm">Use headerClassName and footerClassName when you only need layout tweaks.</p>
+        </Card>
+      </div>
+
+      <div className="space-y-2 py-4 md:py-0">
+        <p className="text-sm font-medium">No Padding / Media</p>
+        <Card
+          title="Media Card"
+          description="Use noPadding when the content already owns its own spacing."
+          noPadding
+          innerClassName="overflow-hidden"
+        >
+          <div className="aspect-[16/9] w-full bg-linear-to-br from-primary/15 via-primary/5 to-transparent" />
+        </Card>
+      </div>
+
       {/* Custom Styling */}
       <div className="space-y-2 py-4 md:py-0">
         <p className="text-sm font-medium">Custom Styling</p>
@@ -154,13 +195,30 @@ export default function CardExample() {
     { property: "title", description: t("props.card.title"), type: "React.ReactNode", default: "—" },
     { property: "description", description: t("props.card.description"), type: "React.ReactNode", default: "—" },
     { property: "footer", description: t("props.card.footer"), type: "React.ReactNode", default: "—" },
+    { property: "headerClassName", description: "Custom class for the header wrapper.", type: "string", default: "—" },
+    { property: "footerClassName", description: "Custom class for the footer wrapper.", type: "string", default: "—" },
     { property: "hoverable", description: t("props.card.hoverable"), type: "boolean", default: "false" },
     { property: "clickable", description: t("props.card.clickable"), type: "boolean", default: "false" },
     { property: "onClick", description: t("props.card.onClick"), type: "() => void", default: "—" },
     { property: "className", description: t("props.card.className"), type: "string", default: "—" },
     { property: "contentClassName", description: t("props.card.contentClassName"), type: "string", default: "—" },
+    { property: "innerClassName", description: "Custom class for the rounded inner wrapper.", type: "string", default: "—" },
+    { property: "noPadding", description: "Removes default content padding.", type: "boolean", default: "false" },
   ];
-  const order = ["title", "description", "footer", "hoverable", "clickable", "onClick", "className", "contentClassName"];
+  const order = [
+    "title",
+    "description",
+    "footer",
+    "headerClassName",
+    "footerClassName",
+    "hoverable",
+    "clickable",
+    "onClick",
+    "className",
+    "contentClassName",
+    "innerClassName",
+    "noPadding",
+  ];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Card.md" />;
 
   return (

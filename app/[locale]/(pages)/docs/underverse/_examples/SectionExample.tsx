@@ -35,12 +35,12 @@ export default function SectionExample() {
         <p className="text-sm font-medium">Gradient (Hero Section)</p>
         <div className="space-y-3">
           <Section variant="gradient" spacing="md" paddingX="md">
-            <div className="p-3 border rounded-md bg-background/80 backdrop-blur-sm">Gradient mặc định (primary → accent)</div>
+            <div className="p-3 border rounded-md bg-background/80 backdrop-blur-sm">Gradient mặc định</div>
           </Section>
           <Section
             variant="gradient"
-            gradientFrom="from-purple-500/20"
-            gradientTo="to-pink-500/20"
+            gradientFrom="oklch(0.7 0.2 300 / 20%)"
+            gradientTo="oklch(0.7 0.2 0 / 20%)"
             gradientDirection="to-r"
             spacing="md"
             paddingX="md"
@@ -74,21 +74,34 @@ export default function SectionExample() {
           <div className="p-3 border rounded-md">paddingX: none (default)</div>
         </Section>
         <Section variant="muted" spacing="sm" paddingX="sm">
-          <div className="p-3 border rounded-md">paddingX: sm</div>
+          <div className="p-3 border rounded-md">paddingX: sm — px-3 md:px-4</div>
         </Section>
         <Section variant="muted" spacing="sm" paddingX="md">
-          <div className="p-3 border rounded-md">paddingX: md</div>
+          <div className="p-3 border rounded-md">paddingX: md — px-4 md:px-6</div>
         </Section>
         <Section variant="muted" spacing="sm" paddingX="lg">
-          <div className="p-3 border rounded-md">paddingX: lg</div>
+          <div className="p-3 border rounded-md">paddingX: lg — px-5 md:px-8</div>
         </Section>
       </div>
 
       {/* Contained */}
       <div className="space-y-3">
-        <p className="text-sm font-medium">Contained (thêm container mx-auto)</p>
-        <Section variant="primary" spacing="md" contained>
-          <div className="p-3 border rounded-md">Section với contained={"{true}"} - có container mx-auto</div>
+        <p className="text-sm font-medium">Contained (background full-width, content max-width)</p>
+        <Section variant="primary" spacing="md" contained paddingX="md">
+          <div className="p-3 border rounded-md">
+            Background phủ full-width, inner div có container mx-auto + paddingX
+          </div>
+        </Section>
+      </div>
+
+      {/* as prop */}
+      <div className="space-y-3">
+        <p className="text-sm font-medium">as prop (đổi tag HTML)</p>
+        <Section as="div" variant="muted" spacing="sm" paddingX="md">
+          <div className="p-3 border rounded-md">Render như &lt;div&gt; thay vì &lt;section&gt;</div>
+        </Section>
+        <Section as="article" variant="accent" spacing="sm" paddingX="md">
+          <div className="p-3 border rounded-md">Render như &lt;article&gt;</div>
         </Section>
       </div>
     </div>
@@ -96,42 +109,37 @@ export default function SectionExample() {
 
   const code =
     `import { Section } from '@underverse-ui/underverse'\n\n` +
-    `// Mặc định: không có spacing và paddingX\n` +
-    `<Section>\n` +
-    `  <div>Nội dung không padding</div>\n` +
-    `</Section>\n\n` +
     `// Variants\n` +
     `<Section variant='muted' spacing='md'>\n` +
-    `  Nội dung section (muted)\n` +
+    `  Nội dung section\n` +
     `</Section>\n\n` +
-    `// Gradient (Hero Section)\n` +
+    `// Gradient – dùng CSS color value\n` +
     `<Section\n` +
     `  variant='gradient'\n` +
-    `  gradientFrom='from-purple-500/20'\n` +
-    `  gradientTo='to-pink-500/20'\n` +
+    `  gradientFrom='oklch(0.7 0.2 300 / 20%)'\n` +
+    `  gradientTo='oklch(0.7 0.2 0 / 20%)'\n` +
     `  gradientDirection='to-r'\n` +
     `  spacing='xl'\n` +
     `  paddingX='md'\n` +
     `>\n` +
     `  <h1>Hero với custom gradient</h1>\n` +
     `</Section>\n\n` +
-    `// Spacing (vertical padding)\n` +
-    `<Section variant='muted' spacing='sm'>py-6</Section>\n` +
-    `<Section variant='muted' spacing='md'>py-8</Section>\n` +
-    `<Section variant='muted' spacing='lg'>py-12</Section>\n` +
-    `<Section variant='muted' spacing='xl'>py-16</Section>\n\n` +
-    `// Horizontal Padding (paddingX)\n` +
-    `<Section variant='muted' paddingX='sm'>px-2 md:px-4</Section>\n` +
-    `<Section variant='muted' paddingX='md'>px-4 md:px-6</Section>\n` +
-    `<Section variant='muted' paddingX='lg'>px-6 md:px-8</Section>\n\n` +
-    `// Contained (thêm container mx-auto)\n` +
-    `<Section variant='primary' spacing='md' contained>\n` +
-    `  Section với container mx-auto\n` +
-    `</Section>`;
+    `// Contained: background full-width, content có container mx-auto\n` +
+    `<Section variant='primary' spacing='md' contained paddingX='md'>\n` +
+    `  Nội dung bên trong có max-width tự động\n` +
+    `</Section>\n\n` +
+    `// containerClassName: custom inner container\n` +
+    `<Section contained containerClassName='max-w-3xl mx-auto px-6'>\n` +
+    `  Nội dung hẹp hơn\n` +
+    `</Section>\n\n` +
+    `// as prop: đổi HTML tag\n` +
+    `<Section as='div' variant='muted' spacing='sm'>...</Section>\n` +
+    `<Section as='article' variant='accent' spacing='md'>...</Section>`;
 
   const rows: PropsRow[] = [
     { property: "children", description: t("props.section.children"), type: "React.ReactNode", default: "-" },
     { property: "className", description: t("props.section.className"), type: "string", default: "-" },
+    { property: "as", description: "Override HTML tag", type: "React.ElementType", default: '"section"' },
     {
       property: "variant",
       description: t("props.section.variant"),
@@ -140,10 +148,11 @@ export default function SectionExample() {
     },
     { property: "spacing", description: t("props.section.spacing"), type: '"none" | "sm" | "md" | "lg" | "xl"', default: '"none"' },
     { property: "paddingX", description: t("props.section.paddingX"), type: '"none" | "sm" | "md" | "lg" | "xl"', default: '"none"' },
-    { property: "contained", description: t("props.section.contained"), type: "boolean", default: "false" },
+    { property: "contained", description: "Background full-width, inner div có container mx-auto", type: "boolean", default: "false" },
+    { property: "containerClassName", description: "Custom className cho inner container khi contained=true", type: "string", default: "-" },
     { property: "outlined", description: t("props.section.outlined"), type: "boolean", default: "false" },
-    { property: "gradientFrom", description: t("props.section.gradientFrom"), type: "string", default: '"from-primary/20"' },
-    { property: "gradientTo", description: t("props.section.gradientTo"), type: "string", default: '"to-accent/20"' },
+    { property: "gradientFrom", description: "CSS color value cho gradient start", type: "string", default: '"oklch(0.7 0.15 280 / 20%)"' },
+    { property: "gradientTo", description: "CSS color value cho gradient end", type: "string", default: '"oklch(0.7 0.2 200 / 20%)"' },
     {
       property: "gradientDirection",
       description: t("props.section.gradientDirection"),
@@ -152,16 +161,9 @@ export default function SectionExample() {
     },
   ];
   const order = [
-    "children",
-    "className",
-    "variant",
-    "spacing",
-    "paddingX",
-    "contained",
-    "outlined",
-    "gradientFrom",
-    "gradientTo",
-    "gradientDirection",
+    "children", "className", "as", "variant", "spacing", "paddingX",
+    "contained", "containerClassName", "outlined",
+    "gradientFrom", "gradientTo", "gradientDirection",
   ];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Section.md" />;
 

@@ -2,190 +2,181 @@
 
 Source: `components/ui/Tab.tsx`
 
-Exports:
+Exports: `Tabs`, `SimpleTabs`, `PillTabs`, `VerticalTabs`
 
-- Tabs
-- SimpleTabs
-- PillTabs
-- VerticalTabs
-
-Note: Usage snippets are minimal; fill required props from the props type below.
-
-## Accessibility (Web Interface Guidelines Compliant)
-
-| Feature                       | Status |
-| ----------------------------- | ------ |
-| `role="tablist"` on container | ✅     |
-| `role="tab"` on buttons       | ✅     |
-| `aria-selected` state         | ✅     |
-| `focus-visible` ring          | ✅     |
-| Keyboard navigation           | ✅     |
-
-## Tabs
-
-Props type: `TabsProps`
+## Ví dụ cơ bản
 
 ```tsx
 import { Tabs } from "@underverse-ui/underverse";
 
-export function Example() {
-  return <Tabs />;
-}
+const tabs = [
+  { label: "Tổng quan", value: "overview", content: <div>Thông tin tổng quan</div> },
+  { label: "Chi tiết",  value: "detail",   content: <div>Nội dung chi tiết</div> },
+];
+
+<Tabs tabs={tabs} variant="underline" size="sm" />
 ```
 
-Vi du day du:
+## Variants
 
 ```tsx
-import React from "react";
-import { Tabs } from "@underverse-ui/underverse";
-
-export function Example() {
-  const tabs = [
-    { label: "Tong quan", value: "overview", content: <div>Thong tin tong quan</div> },
-    { label: "Chi tiet", value: "detail", content: <div>Noi dung chi tiet</div> },
-  ];
-
-  return <Tabs tabs={tabs} variant="underline" size="sm" />;
-}
+<Tabs tabs={tabs} variant="default" />       // tab bar dạng pill + border-bottom
+<Tabs tabs={tabs} variant="pills" />         // floating pill bar
+<Tabs tabs={tabs} variant="underline" />     // underline đơn giản
+<Tabs tabs={tabs} variant="card" />          // tab dạng card sidebar
+<Tabs tabs={tabs} variant="underline-card"/> // underline + card background
 ```
 
-### Custom content wrapper
-
-Use these props when the tab content already provides its own card, border, or spacing:
+## Sizes
 
 ```tsx
+<Tabs tabs={tabs} size="sm" />  // py-1.5 px-3 text-xs
+<Tabs tabs={tabs} size="md" />  // py-2.5 px-4 text-sm (default)
+<Tabs tabs={tabs} size="lg" />  // py-3 px-6 text-base
+```
+
+## Với icon
+
+```tsx
+import { Home, User, Settings } from "lucide-react";
+
+const tabs = [
+  { value: "home",     label: "Home",     icon: Home,     content: <div>Home</div> },
+  { value: "profile",  label: "Profile",  icon: User,     content: <div>Profile</div> },
+  { value: "settings", label: "Settings", icon: Settings, content: <div>Settings</div> },
+];
+
+<Tabs tabs={tabs} variant="pills" />
+```
+
+## Orientation – vertical
+
+```tsx
+<Tabs tabs={tabs} orientation="vertical" variant="card" />
+```
+
+## Stretch – chia đều tab
+
+```tsx
+<Tabs tabs={tabs} stretch />
+```
+
+## Tab bị disabled
+
+```tsx
+const tabs = [
+  { value: "a", label: "Active",   content: <div>Active</div> },
+  { value: "b", label: "Disabled", content: <div>Disabled</div>, disabled: true },
+];
+
+<Tabs tabs={tabs} variant="pills" />
+```
+
+## Content panel – tránh nested card
+
+Mặc định, content panel có card styling (border + shadow + background). Khi content bên trong đã có card riêng, dùng các prop sau để bỏ wrapper:
+
+```tsx
+// noContentCard: bỏ border/shadow/background của panel
+// noContentPadding: bỏ padding mặc định của panel
+// contentClassName: thêm class tùy ý lên panel wrapper
 <Tabs
   tabs={tabs}
   variant="underline"
   noContentCard
   noContentPadding
   contentClassName="mt-4"
-  animateContent
 />
 ```
 
+## animateContent – fade khi đổi tab
+
+```tsx
+// Bật mặc định (animateContent=true). Tắt nếu không muốn animation:
+<Tabs tabs={tabs} animateContent={false} />
+```
+
+## onTabChange – callback khi đổi tab
+
+```tsx
+<Tabs
+  tabs={tabs}
+  defaultValue="overview"
+  onTabChange={(value) => console.log("Active tab:", value)}
+/>
+```
+
+## Preset components
+
+### SimpleTabs
+
+Shorthand cho `variant="default" size="sm"`:
+
+```tsx
+import { SimpleTabs } from "@underverse-ui/underverse";
+
+<SimpleTabs tabs={tabs} />
+```
+
+### PillTabs
+
+Shorthand cho `variant="pills"`. Mặc định `contained=true` (max-w-fit):
+
+```tsx
+import { PillTabs } from "@underverse-ui/underverse";
+
+<PillTabs tabs={tabs} />
+<PillTabs tabs={tabs} contained={false} /> // full width
+```
+
+### VerticalTabs
+
+Shorthand cho `orientation="vertical" variant="card"`. Dùng `sidebarWidth` để set chiều rộng sidebar:
+
+```tsx
+import { VerticalTabs } from "@underverse-ui/underverse";
+
+<VerticalTabs tabs={tabs} />
+<VerticalTabs tabs={tabs} sidebarWidth="w-56" />
+```
+
+## Accessibility
+
+| Feature | Status |
+|---------|--------|
+| `role="tablist"` trên container | ✅ |
+| `role="tab"` trên button | ✅ |
+| `aria-selected` state | ✅ |
+| `aria-controls` / `id` liên kết tabpanel | ✅ |
+| `focus-visible` ring | ✅ |
+| Keyboard: Arrow / Home / End | ✅ |
+
+## API
+
 ```ts
 interface TabsProps {
-  tabs: Tab[];
+  tabs: Array<{
+    label: string;
+    value: string;
+    content: React.ReactNode;
+    icon?: React.ComponentType<{ className?: string }>;
+    disabled?: boolean;
+  }>;
   defaultValue?: string;
   className?: string;
+  /** Class áp lên content panel wrapper */
   contentClassName?: string;
   variant?: "default" | "pills" | "underline" | "card" | "underline-card";
   size?: "sm" | "md" | "lg";
   orientation?: "horizontal" | "vertical";
   onTabChange?: (value: string) => void;
-  stretch?: boolean; // evenly distribute tabs (horizontal)
+  /** Chia đều chiều rộng tab (horizontal). Default: false */
+  stretch?: boolean;
+  /** Bỏ card styling (border/shadow/bg) của content panel. Default: false */
   noContentCard?: boolean;
+  /** Bỏ padding mặc định của content panel. Default: false */
   noContentPadding?: boolean;
+  /** Fade animation khi chuyển tab. Default: true */
   animateContent?: boolean;
-}
-```
-
-## SimpleTabs
-
-Props type: `SimpleTabsProps`
-
-```tsx
-import { SimpleTabs } from "@underverse-ui/underverse";
-
-export function Example() {
-  return <SimpleTabs />;
-}
-```
-
-Vi du day du:
-
-```tsx
-import React from "react";
-import { SimpleTabs } from "@underverse-ui/underverse";
-
-export function Example() {
-  const tabs = [
-    { label: "Tab 1", value: "tab-1", content: <div>Tab 1</div> },
-    { label: "Tab 2", value: "tab-2", content: <div>Tab 2</div> },
-  ];
-
-  return <SimpleTabs tabs={tabs} />;
-}
-```
-
-```ts
-// Additional Tab components for specific use cases
-interface SimpleTabsProps {
-  tabs: Array<{
-    label: string;
-    value: string;
-    content: React.ReactNode;
-  }>;
-  defaultValue?: string;
-  className?: string;
-}
-```
-
-## PillTabs
-
-Props type: `PillTabsProps`
-
-```tsx
-import { PillTabs } from "@underverse-ui/underverse";
-
-export function Example() {
-  return <PillTabs />;
-}
-```
-
-Vi du day du:
-
-```tsx
-import React from "react";
-import { PillTabs } from "@underverse-ui/underverse";
-
-export function Example() {
-  const tabs = [
-    { label: "Ngay", value: "day", content: <div>Lich ngay</div> },
-    { label: "Tuan", value: "week", content: <div>Lich tuan</div> },
-  ];
-
-  return <PillTabs tabs={tabs} />;
-}
-```
-
-```ts
-interface PillTabsProps extends TabsProps {
-  contained?: boolean;
-}
-```
-
-## VerticalTabs
-
-Props type: `VerticalTabsProps`
-
-```tsx
-import { VerticalTabs } from "@underverse-ui/underverse";
-
-export function Example() {
-  return <VerticalTabs />;
-}
-```
-
-Vi du day du:
-
-```tsx
-import React from "react";
-import { VerticalTabs } from "@underverse-ui/underverse";
-
-export function Example() {
-  const tabs = [
-    { label: "Ho so", value: "profile", content: <div>Thong tin ho so</div> },
-    { label: "Bao mat", value: "security", content: <div>Thiet lap bao mat</div> },
-  ];
-
-  return <VerticalTabs tabs={tabs} />;
-}
-```
-
-```ts
-interface VerticalTabsProps extends TabsProps {
-  sidebarWidth?: string;
 }
 ```

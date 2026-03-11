@@ -6,32 +6,36 @@ type GradientDirection = "to-r" | "to-l" | "to-b" | "to-t" | "to-br" | "to-bl" |
 interface SectionProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
   className?: string;
+  /** Override tag. Default: "section" */
+  as?: React.ElementType;
   variant?: "default" | "muted" | "primary" | "accent" | "gradient";
-  /** Vertical padding (py). Default: "none" - không thêm padding dọc */
+  /** Vertical padding (py). Default: "none" */
   spacing?: "none" | "sm" | "md" | "lg" | "xl";
-  /** Horizontal padding (px). Default: "none" - không thêm padding ngang */
+  /** Horizontal padding (px). Default: "none" */
   paddingX?: "none" | "sm" | "md" | "lg" | "xl";
-  /** Thêm container wrapper với mx-auto. Default: false */
+  /** Thêm inner container wrapper với mx-auto – background vẫn full-width */
   contained?: boolean;
+  /** className áp lên inner container khi contained=true */
+  containerClassName?: string;
   /** Hiển thị viền mỏng xám nhạt giống Card */
   outlined?: boolean;
-  /** Gradient start color (Tailwind class like 'from-purple-500') */
+  /** Gradient start color (CSS color value, e.g. "oklch(0.7 0.15 280 / 20%)") */
   gradientFrom?: string;
-  /** Gradient end color (Tailwind class like 'to-pink-500') */
+  /** Gradient end color */
   gradientTo?: string;
   /** Gradient direction */
   gradientDirection?: GradientDirection;
 }
 
 const gradientDirectionMap: Record<GradientDirection, string> = {
-  "to-r": "bg-linear-to-r",
-  "to-l": "bg-linear-to-l",
-  "to-b": "bg-linear-to-b",
-  "to-t": "bg-linear-to-t",
-  "to-br": "bg-linear-to-br",
-  "to-bl": "bg-linear-to-bl",
-  "to-tr": "bg-linear-to-tr",
-  "to-tl": "bg-linear-to-tl",
+  "to-r":  "to right",
+  "to-l":  "to left",
+  "to-b":  "to bottom",
+  "to-t":  "to top",
+  "to-br": "to bottom right",
+  "to-bl": "to bottom left",
+  "to-tr": "to top right",
+  "to-tl": "to top left",
 };
 
 const spacingClasses = {
@@ -44,10 +48,18 @@ const spacingClasses = {
 
 const paddingXClasses = {
   none: "",
-  sm: "px-2 md:px-4 max-md:px-3",
+  sm: "px-3 md:px-4",
   md: "px-4 md:px-6",
-  lg: "px-6 md:px-8 max-md:px-5",
-  xl: "px-8 md:px-12 max-md:px-6",
+  lg: "px-5 md:px-8",
+  xl: "px-6 md:px-12",
+};
+
+const variantClasses = {
+  default: "bg-background",
+  muted:   "bg-muted/30",
+  primary: "bg-primary/5",
+  accent:  "bg-accent/10",
+  gradient: "",
 };
 
 const Section = React.forwardRef<HTMLElement, SectionProps>(
@@ -55,46 +67,47 @@ const Section = React.forwardRef<HTMLElement, SectionProps>(
     {
       children,
       className,
+      as: Tag = "section",
       variant = "default",
       spacing = "none",
       paddingX = "none",
       contained = false,
+      containerClassName,
       outlined = false,
-      gradientFrom = "from-primary/20",
-      gradientTo = "to-accent/20",
+      gradientFrom = "oklch(0.7 0.15 280 / 20%)",
+      gradientTo   = "oklch(0.7 0.2 200 / 20%)",
       gradientDirection = "to-br",
+      style,
       ...props
     },
     ref,
   ) => {
-    const variantClasses = {
-      default: "bg-background",
-      muted: "bg-muted/30",
-      primary: "bg-primary/5",
-      accent: "bg-accent/10",
-      gradient: "",
-    };
-
-    const getGradientClasses = () => {
-      if (variant !== "gradient") return "";
-      return cn(gradientDirectionMap[gradientDirection], gradientFrom, gradientTo);
-    };
+    const gradientStyle: React.CSSProperties =
+      variant === "gradient"
+        ? { backgroundImage: `linear-gradient(${gradientDirectionMap[gradientDirection]}, ${gradientFrom}, ${gradientTo})` }
+        : {};
 
     return (
-      <section
+      <Tag
         ref={ref}
         className={cn(
-          variant === "gradient" ? getGradientClasses() : variantClasses[variant],
+          variant !== "gradient" && variantClasses[variant],
           spacingClasses[spacing],
-          paddingXClasses[paddingX],
+          !contained && paddingXClasses[paddingX],
           outlined && "rounded-2xl md:rounded-3xl border border-border/60 max-md:rounded-xl",
-          contained && "container mx-auto",
           className,
         )}
+        style={{ ...gradientStyle, ...style }}
         {...props}
       >
-        {children}
-      </section>
+        {contained ? (
+          <div className={cn("container mx-auto", paddingXClasses[paddingX], containerClassName)}>
+            {children}
+          </div>
+        ) : (
+          children
+        )}
+      </Tag>
     );
   },
 );
