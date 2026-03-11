@@ -5,6 +5,7 @@ import { ChevronRight, ChevronDown, FolderTree, Layers, Search, SearchX, X } fro
 import { cn } from "../utils/cn";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { Label } from "./label";
+import { Popover } from "./Popover";
 
 export interface Category {
   id: number;
@@ -127,6 +128,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
 
   // Normalize value to array for internal use
   const valueArray: number[] = singleSelect ? (props.value != null ? [props.value as number] : []) : (props.value as number[] | undefined) || [];
+  const selectedIds = useMemo(() => new Set(valueArray), [valueArray]);
 
   const { parentCategories, childrenMap, byId } = useMemo(() => {
     const byId = new Map<number, Category>();
@@ -280,19 +282,21 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   };
 
   const renderCategory = (category: Category, level: number = 0) => {
-    const allChildren = childrenMap.get(category.id) || [];
-    const children = isSearchMode ? allChildren.filter((c) => visibleIds?.has(c.id)) : allChildren;
+    const children = effectiveChildrenMap.get(category.id) || [];
     const hasChildren = children.length > 0;
     const isExpanded = hasChildren && (isSearchMode || expandedNodes.has(category.id));
-    const isSelected = valueArray.includes(category.id);
-    const isParent = level === 0;
+    const isSelected = selectedIds.has(category.id);
 
     return (
-      <div key={category.id} className="animate-in fade-in-50 duration-200" style={{ animationDelay: `${level * 30}ms` }}>
+      <div
+        key={category.id}
+        className="min-w-0 animate-in fade-in-50 duration-200 [content-visibility:auto] [contain-intrinsic-size:44px]"
+        style={{ animationDelay: `${level * 30}ms` }}
+      >
         <div
           onClick={() => !viewOnly && handleSelect(category.id, category)}
           className={cn(
-            "relative flex items-center gap-2.5 px-3 py-2.5 min-h-11 transition-all duration-200 rounded-full",
+            "relative flex min-w-0 items-center gap-2.5 px-3 py-2.5 min-h-11 transition-all duration-200 rounded-3xl",
             // Không phân biệt parent/child - đồng bộ màu
             !viewOnly && "cursor-pointer",
             !viewOnly && !isSelected && "hover:bg-accent/50",
@@ -330,25 +334,30 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
 
           {viewOnly ? (
             // View-only mode: just display the name with folder icon
-            <div className="flex items-center gap-2.5">
+            <div className="flex min-w-0 items-center gap-2.5">
               {category.icon ? (
-                <div className="w-4 h-4 flex items-center justify-center text-muted-foreground/60">{category.icon}</div>
+                <div className="h-4 w-4 shrink-0 flex items-center justify-center text-muted-foreground/60">{category.icon}</div>
               ) : hasChildren ? (
-                <FolderTree className="w-4 h-4 text-muted-foreground/60" />
+                <FolderTree className="h-4 w-4 shrink-0 text-muted-foreground/60" />
               ) : (
-                <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />
+                <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground/40" />
               )}
-              <span className="text-sm font-medium">{category.name}</span>
+              <span className="min-w-0 text-sm font-medium leading-snug break-words [overflow-wrap:anywhere]">{category.name}</span>
             </div>
           ) : (
             // Single/Multi select mode: icon + text + badge
-            <div className="flex items-center gap-2.5 flex-1">
-              {category.icon && <div className="w-4 h-4 flex items-center justify-center text-current">{category.icon}</div>}
-              <span className={cn("text-sm transition-all duration-200", isSelected ? "font-semibold text-primary" : "text-foreground/80")}>
+            <div className="flex min-w-0 flex-1 items-center gap-2.5 overflow-hidden">
+              {category.icon && <div className="h-4 w-4 shrink-0 flex items-center justify-center text-current">{category.icon}</div>}
+              <span
+                className={cn(
+                  "min-w-0 flex-1 text-sm leading-snug break-words [overflow-wrap:anywhere] transition-all duration-200",
+                  isSelected ? "font-semibold text-primary" : "text-foreground/80",
+                )}
+              >
                 {category.name}
               </span>
               {hasChildren && !isSelected && (
-                <span className="ml-auto text-[10px] font-medium text-muted-foreground/50 bg-muted/50 px-1.5 py-0.5 rounded-md">
+                <span className="ml-auto shrink-0 text-[10px] font-medium text-muted-foreground/50 bg-muted/50 px-1.5 py-0.5 rounded-md">
                   {children.length}
                 </span>
               )}
@@ -414,9 +423,22 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     return parentCategories.filter((c) => visibleIds?.has(c.id));
   }, [isSearchMode, parentCategories, visibleIds]);
 
+  const effectiveChildrenMap = useMemo(() => {
+    if (!isSearchMode || !visibleIds) return childrenMap;
+
+    const next = new Map<number, Category[]>();
+    for (const [parentId, children] of childrenMap.entries()) {
+      next.set(
+        parentId,
+        children.filter((child) => visibleIds.has(child.id)),
+      );
+    }
+    return next;
+  }, [childrenMap, isSearchMode, visibleIds]);
+
   // Render tree content
   const renderTreeContent = () => (
-    <div className="space-y-0.5">
+    <div className="space-y-0.5 overflow-x-hidden">
       {effectiveParentCategories.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center mb-3">
@@ -578,101 +600,104 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     }
   }
 
+  const dropdownBody = (
+    <div
+      ref={dropdownViewportRef}
+      id={`${resolvedId}-tree`}
+      className={cn("max-h-80 overflow-auto overflow-x-hidden p-2")}
+    >
+      {renderSearch()}
+      {renderTreeContent()}
+    </div>
+  );
+
   return (
     <div className={cn("w-full space-y-2", className)}>
       {renderLabel()}
-      <div className="relative">
-      <button
-        id={resolvedId}
-        type="button"
-        onClick={() => !disabled && setIsOpen(!isOpen)}
+      <Popover
+        open={isOpen}
+        onOpenChange={setIsOpen}
         disabled={disabled}
-        role="combobox"
-        aria-haspopup="tree"
-        aria-expanded={isOpen}
-        aria-controls={`${resolvedId}-tree`}
-        aria-labelledby={labelId}
-        aria-describedby={describedBy}
-        aria-invalid={!!error}
-        className={cn(
-          "group flex w-full items-center justify-between rounded-full transition-all duration-200",
-          "backdrop-blur-sm",
-          triggerSizeStyles[size].button,
-          triggerVariantStyles[variant],
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-          disabled && "opacity-50 cursor-not-allowed hover:transform-none hover:shadow-none",
-          isOpen && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
-          error && "border-destructive focus-visible:ring-destructive/30",
+        placement="bottom-start"
+        matchTriggerWidth
+        className="z-9999"
+        contentClassName={cn(
+          "p-0 overflow-hidden rounded-2xl md:rounded-3xl",
+          "border-border/40 bg-popover/95 text-popover-foreground",
+          "shadow-2xl backdrop-blur-xl",
         )}
-      >
-        <div className="flex min-w-0 flex-1 items-center gap-2.5 text-left">
-          <div
+        trigger={
+          <button
+            id={resolvedId}
+            type="button"
+            disabled={disabled}
+            role="combobox"
+            aria-haspopup="tree"
+            aria-controls={`${resolvedId}-tree`}
+            aria-labelledby={labelId}
+            aria-describedby={describedBy}
+            aria-invalid={!!error}
             className={cn(
-              "shrink-0 flex items-center justify-center rounded-lg transition-all duration-300",
-              triggerSizeStyles[size].iconWrap,
-              isOpen ? "bg-primary/15 text-primary" : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+              "group flex w-full items-center justify-between rounded-full transition-all duration-200",
+              "backdrop-blur-sm",
+              triggerSizeStyles[size].button,
+              triggerVariantStyles[variant],
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              disabled && "opacity-50 cursor-not-allowed hover:transform-none hover:shadow-none",
+              isOpen && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
+              error && "border-destructive focus-visible:ring-destructive/30",
             )}
           >
-            <FolderTree className={cn(triggerSizeStyles[size].icon, "transition-transform duration-300", isOpen && "scale-110")} />
-          </div>
-          <span
-            className={cn(
-              "min-w-0 flex-1 truncate font-medium transition-colors duration-200",
-              triggerSizeStyles[size].text,
-              selectedCount === 0 ? "text-muted-foreground" : "text-foreground",
-            )}
-            title={displayText}
-          >
-            {displayText}
-          </span>
-        </div>
-        <div className="ml-2 flex shrink-0 items-center gap-1.5">
-          {allowClear && selectedCount > 0 && !disabled && (
-            <div
-              role="button"
-              tabIndex={0}
-              aria-label="Clear selection"
-              onClick={handleClear}
-              onKeyDown={(event) => (event.key === "Enter" || event.key === " ") && handleClear(event)}
-              className={cn(
-                "opacity-0 group-hover:opacity-100 transition-all duration-200",
-                "p-1 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
-              )}
-            >
-              <X className={triggerSizeStyles[size].clearIcon} />
+            <div className="flex min-w-0 flex-1 items-center gap-2.5 text-left">
+              <div
+                className={cn(
+                  "shrink-0 flex items-center justify-center rounded-lg transition-all duration-300",
+                  triggerSizeStyles[size].iconWrap,
+                  isOpen ? "bg-primary/15 text-primary" : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+                )}
+              >
+                <FolderTree className={cn(triggerSizeStyles[size].icon, "transition-transform duration-300", isOpen && "scale-110")} />
+              </div>
+              <span
+                className={cn(
+                  "min-w-0 flex-1 truncate font-medium transition-colors duration-200",
+                  triggerSizeStyles[size].text,
+                  selectedCount === 0 ? "text-muted-foreground" : "text-foreground",
+                )}
+                title={displayText}
+              >
+                {displayText}
+              </span>
             </div>
-          )}
-          {selectedCount > 0 && !singleSelect && (
-            <span className={cn("rounded-full bg-primary/15 font-bold text-primary", triggerSizeStyles[size].badge)}>{selectedCount}</span>
-          )}
-          <span className={cn("transition-all duration-300 text-muted-foreground group-hover:text-foreground", isOpen && "rotate-180 text-primary")}>
-            <ChevronDown className={triggerSizeStyles[size].actionIcon} />
-          </span>
-        </div>
-      </button>
-
-      {isOpen && !disabled && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div
-            ref={dropdownViewportRef}
-            id={`${resolvedId}-tree`}
-            className={cn(
-              "absolute z-20 mt-2 w-full max-h-80 overflow-auto",
-              "rounded-2xl md:rounded-3xl border border-border/40 bg-popover/95 text-popover-foreground",
-              "shadow-2xl backdrop-blur-xl",
-              "p-2",
-              "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
-            )}
-           
-          >
-            {renderSearch()}
-            {renderTreeContent()}
-          </div>
-        </>
-      )}
-      </div>
+            <div className="ml-2 flex shrink-0 items-center gap-1.5">
+              {allowClear && selectedCount > 0 && !disabled && (
+                <div
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Clear selection"
+                  onClick={handleClear}
+                  onKeyDown={(event) => (event.key === "Enter" || event.key === " ") && handleClear(event)}
+                  className={cn(
+                    "opacity-0 group-hover:opacity-100 transition-all duration-200",
+                    "p-1 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+                  )}
+                >
+                  <X className={triggerSizeStyles[size].clearIcon} />
+                </div>
+              )}
+              {selectedCount > 0 && !singleSelect && (
+                <span className={cn("rounded-full bg-primary/15 font-bold text-primary", triggerSizeStyles[size].badge)}>{selectedCount}</span>
+              )}
+              <span className={cn("transition-all duration-300 text-muted-foreground group-hover:text-foreground", isOpen && "rotate-180 text-primary")}>
+                <ChevronDown className={triggerSizeStyles[size].actionIcon} />
+              </span>
+            </div>
+          </button>
+        }
+      >
+        {dropdownBody}
+      </Popover>
       {renderAssistiveText()}
     </div>
   );

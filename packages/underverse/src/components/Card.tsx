@@ -100,18 +100,18 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
           )}
 
           {(title || description) && (
-            <div className={cn("relative flex flex-col space-y-2 p-4 md:p-6 max-md:space-y-1.5 max-md:p-3", headerClassName)}>
+            <div className={cn("relative flex min-w-0 flex-col space-y-2 p-4 md:p-6 max-md:space-y-1.5 max-md:p-3", headerClassName)}>
               {title && (
                 <h3
                   className={cn(
-                    "text-base md:text-lg font-semibold leading-none tracking-tight transition-colors duration-200 max-md:text-sm",
+                    "min-w-0 text-base md:text-lg font-semibold leading-tight tracking-tight break-words [overflow-wrap:anywhere] transition-colors duration-200 max-md:text-sm",
                     hoverable && "group-hover:text-primary",
                   )}
                 >
                   {title}
                 </h3>
               )}
-              {description && <p className="text-sm md:text-base text-muted-foreground leading-relaxed">{description}</p>}
+              {description && <p className="min-w-0 text-sm md:text-base text-muted-foreground leading-relaxed break-words [overflow-wrap:anywhere]">{description}</p>}
             </div>
           )}
 
