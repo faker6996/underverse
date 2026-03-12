@@ -375,11 +375,11 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     );
   };
 
-  const renderSearch = () => {
+  const renderSearch = ({ sticky = true, className }: { sticky?: boolean; className?: string } = {}) => {
     if (!isSearchEnabled) return null;
 
     return (
-      <div className="sticky top-0 z-10 bg-popover/85 backdrop-blur-xl pb-2">
+      <div className={cn(sticky && "sticky top-0 z-10 bg-popover/85 pb-2 backdrop-blur-xl", className)}>
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 transition-colors peer-focus:text-primary" />
           <input
@@ -601,13 +601,15 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   }
 
   const dropdownBody = (
-    <div
-      ref={dropdownViewportRef}
-      id={`${resolvedId}-tree`}
-      className={cn("max-h-80 overflow-auto overflow-x-hidden p-2")}
-    >
-      {renderSearch()}
-      {renderTreeContent()}
+    <div className="flex max-h-80 flex-col overflow-hidden">
+      {renderSearch({ sticky: false, className: "border-b border-border/30 p-2 pb-2" })}
+      <div
+        ref={dropdownViewportRef}
+        id={`${resolvedId}-tree`}
+        className={cn("min-h-0 flex-1 overflow-auto overflow-x-hidden p-2 pt-2")}
+      >
+        {renderTreeContent()}
+      </div>
     </div>
   );
 
