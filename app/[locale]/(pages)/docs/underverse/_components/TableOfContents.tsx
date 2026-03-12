@@ -233,19 +233,6 @@ export default function TableOfContents() {
     return () => observer.disconnect();
   }, [setActiveId]);
 
-  // On first load: clear hash and scroll to top (install section)
-  useEffect(() => {
-    // Clear hash from URL on page load/refresh
-    if (typeof window !== "undefined" && window.location.hash) {
-      window.history.replaceState(null, "", window.location.pathname + window.location.search);
-    }
-
-    // Always start at install section
-    setActiveId("install");
-    const el = document.getElementById("install");
-    el?.scrollIntoView({ behavior: "auto", block: "start" });
-  }, [setActiveId]);
-
   // Auto-scroll to active item in TOC
   useEffect(() => {
     const item = activeItemRef.current;

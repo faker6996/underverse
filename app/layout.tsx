@@ -96,14 +96,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const softwareSchema = getSoftwareApplicationSchema();
 
   return (
-    <html lang="en" suppressHydrationWarning data-overlayscrollbars-initialize>
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Organization Schema */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
         {/* SoftwareApplication Schema */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
       </head>
-      <body className={`${inter.variable} antialiased`} suppressHydrationWarning={true} data-overlayscrollbars-initialize>
+      <body className={`${inter.variable} antialiased`} suppressHydrationWarning={true}>
         <Script id="theme-init" strategy="beforeInteractive">
           {`
             try {

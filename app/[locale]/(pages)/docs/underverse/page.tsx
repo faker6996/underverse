@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { ArrowUp } from "lucide-react";
 export const dynamic = "force-dynamic";
 import dynamicImport from "next/dynamic";
 const IntlDemoProvider = dynamicImport(() => import("./_components/IntlDemoProvider"));
@@ -8,6 +9,7 @@ const CodeBlock = dynamicImport(() => import("./_components/CodeBlock"));
 const DocSection = dynamicImport(() => import("./_components/DocSection"));
 const ToastProvider = dynamicImport(() => import("@/components/ui/Toast"), { ssr: false });
 import { ActiveSectionProvider } from "./_components/ActiveSectionContext";
+import { useActiveSection } from "./_components/ActiveSectionContext";
 import { Sheet } from "@/components/ui/Sheet";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
@@ -100,7 +102,48 @@ function DocsContent() {
 function DocsInner() {
   const { useTranslations } = require("next-intl");
   const t = useTranslations("DocsUnderverse");
+  const { setActiveId } = useActiveSection();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [showBackToTop, setShowBackToTop] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    if (window.location.hash) {
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+    }
+
+    setActiveId("install");
+
+    const resetToTop = () => {
+      window.scrollTo({ top: 0, behavior: "auto" });
+    };
+
+    resetToTop();
+    const frameA = window.requestAnimationFrame(() => {
+      resetToTop();
+      window.requestAnimationFrame(resetToTop);
+    });
+
+    return () => window.cancelAnimationFrame(frameA);
+  }, [setActiveId]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const onScroll = () => {
+      setShowBackToTop(window.scrollY > 480);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const handleBackToTop = React.useCallback(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -441,6 +484,22 @@ function DocsInner() {
           </aside>
         </div>
       </div>
+
+      <button
+        type="button"
+        onClick={handleBackToTop}
+        aria-label="Back to top"
+        className={[
+          "fixed right-4 bottom-4 z-40 flex h-11 w-11 items-center justify-center rounded-full",
+          "border border-border/60 bg-background/90 text-foreground shadow-lg backdrop-blur-xl",
+          "transition-all duration-200 ease-soft",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          showBackToTop ? "translate-y-0 opacity-100 pointer-events-auto" : "translate-y-3 opacity-0 pointer-events-none",
+          "hover:border-primary/40 hover:text-primary hover:shadow-xl",
+        ].join(" ")}
+      >
+        <ArrowUp className="h-4.5 w-4.5" />
+      </button>
     </div>
   );
 }
