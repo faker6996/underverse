@@ -367,6 +367,27 @@ const defaultTranslations: Record<string, LocaleTranslations> = {
   },
 };
 
+function resolveObjectPath(input: unknown, path: string): unknown {
+  const parts = path.split(".");
+  let current: unknown = input;
+
+  for (const part of parts) {
+    if (current && typeof current === "object" && part in current) {
+      current = (current as Record<string, unknown>)[part];
+    } else {
+      return null;
+    }
+  }
+
+  return current;
+}
+
+function resolveTranslationValue(translations: LocaleTranslations, namespace: string, key: string): string | null {
+  const namespaceValue = resolveObjectPath(translations, namespace);
+  const value = resolveObjectPath(namespaceValue, key);
+  return typeof value === "string" ? value : null;
+}
+
 // ============================================================================
 // Translation Context (for standalone React usage)
 // ============================================================================
@@ -413,25 +434,7 @@ export const UnderverseProvider: React.FC<UnderverseProviderProps> = ({ children
           ...defaultTranslations[locale],
           ...translations,
         };
-
-        // Handle nested namespaces like "OCR.imageUpload"
-        const parts = namespace.split(".");
-        let current: unknown = mergedTranslations;
-
-        for (const part of parts) {
-          if (current && typeof current === "object" && part in current) {
-            current = (current as Record<string, unknown>)[part];
-          } else {
-            return key;
-          }
-        }
-
-        if (current && typeof current === "object" && key in current) {
-          const value = (current as Record<string, unknown>)[key];
-          return typeof value === "string" ? value : key;
-        }
-
-        return key;
+        return resolveTranslationValue(mergedTranslations, namespace, key) ?? key;
       };
     },
     [locale, translations]
@@ -481,23 +484,8 @@ function interpolate(template: string, params?: Record<string, unknown>): string
 function getInternalTranslation(namespace: string, locale: Locale): (key: string, params?: Record<string, unknown>) => string {
   return (key: string, params?: Record<string, unknown>): string => {
     const localeTranslations = defaultTranslations[locale] || defaultTranslations.en;
-    const parts = namespace.split(".");
-    let current: unknown = localeTranslations;
-
-    for (const part of parts) {
-      if (current && typeof current === "object" && part in current) {
-        current = (current as Record<string, unknown>)[part];
-      } else {
-        return interpolate(key, params);
-      }
-    }
-
-    if (current && typeof current === "object" && key in current) {
-      const value = (current as Record<string, unknown>)[key];
-      return typeof value === "string" ? interpolate(value, params) : interpolate(key, params);
-    }
-
-    return interpolate(key, params);
+    const value = resolveTranslationValue(localeTranslations, namespace, key);
+    return typeof value === "string" ? interpolate(value, params) : interpolate(key, params);
   };
 }
 

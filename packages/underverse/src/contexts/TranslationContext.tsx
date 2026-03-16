@@ -21,9 +21,9 @@ const defaultTranslations: Record<Locale, Translations> = {
   ja: jaLocale as Translations,
 };
 
-function resolveTranslationValue(translations: Translations, namespace: string, key: string): string | null {
-  const parts = namespace.split(".");
-  let current: unknown = translations;
+function resolveObjectPath(input: unknown, path: string): unknown {
+  const parts = path.split(".");
+  let current: unknown = input;
 
   for (const part of parts) {
     if (current && typeof current === "object" && part in current) {
@@ -33,12 +33,14 @@ function resolveTranslationValue(translations: Translations, namespace: string, 
     }
   }
 
-  if (current && typeof current === "object" && key in current) {
-    const value = (current as Record<string, unknown>)[key];
-    return typeof value === "string" ? value : null;
-  }
+  return current;
+}
 
-  return null;
+function resolveTranslationValue(translations: Translations, namespace: string, key: string): string | null {
+  const namespaceValue = resolveObjectPath(translations, namespace);
+  const value = resolveObjectPath(namespaceValue, key);
+
+  return typeof value === "string" ? value : null;
 }
 
 export function getUnderverseDefaultTranslation(locale: Locale, namespace: string, key: string): string {
