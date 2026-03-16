@@ -202,6 +202,11 @@
       "cancelBtn": "취소",
       "addFromUrl": "URL에서 추가"
     },
+    "emojiPicker": {
+      "searchPlaceholder": "이모지 검색",
+      "noResults": "이모지를 찾을 수 없습니다",
+      "tryDifferentSearch": "다른 검색어를 시도해 보세요"
+    },
     "tableMenu": {
       "insert3x3": "3x3 표 삽입",
       "addColumnBefore": "앞에 열 추가",

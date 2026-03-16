@@ -202,6 +202,11 @@
       "cancelBtn": "キャンセル",
       "addFromUrl": "URLから追加"
     },
+    "emojiPicker": {
+      "searchPlaceholder": "絵文字を検索",
+      "noResults": "絵文字が見つかりません",
+      "tryDifferentSearch": "別のキーワードでお試しください"
+    },
     "tableMenu": {
       "insert3x3": "3x3 表を挿入",
       "addColumnBefore": "前に列を追加",

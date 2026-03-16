@@ -203,6 +203,11 @@
       "cancelBtn": "Hủy",
       "addFromUrl": "Thêm từ URL"
     },
+    "emojiPicker": {
+      "searchPlaceholder": "Tìm kiếm biểu tượng cảm xúc",
+      "noResults": "Không tìm thấy emoji",
+      "tryDifferentSearch": "Thử từ khóa khác"
+    },
     "tableMenu": {
       "insert3x3": "Chèn bảng 3×3",
       "addColumnBefore": "Thêm cột trước",

@@ -37,8 +37,8 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   const inFlightPrepareRef = useRef<Promise<UEditorPrepareContentForSaveResult> | null>(null);
 
   const extensions = useMemo(
-    () => buildUEditorExtensions({ placeholder: effectivePlaceholder, maxCharacters, uploadImage, imageInsertMode, editable }),
-    [effectivePlaceholder, maxCharacters, uploadImage, imageInsertMode, editable],
+    () => buildUEditorExtensions({ placeholder: effectivePlaceholder, translate: t, maxCharacters, uploadImage, imageInsertMode, editable }),
+    [effectivePlaceholder, t, maxCharacters, uploadImage, imageInsertMode, editable],
   );
 
   const editor = useEditor({

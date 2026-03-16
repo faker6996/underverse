@@ -22,6 +22,60 @@ import {
 import { cn } from "../../utils/cn";
 import tippy, { type Instance as TippyInstance } from "tippy.js";
 
+type SlashCommandMessages = {
+  noResults: string;
+  basicBlocks: string;
+  text: string;
+  textDesc: string;
+  heading1: string;
+  heading1Desc: string;
+  heading2: string;
+  heading2Desc: string;
+  heading3: string;
+  heading3Desc: string;
+  bulletList: string;
+  bulletListDesc: string;
+  orderedList: string;
+  orderedListDesc: string;
+  todoList: string;
+  todoListDesc: string;
+  quote: string;
+  quoteDesc: string;
+  codeBlock: string;
+  codeBlockDesc: string;
+  divider: string;
+  dividerDesc: string;
+  table: string;
+  tableDesc: string;
+};
+
+const DEFAULT_MESSAGES: SlashCommandMessages = {
+  noResults: "No results",
+  basicBlocks: "Basic Blocks",
+  text: "Text",
+  textDesc: "Start writing with plain text",
+  heading1: "Heading 1",
+  heading1Desc: "Large section heading",
+  heading2: "Heading 2",
+  heading2Desc: "Medium section heading",
+  heading3: "Heading 3",
+  heading3Desc: "Small section heading",
+  bulletList: "Bullet List",
+  bulletListDesc: "Create a simple bullet list",
+  orderedList: "Numbered List",
+  orderedListDesc: "Create a list with numbering",
+  todoList: "Todo List",
+  todoListDesc: "Track tasks with a todo list",
+  quote: "Quote",
+  quoteDesc: "Capture a quote",
+  codeBlock: "Code Block",
+  codeBlockDesc: "Display code with syntax highlighting",
+  divider: "Divider",
+  dividerDesc: "Visually divide blocks",
+  table: "Table",
+  tableDesc: "Insert a table",
+};
+
 type CommandItem = {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
@@ -32,6 +86,7 @@ type CommandItem = {
 type CommandListProps = {
   items: CommandItem[];
   command: (item: CommandItem) => void;
+  messages: SlashCommandMessages;
 };
 
 type CommandListRef = {
@@ -73,13 +128,13 @@ const CommandList = forwardRef<CommandListRef, CommandListProps>((props, ref) =>
   }));
 
   if (props.items.length === 0) {
-    return <div className="w-72 p-4 text-center text-sm text-muted-foreground">No results</div>;
+    return <div className="w-72 p-4 text-center text-sm text-muted-foreground">{props.messages.noResults}</div>;
   }
 
   return (
     <div ref={listRef} className="w-72 max-h-80 overflow-y-auto bg-card border border-border rounded-2xl shadow-lg">
       <div className="px-3 py-2 border-b">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Basic Blocks</span>
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{props.messages.basicBlocks}</span>
       </div>
       <div className="p-1">
         {props.items.map((item, index) => (
@@ -114,92 +169,92 @@ const CommandList = forwardRef<CommandListRef, CommandListProps>((props, ref) =>
 
 CommandList.displayName = "CommandList";
 
-const getSuggestionItems = ({ query }: { query: string; editor: Editor }): CommandItem[] => {
+const getSuggestionItems = ({ query, messages }: { query: string; editor: Editor; messages: SlashCommandMessages }): CommandItem[] => {
   return [
     {
       icon: Type,
-      title: "Text",
-      description: "Start writing with plain text",
+      title: messages.text,
+      description: messages.textDesc,
       command: ({ editor, range }: { editor: Editor; range: any }) => {
         editor.chain().focus().deleteRange(range).setParagraph().run();
       },
     },
     {
       icon: Heading1,
-      title: "Heading 1",
-      description: "Large section heading",
+      title: messages.heading1,
+      description: messages.heading1Desc,
       command: ({ editor, range }: { editor: Editor; range: any }) => {
         editor.chain().focus().deleteRange(range).setNode("heading", { level: 1 }).run();
       },
     },
     {
       icon: Heading2,
-      title: "Heading 2",
-      description: "Medium section heading",
+      title: messages.heading2,
+      description: messages.heading2Desc,
       command: ({ editor, range }: { editor: Editor; range: any }) => {
         editor.chain().focus().deleteRange(range).setNode("heading", { level: 2 }).run();
       },
     },
     {
       icon: Heading3,
-      title: "Heading 3",
-      description: "Small section heading",
+      title: messages.heading3,
+      description: messages.heading3Desc,
       command: ({ editor, range }: { editor: Editor; range: any }) => {
         editor.chain().focus().deleteRange(range).setNode("heading", { level: 3 }).run();
       },
     },
     {
       icon: List,
-      title: "Bullet List",
-      description: "Create a simple bullet list",
+      title: messages.bulletList,
+      description: messages.bulletListDesc,
       command: ({ editor, range }: { editor: Editor; range: any }) => {
         editor.chain().focus().deleteRange(range).toggleBulletList().run();
       },
     },
     {
       icon: ListOrdered,
-      title: "Numbered List",
-      description: "Create a list with numbering",
+      title: messages.orderedList,
+      description: messages.orderedListDesc,
       command: ({ editor, range }: { editor: Editor; range: any }) => {
         editor.chain().focus().deleteRange(range).toggleOrderedList().run();
       },
     },
     {
       icon: ListTodo,
-      title: "Todo List",
-      description: "Track tasks with a todo list",
+      title: messages.todoList,
+      description: messages.todoListDesc,
       command: ({ editor, range }: { editor: Editor; range: any }) => {
         editor.chain().focus().deleteRange(range).toggleTaskList().run();
       },
     },
     {
       icon: Quote,
-      title: "Quote",
-      description: "Capture a quote",
+      title: messages.quote,
+      description: messages.quoteDesc,
       command: ({ editor, range }: { editor: Editor; range: any }) => {
         editor.chain().focus().deleteRange(range).toggleBlockquote().run();
       },
     },
     {
       icon: FileCode,
-      title: "Code Block",
-      description: "Display code with syntax highlighting",
+      title: messages.codeBlock,
+      description: messages.codeBlockDesc,
       command: ({ editor, range }: { editor: Editor; range: any }) => {
         editor.chain().focus().deleteRange(range).toggleCodeBlock().run();
       },
     },
     {
       icon: Minus,
-      title: "Divider",
-      description: "Visually divide blocks",
+      title: messages.divider,
+      description: messages.dividerDesc,
       command: ({ editor, range }: { editor: Editor; range: any }) => {
         editor.chain().focus().deleteRange(range).setHorizontalRule().run();
       },
     },
     {
       icon: Table,
-      title: "Table",
-      description: "Insert a table",
+      title: messages.table,
+      description: messages.tableDesc,
       command: ({ editor, range }: { editor: Editor; range: any }) => {
         editor.chain().focus().deleteRange(range).insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
       },
@@ -207,10 +262,18 @@ const getSuggestionItems = ({ query }: { query: string; editor: Editor }): Comma
   ].filter((item) => item.title.toLowerCase().includes(query.toLowerCase()));
 };
 
-export const SlashCommand = Extension.create({
+export const SlashCommand = Extension.create<{ messages: SlashCommandMessages }>({
   name: "slashCommand",
 
+  addOptions() {
+    return {
+      messages: DEFAULT_MESSAGES,
+    };
+  },
+
   addProseMirrorPlugins() {
+    const messages = this.options.messages;
+
     return [
       Suggestion({
         editor: this.editor,
@@ -218,7 +281,7 @@ export const SlashCommand = Extension.create({
         command: ({ editor, range, props }: { editor: Editor; range: any; props: any }) => {
           props.command({ editor, range });
         },
-        items: getSuggestionItems,
+        items: ({ query, editor }) => getSuggestionItems({ query, editor, messages }),
         render: () => {
           let component: ReactRenderer<CommandListRef, CommandListProps> | undefined;
           let popup: TippyInstance[] | undefined;
@@ -226,7 +289,10 @@ export const SlashCommand = Extension.create({
           return {
             onStart: (props: SuggestionProps<CommandItem>) => {
               component = new ReactRenderer(CommandList, {
-                props,
+                props: {
+                  ...props,
+                  messages,
+                },
                 editor: props.editor,
               });
 
@@ -245,7 +311,10 @@ export const SlashCommand = Extension.create({
               });
             },
             onUpdate(props: SuggestionProps<CommandItem>) {
-              component?.updateProps(props);
+              component?.updateProps({
+                ...props,
+                messages,
+              });
 
               if (!props.clientRect) {
                 return;

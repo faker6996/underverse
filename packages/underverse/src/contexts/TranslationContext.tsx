@@ -21,6 +21,32 @@ const defaultTranslations: Record<Locale, Translations> = {
   ja: jaLocale as Translations,
 };
 
+function resolveTranslationValue(translations: Translations, namespace: string, key: string): string | null {
+  const parts = namespace.split(".");
+  let current: unknown = translations;
+
+  for (const part of parts) {
+    if (current && typeof current === "object" && part in current) {
+      current = (current as Record<string, unknown>)[part];
+    } else {
+      return null;
+    }
+  }
+
+  if (current && typeof current === "object" && key in current) {
+    const value = (current as Record<string, unknown>)[key];
+    return typeof value === "string" ? value : null;
+  }
+
+  return null;
+}
+
+export function getUnderverseDefaultTranslation(locale: Locale, namespace: string, key: string): string {
+  return resolveTranslationValue(defaultTranslations[locale] ?? defaultTranslations.en, namespace, key)
+    ?? resolveTranslationValue(defaultTranslations.en, namespace, key)
+    ?? key;
+}
+
 const TranslationContext = React.createContext<TranslationContextType | null>(null);
 
 export interface TranslationProviderProps {
@@ -65,24 +91,7 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({ childr
           ...translations?.[locale],
         };
 
-        // Handle nested namespaces like "OCR.imageUpload"
-        const parts = namespace.split(".");
-        let current: unknown = mergedTranslations;
-
-        for (const part of parts) {
-          if (current && typeof current === "object" && part in current) {
-            current = (current as Record<string, unknown>)[part];
-          } else {
-            return key; // Fallback to key
-          }
-        }
-
-        if (current && typeof current === "object" && key in current) {
-          const value = (current as Record<string, unknown>)[key];
-          return typeof value === "string" ? value : key;
-        }
-
-        return key; // Fallback to key
+        return resolveTranslationValue(mergedTranslations, namespace, key) ?? key;
       };
     },
     [locale, translations]
@@ -110,23 +119,7 @@ export const useUnderverseTranslations = (namespace: string) => {
   // Fallback for when provider is not available - use English defaults
   if (!context) {
     return (key: string): string => {
-      const parts = namespace.split(".");
-      let current: unknown = defaultTranslations.en;
-
-      for (const part of parts) {
-        if (current && typeof current === "object" && part in current) {
-          current = (current as Record<string, unknown>)[part];
-        } else {
-          return key;
-        }
-      }
-
-      if (current && typeof current === "object" && key in current) {
-        const value = (current as Record<string, unknown>)[key];
-        return typeof value === "string" ? value : key;
-      }
-
-      return key;
+      return getUnderverseDefaultTranslation("en", namespace, key);
     };
   }
 

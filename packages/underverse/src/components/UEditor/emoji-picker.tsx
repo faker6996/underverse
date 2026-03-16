@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { cn } from "../../utils/cn";
+import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { Search, X, Smile, Leaf, Utensils, Dumbbell, Lightbulb, Hash, Flag } from "lucide-react";
 import { EMOJI_LIST, type EmojiCategory } from "./emojis";
 
@@ -22,6 +23,7 @@ const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>
 };
 
 export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect, onClose }) => {
+    const t = useSmartTranslations("UEditor");
     const [search, setSearch] = useState("");
     const [activeCategory, setActiveCategory] = useState(EMOJI_LIST[0]?.id || "");
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -119,7 +121,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect, onClose }) =
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input
                         type="text"
-                        placeholder="Tìm kiếm biểu tượng cảm xúc"
+                        placeholder={t("emojiPicker.searchPlaceholder")}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className={cn(
@@ -176,8 +178,8 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect, onClose }) =
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full text-center">
                             <div className="text-4xl mb-2">🔍</div>
-                            <div className="text-sm font-medium text-muted-foreground">Không tìm thấy emoji</div>
-                            <div className="text-xs text-muted-foreground mt-1">Thử từ khóa khác</div>
+                            <div className="text-sm font-medium text-muted-foreground">{t("emojiPicker.noResults")}</div>
+                            <div className="text-xs text-muted-foreground mt-1">{t("emojiPicker.tryDifferentSearch")}</div>
                         </div>
                     )
                 ) : (

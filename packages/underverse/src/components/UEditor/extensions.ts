@@ -15,7 +15,6 @@ import Blockquote from "@tiptap/extension-blockquote";
 import Code from "@tiptap/extension-code";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import History from "@tiptap/extension-history";
-import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
@@ -34,18 +33,21 @@ import { common, createLowlight } from "lowlight";
 import { SlashCommand } from "./slash-command";
 import { ClipboardImages } from "./clipboard-images";
 import { EmojiSuggestion } from "./emoji-suggestion";
+import { UEditorPlaceholder } from "./placeholder";
 import ResizableImage from "./resizable-image";
 
 const lowlight = createLowlight(common);
 
 export function buildUEditorExtensions({
   placeholder,
+  translate,
   maxCharacters,
   uploadImage,
   imageInsertMode = "base64",
   editable = true,
 }: {
   placeholder: string;
+  translate: (key: string) => string;
   maxCharacters?: number;
   uploadImage?: (file: File) => Promise<string> | string;
   imageInsertMode?: "base64" | "upload";
@@ -138,12 +140,52 @@ export function buildUEditorExtensions({
     }),
     Typography,
     History,
-    Placeholder.configure({
+    UEditorPlaceholder.configure({
       placeholder,
       emptyEditorClass: "is-editor-empty",
       emptyNodeClass: "is-empty",
+      shouldShow: ({ node, hasTable }) => {
+        const nodeName = node.type.name;
+
+        if (nodeName === "table" || nodeName === "tableCell" || nodeName === "tableHeader") {
+          return false;
+        }
+
+        if (hasTable) {
+          return false;
+        }
+
+        return true;
+      },
     }),
-    SlashCommand,
+    SlashCommand.configure({
+      messages: {
+        noResults: translate("slashCommand.noResults"),
+        basicBlocks: translate("slashCommand.basicBlocks"),
+        text: translate("slashCommand.text"),
+        textDesc: translate("slashCommand.textDesc"),
+        heading1: translate("slashCommand.heading1"),
+        heading1Desc: translate("slashCommand.heading1Desc"),
+        heading2: translate("slashCommand.heading2"),
+        heading2Desc: translate("slashCommand.heading2Desc"),
+        heading3: translate("slashCommand.heading3"),
+        heading3Desc: translate("slashCommand.heading3Desc"),
+        bulletList: translate("slashCommand.bulletList"),
+        bulletListDesc: translate("slashCommand.bulletListDesc"),
+        orderedList: translate("slashCommand.orderedList"),
+        orderedListDesc: translate("slashCommand.orderedListDesc"),
+        todoList: translate("slashCommand.todoList"),
+        todoListDesc: translate("slashCommand.todoListDesc"),
+        quote: translate("slashCommand.quote"),
+        quoteDesc: translate("slashCommand.quoteDesc"),
+        codeBlock: translate("slashCommand.codeBlock"),
+        codeBlockDesc: translate("slashCommand.codeBlockDesc"),
+        divider: translate("slashCommand.divider"),
+        dividerDesc: translate("slashCommand.dividerDesc"),
+        table: translate("slashCommand.table"),
+        tableDesc: translate("slashCommand.tableDesc"),
+      },
+    }),
     EmojiSuggestion,
   ];
 }

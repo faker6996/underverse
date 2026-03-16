@@ -1,7 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { useUnderverseTranslations, useUnderverseLocale, type Locale } from "../contexts/TranslationContext";
+import {
+  getUnderverseDefaultTranslation,
+  useUnderverseTranslations,
+  useUnderverseLocale,
+  type Locale,
+} from "../contexts/TranslationContext";
 
 /**
  * Try to dynamically import next-intl hooks.
@@ -35,6 +40,19 @@ export const ForceInternalTranslationsProvider: React.FC<{ children: React.React
   return <ForceInternalContext.Provider value={true}>{children}</ForceInternalContext.Provider>;
 };
 
+function normalizeLocale(locale: string | null | undefined, fallback: Locale): Locale {
+  const normalized = locale?.toLowerCase().split("-")[0];
+  if (normalized === "en" || normalized === "vi" || normalized === "ko" || normalized === "ja") {
+    return normalized;
+  }
+
+  return fallback;
+}
+
+function isUnresolvedTranslation(value: string, namespace: string, key: string) {
+  return value === key || value === `${namespace}.${key}`;
+}
+
 /**
  * Smart translation hook that:
  * 1. Uses next-intl if available and not forced to use internal
@@ -56,20 +74,54 @@ export const ForceInternalTranslationsProvider: React.FC<{ children: React.React
 export function useSmartTranslations(namespace: string): (key: string) => string {
   const forceInternal = React.useContext(ForceInternalContext);
   const internalT = useUnderverseTranslations(namespace);
+  const internalLocale = useUnderverseLocale();
 
   // If forced to use internal or next-intl is not available, use internal
   if (forceInternal || !nextIntlHooks?.useTranslations) {
     return internalT;
   }
 
+  let resolvedLocale = internalLocale;
+
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    resolvedLocale = normalizeLocale(nextIntlHooks.useLocale?.(), internalLocale);
+  } catch {
+    resolvedLocale = internalLocale;
+  }
+
   // Try to use next-intl
   try {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const nextIntlT = nextIntlHooks.useTranslations(namespace);
-    return nextIntlT;
+
+    return (key: string) => {
+      try {
+        const translated = nextIntlT(key);
+
+        if (!isUnresolvedTranslation(translated, namespace, key)) {
+          return translated;
+        }
+      } catch {
+        // Fall through to internal defaults when next-intl cannot resolve the message.
+      }
+
+      const internalValue = internalT(key);
+      if (internalValue !== key) {
+        return internalValue;
+      }
+
+      return getUnderverseDefaultTranslation(resolvedLocale, namespace, key);
+    };
   } catch {
-    // If next-intl throws (e.g., no provider), fall back to internal
-    return internalT;
+    return (key: string) => {
+      const internalValue = internalT(key);
+      if (internalValue !== key) {
+        return internalValue;
+      }
+
+      return getUnderverseDefaultTranslation(resolvedLocale, namespace, key);
+    };
   }
 }
 

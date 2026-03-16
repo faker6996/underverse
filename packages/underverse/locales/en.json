@@ -203,6 +203,11 @@
       "cancelBtn": "Cancel",
       "addFromUrl": "Add from URL"
     },
+    "emojiPicker": {
+      "searchPlaceholder": "Search emoji",
+      "noResults": "No emoji found",
+      "tryDifferentSearch": "Try a different keyword"
+    },
     "tableMenu": {
       "insert3x3": "Insert 3×3 Table",
       "addColumnBefore": "Add Column Before",
