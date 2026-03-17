@@ -151,7 +151,7 @@ function MyPage() {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Next.js with next-intl</h3>
         <p className="text-sm text-muted-foreground">
-          In Next.js projects using next-intl, you don't need TranslationProvider. Components auto-detect and use next-intl's translations.
+          In Next.js projects using next-intl, you don&apos;t need TranslationProvider. Components auto-detect and use next-intl&apos;s translations.
         </p>
       </div>
 

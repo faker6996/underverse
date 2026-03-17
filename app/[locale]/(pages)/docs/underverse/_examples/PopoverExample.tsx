@@ -216,7 +216,7 @@ export default function PopoverExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Disabled Popover</p>
         <Popover trigger={<Button variant="outline">Disabled Popover</Button>} disabled>
-          <div className="text-sm">This won't show</div>
+          <div className="text-sm">This won&apos;t show</div>
         </Popover>
       </div>
     </div>
@@ -252,4 +252,3 @@ export default function PopoverExample() {
     />
   );
 }
-

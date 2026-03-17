@@ -3,8 +3,6 @@
 import * as React from "react";
 // Remove radix-ui imports as they are no longer needed
 import { Controller, ControllerProps, FieldPath, FieldValues, FormProvider, useFormContext, useForm, SubmitHandler } from "react-hook-form";
-import { useSmartTranslations } from "../hooks/useSmartTranslations";
-
 import { cn } from "../utils/cn";
 import { Label } from "./label";
 import Input from "./Input";
@@ -85,14 +83,7 @@ const useFormField = () => {
   const { getFieldState, formState } = useFormContext();
 
   if (!fieldContext) {
-    // Only access i18n when we actually need the message, to avoid
-    // requiring the 'Form' namespace in all consumers.
-    try {
-      const t = useSmartTranslations("Form");
-      throw new Error(t("validation.mustBeUsedWithinForm"));
-    } catch {
-      throw new Error("useFormField must be used within FormField");
-    }
+    throw new Error("useFormField must be used within FormField");
   }
 
   const fieldState = getFieldState(fieldContext.name, formState);

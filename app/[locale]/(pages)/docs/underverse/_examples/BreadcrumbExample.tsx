@@ -119,7 +119,7 @@ export default function BreadcrumbExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Collapsible (long paths)</p>
         <Breadcrumb items={longItems} maxItems={4} collapsible variant="pill" />
-        <span className="text-xs text-muted-foreground">← Click "..." to expand</span>
+        <span className="text-xs text-muted-foreground">← Click &quot;...&quot; to expand</span>
       </div>
 
       {/* Custom Separator */}

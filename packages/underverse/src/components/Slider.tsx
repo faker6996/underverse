@@ -115,7 +115,10 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
     const currentRange = isRangeControlled ? rangeValue : internalRange;
     const rangeMin = clamp(currentRange[0] ?? min, min, max);
     const rangeMax = clamp(currentRange[1] ?? max, min, max);
-    const normalizedRange: [number, number] = rangeMin <= rangeMax ? [rangeMin, rangeMax] : [rangeMax, rangeMin];
+    const normalizedRange = React.useMemo<[number, number]>(
+      () => (rangeMin <= rangeMax ? [rangeMin, rangeMax] : [rangeMax, rangeMin]),
+      [rangeMax, rangeMin],
+    );
 
     const handleSingleChange = React.useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {

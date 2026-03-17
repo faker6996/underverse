@@ -12,8 +12,9 @@ export default function DateUtilsExample() {
 
   // Demo values
   const now = new Date();
-  const oneHourAgo = new Date(Date.now() - 3600000);
-  const oneDayAgo = new Date(Date.now() - 86400000);
+  const nowTs = now.getTime();
+  const oneHourAgo = new Date(nowTs - 3600000);
+  const oneDayAgo = new Date(nowTs - 86400000);
 
   const code = `import { DateUtils } from '@underverse-ui/underverse'
 

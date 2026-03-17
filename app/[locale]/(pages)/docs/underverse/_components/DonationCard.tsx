@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Heart, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import Image from "next/image";
 
 const BANK_INFO = {
   name: "Trần Văn Bách",
@@ -33,7 +34,7 @@ export default function DonationCard() {
         {/* QR Code */}
         <div className="flex justify-center mb-3">
           <div className="p-1.5 bg-background border border-border rounded-lg">
-            <img src={BANK_INFO.qrImage} alt="Donation QR Code" className="w-28 h-28 object-contain" />
+            <Image src={BANK_INFO.qrImage} alt="Donation QR Code" width={112} height={112} className="w-28 h-28 object-contain" />
           </div>
         </div>
 

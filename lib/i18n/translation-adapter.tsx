@@ -451,7 +451,6 @@ let nextIntlUseTranslations: ((namespace: string) => (key: string) => string) | 
 let nextIntlUseLocale: (() => string) | null = null;
 
 try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const nextIntl = require("next-intl");
   if (nextIntl && typeof nextIntl.useTranslations === "function") {
     nextIntlAvailable = true;
@@ -514,7 +513,6 @@ export function useTranslations(namespace: string): (key: string, params?: Recor
   if (nextIntlAvailable && nextIntlUseTranslations) {
     try {
       // This will throw if not wrapped in NextIntlClientProvider
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const nextIntlT = nextIntlUseTranslations(namespace);
       // next-intl's t function already supports params
       return nextIntlT as (key: string, params?: Record<string, unknown>) => string;
@@ -541,7 +539,6 @@ export function useLocale(): Locale {
   // Try next-intl if available
   if (nextIntlAvailable && nextIntlUseLocale) {
     try {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const locale = nextIntlUseLocale();
       if (locale === "en" || locale === "vi" || locale === "ko" || locale === "ja") return locale;
       if (locale?.startsWith?.("vi")) return "vi";

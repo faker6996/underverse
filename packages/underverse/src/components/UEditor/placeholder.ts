@@ -104,7 +104,10 @@ export const UEditorPlaceholder = Extension.create<UEditorPlaceholderOptions>({
               return this.options.includeChildren;
             });
 
-            return DecorationSet.create(doc, decorations);
+            // In this monorepo, ProseMirror types can be resolved from both the
+            // root app and the package workspace, producing structurally equal
+            // but nominally distinct DecorationSet types. Runtime is unaffected.
+            return DecorationSet.create(doc, decorations) as any;
           },
         },
       }),

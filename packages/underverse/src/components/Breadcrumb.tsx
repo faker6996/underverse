@@ -5,7 +5,6 @@ import { cn } from "../utils/cn";
 
 let NextLink: React.ComponentType<{ href: string; className?: string; children: React.ReactNode }> | null = null;
 try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   NextLink = require("next/link").default;
 } catch {
   NextLink = null;

@@ -7,6 +7,7 @@ import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { useTranslations } from "next-intl";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import Image from "next/image";
 
 export default function FallingIconsExample() {
   const t = useTranslations("DocsUnderverse");
@@ -264,7 +265,7 @@ export default function FallingIconsExample() {
               {imagePreview && (
                 <>
                   <div className="flex items-center gap-2">
-                    <img src={imagePreview} alt="Preview" className="w-8 h-8 object-cover rounded border border-border" />
+                    <Image src={imagePreview} alt="Preview" width={32} height={32} unoptimized className="w-8 h-8 object-cover rounded border border-border" />
                     <span className="text-xs text-muted-foreground">Image loaded</span>
                   </div>
                   <button

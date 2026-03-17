@@ -47,7 +47,7 @@ NEXT_PUBLIC_INSTAGRAM_URL=https://www.instagram.com/thejojoflowers`}
       <div className="p-4 border rounded-lg bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800">
         <p className="text-sm text-amber-900 dark:text-amber-100">
           <strong>Note:</strong> This component is typically placed in the root layout and automatically
-          hides on admin pages. It's not rendered in this demo to avoid conflicts with the actual
+          hides on admin pages. It&apos;s not rendered in this demo to avoid conflicts with the actual
           floating contacts on the site.
         </p>
       </div>

@@ -450,7 +450,6 @@ export default function FileUpload({
           )}
         >
           {isImage && allowPreview ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img src={file.url} alt={file.name} className="w-full h-full object-cover" />
           ) : (
             <IconComponent className={cn("w-1/2 h-1/2", iconColor)} />

@@ -6,6 +6,7 @@ import { Carousel } from "@/components/ui/Carousel";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import Image from "next/image";
 
 export default function CarouselExample() {
   const t = useTranslations("DocsUnderverse");
@@ -177,7 +178,7 @@ export default function CarouselExample() {
             { id: 4, img: "https://picsum.photos/seed/c4/800/400", title: "Mountain" },
           ].map((item) => (
             <div key={item.id} className="h-96 rounded-lg overflow-hidden relative">
-              <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
+              <Image src={item.img} alt={item.title} fill sizes="(min-width: 768px) 800px, 100vw" className="object-cover" />
               <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-6">
                 <h3 className="text-white text-2xl font-bold">{item.title}</h3>
               </div>

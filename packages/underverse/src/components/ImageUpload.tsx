@@ -265,7 +265,6 @@ export default function ImageUpload({
 
                 {/* Image Preview */}
                 <div className={cn("mx-auto mb-2 overflow-hidden rounded-lg", previewSizes[previewSize])}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={image.url}
                     alt={image.originalName}

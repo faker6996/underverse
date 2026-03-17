@@ -155,19 +155,22 @@ export default function FallingIcons({
 
   // Provide a minimal fallback icon (circle) if none is passed
   const FallbackIcon = React.useMemo<IconComponent>(
-    () => (props) => (
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
-        <circle cx="12" cy="12" r="10" />
-      </svg>
-    ),
+    () =>
+      function FallingIconsFallbackIcon(props) {
+        return (
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+            <circle cx="12" cy="12" r="10" />
+          </svg>
+        );
+      },
     [],
   );
 
   // Use custom image if provided, otherwise use icon
-  const TheIcon = imageUrl
-    ? ({ className: imgClassName }: { className?: string }) => (
-        <img src={imageUrl} alt="" className={cn("w-full h-full object-cover rounded-lg", imgClassName)} draggable={false} />
-      )
+  const TheIcon: IconComponent = imageUrl
+    ? function FallingIconsImage({ className: imgClassName }: { className?: string }) {
+        return <img src={imageUrl} alt="" className={cn("w-full h-full object-cover rounded-lg", imgClassName)} draggable={false} />;
+      }
     : Icon || FallbackIcon;
 
   return (

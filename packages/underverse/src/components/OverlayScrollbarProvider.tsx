@@ -64,24 +64,7 @@ export function useOverlayScrollbarTarget<T extends HTMLElement>(
         ...inherited,
         ...options,
       }),
-    [
-      inherited.enabled,
-      inherited.theme,
-      inherited.visibility,
-      inherited.autoHide,
-      inherited.autoHideDelay,
-      inherited.dragScroll,
-      inherited.clickScroll,
-      inherited.exclude,
-      options.enabled,
-      options.theme,
-      options.visibility,
-      options.autoHide,
-      options.autoHideDelay,
-      options.dragScroll,
-      options.clickScroll,
-      options.exclude,
-    ],
+    [inherited, options],
   );
 
   useEffect(() => {
@@ -101,17 +84,7 @@ export function useOverlayScrollbarTarget<T extends HTMLElement>(
     return () => {
       controller.destroy();
     };
-  }, [
-    targetRef,
-    resolved.enabled,
-    resolved.theme,
-    resolved.visibility,
-    resolved.autoHide,
-    resolved.autoHideDelay,
-    resolved.dragScroll,
-    resolved.clickScroll,
-    resolved.exclude,
-  ]);
+  }, [targetRef, resolved]);
 }
 
 export default OverlayScrollbarProvider;

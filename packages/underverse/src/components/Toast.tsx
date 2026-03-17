@@ -62,7 +62,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children, position
 
       // Auto-dismiss handled by ToastComponent so pause-on-hover works consistently.
     },
-    [maxToasts, removeToast],
+    [maxToasts],
   );
 
   const positionClasses = {

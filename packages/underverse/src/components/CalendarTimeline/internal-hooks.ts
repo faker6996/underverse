@@ -400,6 +400,7 @@ export function useSlotMetrics(args: {
   }, [
     activeView,
     adaptiveSlotWidths,
+    bodyClientWidth,
     dayHeaderMarks,
     dayHeaderSmart,
     daySlotCompression,

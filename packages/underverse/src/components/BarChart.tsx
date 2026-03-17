@@ -61,7 +61,10 @@ export function BarChart({
   className = "",
 }: BarChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const padding = horizontal ? { top: 20, right: 40, bottom: 20, left: 80 } : { top: 20, right: 20, bottom: 40, left: 40 };
+  const padding = useMemo(
+    () => (horizontal ? { top: 20, right: 40, bottom: 20, left: 80 } : { top: 20, right: 20, bottom: 40, left: 40 }),
+    [horizontal],
+  );
 
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;

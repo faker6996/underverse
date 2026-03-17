@@ -68,16 +68,6 @@ export default function ColorThemeCustomizer() {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
 
-  useEffect(() => {
-    setMounted(true);
-    // Load saved color
-    const saved = localStorage.getItem("customPrimaryColor");
-    if (saved) {
-      setHexColor(saved);
-      applyColor(saved);
-    }
-  }, []);
-
   const calculatePosition = () => {
     const rect = triggerRef.current?.getBoundingClientRect();
     if (!rect) return null;
@@ -90,7 +80,7 @@ export default function ColorThemeCustomizer() {
     };
   };
 
-  const applyColor = (hex: string) => {
+  function applyColor(hex: string) {
     const cleanHex = hex.replace("#", "");
     const oklch = hexToOklch(cleanHex);
 
@@ -120,7 +110,17 @@ export default function ColorThemeCustomizer() {
 
     // Save to localStorage
     localStorage.setItem("customPrimaryColor", cleanHex);
-  };
+  }
+
+  useEffect(() => {
+    setMounted(true);
+    // Load saved color
+    const saved = localStorage.getItem("customPrimaryColor");
+    if (saved) {
+      setHexColor(saved);
+      applyColor(saved);
+    }
+  }, []);
 
   const handleApply = () => {
     applyColor(hexColor);

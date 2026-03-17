@@ -19,7 +19,6 @@ let nextIntlHooks: {
 
 // Try to load next-intl at module initialization
 try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const nextIntl = require("next-intl");
   nextIntlHooks = {
     useTranslations: nextIntl.useTranslations,
@@ -84,7 +83,6 @@ export function useSmartTranslations(namespace: string): (key: string) => string
   let resolvedLocale = internalLocale;
 
   try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     resolvedLocale = normalizeLocale(nextIntlHooks.useLocale?.(), internalLocale);
   } catch {
     resolvedLocale = internalLocale;
@@ -92,7 +90,6 @@ export function useSmartTranslations(namespace: string): (key: string) => string
 
   // Try to use next-intl
   try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const nextIntlT = nextIntlHooks.useTranslations(namespace);
 
     return (key: string) => {
@@ -144,7 +141,6 @@ export function useSmartLocale(): Locale {
 
   // Try to use next-intl
   try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const nextIntlLocale = nextIntlHooks.useLocale();
     return (nextIntlLocale as Locale) || internalLocale;
   } catch {

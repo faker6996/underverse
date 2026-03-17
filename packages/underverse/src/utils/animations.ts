@@ -194,7 +194,7 @@ export const shadcnAnimationStyles = `
  * }
  * ```
  */
-export function useShadCNAnimations(): void {
+function ensureAnimationStylesInjected(): void {
   if (typeof document !== "undefined") {
     const styleId = "shadcn-animations";
     if (!document.getElementById(styleId)) {
@@ -206,12 +206,18 @@ export function useShadCNAnimations(): void {
   }
 }
 
+export function useShadCNAnimations(): void {
+  useEffect(() => {
+    ensureAnimationStylesInjected();
+  }, []);
+}
+
 /**
  * Manually inject animation styles.
  * Useful for non-React environments or SSR.
  */
 export function injectAnimationStyles(): void {
-  useShadCNAnimations();
+  ensureAnimationStylesInjected();
 }
 
 /**
@@ -221,3 +227,4 @@ export function injectAnimationStyles(): void {
 export function getAnimationStyles(): string {
   return shadcnAnimationStyles;
 }
+import { useEffect } from "react";

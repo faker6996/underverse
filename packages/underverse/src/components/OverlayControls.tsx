@@ -147,23 +147,23 @@ export default function OverlayControls({
   }, [autoHide, autoHideDelay, showOnHover]);
 
   // Helper to show keyboard feedback
-  const showFeedback = (type: "play" | "pause" | "seek" | "volume" | "mute" | "unmute", value?: number) => {
+  const showFeedback = React.useCallback((type: "play" | "pause" | "seek" | "volume" | "mute" | "unmute", value?: number) => {
     if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
     setKeyboardFeedback({ type, value });
     feedbackTimerRef.current = setTimeout(() => {
       setKeyboardFeedback(null);
     }, 800);
-  };
+  }, []);
 
   // Helper for seek accumulation
-  const accumulateSeek = (seconds: number) => {
+  const accumulateSeek = React.useCallback((seconds: number) => {
     if (seekAccumulatorTimerRef.current) clearTimeout(seekAccumulatorTimerRef.current);
     seekAccumulatorRef.current += seconds;
     showFeedback("seek", seekAccumulatorRef.current);
     seekAccumulatorTimerRef.current = setTimeout(() => {
       seekAccumulatorRef.current = 0;
     }, 1000);
-  };
+  }, [showFeedback]);
 
   // Keyboard shortcuts
   React.useEffect(() => {
@@ -273,6 +273,7 @@ export default function OverlayControls({
     onSkip,
     skipSeconds,
     onChange,
+    onCommit,
     value,
     max,
     onVolumeChange,
@@ -281,6 +282,8 @@ export default function OverlayControls({
     onToggleMute,
     playing,
     muted,
+    accumulateSeek,
+    showFeedback,
   ]);
 
   const formatTime = (sec: number) => {

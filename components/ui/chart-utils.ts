@@ -1,3 +1,5 @@
+import * as React from "react";
+
 /**
  * Shared chart utilities for all chart components.
  * Centralizes common functions to reduce duplication.
@@ -53,8 +55,6 @@ export function uniqueChartId(prefix: string): string {
 
 /** Chart empty state placeholder */
 export function renderChartEmpty(width: number, height: number, text = "No data"): React.ReactElement {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const React = require("react");
   return React.createElement(
     "svg",
     { width, height, className: "overflow-visible" },

@@ -127,7 +127,10 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   const mergedLabels = { ...defaultLabels, ...labels };
 
   // Normalize value to array for internal use
-  const valueArray: number[] = singleSelect ? (props.value != null ? [props.value as number] : []) : (props.value as number[] | undefined) || [];
+  const valueArray = useMemo<number[]>(
+    () => (singleSelect ? (props.value != null ? [props.value as number] : []) : ((props.value as number[] | undefined) ?? [])),
+    [props.value, singleSelect],
+  );
   const selectedIds = useMemo(() => new Set(valueArray), [valueArray]);
 
   const { parentCategories, childrenMap, byId } = useMemo(() => {
@@ -218,7 +221,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
       const allParentIds = categories.filter((c) => childrenMap.has(c.id)).map((c) => c.id);
       setExpandedNodes(new Set(allParentIds));
     }
-  }, [viewOnly, inline, defaultExpanded, categories]);
+  }, [viewOnly, inline, defaultExpanded, categories, childrenMap]);
 
   const toggleExpand = (id: number) => {
     if (isSearchMode) return;
@@ -635,6 +638,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
             disabled={disabled}
             role="combobox"
             aria-haspopup="tree"
+            aria-expanded={isOpen}
             aria-controls={`${resolvedId}-tree`}
             aria-labelledby={labelId}
             aria-describedby={describedBy}

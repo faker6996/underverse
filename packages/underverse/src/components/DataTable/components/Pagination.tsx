@@ -24,17 +24,6 @@ export function DataTablePagination({
   size: DataTableSize;
 }) {
   const totalPages = Math.ceil(totalItems / curPageSize);
-  if (!(totalItems > 0 && totalPages > 1)) return null;
-
-  const controlButtonSize = size === "lg" ? "md" : "sm";
-  const navBtnClass = size === "sm" ? "h-6 w-6 p-0 rounded-full" : size === "lg" ? "h-8 w-8 p-0 rounded-full" : "h-7 w-7 p-0 rounded-full";
-  const navIconClass = size === "sm" ? "h-3.5 w-3.5" : size === "lg" ? "h-5 w-5" : "h-4 w-4";
-  const pageBtnClass =
-    size === "sm" ? "h-6 min-w-6 px-1.5 rounded-full text-[11px] font-medium transition-colors" : size === "lg"
-      ? "h-8 min-w-8 px-2.5 rounded-full text-sm font-medium transition-colors"
-      : "h-7 min-w-7 px-2 rounded-full text-xs font-medium transition-colors";
-  const containerTextClass = size === "sm" ? "text-[11px]" : size === "lg" ? "text-sm" : "text-xs";
-  const pageSizeClass = size === "sm" ? "w-16" : size === "lg" ? "w-24" : "w-20";
   const pages = React.useMemo(() => {
     const result: (number | "...")[] = [];
 
@@ -55,6 +44,17 @@ export function DataTablePagination({
 
     return result;
   }, [curPage, totalPages]);
+  if (!(totalItems > 0 && totalPages > 1)) return null;
+
+  const controlButtonSize = size === "lg" ? "md" : "sm";
+  const navBtnClass = size === "sm" ? "h-6 w-6 p-0 rounded-full" : size === "lg" ? "h-8 w-8 p-0 rounded-full" : "h-7 w-7 p-0 rounded-full";
+  const navIconClass = size === "sm" ? "h-3.5 w-3.5" : size === "lg" ? "h-5 w-5" : "h-4 w-4";
+  const pageBtnClass =
+    size === "sm" ? "h-6 min-w-6 px-1.5 rounded-full text-[11px] font-medium transition-colors" : size === "lg"
+      ? "h-8 min-w-8 px-2.5 rounded-full text-sm font-medium transition-colors"
+      : "h-7 min-w-7 px-2 rounded-full text-xs font-medium transition-colors";
+  const containerTextClass = size === "sm" ? "text-[11px]" : size === "lg" ? "text-sm" : "text-xs";
+  const pageSizeClass = size === "sm" ? "w-16" : size === "lg" ? "w-24" : "w-20";
 
   return (
     <div className={cn("flex items-center justify-between gap-2 px-1 pt-3 text-muted-foreground", containerTextClass)}>

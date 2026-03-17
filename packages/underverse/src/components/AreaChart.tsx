@@ -54,7 +54,7 @@ export function AreaChart({
 }: AreaChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const clipId = useRef(`area-clip-${Math.random().toString(36).slice(2, 8)}`).current;
-  const padding = { top: 20, right: 20, bottom: 40, left: 50 };
+  const padding = useMemo(() => ({ top: 20, right: 20, bottom: 40, left: 50 }), []);
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
 

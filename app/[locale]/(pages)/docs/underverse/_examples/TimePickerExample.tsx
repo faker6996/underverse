@@ -102,9 +102,9 @@ export default function TimePickerExample() {
 
       {/* With Now Button */}
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-foreground/90">With "Now" Button</p>
+        <p className="text-sm font-semibold text-foreground/90">With &quot;Now&quot; Button</p>
         <div className="max-w-sm space-y-2">
-          <p className="text-xs text-muted-foreground">Click "Now" to set current time</p>
+          <p className="text-xs text-muted-foreground">Click &quot;Now&quot; to set current time</p>
           <TimePicker showNow label="Meeting Time" />
         </div>
       </div>

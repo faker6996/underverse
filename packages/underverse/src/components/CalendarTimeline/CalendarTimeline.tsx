@@ -349,7 +349,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
   React.useEffect(() => {
     onRangeChange?.(range);
-  }, [range.start, range.end, onRangeChange]);
+  }, [range, onRangeChange]);
 
   const leftRef = React.useRef<HTMLDivElement>(null);
   const bodyRef = React.useRef<HTMLDivElement>(null);
@@ -728,7 +728,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
 
       return dayFmt.format(d);
     };
-  }, [activeView, dueDateSprint, l.sprint, resolvedLocale, resolvedTimeZone, slotStarts, slotStarts.length]);
+  }, [activeView, dueDateSprint, l.sprint, resolvedLocale, resolvedTimeZone, slotStarts]);
 
   const openCreate = React.useCallback(() => {
     if (!canCreate) return;
@@ -932,7 +932,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
         return;
       }
     },
-    [getPointerContext, range.end, range.start, slotToDate, slots.length],
+    [getPointerContext, range.end, range.start, setPreview, slotToDate, slots.length],
   );
 
   const flushDragPreview = React.useCallback(() => {

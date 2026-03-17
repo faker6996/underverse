@@ -118,8 +118,8 @@ export default function DataTableExample() {
   }, []);
 
   React.useEffect(() => {
-    fetchData(query);
-  }, []);
+    fetchData({ filters: {}, page: 1, pageSize: 20 });
+  }, [fetchData]);
 
   const toolbar = (
     <Button
