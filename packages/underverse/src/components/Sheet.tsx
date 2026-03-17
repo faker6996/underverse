@@ -21,6 +21,7 @@ interface SheetProps {
   closeOnEscape?: boolean;
   header?: React.ReactNode;
   footer?: React.ReactNode;
+  overlayOpacity?: number;
 }
 
 const sizeStyles = {
@@ -101,6 +102,7 @@ export const Sheet: React.FC<SheetProps> = ({
   closeOnEscape = true,
   header,
   footer,
+  overlayOpacity,
 }) => {
   const [mounted, setMounted] = React.useState(false);
   const [isAnimating, setIsAnimating] = React.useState(true);
@@ -175,8 +177,9 @@ export const Sheet: React.FC<SheetProps> = ({
         className={cn(
           "fixed inset-0 transition-all duration-300 ease-out",
           variant === "overlay" ? "bg-background/95 backdrop-blur-sm" : "bg-background/80 backdrop-blur-sm",
-          open && !isAnimating ? "opacity-100" : "opacity-0",
+          overlayOpacity === undefined && (open && !isAnimating ? "opacity-100" : "opacity-0"),
         )}
+        style={overlayOpacity !== undefined ? { opacity: open && !isAnimating ? overlayOpacity : 0 } : undefined}
         onClick={handleOverlayClick}
       />
 

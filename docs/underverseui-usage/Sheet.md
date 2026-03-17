@@ -71,6 +71,8 @@ interface SheetProps {
   closeOnEscape?: boolean;
   header?: React.ReactNode;
   footer?: React.ReactNode;
+  /** Opacity của overlay (0–1). Không truyền → dùng mặc định theo variant. */
+  overlayOpacity?: number;
 }
 ```
 

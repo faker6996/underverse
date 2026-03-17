@@ -134,6 +134,7 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
    */
   enableEventSheet?: boolean;
   eventSheetSize?: CalendarTimelineSheetSize;
+  eventSheetOverlayOpacity?: number;
   renderEventSheet?: (args: {
     event: CalendarTimelineEvent<TEventMeta>;
     resource?: CalendarTimelineResource<TResourceMeta>;

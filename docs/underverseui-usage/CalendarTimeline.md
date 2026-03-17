@@ -572,6 +572,18 @@ Clicking an event can open a right-side sheet. Provide `renderEventSheet` to cus
 />
 ```
 
+Tuỳ chỉnh opacity overlay của sheet (mặc định theo variant nếu không truyền):
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  enableEventSheet
+  eventSheetOverlayOpacity={0.4}
+  renderEventSheet={({ event, close }) => <div>{event.title}</div>}
+/>
+```
+
 ## Custom event box (`renderEvent`)
 
 Bạn có thể custom UI trong box event bằng `renderEvent`. Component sẽ **không cho nội dung vượt quá chiều cao của hàng** (event box có `overflow: hidden`), nên nếu text quá dài thì bạn nên **wrap + clamp** số dòng.
@@ -695,6 +707,8 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
 
   enableEventSheet?: boolean;
   eventSheetSize?: CalendarTimelineSheetSize;
+  /** Opacity của overlay khi Event Sheet mở (0–1). Không truyền → dùng mặc định. */
+  eventSheetOverlayOpacity?: number;
   renderEventSheet?: (args: {
     event: CalendarTimelineEvent<TEventMeta>;
     resource?: CalendarTimelineResource<TResourceMeta>;

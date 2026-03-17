@@ -41,6 +41,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   size = "md",
   enableEventSheet,
   eventSheetSize = "md",
+  eventSheetOverlayOpacity,
   renderEventSheet,
   selectedEventId,
   defaultSelectedEventId,
@@ -1672,6 +1673,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
           onOpenChange={setEventSheetOpen}
           side="right"
           size={eventSheetSize}
+          overlayOpacity={eventSheetOverlayOpacity}
           title={selectedEvent.title ?? "Event"}
           description={selectedTimeText || undefined}
         >
