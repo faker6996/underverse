@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import test, { after, afterEach } from "node:test";
-import React from "react";
+import React from "./helpers/workspace-react.mjs";
 import { cleanup, render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 

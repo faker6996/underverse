@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import test from "node:test";
-import React from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import React, { renderToStaticMarkup } from "./helpers/workspace-react.mjs";
 
 import { importTsModule } from "./helpers/import-ts-module.mjs";
 

@@ -5,14 +5,49 @@ import { pathToFileURL } from "node:url";
 import ts from "typescript";
 
 const packageRoot = path.resolve(import.meta.dirname, "../..");
+const workspaceRoot = path.resolve(packageRoot, "../..");
 const tempBaseDir = path.join(os.tmpdir(), "underverse-test-build");
 fs.mkdirSync(tempBaseDir, { recursive: true });
 const tempRoot = fs.mkdtempSync(path.join(tempBaseDir, "run-"));
 const packageNodeModules = path.join(packageRoot, "node_modules");
+const workspaceNodeModules = path.join(workspaceRoot, "node_modules");
 const tempNodeModules = path.join(tempRoot, "node_modules");
 
-if (!fs.existsSync(tempNodeModules) && fs.existsSync(packageNodeModules)) {
-  fs.symlinkSync(packageNodeModules, tempNodeModules, "dir");
+function linkNodeModulesEntries(fromDir) {
+  if (!fs.existsSync(fromDir)) return;
+  for (const entry of fs.readdirSync(fromDir)) {
+    const source = path.join(fromDir, entry);
+    const target = path.join(tempNodeModules, entry);
+    if (fs.existsSync(target)) continue;
+    fs.symlinkSync(source, target, fs.statSync(source).isDirectory() ? "dir" : "file");
+  }
+}
+
+function linkScopedEntries(fromDir, scopeName) {
+  const scopeDir = path.join(fromDir, scopeName);
+  const tempScopeDir = path.join(tempNodeModules, scopeName);
+  if (!fs.existsSync(scopeDir)) return;
+  fs.mkdirSync(tempScopeDir, { recursive: true });
+  for (const entry of fs.readdirSync(scopeDir)) {
+    const source = path.join(scopeDir, entry);
+    const target = path.join(tempScopeDir, entry);
+    if (fs.existsSync(target)) continue;
+    fs.symlinkSync(source, target, fs.statSync(source).isDirectory() ? "dir" : "file");
+  }
+}
+
+if (!fs.existsSync(tempNodeModules)) {
+  fs.mkdirSync(tempNodeModules, { recursive: true });
+  for (const entry of ["react", "react-dom", "scheduler"]) {
+    const source = path.join(workspaceNodeModules, entry);
+    const target = path.join(tempNodeModules, entry);
+    if (fs.existsSync(source) && !fs.existsSync(target)) {
+      fs.symlinkSync(source, target, fs.statSync(source).isDirectory() ? "dir" : "file");
+    }
+  }
+  linkScopedEntries(workspaceNodeModules, "@tiptap");
+  linkNodeModulesEntries(packageNodeModules);
+  linkNodeModulesEntries(workspaceNodeModules);
 }
 
 const compiledCache = new Map();
