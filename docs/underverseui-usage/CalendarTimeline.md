@@ -415,6 +415,7 @@ export function Example() {
         onRowHeightsChange={setRowHeights}
         enableEventSheet
         eventSheetSize="md" // "sm" | "md" | "lg" | "xl" | "full"
+        // eventSheetOverlayOpacity={0.4} // tuỳ chọn: custom opacity overlay (0–1)
         // Day view: 2 modes
         // - "full": 24h (default)
         // - "work": working hours (default 08:00–17:00)
