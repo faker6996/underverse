@@ -187,7 +187,7 @@ export const Sheet: React.FC<SheetProps> = ({
       <div
         className={cn(
           "fixed flex flex-col bg-background text-foreground shadow-2xl",
-          "border-border transition-all duration-300 ease-out",
+          "border-border/50 transition-all duration-300 ease-out",
           positionStyles[side],
           sizeStyles[size][side],
           // Borders based on side
@@ -215,7 +215,7 @@ export const Sheet: React.FC<SheetProps> = ({
       >
         {/* Header */}
         {(title || description || header || showClose) && (
-          <div className="shrink-0 border-b border-border">
+          <div className="shrink-0 border-b border-border/50">
             {header || (
               <div className="flex items-center justify-between p-4">
                 <div className="flex-1">
@@ -242,7 +242,7 @@ export const Sheet: React.FC<SheetProps> = ({
         </div>
 
         {/* Footer */}
-        {footer && <div className="shrink-0 border-t border-border p-4">{footer}</div>}
+        {footer && <div className="shrink-0 border-t border-border/50 p-4">{footer}</div>}
       </div>
     </div>
   );
@@ -281,7 +281,7 @@ interface SidebarSheetProps extends Omit<SheetProps, "side" | "variant"> {
 export const SidebarSheet: React.FC<SidebarSheetProps> = ({ navigation, children, ...props }) => {
   return (
     <Sheet {...props} side="left" variant="push" size="md">
-      {navigation && <div className="border-b border-border pb-4 mb-4">{navigation}</div>}
+      {navigation && <div className="border-b border-border/50 pb-4 mb-4">{navigation}</div>}
       {children}
     </Sheet>
   );

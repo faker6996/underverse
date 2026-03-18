@@ -254,8 +254,8 @@ export const TimelineItem = React.forwardRef<HTMLDivElement, TimelineItemProps>(
     // Variant styles for content box
     const variantClasses = {
       default: "",
-      outlined: "rounded-xl border border-border bg-card shadow-sm px-4 py-3",
-      card: "rounded-2xl border border-border bg-card shadow-md px-5 py-4",
+      outlined: "rounded-xl border border-border/50 bg-card shadow-sm px-4 py-3",
+      card: "rounded-2xl border border-border/50 bg-card shadow-md px-5 py-4",
       minimal: "border-l-2 pl-4 py-2",
       modern: "rounded-xl bg-linear-to-r from-card to-muted/20 border border-border/50 px-5 py-4 backdrop-blur-sm",
       gradient: "rounded-2xl bg-linear-to-br from-primary/10 via-card to-accent/10 border border-primary/20 px-5 py-4 shadow-lg",

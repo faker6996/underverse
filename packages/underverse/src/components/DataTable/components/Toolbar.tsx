@@ -88,7 +88,7 @@ export function DataTableToolbar<T>({
                   setVisibleCols((prev) => (prev.includes(c.key) ? prev.filter((k) => k !== c.key) : [...prev, c.key]));
                 }}
               >
-                <input type="checkbox" className="mr-2 rounded-md border-border" readOnly checked={visibleCols.includes(c.key)} />
+                <input type="checkbox" className="mr-2 rounded-md border-border/50" readOnly checked={visibleCols.includes(c.key)} />
                 <span className="truncate">{c.title as any}</span>
               </DropdownMenuItem>
             ))}

@@ -259,7 +259,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
         <div
           className={cn(
             "absolute pointer-events-none transition-all duration-200 ease-out",
-            "bg-popover text-popover-foreground rounded-lg shadow-lg border border-border",
+            "bg-popover text-popover-foreground rounded-lg shadow-lg border border-border/50",
             "whitespace-nowrap font-medium -translate-x-1/2 z-50",
             sizeStyles.tooltip,
             shouldShow ? "opacity-100 -translate-y-10 scale-100" : "opacity-0 -translate-y-8 scale-95",

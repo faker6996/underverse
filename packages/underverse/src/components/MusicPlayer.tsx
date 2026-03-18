@@ -264,7 +264,7 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
   }, [currentSongIndex, currentSong.startTime, isPlaying]);
 
   return (
-    <div className={`underverse-music-player bg-card dark:bg-card border border-border rounded-2xl shadow-2xl overflow-hidden ${className}`}>
+    <div className={`underverse-music-player bg-card dark:bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden ${className}`}>
       <audio ref={audioRef} src={currentSong.audioUrl} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={playNext} />
 
       <div className="p-6">
@@ -345,7 +345,7 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
 
       {/* Playlist */}
       {showPlaylist && (
-        <div className="bg-muted/50 backdrop-blur-sm max-h-96 overflow-y-auto border-t border-border">
+        <div className="bg-muted/50 backdrop-blur-sm max-h-96 overflow-y-auto border-t border-border/50">
           <div className="p-4">
             <h3 className="text-lg font-semibold text-foreground mb-3">Playlist ({playlist.length} songs)</h3>
             <div className="space-y-2">

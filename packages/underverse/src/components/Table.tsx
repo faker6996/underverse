@@ -14,7 +14,7 @@ export interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
 const TABLE_BASE_CLASS = "w-full caption-bottom text-sm";
 const TABLE_CONTAINER_BASE_CLASS = [
   "relative w-full overflow-auto",
-  "rounded-2xl md:rounded-3xl border border-border",
+  "rounded-2xl md:rounded-3xl border border-border/50",
   "bg-card text-card-foreground shadow-sm",
   "backdrop-blur-sm transition-all duration-300",
 ].join(" ");
@@ -73,7 +73,7 @@ export interface TableHeaderProps extends React.HTMLAttributes<HTMLTableSectionE
 }
 
 const TableHeader = React.forwardRef<HTMLTableSectionElement, TableHeaderProps>(({ className, children, filterRow, ...props }, ref) => (
-  <thead ref={ref} className={cn("[&_tr]:border-b [&_tr]:border-border", "bg-muted", className)} {...props}>
+  <thead ref={ref} className={cn("[&_tr]:border-b [&_tr]:border-border/50", "bg-muted", className)} {...props}>
     {children}
     {filterRow}
   </thead>
@@ -94,7 +94,7 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
   <tr
     ref={ref}
     className={cn(
-      "border-b border-border transition-all duration-300",
+      "border-b border-border/50 transition-all duration-300",
       "hover:bg-muted/30 hover:shadow-sm",
       "data-[state=selected]:bg-muted/50",
       className,

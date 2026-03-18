@@ -64,14 +64,14 @@ const EmojiList = forwardRef<EmojiListRef, EmojiListProps>((props, ref) => {
 
     if (props.items.length === 0) {
         return (
-            <div className="w-80 p-4 text-center text-sm text-muted-foreground bg-card border border-border rounded-2xl shadow-lg">
+            <div className="w-80 p-4 text-center text-sm text-muted-foreground bg-card border border-border/50 rounded-2xl shadow-lg">
                 No emoji found
             </div>
         );
     }
 
     return (
-        <div className="w-80 max-h-80 overflow-y-auto bg-card border border-border rounded-2xl shadow-lg">
+        <div className="w-80 max-h-80 overflow-y-auto bg-card border border-border/50 rounded-2xl shadow-lg">
             <div className="px-3 py-2 border-b bg-muted/30">
                 <div className="flex items-center gap-2">
                     <Smile className="w-4 h-4 text-primary" />

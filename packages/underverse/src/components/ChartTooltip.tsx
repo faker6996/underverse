@@ -85,7 +85,7 @@ export function ChartTooltip({
       }}
     >
       <div
-        className={cn("bg-popover text-popover-foreground border border-border", "rounded-2xl shadow-xl px-3 py-2 text-sm", "backdrop-blur-sm")}
+        className={cn("bg-popover text-popover-foreground border border-border/50", "rounded-2xl shadow-xl px-3 py-2 text-sm", "backdrop-blur-sm")}
         style={{
           minWidth: "80px",
           width: "max-content",

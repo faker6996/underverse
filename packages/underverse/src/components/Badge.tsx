@@ -39,7 +39,7 @@ const variantStyles = {
   danger: "bg-destructive text-destructive-foreground border-destructive/20",
   destructive: "bg-destructive text-destructive-foreground border-destructive/20",
   info: "bg-info text-info-foreground border-info/20",
-  outline: "bg-transparent text-foreground border-border",
+  outline: "bg-transparent text-foreground border-border/50",
   ghost: "bg-transparent text-foreground border-transparent",
   transparent: "bg-transparent text-foreground border-transparent",
   gradient: "bg-linear-to-r from-primary to-secondary text-primary-foreground border-transparent",

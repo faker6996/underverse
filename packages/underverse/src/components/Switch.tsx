@@ -97,7 +97,7 @@ export const Switch: React.FC<SwitchProps> = ({
           className={cn(
             "absolute top-0.5 left-0.5 rounded-full transition-transform duration-200 ease-out shadow-sm",
             sizeClasses[size].handle,
-            "bg-background border border-border",
+            "bg-background border border-border/50",
             checked ? sizeClasses[size].translate : "translate-x-0",
             !disabled && "hover:scale-[1.02]",
             isPressed && "scale-95",

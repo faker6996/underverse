@@ -17,7 +17,7 @@ const variantConfig: Record<
 > = {
   default: {
     icon: Info,
-    containerClassName: "bg-muted/50 border-border",
+    containerClassName: "bg-muted/50 border-border/50",
     iconClassName: "text-muted-foreground",
     iconBgClassName: "bg-muted",
     accentBarClassName: "bg-muted-foreground",

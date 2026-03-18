@@ -434,7 +434,7 @@ export default function FileUpload({
       <div
         key={file.id}
         className={cn(
-          "group relative flex items-center gap-3 bg-card/50 backdrop-blur-sm border border-border rounded-xl",
+          "group relative flex items-center gap-3 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl",
           "transition-all duration-200 hover:bg-card hover:shadow-md hover:border-primary/20",
           file.status === "error" && "border-destructive/50 bg-destructive/5",
           file.status === "uploading" && "border-primary/30",
@@ -553,13 +553,13 @@ export default function FileUpload({
       "text-center transition-all duration-300",
       isDragging && !disabled
         ? "border-primary bg-primary/5 scale-[1.01] shadow-lg shadow-primary/10"
-        : "border-border hover:border-primary/50 hover:bg-muted/30",
+        : "border-border/50 hover:border-primary/50 hover:bg-muted/30",
       disabled && "opacity-50 cursor-not-allowed",
     ),
     compact: cn(
       "border border-dashed rounded-xl p-4",
       "flex items-center gap-4 transition-all duration-200",
-      isDragging && !disabled ? "border-primary bg-primary/5" : "border-border hover:border-primary/50",
+      isDragging && !disabled ? "border-primary bg-primary/5" : "border-border/50 hover:border-primary/50",
       disabled && "opacity-50 cursor-not-allowed",
     ),
     minimal: cn(

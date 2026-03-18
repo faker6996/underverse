@@ -18,7 +18,7 @@ interface TooltipProps {
 }
 
 const variantStyles = {
-  default: "bg-popover text-popover-foreground border-border",
+  default: "bg-popover text-popover-foreground border-border/50",
   info: "bg-info text-info-foreground border-info/20",
   warning: "bg-warning text-warning-foreground border-warning/20",
   error: "bg-destructive text-destructive-foreground border-destructive/20",

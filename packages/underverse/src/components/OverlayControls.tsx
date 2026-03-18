@@ -393,12 +393,12 @@ export default function OverlayControls({
             {previewData && (
               <div className="absolute bottom-full mb-2 transform -translate-x-1/2 pointer-events-none z-30" style={{ left: `${previewData.x}px` }}>
                 {previewData.url ? (
-                  <div className="bg-background/95 backdrop-blur rounded-xl border border-border shadow-lg overflow-hidden">
+                  <div className="bg-background/95 backdrop-blur rounded-xl border border-border/50 shadow-lg overflow-hidden">
                     <img src={previewData.url} alt="Preview" className="w-40 h-24 object-cover" />
                     <div className="px-2 py-1 text-xs font-mono text-center bg-background/80">{formatTime(previewData.time)}</div>
                   </div>
                 ) : (
-                  <div className="px-3 py-1.5 rounded-md bg-background/90 backdrop-blur border border-border shadow-lg">
+                  <div className="px-3 py-1.5 rounded-md bg-background/90 backdrop-blur border border-border/50 shadow-lg">
                     <div className="text-xs font-mono text-center">{formatTime(previewData.time)}</div>
                   </div>
                 )}
@@ -446,7 +446,7 @@ export default function OverlayControls({
                 )}
 
                 {(showTime ?? true) && (
-                  <span className="px-3 py-1 rounded-full text-xs font-mono bg-background/60 text-foreground shadow-sm border border-border whitespace-nowrap">
+                  <span className="px-3 py-1 rounded-full text-xs font-mono bg-background/60 text-foreground shadow-sm border border-border/50 whitespace-nowrap">
                     {formatTime(dragValue)} / {formatTime(max)}
                   </span>
                 )}
@@ -502,7 +502,7 @@ export default function OverlayControls({
                       {rate}x
                     </Button>
                     {rateOpen && (
-                      <div className="absolute bottom-9 right-0 bg-background/90 backdrop-blur rounded-md border border-border shadow-lg p-1 z-30">
+                      <div className="absolute bottom-9 right-0 bg-background/90 backdrop-blur rounded-md border border-border/50 shadow-lg p-1 z-30">
                         {[0.5, 0.75, 1, 1.25, 1.5].map((r) => (
                           <button
                             key={r}

@@ -201,7 +201,7 @@ export default function ImageUpload({
       <div
         className={cn(
           "relative border-2 border-dashed rounded-2xl md:rounded-3xl p-8 text-center transition-all duration-200",
-          isDragging && !disabled ? "border-primary bg-primary/5 scale-[1.02]" : "border-border hover:border-primary/50",
+          isDragging && !disabled ? "border-primary bg-primary/5 scale-[1.02]" : "border-border/50 hover:border-primary/50",
           disabled && "opacity-50 cursor-not-allowed",
           uploading && "pointer-events-none",
         )}
@@ -252,7 +252,7 @@ export default function ImageUpload({
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {uploadedImages.map((image) => (
-              <div key={image.id} className="relative group bg-card border border-border rounded-2xl md:rounded-3xl p-3">
+              <div key={image.id} className="relative group bg-card border border-border/50 rounded-2xl md:rounded-3xl p-3">
                 {/* Remove Button */}
                 <Button
                   variant="danger"

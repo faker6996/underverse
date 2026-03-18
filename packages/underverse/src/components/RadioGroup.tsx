@@ -233,7 +233,7 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
             "disabled:cursor-not-allowed disabled:opacity-50",
             isSelected
               ? "border-primary bg-primary text-primary-foreground shadow-sm"
-              : "border-border bg-background hover:bg-accent hover:text-accent-foreground",
+              : "border-border/50 bg-background hover:bg-accent hover:text-accent-foreground",
             sizeStyles[size].padding,
             sizeStyles[size].text,
             className,
@@ -443,12 +443,12 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
       selected: "bg-background text-foreground shadow-sm",
     },
     outline: {
-      container: "border border-border rounded-md overflow-hidden",
-      base: "bg-background border-r border-border hover:bg-accent",
+      container: "border border-border/50 rounded-md overflow-hidden",
+      base: "bg-background border-r border-border/50 hover:bg-accent",
       selected: "bg-primary text-primary-foreground border-primary",
     },
     solid: {
-      container: "border border-border rounded-md overflow-hidden",
+      container: "border border-border/50 rounded-md overflow-hidden",
       base: "bg-background hover:bg-accent",
       selected: "bg-primary text-primary-foreground",
     },
@@ -478,7 +478,7 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
               "disabled:cursor-not-allowed disabled:opacity-50",
               sizeClasses[size],
               isSelected ? variantClasses[variant].selected : variantClasses[variant].base,
-              variant === "outline" && !isLast && "border-r border-border",
+              variant === "outline" && !isLast && "border-r border-border/50",
               variant === "default" && "rounded-md",
               fullWidth && "flex-1",
             )}

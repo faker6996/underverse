@@ -86,14 +86,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           "bg-destructive/10 border-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
       },
       outlined: {
-        container: "bg-transparent border border-border hover:border-accent-foreground/30",
+        container: "bg-transparent border border-border/50 hover:border-accent-foreground/30",
         focus:
           "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
         error:
           "border-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
       },
       minimal: {
-        container: "bg-transparent border-0 border-b border-border hover:border-accent-foreground/30",
+        container: "bg-transparent border-0 border-b border-border/50 hover:border-accent-foreground/30",
         focus: "focus-visible:outline-none focus-visible:border-ring focus-visible:ring-0 rounded-none",
         error: "border-destructive focus-visible:outline-none focus-visible:border-destructive",
       },
@@ -545,7 +545,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
     const ss = stepperSizeStyles[inputSize];
 
     const stepperAddon = showSteppers ? (
-      <div className={cn("absolute right-0 inset-y-0 flex flex-col border-l border-border rounded-r-full overflow-hidden", ss.width)}>
+      <div className={cn("absolute right-0 inset-y-0 flex flex-col border-l border-border/50 rounded-r-full overflow-hidden", ss.width)}>
         <button
           type="button"
           onClick={handleIncrement}
@@ -666,9 +666,9 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       filled:
         "bg-muted/50 border border-transparent hover:bg-muted/70 focus-visible:outline-none focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
       outlined:
-        "bg-transparent border border-border hover:border-accent-foreground/30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
+        "bg-transparent border border-border/50 hover:border-accent-foreground/30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
       minimal:
-        "bg-transparent border-0 border-b border-border hover:border-accent-foreground/30 focus-visible:outline-none focus-visible:border-ring focus-visible:ring-0 rounded-none",
+        "bg-transparent border-0 border-b border-border/50 hover:border-accent-foreground/30 focus-visible:outline-none focus-visible:border-ring focus-visible:ring-0 rounded-none",
     };
 
     const resizeClasses = {

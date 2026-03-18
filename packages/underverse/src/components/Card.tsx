@@ -122,7 +122,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
           {footer && (
             <div
               className={cn(
-                "relative flex items-center p-4 md:p-6 pt-0 border-t border-border mt-4 max-md:mt-3 max-md:p-3 max-md:pt-0",
+                "relative flex items-center p-4 md:p-6 pt-0 border-t border-border/50 mt-4 max-md:mt-3 max-md:p-3 max-md:pt-0",
                 footerClassName,
               )}
             >

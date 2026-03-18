@@ -225,7 +225,7 @@ const Swatch: React.FC<{ color: string; onClick?: () => void; ariaLabel?: string
   return (
     <button
       type="button"
-      className={cn(sizeClasses[size], "rounded-lg border border-border shadow-sm hover:scale-110 transition-transform", onClick && "cursor-pointer")}
+      className={cn(sizeClasses[size], "rounded-lg border border-border/50 shadow-sm hover:scale-110 transition-transform", onClick && "cursor-pointer")}
       style={{ backgroundColor: color }}
       onClick={onClick}
       aria-label={ariaLabel}
@@ -373,7 +373,7 @@ export default function ColorPicker({
     >
       <div className="flex items-center gap-2">
         <span
-          className={cn("rounded-md border border-border shadow-sm", size === "sm" ? "h-4 w-4" : size === "lg" ? "h-6 w-6" : "h-5 w-5")}
+          className={cn("rounded-md border border-border/50 shadow-sm", size === "sm" ? "h-4 w-4" : size === "lg" ? "h-6 w-6" : "h-5 w-5")}
           style={{ backgroundColor: withAlpha ? `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})` : hexForInput }}
         />
         <span className="font-mono text-muted-foreground">{text}</span>
@@ -398,7 +398,7 @@ export default function ColorPicker({
         placement="bottom-start"
         matchTriggerWidth={variant === "minimal"}
         contentWidth={contentWidthByVariant[variant]}
-        contentClassName={cn("p-3 rounded-2xl md:rounded-3xl border border-border bg-card shadow-lg", contentClassName)}
+        contentClassName={cn("p-3 rounded-2xl md:rounded-3xl border border-border/50 bg-card shadow-lg", contentClassName)}
       >
         <div className="space-y-3">
           {/* Native input + eyedropper + copy + clear */}
@@ -408,12 +408,12 @@ export default function ColorPicker({
                 type="color"
                 value={hexForInput}
                 onChange={handleNativeChange}
-                className="h-9 w-9 rounded-lg cursor-pointer border border-border"
+                className="h-9 w-9 rounded-lg cursor-pointer border border-border/50"
               />
               <button
                 type="button"
                 onClick={tryEyedropper}
-                className={cn("h-9 px-3 rounded-lg border border-border text-xs hover:bg-accent/10 transition-colors flex items-center gap-1.5")}
+                className={cn("h-9 px-3 rounded-lg border border-border/50 text-xs hover:bg-accent/10 transition-colors flex items-center gap-1.5")}
               >
                 <Pipette className="w-3.5 h-3.5" />
                 {variant === "full" && "Pick"}
@@ -423,7 +423,7 @@ export default function ColorPicker({
                   type="button"
                   onClick={copyToClipboard}
                   className={cn(
-                    "h-9 px-3 rounded-lg border border-border text-xs hover:bg-accent/10 transition-colors flex items-center gap-1.5",
+                    "h-9 px-3 rounded-lg border border-border/50 text-xs hover:bg-accent/10 transition-colors flex items-center gap-1.5",
                     copied && "bg-success/10 border-success/30",
                   )}
                 >
@@ -435,7 +435,7 @@ export default function ColorPicker({
                 <button
                   type="button"
                   onClick={clear}
-                  className="ml-auto h-9 px-2 rounded-lg border border-border text-xs hover:bg-destructive/10 transition-colors flex items-center gap-1"
+                  className="ml-auto h-9 px-2 rounded-lg border border-border/50 text-xs hover:bg-destructive/10 transition-colors flex items-center gap-1"
                 >
                   <X className="w-3.5 h-3.5" />
                   {variant === "full" && "Clear"}
@@ -461,7 +461,7 @@ export default function ColorPicker({
                 type="button"
                 onClick={copyToClipboard}
                 className={cn(
-                  "h-9 w-9 rounded-lg border border-border hover:bg-accent/10 transition-colors flex items-center justify-center",
+                  "h-9 w-9 rounded-lg border border-border/50 hover:bg-accent/10 transition-colors flex items-center justify-center",
                   copied && "bg-success/10 border-success/30",
                 )}
               >

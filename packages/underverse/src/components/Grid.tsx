@@ -110,13 +110,13 @@ function joinAreas(areas?: string | string[]) {
 function getVariantClasses(variant: GridVariant = "default", outlined?: boolean): string {
   // Handle deprecated outlined prop
   if (outlined) {
-    return "rounded-2xl md:rounded-3xl bg-card text-card-foreground border border-border shadow-sm";
+    return "rounded-2xl md:rounded-3xl bg-card text-card-foreground border border-border/50 shadow-sm";
   }
 
   const variants: Record<GridVariant, string> = {
     default: "",
-    bordered: "border border-border rounded-2xl md:rounded-3xl",
-    card: "rounded-2xl md:rounded-3xl bg-card text-card-foreground border border-border shadow-sm",
+    bordered: "border border-border/50 rounded-2xl md:rounded-3xl",
+    card: "rounded-2xl md:rounded-3xl bg-card text-card-foreground border border-border/50 shadow-sm",
     flat: "bg-muted/30 rounded-2xl md:rounded-3xl",
     glass: "bg-background/80 backdrop-blur-sm border border-border/50 rounded-2xl md:rounded-3xl shadow-lg",
   };

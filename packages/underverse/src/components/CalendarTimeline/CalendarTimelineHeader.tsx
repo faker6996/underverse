@@ -209,7 +209,7 @@ export function CalendarTimelineHeader(props: {
                     />
                   </div>
                 </div>
-                <div className="p-3 border-t border-border flex justify-between items-center bg-muted/20">
+                <div className="p-3 border-t border-border/50 flex justify-between items-center bg-muted/20">
                   <Button
                     variant="ghost"
                     size="sm"

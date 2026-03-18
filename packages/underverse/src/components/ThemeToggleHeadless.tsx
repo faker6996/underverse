@@ -83,13 +83,13 @@ export default function ThemeToggleHeadless({
           {typeof window !== "undefined" && dropdownPosition &&
             createPortal(
               <div
-                className="z-9999 bg-card border border-border rounded-lg shadow-lg overflow-hidden"
+                className="z-9999 bg-card border border-border/50 rounded-lg shadow-lg overflow-hidden"
                 style={{ position: "absolute", top: dropdownPosition.top, left: dropdownPosition.left, width: dropdownPosition.width }}
                 onMouseDown={(e) => e.stopPropagation()}
                 role="menu"
               >
                 <div className="p-2">
-                  <div className="px-3 py-2 text-sm font-medium text-muted-foreground border-b border-border mb-2">
+                  <div className="px-3 py-2 text-sm font-medium text-muted-foreground border-b border-border/50 mb-2">
                     {labels?.heading ?? "Theme"}
                   </div>
                   {themes.map((opt) => {

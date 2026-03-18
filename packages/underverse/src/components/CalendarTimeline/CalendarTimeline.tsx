@@ -1334,7 +1334,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
     <div
       className={cn(
         "rounded-2xl md:rounded-3xl overflow-hidden bg-card text-card-foreground backdrop-blur-sm",
-        "border border-border shadow-sm md:hover:shadow-md",
+        "border border-border/50 shadow-sm md:hover:shadow-md",
         "transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft",
         densityClass,
         className,

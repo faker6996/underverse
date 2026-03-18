@@ -269,7 +269,7 @@ export const SlashCommandTrigger = ({ editor }: { editor: Editor }) => {
 
   return createPortal(
     <div
-      className="fixed z-50 rounded-2xl border border-border bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 zoom-in-95 slide-in-from-top-2"
+      className="fixed z-50 rounded-2xl border border-border/50 bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 zoom-in-95 slide-in-from-top-2"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
@@ -504,7 +504,7 @@ export const CustomBubbleMenu = ({ editor }: { editor: Editor }) => {
   return createPortal(
     <div
       ref={menuRef}
-      className="fixed z-50 flex rounded-2xl border border-border bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 zoom-in-95"
+      className="fixed z-50 flex rounded-2xl border border-border/50 bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 zoom-in-95"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
@@ -562,7 +562,7 @@ export const CustomFloatingMenu = ({ editor }: { editor: Editor }) => {
 
   return createPortal(
     <div
-      className="fixed z-50 rounded-2xl border border-border bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 slide-in-from-bottom-2"
+      className="fixed z-50 rounded-2xl border border-border/50 bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 slide-in-from-bottom-2"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,

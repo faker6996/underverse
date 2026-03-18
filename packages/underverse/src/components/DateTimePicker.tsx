@@ -301,7 +301,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className={cn(sizeStyles[size].padding, "border-t border-border flex justify-between items-center bg-muted/20")}>
+        <div className={cn(sizeStyles[size].padding, "border-t border-border/50 flex justify-between items-center bg-muted/20")}>
           <Button variant="ghost" size={sizeStyles[size].buttonSize} onClick={handleClear} className="text-muted-foreground hover:text-foreground">
             {clearLabel || t?.("clear") || "Clear"}
           </Button>

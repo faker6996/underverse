@@ -114,7 +114,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect, onClose }) =
     }, []);
 
     return (
-        <div className="w-96 bg-card border border-border rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-128">
+        <div className="w-96 bg-card border border-border/50 rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-128">
             {/* Header with Search */}
             <div className="p-3 border-b bg-muted/30 shrink-0">
                 <div className="relative">
@@ -126,7 +126,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect, onClose }) =
                         onChange={(e) => setSearch(e.target.value)}
                         className={cn(
                             "w-full pl-9 pr-9 py-2 rounded-lg",
-                            "bg-background border border-border",
+                            "bg-background border border-border/50",
                             "text-sm placeholder:text-muted-foreground",
                             "focus:outline-none focus:ring-2 focus:ring-primary/20"
                         )}

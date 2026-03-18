@@ -54,7 +54,7 @@ export function NotificationModal({ isOpen, onClose, notification, titleText, op
     <Modal isOpen={isOpen} onClose={onClose} title={titleText || t("notifications")} size="md">
       <div className="space-y-4">
         {/* Status indicator */}
-        <div className="flex items-center gap-2 pb-2 border-b border-border">
+        <div className="flex items-center gap-2 pb-2 border-b border-border/50">
           <div className={cn("w-2 h-2 rounded-full", !notification.is_read ? "bg-primary" : "bg-border")} />
           <span className="text-xs text-muted-foreground">{!notification.is_read ? t("newNotification") : t("readStatus")}</span>
         </div>
@@ -63,7 +63,7 @@ export function NotificationModal({ isOpen, onClose, notification, titleText, op
 
         {notification.body && <div className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">{notification.body}</div>}
 
-        <div className="text-xs text-muted-foreground border-t border-border pt-2">{formatTime(notification.created_at)}</div>
+        <div className="text-xs text-muted-foreground border-t border-border/50 pt-2">{formatTime(notification.created_at)}</div>
 
         {/* Actions */}
         <div className="flex gap-2 justify-end pt-2">
