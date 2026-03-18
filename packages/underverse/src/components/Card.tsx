@@ -8,9 +8,7 @@ const getPaddingInfo = (className?: string) => {
   if (!className) return { hasAll: false, hasX: false, hasY: false };
 
   // All-direction padding: p-*, [breakpoint]:p-* (including max-* variants)
-  const hasAll =
-    /(?:^|\s)p-[\d[]/.test(className) ||
-    /(?:^|\s)(?:\w+:)?p-[\d[]/.test(className);
+  const hasAll = /(?:^|\s)p-[\d[]/.test(className) || /(?:^|\s)(?:\w+:)?p-[\d[]/.test(className);
 
   // X-axis padding: px-, pl-, pr-, ps-, pe-
   const hasX = /\b(?:\w+:)?(?:px|pl|pr|ps|pe)-/.test(className);
@@ -71,7 +69,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         ref={ref}
         className={cn(
           "group rounded-2xl md:rounded-3xl bg-card text-card-foreground transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft max-md:rounded-xl",
-          "border border-border shadow-sm backdrop-blur-sm",
+          "border border-border/50 shadow-sm backdrop-blur-sm",
           hoverable && "md:hover:-translate-y-0.5 md:hover:border-primary/15 md:hover:shadow-md",
           clickable && "cursor-pointer active:translate-y-px active:bg-accent/5 md:hover:bg-accent/5 md:hover:shadow-md",
           className,
@@ -85,8 +83,8 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
             e.currentTarget.click();
           }
         }}
-        role={isInteractive ? role ?? "button" : role}
-        tabIndex={isInteractive ? tabIndex ?? 0 : tabIndex}
+        role={isInteractive ? (role ?? "button") : role}
+        tabIndex={isInteractive ? (tabIndex ?? 0) : tabIndex}
         {...rest}
       >
         <div className={cn("relative overflow-hidden rounded-2xl md:rounded-3xl max-md:rounded-xl", innerClassName)}>
@@ -111,16 +109,23 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
                   {title}
                 </h3>
               )}
-              {description && <p className="min-w-0 text-sm md:text-base text-muted-foreground leading-relaxed break-words [overflow-wrap:anywhere]">{description}</p>}
+              {description && (
+                <p className="min-w-0 text-sm md:text-base text-muted-foreground leading-relaxed break-words [overflow-wrap:anywhere]">
+                  {description}
+                </p>
+              )}
             </div>
           )}
 
-          {children && (
-            <div className={cn("relative", defaultPaddingX, defaultPaddingY, contentClassName)}>{children}</div>
-          )}
+          {children && <div className={cn("relative", defaultPaddingX, defaultPaddingY, contentClassName)}>{children}</div>}
 
           {footer && (
-            <div className={cn("relative flex items-center p-4 md:p-6 pt-0 border-t border-border mt-4 max-md:mt-3 max-md:p-3 max-md:pt-0", footerClassName)}>
+            <div
+              className={cn(
+                "relative flex items-center p-4 md:p-6 pt-0 border-t border-border mt-4 max-md:mt-3 max-md:p-3 max-md:pt-0",
+                footerClassName,
+              )}
+            >
               {footer}
             </div>
           )}
