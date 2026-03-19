@@ -60,21 +60,6 @@ const renderCases = [
     file: "AccessDenied.tsx",
     createElement: (mod) => React.createElement(mod.default, { title: "Forbidden", description: "Restricted zone" }),
   },
-  {
-    name: "LineChart",
-    file: "LineChart.tsx",
-    createElement: (mod) =>
-      React.createElement(mod.LineChart, {
-        data: [
-          { label: "Jan", value: 10 },
-          { label: "Feb", value: 18 },
-          { label: "Mar", value: 14 },
-        ],
-        width: 320,
-        height: 160,
-        animated: false,
-      }),
-  },
 ];
 
 test("large component modules can be imported from package source", async () => {

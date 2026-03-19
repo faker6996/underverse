@@ -110,11 +110,6 @@ const tocGroups: TocGroup[] = [
     ],
   },
   {
-    key: "charts",
-    labelKey: "tocGroups.charts",
-    sections: [{ id: "charts", labelKey: "sections.charts.title" }],
-  },
-  {
     key: "layout",
     labelKey: "tocGroups.layout",
     sections: [

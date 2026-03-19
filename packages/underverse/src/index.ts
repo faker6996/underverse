@@ -119,22 +119,6 @@ export { default as Grid } from "./components/Grid";
 export { GridItem } from "./components/Grid";
 export type { GridProps, GridItemProps } from "./components/Grid";
 
-// Charts (pure SVG, no external dependencies)
-export { LineChart } from "./components/LineChart";
-export type { LineChartProps, LineChartDataPoint, LineChartSeries } from "./components/LineChart";
-export { BarChart } from "./components/BarChart";
-export type { BarChartProps, BarChartDataPoint, BarChartSeries } from "./components/BarChart";
-export { PieChart } from "./components/PieChart";
-export type { PieChartProps, PieChartDataPoint } from "./components/PieChart";
-export { AreaChart } from "./components/AreaChart";
-export type { AreaChartProps, AreaChartDataPoint, AreaChartSeries } from "./components/AreaChart";
-export { Sparkline } from "./components/Sparkline";
-export type { SparklineProps, SparklineDataPoint } from "./components/Sparkline";
-export { RadarChart } from "./components/RadarChart";
-export type { RadarChartProps, RadarChartDataPoint, RadarChartSeries } from "./components/RadarChart";
-export { GaugeChart } from "./components/GaugeChart";
-export type { GaugeChartProps } from "./components/GaugeChart";
-
 // Misc
 export { default as ClientOnly } from "./components/ClientOnly";
 export * from "./components/Loading";

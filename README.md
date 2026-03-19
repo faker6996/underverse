@@ -157,19 +157,6 @@ underverse/
 | `OverlayScrollArea` | OverlayScrollbars-powered scroll area                  |
 | `Carousel`          | Image/content carousel                                 |
 
-### Charts & Data Visualization
-
-| Component      | Description          |
-| -------------- | -------------------- |
-| `AreaChart`    | Area chart           |
-| `BarChart`     | Bar chart            |
-| `LineChart`    | Line chart           |
-| `PieChart`     | Pie / donut chart    |
-| `RadarChart`   | Radar / spider chart |
-| `GaugeChart`   | Gauge / meter chart  |
-| `Sparkline`    | Inline sparkline     |
-| `ChartTooltip` | Shared chart tooltip |
-
 ### Special
 
 | Component              | Description                                                            |
