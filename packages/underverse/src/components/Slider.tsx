@@ -58,6 +58,41 @@ const SIZE_STYLES = {
 
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 
+function SliderTooltip({
+  displayValue,
+  position,
+  visible,
+  sizeClassName,
+  tooltipClassName,
+}: {
+  displayValue: string;
+  position: number;
+  visible: boolean;
+  sizeClassName: string;
+  tooltipClassName?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "absolute pointer-events-none transition-all duration-200 ease-out",
+        "bg-popover text-popover-foreground rounded-lg shadow-lg border border-border/50",
+        "whitespace-nowrap font-medium -translate-x-1/2 z-50",
+        sizeClassName,
+        visible ? "opacity-100 -translate-y-10 scale-100" : "opacity-0 -translate-y-8 scale-95",
+        tooltipClassName,
+      )}
+      style={{
+        left: `${position}%`,
+        bottom: "100%",
+      }}
+    >
+      {displayValue}
+      <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-4 border-transparent border-t-border" />
+      <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-[3px] border-transparent border-t-popover -mt-px" />
+    </div>
+  );
+}
+
 const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
   (
     {
@@ -162,6 +197,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
     const rangeEndPct = ((normalizedRange[1] - min) / denom) * 100;
 
     const sizeStyles = SIZE_STYLES[size];
+    const tooltipVisible = showTooltip && !disabled && (isHovering || isDragging);
 
     const displayValue = React.useMemo(() => {
       if (isRange) {
@@ -250,34 +286,6 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
       // For now, defaulting to horizontal
     }
 
-    // Tooltip component
-    const Tooltip = ({ value, position }: { value: number; position: number }) => {
-      const shouldShow = showTooltip && !disabled && (isHovering || isDragging);
-      const displayVal = formatValue ? formatValue(value) : value.toString();
-
-      return (
-        <div
-          className={cn(
-            "absolute pointer-events-none transition-all duration-200 ease-out",
-            "bg-popover text-popover-foreground rounded-lg shadow-lg border border-border/50",
-            "whitespace-nowrap font-medium -translate-x-1/2 z-50",
-            sizeStyles.tooltip,
-            shouldShow ? "opacity-100 -translate-y-10 scale-100" : "opacity-0 -translate-y-8 scale-95",
-            tooltipClassName,
-          )}
-          style={{
-            left: `${position}%`,
-            bottom: "100%",
-          }}
-        >
-          {displayVal}
-          {/* Arrow */}
-          <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-4 border-transparent border-t-border" />
-          <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-[3px] border-transparent border-t-popover -mt-px" />
-        </div>
-      );
-    };
-
     return (
       <div className={cn("w-full space-y-2", containerClassName)}>
         {/* Label and value display */}
@@ -322,11 +330,31 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
           </div>
 
           {/* Tooltips */}
-          {!isRange && <Tooltip value={currentValue} position={percentage} />}
+          {!isRange && (
+            <SliderTooltip
+              displayValue={formatValue ? formatValue(currentValue) : currentValue.toString()}
+              position={percentage}
+              visible={tooltipVisible}
+              sizeClassName={sizeStyles.tooltip}
+              tooltipClassName={tooltipClassName}
+            />
+          )}
           {isRange && (
             <>
-              <Tooltip value={normalizedRange[0]} position={rangeStartPct} />
-              <Tooltip value={normalizedRange[1]} position={rangeEndPct} />
+              <SliderTooltip
+                displayValue={formatValue ? formatValue(normalizedRange[0]) : normalizedRange[0].toString()}
+                position={rangeStartPct}
+                visible={tooltipVisible}
+                sizeClassName={sizeStyles.tooltip}
+                tooltipClassName={tooltipClassName}
+              />
+              <SliderTooltip
+                displayValue={formatValue ? formatValue(normalizedRange[1]) : normalizedRange[1].toString()}
+                position={rangeEndPct}
+                visible={tooltipVisible}
+                sizeClassName={sizeStyles.tooltip}
+                tooltipClassName={tooltipClassName}
+              />
             </>
           )}
 

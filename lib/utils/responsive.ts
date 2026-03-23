@@ -1,5 +1,6 @@
 // lib/utils/responsive.ts
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
+import { useHydrated } from './useHydrated';
 
 /**
  * Responsive breakpoints matching Tailwind CSS defaults
@@ -31,12 +32,9 @@ export const useResponsive = () => {
   });
 
   const [deviceType, setDeviceType] = useState<'mobile' | 'tablet' | 'desktop'>('mobile');
-  const [isHydrated, setIsHydrated] = useState(false);
+  const isHydrated = useHydrated();
 
   useEffect(() => {
-    // Set hydrated flag to prevent hydration mismatch
-    setIsHydrated(true);
-    
     const updateSize = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
@@ -83,25 +81,18 @@ export const useResponsive = () => {
  * Hook to detect if device supports hover (non-touch devices)
  */
 export const useHoverCapable = () => {
-  const [canHover, setCanHover] = useState(false);
-  const [isHydrated, setIsHydrated] = useState(false);
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      if (typeof window === 'undefined') return () => {};
 
-  useEffect(() => {
-    setIsHydrated(true);
-    
-    // Check if device supports hover
-    const mediaQuery = window.matchMedia('(hover: hover)');
-    setCanHover(mediaQuery.matches);
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      setCanHover(e.matches);
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
-  return isHydrated ? canHover : false;
+      const mediaQuery = window.matchMedia('(hover: hover)');
+      const handleChange = () => onStoreChange();
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    },
+    () => window.matchMedia('(hover: hover)').matches,
+    () => false,
+  );
 };
 
 /**

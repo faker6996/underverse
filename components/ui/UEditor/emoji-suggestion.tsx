@@ -4,7 +4,7 @@ import { Extension } from "@tiptap/core";
 import Suggestion from "@tiptap/suggestion";
 import { ReactRenderer } from "@tiptap/react";
 import { PluginKey } from "@tiptap/pm/state";
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import React, { forwardRef, useImperativeHandle } from "react";
 import type { Editor } from "@tiptap/core";
 import type { SuggestionProps } from "@tiptap/suggestion";
 import { Smile } from "lucide-react";
@@ -26,12 +26,25 @@ type EmojiListRef = {
     onKeyDown: (props: { event: KeyboardEvent }) => boolean;
 };
 
-const EmojiList = forwardRef<EmojiListRef, EmojiListProps>((props, ref) => {
-    const [selectedIndex, setSelectedIndex] = useState(0);
+function useResettingIndex(resetToken: unknown) {
+    const [state, setState] = React.useState<{ resetToken: unknown; index: number }>({ resetToken, index: 0 });
+    const selectedIndex = Object.is(state.resetToken, resetToken) ? state.index : 0;
 
-    useEffect(() => {
-        setSelectedIndex(0);
-    }, [props.items]);
+    const setSelectedIndex = React.useCallback((nextIndex: React.SetStateAction<number>) => {
+        setState((prev) => {
+            const prevIndex = Object.is(prev.resetToken, resetToken) ? prev.index : 0;
+            return {
+                resetToken,
+                index: typeof nextIndex === "function" ? (nextIndex as (value: number) => number)(prevIndex) : nextIndex,
+            };
+        });
+    }, [resetToken]);
+
+    return [selectedIndex, setSelectedIndex] as const;
+}
+
+const EmojiList = forwardRef<EmojiListRef, EmojiListProps>((props, ref) => {
+    const [selectedIndex, setSelectedIndex] = useResettingIndex(props.items);
 
     useImperativeHandle(ref, () => ({
         onKeyDown: ({ event }: { event: KeyboardEvent }) => {

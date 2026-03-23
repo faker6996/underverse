@@ -25,6 +25,23 @@ interface DropdownMenuProps {
   }>;
 }
 
+function useResettingIndex(resetToken: unknown) {
+  const [state, setState] = React.useState<{ resetToken: unknown; index: number }>({ resetToken, index: -1 });
+  const activeIndex = Object.is(state.resetToken, resetToken) ? state.index : -1;
+
+  const setActiveIndex = React.useCallback((nextIndex: React.SetStateAction<number>) => {
+    setState((prev) => {
+      const prevIndex = Object.is(prev.resetToken, resetToken) ? prev.index : -1;
+      return {
+        resetToken,
+        index: typeof nextIndex === "function" ? (nextIndex as (value: number) => number)(prevIndex) : nextIndex,
+      };
+    });
+  }, [resetToken]);
+
+  return [activeIndex, setActiveIndex] as const;
+}
+
 const DropdownMenu: React.FC<DropdownMenuProps> = ({
   trigger,
   children,
@@ -38,21 +55,15 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   items,
 }) => {
   const [internalOpen, setInternalOpen] = useState(false);
+  const open = isOpen !== undefined ? isOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
   const triggerRef = React.useRef<HTMLElement>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
   const itemsRef = React.useRef<HTMLButtonElement[]>([]);
-  const [activeIndex, setActiveIndex] = useState<number>(-1);
+  const [activeIndex, setActiveIndex] = useResettingIndex(open);
 
   // Inject ShadCN animations
   useShadCNAnimations();
-
-  const open = isOpen !== undefined ? isOpen : internalOpen;
-  const setOpen = onOpenChange || setInternalOpen;
-
-  // Reset keyboard focus index when opened
-  React.useEffect(() => {
-    if (open) setActiveIndex(-1);
-  }, [open]);
 
   // Keyboard navigation inside the menu (Arrow keys/Home/End)
   React.useEffect(() => {
@@ -95,7 +106,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
     return () => {
       document.removeEventListener("keydown", handleKeyNav);
     };
-  }, [open, activeIndex]);
+  }, [open, activeIndex, setActiveIndex]);
 
   const handleItemClick = (itemOnClick: () => void) => {
     itemOnClick();
@@ -140,36 +151,47 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
     </div>
   );
 
-  const enhancedTrigger = React.cloneElement(trigger, {
-    ref: triggerRef,
-    "aria-haspopup": "menu",
-    "aria-expanded": open,
-    onKeyDown: (e: React.KeyboardEvent) => {
-      if (disabled) return;
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setOpen(true);
-        requestAnimationFrame(() => itemsRef.current.find((el) => el && !el.disabled)?.focus());
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setOpen(true);
-        requestAnimationFrame(() => {
-          const enabled = itemsRef.current.filter((el) => el && !el.disabled);
-          enabled[enabled.length - 1]?.focus();
-        });
-      } else if (e.key === "Escape") {
-        e.preventDefault();
-        setOpen(false);
-      }
-      if (typeof (trigger.props as any)?.onKeyDown === "function") {
-        (trigger.props as any).onKeyDown(e);
-      }
-    },
-    className: cn(
-      (trigger.props as any)?.className,
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-    ),
-  } as any);
+  const TriggerComponent = trigger.type as React.ElementType;
+  const triggerProps = trigger.props as any;
+  const enhancedTrigger = (
+    <TriggerComponent
+      {...triggerProps}
+      aria-haspopup="menu"
+      aria-expanded={open}
+      onKeyDown={(e: React.KeyboardEvent) => {
+        triggerRef.current = e.currentTarget as HTMLElement;
+        if (disabled) return;
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          setOpen(true);
+          requestAnimationFrame(() => itemsRef.current.find((el) => el && !el.disabled)?.focus());
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          setOpen(true);
+          requestAnimationFrame(() => {
+            const enabled = itemsRef.current.filter((el) => el && !el.disabled);
+            enabled[enabled.length - 1]?.focus();
+          });
+        } else if (e.key === "Escape") {
+          e.preventDefault();
+          setOpen(false);
+        }
+        if (typeof triggerProps.onKeyDown === "function") {
+          triggerProps.onKeyDown(e);
+        }
+      }}
+      onFocus={(e: React.FocusEvent) => {
+        triggerRef.current = e.currentTarget as HTMLElement;
+        if (typeof triggerProps.onFocus === "function") {
+          triggerProps.onFocus(e);
+        }
+      }}
+      className={cn(
+        triggerProps.className,
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+      )}
+    />
+  );
 
   return (
     <Popover

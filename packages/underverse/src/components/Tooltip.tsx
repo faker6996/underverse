@@ -3,6 +3,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../utils/cn";
+import { useHydrated } from "../hooks/useHydrated";
 
 type Side = "top" | "right" | "bottom" | "left";
 type TooltipPlacement = Side;
@@ -24,19 +25,6 @@ const variantStyles = {
   error: "bg-destructive text-destructive-foreground border-destructive/20",
   success: "bg-success text-success-foreground border-success/20",
 };
-
-function assignRef<T>(ref: React.Ref<T> | undefined, value: T) {
-  if (!ref) return;
-  if (typeof ref === "function") {
-    ref(value);
-    return;
-  }
-  try {
-    (ref as React.MutableRefObject<T>).current = value;
-  } catch {
-    // ignore
-  }
-}
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
@@ -110,23 +98,27 @@ export const Tooltip: React.FC<TooltipProps> = ({
   variant = "default",
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [isMounted, setIsMounted] = React.useState(false);
+  const isMounted = useHydrated();
   const triggerRef = React.useRef<HTMLElement>(null);
   const positionerRef = React.useRef<HTMLDivElement>(null);
   const panelRef = React.useRef<HTMLDivElement>(null);
   const timeoutRef = React.useRef<NodeJS.Timeout | undefined>(undefined);
   const lastAppliedRef = React.useRef<{ top: number; left: number; side: Side } | null>(null);
-
-  // Ensure client-side only
-  React.useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const triggerSelector = React.useId();
 
   const delayOpen = typeof delay === "object" ? delay.open || 700 : delay;
   const delayClose = typeof delay === "object" ? delay.close || 300 : delay;
 
   const offset = 8;
   const padding = 8;
+
+  React.useLayoutEffect(() => {
+    if (typeof document === "undefined") return;
+    const triggerEl = document.querySelector<HTMLElement>(`[data-underverse-tooltip-trigger="${triggerSelector}"]`);
+    if (triggerEl) {
+      triggerRef.current = triggerEl;
+    }
+  }, [children, triggerSelector]);
 
   const updatePosition = React.useCallback(() => {
     const triggerEl = triggerRef.current;
@@ -245,28 +237,36 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   return (
     <>
-      {React.cloneElement(children, {
-        ref: (node: HTMLElement | null) => {
-          triggerRef.current = node;
-          assignRef((children.props as any)?.ref, node);
-        },
-        onMouseEnter: (e: React.MouseEvent) => {
-          handleMouseEnter();
-          if (typeof (children.props as any)?.onMouseEnter === "function") (children.props as any).onMouseEnter(e);
-        },
-        onMouseLeave: (e: React.MouseEvent) => {
-          handleMouseLeave();
-          if (typeof (children.props as any)?.onMouseLeave === "function") (children.props as any).onMouseLeave(e);
-        },
-        onFocus: (e: React.FocusEvent) => {
-          handleFocus();
-          if (typeof (children.props as any)?.onFocus === "function") (children.props as any).onFocus(e);
-        },
-        onBlur: (e: React.FocusEvent) => {
-          handleBlur();
-          if (typeof (children.props as any)?.onBlur === "function") (children.props as any).onBlur(e);
-        },
-      } as any)}
+      {(() => {
+        const TriggerComponent = children.type as React.ElementType;
+        const triggerProps = children.props as any;
+
+        return (
+          <TriggerComponent
+            {...triggerProps}
+            data-underverse-tooltip-trigger={triggerSelector}
+            onMouseEnter={(e: React.MouseEvent) => {
+              triggerRef.current = e.currentTarget as HTMLElement;
+              handleMouseEnter();
+              if (typeof triggerProps.onMouseEnter === "function") triggerProps.onMouseEnter(e);
+            }}
+            onMouseLeave={(e: React.MouseEvent) => {
+              triggerRef.current = e.currentTarget as HTMLElement;
+              handleMouseLeave();
+              if (typeof triggerProps.onMouseLeave === "function") triggerProps.onMouseLeave(e);
+            }}
+            onFocus={(e: React.FocusEvent) => {
+              triggerRef.current = e.currentTarget as HTMLElement;
+              handleFocus();
+              if (typeof triggerProps.onFocus === "function") triggerProps.onFocus(e);
+            }}
+            onBlur={(e: React.FocusEvent) => {
+              handleBlur();
+              if (typeof triggerProps.onBlur === "function") triggerProps.onBlur(e);
+            }}
+          />
+        );
+      })()}
       {isMounted &&
         isOpen &&
         createPortal(

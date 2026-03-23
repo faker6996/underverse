@@ -195,13 +195,13 @@ export default function TableOfContents() {
       .filter((g) => g.sections.length > 0);
   }, [search, t]);
 
-  // Auto-expand group containing active item
-  useEffect(() => {
-    if (!activeId) return;
-    const group = tocGroups.find((g) => g.sections.some((s) => s.id === activeId));
-    if (group && !expandedGroups.has(group.key)) {
-      setExpandedGroups((prev) => new Set([...prev, group.key]));
-    }
+  const effectiveExpandedGroups = useMemo(() => {
+    if (!activeId) return expandedGroups;
+
+    const group = tocGroups.find((candidate) => candidate.sections.some((section) => section.id === activeId));
+    if (!group || expandedGroups.has(group.key)) return expandedGroups;
+
+    return new Set([...expandedGroups, group.key]);
   }, [activeId, expandedGroups]);
 
   // IntersectionObserver to auto-activate section on scroll
@@ -301,7 +301,7 @@ export default function TableOfContents() {
         {/* Grouped Sections */}
         <div className="space-y-1 mt-3">
           {filteredGroups.map((group) => {
-            const isExpanded = isSearching || expandedGroups.has(group.key);
+            const isExpanded = isSearching || effectiveExpandedGroups.has(group.key);
             const hasActiveItem = group.sections.some((s) => s.id === activeId);
 
             return (

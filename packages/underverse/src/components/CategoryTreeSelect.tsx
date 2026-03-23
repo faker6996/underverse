@@ -83,6 +83,19 @@ const defaultLabels: Required<CategoryTreeSelectLabels> = {
   noResultsText: "No results found",
 };
 
+function getInitialExpandedNodes(categories: Category[], defaultExpanded: boolean, viewOnly: boolean, inline: boolean) {
+  if (!(viewOnly || inline) || !defaultExpanded) return new Set<number>();
+
+  const parentIds = new Set<number>();
+  for (const category of categories) {
+    if (typeof category.parent_id === "number") {
+      parentIds.add(category.parent_id);
+    }
+  }
+
+  return parentIds;
+}
+
 export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   const {
     id,
@@ -109,7 +122,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   } = props;
 
   const [isOpen, setIsOpen] = useState(false);
-  const [expandedNodes, setExpandedNodes] = useState<Set<number>>(new Set());
+  const [expandedNodes, setExpandedNodes] = useState<Set<number>>(() => getInitialExpandedNodes(categories, defaultExpanded, viewOnly, inline));
   const [query, setQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const dropdownViewportRef = useRef<HTMLDivElement | null>(null);
@@ -202,11 +215,6 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     return visible;
   }, [byId, categories, childrenMap, isSearchMode, normalizedQuery]);
 
-  // Clear search query when dropdown closes (keeps inline/viewOnly mode persistent)
-  useEffect(() => {
-    if (!isOpen) setQuery("");
-  }, [isOpen]);
-
   // Auto-focus search input when dropdown opens (when enabled)
   useEffect(() => {
     if (!isOpen) return;
@@ -214,14 +222,6 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     const t = setTimeout(() => searchInputRef.current?.focus(), 50);
     return () => clearTimeout(t);
   }, [isOpen, isSearchEnabled]);
-
-  // Initialize expanded nodes
-  useEffect(() => {
-    if ((viewOnly || inline) && defaultExpanded) {
-      const allParentIds = categories.filter((c) => childrenMap.has(c.id)).map((c) => c.id);
-      setExpandedNodes(new Set(allParentIds));
-    }
-  }, [viewOnly, inline, defaultExpanded, categories, childrenMap]);
 
   const toggleExpand = (id: number) => {
     if (isSearchMode) return;
@@ -256,7 +256,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
       }
       // Close dropdown if not inline
       if (!inline) {
-        setIsOpen(false);
+        handleOpenChange(false);
       }
     } else {
       // Multi select mode
@@ -426,18 +426,16 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     return parentCategories.filter((c) => visibleIds?.has(c.id));
   }, [isSearchMode, parentCategories, visibleIds]);
 
-  const effectiveChildrenMap = useMemo(() => {
-    if (!isSearchMode || !visibleIds) return childrenMap;
-
-    const next = new Map<number, Category[]>();
+  let effectiveChildrenMap = childrenMap;
+  if (isSearchMode && visibleIds) {
+    effectiveChildrenMap = new Map<number, Category[]>();
     for (const [parentId, children] of childrenMap.entries()) {
-      next.set(
+      effectiveChildrenMap.set(
         parentId,
         children.filter((child) => visibleIds.has(child.id)),
       );
     }
-    return next;
-  }, [childrenMap, isSearchMode, visibleIds]);
+  }
 
   // Render tree content
   const renderTreeContent = () => (
@@ -578,7 +576,14 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     event.preventDefault();
     event.stopPropagation();
     clearSelection();
-    setIsOpen(false);
+    handleOpenChange(false);
+  };
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    setIsOpen(nextOpen);
+    if (!nextOpen) {
+      setQuery("");
+    }
   };
 
   // Get display text based on selection
@@ -621,7 +626,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
       {renderLabel()}
       <Popover
         open={isOpen}
-        onOpenChange={setIsOpen}
+        onOpenChange={handleOpenChange}
         disabled={disabled}
         placement="bottom-start"
         matchTriggerWidth

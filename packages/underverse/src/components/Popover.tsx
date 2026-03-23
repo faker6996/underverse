@@ -26,19 +26,6 @@ interface PopoverProps {
 type Side = "top" | "bottom" | "left" | "right";
 type Align = "start" | "end";
 
-function assignRef<T>(ref: React.Ref<T> | undefined, value: T) {
-  if (!ref) return;
-  if (typeof ref === "function") {
-    ref(value);
-    return;
-  }
-  try {
-    (ref as React.MutableRefObject<T>).current = value;
-  } catch {
-    // ignore
-  }
-}
-
 function getTransformOrigin(side: Side, align: Align) {
   if (side === "top") return `${align === "end" ? "right" : "left"} bottom`;
   if (side === "bottom") return `${align === "end" ? "right" : "left"} top`;
@@ -184,8 +171,17 @@ export const Popover: React.FC<PopoverProps> = ({
 
   const offset = 4;
   const padding = 8;
+  const triggerSelector = React.useId();
 
   const initialPlacement = React.useMemo(() => normalizePlacement(placement), [placement]);
+
+  React.useLayoutEffect(() => {
+    if (typeof document === "undefined") return;
+    const triggerEl = document.querySelector<HTMLElement>(`[data-underverse-popover-trigger="${triggerSelector}"]`);
+    if (triggerEl) {
+      triggerRef.current = triggerEl;
+    }
+  }, [triggerSelector, trigger]);
 
   const updatePosition = React.useCallback(() => {
     const triggerEl = triggerRef.current;
@@ -399,29 +395,36 @@ export const Popover: React.FC<PopoverProps> = ({
   return (
     <>
       {(() => {
-        const triggerEl = trigger as React.ReactElement<any>;
-        return React.cloneElement(triggerEl, {
-          ref: (node: HTMLElement | null) => {
-            triggerRef.current = node;
-            // React 19: `ref` is a regular prop (access via props).
-            assignRef((triggerEl.props as any)?.ref, node);
-          },
-          onClick: (e: React.MouseEvent) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleTriggerClick();
-            // Call original onClick if exists
-            if (triggerEl.props && typeof triggerEl.props.onClick === "function") {
-              triggerEl.props.onClick(e);
-            }
-          },
-          "aria-expanded": isOpen,
-          "aria-haspopup": triggerEl.props?.["aria-haspopup"] ?? "dialog",
-          className: cn(
-            triggerEl.props?.className,
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-          ),
-        } as any);
+        const TriggerComponent = trigger.type as React.ElementType;
+        const triggerProps = trigger.props as any;
+
+        return (
+          <TriggerComponent
+            {...triggerProps}
+            data-underverse-popover-trigger={triggerSelector}
+            onClick={(e: React.MouseEvent) => {
+              triggerRef.current = e.currentTarget as HTMLElement;
+              e.preventDefault();
+              e.stopPropagation();
+              handleTriggerClick();
+              if (typeof triggerProps.onClick === "function") {
+                triggerProps.onClick(e);
+              }
+            }}
+            onFocus={(e: React.FocusEvent) => {
+              triggerRef.current = e.currentTarget as HTMLElement;
+              if (typeof triggerProps.onFocus === "function") {
+                triggerProps.onFocus(e);
+              }
+            }}
+            aria-expanded={isOpen}
+            aria-haspopup={triggerProps["aria-haspopup"] ?? "dialog"}
+            className={cn(
+              triggerProps.className,
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            )}
+          />
+        );
       })()}
       {popoverContent}
     </>

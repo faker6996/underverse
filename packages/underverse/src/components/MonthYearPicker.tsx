@@ -324,10 +324,8 @@ function WheelColumn({
 
   const currentVirtual = React.useMemo(() => {
     if (!loop || items.length <= 0) return valueIndex;
-    const fallback = baseOffset + valueIndex;
-    const from = lastVirtualIndexRef.current ?? fallback;
-    return getNearestVirtualIndex(valueIndex, from);
-  }, [baseOffset, getNearestVirtualIndex, items.length, loop, valueIndex]);
+    return baseOffset + valueIndex;
+  }, [baseOffset, items.length, loop, valueIndex]);
 
   const commitFromScrollTop = React.useCallback(
     (behavior: ScrollBehavior) => {

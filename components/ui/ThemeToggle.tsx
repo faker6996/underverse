@@ -4,22 +4,18 @@ import { Moon, Sun, Monitor } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import Button from "./Button";
 import { cn } from "@/lib/utils/cn";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "@/lib/i18n/translation-adapter";
+import { useHydrated } from "@/lib/utils/useHydrated";
 
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const isHydrated = useHydrated();
   const t = useTranslations("Common");
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
-
-  // Avoid hydration mismatch by only showing theme-dependent content after mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const themes = [
     {
@@ -40,7 +36,7 @@ export default function ThemeToggle() {
   ];
 
   // Always show Monitor icon during SSR/before mount to avoid hydration mismatch
-  const currentTheme = mounted ? themes.find((t) => t.value === theme) || themes[2] : themes[2];
+  const currentTheme = isHydrated ? themes.find((t) => t.value === theme) || themes[2] : themes[2];
   const CurrentIcon = currentTheme.icon;
 
   const calculatePosition = () => {

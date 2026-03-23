@@ -93,13 +93,26 @@ type CommandListRef = {
   onKeyDown: (props: { event: KeyboardEvent }) => boolean;
 };
 
-const CommandList = forwardRef<CommandListRef, CommandListProps>((props, ref) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const listRef = useRef<HTMLDivElement>(null);
+function useResettingIndex(resetToken: unknown) {
+  const [state, setState] = React.useState<{ resetToken: unknown; index: number }>({ resetToken, index: 0 });
+  const selectedIndex = Object.is(state.resetToken, resetToken) ? state.index : 0;
 
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [props.items]);
+  const setSelectedIndex = React.useCallback((nextIndex: React.SetStateAction<number>) => {
+    setState((prev) => {
+      const prevIndex = Object.is(prev.resetToken, resetToken) ? prev.index : 0;
+      return {
+        resetToken,
+        index: typeof nextIndex === "function" ? (nextIndex as (value: number) => number)(prevIndex) : nextIndex,
+      };
+    });
+  }, [resetToken]);
+
+  return [selectedIndex, setSelectedIndex] as const;
+}
+
+const CommandList = forwardRef<CommandListRef, CommandListProps>((props, ref) => {
+  const [selectedIndex, setSelectedIndex] = useResettingIndex(props.items);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const selectedElement = listRef.current?.querySelector<HTMLElement>(`[data-index="${selectedIndex}"]`);

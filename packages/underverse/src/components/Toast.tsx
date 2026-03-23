@@ -92,11 +92,11 @@ interface ToastComponentProps {
 }
 
 const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [progress, setProgress] = useState(100);
   const [paused, setPaused] = useState(false);
   const total = toast.duration && toast.duration > 0 ? toast.duration : 5000;
-  const endTsRef = useRef<number>(Date.now() + total);
+  const endTsRef = useRef<number>(0);
   const remainingRef = useRef<number>(total);
   const pausedRef = useRef(false);
 
@@ -106,7 +106,6 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
   }, [onRemove, toast.id]);
 
   useEffect(() => {
-    setIsVisible(true);
     if (toast.duration === 0) return;
     remainingRef.current = total;
     endTsRef.current = Date.now() + total;

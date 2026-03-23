@@ -6,15 +6,6 @@ const config = [
     ignores: ["packages/underverse/dist/**"],
   },
   {
-    rules: {
-      "react-hooks/set-state-in-effect": "off",
-      "react-hooks/purity": "off",
-      "react-hooks/refs": "off",
-      "react-hooks/preserve-manual-memoization": "off",
-      "react-hooks/static-components": "off",
-    },
-  },
-  {
     files: ["packages/underverse/**/*.{js,jsx,ts,tsx}"],
     rules: {
       "@next/next/no-img-element": "off",

@@ -39,9 +39,26 @@ type SlashCommand = {
   action: () => void;
 };
 
+function useResettingIndex(resetToken: unknown) {
+  const [state, setState] = React.useState<{ resetToken: unknown; index: number }>({ resetToken, index: 0 });
+  const selectedIndex = Object.is(state.resetToken, resetToken) ? state.index : 0;
+
+  const setSelectedIndex = React.useCallback((nextIndex: React.SetStateAction<number>) => {
+    setState((prev) => {
+      const prevIndex = Object.is(prev.resetToken, resetToken) ? prev.index : 0;
+      return {
+        resetToken,
+        index: typeof nextIndex === "function" ? (nextIndex as (value: number) => number)(prevIndex) : nextIndex,
+      };
+    });
+  }, [resetToken]);
+
+  return [selectedIndex, setSelectedIndex] as const;
+}
+
 const SlashCommandMenu = ({ editor, onClose, filterText = "" }: { editor: Editor; onClose: () => void; filterText?: string }) => {
   const t = useSmartTranslations("UEditor");
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useResettingIndex(filterText);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const allCommands = useMemo<SlashCommand[]>(
@@ -123,13 +140,9 @@ const SlashCommandMenu = ({ editor, onClose, filterText = "" }: { editor: Editor
   }, [allCommands, filterText]);
 
   useEffect(() => {
-    setSelectedIndex(0);
-  }, [filterText]);
-
-  useEffect(() => {
     const selectedElement = menuRef.current?.querySelector(`[data-index="${selectedIndex}"]`);
     selectedElement?.scrollIntoView({ block: "nearest" });
-  }, [selectedIndex]);
+  }, [commands, selectedIndex, setSelectedIndex]);
 
   const selectCommand = useCallback(
     (index: number) => {
@@ -163,7 +176,7 @@ const SlashCommandMenu = ({ editor, onClose, filterText = "" }: { editor: Editor
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [commands, selectedIndex, selectCommand, onClose]);
+  }, [commands, onClose, selectCommand, selectedIndex, setSelectedIndex]);
 
   if (commands.length === 0) {
     return <div className="w-72 p-4 text-center text-muted-foreground text-sm">{t("slashCommand.noResults")}</div>;

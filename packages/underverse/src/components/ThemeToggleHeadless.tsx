@@ -3,8 +3,9 @@
 import { Moon, Sun, Monitor } from "lucide-react";
 import Button from "./Button";
 import { cn } from "../utils/cn";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useHydrated } from "../hooks/useHydrated";
 
 export type ThemeMode = "light" | "dark" | "system";
 
@@ -27,11 +28,9 @@ export default function ThemeToggleHeadless({
   className,
 }: ThemeToggleHeadlessProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const isHydrated = useHydrated();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
-
-  useEffect(() => setMounted(true), []);
 
   const themes = [
     { value: "light" as const, label: labels?.light ?? "Light", icon: Sun },
@@ -39,7 +38,7 @@ export default function ThemeToggleHeadless({
     { value: "system" as const, label: labels?.system ?? "System", icon: Monitor },
   ];
 
-  const current = mounted ? themes.find((t) => t.value === theme) || themes[2] : themes[2];
+  const current = isHydrated ? themes.find((t) => t.value === theme) || themes[2] : themes[2];
   const CurrentIcon = current.icon;
 
   const calculatePosition = () => {
@@ -126,4 +125,3 @@ export default function ThemeToggleHeadless({
     </div>
   );
 }
-

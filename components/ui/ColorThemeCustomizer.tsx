@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Palette, RotateCcw, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import Button from "./Button";
 import { createPortal } from "react-dom";
+import { useHydrated } from "@/lib/utils/useHydrated";
 
 // Convert hex to RGB
 function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
@@ -63,8 +64,11 @@ const DEFAULT_COLOR = "3B82F6";
 
 export default function ColorThemeCustomizer() {
   const [isOpen, setIsOpen] = useState(false);
-  const [hexColor, setHexColor] = useState(DEFAULT_COLOR);
-  const [mounted, setMounted] = useState(false);
+  const [hexColor, setHexColor] = useState(() => {
+    if (typeof window === "undefined") return DEFAULT_COLOR;
+    return localStorage.getItem("customPrimaryColor")?.replace("#", "").toUpperCase() ?? DEFAULT_COLOR;
+  });
+  const isHydrated = useHydrated();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
 
@@ -80,7 +84,7 @@ export default function ColorThemeCustomizer() {
     };
   };
 
-  function applyColor(hex: string) {
+  const applyColor = useCallback((hex: string) => {
     const cleanHex = hex.replace("#", "");
     const oklch = hexToOklch(cleanHex);
 
@@ -110,17 +114,16 @@ export default function ColorThemeCustomizer() {
 
     // Save to localStorage
     localStorage.setItem("customPrimaryColor", cleanHex);
-  }
+  }, []);
 
   useEffect(() => {
-    setMounted(true);
-    // Load saved color
+    if (!isHydrated) return;
+
     const saved = localStorage.getItem("customPrimaryColor");
     if (saved) {
-      setHexColor(saved);
       applyColor(saved);
     }
-  }, []);
+  }, [applyColor, isHydrated]);
 
   const handleApply = () => {
     applyColor(hexColor);
@@ -167,7 +170,7 @@ export default function ColorThemeCustomizer() {
     }
   }, [isOpen]);
 
-  if (!mounted) return null;
+  if (!isHydrated) return null;
 
   const previewColor = `#${hexColor}`;
 
