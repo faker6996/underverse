@@ -128,28 +128,24 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
       containerClassName: "bg-success/5 border-success/30",
       iconClassName: "text-success",
       iconBgClassName: "bg-success/15",
-      accentBarClassName: "bg-success",
     },
     error: {
       icon: AlertCircle,
       containerClassName: "bg-destructive/5 border-destructive/30",
       iconClassName: "text-destructive",
       iconBgClassName: "bg-destructive/15",
-      accentBarClassName: "bg-destructive",
     },
     warning: {
       icon: AlertTriangle,
       containerClassName: "bg-warning/5 border-warning/30",
       iconClassName: "text-warning",
       iconBgClassName: "bg-warning/15",
-      accentBarClassName: "bg-warning",
     },
     info: {
       icon: Info,
       containerClassName: "bg-info/5 border-info/30",
       iconClassName: "text-info",
       iconBgClassName: "bg-info/15",
-      accentBarClassName: "bg-info",
     },
   };
 
@@ -159,7 +155,7 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
   return (
     <div
       className={cn(
-        "relative w-80 rounded-r-xl border border-l-0 backdrop-blur-md transition-all duration-300 pointer-events-auto overflow-hidden",
+        "relative w-80 rounded-xl border backdrop-blur-md transition-all duration-300 pointer-events-auto overflow-hidden",
         "bg-card shadow-xl",
         "animate-in slide-in-from-right-full",
         config.containerClassName,
@@ -180,10 +176,7 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
         setPaused(false);
       }}
     >
-      {/* Accent bar - straight edge, not affected by rounded corners */}
-      <div className={cn("absolute left-0 top-0 bottom-0 w-1", config.accentBarClassName)} />
-
-      <div className="flex items-start gap-3 p-4 pl-5">
+      <div className="flex items-start gap-3 p-4">
         <div className={cn("flex items-center justify-center w-8 h-8 rounded-full shrink-0", config.iconBgClassName)}>
           <Icon className={cn("h-4 w-4", config.iconClassName)} />
         </div>
