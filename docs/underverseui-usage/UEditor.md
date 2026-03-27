@@ -53,6 +53,11 @@ export default function Example() {
 - Paste (`Ctrl+V`), drag & drop, and toolbar file picker all insert images as base64 (`data:`) by default.
 - If you want to upload immediately, set `imageInsertMode="upload"` and provide `uploadImage(file)` to return the final URL.
 - For teams that prefer base64 while editing but URL-only in DB, keep `imageInsertMode="base64"` and call `prepareContentForSave()` before saving.
+- Select an image, then use the image menu to switch between block, image-left/text-right, or image-right/text-left layout.
+- When an image is selected, the bubble menu also shows quick layout controls plus `S / M / L` width presets.
+- Width presets are context-aware: wrapped images use smaller presets than block images.
+- Wrapped images preserve aspect ratio by default while dragging the resize handle. Hold `Ctrl` if you need to break the ratio manually.
+- Wrapped image layout is preserved in saved HTML using `data-image-layout="left" | "right"`.
 
 ## Base64 During Edit, Upload Before Save (Opt-in)
 
@@ -199,6 +204,7 @@ Helper exports for URL matching:
 - **Code Blocks** with syntax highlighting (via lowlight)
 - **Tables** (with row/column operations, header support)
 - **Images** (paste/drop/upload; base64 by default)
+- **Wrapped Images** (image left/right with text flowing beside it)
 - **Horizontal Divider**
 - **Emojis** (Messenger-style picker + colon autocomplete)
 

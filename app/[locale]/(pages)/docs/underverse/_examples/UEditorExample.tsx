@@ -12,6 +12,7 @@ export default function UEditorExample() {
   const [content, setContent] = useState(`
     <h1>Welcome to UEditor</h1>
     <p>A powerful <strong>Notion-like</strong> editor built with TipTap. Try out the features below:</p>
+    <p><img src="https://picsum.photos/seed/ueditor-wrap/320/220" alt="Wrapped" data-image-layout="right" data-image-size="md" width="220" height="150" />This editor now supports wrapped images as well, so you can keep an image on one side and let the text flow naturally beside it. Select an image and use the image menu or image bubble menu to switch between block, left wrap, and right wrap layouts, then choose S, M, or L width presets without losing the setting when you save HTML.</p>
     <h2>✨ Features</h2>
     <ul data-type="taskList">
       <li data-type="taskItem" data-checked="true"><label><input type="checkbox" checked></label><div>Rich text formatting (bold, italic, underline, strike)</div></li>
@@ -141,17 +142,6 @@ export default function UEditorExample() {
           className="bg-muted/20"
         />
       </div>
-
-      {/* HTML Output */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-1 text-xs font-medium bg-green-500/10 text-green-500 rounded-full">Output</span>
-          <span className="text-sm text-muted-foreground">Raw HTML from the editor</span>
-        </div>
-        <div className="p-4 rounded-xl bg-[#1e1e1e] text-[#d4d4d4] font-mono text-xs overflow-x-auto whitespace-pre-wrap border max-h-48 overflow-y-auto">
-          {content}
-        </div>
-      </div>
     </div>
   );
 
@@ -229,6 +219,7 @@ export default function UEditorExample() {
           <li>✓ Code blocks with syntax highlighting</li>
           <li>✓ Tables (resizable)</li>
           <li>✓ Images (paste/drop/upload; base64 by default)</li>
+          <li>✓ Wrapped images with text flow</li>
           <li>✓ Links</li>
           <li>✓ Horizontal divider</li>
         </ul>

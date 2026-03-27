@@ -5,6 +5,10 @@ import { NodeViewWrapper, ReactNodeViewRenderer, type NodeViewProps } from "@tip
 
 const MIN_IMAGE_SIZE_PX = 40;
 const AXIS_LOCK_THRESHOLD_PX = 4;
+const IMAGE_LAYOUTS = new Set(["block", "left", "right"] as const);
+const IMAGE_WIDTH_PRESETS = new Set(["sm", "md", "lg"] as const);
+type ImageLayout = "block" | "left" | "right";
+type ImageWidthPreset = "sm" | "md" | "lg";
 
 function toNullableNumber(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -19,6 +23,38 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
+function parseImageLayout(value: unknown): ImageLayout {
+  if (typeof value === "string" && IMAGE_LAYOUTS.has(value as ImageLayout)) {
+    return value as ImageLayout;
+  }
+  return "block";
+}
+
+function parseImageWidthPreset(value: unknown): ImageWidthPreset | null {
+  if (typeof value === "string" && IMAGE_WIDTH_PRESETS.has(value as ImageWidthPreset)) {
+    return value as ImageWidthPreset;
+  }
+  return null;
+}
+
+function getImageLayoutStyles(layout: ImageLayout) {
+  if (layout === "left") {
+    return {
+      "data-image-layout": "left",
+      style: "float:left;display:block;margin:0.25rem 1rem 0.75rem 0;",
+    };
+  }
+
+  if (layout === "right") {
+    return {
+      "data-image-layout": "right",
+      style: "float:right;display:block;margin:0.25rem 0 0.75rem 1rem;",
+    };
+  }
+
+  return {};
+}
+
 function ResizableImageNodeView(props: NodeViewProps) {
   const { node, selected, updateAttributes, editor, getPos } = props;
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -29,6 +65,8 @@ function ResizableImageNodeView(props: NodeViewProps) {
   const widthAttr = toNullableNumber((node.attrs as Record<string, unknown>)["width"]);
   const heightAttr = toNullableNumber((node.attrs as Record<string, unknown>)["height"]);
   const textAlign = String((node.attrs as Record<string, unknown>)["textAlign"] ?? "");
+  const imageLayout = parseImageLayout((node.attrs as Record<string, unknown>)["imageLayout"]);
+  const preserveAspectByDefault = imageLayout === "left" || imageLayout === "right";
 
   const dragStateRef = useRef<{
     pointerId: number;
@@ -102,7 +140,9 @@ function ResizableImageNodeView(props: NodeViewProps) {
     let nextW = drag.startW;
     let nextH = drag.startH;
 
-    if (event.ctrlKey) {
+    const shouldPreserveAspect = preserveAspectByDefault ? !event.ctrlKey : event.ctrlKey;
+
+    if (shouldPreserveAspect) {
       if (Math.abs(dx) >= Math.abs(dy)) {
         nextW = clamp(drag.startW + dx, MIN_IMAGE_SIZE_PX, drag.maxW);
         nextH = clamp(nextW / drag.aspect, MIN_IMAGE_SIZE_PX, Number.POSITIVE_INFINITY);
@@ -133,6 +173,7 @@ function ResizableImageNodeView(props: NodeViewProps) {
     updateAttributes({
       width: Math.round(drag.lastW),
       height: Math.round(drag.lastH),
+      imageWidthPreset: null,
     });
   };
 
@@ -154,14 +195,28 @@ function ResizableImageNodeView(props: NodeViewProps) {
 
   const showHandle = selected || isHovered || isResizing;
   const wrapperAlignClass =
-    textAlign === "center" ? "mx-auto" : textAlign === "right" ? "ml-auto" : textAlign === "justify" ? "mx-auto" : "";
-  const wrapperWidthClass = "w-fit";
+    imageLayout === "block"
+      ? textAlign === "center"
+        ? "mx-auto"
+        : textAlign === "right"
+          ? "ml-auto"
+          : textAlign === "justify"
+            ? "mx-auto"
+            : ""
+      : "";
+  const wrapperLayoutClass =
+    imageLayout === "left"
+      ? "float-left mr-4 mb-3 mt-1 clear-none max-w-[min(45%,20rem)]"
+      : imageLayout === "right"
+        ? "float-right ml-4 mb-3 mt-1 clear-none max-w-[min(45%,20rem)]"
+        : "w-fit";
 
   return (
     <NodeViewWrapper
       as="div"
       ref={wrapperRef}
-      className={["relative block align-middle max-w-full my-4", wrapperWidthClass, wrapperAlignClass].filter(Boolean).join(" ")}
+      data-image-layout={imageLayout}
+      className={["relative block align-middle max-w-full my-4", wrapperLayoutClass, wrapperAlignClass].filter(Boolean).join(" ")}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={(e: React.MouseEvent) => {
@@ -228,6 +283,27 @@ const ResizableImage = Image.extend({
           return Number.isFinite(parsed) ? parsed : null;
         },
         renderHTML: (attrs) => (typeof attrs.height === "number" ? { height: attrs.height } : {}),
+      },
+      imageLayout: {
+        default: "block",
+        parseHTML: (element) => {
+          const explicit = element.getAttribute("data-image-layout");
+          if (explicit) return parseImageLayout(explicit);
+
+          const floatValue = (element as HTMLElement).style.float;
+          if (floatValue === "left" || floatValue === "right") return floatValue;
+
+          return "block";
+        },
+        renderHTML: (attrs) => getImageLayoutStyles(parseImageLayout(attrs.imageLayout)),
+      },
+      imageWidthPreset: {
+        default: null,
+        parseHTML: (element) => parseImageWidthPreset(element.getAttribute("data-image-size")),
+        renderHTML: (attrs) => {
+          const preset = parseImageWidthPreset(attrs.imageWidthPreset);
+          return preset ? { "data-image-size": preset } : {};
+        },
       },
     };
   },

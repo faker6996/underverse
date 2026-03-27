@@ -5,6 +5,9 @@ import type { Editor } from "@tiptap/core";
 import { createPortal } from "react-dom";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
   Bold as BoldIcon,
   Code as CodeIcon,
   FileCode,
@@ -20,9 +23,11 @@ import {
   Palette,
   Plus,
   Quote as QuoteIcon,
+  RotateCcw,
   Subscript as SubscriptIcon,
   Superscript as SuperscriptIcon,
   Table as TableIcon,
+  Trash2,
   Type,
   Underline as UnderlineIcon,
   Strikethrough as StrikethroughIcon,
@@ -31,6 +36,7 @@ import { cn } from "../../utils/cn";
 import { ToolbarButton } from "./toolbar";
 import { LinkInput } from "./inputs";
 import { EditorColorPalette, useEditorColors } from "./colors";
+import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
 
 type SlashCommand = {
   icon: React.ComponentType<{ className?: string }>;
@@ -326,6 +332,12 @@ const BubbleMenuContent = ({
   const { textColors, highlightColors } = useEditorColors();
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [showEditorColorPalette, setShowEditorColorPalette] = useState(false);
+  const isImageSelected = editor.isActive("image");
+  const imageAttrs = editor.getAttributes("image") as { imageLayout?: string; imageWidthPreset?: UEditorImageWidthPreset | null };
+  const imageLayout = imageAttrs.imageLayout === "left" || imageAttrs.imageLayout === "right" ? imageAttrs.imageLayout : "block";
+  const imageWidthPreset = imageAttrs.imageWidthPreset === "sm" || imageAttrs.imageWidthPreset === "md" || imageAttrs.imageWidthPreset === "lg"
+    ? imageAttrs.imageWidthPreset
+    : null;
 
   useEffect(() => {
     onKeepOpenChange?.(showLinkInput);
@@ -405,6 +417,43 @@ const BubbleMenuContent = ({
     );
   }
 
+  if (isImageSelected) {
+    return (
+      <div className="flex items-center gap-0.5 p-1">
+        <ToolbarButton onClick={() => applyImageLayout(editor, "block")} active={imageLayout === "block"} title={t("toolbar.imageLayoutBlock")}>
+          <AlignCenter className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => applyImageLayout(editor, "left")} active={imageLayout === "left"} title={t("toolbar.imageLayoutLeft")}>
+          <AlignLeft className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => applyImageLayout(editor, "right")} active={imageLayout === "right"} title={t("toolbar.imageLayoutRight")}>
+          <AlignRight className="w-4 h-4" />
+        </ToolbarButton>
+
+        <div className="w-px h-6 bg-border/50 mx-1" />
+
+        <ToolbarButton onClick={() => applyImageWidthPreset(editor, "sm")} active={imageWidthPreset === "sm"} title={t("toolbar.imageWidthSm")}>
+          <span className="text-[10px] font-semibold">S</span>
+        </ToolbarButton>
+        <ToolbarButton onClick={() => applyImageWidthPreset(editor, "md")} active={imageWidthPreset === "md"} title={t("toolbar.imageWidthMd")}>
+          <span className="text-[10px] font-semibold">M</span>
+        </ToolbarButton>
+        <ToolbarButton onClick={() => applyImageWidthPreset(editor, "lg")} active={imageWidthPreset === "lg"} title={t("toolbar.imageWidthLg")}>
+          <span className="text-[10px] font-semibold">L</span>
+        </ToolbarButton>
+
+        <div className="w-px h-6 bg-border/50 mx-1" />
+
+        <ToolbarButton onClick={() => resetImageSize(editor)} title={t("toolbar.imageResetSize")}>
+          <RotateCcw className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => deleteSelectedImage(editor)} title={t("toolbar.imageDelete")} className="text-destructive hover:text-destructive">
+          <Trash2 className="w-4 h-4" />
+        </ToolbarButton>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center gap-0.5 p-1">
       <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("toolbar.bold")}>
@@ -468,21 +517,31 @@ const BubbleMenuContent = ({
 };
 
 export const CustomBubbleMenu = ({ editor }: { editor: Editor }) => {
+  const SHOW_DELAY_MS = 180;
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
   const keepOpenRef = useRef(false);
+  const showTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const setKeepOpen = useCallback((next: boolean) => {
     keepOpenRef.current = next;
     if (next) setIsVisible(true);
   }, []);
 
   useEffect(() => {
+    const clearShowTimeout = () => {
+      if (showTimeoutRef.current) {
+        clearTimeout(showTimeoutRef.current);
+        showTimeoutRef.current = null;
+      }
+    };
+
     const updatePosition = () => {
       const { state, view } = editor;
       const { from, to, empty } = state.selection;
 
       if (!keepOpenRef.current && (empty || !view.hasFocus())) {
+        clearShowTimeout();
         setIsVisible(false);
         return;
       }
@@ -494,11 +553,24 @@ export const CustomBubbleMenu = ({ editor }: { editor: Editor }) => {
       const top = start.top - 10;
 
       setPosition({ top, left });
-      setIsVisible(true);
+      if (keepOpenRef.current) {
+        clearShowTimeout();
+        setIsVisible(true);
+        return;
+      }
+
+      clearShowTimeout();
+      showTimeoutRef.current = setTimeout(() => {
+        setIsVisible(true);
+        showTimeoutRef.current = null;
+      }, SHOW_DELAY_MS);
     };
 
     const handleBlur = () => {
-      if (!keepOpenRef.current) setIsVisible(false);
+      if (!keepOpenRef.current) {
+        clearShowTimeout();
+        setIsVisible(false);
+      }
     };
 
     editor.on("selectionUpdate", updatePosition);
@@ -506,6 +578,7 @@ export const CustomBubbleMenu = ({ editor }: { editor: Editor }) => {
     editor.on("blur", handleBlur);
 
     return () => {
+      clearShowTimeout();
       editor.off("selectionUpdate", updatePosition);
       editor.off("focus", updatePosition);
       editor.off("blur", handleBlur);

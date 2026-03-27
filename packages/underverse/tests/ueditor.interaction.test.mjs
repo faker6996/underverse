@@ -122,3 +122,33 @@ test("UEditor minimal toolbar applies bold and italic formatting while typing", 
     assert.match(latestHtml, /<em>Italic<\/em>/);
   });
 });
+
+test("UEditor preserves wrapped image layout in editor DOM and saved HTML", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: `<p>Lead paragraph</p><img src="data:image/png;base64,${ONE_PIXEL_PNG_BASE64}" alt="wrapped" data-image-layout="left" data-image-size="md" width="240" /><p>Body copy wraps next to the image.</p>`,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const img = await view.findByAltText("wrapped");
+  const wrapper = img.closest("[data-node-view-wrapper]");
+  assert.ok(wrapper);
+  assert.match(wrapper.className, /float-left/);
+
+  await waitFor(() => {
+    assert.ok(ref.current);
+  });
+
+  const result = await ref.current.prepareContentForSave();
+  assert.match(result.html, /data-image-layout="left"/);
+  assert.match(result.html, /data-image-size="md"/);
+  assert.match(result.html, /float:\s*left/i);
+});

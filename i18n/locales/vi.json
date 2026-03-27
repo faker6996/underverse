@@ -1401,7 +1401,15 @@
       "heading1": "Tiêu đề 1",
       "heading2": "Tiêu đề 2",
       "heading3": "Tiêu đề 3",
-      "emoji": "Chèn Emoji"
+      "emoji": "Chèn Emoji",
+      "imageLayoutBlock": "Ảnh Dạng Khối",
+      "imageLayoutLeft": "Ảnh Trái, Chữ Phải",
+      "imageLayoutRight": "Ảnh Phải, Chữ Trái",
+      "imageWidthSm": "Ảnh Nhỏ",
+      "imageWidthMd": "Ảnh Vừa",
+      "imageWidthLg": "Ảnh Lớn",
+      "imageResetSize": "Đặt Lại Kích Thước Ảnh",
+      "imageDelete": "Xóa Ảnh"
     },
     "slashCommand": {
       "basicBlocks": "Khối cơ bản",

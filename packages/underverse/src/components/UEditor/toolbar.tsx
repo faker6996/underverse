@@ -27,6 +27,7 @@ import {
   Palette,
   Quote as QuoteIcon,
   Redo as RedoIcon,
+  RotateCcw,
   Smile,
   Strikethrough as StrikethroughIcon,
   Subscript as SubscriptIcon,
@@ -42,6 +43,7 @@ import { cn } from "../../utils/cn";
 import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu";
 import { Tooltip } from "../Tooltip";
 import { EditorColorPalette, useEditorColors } from "./colors";
+import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
 import { ImageInput } from "./inputs";
 import { EmojiPicker } from "./emoji-picker";
 import type { UEditorVariant } from "./types";
@@ -123,6 +125,12 @@ export const EditorToolbar = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
+  const isImageSelected = editor.isActive("image");
+  const imageAttrs = editor.getAttributes("image") as { imageLayout?: string; imageWidthPreset?: UEditorImageWidthPreset | null };
+  const imageLayout = imageAttrs.imageLayout === "left" || imageAttrs.imageLayout === "right" ? imageAttrs.imageLayout : "block";
+  const imageWidthPreset = imageAttrs.imageWidthPreset === "sm" || imageAttrs.imageWidthPreset === "md" || imageAttrs.imageWidthPreset === "lg"
+    ? imageAttrs.imageWidthPreset
+    : null;
 
   const insertImageFiles = async (files: File[]) => {
     if (files.length === 0) return;
@@ -418,6 +426,61 @@ export const EditorToolbar = ({
                 e.target.value = "";
                 void insertImageFiles(files);
               }}
+            />
+            <div className="my-1 border-t" />
+            <DropdownMenuItem
+              icon={AlignCenter}
+              label={t("toolbar.imageLayoutBlock")}
+              onClick={() => applyImageLayout(editor, "block")}
+              active={isImageSelected && imageLayout === "block"}
+              disabled={!isImageSelected}
+            />
+            <DropdownMenuItem
+              icon={AlignLeft}
+              label={t("toolbar.imageLayoutLeft")}
+              onClick={() => applyImageLayout(editor, "left")}
+              active={isImageSelected && imageLayout === "left"}
+              disabled={!isImageSelected}
+            />
+            <DropdownMenuItem
+              icon={AlignRight}
+              label={t("toolbar.imageLayoutRight")}
+              onClick={() => applyImageLayout(editor, "right")}
+              active={isImageSelected && imageLayout === "right"}
+              disabled={!isImageSelected}
+            />
+            <div className="my-1 border-t" />
+            <DropdownMenuItem
+              label={t("toolbar.imageWidthSm")}
+              onClick={() => applyImageWidthPreset(editor, "sm")}
+              active={isImageSelected && imageWidthPreset === "sm"}
+              disabled={!isImageSelected}
+            />
+            <DropdownMenuItem
+              label={t("toolbar.imageWidthMd")}
+              onClick={() => applyImageWidthPreset(editor, "md")}
+              active={isImageSelected && imageWidthPreset === "md"}
+              disabled={!isImageSelected}
+            />
+            <DropdownMenuItem
+              label={t("toolbar.imageWidthLg")}
+              onClick={() => applyImageWidthPreset(editor, "lg")}
+              active={isImageSelected && imageWidthPreset === "lg"}
+              disabled={!isImageSelected}
+            />
+            <div className="my-1 border-t" />
+            <DropdownMenuItem
+              icon={RotateCcw}
+              label={t("toolbar.imageResetSize")}
+              onClick={() => resetImageSize(editor)}
+              disabled={!isImageSelected}
+            />
+            <DropdownMenuItem
+              icon={Trash2}
+              label={t("toolbar.imageDelete")}
+              onClick={() => deleteSelectedImage(editor)}
+              disabled={!isImageSelected}
+              destructive
             />
           </>
         )}

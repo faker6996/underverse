@@ -1324,7 +1324,15 @@
       "heading1": "見出し 1",
       "heading2": "見出し 2",
       "heading3": "見出し 3",
-      "emoji": "絵文字を挿入"
+      "emoji": "絵文字を挿入",
+      "imageLayoutBlock": "画像ブロック",
+      "imageLayoutLeft": "画像を左、文字を右に回り込み",
+      "imageLayoutRight": "画像を右、文字を左に回り込み",
+      "imageWidthSm": "画像 小",
+      "imageWidthMd": "画像 中",
+      "imageWidthLg": "画像 大",
+      "imageResetSize": "画像サイズをリセット",
+      "imageDelete": "画像を削除"
     },
     "slashCommand": {
       "basicBlocks": "基本ブロック",

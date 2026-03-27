@@ -154,7 +154,15 @@
       "heading1": "Heading 1",
       "heading2": "Heading 2",
       "heading3": "Heading 3",
-      "emoji": "Insert Emoji"
+      "emoji": "Insert Emoji",
+      "imageLayoutBlock": "Image Block",
+      "imageLayoutLeft": "Wrap Text Right",
+      "imageLayoutRight": "Wrap Text Left",
+      "imageWidthSm": "Image Width Small",
+      "imageWidthMd": "Image Width Medium",
+      "imageWidthLg": "Image Width Large",
+      "imageResetSize": "Reset Image Size",
+      "imageDelete": "Delete Image"
     },
     "slashCommand": {
       "basicBlocks": "Basic Blocks",

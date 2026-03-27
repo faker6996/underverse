@@ -1324,7 +1324,15 @@
       "heading1": "제목 1",
       "heading2": "제목 2",
       "heading3": "제목 3",
-      "emoji": "이모지 삽입"
+      "emoji": "이모지 삽입",
+      "imageLayoutBlock": "이미지 블록",
+      "imageLayoutLeft": "왼쪽 이미지, 오른쪽 텍스트",
+      "imageLayoutRight": "오른쪽 이미지, 왼쪽 텍스트",
+      "imageWidthSm": "작은 이미지",
+      "imageWidthMd": "중간 이미지",
+      "imageWidthLg": "큰 이미지",
+      "imageResetSize": "이미지 크기 초기화",
+      "imageDelete": "이미지 삭제"
     },
     "slashCommand": {
       "basicBlocks": "기본 블록",
