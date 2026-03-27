@@ -67,7 +67,7 @@ export default function CarouselExample() {
     `  autoScroll\n` +
     `  autoScrollInterval={3200}\n` +
     `  showProgress\n` +
-    `  effectOptions={{ mainScale: 1.08, sideScale: 0.84, sideOffset: 24 }}\n` +
+    `  effectOptions={{ mainScale: 1.08, sideScale: 0.84, sideOffset: 24, sideOpacity: 0.88, farOpacity: 0.52, blur: 1.2 }}\n` +
     `>\n` +
     `  {slides.map((item) => (\n` +
     `    <div key={item.id} className="relative h-72 overflow-hidden rounded-2xl border border-border/40">\n` +
@@ -179,7 +179,7 @@ export default function CarouselExample() {
           autoScroll
           autoScrollInterval={3200}
           showProgress
-          effectOptions={{ mainScale: 1.08, sideScale: 0.84, sideOffset: 24 }}
+          effectOptions={{ mainScale: 1.08, sideScale: 0.84, sideOffset: 24, sideOpacity: 0.88, farOpacity: 0.52, blur: 1.2 }}
         >
           {immersiveSlides.map((item) => renderImageSlide(item, "h-72"))}
         </Carousel>

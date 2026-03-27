@@ -57,8 +57,10 @@ export function Example() {
         mainScale: 1.08,
         sideScale: 0.84,
         sideOffset: 24,
-        rotate: 22,
+        sideOpacity: 0.88,
+        farOpacity: 0.52,
         blur: 1.2,
+        rotate: 22,
       }}
     >
       {slides.map((item) => (
@@ -120,6 +122,9 @@ Notes:
 - `effectPreset="poster"`: tương phản mạnh hơn, hợp hero/showcase đậm.
 - `effectPreset="minimal"`: gần mặt phẳng hơn, tinh giản và sạch.
 - Có thể tune trực tiếp bằng `effectOptions`, ví dụ:
+- Nếu ảnh phụ đang mờ quá, tăng `sideOpacity` / `farOpacity` và giảm `blur`.
+- Với `coverflow`, có thể click trực tiếp vào slide phụ để nhảy nó lên làm slide chính.
+- Có thể tune trực tiếp bằng `effectOptions`, ví dụ:
 
 ```tsx
 <Carousel
@@ -129,6 +134,9 @@ Notes:
     mainScale: 1.08,
     sideScale: 0.84,
     sideOffset: 24,
+    sideOpacity: 0.88,
+    farOpacity: 0.52,
+    blur: 1.2,
   }}
 >
   {slides}
