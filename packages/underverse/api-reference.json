@@ -1,8 +1,8 @@
 {
   "package": "@underverse-ui/underverse",
-  "version": "1.0.61",
+  "version": "1.0.62",
   "sourceEntry": "src/index.ts",
-  "totalExports": 215,
+  "totalExports": 217,
   "exports": [
     {
       "name": "*",
@@ -269,6 +269,20 @@
     {
       "name": "Carousel",
       "kind": "value",
+      "source": "./components/Carousel",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "CarouselEffectOptions",
+      "kind": "type",
+      "source": "./components/Carousel",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "CarouselEffectPreset",
+      "kind": "type",
       "source": "./components/Carousel",
       "reexport": true,
       "local": false
