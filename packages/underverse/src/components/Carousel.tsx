@@ -390,7 +390,7 @@ export function Carousel({
             distance === 0 ? 1 : distance === 1 || distance === -1 ? mergedEffectOptions.sideOpacity! : mergedEffectOptions.farOpacity!,
           transform: `translate3d(${xOffset}px, ${yOffset}px, -${absDistance * mergedEffectOptions.depthStep!}px) scale(${scale})`,
           filter: distance === 0 ? "blur(0px)" : `blur(${Math.min(absDistance, 2) * mergedEffectOptions.blur!}px)`,
-          pointerEvents: distance === 0 ? "auto" : "none",
+          pointerEvents: "auto",
         };
       }
 
@@ -403,7 +403,7 @@ export function Carousel({
           distance === 0 ? 1 : distance === 1 || distance === -1 ? mergedEffectOptions.sideOpacity! : mergedEffectOptions.farOpacity!,
         transform: `translate3d(${xOffset}%, 0, -${absDistance * mergedEffectOptions.depthStep!}px) rotateY(${rotateY}deg) scale(${scale})`,
         filter: distance === 0 ? "blur(0px)" : `blur(${Math.min(absDistance, 2) * mergedEffectOptions.blur!}px)`,
-        pointerEvents: distance === 0 ? "auto" : "none",
+        pointerEvents: "auto",
       };
     },
     [effectiveAnimation, getLoopDistance, mergedEffectOptions],
@@ -463,6 +463,7 @@ export function Carousel({
               effectiveAnimation === "scale" &&
                 (idx === currentIndex ? "opacity-100 scale-100 z-10" : "opacity-0 scale-95 pointer-events-none z-0"),
               isDeckAnimation && "w-full max-w-[78%] md:max-w-[72%] transition-[opacity,transform] duration-500 ease-out",
+              isDeckAnimation && idx !== currentIndex && "cursor-pointer",
               effectiveAnimation !== "slide" && "transition-[opacity,transform] duration-500 ease-in-out",
               slideClassName,
             )}
@@ -473,6 +474,7 @@ export function Carousel({
                   ? getDeckSlideStyles(idx)
                   : undefined
             }
+            onClick={isDeckAnimation && idx !== currentIndex ? () => scrollTo(idx) : undefined}
             role="group"
             aria-roledescription="slide"
             aria-label={`${idx + 1} of ${totalSlides}`}
