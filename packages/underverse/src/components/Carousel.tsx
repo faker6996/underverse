@@ -7,7 +7,7 @@ import { cn } from "../utils/cn";
 
 type AnimationVariant = "slide" | "fade" | "scale" | "coverflow" | "stack";
 type Orientation = "horizontal" | "vertical";
-export type CarouselEffectPreset = "cinematic" | "gallery";
+export type CarouselEffectPreset = "cinematic" | "gallery" | "poster" | "minimal";
 
 export interface CarouselEffectOptions {
   mainScale?: number;
@@ -86,6 +86,7 @@ export function Carousel({
   const isDeckAnimation = effectiveAnimation === "coverflow" || effectiveAnimation === "stack";
   const effectiveSlidesToShow = isDeckAnimation ? 1 : slidesToShow;
   const maxIndex = Math.max(0, totalSlides - effectiveSlidesToShow);
+  const shouldShowArrows = showArrows && isHorizontal;
   const presetEffectOptions = React.useMemo<CarouselEffectOptions>(() => {
     if (effectPreset === "cinematic") {
       return effectiveAnimation === "stack"
@@ -136,6 +137,58 @@ export function Carousel({
             rotate: 16,
             depthStep: 78,
             blur: 1,
+          };
+    }
+
+    if (effectPreset === "poster") {
+      return effectiveAnimation === "stack"
+        ? {
+            mainScale: 1.12,
+            sideScale: 0.88,
+            farScale: 0.78,
+            sideOpacity: 0.64,
+            farOpacity: 0.22,
+            depthStep: 92,
+            blur: 2.8,
+            stackOffset: 14,
+            stackLift: 18,
+          }
+        : {
+            mainScale: 1.16,
+            sideScale: 0.78,
+            farScale: 0.68,
+            sideOpacity: 0.68,
+            farOpacity: 0.18,
+            sideOffset: 18,
+            rotate: 26,
+            depthStep: 140,
+            blur: 3,
+          };
+    }
+
+    if (effectPreset === "minimal") {
+      return effectiveAnimation === "stack"
+        ? {
+            mainScale: 1.01,
+            sideScale: 0.96,
+            farScale: 0.92,
+            sideOpacity: 0.88,
+            farOpacity: 0.66,
+            depthStep: 36,
+            blur: 0,
+            stackOffset: 26,
+            stackLift: 6,
+          }
+        : {
+            mainScale: 1.02,
+            sideScale: 0.94,
+            farScale: 0.88,
+            sideOpacity: 0.9,
+            farOpacity: 0.62,
+            sideOffset: 34,
+            rotate: 10,
+            depthStep: 54,
+            blur: 0,
           };
     }
 
@@ -382,7 +435,7 @@ export function Carousel({
       <div
         className={cn(
           effectiveAnimation === "slide" ? "flex" : "grid",
-          effectiveAnimation === "slide" && (isHorizontal ? "flex-row" : "flex-col"),
+          effectiveAnimation === "slide" && (isHorizontal ? "flex-row" : "flex-col h-full"),
           isDeckAnimation && "place-items-center [transform-style:preserve-3d]",
           isHorizontal ? "touch-pan-y" : "touch-pan-x",
           containerClassName,
@@ -404,7 +457,7 @@ export function Carousel({
             key={(React.isValidElement(child) && child.key) || idx}
             className={cn(
               "shrink-0",
-              effectiveAnimation === "slide" ? (isHorizontal ? "h-full" : "w-full") : "col-start-1 row-start-1",
+              effectiveAnimation === "slide" ? (isHorizontal ? "h-full" : "h-full w-full") : "col-start-1 row-start-1",
               effectiveAnimation === "fade" &&
                 (idx === currentIndex ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"),
               effectiveAnimation === "scale" &&
@@ -431,7 +484,7 @@ export function Carousel({
       </div>
 
       {/* Navigation arrows */}
-      {showArrows && totalSlides > effectiveSlidesToShow && (
+      {shouldShowArrows && totalSlides > effectiveSlidesToShow && (
         <>
           <Button
             onClick={scrollPrev}

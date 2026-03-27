@@ -262,8 +262,8 @@ export default function CarouselExample() {
     { property: "ariaLabel", description: t("props.carousel.ariaLabel"), type: "string", default: '"Carousel"' },
     {
       property: "effectPreset",
-      description: "Preset deck look for coverflow/stack (`cinematic` or `gallery`).",
-      type: '"cinematic" | "gallery"',
+      description: "Preset deck look for coverflow/stack (`cinematic`, `gallery`, `poster`, `minimal`).",
+      type: '"cinematic" | "gallery" | "poster" | "minimal"',
       default: "-",
     },
     {

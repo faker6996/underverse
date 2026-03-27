@@ -91,7 +91,7 @@ interface CarouselProps {
   onSlideChange?: (index: number) => void;
   thumbnailRenderer?: (child: React.ReactNode, index: number) => React.ReactNode;
   ariaLabel?: string;
-  effectPreset?: "cinematic" | "gallery";
+  effectPreset?: "cinematic" | "gallery" | "poster" | "minimal";
   effectOptions?: CarouselEffectOptions;
 }
 
@@ -117,6 +117,8 @@ Notes:
 - `coverflow` hỗ trợ `autoScroll` như carousel thường.
 - `effectPreset="cinematic"`: đậm chiều sâu hơn, ảnh chính nổi hơn.
 - `effectPreset="gallery"`: nhẹ hơn, thiên về editorial/gallery.
+- `effectPreset="poster"`: tương phản mạnh hơn, hợp hero/showcase đậm.
+- `effectPreset="minimal"`: gần mặt phẳng hơn, tinh giản và sạch.
 - Có thể tune trực tiếp bằng `effectOptions`, ví dụ:
 
 ```tsx
