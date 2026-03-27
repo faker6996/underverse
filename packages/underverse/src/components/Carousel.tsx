@@ -5,11 +5,26 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Button from "./Button";
 import { cn } from "../utils/cn";
 
-type AnimationVariant = "slide" | "fade" | "scale";
+type AnimationVariant = "slide" | "fade" | "scale" | "coverflow" | "stack";
 type Orientation = "horizontal" | "vertical";
+export type CarouselEffectPreset = "cinematic" | "gallery";
+
+export interface CarouselEffectOptions {
+  mainScale?: number;
+  sideScale?: number;
+  farScale?: number;
+  sideOpacity?: number;
+  farOpacity?: number;
+  sideOffset?: number;
+  rotate?: number;
+  depthStep?: number;
+  blur?: number;
+  stackOffset?: number;
+  stackLift?: number;
+}
 
 interface CarouselProps {
-  children: React.ReactNode[];
+  children: React.ReactNode;
   autoScroll?: boolean;
   autoScrollInterval?: number;
   animation?: AnimationVariant;
@@ -27,6 +42,8 @@ interface CarouselProps {
   onSlideChange?: (index: number) => void;
   thumbnailRenderer?: (child: React.ReactNode, index: number) => React.ReactNode;
   ariaLabel?: string;
+  effectPreset?: CarouselEffectPreset;
+  effectOptions?: CarouselEffectOptions;
 }
 
 export function Carousel({
@@ -48,22 +65,101 @@ export function Carousel({
   onSlideChange,
   thumbnailRenderer,
   ariaLabel = "Carousel",
+  effectPreset,
+  effectOptions,
 }: CarouselProps) {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [isPaused, setIsPaused] = React.useState(false);
-  const [isDragging, setIsDragging] = React.useState(false);
-  const [startPos, setStartPos] = React.useState(0);
-  const [currentTranslate, setCurrentTranslate] = React.useState(0);
-  const [prevTranslate, setPrevTranslate] = React.useState(0);
   // Progress bar handled via rAF to avoid frequent React state updates
   const progressElRef = React.useRef<HTMLDivElement | null>(null);
 
   const carouselRef = React.useRef<HTMLDivElement>(null);
   const rafRef = React.useRef<number | null>(null);
+  const isDraggingRef = React.useRef(false);
+  const startPosRef = React.useRef(0);
+  const lastDragPositionRef = React.useRef(0);
 
-  const totalSlides = React.Children.count(children);
-  const maxIndex = Math.max(0, totalSlides - slidesToShow);
+  const slides = React.useMemo(() => React.Children.toArray(children), [children]);
+  const totalSlides = slides.length;
   const isHorizontal = orientation === "horizontal";
+  const effectiveAnimation = slidesToShow > 1 && !["slide", "coverflow", "stack"].includes(animation) ? "slide" : animation;
+  const isDeckAnimation = effectiveAnimation === "coverflow" || effectiveAnimation === "stack";
+  const effectiveSlidesToShow = isDeckAnimation ? 1 : slidesToShow;
+  const maxIndex = Math.max(0, totalSlides - effectiveSlidesToShow);
+  const presetEffectOptions = React.useMemo<CarouselEffectOptions>(() => {
+    if (effectPreset === "cinematic") {
+      return effectiveAnimation === "stack"
+        ? {
+            mainScale: 1.08,
+            sideScale: 0.9,
+            farScale: 0.84,
+            sideOpacity: 0.68,
+            farOpacity: 0.3,
+            depthStep: 76,
+            blur: 2.2,
+            stackOffset: 16,
+            stackLift: 16,
+          }
+        : {
+            mainScale: 1.12,
+            sideScale: 0.82,
+            farScale: 0.72,
+            sideOpacity: 0.72,
+            farOpacity: 0.24,
+            sideOffset: 22,
+            rotate: 20,
+            depthStep: 120,
+            blur: 2.6,
+          };
+    }
+
+    if (effectPreset === "gallery") {
+      return effectiveAnimation === "stack"
+        ? {
+            mainScale: 1.03,
+            sideScale: 0.94,
+            farScale: 0.88,
+            sideOpacity: 0.82,
+            farOpacity: 0.5,
+            depthStep: 50,
+            blur: 0.8,
+            stackOffset: 24,
+            stackLift: 8,
+          }
+        : {
+            mainScale: 1.05,
+            sideScale: 0.9,
+            farScale: 0.82,
+            sideOpacity: 0.84,
+            farOpacity: 0.48,
+            sideOffset: 30,
+            rotate: 16,
+            depthStep: 78,
+            blur: 1,
+          };
+    }
+
+    return {};
+  }, [effectPreset, effectiveAnimation]);
+
+  const mergedEffectOptions = React.useMemo(
+    () => ({
+      mainScale: 1.04,
+      sideScale: effectiveAnimation === "stack" ? 0.93 : 0.88,
+      farScale: effectiveAnimation === "stack" ? 0.86 : 0.76,
+      sideOpacity: effectiveAnimation === "stack" ? 0.74 : 0.78,
+      farOpacity: effectiveAnimation === "stack" ? 0.42 : 0.38,
+      sideOffset: effectiveAnimation === "stack" ? 20 : 28,
+      rotate: 24,
+      depthStep: effectiveAnimation === "stack" ? 60 : 90,
+      blur: 1.5,
+      stackOffset: 20,
+      stackLift: 12,
+      ...presetEffectOptions,
+      ...effectOptions,
+    }),
+    [effectOptions, effectiveAnimation, presetEffectOptions],
+  );
 
   const scrollPrev = React.useCallback(() => {
     setCurrentIndex((prev) => {
@@ -90,9 +186,8 @@ export function Carousel({
     [maxIndex],
   );
 
-  // Keyboard navigation
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
         e.preventDefault();
         scrollPrev();
@@ -106,14 +201,9 @@ export function Carousel({
         e.preventDefault();
         scrollTo(maxIndex);
       }
-    };
-
-    const carousel = carouselRef.current;
-    if (carousel) {
-      carousel.addEventListener("keydown", handleKeyDown);
-      return () => carousel.removeEventListener("keydown", handleKeyDown);
-    }
-  }, [scrollPrev, scrollNext, scrollTo, maxIndex]);
+    },
+    [scrollPrev, scrollNext, scrollTo, maxIndex],
+  );
 
   // Auto scroll with progress (requestAnimationFrame)
   React.useEffect(() => {
@@ -126,7 +216,7 @@ export function Carousel({
       if (progressElRef.current) progressElRef.current.style.width = "0%";
     };
 
-    if (!autoScroll || isPaused || totalSlides <= slidesToShow) {
+    if (!autoScroll || isPaused || totalSlides <= effectiveSlidesToShow) {
       stop();
       return;
     }
@@ -148,7 +238,7 @@ export function Carousel({
     rafRef.current = requestAnimationFrame(tick);
 
     return stop;
-  }, [autoScroll, isPaused, totalSlides, slidesToShow, autoScrollInterval, scrollNext]);
+  }, [autoScroll, isPaused, totalSlides, effectiveSlidesToShow, autoScrollInterval, scrollNext]);
 
   // Touch/Mouse drag handlers
   const getPositionX = (event: TouchEvent | MouseEvent) => {
@@ -160,34 +250,32 @@ export function Carousel({
   };
 
   const touchStart = (event: React.TouchEvent | React.MouseEvent) => {
-    setIsDragging(true);
+    isDraggingRef.current = true;
     const pos = isHorizontal ? getPositionX(event.nativeEvent) : getPositionY(event.nativeEvent);
-    setStartPos(pos);
-    setPrevTranslate(currentTranslate);
+    startPosRef.current = pos;
+    lastDragPositionRef.current = pos;
   };
 
   const touchMove = (event: React.TouchEvent | React.MouseEvent) => {
-    if (!isDragging) return;
+    if (!isDraggingRef.current) return;
     const pos = isHorizontal ? getPositionX(event.nativeEvent) : getPositionY(event.nativeEvent);
-    const currentPosition = pos;
-    setCurrentTranslate(prevTranslate + currentPosition - startPos);
+    lastDragPositionRef.current = pos;
   };
 
   const touchEnd = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
 
-    const movedBy = currentTranslate - prevTranslate;
+    const movedBy = lastDragPositionRef.current - startPosRef.current;
     const threshold = 50;
 
-    if (movedBy < -threshold && currentIndex < maxIndex) {
+    if (movedBy < -threshold) {
       scrollNext();
-    } else if (movedBy > threshold && currentIndex > 0) {
+    } else if (movedBy > threshold) {
       scrollPrev();
     }
-
-    setCurrentTranslate(0);
-    setPrevTranslate(0);
+    startPosRef.current = 0;
+    lastDragPositionRef.current = 0;
   };
 
   // Call onSlideChange callback
@@ -196,38 +284,86 @@ export function Carousel({
   }, [currentIndex, onSlideChange]);
 
   const getAnimationStyles = (): React.CSSProperties => {
-    const baseTransform = isHorizontal
-      ? `translateX(-${currentIndex * (100 / slidesToShow)}%)`
-      : `translateY(-${currentIndex * (100 / slidesToShow)}%)`;
-
-    if (animation === "fade") {
-      return {
-        transition: "opacity 500ms ease-in-out",
-      };
+    if (effectiveAnimation !== "slide") {
+      return {};
     }
 
-    if (animation === "scale") {
-      return {
-        transform: baseTransform,
-        transition: "transform 500ms ease-in-out, scale 500ms ease-in-out",
-      };
-    }
+      const baseTransform = isHorizontal
+      ? `translateX(-${currentIndex * (100 / effectiveSlidesToShow)}%)`
+      : `translateY(-${currentIndex * (100 / effectiveSlidesToShow)}%)`;
 
     return {
       transform: baseTransform,
-      transition: isDragging ? "none" : "transform 500ms ease-in-out",
+      transition: "transform 500ms ease-in-out",
     };
   };
 
-  const slideWidth = 100 / slidesToShow;
+  const slideWidth = 100 / effectiveSlidesToShow;
+  const getLoopDistance = React.useCallback(
+    (index: number) => {
+      if (totalSlides <= 0) return 0;
+      const forward = index - currentIndex;
+      if (!loop) return forward;
+      const altForward = forward - totalSlides;
+      const altBackward = forward + totalSlides;
+      const candidates = [forward, altForward, altBackward];
+      return candidates.reduce((best, candidate) => (Math.abs(candidate) < Math.abs(best) ? candidate : best), candidates[0] ?? 0);
+    },
+    [currentIndex, loop, totalSlides],
+  );
+
+  const getDeckSlideStyles = React.useCallback(
+    (index: number): React.CSSProperties => {
+      const distance = getLoopDistance(index);
+      const absDistance = Math.abs(distance);
+      const hidden = absDistance > 2;
+
+      if (hidden) {
+        return {
+          opacity: 0,
+          pointerEvents: "none",
+          transform: `translate3d(0, 0, -${mergedEffectOptions.depthStep! * 2}px) scale(${mergedEffectOptions.farScale})`,
+          filter: `blur(${mergedEffectOptions.blur! * 1.4}px)`,
+        };
+      }
+
+      if (effectiveAnimation === "stack") {
+        const xOffset = distance * mergedEffectOptions.stackOffset!;
+        const yOffset = absDistance * mergedEffectOptions.stackLift!;
+        const scale =
+          distance === 0 ? mergedEffectOptions.mainScale! : distance === 1 || distance === -1 ? mergedEffectOptions.sideScale! : mergedEffectOptions.farScale!;
+        return {
+          opacity:
+            distance === 0 ? 1 : distance === 1 || distance === -1 ? mergedEffectOptions.sideOpacity! : mergedEffectOptions.farOpacity!,
+          transform: `translate3d(${xOffset}px, ${yOffset}px, -${absDistance * mergedEffectOptions.depthStep!}px) scale(${scale})`,
+          filter: distance === 0 ? "blur(0px)" : `blur(${Math.min(absDistance, 2) * mergedEffectOptions.blur!}px)`,
+          pointerEvents: distance === 0 ? "auto" : "none",
+        };
+      }
+
+      const xOffset = distance * mergedEffectOptions.sideOffset!;
+      const rotateY = distance * -mergedEffectOptions.rotate!;
+      const scale =
+        distance === 0 ? mergedEffectOptions.mainScale! : distance === 1 || distance === -1 ? mergedEffectOptions.sideScale! : mergedEffectOptions.farScale!;
+      return {
+        opacity:
+          distance === 0 ? 1 : distance === 1 || distance === -1 ? mergedEffectOptions.sideOpacity! : mergedEffectOptions.farOpacity!,
+        transform: `translate3d(${xOffset}%, 0, -${absDistance * mergedEffectOptions.depthStep!}px) rotateY(${rotateY}deg) scale(${scale})`,
+        filter: distance === 0 ? "blur(0px)" : `blur(${Math.min(absDistance, 2) * mergedEffectOptions.blur!}px)`,
+        pointerEvents: distance === 0 ? "auto" : "none",
+      };
+    },
+    [effectiveAnimation, getLoopDistance, mergedEffectOptions],
+  );
 
   return (
     <div
       ref={carouselRef}
       className={cn(
-        "relative w-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-2xl md:rounded-3xl",
+        "relative w-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-xl md:rounded-3xl",
         className,
       )}
+      onKeyDown={handleKeyDown}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       role="region"
@@ -244,8 +380,14 @@ export function Carousel({
 
       {/* Slides container */}
       <div
-        className={cn("flex", isHorizontal ? "flex-row" : "flex-col", containerClassName)}
-        style={getAnimationStyles()}
+        className={cn(
+          effectiveAnimation === "slide" ? "flex" : "grid",
+          effectiveAnimation === "slide" && (isHorizontal ? "flex-row" : "flex-col"),
+          isDeckAnimation && "place-items-center [transform-style:preserve-3d]",
+          isHorizontal ? "touch-pan-y" : "touch-pan-x",
+          containerClassName,
+        )}
+        style={isDeckAnimation ? { perspective: "1400px" } : getAnimationStyles()}
         onTouchStart={touchStart}
         onTouchMove={touchMove}
         onTouchEnd={touchEnd}
@@ -257,23 +399,31 @@ export function Carousel({
         aria-atomic="false"
         aria-live={autoScroll ? "off" : "polite"}
       >
-        {React.Children.map(children, (child, idx) => (
+        {slides.map((child, idx) => (
           <div
-            key={idx}
+            key={(React.isValidElement(child) && child.key) || idx}
             className={cn(
               "shrink-0",
-              isHorizontal ? "h-full" : "w-full",
-              animation === "fade" && idx !== currentIndex && "opacity-0",
-              animation === "scale" && idx !== currentIndex && "scale-95",
+              effectiveAnimation === "slide" ? (isHorizontal ? "h-full" : "w-full") : "col-start-1 row-start-1",
+              effectiveAnimation === "fade" &&
+                (idx === currentIndex ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"),
+              effectiveAnimation === "scale" &&
+                (idx === currentIndex ? "opacity-100 scale-100 z-10" : "opacity-0 scale-95 pointer-events-none z-0"),
+              isDeckAnimation && "w-full max-w-[78%] md:max-w-[72%] transition-[opacity,transform] duration-500 ease-out",
+              effectiveAnimation !== "slide" && "transition-[opacity,transform] duration-500 ease-in-out",
               slideClassName,
             )}
-            style={{
-              [isHorizontal ? "width" : "height"]: `${slideWidth}%`,
-            }}
+            style={
+              effectiveAnimation === "slide"
+                ? { [isHorizontal ? "width" : "height"]: `${slideWidth}%` }
+                : isDeckAnimation
+                  ? getDeckSlideStyles(idx)
+                  : undefined
+            }
             role="group"
             aria-roledescription="slide"
             aria-label={`${idx + 1} of ${totalSlides}`}
-            aria-hidden={idx < currentIndex || idx >= currentIndex + slidesToShow}
+            aria-hidden={effectiveAnimation === "slide" ? idx < currentIndex || idx >= currentIndex + slidesToShow : idx !== currentIndex}
           >
             {child}
           </div>
@@ -281,7 +431,7 @@ export function Carousel({
       </div>
 
       {/* Navigation arrows */}
-      {showArrows && totalSlides > slidesToShow && (
+      {showArrows && totalSlides > effectiveSlidesToShow && (
         <>
           <Button
             onClick={scrollPrev}
@@ -292,7 +442,8 @@ export function Carousel({
             disabled={!loop && currentIndex === 0}
             className={cn(
               "absolute top-1/2 -translate-y-1/2 hover:-translate-y-1/2 active:-translate-y-1/2 z-10 rounded-full will-change-transform backdrop-blur-0 hover:backdrop-blur-0 hover:bg-transparent border-0",
-              isHorizontal ? "left-4" : "top-4 left-1/2 -translate-x-1/2 rotate-90",
+              "max-md:h-8 max-md:w-8 max-md:border max-md:border-border/60 max-md:bg-background/75 max-md:backdrop-blur-sm max-md:shadow-sm",
+              isHorizontal ? "left-4 max-md:left-2" : "top-4 left-1/2 -translate-x-1/2 rotate-90 max-md:top-2",
             )}
             aria-label="Previous slide"
           />
@@ -306,7 +457,8 @@ export function Carousel({
             disabled={!loop && currentIndex >= maxIndex}
             className={cn(
               "absolute top-1/2 -translate-y-1/2 hover:-translate-y-1/2 active:-translate-y-1/2 z-10 rounded-full will-change-transform backdrop-blur-0 hover:backdrop-blur-0 hover:bg-transparent border-0",
-              isHorizontal ? "right-4" : "bottom-4 left-1/2 -translate-x-1/2 rotate-90",
+              "max-md:h-8 max-md:w-8 max-md:border max-md:border-border/60 max-md:bg-background/75 max-md:backdrop-blur-sm max-md:shadow-sm",
+              isHorizontal ? "right-4 max-md:right-2" : "bottom-4 left-1/2 -translate-x-1/2 rotate-90 max-md:bottom-2",
             )}
             aria-label="Next slide"
           />
@@ -314,11 +466,11 @@ export function Carousel({
       )}
 
       {/* Dots indicators */}
-      {showDots && totalSlides > slidesToShow && (
+      {showDots && totalSlides > effectiveSlidesToShow && (
         <div
           className={cn(
             "absolute flex gap-2 z-10",
-            isHorizontal ? "bottom-4 left-1/2 -translate-x-1/2 flex-row" : "right-4 top-1/2 -translate-y-1/2 flex-col",
+            isHorizontal ? "bottom-4 left-1/2 -translate-x-1/2 flex-row max-md:bottom-2" : "right-4 top-1/2 -translate-y-1/2 flex-col max-md:right-2",
           )}
           role="tablist"
           aria-label="Carousel pagination"
@@ -329,8 +481,11 @@ export function Carousel({
               onClick={() => scrollTo(idx)}
               className={cn(
                 "rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                "max-md:w-1.5 max-md:h-1.5",
                 isHorizontal ? "w-2 h-2" : "w-2 h-2",
-                idx === currentIndex ? `bg-primary ${isHorizontal ? "w-6" : "h-6"}` : "bg-muted-foreground/50 hover:bg-muted-foreground/75",
+                idx === currentIndex
+                  ? `bg-primary ${isHorizontal ? "w-6 max-md:w-4" : "h-6 max-md:h-4"}`
+                  : "bg-muted-foreground/50 hover:bg-muted-foreground/75",
               )}
               aria-label={`Go to slide ${idx + 1}`}
               aria-selected={idx === currentIndex}
@@ -341,11 +496,12 @@ export function Carousel({
       )}
 
       {/* Thumbnail navigation */}
-      {showThumbnails && totalSlides > slidesToShow && (
+      {showThumbnails && totalSlides > effectiveSlidesToShow && (
         <div
          
           className={cn(
             "absolute bottom-0 left-0 right-0 flex gap-2 p-4 bg-linear-to-t from-black/50 to-transparent overflow-x-auto",
+            "max-md:gap-1.5 max-md:p-2",
             isHorizontal ? "flex-row" : "flex-col",
           )}
         >
@@ -355,7 +511,8 @@ export function Carousel({
               onClick={() => scrollTo(idx)}
               className={cn(
                 "shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary",
-                idx === currentIndex ? "border-primary scale-110" : "border-transparent opacity-70 hover:opacity-100",
+                "max-md:w-12 max-md:h-12",
+                idx === currentIndex ? "border-primary md:scale-110" : "border-transparent opacity-70 hover:opacity-100",
               )}
               aria-label={`Thumbnail ${idx + 1}`}
             >

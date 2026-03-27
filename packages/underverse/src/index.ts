@@ -104,6 +104,7 @@ export type { ImageUploadProps, UploadedImage } from "./components/ImageUpload";
 export { default as FileUpload } from "./components/FileUpload";
 export type { FileUploadProps, UploadedFile } from "./components/FileUpload";
 export { Carousel } from "./components/Carousel";
+export type { CarouselEffectOptions, CarouselEffectPreset } from "./components/Carousel";
 export { default as FallingIcons } from "./components/FallingIcons";
 export { default as List } from "./components/List";
 export { ListItem } from "./components/List";
