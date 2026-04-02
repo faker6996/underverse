@@ -1,12 +1,12 @@
 "use client";
 
-export { default } from "./UEditor/UEditor";
+export { default } from "../../packages/underverse/src/components/UEditor";
 export {
   extractImageSrcsFromHtml,
   normalizeImageUrl,
   prepareUEditorContentForSave,
   UEditorPrepareContentForSaveError,
-} from "./UEditor/prepare-content-for-save";
+} from "../../packages/underverse/src/components/UEditor";
 export type {
   UEditorInlineUploadedItem,
   UEditorPrepareContentForSaveOptions,
@@ -16,4 +16,4 @@ export type {
   UEditorUploadImageForSave,
   UEditorUploadImageForSaveResult,
   UEditorVariant,
-} from "./UEditor/types";
+} from "../../packages/underverse/src/components/UEditor";

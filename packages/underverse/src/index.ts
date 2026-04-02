@@ -21,6 +21,8 @@ export type { CheckboxProps } from "./components/CheckBox";
 export { default as Input } from "./components/Input";
 export type { InputProps, SearchInputProps, PasswordInputProps, NumberInputProps, TextareaProps } from "./components/Input";
 export { PasswordInput, NumberInput, SearchInput, Textarea } from "./components/Input";
+export { default as EmojiPicker } from "./components/EmojiPicker";
+export type { EmojiPickerProps } from "./components/EmojiPicker";
 export { default as TagInput, TagInput as TagInputBase } from "./components/TagInput";
 export type { TagInputProps } from "./components/TagInput";
 export { default as Switch } from "./components/Switch";

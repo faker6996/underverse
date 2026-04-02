@@ -12,6 +12,27 @@ export default function UEditorExample() {
   const [content, setContent] = useState(`
     <h1>Welcome to UEditor</h1>
     <p>A powerful <strong>Notion-like</strong> editor built with TipTap. Try out the features below:</p>
+    <h2>↕️ Table Resize Demo</h2>
+    <p>Hover the right edge of a cell to resize columns. Hover the bottom edge of a row to resize row height with a stronger guide line.</p>
+    <table>
+      <tbody>
+        <tr data-row-height="42">
+          <th>Feature</th>
+          <th>Status</th>
+          <th>Hint</th>
+        </tr>
+        <tr data-row-height="56">
+          <td>Column resize</td>
+          <td>Live</td>
+          <td>Drag the blue handle on the right edge</td>
+        </tr>
+        <tr data-row-height="84">
+          <td>Row resize</td>
+          <td>Live</td>
+          <td>Hover the bottom edge of this row, then drag downward</td>
+        </tr>
+      </tbody>
+    </table>
     <p><img src="https://picsum.photos/seed/ueditor-wrap/320/220" alt="Wrapped" data-image-layout="right" data-image-size="md" width="220" height="150" />This editor now supports wrapped images as well, so you can keep an image on one side and let the text flow naturally beside it. Select an image and use the image menu or image bubble menu to switch between block, left wrap, and right wrap layouts, then choose S, M, or L width presets without losing the setting when you save HTML.</p>
     <h2>✨ Features</h2>
     <ul data-type="taskList">
@@ -82,6 +103,9 @@ export default function UEditorExample() {
         <div className="flex items-center gap-2">
           <span className="px-2 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full">Notion Style</span>
           <span className="text-sm text-muted-foreground">Full-featured editor with all formatting options</span>
+        </div>
+        <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
+          Resize demo: drag the right edge of a table cell for columns, or drag the bottom edge of a row for row height.
         </div>
         <UEditor
           content={content}
@@ -217,7 +241,7 @@ export default function UEditorExample() {
           <li>✓ Task lists with checkboxes</li>
           <li>✓ Blockquote</li>
           <li>✓ Code blocks with syntax highlighting</li>
-          <li>✓ Tables (resizable)</li>
+          <li>✓ Tables (resizable columns + rows)</li>
           <li>✓ Images (paste/drop/upload; base64 by default)</li>
           <li>✓ Wrapped images with text flow</li>
           <li>✓ Links</li>

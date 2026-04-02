@@ -10,7 +10,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit --incremental false",
-    "test:ueditor": "node --test --experimental-strip-types components/ui/UEditor/__tests__/prepare-content-for-save.test.mjs",
+    "test:ueditor": "node --test --experimental-strip-types packages/underverse/src/components/UEditor/__tests__/prepare-content-for-save.test.mjs",
     "test:overlay-scrollbar": "node --test --experimental-strip-types packages/underverse/tests/overlay-scrollbar-provider.test.mjs",
     "test:data-table": "node --test --experimental-strip-types packages/underverse/tests/data-table-sticky.test.mjs",
     "test:data-table-deep": "node --test --experimental-strip-types packages/underverse/tests/data-table-headers-validation.test.mjs",

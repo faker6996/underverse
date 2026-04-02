@@ -59,6 +59,12 @@ export default function Example() {
 - Wrapped images preserve aspect ratio by default while dragging the resize handle. Hold `Ctrl` if you need to break the ratio manually.
 - Wrapped image layout is preserved in saved HTML using `data-image-layout="left" | "right"`.
 
+## Tables
+
+- Columns use TipTap's native resize handles on the right edge of cells.
+- Rows support resize on the bottom edge. Hover near the row boundary to reveal the stronger guide line, then drag vertically.
+- Row height is preserved in saved HTML using `data-row-height="..."` and inline `height: ...px`.
+
 ## Base64 During Edit, Upload Before Save (Opt-in)
 
 Default behavior is unchanged: existing screens still work with base64 image preview while editing.
@@ -202,7 +208,7 @@ Helper exports for URL matching:
 - **Task Lists** with checkboxes
 - **Blockquotes**
 - **Code Blocks** with syntax highlighting (via lowlight)
-- **Tables** (with row/column operations, header support)
+- **Tables** (with row/column operations, header support, column resize, row resize)
 - **Images** (paste/drop/upload; base64 by default)
 - **Wrapped Images** (image left/right with text flowing beside it)
 - **Horizontal Divider**

@@ -1,6 +1,6 @@
 # CalendarTimeline
 
-Source: `components/ui/CalendarTimeline/CalendarTimeline.tsx`
+Source: `packages/underverse/src/components/CalendarTimeline/CalendarTimeline.tsx`
 
 Exports:
 

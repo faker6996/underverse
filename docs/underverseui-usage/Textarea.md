@@ -1,6 +1,6 @@
 # Textarea
 
-Source: `components/ui/Textarea.tsx`
+Source: `packages/underverse/src/components/Input.tsx`
 
 Exports:
 - Textarea

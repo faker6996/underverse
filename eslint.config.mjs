@@ -12,7 +12,7 @@ const config = [
     },
   },
   {
-    files: ["components/ui/UEditor/resizable-image.tsx"],
+    files: ["packages/underverse/src/components/UEditor/resizable-image.tsx"],
     rules: {
       "@next/next/no-img-element": "off",
     },

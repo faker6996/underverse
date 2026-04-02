@@ -1,9 +1,10 @@
 "use client";
 
-import React, { forwardRef, InputHTMLAttributes, useId, useState } from "react";
+import React, { forwardRef, InputHTMLAttributes, useCallback, useId, useRef, useState } from "react";
 import { useSmartTranslations } from "../hooks/useSmartTranslations";
 import { cn } from "../utils/cn";
 import { Eye, EyeOff, Search, X, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
   label?: string;
@@ -635,8 +636,11 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
   error?: string;
   description?: string;
   variant?: "default" | "filled" | "outlined" | "minimal";
+  size?: "sm" | "md" | "lg";
   resize?: "none" | "vertical" | "horizontal" | "both";
   counter?: boolean;
+  /** Enable OverlayScrollbars on textarea viewport. Default: false */
+  useOverlayScrollbar?: boolean;
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
@@ -647,8 +651,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       error,
       description,
       variant = "default",
+      size = "md",
       resize = "vertical",
       counter = false,
+      useOverlayScrollbar = false,
       className,
       required,
       value,
@@ -658,7 +664,24 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     ref,
   ) => {
     const [isFocused, setIsFocused] = useState(false);
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const charCount = typeof value === "string" ? value.length : 0;
+
+    useOverlayScrollbarTarget(textareaRef, { enabled: useOverlayScrollbar });
+
+    const setTextareaRefs = useCallback(
+      (node: HTMLTextAreaElement | null) => {
+        textareaRef.current = node;
+        if (typeof ref === "function") {
+          ref(node);
+          return;
+        }
+        if (ref) {
+          (ref as React.MutableRefObject<HTMLTextAreaElement | null>).current = node;
+        }
+      },
+      [ref],
+    );
 
     const variantStyles = {
       default:
@@ -676,6 +699,12 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       vertical: "resize-y",
       horizontal: "resize-x",
       both: "resize",
+    };
+
+    const sizeStyles = {
+      sm: "px-3 py-2 text-sm min-h-20",
+      md: "px-4 py-3 text-sm min-h-25",
+      lg: "px-5 py-4 text-base min-h-30",
     };
 
     return (
@@ -711,18 +740,18 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
 
         {/* Textarea */}
         <textarea
-          ref={ref}
+          ref={setTextareaRefs}
           value={value}
           maxLength={maxLength}
           required={required}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           className={cn(
-            "w-full rounded-2xl md:rounded-3xl px-4 py-3 text-sm text-foreground transition-all duration-200",
-            "placeholder:text-muted-foreground focus:outline-none min-h-20",
+            "w-full rounded-2xl md:rounded-3xl text-foreground transition-all duration-200",
+            "placeholder:text-muted-foreground focus:outline-none",
             "disabled:cursor-not-allowed disabled:opacity-50",
+            sizeStyles[size],
             variantStyles[variant],
-            // DÒNG NÀY ĐÃ ĐƯỢC CẬP NHẬT:
             error &&
               "border-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
             resizeClasses[resize],

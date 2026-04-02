@@ -1,5 +1,7 @@
 # EmojiPicker
 
+Source: `packages/underverse/src/components/EmojiPicker.tsx`
+
 A standalone Messenger-style emoji picker component with 740+ emojis, search functionality, and auto-highlighting category navigation.
 
 ## Features
@@ -23,7 +25,7 @@ npm install @underverse-ui/underverse
 ### Basic Example
 
 ```tsx
-import { EmojiPicker } from "@/components/ui/EmojiPicker";
+import { EmojiPicker } from "@underverse-ui/underverse";
 import { useState } from "react";
 
 export default function Example() {
@@ -78,6 +80,8 @@ export default function Example() {
 | `onEmojiSelect` | `(emoji: string) => void` | **Required** | Callback when emoji is selected |
 | `className` | `string` | `undefined` | Additional CSS classes for container |
 | `searchPlaceholder` | `string` | `"Search emojis..."` | Placeholder text for search input |
+| `emptyText` | `string` | `"No emoji found"` | Text shown when no emoji matches |
+| `emptyHint` | `string` | `"Try a different search term"` | Helper text shown under empty state |
 | `showSearch` | `boolean` | `true` | Show/hide search bar |
 | `showCategoryNav` | `boolean` | `true` | Show/hide bottom category navigation |
 | `columns` | `number` | `9` | Number of emoji columns in grid |
@@ -126,7 +130,7 @@ element.scrollIntoView({ behavior: "smooth", block: "start" });
 Real-time search filters emojis by name:
 
 ```tsx
-emojis.filter(emoji => 
+emojis.filter((emoji) =>
   emoji.name.toLowerCase().includes(query) ||
   emoji.emoji.includes(search)
 )
@@ -148,7 +152,7 @@ function ChatInput() {
         onChange={(e) => setMessage(e.target.value)}
       />
       <button onClick={() => setShowPicker(!showPicker)}>😊</button>
-      
+
       {showPicker && (
         <EmojiPicker
           onEmojiSelect={(emoji) => {
@@ -165,6 +169,8 @@ function ChatInput() {
 ### Comment System
 
 ```tsx
+import { EmojiPicker, Popover } from "@underverse-ui/underverse";
+
 function CommentBox() {
   const [comment, setComment] = useState("");
 
@@ -174,16 +180,13 @@ function CommentBox() {
         value={comment}
         onChange={(e) => setComment(e.target.value)}
       />
-      
-      <Popover>
-        <PopoverTrigger>
-          <button>Add Emoji</button>
-        </PopoverTrigger>
-        <PopoverContent>
-          <EmojiPicker
-            onEmojiSelect={(emoji) => setComment(comment + emoji)}
-          />
-        </PopoverContent>
+
+      <Popover
+        trigger={<button>Add Emoji</button>}
+      >
+        <EmojiPicker
+          onEmojiSelect={(emoji) => setComment(comment + emoji)}
+        />
       </Popover>
     </div>
   );
@@ -193,6 +196,8 @@ function CommentBox() {
 ### Form Input
 
 ```tsx
+import { DropdownMenu, EmojiPicker } from "@underverse-ui/underverse";
+
 function ProfileForm() {
   const [status, setStatus] = useState("");
 
@@ -204,15 +209,14 @@ function ProfileForm() {
           value={status}
           onChange={(e) => setStatus(e.target.value)}
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger>😊</DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <EmojiPicker
-              onEmojiSelect={(emoji) => setStatus(status + emoji)}
-              columns={8}
-              maxHeight="18rem"
-            />
-          </DropdownMenuContent>
+        <DropdownMenu
+          trigger={<button>😊</button>}
+        >
+          <EmojiPicker
+            onEmojiSelect={(emoji) => setStatus(status + emoji)}
+            columns={8}
+            maxHeight="18rem"
+          />
         </DropdownMenu>
       </div>
     </div>
@@ -284,28 +288,19 @@ Works in all modern browsers with emoji support:
 ### Integration with Popover
 
 ```tsx
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/Popover";
-import { EmojiPicker } from "@/components/ui/EmojiPicker";
+import { EmojiPicker, Popover } from "@underverse-ui/underverse";
 
-<Popover>
-  <PopoverTrigger>
-    <button>😊 Add Emoji</button>
-  </PopoverTrigger>
-  <PopoverContent>
-    <EmojiPicker onEmojiSelect={(emoji) => console.log(emoji)} />
-  </PopoverContent>
+<Popover trigger={<button>😊 Add Emoji</button>}>
+  <EmojiPicker onEmojiSelect={(emoji) => console.log(emoji)} />
 </Popover>
 ```
 
 ### Integration with DropdownMenu
 
 ```tsx
-import { DropdownMenu } from "@/components/ui/DropdownMenu";
-import { EmojiPicker } from "@/components/ui/EmojiPicker";
+import { DropdownMenu, EmojiPicker } from "@underverse-ui/underverse";
 
-<DropdownMenu
-  trigger={<button>😊</button>}
->
+<DropdownMenu trigger={<button>😊</button>}>
   <EmojiPicker onEmojiSelect={(emoji) => handleEmoji(emoji)} />
 </DropdownMenu>
 ```
@@ -321,7 +316,7 @@ function ControlledPicker() {
       <button onClick={() => setIsOpen(!isOpen)}>
         Toggle Picker
       </button>
-      
+
       {isOpen && (
         <div className="relative">
           <EmojiPicker

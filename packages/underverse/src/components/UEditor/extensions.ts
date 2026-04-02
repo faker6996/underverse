@@ -21,7 +21,6 @@ import Color from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
 import TextAlign from "@tiptap/extension-text-align";
 import { Table } from "@tiptap/extension-table";
-import TableRow from "@tiptap/extension-table-row";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import CharacterCount from "@tiptap/extension-character-count";
@@ -35,6 +34,7 @@ import { ClipboardImages } from "./clipboard-images";
 import { EmojiSuggestion } from "./emoji-suggestion";
 import { UEditorPlaceholder } from "./placeholder";
 import ResizableImage from "./resizable-image";
+import UEditorTableRow from "./table-row";
 
 const lowlight = createLowlight(common);
 
@@ -124,7 +124,7 @@ export function buildUEditorExtensions({
         class: "border-collapse w-full my-4",
       },
     }),
-    TableRow,
+    UEditorTableRow,
     TableCell.configure({
       HTMLAttributes: {
         class: "border border-border p-2 min-w-25",

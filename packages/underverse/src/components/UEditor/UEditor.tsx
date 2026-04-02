@@ -3,6 +3,8 @@
 import React, { useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { useEditor, EditorContent } from "@tiptap/react";
+import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
+import type { EditorView } from "@tiptap/pm/view";
 import { cn } from "../../utils/cn";
 import { buildUEditorExtensions } from "./extensions";
 import type { UEditorPrepareContentForSaveResult, UEditorProps, UEditorRef } from "./types";
@@ -10,6 +12,64 @@ import { EditorToolbar } from "./toolbar";
 import { CustomBubbleMenu, CustomFloatingMenu } from "./menus";
 import { CharacterCountDisplay } from "./CharacterCount";
 import { prepareUEditorContentForSave, UEditorPrepareContentForSaveError } from "./prepare-content-for-save";
+
+const TABLE_RESIZE_HIT_ZONE = 10;
+const MIN_TABLE_ROW_HEIGHT = 36;
+
+function applyPreviewRowHeight(rowElement: HTMLTableRowElement, nextHeight: number) {
+  rowElement.style.height = `${nextHeight}px`;
+  rowElement.querySelectorAll("th,td").forEach((cell) => {
+    if (cell instanceof HTMLElement) {
+      cell.style.height = `${nextHeight}px`;
+      cell.style.minHeight = `${nextHeight}px`;
+    }
+  });
+}
+
+function clearPreviewRowHeight(rowElement: HTMLTableRowElement) {
+  rowElement.style.height = "";
+  rowElement.querySelectorAll("th,td").forEach((cell) => {
+    if (cell instanceof HTMLElement) {
+      cell.style.height = "";
+      cell.style.minHeight = "";
+    }
+  });
+}
+
+function findTableRowNodeInfo(view: EditorView, rowElement: HTMLTableRowElement) {
+  const firstCell = rowElement.querySelector("th,td");
+  if (!firstCell) return null;
+
+  const cellPos = view.posAtDOM(firstCell, 0);
+  const $pos = view.state.doc.resolve(cellPos);
+
+  for (let depth = $pos.depth; depth > 0; depth -= 1) {
+    const node = $pos.node(depth);
+    if (node.type.name === "tableRow") {
+      return {
+        pos: $pos.before(depth),
+        node,
+      };
+    }
+  }
+
+  return null;
+}
+
+function resolveTableResizeTarget(target: EventTarget | null) {
+  if (!(target instanceof Element)) return null;
+
+  const cell = target.closest("th,td");
+  if (!(cell instanceof HTMLElement)) return null;
+
+  const row = cell.closest("tr");
+  if (!(row instanceof HTMLTableRowElement)) return null;
+
+  const rect = cell.getBoundingClientRect();
+  const bottomDistance = rect.bottom - ("clientY" in target ? 0 : 0);
+
+  return { cell, row, rect, bottomDistance };
+}
 
 const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   content = "",
@@ -35,6 +95,31 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   const t = useSmartTranslations("UEditor");
   const effectivePlaceholder = placeholder ?? t("placeholder");
   const inFlightPrepareRef = useRef<Promise<UEditorPrepareContentForSaveResult> | null>(null);
+  const editorRootRef = useRef<HTMLElement | null>(null);
+  const hoveredTableRowRef = useRef<HTMLTableRowElement | null>(null);
+  const rowResizeStateRef = useRef<{
+    rowElement: HTMLTableRowElement;
+    rowPos: number;
+    rowNode: ProseMirrorNode;
+    startY: number;
+    startHeight: number;
+  } | null>(null);
+
+  const setEditorResizeCursor = React.useCallback((cursor: string) => {
+    const proseMirror = editorRootRef.current?.querySelector(".ProseMirror") as HTMLElement | null;
+    if (proseMirror) {
+      proseMirror.style.cursor = cursor;
+    }
+  }, []);
+
+  const clearHoveredTableRow = React.useCallback(() => {
+    editorRootRef.current?.classList.remove("resize-row-cursor");
+    setEditorResizeCursor("");
+    if (hoveredTableRowRef.current) {
+      delete hoveredTableRowRef.current.dataset.rowResizeHover;
+      hoveredTableRowRef.current = null;
+    }
+  }, [setEditorResizeCursor]);
 
   const extensions = useMemo(
     () => buildUEditorExtensions({ placeholder: effectivePlaceholder, translate: t, maxCharacters, uploadImage, imageInsertMode, editable }),
@@ -60,6 +145,93 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
             event.stopPropagation();
           }
           return false;
+        },
+        mousemove: (view, event) => {
+          if (!(event instanceof MouseEvent)) return false;
+
+          if (rowResizeStateRef.current) {
+            return false;
+          }
+
+          const target = event.target;
+          if (!(target instanceof Element)) {
+            clearHoveredTableRow();
+            return false;
+          }
+
+          const cell = target.closest("th,td");
+          if (!(cell instanceof HTMLElement)) {
+            clearHoveredTableRow();
+            return false;
+          }
+
+          const row = cell.closest("tr");
+          if (!(row instanceof HTMLTableRowElement)) {
+            clearHoveredTableRow();
+            return false;
+          }
+
+          const rect = cell.getBoundingClientRect();
+          const nearBottom = rect.bottom - event.clientY <= TABLE_RESIZE_HIT_ZONE;
+          const nearRight = rect.right - event.clientX <= TABLE_RESIZE_HIT_ZONE;
+
+          if (nearBottom && !nearRight) {
+            editorRootRef.current?.classList.add("resize-row-cursor");
+            setEditorResizeCursor("row-resize");
+
+            if (hoveredTableRowRef.current !== row) {
+              if (hoveredTableRowRef.current) {
+                delete hoveredTableRowRef.current.dataset.rowResizeHover;
+              }
+              row.dataset.rowResizeHover = "true";
+              hoveredTableRowRef.current = row;
+            }
+
+            return false;
+          }
+
+          clearHoveredTableRow();
+          return false;
+        },
+        mousedown: (view, event) => {
+          if (!(event instanceof MouseEvent) || event.button !== 0) return false;
+
+          const target = event.target;
+          if (!(target instanceof Element)) return false;
+
+          const cell = target.closest("th,td");
+          if (!(cell instanceof HTMLElement)) return false;
+
+          const row = cell.closest("tr");
+          if (!(row instanceof HTMLTableRowElement)) return false;
+
+          const rect = cell.getBoundingClientRect();
+          const nearBottom = rect.bottom - event.clientY <= TABLE_RESIZE_HIT_ZONE;
+          const nearRight = rect.right - event.clientX <= TABLE_RESIZE_HIT_ZONE;
+
+          if (!nearBottom || nearRight) {
+            return false;
+          }
+
+          const rowInfo = findTableRowNodeInfo(view, row);
+          if (!rowInfo) {
+            return false;
+          }
+
+          rowResizeStateRef.current = {
+            rowElement: row,
+            rowPos: rowInfo.pos,
+            rowNode: rowInfo.node,
+            startY: event.clientY,
+            startHeight: row.getBoundingClientRect().height,
+          };
+
+          row.dataset.rowResizeHover = "true";
+          editorRootRef.current?.classList.add("resize-row-cursor");
+          setEditorResizeCursor("row-resize");
+          document.body.style.cursor = "row-resize";
+          event.preventDefault();
+          return true;
         },
         click: (view, event) => {
           if (!(event instanceof MouseEvent)) return false;
@@ -105,14 +277,47 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           "[&_pre]:text-[#d4d4d4]!",
           "[&_pre_code]:bg-transparent!",
           "[&_.tableWrapper]:overflow-x-auto",
+          "[&_td]:relative",
+          "[&_th]:relative",
           "[&_.column-resize-handle]:pointer-events-auto",
           "[&_.column-resize-handle]:cursor-col-resize",
           "[&_.column-resize-handle]:bg-primary/35",
+          "[&_.column-resize-handle]:w-1.5",
           "[&_.column-resize-handle]:opacity-0",
           "[&_.column-resize-handle]:transition-opacity",
           "[&_td:hover_.column-resize-handle]:opacity-100",
           "[&_th:hover_.column-resize-handle]:opacity-100",
+          "[&_tr[data-row-resize-hover='true']>td]:border-b-primary/60",
+          "[&_tr[data-row-resize-hover='true']>th]:border-b-primary/60",
+          "[&_tr[data-row-resize-hover='true']>td]:shadow-[inset_0_-3px_0_0_hsl(var(--primary))]",
+          "[&_tr[data-row-resize-hover='true']>th]:shadow-[inset_0_-3px_0_0_hsl(var(--primary))]",
+          "[&_tr[data-row-resize-hover='true']>td]:cursor-row-resize",
+          "[&_tr[data-row-resize-hover='true']>th]:cursor-row-resize",
+          "[&_tr[data-row-resize-hover='true']_*]:cursor-row-resize!",
+          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:content-['']",
+          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:content-['']",
+          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:absolute",
+          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:absolute",
+          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:right-[-10px]",
+          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:right-[-10px]",
+          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:bottom-[-7px]",
+          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:bottom-[-7px]",
+          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:h-3.5",
+          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:h-3.5",
+          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:w-5",
+          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:w-5",
+          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:rounded-full",
+          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:rounded-full",
+          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:border",
+          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:border",
+          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:border-primary/60",
+          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:border-primary/60",
+          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:bg-background/95",
+          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:bg-background/95",
+          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:shadow-sm",
+          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:shadow-sm",
           "[&.resize-cursor]:cursor-col-resize",
+          "[&.resize-row-cursor]:cursor-row-resize",
           "[&_img.ProseMirror-selectednode]:ring-2",
           "[&_img.ProseMirror-selectednode]:ring-primary/60",
           "[&_img.ProseMirror-selectednode]:ring-offset-2",
@@ -211,6 +416,68 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
     }
   }, [content, editor]);
 
+  useEffect(() => {
+    if (!editor) return undefined;
+
+    const handlePointerMove = (event: MouseEvent) => {
+      const state = rowResizeStateRef.current;
+      if (!state) return;
+
+      const nextHeight = Math.max(
+        MIN_TABLE_ROW_HEIGHT,
+        Math.round(state.startHeight + (event.clientY - state.startY)),
+      );
+
+      applyPreviewRowHeight(state.rowElement, nextHeight);
+      document.body.style.cursor = "row-resize";
+      setEditorResizeCursor("row-resize");
+    };
+
+    const handlePointerUp = (event: MouseEvent) => {
+      const state = rowResizeStateRef.current;
+      if (!state) return;
+
+      const nextHeight = Math.max(
+        MIN_TABLE_ROW_HEIGHT,
+        Math.round(state.startHeight + (event.clientY - state.startY)),
+      );
+
+      const tr = editor.view.state.tr;
+      tr.setNodeMarkup(state.rowPos, undefined, {
+        ...state.rowNode.attrs,
+        rowHeight: nextHeight,
+      });
+      editor.view.dispatch(tr);
+
+      clearPreviewRowHeight(state.rowElement);
+      rowResizeStateRef.current = null;
+      document.body.style.cursor = "";
+      clearHoveredTableRow();
+    };
+
+    const handleWindowBlur = () => {
+      const state = rowResizeStateRef.current;
+      if (!state) return;
+      clearPreviewRowHeight(state.rowElement);
+      rowResizeStateRef.current = null;
+      document.body.style.cursor = "";
+      clearHoveredTableRow();
+    };
+
+    window.addEventListener("mousemove", handlePointerMove);
+    window.addEventListener("mouseup", handlePointerUp);
+    window.addEventListener("blur", handleWindowBlur);
+
+    return () => {
+      window.removeEventListener("mousemove", handlePointerMove);
+      window.removeEventListener("mouseup", handlePointerUp);
+      window.removeEventListener("blur", handleWindowBlur);
+      document.body.style.cursor = "";
+      clearHoveredTableRow();
+      rowResizeStateRef.current = null;
+    };
+  }, [clearHoveredTableRow, editor, setEditorResizeCursor]);
+
   if (!editor) {
     return (
       <div
@@ -241,7 +508,9 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
 
       <EditorContent
         editor={editor}
-       
+        ref={(node) => {
+          editorRootRef.current = node;
+        }}
         className="flex-1 overflow-y-auto"
         style={{
           minHeight,

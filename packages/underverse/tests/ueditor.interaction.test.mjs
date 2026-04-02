@@ -152,3 +152,36 @@ test("UEditor preserves wrapped image layout in editor DOM and saved HTML", asyn
   assert.match(result.html, /data-image-size="md"/);
   assert.match(result.html, /float:\s*left/i);
 });
+
+test("UEditor preserves table row height from content HTML", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: `<table><tbody><tr data-row-height="72"><td>Wide row</td><td>Cell</td></tr></tbody></table>`,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const row = await waitFor(() => {
+    const element = view.container.querySelector("tr");
+    assert.ok(element);
+    return element;
+  });
+
+  assert.equal(row.getAttribute("data-row-height"), "72");
+  assert.match(row.getAttribute("style") ?? "", /height:\s*72px/i);
+
+  await waitFor(() => {
+    assert.ok(ref.current);
+  });
+
+  const result = await ref.current.prepareContentForSave();
+  assert.match(result.html, /data-row-height="72"/);
+  assert.match(result.html, /height:\s*72px/i);
+});
