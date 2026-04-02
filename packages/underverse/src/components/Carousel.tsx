@@ -76,6 +76,7 @@ export function Carousel({
   const carouselRef = React.useRef<HTMLDivElement>(null);
   const rafRef = React.useRef<number | null>(null);
   const isDraggingRef = React.useRef(false);
+  const dragDistanceRef = React.useRef(0);
   const startPosRef = React.useRef(0);
   const lastDragPositionRef = React.useRef(0);
 
@@ -304,6 +305,7 @@ export function Carousel({
 
   const touchStart = (event: React.TouchEvent | React.MouseEvent) => {
     isDraggingRef.current = true;
+    dragDistanceRef.current = 0;
     const pos = isHorizontal ? getPositionX(event.nativeEvent) : getPositionY(event.nativeEvent);
     startPosRef.current = pos;
     lastDragPositionRef.current = pos;
@@ -313,6 +315,7 @@ export function Carousel({
     if (!isDraggingRef.current) return;
     const pos = isHorizontal ? getPositionX(event.nativeEvent) : getPositionY(event.nativeEvent);
     lastDragPositionRef.current = pos;
+    dragDistanceRef.current = Math.max(dragDistanceRef.current, Math.abs(pos - startPosRef.current));
   };
 
   const touchEnd = () => {
@@ -330,6 +333,28 @@ export function Carousel({
     startPosRef.current = 0;
     lastDragPositionRef.current = 0;
   };
+
+  const handleDeckAreaClick = React.useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDeckAnimation || dragDistanceRef.current > 8) {
+      dragDistanceRef.current = 0;
+      return;
+    }
+
+    const activeDeck = event.currentTarget.querySelector("[data-active-deck='true']") as HTMLElement | null;
+    if (!activeDeck) return;
+
+    const activeRect = activeDeck.getBoundingClientRect();
+    const x = event.clientX;
+
+    if (x < activeRect.left) {
+      scrollPrev();
+      return;
+    }
+
+    if (x > activeRect.right) {
+      scrollNext();
+    }
+  }, [isDeckAnimation, scrollNext, scrollPrev]);
 
   // Call onSlideChange callback
   React.useEffect(() => {
@@ -375,6 +400,7 @@ export function Carousel({
         return {
           opacity: 0,
           pointerEvents: "none",
+          zIndex: 0,
           transform: `translate3d(0, 0, -${mergedEffectOptions.depthStep! * 2}px) scale(${mergedEffectOptions.farScale})`,
           filter: `blur(${mergedEffectOptions.blur! * 1.4}px)`,
         };
@@ -391,6 +417,7 @@ export function Carousel({
           transform: `translate3d(${xOffset}px, ${yOffset}px, -${absDistance * mergedEffectOptions.depthStep!}px) scale(${scale})`,
           filter: distance === 0 ? "blur(0px)" : `blur(${Math.min(absDistance, 2) * mergedEffectOptions.blur!}px)`,
           pointerEvents: "auto",
+          zIndex: 30 - absDistance,
         };
       }
 
@@ -404,6 +431,7 @@ export function Carousel({
         transform: `translate3d(${xOffset}%, 0, -${absDistance * mergedEffectOptions.depthStep!}px) rotateY(${rotateY}deg) scale(${scale})`,
         filter: distance === 0 ? "blur(0px)" : `blur(${Math.min(absDistance, 2) * mergedEffectOptions.blur!}px)`,
         pointerEvents: "auto",
+        zIndex: 30 - absDistance,
       };
     },
     [effectiveAnimation, getLoopDistance, mergedEffectOptions],
@@ -413,7 +441,7 @@ export function Carousel({
     <div
       ref={carouselRef}
       className={cn(
-        "relative w-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-xl md:rounded-3xl",
+        "relative w-full overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-xl md:rounded-3xl",
         className,
       )}
       onKeyDown={handleKeyDown}
@@ -448,41 +476,64 @@ export function Carousel({
         onMouseMove={touchMove}
         onMouseUp={touchEnd}
         onMouseLeave={touchEnd}
+        onClick={handleDeckAreaClick}
         role="group"
         aria-atomic="false"
         aria-live={autoScroll ? "off" : "polite"}
       >
-        {slides.map((child, idx) => (
-          <div
-            key={(React.isValidElement(child) && child.key) || idx}
-            className={cn(
-              "shrink-0",
-              effectiveAnimation === "slide" ? (isHorizontal ? "h-full" : "h-full w-full") : "col-start-1 row-start-1",
-              effectiveAnimation === "fade" &&
-                (idx === currentIndex ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"),
-              effectiveAnimation === "scale" &&
-                (idx === currentIndex ? "opacity-100 scale-100 z-10" : "opacity-0 scale-95 pointer-events-none z-0"),
-              isDeckAnimation && "w-full max-w-[78%] md:max-w-[72%] transition-[opacity,transform] duration-500 ease-out",
-              isDeckAnimation && idx !== currentIndex && "cursor-pointer",
-              effectiveAnimation !== "slide" && "transition-[opacity,transform] duration-500 ease-in-out",
-              slideClassName,
-            )}
-            style={
-              effectiveAnimation === "slide"
-                ? { [isHorizontal ? "width" : "height"]: `${slideWidth}%` }
-                : isDeckAnimation
-                  ? getDeckSlideStyles(idx)
-                  : undefined
-            }
-            onClick={isDeckAnimation && idx !== currentIndex ? () => scrollTo(idx) : undefined}
-            role="group"
-            aria-roledescription="slide"
-            aria-label={`${idx + 1} of ${totalSlides}`}
-            aria-hidden={effectiveAnimation === "slide" ? idx < currentIndex || idx >= currentIndex + slidesToShow : idx !== currentIndex}
-          >
-            {child}
-          </div>
-        ))}
+        {slides.map((child, idx) => {
+          const key = (React.isValidElement(child) && child.key) || idx;
+          const ariaHidden = effectiveAnimation === "slide" ? idx < currentIndex || idx >= currentIndex + slidesToShow : idx !== currentIndex;
+
+          if (isDeckAnimation) {
+            return (
+              <div
+                key={key}
+                className="col-start-1 row-start-1 flex w-full items-center justify-center pointer-events-none"
+                aria-hidden={ariaHidden}
+              >
+                <div
+                  className={cn(
+                    "w-full max-w-[68%] md:max-w-[60%] transition-[opacity,transform,filter] duration-500 ease-out",
+                    idx !== currentIndex && "cursor-pointer",
+                    slideClassName,
+                  )}
+                  data-active-deck={idx === currentIndex ? "true" : undefined}
+                  style={getDeckSlideStyles(idx)}
+                  onClick={idx !== currentIndex ? () => scrollTo(idx) : undefined}
+                  role="group"
+                  aria-roledescription="slide"
+                  aria-label={`${idx + 1} of ${totalSlides}`}
+                >
+                  {child}
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div
+              key={key}
+              className={cn(
+                "shrink-0",
+                effectiveAnimation === "slide" ? (isHorizontal ? "h-full" : "h-full w-full") : "col-start-1 row-start-1",
+                effectiveAnimation === "fade" &&
+                  (idx === currentIndex ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"),
+                effectiveAnimation === "scale" &&
+                  (idx === currentIndex ? "opacity-100 scale-100 z-10" : "opacity-0 scale-95 pointer-events-none z-0"),
+                effectiveAnimation !== "slide" && "transition-[opacity,transform] duration-500 ease-in-out",
+                slideClassName,
+              )}
+              style={effectiveAnimation === "slide" ? { [isHorizontal ? "width" : "height"]: `${slideWidth}%` } : undefined}
+              role="group"
+              aria-roledescription="slide"
+              aria-label={`${idx + 1} of ${totalSlides}`}
+              aria-hidden={ariaHidden}
+            >
+              {child}
+            </div>
+          );
+        })}
       </div>
 
       {/* Navigation arrows */}

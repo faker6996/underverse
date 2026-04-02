@@ -52,6 +52,7 @@ export function Example() {
       animation="coverflow"
       autoScroll
       autoScrollInterval={3200}
+      showArrows={false}
       showProgress
       effectOptions={{
         mainScale: 1.08,
@@ -117,6 +118,7 @@ Notes:
 - `stack`: 1 slide chính ở trước, các slide còn lại xếp lớp phía sau.
 - Khi dùng `coverflow` hoặc `stack`, component sẽ tự hoạt động như single-slide carousel.
 - `coverflow` hỗ trợ `autoScroll` như carousel thường.
+- Có thể tắt 2 mũi tên bằng `showArrows={false}`.
 - `effectPreset="cinematic"`: đậm chiều sâu hơn, ảnh chính nổi hơn.
 - `effectPreset="gallery"`: nhẹ hơn, thiên về editorial/gallery.
 - `effectPreset="poster"`: tương phản mạnh hơn, hợp hero/showcase đậm.

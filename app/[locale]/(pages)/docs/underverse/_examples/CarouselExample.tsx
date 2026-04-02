@@ -66,6 +66,7 @@ export default function CarouselExample() {
     `  effectPreset="cinematic"\n` +
     `  autoScroll\n` +
     `  autoScrollInterval={3200}\n` +
+    `  showArrows={false}\n` +
     `  showProgress\n` +
     `  effectOptions={{ mainScale: 1.08, sideScale: 0.84, sideOffset: 24, sideOpacity: 0.88, farOpacity: 0.52, blur: 1.2 }}\n` +
     `>\n` +
@@ -178,6 +179,7 @@ export default function CarouselExample() {
           effectPreset="cinematic"
           autoScroll
           autoScrollInterval={3200}
+          showArrows={false}
           showProgress
           effectOptions={{ mainScale: 1.08, sideScale: 0.84, sideOffset: 24, sideOpacity: 0.88, farOpacity: 0.52, blur: 1.2 }}
         >
