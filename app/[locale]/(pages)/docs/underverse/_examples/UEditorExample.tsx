@@ -41,7 +41,7 @@ export default function UEditorExample() {
       <li data-type="taskItem" data-checked="false"><label><input type="checkbox"></label><div>Task lists with checkboxes</div></li>
       <li data-type="taskItem" data-checked="false"><label><input type="checkbox"></label><div>Code blocks with syntax highlighting</div></li>
     </ul>
-    <blockquote><p>💡 <em>Tip: Select text to see the bubble menu, or click + on empty lines for block commands!</em></p></blockquote>
+    <blockquote><p>💡 <em>Tip: Select text to see the bubble menu for quick formatting.</em></p></blockquote>
   `);
 
   const basicCode =
@@ -114,7 +114,6 @@ export default function UEditorExample() {
           variant="notion"
           showCharacterCount
           showBubbleMenu
-          showFloatingMenu
           minHeight={300}
         />
       </div>
@@ -192,7 +191,7 @@ export default function UEditorExample() {
     { property: "autofocus", description: "Auto focus editor on mount", type: "boolean", default: "false" },
     { property: "showToolbar", description: "Show the main toolbar", type: "boolean", default: "true" },
     { property: "showBubbleMenu", description: "Show bubble menu on text selection", type: "boolean", default: "true" },
-    { property: "showFloatingMenu", description: "Show floating menu on empty lines", type: "boolean", default: "false" },
+    { property: "showFloatingMenu", description: "Deprecated. Empty-line floating menu is disabled in the current UI.", type: "boolean", default: "false" },
     { property: "showCharacterCount", description: "Show character & word count footer", type: "boolean", default: "true" },
     { property: "maxCharacters", description: "Maximum character limit", type: "number", default: "undefined" },
     { property: "minHeight", description: "Minimum height of editor area", type: "number | string", default: '"200px"' },
@@ -252,7 +251,6 @@ export default function UEditorExample() {
         <h3 className="text-lg font-semibold mb-3">⚡ UX Features</h3>
         <ul className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
           <li>✓ Bubble menu on selection</li>
-          <li>✓ Floating menu (+) for block commands</li>
           <li>✓ Keyboard shortcuts</li>
           <li>✓ Undo/Redo with history</li>
           <li>✓ Character & word count</li>

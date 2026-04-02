@@ -1,6 +1,6 @@
 # UEditor
 
-A powerful Notion-like rich text editor built with [TipTap](https://tiptap.dev/), featuring a beautiful modern UI, bubble menu, floating menu, and extensive formatting options.
+A powerful Notion-like rich text editor built with [TipTap](https://tiptap.dev/), featuring a modern UI, bubble menu, and extensive formatting options.
 
 ## Installation
 
@@ -115,7 +115,7 @@ await editorRef.current?.prepareContentForSave({ throwOnError: true });
 Full-featured editor with all formatting options:
 
 ```tsx
-<UEditor content={content} onChange={setContent} variant="notion" showBubbleMenu showFloatingMenu />
+<UEditor content={content} onChange={setContent} variant="notion" showBubbleMenu />
 ```
 
 ### Minimal
@@ -151,7 +151,7 @@ Display content without editing capabilities:
 | `autofocus`          | `boolean`                            | `false`                      | Auto focus editor on mount.                   |
 | `showToolbar`        | `boolean`                            | `true`                       | Show the main toolbar.                        |
 | `showBubbleMenu`     | `boolean`                            | `true`                       | Show bubble menu on text selection.           |
-| `showFloatingMenu`   | `boolean`                            | `false`                      | Show floating menu on empty lines.            |
+| `showFloatingMenu`   | `boolean`                            | `false`                      | Deprecated. Empty-line floating menu is disabled in the current UI. |
 | `showCharacterCount` | `boolean`                            | `true`                       | Show character & word count footer.           |
 | `maxCharacters`      | `number`                             | `undefined`                  | Maximum character limit.                      |
 | `minHeight`          | `number \| string`                   | `"200px"`                    | Minimum height of editor area.                |

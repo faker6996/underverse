@@ -9,15 +9,19 @@ import { cn } from "../../utils/cn";
 import { buildUEditorExtensions } from "./extensions";
 import type { UEditorPrepareContentForSaveResult, UEditorProps, UEditorRef } from "./types";
 import { EditorToolbar } from "./toolbar";
-import { CustomBubbleMenu, CustomFloatingMenu } from "./menus";
+import { CustomBubbleMenu } from "./menus";
 import { CharacterCountDisplay } from "./CharacterCount";
 import { prepareUEditorContentForSave, UEditorPrepareContentForSaveError } from "./prepare-content-for-save";
 
 const TABLE_RESIZE_HIT_ZONE = 10;
 const MIN_TABLE_ROW_HEIGHT = 36;
+const TABLE_RESIZE_LINE_COLOR = "hsl(var(--primary))";
+const COLUMN_RESIZE_LINE_THICKNESS = 2;
+const ROW_RESIZE_LINE_THICKNESS = 2;
 
 function applyPreviewRowHeight(rowElement: HTMLTableRowElement, nextHeight: number) {
   rowElement.style.height = `${nextHeight}px`;
+  rowElement.style.minHeight = `${nextHeight}px`;
   rowElement.querySelectorAll("th,td").forEach((cell) => {
     if (cell instanceof HTMLElement) {
       cell.style.height = `${nextHeight}px`;
@@ -28,6 +32,7 @@ function applyPreviewRowHeight(rowElement: HTMLTableRowElement, nextHeight: numb
 
 function clearPreviewRowHeight(rowElement: HTMLTableRowElement) {
   rowElement.style.height = "";
+  rowElement.style.minHeight = "";
   rowElement.querySelectorAll("th,td").forEach((cell) => {
     if (cell instanceof HTMLElement) {
       cell.style.height = "";
@@ -56,19 +61,40 @@ function findTableRowNodeInfo(view: EditorView, rowElement: HTMLTableRowElement)
   return null;
 }
 
-function resolveTableResizeTarget(target: EventTarget | null) {
-  if (!(target instanceof Element)) return null;
+function resolveEventElement(target: EventTarget | null) {
+  if (target instanceof Element) return target;
+  if (target instanceof Node) return target.parentElement;
+  return null;
+}
 
-  const cell = target.closest("th,td");
-  if (!(cell instanceof HTMLElement)) return null;
-
-  const row = cell.closest("tr");
-  if (!(row instanceof HTMLTableRowElement)) return null;
-
+function isRowResizeHotspot(cell: HTMLElement, clientX: number, clientY: number) {
   const rect = cell.getBoundingClientRect();
-  const bottomDistance = rect.bottom - ("clientY" in target ? 0 : 0);
+  const nearBottom = rect.bottom - clientY <= TABLE_RESIZE_HIT_ZONE;
+  const nearRight = rect.right - clientX <= TABLE_RESIZE_HIT_ZONE;
+  return nearBottom && !nearRight;
+}
 
-  return { cell, row, rect, bottomDistance };
+function isColumnResizeHotspot(cell: HTMLElement, clientX: number, clientY: number) {
+  const rect = cell.getBoundingClientRect();
+  const nearRight = rect.right - clientX <= TABLE_RESIZE_HIT_ZONE;
+  const nearBottom = rect.bottom - clientY <= TABLE_RESIZE_HIT_ZONE;
+  return nearRight && !nearBottom;
+}
+
+function getRelativeBoundaryMetrics(surface: HTMLElement, table: HTMLTableElement, row: HTMLTableRowElement, cell: HTMLTableCellElement) {
+  const surfaceRect = surface.getBoundingClientRect();
+  const tableRect = table.getBoundingClientRect();
+  const rowRect = row.getBoundingClientRect();
+  const cellRect = cell.getBoundingClientRect();
+
+  return {
+    left: tableRect.left - surfaceRect.left + surface.scrollLeft,
+    top: tableRect.top - surfaceRect.top + surface.scrollTop,
+    width: tableRect.width,
+    height: tableRect.height,
+    rowBottom: rowRect.bottom - surfaceRect.top + surface.scrollTop,
+    columnRight: cellRect.right - surfaceRect.left + surface.scrollLeft,
+  };
 }
 
 const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
@@ -85,7 +111,6 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   autofocus = false,
   showToolbar = true,
   showBubbleMenu = true,
-  showFloatingMenu = false,
   showCharacterCount = true,
   maxCharacters,
   minHeight = "200px",
@@ -95,30 +120,78 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   const t = useSmartTranslations("UEditor");
   const effectivePlaceholder = placeholder ?? t("placeholder");
   const inFlightPrepareRef = useRef<Promise<UEditorPrepareContentForSaveResult> | null>(null);
-  const editorRootRef = useRef<HTMLElement | null>(null);
-  const hoveredTableRowRef = useRef<HTMLTableRowElement | null>(null);
+  const editorContentRef = useRef<HTMLDivElement | null>(null);
+  const tableColumnGuideRef = useRef<HTMLSpanElement | null>(null);
+  const tableRowGuideRef = useRef<HTMLSpanElement | null>(null);
   const rowResizeStateRef = useRef<{
     rowElement: HTMLTableRowElement;
+    tableElement: HTMLTableElement;
+    cellElement: HTMLTableCellElement;
+    cellIndex: number;
     rowPos: number;
     rowNode: ProseMirrorNode;
     startY: number;
     startHeight: number;
+    previewHeight: number;
   } | null>(null);
 
   const setEditorResizeCursor = React.useCallback((cursor: string) => {
-    const proseMirror = editorRootRef.current?.querySelector(".ProseMirror") as HTMLElement | null;
+    const proseMirror = editorContentRef.current?.querySelector(".ProseMirror") as HTMLElement | null;
     if (proseMirror) {
       proseMirror.style.cursor = cursor;
     }
   }, []);
 
-  const clearHoveredTableRow = React.useCallback(() => {
-    editorRootRef.current?.classList.remove("resize-row-cursor");
-    setEditorResizeCursor("");
-    if (hoveredTableRowRef.current) {
-      delete hoveredTableRowRef.current.dataset.rowResizeHover;
-      hoveredTableRowRef.current = null;
+  const hideColumnGuide = React.useCallback(() => {
+    editorContentRef.current?.classList.remove("resize-cursor");
+    const guide = tableColumnGuideRef.current;
+    if (guide) {
+      guide.style.opacity = "0";
     }
+  }, []);
+
+  const hideRowGuide = React.useCallback(() => {
+    editorContentRef.current?.classList.remove("resize-row-cursor");
+    const guide = tableRowGuideRef.current;
+    if (guide) {
+      guide.style.opacity = "0";
+    }
+  }, []);
+
+  const clearAllTableResizeHover = React.useCallback(() => {
+    setEditorResizeCursor("");
+    hideColumnGuide();
+    hideRowGuide();
+  }, [hideColumnGuide, hideRowGuide, setEditorResizeCursor]);
+
+  const showColumnGuide = React.useCallback((table: HTMLTableElement, row: HTMLTableRowElement, cell: HTMLTableCellElement) => {
+    const surface = editorContentRef.current;
+    const guide = tableColumnGuideRef.current;
+    if (!surface || !guide) return;
+
+    const metrics = getRelativeBoundaryMetrics(surface, table, row, cell);
+    guide.style.left = `${metrics.columnRight - COLUMN_RESIZE_LINE_THICKNESS / 2}px`;
+    guide.style.top = `${metrics.top}px`;
+    guide.style.width = `${COLUMN_RESIZE_LINE_THICKNESS}px`;
+    guide.style.height = `${metrics.height}px`;
+    guide.style.opacity = "1";
+    surface.classList.add("resize-cursor");
+    setEditorResizeCursor("col-resize");
+  }, [setEditorResizeCursor]);
+
+  const showRowGuide = React.useCallback((table: HTMLTableElement, row: HTMLTableRowElement, cell: HTMLTableCellElement) => {
+    const surface = editorContentRef.current;
+    const guide = tableRowGuideRef.current;
+    if (!surface || !guide) return;
+
+    const metrics = getRelativeBoundaryMetrics(surface, table, row, cell);
+    guide.style.left = `${metrics.left}px`;
+    guide.style.top = `${metrics.rowBottom - ROW_RESIZE_LINE_THICKNESS / 2}px`;
+    guide.style.width = `${metrics.width}px`;
+    guide.style.height = `${ROW_RESIZE_LINE_THICKNESS}px`;
+    guide.style.opacity = "1";
+    surface.classList.add("resize-row-cursor");
+    setEditorResizeCursor("row-resize");
   }, [setEditorResizeCursor]);
 
   const extensions = useMemo(
@@ -146,98 +219,11 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           }
           return false;
         },
-        mousemove: (view, event) => {
-          if (!(event instanceof MouseEvent)) return false;
-
-          if (rowResizeStateRef.current) {
-            return false;
-          }
-
-          const target = event.target;
-          if (!(target instanceof Element)) {
-            clearHoveredTableRow();
-            return false;
-          }
-
-          const cell = target.closest("th,td");
-          if (!(cell instanceof HTMLElement)) {
-            clearHoveredTableRow();
-            return false;
-          }
-
-          const row = cell.closest("tr");
-          if (!(row instanceof HTMLTableRowElement)) {
-            clearHoveredTableRow();
-            return false;
-          }
-
-          const rect = cell.getBoundingClientRect();
-          const nearBottom = rect.bottom - event.clientY <= TABLE_RESIZE_HIT_ZONE;
-          const nearRight = rect.right - event.clientX <= TABLE_RESIZE_HIT_ZONE;
-
-          if (nearBottom && !nearRight) {
-            editorRootRef.current?.classList.add("resize-row-cursor");
-            setEditorResizeCursor("row-resize");
-
-            if (hoveredTableRowRef.current !== row) {
-              if (hoveredTableRowRef.current) {
-                delete hoveredTableRowRef.current.dataset.rowResizeHover;
-              }
-              row.dataset.rowResizeHover = "true";
-              hoveredTableRowRef.current = row;
-            }
-
-            return false;
-          }
-
-          clearHoveredTableRow();
-          return false;
-        },
-        mousedown: (view, event) => {
-          if (!(event instanceof MouseEvent) || event.button !== 0) return false;
-
-          const target = event.target;
-          if (!(target instanceof Element)) return false;
-
-          const cell = target.closest("th,td");
-          if (!(cell instanceof HTMLElement)) return false;
-
-          const row = cell.closest("tr");
-          if (!(row instanceof HTMLTableRowElement)) return false;
-
-          const rect = cell.getBoundingClientRect();
-          const nearBottom = rect.bottom - event.clientY <= TABLE_RESIZE_HIT_ZONE;
-          const nearRight = rect.right - event.clientX <= TABLE_RESIZE_HIT_ZONE;
-
-          if (!nearBottom || nearRight) {
-            return false;
-          }
-
-          const rowInfo = findTableRowNodeInfo(view, row);
-          if (!rowInfo) {
-            return false;
-          }
-
-          rowResizeStateRef.current = {
-            rowElement: row,
-            rowPos: rowInfo.pos,
-            rowNode: rowInfo.node,
-            startY: event.clientY,
-            startHeight: row.getBoundingClientRect().height,
-          };
-
-          row.dataset.rowResizeHover = "true";
-          editorRootRef.current?.classList.add("resize-row-cursor");
-          setEditorResizeCursor("row-resize");
-          document.body.style.cursor = "row-resize";
-          event.preventDefault();
-          return true;
-        },
         click: (view, event) => {
           if (!(event instanceof MouseEvent)) return false;
           if (event.button !== 0) return false;
 
-          const target = event.target as Element | null;
+          const target = resolveEventElement(event.target);
           const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
           const href = anchor?.getAttribute("href") ?? "";
           if (!href) return false;
@@ -281,41 +267,15 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           "[&_th]:relative",
           "[&_.column-resize-handle]:pointer-events-auto",
           "[&_.column-resize-handle]:cursor-col-resize",
-          "[&_.column-resize-handle]:bg-primary/35",
-          "[&_.column-resize-handle]:w-1.5",
+          "[&_.column-resize-handle]:bg-primary/65",
+          "[&_.column-resize-handle]:w-2",
+          "[&_.column-resize-handle]:rounded-full",
           "[&_.column-resize-handle]:opacity-0",
-          "[&_.column-resize-handle]:transition-opacity",
-          "[&_td:hover_.column-resize-handle]:opacity-100",
-          "[&_th:hover_.column-resize-handle]:opacity-100",
-          "[&_tr[data-row-resize-hover='true']>td]:border-b-primary/60",
-          "[&_tr[data-row-resize-hover='true']>th]:border-b-primary/60",
-          "[&_tr[data-row-resize-hover='true']>td]:shadow-[inset_0_-3px_0_0_hsl(var(--primary))]",
-          "[&_tr[data-row-resize-hover='true']>th]:shadow-[inset_0_-3px_0_0_hsl(var(--primary))]",
-          "[&_tr[data-row-resize-hover='true']>td]:cursor-row-resize",
-          "[&_tr[data-row-resize-hover='true']>th]:cursor-row-resize",
-          "[&_tr[data-row-resize-hover='true']_*]:cursor-row-resize!",
-          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:content-['']",
-          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:content-['']",
-          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:absolute",
-          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:absolute",
-          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:right-[-10px]",
-          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:right-[-10px]",
-          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:bottom-[-7px]",
-          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:bottom-[-7px]",
-          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:h-3.5",
-          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:h-3.5",
-          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:w-5",
-          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:w-5",
-          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:rounded-full",
-          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:rounded-full",
-          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:border",
-          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:border",
-          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:border-primary/60",
-          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:border-primary/60",
-          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:bg-background/95",
-          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:bg-background/95",
-          "[&_tr[data-row-resize-hover='true']>td:last-child]:after:shadow-sm",
-          "[&_tr[data-row-resize-hover='true']>th:last-child]:after:shadow-sm",
+          "[&_.column-resize-handle]:shadow-sm",
+          "[&_.column-resize-handle]:transition-[opacity,background-color,box-shadow]",
+          "[&.resize-cursor_.column-resize-handle]:opacity-100",
+          "[&.resize-cursor_.column-resize-handle]:bg-primary",
+          "[&.resize-cursor_.column-resize-handle]:shadow-md",
           "[&.resize-cursor]:cursor-col-resize",
           "[&.resize-row-cursor]:cursor-row-resize",
           "[&_img.ProseMirror-selectednode]:ring-2",
@@ -419,6 +379,96 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   useEffect(() => {
     if (!editor) return undefined;
 
+    const proseMirror = editor.view.dom as HTMLElement;
+
+    const handleEditorMouseMove = (event: MouseEvent) => {
+      const activeRowResize = rowResizeStateRef.current;
+      if (activeRowResize) {
+        showRowGuide(activeRowResize.tableElement, activeRowResize.rowElement, activeRowResize.cellElement);
+        return;
+      }
+
+      const target = resolveEventElement(event.target);
+      if (!(target instanceof Element)) {
+        clearAllTableResizeHover();
+        return;
+      }
+
+      const cell = target.closest("th,td");
+      if (!(cell instanceof HTMLElement)) {
+        clearAllTableResizeHover();
+        return;
+      }
+
+      const row = cell.closest("tr");
+      const table = cell.closest("table");
+      if (!(row instanceof HTMLTableRowElement) || !(table instanceof HTMLTableElement)) {
+        clearAllTableResizeHover();
+        return;
+      }
+
+      const nearBottom = isRowResizeHotspot(cell, event.clientX, event.clientY);
+      const nearRight = isColumnResizeHotspot(cell, event.clientX, event.clientY);
+
+      if (nearBottom && cell instanceof HTMLTableCellElement) {
+        hideColumnGuide();
+        showRowGuide(table, row, cell);
+        return;
+      }
+
+      if (nearRight && cell instanceof HTMLTableCellElement) {
+        hideRowGuide();
+        showColumnGuide(table, row, cell);
+        return;
+      }
+
+      clearAllTableResizeHover();
+    };
+
+    const handleEditorMouseLeave = () => {
+      if (!rowResizeStateRef.current) {
+        clearAllTableResizeHover();
+      }
+    };
+
+    const handleEditorMouseDown = (event: MouseEvent) => {
+      if (event.button !== 0) return;
+
+      const target = resolveEventElement(event.target);
+      if (!(target instanceof Element)) return;
+
+      const cell = target.closest("th,td");
+      if (!(cell instanceof HTMLTableCellElement)) return;
+
+      const row = cell.closest("tr");
+      const table = cell.closest("table");
+      if (!(row instanceof HTMLTableRowElement) || !(table instanceof HTMLTableElement)) return;
+
+      if (!isRowResizeHotspot(cell, event.clientX, event.clientY)) {
+        return;
+      }
+
+      const rowInfo = findTableRowNodeInfo(editor.view, row);
+      if (!rowInfo) return;
+
+      rowResizeStateRef.current = {
+        rowElement: row,
+        tableElement: table,
+        cellElement: cell,
+        cellIndex: cell.cellIndex,
+        rowPos: rowInfo.pos,
+        rowNode: rowInfo.node,
+        startY: event.clientY,
+        startHeight: row.getBoundingClientRect().height,
+        previewHeight: row.getBoundingClientRect().height,
+      };
+
+      showRowGuide(table, row, cell);
+      document.body.style.cursor = "row-resize";
+      event.preventDefault();
+      event.stopPropagation();
+    };
+
     const handlePointerMove = (event: MouseEvent) => {
       const state = rowResizeStateRef.current;
       if (!state) return;
@@ -428,9 +478,31 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         Math.round(state.startHeight + (event.clientY - state.startY)),
       );
 
+      if (nextHeight === state.previewHeight) {
+        document.body.style.cursor = "row-resize";
+        showRowGuide(state.tableElement, state.rowElement, state.cellElement);
+        return;
+      }
+
+      state.previewHeight = nextHeight;
       applyPreviewRowHeight(state.rowElement, nextHeight);
+      const tr = editor.view.state.tr;
+      tr.setNodeMarkup(state.rowPos, undefined, {
+        ...state.rowNode.attrs,
+        rowHeight: nextHeight,
+      });
+      editor.view.dispatch(tr);
+      state.rowNode = editor.view.state.doc.nodeAt(state.rowPos) ?? state.rowNode;
+      const refreshedRow = state.tableElement.rows.item(state.rowElement.rowIndex);
+      if (refreshedRow instanceof HTMLTableRowElement) {
+        state.rowElement = refreshedRow;
+        const refreshedCell = refreshedRow.cells.item(state.cellIndex);
+        if (refreshedCell instanceof HTMLTableCellElement) {
+          state.cellElement = refreshedCell;
+        }
+      }
       document.body.style.cursor = "row-resize";
-      setEditorResizeCursor("row-resize");
+      showRowGuide(state.tableElement, state.rowElement, state.cellElement);
     };
 
     const handlePointerUp = (event: MouseEvent) => {
@@ -442,17 +514,10 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         Math.round(state.startHeight + (event.clientY - state.startY)),
       );
 
-      const tr = editor.view.state.tr;
-      tr.setNodeMarkup(state.rowPos, undefined, {
-        ...state.rowNode.attrs,
-        rowHeight: nextHeight,
-      });
-      editor.view.dispatch(tr);
-
       clearPreviewRowHeight(state.rowElement);
       rowResizeStateRef.current = null;
       document.body.style.cursor = "";
-      clearHoveredTableRow();
+      clearAllTableResizeHover();
     };
 
     const handleWindowBlur = () => {
@@ -461,22 +526,32 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
       clearPreviewRowHeight(state.rowElement);
       rowResizeStateRef.current = null;
       document.body.style.cursor = "";
-      clearHoveredTableRow();
+      clearAllTableResizeHover();
     };
 
+    proseMirror.addEventListener("mousemove", handleEditorMouseMove);
+    proseMirror.addEventListener("mouseleave", handleEditorMouseLeave);
+    proseMirror.addEventListener("mousedown", handleEditorMouseDown);
     window.addEventListener("mousemove", handlePointerMove);
+    document.addEventListener("pointermove", handlePointerMove as EventListener);
     window.addEventListener("mouseup", handlePointerUp);
+    document.addEventListener("pointerup", handlePointerUp as EventListener);
     window.addEventListener("blur", handleWindowBlur);
 
     return () => {
+      proseMirror.removeEventListener("mousemove", handleEditorMouseMove);
+      proseMirror.removeEventListener("mouseleave", handleEditorMouseLeave);
+      proseMirror.removeEventListener("mousedown", handleEditorMouseDown);
       window.removeEventListener("mousemove", handlePointerMove);
+      document.removeEventListener("pointermove", handlePointerMove as EventListener);
       window.removeEventListener("mouseup", handlePointerUp);
+      document.removeEventListener("pointerup", handlePointerUp as EventListener);
       window.removeEventListener("blur", handleWindowBlur);
       document.body.style.cursor = "";
-      clearHoveredTableRow();
+      clearAllTableResizeHover();
       rowResizeStateRef.current = null;
     };
-  }, [clearHoveredTableRow, editor, setEditorResizeCursor]);
+  }, [clearAllTableResizeHover, editor, hideColumnGuide, hideRowGuide, showColumnGuide, showRowGuide]);
 
   if (!editor) {
     return (
@@ -504,19 +579,30 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         <EditorToolbar editor={editor} variant={variant} uploadImage={uploadImage} imageInsertMode={imageInsertMode} />
       )}
       {editable && showBubbleMenu && <CustomBubbleMenu editor={editor} />}
-      {editable && showFloatingMenu && <CustomFloatingMenu editor={editor} />}
 
-      <EditorContent
-        editor={editor}
-        ref={(node) => {
-          editorRootRef.current = node;
-        }}
-        className="flex-1 overflow-y-auto"
+      <div
+        ref={editorContentRef}
+        className="relative flex-1 overflow-y-auto"
         style={{
           minHeight,
           maxHeight,
         }}
-      />
+      >
+        <span
+          ref={tableColumnGuideRef}
+          aria-hidden="true"
+          className="pointer-events-none absolute z-20 bg-primary opacity-0 transition-opacity duration-100"
+        />
+        <span
+          ref={tableRowGuideRef}
+          aria-hidden="true"
+          className="pointer-events-none absolute z-20 bg-primary opacity-0 transition-opacity duration-100"
+        />
+        <EditorContent
+          editor={editor}
+          className="min-h-full"
+        />
+      </div>
 
       {showCharacterCount && <CharacterCountDisplay editor={editor} maxCharacters={maxCharacters} />}
     </div>
