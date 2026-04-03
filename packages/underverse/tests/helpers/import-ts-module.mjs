@@ -86,7 +86,12 @@ function resolveRelativeImport(fromFile, specifier) {
 }
 
 function getOutputPath(filePath) {
-  const relativePath = path.relative(packageRoot, filePath);
+  const sourceRoot = filePath.startsWith(packageRoot)
+    ? packageRoot
+    : filePath.startsWith(workspaceRoot)
+      ? workspaceRoot
+      : path.parse(filePath).root;
+  const relativePath = path.relative(sourceRoot, filePath);
   return path.join(tempRoot, relativePath).replace(/\.[cm]?[jt]sx?$/, ".mjs").replace(/\.json$/, ".mjs");
 }
 

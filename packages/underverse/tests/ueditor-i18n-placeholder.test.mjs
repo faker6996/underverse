@@ -31,6 +31,7 @@ afterEach(async () => {
 const componentsRoot = path.resolve(import.meta.dirname, "../src/components");
 const hooksRoot = path.resolve(import.meta.dirname, "../src/hooks");
 const contextsRoot = path.resolve(import.meta.dirname, "../src/contexts");
+const ueditorRoot = path.resolve(import.meta.dirname, "../src/components/UEditor");
 
 async function render(element) {
   const container = document.createElement("div");
@@ -148,6 +149,81 @@ test("useSmartLocale preserves an explicit internal locale without NextIntlAdapt
   );
 
   assert.equal(view.container.textContent, "ja");
+});
+
+test("NextIntlAdapter degrades gracefully when no next-intl provider is mounted", async () => {
+  document.documentElement.lang = "vi";
+  const hooksMod = await importTsModule(path.join(hooksRoot, "useSmartTranslations.tsx"));
+  const adapterMod = await importTsModule(path.join(contextsRoot, "NextIntlAdapter.tsx"));
+  const { useSmartLocale } = hooksMod;
+  const { NextIntlAdapter } = adapterMod;
+
+  function Probe() {
+    return React.createElement("div", null, useSmartLocale());
+  }
+
+  const originalConsoleError = console.error;
+  console.error = () => {};
+
+  try {
+    const view = await render(
+      React.createElement(
+        NextIntlAdapter,
+        null,
+        React.createElement(Probe),
+      ),
+    );
+
+    assert.equal(view.container.textContent, "vi");
+  } finally {
+    console.error = originalConsoleError;
+  }
+});
+
+test("NextIntlAdapter uses explicit locale and messages without relying on next-intl context", async () => {
+  const hooksMod = await importTsModule(path.join(hooksRoot, "useSmartTranslations.tsx"));
+  const adapterMod = await importTsModule(path.join(contextsRoot, "NextIntlAdapter.tsx"));
+  const { useSmartTranslations, useSmartLocale } = hooksMod;
+  const { NextIntlAdapter } = adapterMod;
+
+  function Probe() {
+    const t = useSmartTranslations("UEditor");
+    const locale = useSmartLocale();
+    return React.createElement("div", null, `${locale}:${t("toolbar.normal")}`);
+  }
+
+  const view = await render(
+    React.createElement(
+      NextIntlAdapter,
+      {
+        locale: "vi",
+        messages: {
+          UEditor: {
+            toolbar: {
+              normal: "Văn bản thường từ adapter",
+            },
+          },
+        },
+      },
+      React.createElement(Probe),
+    ),
+  );
+
+  assert.equal(view.container.textContent, "vi:Văn bản thường từ adapter");
+});
+
+test("UEditor table extension allows selecting the full table node", async () => {
+  const mod = await importTsModule(path.join(ueditorRoot, "extensions.ts"));
+  const extensions = mod.buildUEditorExtensions({
+    placeholder: "Placeholder",
+    translate: (key) => key,
+    editable: true,
+  });
+
+  const tableExtension = extensions.find((extension) => extension.name === "table");
+
+  assert.ok(tableExtension);
+  assert.equal(tableExtension.options.allowTableNodeSelection, true);
 });
 
 test("UEditor does not attach placeholder decorations when the document contains a table", async () => {

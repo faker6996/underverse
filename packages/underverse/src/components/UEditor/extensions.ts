@@ -121,6 +121,7 @@ export function buildUEditorExtensions({
     Table.configure({
       resizable: true,
       handleWidth: 10,
+      allowTableNodeSelection: true,
       HTMLAttributes: {
         class: "border-collapse w-full my-4",
       },
