@@ -96,5 +96,7 @@ export interface DataTableProps<T> {
   maxHeight?: number | string;
   /** Enable OverlayScrollbars on table viewport. Default: false */
   useOverlayScrollbar?: boolean;
+  /** Double-click leaf headers to auto-fit column width based on visible content. Default: true */
+  enableHeaderAutoFit?: boolean;
   labels?: DataTableLabels;
 }

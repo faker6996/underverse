@@ -15,7 +15,7 @@ type Row = { id: number; name: string; email: string; role: string; department: 
 const ALL: Row[] = Array.from({ length: 50 }).map((_, i) => ({
   id: i + 1,
   name: `User ${i + 1}`,
-  email: `user${i + 1}@example.com`,
+  email: `user${i + 1}.platform.audit+review@example-enterprise.com`,
   role: i % 3 === 0 ? "Admin" : i % 2 === 0 ? "Editor" : "User",
   department: ["Engineering", "Marketing", "Sales", "HR", "Finance"][i % 5],
   amount: Math.floor(Math.random() * 2000) + 500,
@@ -65,7 +65,7 @@ export default function DataTableExample() {
       ),
     },
     { key: "name", title: "Name", dataIndex: "name", sortable: true, filter: { type: "text" }, width: 150 },
-    { key: "email", title: "Email", dataIndex: "email", width: 200 },
+    { key: "email", title: "Email", dataIndex: "email", width: 160 },
     { key: "role", title: "Role", dataIndex: "role", filter: { type: "select", options: ["Admin", "Editor", "User"] }, width: 100 },
     {
       key: "department",
@@ -138,6 +138,7 @@ export default function DataTableExample() {
   const code = `const columns = [
   { key: 'select', title: <Checkbox />, render: (_, r) => <Checkbox /> },
   { key: 'name', title: 'Name', dataIndex: 'name', sortable: true, filter: { type: 'text' } },
+  { key: 'email', title: 'Email', dataIndex: 'email', width: 160 }, // hover/click to inspect overflow text
   { key: 'role', title: 'Role', dataIndex: 'role', filter: { type: 'select', options: [...] } },
   { key: 'amount', title: 'Amount', dataIndex: 'amount', sortable: true },
   { key: 'created_at', title: 'Created', filter: { type: 'date' } },
@@ -199,7 +200,7 @@ export default function DataTableExample() {
       title: "Personal Information",
       children: [
         { key: "name", title: "Name", dataIndex: "name", sortable: true, filter: { type: "text" }, width: 150 },
-        { key: "email", title: "Email", dataIndex: "email", width: 200 },
+        { key: "email", title: "Email", dataIndex: "email", width: 160 },
       ],
     },
     {

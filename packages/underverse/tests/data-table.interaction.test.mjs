@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import test, { after, afterEach } from "node:test";
 import React from "./helpers/workspace-react.mjs";
-import { cleanup, render, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { importTsModule } from "./helpers/import-ts-module.mjs";
@@ -96,11 +96,163 @@ test("DataTable supports density and column visibility controls", async () => {
   });
 
   await user.click(body.getByRole("button", { name: /columns/i }));
-  await user.click(body.getByRole("button", { name: /status/i }));
+  await user.click(body.getAllByRole("button", { name: /status/i }).find((element) => !/auto fit/i.test(element.getAttribute("aria-label") || "")) ?? (() => { throw new Error("Status toggle button not found"); })());
   await waitFor(() => {
     assert.equal(body.queryByRole("columnheader", { name: /status/i }), null);
     assert.equal(view.queryByText("active"), null);
     assert.deepEqual(getBodyTexts(body).map((text) => text.trim()), ["Alphaadmin"]);
   });
   await user.click(window.document.body);
+});
+
+test("DataTable shows full cell text on hover and focus for overflowing plain-text cells", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
+  const DataTable = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const body = within(window.document.body);
+
+  render(
+    React.createElement(DataTable, {
+      columns: [
+        { key: "hash", title: "Password_hash", dataIndex: "hash", width: 160 },
+      ],
+      data: [
+        { id: "1", hash: "$2a$11$9w9RjWXhGswmlZKSDA8A9JqjvT7L9r4u9o1e2t3u4v5w6x7y8z9" },
+      ],
+      rowKey: "id",
+      pageSize: 10,
+      size: "md",
+      stickyHeader: false,
+    }),
+  );
+
+  const cellTrigger = await body.findByRole("button", { name: /\$2a\$11\$9w9Rj/i });
+  Object.defineProperty(cellTrigger, "clientWidth", { configurable: true, value: 120 });
+  Object.defineProperty(cellTrigger, "scrollWidth", { configurable: true, value: 520 });
+
+  await user.hover(cellTrigger);
+
+  await user.unhover(cellTrigger);
+  await user.click(cellTrigger);
+  assert.equal(window.document.activeElement, cellTrigger);
+  assert.equal(cellTrigger.getAttribute("title"), null);
+});
+
+test("DataTable auto-fits a leaf column on header double click", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
+  const DataTable = mod.default;
+
+  const view = render(
+    React.createElement(DataTable, {
+      columns: [
+        { key: "email", title: "Email", dataIndex: "email", width: 120 },
+      ],
+      data: [
+        { id: "1", email: "avery.long.email.alias.for.autofit@example-enterprise.com" },
+      ],
+      rowKey: "id",
+      pageSize: 10,
+      size: "md",
+      stickyHeader: false,
+    }),
+  );
+
+  const headerCell = await waitFor(() => {
+    const element = view.container.querySelector('th[data-underverse-column-key="email"]');
+    assert.ok(element);
+    return element;
+  });
+
+  const bodyCell = await waitFor(() => {
+    const element = view.container.querySelector('td[data-underverse-column-key="email"]');
+    assert.ok(element);
+    return element;
+  });
+
+  const bodyContent = bodyCell.querySelector("button");
+  assert.ok(bodyContent);
+
+  Object.defineProperty(headerCell, "scrollWidth", { configurable: true, value: 160 });
+  Object.defineProperty(bodyCell, "scrollWidth", { configurable: true, value: 340 });
+  Object.defineProperty(bodyContent, "scrollWidth", { configurable: true, value: 340 });
+  Object.defineProperty(headerCell, "clientWidth", { configurable: true, value: 120 });
+  Object.defineProperty(bodyCell, "clientWidth", { configurable: true, value: 120 });
+  Object.defineProperty(bodyContent, "clientWidth", { configurable: true, value: 120 });
+  headerCell.getBoundingClientRect = () => ({ width: 120, height: 48, top: 0, left: 0, right: 120, bottom: 48, x: 0, y: 0, toJSON() {} });
+  bodyCell.getBoundingClientRect = () => ({ width: 120, height: 48, top: 0, left: 0, right: 120, bottom: 48, x: 0, y: 0, toJSON() {} });
+  bodyContent.getBoundingClientRect = () => ({ width: 120, height: 24, top: 0, left: 0, right: 120, bottom: 24, x: 0, y: 0, toJSON() {} });
+
+  const autoFitHandle = within(headerCell).getByRole("button", { name: "Auto fit Email" });
+
+  fireEvent.doubleClick(autoFitHandle);
+
+  const widthAfterFit = Number.parseFloat(headerCell.style.width);
+  await waitFor(() => {
+    assert.ok(Number.isFinite(Number.parseFloat(headerCell.style.width)));
+    assert.ok(Number.parseFloat(headerCell.style.width) > 120);
+  });
+
+  fireEvent.doubleClick(headerCell);
+
+  await waitFor(() => {
+    assert.equal(Number.parseFloat(headerCell.style.width), widthAfterFit);
+  });
+
+  fireEvent.doubleClick(autoFitHandle);
+
+  await waitFor(() => {
+    assert.equal(Number.parseFloat(headerCell.style.width), widthAfterFit);
+  });
+});
+
+test("DataTable skips auto-fit when a column is already wide enough", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
+  const DataTable = mod.default;
+
+  const view = render(
+    React.createElement(DataTable, {
+      columns: [
+        { key: "email", title: "Email", dataIndex: "email", width: 420 },
+      ],
+      data: [
+        { id: "1", email: "already.roomy.column@example-enterprise.com" },
+      ],
+      rowKey: "id",
+      pageSize: 10,
+      size: "md",
+      stickyHeader: false,
+    }),
+  );
+
+  const headerCell = await waitFor(() => {
+    const element = view.container.querySelector('th[data-underverse-column-key="email"]');
+    assert.ok(element);
+    return element;
+  });
+
+  const bodyCell = await waitFor(() => {
+    const element = view.container.querySelector('td[data-underverse-column-key="email"]');
+    assert.ok(element);
+    return element;
+  });
+
+  const bodyContent = bodyCell.querySelector("button");
+  assert.ok(bodyContent);
+
+  Object.defineProperty(headerCell, "scrollWidth", { configurable: true, value: 160 });
+  Object.defineProperty(bodyCell, "scrollWidth", { configurable: true, value: 342 });
+  Object.defineProperty(bodyContent, "scrollWidth", { configurable: true, value: 342 });
+  Object.defineProperty(headerCell, "clientWidth", { configurable: true, value: 420 });
+  Object.defineProperty(bodyCell, "clientWidth", { configurable: true, value: 420 });
+  Object.defineProperty(bodyContent, "clientWidth", { configurable: true, value: 342 });
+  headerCell.getBoundingClientRect = () => ({ width: 420, height: 48, top: 0, left: 0, right: 420, bottom: 48, x: 0, y: 0, toJSON() {} });
+  bodyCell.getBoundingClientRect = () => ({ width: 420, height: 48, top: 0, left: 0, right: 420, bottom: 48, x: 0, y: 0, toJSON() {} });
+  bodyContent.getBoundingClientRect = () => ({ width: 342, height: 24, top: 0, left: 0, right: 342, bottom: 24, x: 0, y: 0, toJSON() {} });
+
+  const autoFitHandle = within(headerCell).getByRole("button", { name: "Auto fit Email" });
+  fireEvent.doubleClick(autoFitHandle);
+
+  await waitFor(() => {
+    assert.equal(headerCell.style.width, "420px");
+  });
 });

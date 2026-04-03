@@ -7,6 +7,7 @@ import { DatePicker } from "../../DatePicker";
 import Input from "../../Input";
 import { Popover } from "../../Popover";
 import { TableHead, TableRow } from "../../Table";
+import { Tooltip } from "../../Tooltip";
 import { cn } from "../../../utils/cn";
 import type { DataTableColumn, HeaderRow, Sorter, DataTableSize } from "../types";
 
@@ -23,6 +24,8 @@ export function DataTableHeader<T extends Record<string, any>>({
   setCurPage,
   setFilters,
   setSort,
+  onAutoFitColumn,
+  enableHeaderAutoFit,
   getStickyHeaderClass,
   getStickyHeaderCellStyle,
   t,
@@ -39,6 +42,8 @@ export function DataTableHeader<T extends Record<string, any>>({
   setCurPage: React.Dispatch<React.SetStateAction<number>>;
   setFilters: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   setSort: React.Dispatch<React.SetStateAction<Sorter>>;
+  onAutoFitColumn?: (columnKey: string) => void;
+  enableHeaderAutoFit?: boolean;
   getStickyHeaderClass: (col: DataTableColumn<T>) => string;
   getStickyHeaderCellStyle: (headerCell: HeaderRow<T>[number]) => React.CSSProperties;
   t: (key: string) => string;
@@ -253,11 +258,13 @@ export function DataTableHeader<T extends Record<string, any>>({
                 key={col.key}
                 colSpan={colSpan}
                 rowSpan={rowSpan}
+                data-underverse-column-key={isLeaf ? col.key : undefined}
                 style={{
                   width: col.width,
                   ...getStickyHeaderCellStyle(headerCell),
                 }}
                 className={cn(
+                  "relative",
                   (col.align === "right" || (!col.align && headerAlign === "right")) && "text-right",
                   (col.align === "center" || (!col.align && headerAlign === "center")) && "text-center",
                   showBorderLeft && "border-l border-border/60",
@@ -265,6 +272,32 @@ export function DataTableHeader<T extends Record<string, any>>({
                 )}
               >
                 {renderHeaderContent(col, isLeaf)}
+                {isLeaf && enableHeaderAutoFit && (
+                  <Tooltip
+                    placement="top"
+                    content={<span className="text-xs font-medium">Double click to auto-fit</span>}
+                  >
+                    <button
+                      type="button"
+                      aria-label={`Auto fit ${String(col.title)}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                      }}
+                      onDoubleClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        onAutoFitColumn?.(col.key);
+                      }}
+                      className={cn(
+                        "absolute inset-y-0 right-0 z-10 w-3 -mr-1",
+                        "cursor-col-resize select-none bg-transparent",
+                        "after:absolute after:inset-y-2 after:right-[3px] after:w-px after:bg-border/0 after:transition-colors",
+                        "hover:after:bg-primary/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary",
+                      )}
+                    />
+                  </Tooltip>
+                )}
               </TableHead>
             );
           })}

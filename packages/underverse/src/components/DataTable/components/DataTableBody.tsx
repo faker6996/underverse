@@ -2,8 +2,86 @@
 
 import React from "react";
 import { TableBody, TableCell, TableRow } from "../../Table";
+import { Tooltip } from "../../Tooltip";
 import { cn } from "../../../utils/cn";
 import type { DataTableColumn, DataTableDensity } from "../types";
+
+function DataTableOverflowText({
+  text,
+  align,
+}: {
+  text: string;
+  align?: DataTableColumn<Record<string, any>>["align"];
+}) {
+  const triggerId = React.useId();
+  const [isOverflowing, setIsOverflowing] = React.useState(false);
+
+  const alignClass = align === "right"
+    ? "text-right"
+    : align === "center"
+      ? "text-center"
+      : "text-left";
+
+  const measureOverflow = React.useCallback(() => {
+    if (typeof document === "undefined") return;
+    const element = document.querySelector<HTMLElement>(`[data-underverse-datatable-cell="${triggerId}"]`);
+    if (!element) return;
+
+    setIsOverflowing(
+      element.scrollWidth - element.clientWidth > 1
+      || element.scrollHeight - element.clientHeight > 1,
+    );
+  }, [triggerId]);
+
+  React.useLayoutEffect(() => {
+    measureOverflow();
+  }, [measureOverflow, text]);
+
+  React.useEffect(() => {
+    if (typeof document === "undefined") return;
+    const element = document.querySelector<HTMLElement>(`[data-underverse-datatable-cell="${triggerId}"]`);
+    if (!element) return;
+
+    if (typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver(() => {
+      measureOverflow();
+    });
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [measureOverflow, triggerId]);
+
+  const trigger = (
+    <button
+      type="button"
+      data-underverse-datatable-cell={triggerId}
+      onMouseEnter={measureOverflow}
+      onFocus={measureOverflow}
+      className={cn(
+        "block w-full truncate bg-transparent p-0 font-inherit text-inherit select-text",
+        "cursor-text",
+        alignClass,
+      )}
+    >
+      {text}
+    </button>
+  );
+
+  return (
+    <Tooltip
+      disabled={!isOverflowing}
+      placement="top"
+      content={(
+        <div className={cn("max-w-[min(40rem,calc(100vw-2rem))] whitespace-pre-wrap break-all select-text", alignClass)}>
+          {text}
+        </div>
+      )}
+    >
+      {trigger}
+    </Tooltip>
+  );
+}
 
 export function DataTableBodyRows<T extends Record<string, any>>({
   leafColumns,
@@ -78,6 +156,7 @@ export function DataTableBodyRows<T extends Record<string, any>>({
                 return (
                   <TableCell
                     key={col.key}
+                    data-underverse-column-key={col.key}
                     style={getStickyColumnStyle(col)}
                     className={cn(
                       cellPadding,
@@ -87,7 +166,9 @@ export function DataTableBodyRows<T extends Record<string, any>>({
                       getStickyCellClass(col, isStripedRow),
                     )}
                   >
-                    {col.render ? col.render(value, row, idx) : String(value ?? "")}
+                    {col.render
+                      ? col.render(value, row, idx)
+                      : <DataTableOverflowText text={String(value ?? "")} align={col.align} />}
                   </TableCell>
                 );
               })}

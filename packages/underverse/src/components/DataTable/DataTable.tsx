@@ -14,7 +14,86 @@ import { useDataTableModel } from "./hooks/useDataTableModel";
 import { useDataTableState } from "./hooks/useDataTableState";
 import { useStickyColumns } from "./hooks/useStickyColumns";
 import { validateColumns } from "./utils/validation";
-import type { DataTableProps } from "./types";
+import type { DataTableColumn, DataTableProps } from "./types";
+
+function applyColumnWidthOverrides<T>(
+  columns: DataTableColumn<T>[],
+  widthOverrides: Record<string, number>,
+): DataTableColumn<T>[] {
+  return columns.map((column) => {
+    if (column.children?.length) {
+      return {
+        ...column,
+        children: applyColumnWidthOverrides(column.children, widthOverrides),
+      };
+    }
+
+    const nextWidth = widthOverrides[column.key];
+    if (nextWidth == null) {
+      return column;
+    }
+
+    return {
+      ...column,
+      width: nextWidth,
+    };
+  });
+}
+
+function measureNaturalContentWidth(node: HTMLElement): number {
+  if (typeof document === "undefined") return 0;
+
+  const measurementRoot = document.createElement("div");
+  measurementRoot.style.position = "absolute";
+  measurementRoot.style.left = "-99999px";
+  measurementRoot.style.top = "0";
+  measurementRoot.style.visibility = "hidden";
+  measurementRoot.style.pointerEvents = "none";
+  measurementRoot.style.whiteSpace = "nowrap";
+  measurementRoot.style.width = "max-content";
+  measurementRoot.style.maxWidth = "none";
+  measurementRoot.style.minWidth = "0";
+  measurementRoot.style.overflow = "visible";
+
+  const clone = (node.firstElementChild instanceof HTMLElement ? node.firstElementChild : node).cloneNode(true);
+  if (!(clone instanceof HTMLElement)) {
+    return 0;
+  }
+
+  const sourceStyle = window.getComputedStyle(node);
+  const cloneStyle = window.getComputedStyle(clone);
+
+  clone.style.width = "max-content";
+  clone.style.maxWidth = "none";
+  clone.style.minWidth = "0";
+  clone.style.overflow = "visible";
+  clone.style.textOverflow = "clip";
+  clone.style.whiteSpace = cloneStyle.whiteSpace === "normal" ? "pre-wrap" : "nowrap";
+
+  measurementRoot.appendChild(clone);
+  document.body.appendChild(measurementRoot);
+
+  const horizontalPadding = parseFloat(sourceStyle.paddingLeft || "0") + parseFloat(sourceStyle.paddingRight || "0");
+  const horizontalBorder = parseFloat(sourceStyle.borderLeftWidth || "0") + parseFloat(sourceStyle.borderRightWidth || "0");
+  const cloneRectWidth = clone.getBoundingClientRect().width;
+  const cloneScrollWidth = clone.scrollWidth;
+  const sourceScrollWidth = node.scrollWidth;
+  const measuredContentWidth = Math.max(cloneRectWidth, cloneScrollWidth) || sourceScrollWidth;
+  const measured = Math.ceil(measuredContentWidth + horizontalPadding + horizontalBorder);
+
+  document.body.removeChild(measurementRoot);
+  return measured;
+}
+
+function isNodeOverflowing(node: HTMLElement): boolean {
+  const contentNode = node.firstElementChild instanceof HTMLElement ? node.firstElementChild : node;
+  return (
+    node.scrollWidth > node.clientWidth + 1
+    || contentNode.scrollWidth > contentNode.clientWidth + 1
+  );
+}
+
+const AUTO_FIT_BUFFER_PX = 8;
 
 export function DataTable<T extends Record<string, any>>({
   columns,
@@ -39,9 +118,15 @@ export function DataTable<T extends Record<string, any>>({
   stickyHeader = true,
   maxHeight = 500,
   useOverlayScrollbar = false,
+  enableHeaderAutoFit = true,
   labels,
 }: DataTableProps<T>) {
   const t = useSmartTranslations("Common");
+  const [columnWidthOverrides, setColumnWidthOverrides] = React.useState<Record<string, number>>({});
+  const columnsWithWidthOverrides = React.useMemo(
+    () => applyColumnWidthOverrides(columns, columnWidthOverrides),
+    [columnWidthOverrides, columns],
+  );
   const {
     headerAlign,
     setHeaderAlign,
@@ -58,7 +143,7 @@ export function DataTable<T extends Record<string, any>>({
     curPageSize,
     setCurPageSize,
   } = useDataTableState({
-    columns,
+    columns: columnsWithWidthOverrides,
     page,
     pageSize,
     size,
@@ -68,10 +153,10 @@ export function DataTable<T extends Record<string, any>>({
   // Validate columns in development mode
   React.useEffect(() => {
     if (process.env.NODE_ENV === "development") {
-      const warnings = validateColumns(columns);
+      const warnings = validateColumns(columnsWithWidthOverrides);
       warnings.forEach((w) => console.warn(`[DataTable] ${w}`));
     }
-  }, [columns]);
+  }, [columnsWithWidthOverrides]);
 
   const debouncedFilters = useDebounced(filters, 350);
 
@@ -100,7 +185,7 @@ export function DataTable<T extends Record<string, any>>({
   const sortIconClass = size === "sm" ? "w-3.5 h-3.5" : size === "lg" ? "w-4 h-4" : "w-3.5 h-3.5";
 
   const { visibleColumns, leafColumns, headerRows, totalColumnsWidth, totalItems, displayedData } = useDataTableModel({
-    columns,
+    columns: columnsWithWidthOverrides,
     data,
     visibleCols,
     filters,
@@ -120,14 +205,51 @@ export function DataTable<T extends Record<string, any>>({
   };
 
   const viewportRef = React.useRef<HTMLDivElement>(null);
+  const tableRef = React.useRef<HTMLTableElement>(null);
   useOverlayScrollbarTarget(viewportRef, { enabled: useOverlayScrollbar });
+
+  const autoFitColumn = React.useCallback((columnKey: string) => {
+    const tableElement = tableRef.current;
+    if (!tableElement) return;
+
+    const nodes = Array.from(
+      tableElement.querySelectorAll<HTMLElement>(`[data-underverse-column-key="${columnKey}"]`),
+    );
+
+    if (nodes.length === 0) return;
+
+    const hasOverflow = nodes.some((node) => isNodeOverflowing(node));
+    if (!hasOverflow) return;
+
+    const measuredWidth = nodes.reduce((maxWidth, node) => {
+      const nextWidth = measureNaturalContentWidth(node);
+      return Math.max(maxWidth, nextWidth);
+    }, 0);
+    const currentRenderedWidth = nodes.reduce((maxWidth, node) => {
+      const nextWidth = Math.max(
+        Math.ceil(node.getBoundingClientRect().width || 0),
+        node.offsetWidth || 0,
+        node.clientWidth || 0,
+      );
+      return Math.max(maxWidth, nextWidth);
+    }, 0);
+
+    if (measuredWidth <= 0) return;
+    if (currentRenderedWidth > 0 && measuredWidth <= currentRenderedWidth + AUTO_FIT_BUFFER_PX) return;
+
+    const nextWidth = Math.max(80, measuredWidth + AUTO_FIT_BUFFER_PX);
+    setColumnWidthOverrides((prev) => {
+      if (prev[columnKey] === nextWidth) return prev;
+      return { ...prev, [columnKey]: nextWidth };
+    });
+  }, []);
 
   return (
     <div className={cn("space-y-2", className)}>
       <DataTableToolbar
         caption={caption}
         toolbar={toolbar}
-        columns={columns}
+        columns={columnsWithWidthOverrides}
         visibleCols={visibleCols}
         setVisibleCols={setVisibleCols}
         enableDensityToggle={enableDensityToggle}
@@ -153,6 +275,7 @@ export function DataTable<T extends Record<string, any>>({
           style={stickyHeader ? { maxHeight: typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight } : undefined}
         >
           <Table
+            ref={tableRef}
             disableContainer
             className={cn(
               "table-fixed",
@@ -174,6 +297,8 @@ export function DataTable<T extends Record<string, any>>({
                 setCurPage={setCurPage}
                 setFilters={setFilters}
                 setSort={setSort}
+                onAutoFitColumn={autoFitColumn}
+                enableHeaderAutoFit={enableHeaderAutoFit}
                 getStickyHeaderClass={getStickyHeaderClass}
                 getStickyHeaderCellStyle={getStickyHeaderCellStyle}
                 t={t}
