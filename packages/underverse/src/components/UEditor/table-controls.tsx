@@ -22,6 +22,12 @@ import { DropdownMenu } from "../DropdownMenu";
 
 const FALLBACK_TABLE_ROW_HEIGHT = 44;
 const FALLBACK_TABLE_COLUMN_WIDTH = 160;
+const MENU_HOVER_PADDING = 18;
+const ROW_HANDLE_HOVER_WIDTH = 28;
+const COLUMN_HANDLE_HOVER_HEIGHT = 28;
+const ADD_COLUMN_HOVER_WIDTH = 24;
+const ADD_ROW_HOVER_HEIGHT = 24;
+const HANDLE_HOVER_RADIUS = 14;
 
 type TableControlsProps = {
   editor: Editor;
@@ -62,6 +68,22 @@ type DragState =
   | { kind: "column"; originIndex: number; targetIndex: number; anchorPos: number }
   | { kind: "add-row"; previewRows: number }
   | { kind: "add-column"; previewCols: number };
+
+type HoverState = {
+  menuVisible: boolean;
+  addColumnVisible: boolean;
+  addRowVisible: boolean;
+  rowHandleIndex: number | null;
+  columnHandleIndex: number | null;
+};
+
+const DEFAULT_HOVER_STATE: HoverState = {
+  menuVisible: false,
+  addColumnVisible: false,
+  addRowVisible: false,
+  rowHandleIndex: null,
+  columnHandleIndex: null,
+};
 
 function resolveElement(target: EventTarget | Node | null) {
   if (target instanceof Element) return target;
@@ -220,6 +242,13 @@ function buildLayout(editor: Editor, surface: HTMLDivElement, cell: HTMLTableCel
 }
 
 function getSelectedCell(editor: Editor) {
+  const browserSelection = window.getSelection();
+  const anchorElement = resolveElement(browserSelection?.anchorNode ?? null);
+  const anchorCell = anchorElement?.closest?.("th,td");
+  if (anchorCell instanceof HTMLTableCellElement) {
+    return anchorCell;
+  }
+
   const domAtPos = editor.view.domAtPos(editor.state.selection.from);
   return getCellFromTarget(domAtPos.node);
 }
@@ -255,6 +284,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
   const t = useSmartTranslations("UEditor");
   const [layout, setLayout] = React.useState<TableControlLayout | null>(null);
   const [dragPreview, setDragPreview] = React.useState<DragPreview | null>(null);
+  const [hoverState, setHoverState] = React.useState<HoverState>(DEFAULT_HOVER_STATE);
   const layoutRef = React.useRef<TableControlLayout | null>(null);
   const dragStateRef = React.useRef<DragState | null>(null);
 
@@ -295,6 +325,72 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     document.body.style.cursor = "";
   }, []);
 
+  const updateHoverState = React.useCallback((event: MouseEvent | PointerEvent) => {
+    const activeLayout = layoutRef.current;
+    const surface = containerRef.current;
+    if (!activeLayout || !surface || dragStateRef.current) {
+      setHoverState(DEFAULT_HOVER_STATE);
+      return;
+    }
+
+    const surfaceRect = surface.getBoundingClientRect();
+    const relativeX = event.clientX - surfaceRect.left + surface.scrollLeft;
+    const relativeY = event.clientY - surfaceRect.top + surface.scrollTop;
+
+    const rowHandleIndex = activeLayout.rowHandles.find((rowHandle) => (
+      relativeX >= activeLayout.tableLeft - ROW_HANDLE_HOVER_WIDTH
+      && relativeX <= activeLayout.tableLeft
+      && Math.abs(relativeY - rowHandle.center) <= HANDLE_HOVER_RADIUS
+    ))?.index ?? null;
+
+    const columnHandleIndex = activeLayout.columnHandles.find((columnHandle) => (
+      relativeY >= activeLayout.tableTop - COLUMN_HANDLE_HOVER_HEIGHT
+      && relativeY <= activeLayout.tableTop
+      && Math.abs(relativeX - columnHandle.center) <= HANDLE_HOVER_RADIUS
+    ))?.index ?? null;
+
+    const menuVisible = (
+      relativeX >= activeLayout.tableLeft - MENU_HOVER_PADDING
+      && relativeX <= activeLayout.tableLeft + 42
+      && relativeY >= activeLayout.tableTop - COLUMN_HANDLE_HOVER_HEIGHT
+      && relativeY <= activeLayout.tableTop + MENU_HOVER_PADDING
+    );
+
+    const addColumnVisible = (
+      relativeX >= activeLayout.tableLeft + activeLayout.tableWidth
+      && relativeX <= activeLayout.tableLeft + activeLayout.tableWidth + ADD_COLUMN_HOVER_WIDTH
+      && relativeY >= activeLayout.tableTop
+      && relativeY <= activeLayout.tableTop + activeLayout.tableHeight
+    );
+
+    const addRowVisible = (
+      relativeY >= activeLayout.tableTop + activeLayout.tableHeight
+      && relativeY <= activeLayout.tableTop + activeLayout.tableHeight + ADD_ROW_HOVER_HEIGHT
+      && relativeX >= activeLayout.tableLeft
+      && relativeX <= activeLayout.tableLeft + activeLayout.tableWidth
+    );
+
+    setHoverState((prev) => {
+      if (
+        prev.menuVisible === menuVisible
+        && prev.addColumnVisible === addColumnVisible
+        && prev.addRowVisible === addRowVisible
+        && prev.rowHandleIndex === rowHandleIndex
+        && prev.columnHandleIndex === columnHandleIndex
+      ) {
+        return prev;
+      }
+
+      return {
+        menuVisible,
+        addColumnVisible,
+        addRowVisible,
+        rowHandleIndex,
+        columnHandleIndex,
+      };
+    });
+  }, [containerRef]);
+
   React.useEffect(() => {
     const proseMirror = editor.view.dom as HTMLElement;
     const surface = containerRef.current;
@@ -302,12 +398,18 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
 
     const handleMouseOver = (event: MouseEvent) => {
       if (dragStateRef.current) return;
-      syncFromCell(getCellFromTarget(event.target));
+      const cell = getCellFromTarget(event.target);
+      if (!cell) return;
+      syncFromCell(cell);
+    };
+
+    const handleSurfaceMouseMove = (event: MouseEvent) => {
+      updateHoverState(event);
     };
 
     const handleMouseLeave = () => {
       if (dragStateRef.current) return;
-      syncFromSelection();
+      setHoverState(DEFAULT_HOVER_STATE);
     };
 
     const handleFocusIn = () => {
@@ -318,6 +420,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     proseMirror.addEventListener("mouseover", handleMouseOver);
     proseMirror.addEventListener("mouseleave", handleMouseLeave);
     proseMirror.addEventListener("focusin", handleFocusIn);
+    surface.addEventListener("mousemove", handleSurfaceMouseMove);
     surface.addEventListener("scroll", refreshCurrentLayout, { passive: true });
     window.addEventListener("resize", refreshCurrentLayout);
     editor.on("selectionUpdate", syncFromSelection);
@@ -329,12 +432,13 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       proseMirror.removeEventListener("mouseover", handleMouseOver);
       proseMirror.removeEventListener("mouseleave", handleMouseLeave);
       proseMirror.removeEventListener("focusin", handleFocusIn);
+      surface.removeEventListener("mousemove", handleSurfaceMouseMove);
       surface.removeEventListener("scroll", refreshCurrentLayout);
       window.removeEventListener("resize", refreshCurrentLayout);
       editor.off("selectionUpdate", syncFromSelection);
       editor.off("update", refreshCurrentLayout);
     };
-  }, [clearDrag, containerRef, editor, refreshCurrentLayout, syncFromCell, syncFromSelection]);
+  }, [clearDrag, containerRef, editor, refreshCurrentLayout, syncFromCell, syncFromSelection, updateHoverState]);
 
   const runAtCellPos = React.useCallback((cellPos: number | null, command: (chain: any) => any, options?: { sync?: boolean }) => {
     if (cellPos == null) return false;
@@ -441,6 +545,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
   }, [runAtCornerCell, syncFromSelection]);
 
   const canExpandTable = Boolean(layout);
+  const controlsVisible = dragPreview !== null;
 
   React.useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
@@ -686,8 +791,18 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
 
   return (
     <>
-      {layout.rowHandles.map((rowHandle) => (
-        <div key={`row-handle-${rowHandle.index}`} className="absolute z-30" style={{ top: Math.max(8, rowHandle.center - 12), left: rowHandleLeft }}>
+      {layout.rowHandles.map((rowHandle) => {
+        const visible = controlsVisible || hoverState.rowHandleIndex === rowHandle.index;
+        if (!visible) return null;
+        return (
+        <div
+          key={`row-handle-${rowHandle.index}`}
+          className="absolute z-30"
+          style={{
+            top: Math.max(8, rowHandle.center - 12),
+            left: rowHandleLeft,
+          }}
+        >
           <DropdownMenu
             placement="right"
             items={getRowHandleMenuItems(rowHandle)}
@@ -717,7 +832,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
                 className={cn(
                   "inline-flex h-6 w-6 items-center justify-center rounded-full",
                   "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
-                  "transition-colors hover:bg-accent hover:text-foreground",
+                  "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
                 )}
               >
                 <GripVertical className="h-3.5 w-3.5" />
@@ -725,10 +840,20 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
             )}
           />
         </div>
-      ))}
+      )})}
 
-      {layout.columnHandles.map((columnHandle) => (
-        <div key={`column-handle-${columnHandle.index}`} className="absolute z-30" style={{ top: columnHandleTop, left: Math.max(8, columnHandle.center - 12) }}>
+      {layout.columnHandles.map((columnHandle) => {
+        const visible = controlsVisible || hoverState.columnHandleIndex === columnHandle.index;
+        if (!visible) return null;
+        return (
+        <div
+          key={`column-handle-${columnHandle.index}`}
+          className="absolute z-30"
+          style={{
+            top: columnHandleTop,
+            left: Math.max(8, columnHandle.center - 12),
+          }}
+        >
           <DropdownMenu
             placement="bottom-start"
             items={getColumnHandleMenuItems(columnHandle)}
@@ -758,7 +883,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
                 className={cn(
                   "inline-flex h-6 w-6 items-center justify-center rounded-full",
                   "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
-                  "transition-colors hover:bg-accent hover:text-foreground",
+                  "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
                 )}
               >
                 <GripHorizontal className="h-3.5 w-3.5" />
@@ -766,9 +891,16 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
             )}
           />
         </div>
-      ))}
+      )})}
 
-      <div className="pointer-events-none absolute z-30" style={{ top: menuTop, left: menuLeft }}>
+      {(controlsVisible || hoverState.menuVisible) && (
+      <div
+        className="absolute z-30"
+        style={{
+          top: menuTop,
+          left: menuLeft,
+        }}
+      >
         <DropdownMenu
           placement="bottom-start"
           items={menuItems}
@@ -781,7 +913,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
               className={cn(
                 "pointer-events-auto inline-flex h-7 w-7 items-center justify-center rounded-full",
                 "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
-                "transition-colors hover:bg-accent hover:text-foreground",
+                "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
               )}
             >
               <MoreHorizontal className="h-4 w-4" />
@@ -789,7 +921,9 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
           )}
         />
       </div>
+      )}
 
+      {(controlsVisible || hoverState.addColumnVisible) && (
       <button
         type="button"
         aria-label={t("tableMenu.quickAddColumnAfter")}
@@ -806,13 +940,20 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
         className={cn(
           "absolute z-30 inline-flex items-center justify-center rounded-md",
           "border border-border/70 bg-muted/40 text-muted-foreground shadow-sm backdrop-blur",
-          "transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed",
+          "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed",
         )}
-        style={{ top: columnRailTop, left: columnRailLeft, width: 18, height: layout.tableHeight }}
+        style={{
+          top: columnRailTop,
+          left: columnRailLeft,
+          width: 18,
+          height: layout.tableHeight,
+        }}
       >
         <span className="text-sm font-medium leading-none">+</span>
       </button>
+      )}
 
+      {(controlsVisible || hoverState.addRowVisible) && (
       <button
         type="button"
         aria-label={t("tableMenu.quickAddRowAfter")}
@@ -829,12 +970,18 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
         className={cn(
           "absolute z-30 inline-flex items-center justify-center rounded-md",
           "border border-border/70 bg-muted/40 text-muted-foreground shadow-sm backdrop-blur",
-          "transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed",
+          "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed",
         )}
-        style={{ top: rowRailTop, left: rowRailLeft, width: layout.tableWidth, height: 16 }}
+        style={{
+          top: rowRailTop,
+          left: rowRailLeft,
+          width: layout.tableWidth,
+          height: 16,
+        }}
       >
         <span className="text-sm font-medium leading-none">+</span>
       </button>
+      )}
 
       {dragPreview?.kind === "row" && (
         <>

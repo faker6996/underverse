@@ -68,6 +68,21 @@ function resolveEventElement(target: EventTarget | null) {
   return null;
 }
 
+function getSelectionTableCell(view: EditorView) {
+  const browserSelection = window.getSelection();
+  const anchorElement = resolveEventElement(browserSelection?.anchorNode ?? null);
+  const anchorCell = anchorElement?.closest?.("th,td");
+  if (anchorCell instanceof HTMLElement) {
+    return anchorCell;
+  }
+
+  const { from } = view.state.selection;
+  const domAtPos = view.domAtPos(from);
+  const element = resolveEventElement(domAtPos.node);
+  const cell = element?.closest?.("th,td");
+  return cell instanceof HTMLElement ? cell : null;
+}
+
 function isRowResizeHotspot(cell: HTMLElement, clientX: number, clientY: number) {
   const rect = cell.getBoundingClientRect();
   const nearBottom = rect.bottom - clientY <= TABLE_RESIZE_HIT_ZONE;
@@ -98,6 +113,18 @@ function getRelativeBoundaryMetrics(surface: HTMLElement, table: HTMLTableElemen
   };
 }
 
+function getRelativeCellMetrics(surface: HTMLElement, cell: HTMLElement) {
+  const surfaceRect = surface.getBoundingClientRect();
+  const cellRect = cell.getBoundingClientRect();
+
+  return {
+    left: cellRect.left - surfaceRect.left + surface.scrollLeft,
+    top: cellRect.top - surfaceRect.top + surface.scrollTop,
+    width: cellRect.width,
+    height: cellRect.height,
+  };
+}
+
 const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   content = "",
   onChange,
@@ -125,6 +152,9 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   const editorContentRef = useRef<HTMLDivElement | null>(null);
   const tableColumnGuideRef = useRef<HTMLSpanElement | null>(null);
   const tableRowGuideRef = useRef<HTMLSpanElement | null>(null);
+  const activeTableCellHighlightRef = useRef<HTMLSpanElement | null>(null);
+  const hoveredTableCellRef = useRef<HTMLElement | null>(null);
+  const activeTableCellRef = useRef<HTMLElement | null>(null);
   const rowResizeStateRef = useRef<{
     rowElement: HTMLTableRowElement;
     tableElement: HTMLTableElement;
@@ -165,6 +195,44 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
     hideColumnGuide();
     hideRowGuide();
   }, [hideColumnGuide, hideRowGuide, setEditorResizeCursor]);
+
+  const updateActiveCellHighlight = React.useCallback((cell: HTMLElement | null) => {
+    const surface = editorContentRef.current;
+    const highlight = activeTableCellHighlightRef.current;
+    if (!highlight) return;
+
+    if (!surface || !cell) {
+      highlight.style.display = "none";
+      return;
+    }
+
+    const metrics = getRelativeCellMetrics(surface, cell);
+    highlight.style.display = "block";
+    highlight.style.left = `${metrics.left}px`;
+    highlight.style.top = `${metrics.top}px`;
+    highlight.style.width = `${metrics.width}px`;
+    highlight.style.height = `${metrics.height}px`;
+  }, []);
+
+  const setActiveTableCell = React.useCallback((cell: HTMLElement | null) => {
+    if (activeTableCellRef.current === cell) return;
+
+    activeTableCellRef.current = cell;
+    updateActiveCellHighlight(activeTableCellRef.current);
+  }, [updateActiveCellHighlight]);
+
+  const clearActiveTableCell = React.useCallback(() => {
+    activeTableCellRef.current = null;
+    updateActiveCellHighlight(null);
+  }, [updateActiveCellHighlight]);
+
+  const setHoveredTableCell = React.useCallback((cell: HTMLElement | null) => {
+    hoveredTableCellRef.current = cell;
+  }, []);
+
+  const clearHoveredTableCell = React.useCallback(() => {
+    hoveredTableCellRef.current = null;
+  }, []);
 
   const showColumnGuide = React.useCallback((table: HTMLTableElement, row: HTMLTableRowElement, cell: HTMLTableCellElement) => {
     const surface = editorContentRef.current;
@@ -362,6 +430,11 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
     },
   });
 
+  const syncActiveTableCellFromSelection = React.useCallback(() => {
+    if (!editor) return;
+    setActiveTableCell(getSelectionTableCell(editor.view));
+  }, [editor, setActiveTableCell]);
+
   useImperativeHandle(
     ref,
     () => ({
@@ -398,10 +471,32 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
     if (!editor) return undefined;
 
     const proseMirror = editor.view.dom as HTMLElement;
+    const surface = editorContentRef.current;
+    let selectionSyncTimeoutId = 0;
+
+    const scheduleActiveCellSync = (fallbackCell: HTMLElement | null = null) => {
+      requestAnimationFrame(() => {
+        setActiveTableCell(getSelectionTableCell(editor.view) ?? fallbackCell);
+      });
+
+      window.clearTimeout(selectionSyncTimeoutId);
+      selectionSyncTimeoutId = window.setTimeout(() => {
+        setActiveTableCell(getSelectionTableCell(editor.view) ?? fallbackCell);
+      }, 0);
+    };
+
+    const handleSelectionChange = () => {
+      scheduleActiveCellSync();
+    };
+
+    const handleActiveCellLayoutChange = () => {
+      updateActiveCellHighlight(activeTableCellRef.current);
+    };
 
     const handleEditorMouseMove = (event: MouseEvent) => {
       const activeRowResize = rowResizeStateRef.current;
       if (activeRowResize) {
+        setHoveredTableCell(activeRowResize.cellElement);
         showRowGuide(activeRowResize.tableElement, activeRowResize.rowElement, activeRowResize.cellElement);
         return;
       }
@@ -414,13 +509,17 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
 
       const cell = target.closest("th,td");
       if (!(cell instanceof HTMLElement)) {
+        clearHoveredTableCell();
         clearAllTableResizeHover();
         return;
       }
 
+      setHoveredTableCell(cell);
+
       const row = cell.closest("tr");
       const table = cell.closest("table");
       if (!(row instanceof HTMLTableRowElement) || !(table instanceof HTMLTableElement)) {
+        clearHoveredTableCell();
         clearAllTableResizeHover();
         return;
       }
@@ -444,6 +543,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
     };
 
     const handleEditorMouseLeave = () => {
+      clearHoveredTableCell();
       if (!rowResizeStateRef.current) {
         clearAllTableResizeHover();
       }
@@ -453,10 +553,19 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
       if (event.button !== 0) return;
 
       const target = resolveEventElement(event.target);
-      if (!(target instanceof Element)) return;
+      if (!(target instanceof Element)) {
+        clearActiveTableCell();
+        return;
+      }
 
       const cell = target.closest("th,td");
-      if (!(cell instanceof HTMLTableCellElement)) return;
+      if (!(cell instanceof HTMLTableCellElement)) {
+        clearActiveTableCell();
+        return;
+      }
+
+      setActiveTableCell(cell);
+      scheduleActiveCellSync(cell);
 
       const row = cell.closest("tr");
       const table = cell.closest("table");
@@ -465,6 +574,8 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
       if (!isRowResizeHotspot(cell, event.clientX, event.clientY)) {
         return;
       }
+
+      setHoveredTableCell(cell);
 
       const rowInfo = findTableRowNodeInfo(editor.view, row);
       if (!rowInfo) return;
@@ -535,6 +646,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
       clearPreviewRowHeight(state.rowElement);
       rowResizeStateRef.current = null;
       document.body.style.cursor = "";
+      clearHoveredTableCell();
       clearAllTableResizeHover();
     };
 
@@ -544,32 +656,55 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
       clearPreviewRowHeight(state.rowElement);
       rowResizeStateRef.current = null;
       document.body.style.cursor = "";
+      clearHoveredTableCell();
       clearAllTableResizeHover();
     };
 
     proseMirror.addEventListener("mousemove", handleEditorMouseMove);
     proseMirror.addEventListener("mouseleave", handleEditorMouseLeave);
     proseMirror.addEventListener("mousedown", handleEditorMouseDown);
+    proseMirror.addEventListener("click", handleSelectionChange);
+    proseMirror.addEventListener("mouseup", handleSelectionChange);
+    proseMirror.addEventListener("keyup", handleSelectionChange);
+    proseMirror.addEventListener("focusin", handleSelectionChange);
+    document.addEventListener("selectionchange", handleSelectionChange);
+    surface?.addEventListener("scroll", handleActiveCellLayoutChange, { passive: true });
+    window.addEventListener("resize", handleActiveCellLayoutChange);
     window.addEventListener("mousemove", handlePointerMove);
     document.addEventListener("pointermove", handlePointerMove as EventListener);
     window.addEventListener("mouseup", handlePointerUp);
     document.addEventListener("pointerup", handlePointerUp as EventListener);
     window.addEventListener("blur", handleWindowBlur);
+    editor.on("selectionUpdate", syncActiveTableCellFromSelection);
+    editor.on("focus", syncActiveTableCellFromSelection);
+    syncActiveTableCellFromSelection();
 
     return () => {
       proseMirror.removeEventListener("mousemove", handleEditorMouseMove);
       proseMirror.removeEventListener("mouseleave", handleEditorMouseLeave);
       proseMirror.removeEventListener("mousedown", handleEditorMouseDown);
+      proseMirror.removeEventListener("click", handleSelectionChange);
+      proseMirror.removeEventListener("mouseup", handleSelectionChange);
+      proseMirror.removeEventListener("keyup", handleSelectionChange);
+      proseMirror.removeEventListener("focusin", handleSelectionChange);
+      document.removeEventListener("selectionchange", handleSelectionChange);
+      surface?.removeEventListener("scroll", handleActiveCellLayoutChange);
+      window.removeEventListener("resize", handleActiveCellLayoutChange);
       window.removeEventListener("mousemove", handlePointerMove);
       document.removeEventListener("pointermove", handlePointerMove as EventListener);
       window.removeEventListener("mouseup", handlePointerUp);
       document.removeEventListener("pointerup", handlePointerUp as EventListener);
       window.removeEventListener("blur", handleWindowBlur);
+      editor.off("selectionUpdate", syncActiveTableCellFromSelection);
+      editor.off("focus", syncActiveTableCellFromSelection);
+      window.clearTimeout(selectionSyncTimeoutId);
       document.body.style.cursor = "";
+      clearActiveTableCell();
+      clearHoveredTableCell();
       clearAllTableResizeHover();
       rowResizeStateRef.current = null;
     };
-  }, [clearAllTableResizeHover, editor, hideColumnGuide, hideRowGuide, showColumnGuide, showRowGuide]);
+  }, [clearActiveTableCell, clearAllTableResizeHover, clearHoveredTableCell, editor, hideColumnGuide, hideRowGuide, setHoveredTableCell, showColumnGuide, showRowGuide, syncActiveTableCellFromSelection, updateActiveCellHighlight]);
 
   if (!editor) {
     return (
@@ -616,6 +751,11 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           ref={tableRowGuideRef}
           aria-hidden="true"
           className="pointer-events-none absolute z-20 bg-primary opacity-0 transition-opacity duration-100"
+        />
+        <span
+          ref={activeTableCellHighlightRef}
+          aria-hidden="true"
+          className="pointer-events-none hidden absolute z-20 rounded-[2px] border-2 border-[#2383e2] bg-[#2383e2]/[0.06] transition-[left,top,width,height] duration-100"
         />
         {editable && <TableControls editor={editor} containerRef={editorContentRef} />}
         <EditorContent

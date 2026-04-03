@@ -70,7 +70,6 @@ export default function UEditorExample() {
     `  onChange={setContent}\n` +
     `  placeholder="Type '/' for commands..."\n` +
     `  variant="notion"\n` +
-    `  showFloatingMenu\n` +
     `/>\n\n` +
     `// Optional: upload images immediately (instead of base64)\n` +
     `<UEditor\n` +
@@ -130,7 +129,7 @@ export default function UEditorExample() {
           variant="notion"
           showCharacterCount
           showBubbleMenu
-          showFloatingMenu
+          showFloatingMenu={false}
           minHeight={300}
         />
       </div>
