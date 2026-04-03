@@ -1,8 +1,8 @@
 {
   "package": "@underverse-ui/underverse",
-  "version": "1.0.67",
+  "version": "1.0.68",
   "sourceEntry": "src/index.ts",
-  "totalExports": 219,
+  "totalExports": 221,
   "exports": [
     {
       "name": "*",
@@ -881,6 +881,13 @@
       "local": false
     },
     {
+      "name": "NextIntlAdapter",
+      "kind": "value",
+      "source": "./contexts/NextIntlAdapter",
+      "reexport": true,
+      "local": false
+    },
+    {
       "name": "normalizeImageUrl",
       "kind": "value",
       "source": "./components/UEditor",
@@ -1441,6 +1448,13 @@
       "source": null,
       "reexport": false,
       "local": true
+    },
+    {
+      "name": "UnderverseNextIntlProvider",
+      "kind": "value",
+      "source": "./contexts/NextIntlAdapter",
+      "reexport": true,
+      "local": false
     },
     {
       "name": "UnderverseProvider",
