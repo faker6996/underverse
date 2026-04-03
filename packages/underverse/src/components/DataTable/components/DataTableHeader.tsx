@@ -128,41 +128,45 @@ export function DataTableHeader<T extends Record<string, any>>({
         <div className="flex items-center gap-1">
           <span className={cn("font-medium whitespace-nowrap select-text", headerTitleClass)}>{col.title}</span>
           {col.sortable && (
-            <button
-              className={cn(
-                "p-1 rounded-lg transition-all duration-200 hover:bg-accent",
-                sort?.key === col.key ? "opacity-100 bg-accent" : "opacity-60 hover:opacity-100",
-              )}
-              onClick={() => {
-                setCurPage(1);
-                setSort((current) => {
-                  if (!current || current.key !== col.key) return { key: col.key, order: "asc" };
-                  if (current.order === "asc") return { key: col.key, order: "desc" };
-                  return null;
-                });
-              }}
-              aria-label="Sort"
-              title={`Sort by ${String(col.title)}`}
+            <Tooltip
+              placement="top"
+              content={<span className="text-xs font-medium">{`Sort by ${String(col.title)}`}</span>}
             >
-              <svg viewBox="0 0 20 20" fill="none" className={cn("inline-block", sortIconClass)}>
-                <path
-                  d="M7 8l3-3 3 3"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  opacity={sort?.key === col.key && sort.order === "asc" ? 1 : 0.4}
-                />
-                <path
-                  d="M7 12l3 3 3-3"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  opacity={sort?.key === col.key && sort.order === "desc" ? 1 : 0.4}
-                />
-              </svg>
-            </button>
+              <button
+                className={cn(
+                  "p-1 rounded-lg transition-all duration-200 hover:bg-accent",
+                  sort?.key === col.key ? "opacity-100 bg-accent" : "opacity-60 hover:opacity-100",
+                )}
+                onClick={() => {
+                  setCurPage(1);
+                  setSort((current) => {
+                    if (!current || current.key !== col.key) return { key: col.key, order: "asc" };
+                    if (current.order === "asc") return { key: col.key, order: "desc" };
+                    return null;
+                  });
+                }}
+                aria-label="Sort"
+              >
+                <svg viewBox="0 0 20 20" fill="none" className={cn("inline-block", sortIconClass)}>
+                  <path
+                    d="M7 8l3-3 3 3"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    opacity={sort?.key === col.key && sort.order === "asc" ? 1 : 0.4}
+                  />
+                  <path
+                    d="M7 12l3 3 3-3"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    opacity={sort?.key === col.key && sort.order === "desc" ? 1 : 0.4}
+                  />
+                </svg>
+              </button>
+            </Tooltip>
           )}
         </div>
       );
@@ -171,16 +175,22 @@ export function DataTableHeader<T extends Record<string, any>>({
         <Popover
           placement="bottom-start"
           trigger={
-            <button
-              className={cn(
-                "p-1.5 rounded-lg transition-all duration-200 hover:bg-accent",
-                filters[col.key] ? "bg-accent text-primary" : "text-muted-foreground",
-              )}
-              aria-label="Filter"
-              title={`Filter by ${String(col.title)}`}
-            >
-              <FilterIcon className="w-4 h-4" />
-            </button>
+            <span className="inline-flex">
+              <Tooltip
+                placement="top"
+                content={<span className="text-xs font-medium">{`Filter by ${String(col.title)}`}</span>}
+              >
+                <button
+                  className={cn(
+                    "p-1.5 rounded-lg transition-all duration-200 hover:bg-accent",
+                    filters[col.key] ? "bg-accent text-primary" : "text-muted-foreground",
+                  )}
+                  aria-label="Filter"
+                >
+                  <FilterIcon className="w-4 h-4" />
+                </button>
+              </Tooltip>
+            </span>
           }
         >
           <div className="p-3 w-64 space-y-3">
