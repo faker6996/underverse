@@ -223,7 +223,15 @@
       "addRowAfter": "아래에 행 추가",
       "deleteColumn": "열 삭제",
       "deleteRow": "행 삭제",
-      "deleteTable": "표 삭제"
+      "deleteTable": "표 삭제",
+      "toggleHeaderRow": "헤더 행 전환",
+      "toggleHeaderColumn": "헤더 열 전환",
+      "openControls": "표 컨트롤 열기",
+      "quickAddColumnAfter": "오른쪽 열 빠르게 추가",
+      "quickAddRowAfter": "아래 행 빠르게 추가",
+      "expandTable": "표 확장",
+      "dragRow": "행 드래그",
+      "dragColumn": "열 드래그"
     }
   }
 }

@@ -92,7 +92,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const sizeStyles = {
     sm: {
       trigger: "px-2.5 py-1.5 text-sm h-8 md:h-7 md:text-xs md:py-1",
-      dayCell: "w-7 h-7 text-[12px]",
+      dayCell: "w-7 h-7 text-xs",
       monthCell: "w-6 h-6 text-xs",
       navButton: "p-1.5",
       navIcon: "h-3 w-3",
@@ -646,7 +646,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ startDate, end
   const sizeStyles = {
     sm: {
       trigger: "px-2.5 py-1.5 text-sm h-8 md:h-7 md:text-xs md:py-1",
-      dayCell: "w-7 h-7 text-[12px]",
+      dayCell: "w-7 h-7 text-xs",
       monthCell: "w-6 h-6 text-xs",
       navButton: "p-1.5",
       navIcon: "h-3 w-3",

@@ -224,7 +224,15 @@
       "addRowAfter": "Add Row After",
       "deleteColumn": "Delete Column",
       "deleteRow": "Delete Row",
-      "deleteTable": "Delete Table"
+      "deleteTable": "Delete Table",
+      "toggleHeaderRow": "Toggle Header Row",
+      "toggleHeaderColumn": "Toggle Header Column",
+      "openControls": "Open Table Controls",
+      "quickAddColumnAfter": "Quick Add Column After",
+      "quickAddRowAfter": "Quick Add Row After",
+      "expandTable": "Expand Table",
+      "dragRow": "Drag Row",
+      "dragColumn": "Drag Column"
     }
   }
 }

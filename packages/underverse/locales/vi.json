@@ -224,7 +224,15 @@
       "addRowAfter": "Thêm hàng sau",
       "deleteColumn": "Xóa cột",
       "deleteRow": "Xóa hàng",
-      "deleteTable": "Xóa bảng"
+      "deleteTable": "Xóa bảng",
+      "toggleHeaderRow": "Bật/tắt hàng tiêu đề",
+      "toggleHeaderColumn": "Bật/tắt cột tiêu đề",
+      "openControls": "Mở điều khiển bảng",
+      "quickAddColumnAfter": "Thêm nhanh cột sau",
+      "quickAddRowAfter": "Thêm nhanh hàng sau",
+      "expandTable": "Mở rộng bảng",
+      "dragRow": "Kéo hàng",
+      "dragColumn": "Kéo cột"
     }
   }
 }

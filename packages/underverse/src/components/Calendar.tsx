@@ -396,7 +396,7 @@ export default function Calendar({
   );
 
   const SIZE_STYLES = {
-    sm: { day: "w-8 h-8 text-[12px]", grid: dense ? "gap-0.5" : "gap-1", head: "text-[11px]", header: "text-sm" },
+    sm: { day: "w-8 h-8 text-xs", grid: dense ? "gap-0.5" : "gap-1", head: "text-[11px]", header: "text-sm" },
     md: { day: "w-9 h-9 text-sm", grid: dense ? "gap-1" : "gap-1.5", head: "text-xs", header: "text-sm" },
     lg: { day: "w-11 h-11 text-base", grid: dense ? "gap-1.5" : "gap-2", head: "text-sm", header: "text-base" },
     xl: { day: "w-14 h-14 text-lg", grid: dense ? "gap-2" : "gap-2.5", head: "text-base", header: "text-lg" },

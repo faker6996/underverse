@@ -7,6 +7,21 @@ import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 
+const wrappedImageDataUrl = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="220" viewBox="0 0 320 220">
+    <defs>
+      <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+        <stop offset="0%" stop-color="#c084fc"/>
+        <stop offset="100%" stop-color="#f59e0b"/>
+      </linearGradient>
+    </defs>
+    <rect width="320" height="220" rx="24" fill="url(#bg)"/>
+    <circle cx="88" cy="82" r="34" fill="rgba(255,255,255,0.28)"/>
+    <path d="M46 176c20-34 44-52 72-52 24 0 41 11 62 29 11-10 25-16 40-16 29 0 47 21 54 39" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="14" stroke-linecap="round"/>
+    <text x="28" y="42" fill="white" font-family="Arial, sans-serif" font-size="20" font-weight="700">Wrapped Media</text>
+  </svg>`,
+)}`;
+
 export default function UEditorExample() {
   const t = useTranslations("DocsUnderverse");
   const [content, setContent] = useState(`
@@ -33,7 +48,7 @@ export default function UEditorExample() {
         </tr>
       </tbody>
     </table>
-    <p><img src="https://picsum.photos/seed/ueditor-wrap/320/220" alt="Wrapped" data-image-layout="right" data-image-size="md" width="220" height="150" />This editor now supports wrapped images as well, so you can keep an image on one side and let the text flow naturally beside it. Select an image and use the image menu or image bubble menu to switch between block, left wrap, and right wrap layouts, then choose S, M, or L width presets without losing the setting when you save HTML.</p>
+    <p><img src="${wrappedImageDataUrl}" alt="Wrapped" data-image-layout="right" data-image-size="md" width="220" height="150" />This editor now supports wrapped images as well, so you can keep an image on one side and let the text flow naturally beside it. Select an image and use the image menu or image bubble menu to switch between block, left wrap, and right wrap layouts, then choose S, M, or L width presets without losing the setting when you save HTML.</p>
     <h2>✨ Features</h2>
     <ul data-type="taskList">
       <li data-type="taskItem" data-checked="true"><label><input type="checkbox" checked></label><div>Rich text formatting (bold, italic, underline, strike)</div></li>

@@ -61,9 +61,16 @@ export default function Example() {
 
 ## Tables
 
+- Contextual table controls appear when selection or hover is inside a table.
+- Use the quick `+` controls beside the active row and column for fast insertion.
+- Drag row and column handles to reorder the table without leaving the editor surface.
+- Reorder drag shows a live target highlight and status badge while you move.
+- Use the bottom-right corner handle to preview and grow the table by multiple rows and columns.
+- The table context menu supports add/remove row or column plus header row/column toggles.
 - Columns use TipTap's native resize handles on the right edge of cells.
 - Rows support resize on the bottom edge. Hover near the row boundary to reveal the stronger guide line, then drag vertically.
 - Row height is preserved in saved HTML using `data-row-height="..."` and inline `height: ...px`.
+- The implementation plan for Notion-like table UX lives in [`UEditor-Notion-Table-Plan.md`](./UEditor-Notion-Table-Plan.md).
 
 ## Base64 During Edit, Upload Before Save (Opt-in)
 

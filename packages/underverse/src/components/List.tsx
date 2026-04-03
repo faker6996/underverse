@@ -59,7 +59,7 @@ export interface ListItemProps extends React.HTMLAttributes<HTMLLIElement> {
 // REMOVED 'itemPad' and 'densePad' to allow custom padding
 const SIZE_STYLES: Record<Size, { label: string; desc: string; icon: string; avatar: string }> = {
   xs: { label: "text-xs", desc: "text-[11px]", icon: "h-3.5 w-3.5", avatar: "h-6 w-6" },
-  sm: { label: "text-[13px]", desc: "text-[12px]", icon: "h-4 w-4", avatar: "h-8 w-8" },
+  sm: { label: "text-[13px]", desc: "text-xs", icon: "h-4 w-4", avatar: "h-8 w-8" },
   md: { label: "text-sm", desc: "text-xs", icon: "h-5 w-5", avatar: "h-10 w-10" },
   lg: { label: "text-base", desc: "text-sm", icon: "h-5 w-5", avatar: "h-12 w-12" },
 };

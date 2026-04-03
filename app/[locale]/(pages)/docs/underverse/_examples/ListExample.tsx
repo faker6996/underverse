@@ -9,6 +9,19 @@ import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 import { Mail, User, ChevronRight, Settings, Bell, Trash2, Edit } from "lucide-react";
 import Button from "@/components/ui/Button";
 
+function buildAvatarDataUrl(initials: string, background: string) {
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+      <rect width="96" height="96" rx="24" fill="${background}"/>
+      <text x="48" y="58" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="30" font-weight="700">${initials}</text>
+    </svg>`,
+  )}`;
+}
+
+const avatarEleanor = buildAvatarDataUrl("EP", "#2563eb");
+const avatarCameron = buildAvatarDataUrl("CW", "#ea580c");
+const avatarCourtney = buildAvatarDataUrl("CH", "#64748b");
+
 export default function ListExample() {
   const t = useTranslations("DocsUnderverse");
   const [selected, setSelected] = React.useState<number | null>(1);
@@ -76,21 +89,21 @@ export default function ListExample() {
         <p className="text-sm font-semibold text-foreground/90">With Avatars</p>
         <List variant="card" inset divided itemClassName="p-4">
           <List.Item
-            avatar="https://i.pravatar.cc/150?img=1"
+            avatar={avatarEleanor}
             label="Eleanor Pena"
             description="Product Designer"
             badge="Online"
             badgeVariant="success"
           />
           <List.Item
-            avatar="https://i.pravatar.cc/150?img=2"
+            avatar={avatarCameron}
             label="Cameron Williamson"
             description="Engineering Manager"
             badge="Away"
             badgeVariant="warning"
           />
           <List.Item
-            avatar="https://i.pravatar.cc/150?img=3"
+            avatar={avatarCourtney}
             label="Courtney Henry"
             description="Finance Director"
             badge="Offline"

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import test, { after, afterEach } from "node:test";
 import React from "./helpers/workspace-react.mjs";
-import { cleanup, render, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { importTsModule } from "./helpers/import-ts-module.mjs";
@@ -184,4 +184,251 @@ test("UEditor preserves table row height from content HTML", async () => {
   const result = await ref.current.prepareContentForSave();
   assert.match(result.html, /data-row-height="72"/);
   assert.match(result.html, /height:\s*72px/i);
+});
+
+test("UEditor shows contextual table controls and applies table actions near the active cell", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const body = within(window.document.body);
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<table><tbody><tr><td>A1</td><td>B1</td></tr><tr><td>A2</td><td>B2</td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+
+  await user.click(firstCell);
+
+  const openControlsButton = await body.findByRole("button", { name: "Open Table Controls" });
+  const quickAddRowButton = await body.findByRole("button", { name: "Quick Add Row After" });
+  const quickAddColumnButton = await body.findByRole("button", { name: "Quick Add Column After" });
+  const dragRowButton = await body.findByRole("button", { name: "Drag Row 1" });
+  const expandTableButton = await body.findByRole("button", { name: "Expand Table" });
+
+  assert.ok(openControlsButton);
+  assert.ok(quickAddRowButton);
+  assert.ok(quickAddColumnButton);
+  assert.equal(quickAddRowButton.disabled, false);
+  assert.equal(quickAddColumnButton.disabled, false);
+  assert.equal(expandTableButton.disabled, false);
+  assert.ok(parseFloat(quickAddRowButton.style.left) > parseFloat(dragRowButton.style.left));
+
+  await user.click(openControlsButton);
+  const toggleHeaderRowItem = await body.findByRole("menuitem", { name: "Toggle Header Row" });
+  await user.click(toggleHeaderRowItem);
+
+  await waitFor(() => {
+    const headerCells = view.container.querySelectorAll("th");
+    assert.equal(headerCells.length, 2);
+    assert.equal(headerCells[0]?.textContent?.trim(), "A1");
+  });
+
+  await user.click(quickAddRowButton);
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("tr").length, 3);
+  });
+
+  await user.click(quickAddColumnButton);
+  await waitFor(() => {
+    const firstRowCells = view.container.querySelectorAll("tr")[0]?.querySelectorAll("th,td") ?? [];
+    assert.equal(firstRowCells.length, 3);
+  });
+});
+
+test("UEditor table context menu applies header column and structural actions", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const body = within(window.document.body);
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<table><tbody><tr><td>A1</td><td>B1</td></tr><tr><td>A2</td><td>B2</td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const secondRowSecondCell = await waitFor(() => {
+    const element = view.container.querySelectorAll("tr")[1]?.querySelectorAll("td")[1];
+    assert.ok(element);
+    return element;
+  });
+
+  await user.click(secondRowSecondCell);
+
+  const openControlsButton = await body.findByRole("button", { name: "Open Table Controls" });
+
+  await user.click(openControlsButton);
+  await user.click(await body.findByRole("menuitem", { name: "Toggle Header Column" }));
+
+  await waitFor(() => {
+    const secondRowCells = view.container.querySelectorAll("tr")[1]?.querySelectorAll("th,td") ?? [];
+    assert.equal(secondRowCells[0]?.tagName, "TH");
+    assert.equal(secondRowCells[1]?.tagName, "TD");
+  });
+
+  await user.click(openControlsButton);
+  await user.click(await body.findByRole("menuitem", { name: "Add Row Before" }));
+
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("tr").length, 3);
+  });
+
+  await user.click(openControlsButton);
+  await user.click(await body.findByRole("menuitem", { name: "Add Column Before" }));
+
+  await waitFor(() => {
+    const firstRowCells = view.container.querySelectorAll("tr")[0]?.querySelectorAll("th,td") ?? [];
+    assert.equal(firstRowCells.length, 3);
+  });
+
+  await user.click(openControlsButton);
+  await user.click(await body.findByRole("menuitem", { name: "Delete Row" }));
+
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("tr").length, 2);
+  });
+
+  await user.click(openControlsButton);
+  await user.click(await body.findByRole("menuitem", { name: "Delete Column" }));
+
+  await waitFor(() => {
+    const firstRowCells = view.container.querySelectorAll("tr")[0]?.querySelectorAll("th,td") ?? [];
+    assert.equal(firstRowCells.length, 2);
+  });
+});
+
+test("UEditor row drag handle reorders table rows", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<table><tbody><tr><td>A1</td><td>B1</td></tr><tr><td>A2</td><td>B2</td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+
+  fireEvent.click(firstCell);
+
+  const dragRowButton = await body.findByRole("button", { name: "Drag Row 1" });
+  fireEvent.mouseDown(dragRowButton, { clientY: 24 });
+  fireEvent.mouseMove(window, { clientY: 160 });
+
+  await waitFor(() => {
+    assert.equal(body.getByRole("status").textContent?.trim(), "Drag Row 1 -> 2");
+  });
+
+  fireEvent.mouseUp(window, { clientY: 160 });
+
+  await waitFor(() => {
+    const firstRowCells = view.container.querySelectorAll("tr")[0]?.querySelectorAll("th,td") ?? [];
+    assert.equal(firstRowCells[0]?.textContent?.trim(), "A2");
+    assert.equal(firstRowCells[1]?.textContent?.trim(), "B2");
+  });
+});
+
+test("UEditor column drag handle reorders table columns", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<table><tbody><tr><td>A1</td><td>B1</td></tr><tr><td>A2</td><td>B2</td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+
+  fireEvent.click(firstCell);
+
+  const dragColumnButton = await body.findByRole("button", { name: "Drag Column 1" });
+  fireEvent.mouseDown(dragColumnButton, { clientX: 80 });
+  fireEvent.mouseMove(window, { clientX: 420 });
+
+  await waitFor(() => {
+    assert.equal(body.getByRole("status").textContent?.trim(), "Drag Column 1 -> 2");
+  });
+
+  fireEvent.mouseUp(window, { clientX: 420 });
+
+  await waitFor(() => {
+    const firstRowCells = view.container.querySelectorAll("tr")[0]?.querySelectorAll("th,td") ?? [];
+    assert.equal(firstRowCells[0]?.textContent?.trim(), "B1");
+    assert.equal(firstRowCells[1]?.textContent?.trim(), "A1");
+  });
+});
+
+test("UEditor corner drag preview expands table by the previewed rows and columns", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<table><tbody><tr><td>A1</td><td>B1</td></tr><tr><td>A2</td><td>B2</td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+
+  fireEvent.click(firstCell);
+
+  const expandTableButton = await body.findByRole("button", { name: "Expand Table" });
+  assert.equal(expandTableButton.disabled, false);
+  fireEvent.mouseDown(expandTableButton, { clientX: 320, clientY: 88 });
+  fireEvent.mouseMove(window, { clientX: 500, clientY: 140 });
+
+  await waitFor(() => {
+    assert.equal(body.getByRole("status").textContent?.trim(), "+2R +2C");
+  });
+
+  fireEvent.mouseUp(window, { clientX: 500, clientY: 140 });
+
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("tr").length, 4);
+    const firstRowCells = view.container.querySelectorAll("tr")[0]?.querySelectorAll("th,td") ?? [];
+    assert.equal(firstRowCells.length, 4);
+  });
 });

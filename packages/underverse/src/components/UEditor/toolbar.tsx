@@ -9,7 +9,9 @@ import {
   AlignLeft,
   AlignRight,
   ArrowDown,
+  ArrowLeft,
   ArrowRight,
+  ArrowUp,
   Bold as BoldIcon,
   ChevronDown,
   Code as CodeIcon,
@@ -501,7 +503,7 @@ export const EditorToolbar = ({
         />
         <div className="my-1 border-t" />
         <DropdownMenuItem
-          icon={ArrowDown}
+          icon={ArrowLeft}
           label={t("tableMenu.addColumnBefore")}
           onClick={() => editor.chain().focus().addColumnBefore().run()}
           disabled={!editor.can().addColumnBefore()}
@@ -513,7 +515,7 @@ export const EditorToolbar = ({
           disabled={!editor.can().addColumnAfter()}
         />
         <DropdownMenuItem
-          icon={ArrowRight}
+          icon={ArrowUp}
           label={t("tableMenu.addRowBefore")}
           onClick={() => editor.chain().focus().addRowBefore().run()}
           disabled={!editor.can().addRowBefore()}
@@ -523,6 +525,19 @@ export const EditorToolbar = ({
           label={t("tableMenu.addRowAfter")}
           onClick={() => editor.chain().focus().addRowAfter().run()}
           disabled={!editor.can().addRowAfter()}
+        />
+        <div className="my-1 border-t" />
+        <DropdownMenuItem
+          icon={TableIcon}
+          label={t("tableMenu.toggleHeaderRow")}
+          onClick={() => editor.chain().focus().toggleHeaderRow().run()}
+          disabled={!editor.can().toggleHeaderRow()}
+        />
+        <DropdownMenuItem
+          icon={TableIcon}
+          label={t("tableMenu.toggleHeaderColumn")}
+          onClick={() => editor.chain().focus().toggleHeaderColumn().run()}
+          disabled={!editor.can().toggleHeaderColumn()}
         />
         <div className="my-1 border-t" />
         <DropdownMenuItem

@@ -147,6 +147,7 @@ export default function DataTableExample() {
 <DataTable<Row>
   columns={columns}
   data={rows}
+  rowKey="id"
   size="md" // sm | md | lg
   loading={loading}
   total={total}
@@ -246,6 +247,7 @@ export default function DataTableExample() {
     <DataTable<Row>
       columns={columns}
       data={rows}
+      rowKey="id"
       loading={loading}
       total={total}
       page={query.page}
@@ -278,6 +280,7 @@ export default function DataTableExample() {
     <DataTable<Row>
       columns={groupedColumns}
       data={rows}
+      rowKey="id"
       loading={loading}
       total={total}
       page={query.page}

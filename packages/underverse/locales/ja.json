@@ -223,7 +223,15 @@
       "addRowAfter": "後に行を追加",
       "deleteColumn": "列を削除",
       "deleteRow": "行を削除",
-      "deleteTable": "表を削除"
+      "deleteTable": "表を削除",
+      "toggleHeaderRow": "ヘッダー行を切り替え",
+      "toggleHeaderColumn": "ヘッダー列を切り替え",
+      "openControls": "表コントロールを開く",
+      "quickAddColumnAfter": "右側に列をすばやく追加",
+      "quickAddRowAfter": "下に行をすばやく追加",
+      "expandTable": "表を拡張",
+      "dragRow": "行をドラッグ",
+      "dragColumn": "列をドラッグ"
     }
   }
 }

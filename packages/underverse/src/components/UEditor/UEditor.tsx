@@ -12,6 +12,7 @@ import { EditorToolbar } from "./toolbar";
 import { CustomBubbleMenu, CustomFloatingMenu } from "./menus";
 import { CharacterCountDisplay } from "./CharacterCount";
 import { prepareUEditorContentForSave, UEditorPrepareContentForSaveError } from "./prepare-content-for-save";
+import { TableControls } from "./table-controls";
 
 const TABLE_RESIZE_HIT_ZONE = 10;
 const MIN_TABLE_ROW_HEIGHT = 36;
@@ -616,6 +617,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           aria-hidden="true"
           className="pointer-events-none absolute z-20 bg-primary opacity-0 transition-opacity duration-100"
         />
+        {editable && <TableControls editor={editor} containerRef={editorContentRef} />}
         <EditorContent
           editor={editor}
           className="min-h-full"

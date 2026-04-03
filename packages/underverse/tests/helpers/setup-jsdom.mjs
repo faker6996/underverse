@@ -95,6 +95,54 @@ export function installJSDOM() {
   if (!window.HTMLElement.prototype.scrollIntoView) {
     window.HTMLElement.prototype.scrollIntoView = () => {};
   }
+  if (!window.HTMLElement.prototype.getClientRects) {
+    window.HTMLElement.prototype.getClientRects = () => [];
+  }
+  if (!window.HTMLElement.prototype.getBoundingClientRect) {
+    window.HTMLElement.prototype.getBoundingClientRect = () => ({
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      toJSON() { return this; },
+    });
+  }
+  if (!window.Text.prototype.getClientRects) {
+    window.Text.prototype.getClientRects = () => [];
+  }
+  if (!window.Text.prototype.getBoundingClientRect) {
+    window.Text.prototype.getBoundingClientRect = () => ({
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      toJSON() { return this; },
+    });
+  }
+  if (!window.Range.prototype.getClientRects) {
+    window.Range.prototype.getClientRects = () => [];
+  }
+  if (!window.Range.prototype.getBoundingClientRect) {
+    window.Range.prototype.getBoundingClientRect = () => ({
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      toJSON() { return this; },
+    });
+  }
   if (!window.HTMLElement.prototype.attachEvent) {
     window.HTMLElement.prototype.attachEvent = () => {};
   }
