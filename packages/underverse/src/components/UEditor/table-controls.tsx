@@ -19,6 +19,7 @@ import {
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { cn } from "../../utils/cn";
 import { DropdownMenu } from "../DropdownMenu";
+import { Tooltip } from "../Tooltip";
 
 const FALLBACK_TABLE_ROW_HEIGHT = 44;
 const FALLBACK_TABLE_COLUMN_WIDTH = 160;
@@ -51,6 +52,14 @@ type TableControlLayout = {
   tableTop: number;
   tableWidth: number;
   tableHeight: number;
+  wrapperLeft: number;
+  wrapperTop: number;
+  wrapperWidth: number;
+  wrapperHeight: number;
+  viewportWidth: number;
+  viewportHeight: number;
+  horizontalScrollbarHeight: number;
+  verticalScrollbarWidth: number;
   avgRowHeight: number;
   avgColumnWidth: number;
   rowHandles: TableAxisHandle[];
@@ -187,12 +196,23 @@ function buildLayout(editor: Editor, surface: HTMLDivElement, cell: HTMLTableCel
 
   const surfaceRect = surface.getBoundingClientRect();
   const tableRect = table.getBoundingClientRect();
+  const wrapperElement = table.closest(".tableWrapper");
+  const wrapper = wrapperElement instanceof HTMLElement ? wrapperElement : null;
+  const wrapperRect = wrapper?.getBoundingClientRect() ?? tableRect;
   const tableLeft = tableRect.left - surfaceRect.left + surface.scrollLeft;
   const tableTop = tableRect.top - surfaceRect.top + surface.scrollTop;
   const avgRowHeight = metricOrFallback(tableRect.height / rows.length, FALLBACK_TABLE_ROW_HEIGHT);
   const avgColumnWidth = metricOrFallback(tableRect.width / referenceCells.length, FALLBACK_TABLE_COLUMN_WIDTH);
   const tableWidth = metricOrFallback(tableRect.width, avgColumnWidth * referenceCells.length);
   const tableHeight = metricOrFallback(tableRect.height, avgRowHeight * rows.length);
+  const wrapperLeft = wrapperRect.left - surfaceRect.left + surface.scrollLeft;
+  const wrapperTop = wrapperRect.top - surfaceRect.top + surface.scrollTop;
+  const wrapperWidth = metricOrFallback(wrapperRect.width, tableWidth);
+  const wrapperHeight = metricOrFallback(wrapperRect.height, tableHeight);
+  const viewportWidth = metricOrFallback(wrapper?.clientWidth ?? wrapperRect.width, tableWidth);
+  const viewportHeight = metricOrFallback(wrapper?.clientHeight ?? wrapperRect.height, tableHeight);
+  const verticalScrollbarWidth = Math.max(0, Math.round(wrapperWidth - viewportWidth));
+  const horizontalScrollbarHeight = Math.max(0, Math.round(wrapperHeight - viewportHeight));
 
   const rowHandles = rows.map((tableRow, index) => {
     const rowRect = tableRow.getBoundingClientRect();
@@ -236,6 +256,14 @@ function buildLayout(editor: Editor, surface: HTMLDivElement, cell: HTMLTableCel
     tableTop,
     tableWidth,
     tableHeight,
+    wrapperLeft,
+    wrapperTop,
+    wrapperWidth,
+    wrapperHeight,
+    viewportWidth,
+    viewportHeight,
+    horizontalScrollbarHeight,
+    verticalScrollbarWidth,
     avgRowHeight,
     avgColumnWidth,
     rowHandles,
@@ -353,6 +381,8 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     const directColumnHandleIndex = directColumnHandle instanceof HTMLElement
       ? Number.parseInt(directColumnHandle.dataset.columnHandleIndex ?? "", 10)
       : Number.NaN;
+    const visibleTableWidth = Math.min(activeLayout.tableWidth, activeLayout.viewportWidth);
+    const visibleTableHeight = Math.min(activeLayout.tableHeight, activeLayout.viewportHeight);
 
     const rowHandleIndex = Number.isFinite(directRowHandleIndex)
       ? directRowHandleIndex
@@ -378,17 +408,17 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     );
 
     const addColumnVisible = Boolean(directAddColumn) || (
-      relativeX >= activeLayout.tableLeft + activeLayout.tableWidth
-      && relativeX <= activeLayout.tableLeft + activeLayout.tableWidth + ADD_COLUMN_HOVER_WIDTH
-      && relativeY >= activeLayout.tableTop
-      && relativeY <= activeLayout.tableTop + activeLayout.tableHeight
+      relativeX >= activeLayout.wrapperLeft + visibleTableWidth
+      && relativeX <= activeLayout.wrapperLeft + visibleTableWidth + ADD_COLUMN_HOVER_WIDTH
+      && relativeY >= activeLayout.wrapperTop
+      && relativeY <= activeLayout.wrapperTop + visibleTableHeight
     );
 
     const addRowVisible = Boolean(directAddRow) || (
-      relativeY >= activeLayout.tableTop + activeLayout.tableHeight
-      && relativeY <= activeLayout.tableTop + activeLayout.tableHeight + ADD_ROW_HOVER_HEIGHT
-      && relativeX >= activeLayout.tableLeft
-      && relativeX <= activeLayout.tableLeft + activeLayout.tableWidth
+      relativeY >= activeLayout.wrapperTop + activeLayout.wrapperHeight
+      && relativeY <= activeLayout.wrapperTop + activeLayout.wrapperHeight + ADD_ROW_HOVER_HEIGHT
+      && relativeX >= activeLayout.wrapperLeft
+      && relativeX <= activeLayout.wrapperLeft + visibleTableWidth
     );
 
     setHoverState((prev) => {
@@ -795,10 +825,12 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
   const menuLeft = Math.max(8, layout.tableLeft);
   const rowHandleLeft = Math.max(8, layout.tableLeft - 66);
   const columnHandleTop = Math.max(8, layout.tableTop - 14);
-  const columnRailTop = layout.tableTop;
-  const columnRailLeft = layout.tableLeft + layout.tableWidth + 8;
-  const rowRailTop = layout.tableTop + layout.tableHeight + 8;
-  const rowRailLeft = layout.tableLeft;
+  const visibleTableWidth = Math.min(layout.tableWidth, layout.viewportWidth);
+  const visibleTableHeight = Math.min(layout.tableHeight, layout.viewportHeight);
+  const columnRailTop = layout.wrapperTop;
+  const columnRailLeft = layout.wrapperLeft + visibleTableWidth + 8;
+  const rowRailTop = layout.wrapperTop + layout.wrapperHeight + 8;
+  const rowRailLeft = layout.wrapperLeft;
   const expandPreviewWidth = dragPreview?.kind === "add-column"
     ? layout.tableWidth + dragPreview.previewCols * layout.avgColumnWidth
     : layout.tableWidth;
@@ -831,47 +863,53 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
             left: rowHandleLeft,
           }}
         >
-          <DropdownMenu
+          <Tooltip
             placement="right"
-            isOpen={openMenuKey === menuKey}
-            onOpenChange={(open) => {
-              setOpenMenuKey((prev) => (open ? menuKey : prev === menuKey ? null : prev));
-            }}
-            items={getRowHandleMenuItems(rowHandle)}
-            trigger={(
-              <button
-                type="button"
-                aria-label={`${t("tableMenu.dragRow")} ${rowHandle.index + 1}`}
-                title={`${t("tableMenu.dragRow")} ${rowHandle.index + 1}`}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  setOpenMenuKey(null);
-                  dragStateRef.current = {
-                    kind: "row",
-                    originIndex: rowHandle.index,
-                    targetIndex: rowHandle.index,
-                    anchorPos: rowHandle.cellPos,
-                  };
-                  setDragPreview({
-                    kind: "row",
-                    originIndex: rowHandle.index,
-                    targetIndex: rowHandle.index,
-                    targetStart: rowHandle.start,
-                    targetSize: rowHandle.size,
-                  });
-                  document.body.style.cursor = "grabbing";
+            content={<span className="text-xs font-medium">{`${t("tableMenu.dragRow")} ${rowHandle.index + 1}`}</span>}
+          >
+            <span className="inline-flex">
+              <DropdownMenu
+                placement="right"
+                isOpen={openMenuKey === menuKey}
+                onOpenChange={(open) => {
+                  setOpenMenuKey((prev) => (open ? menuKey : prev === menuKey ? null : prev));
                 }}
-                className={cn(
-                  "inline-flex h-6 w-6 items-center justify-center rounded-full",
-                  "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
-                  "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
+                items={getRowHandleMenuItems(rowHandle)}
+                trigger={(
+                  <button
+                    type="button"
+                    aria-label={`${t("tableMenu.dragRow")} ${rowHandle.index + 1}`}
+                    onMouseDown={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      setOpenMenuKey(null);
+                      dragStateRef.current = {
+                        kind: "row",
+                        originIndex: rowHandle.index,
+                        targetIndex: rowHandle.index,
+                        anchorPos: rowHandle.cellPos,
+                      };
+                      setDragPreview({
+                        kind: "row",
+                        originIndex: rowHandle.index,
+                        targetIndex: rowHandle.index,
+                        targetStart: rowHandle.start,
+                        targetSize: rowHandle.size,
+                      });
+                      document.body.style.cursor = "grabbing";
+                    }}
+                    className={cn(
+                      "inline-flex h-6 w-6 items-center justify-center rounded-full",
+                      "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
+                      "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
+                    )}
+                  >
+                    <GripVertical className="h-3.5 w-3.5" />
+                  </button>
                 )}
-              >
-                <GripVertical className="h-3.5 w-3.5" />
-              </button>
-            )}
-          />
+              />
+            </span>
+          </Tooltip>
         </div>
       )})}
 
@@ -889,47 +927,53 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
             left: Math.max(8, columnHandle.center - 12),
           }}
         >
-          <DropdownMenu
-            placement="bottom-start"
-            isOpen={openMenuKey === menuKey}
-            onOpenChange={(open) => {
-              setOpenMenuKey((prev) => (open ? menuKey : prev === menuKey ? null : prev));
-            }}
-            items={getColumnHandleMenuItems(columnHandle)}
-            trigger={(
-              <button
-                type="button"
-                aria-label={`${t("tableMenu.dragColumn")} ${columnHandle.index + 1}`}
-                title={`${t("tableMenu.dragColumn")} ${columnHandle.index + 1}`}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  setOpenMenuKey(null);
-                  dragStateRef.current = {
-                    kind: "column",
-                    originIndex: columnHandle.index,
-                    targetIndex: columnHandle.index,
-                    anchorPos: columnHandle.cellPos,
-                  };
-                  setDragPreview({
-                    kind: "column",
-                    originIndex: columnHandle.index,
-                    targetIndex: columnHandle.index,
-                    targetStart: columnHandle.start,
-                    targetSize: columnHandle.size,
-                  });
-                  document.body.style.cursor = "grabbing";
+          <Tooltip
+            placement="top"
+            content={<span className="text-xs font-medium">{`${t("tableMenu.dragColumn")} ${columnHandle.index + 1}`}</span>}
+          >
+            <span className="inline-flex">
+              <DropdownMenu
+                placement="bottom-start"
+                isOpen={openMenuKey === menuKey}
+                onOpenChange={(open) => {
+                  setOpenMenuKey((prev) => (open ? menuKey : prev === menuKey ? null : prev));
                 }}
-                className={cn(
-                  "inline-flex h-6 w-6 items-center justify-center rounded-full",
-                  "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
-                  "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
+                items={getColumnHandleMenuItems(columnHandle)}
+                trigger={(
+                  <button
+                    type="button"
+                    aria-label={`${t("tableMenu.dragColumn")} ${columnHandle.index + 1}`}
+                    onMouseDown={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      setOpenMenuKey(null);
+                      dragStateRef.current = {
+                        kind: "column",
+                        originIndex: columnHandle.index,
+                        targetIndex: columnHandle.index,
+                        anchorPos: columnHandle.cellPos,
+                      };
+                      setDragPreview({
+                        kind: "column",
+                        originIndex: columnHandle.index,
+                        targetIndex: columnHandle.index,
+                        targetStart: columnHandle.start,
+                        targetSize: columnHandle.size,
+                      });
+                      document.body.style.cursor = "grabbing";
+                    }}
+                    className={cn(
+                      "inline-flex h-6 w-6 items-center justify-center rounded-full",
+                      "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
+                      "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
+                    )}
+                  >
+                    <GripHorizontal className="h-3.5 w-3.5" />
+                  </button>
                 )}
-              >
-                <GripHorizontal className="h-3.5 w-3.5" />
-              </button>
-            )}
-          />
+              />
+            </span>
+          </Tooltip>
         </div>
       )})}
 
@@ -942,94 +986,108 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
           left: menuLeft,
         }}
       >
-        <DropdownMenu
-          placement="bottom-start"
-          isOpen={tableMenuOpen}
-          onOpenChange={(open) => {
-            setOpenMenuKey((prev) => (open ? "table" : prev === "table" ? null : prev));
-          }}
-          items={menuItems}
-          trigger={(
-            <button
-              type="button"
-              aria-label={t("tableMenu.openControls")}
-              title={t("tableMenu.openControls")}
-              onMouseDown={(event) => event.preventDefault()}
-              className={cn(
-                "pointer-events-auto inline-flex h-7 w-7 items-center justify-center rounded-full",
-                "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
-                "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
+        <Tooltip
+          placement="top"
+          content={<span className="text-xs font-medium">{t("tableMenu.openControls")}</span>}
+        >
+          <span className="inline-flex">
+            <DropdownMenu
+              placement="bottom-start"
+              isOpen={tableMenuOpen}
+              onOpenChange={(open) => {
+                setOpenMenuKey((prev) => (open ? "table" : prev === "table" ? null : prev));
+              }}
+              items={menuItems}
+              trigger={(
+                <button
+                  type="button"
+                  aria-label={t("tableMenu.openControls")}
+                  onMouseDown={(event) => event.preventDefault()}
+                  className={cn(
+                    "pointer-events-auto inline-flex h-7 w-7 items-center justify-center rounded-full",
+                    "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
+                    "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
+                  )}
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </button>
               )}
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </button>
-          )}
-        />
+            />
+          </span>
+        </Tooltip>
       </div>
       )}
 
       {(controlsVisible || hoverState.addColumnVisible) && (
-      <button
-        type="button"
-        data-table-control="add-column"
-        aria-label={t("tableMenu.quickAddColumnAfter")}
-        title={t("tableMenu.quickAddColumnAfter")}
-        onMouseDown={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          setOpenMenuKey(null);
-          if (!canExpandTable) return;
-          dragStateRef.current = { kind: "add-column", previewCols: 1 };
-          setDragPreview({ kind: "add-column", previewCols: 1 });
-          document.body.style.cursor = "ew-resize";
-        }}
-        disabled={!canExpandTable}
-        className={cn(
-          "absolute z-30 inline-flex items-center justify-center rounded-md",
-          "border border-border/70 bg-muted/40 text-muted-foreground shadow-sm backdrop-blur",
-          "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed",
-        )}
-        style={{
-          top: columnRailTop,
-          left: columnRailLeft,
-          width: 18,
-          height: layout.tableHeight,
-        }}
+      <Tooltip
+        placement="right"
+        content={<span className="text-xs font-medium">{t("tableMenu.quickAddColumnAfter")}</span>}
       >
-        <span className="text-sm font-medium leading-none">+</span>
-      </button>
+        <button
+          type="button"
+          data-table-control="add-column"
+          aria-label={t("tableMenu.quickAddColumnAfter")}
+          onMouseDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            setOpenMenuKey(null);
+            if (!canExpandTable) return;
+            dragStateRef.current = { kind: "add-column", previewCols: 1 };
+            setDragPreview({ kind: "add-column", previewCols: 1 });
+            document.body.style.cursor = "ew-resize";
+          }}
+          disabled={!canExpandTable}
+          className={cn(
+            "absolute z-30 inline-flex items-center justify-center rounded-md",
+            "border border-border/70 bg-muted/40 text-muted-foreground shadow-sm backdrop-blur",
+            "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed",
+          )}
+          style={{
+            top: columnRailTop,
+            left: columnRailLeft,
+            width: 18,
+            height: visibleTableHeight,
+          }}
+        >
+          <span className="text-sm font-medium leading-none">+</span>
+        </button>
+      </Tooltip>
       )}
 
       {(controlsVisible || hoverState.addRowVisible) && (
-      <button
-        type="button"
-        data-table-control="add-row"
-        aria-label={t("tableMenu.quickAddRowAfter")}
-        title={t("tableMenu.quickAddRowAfter")}
-        onMouseDown={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          setOpenMenuKey(null);
-          if (!canExpandTable) return;
-          dragStateRef.current = { kind: "add-row", previewRows: 1 };
-          setDragPreview({ kind: "add-row", previewRows: 1 });
-          document.body.style.cursor = "ns-resize";
-        }}
-        disabled={!canExpandTable}
-        className={cn(
-          "absolute z-30 inline-flex items-center justify-center rounded-md",
-          "border border-border/70 bg-muted/40 text-muted-foreground shadow-sm backdrop-blur",
-          "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed",
-        )}
-        style={{
-          top: rowRailTop,
-          left: rowRailLeft,
-          width: layout.tableWidth,
-          height: 16,
-        }}
+      <Tooltip
+        placement="bottom"
+        content={<span className="text-xs font-medium">{t("tableMenu.quickAddRowAfter")}</span>}
       >
-        <span className="text-sm font-medium leading-none">+</span>
-      </button>
+        <button
+          type="button"
+          data-table-control="add-row"
+          aria-label={t("tableMenu.quickAddRowAfter")}
+          onMouseDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            setOpenMenuKey(null);
+            if (!canExpandTable) return;
+            dragStateRef.current = { kind: "add-row", previewRows: 1 };
+            setDragPreview({ kind: "add-row", previewRows: 1 });
+            document.body.style.cursor = "ns-resize";
+          }}
+          disabled={!canExpandTable}
+          className={cn(
+            "absolute z-30 inline-flex items-center justify-center rounded-md",
+            "border border-border/70 bg-muted/40 text-muted-foreground shadow-sm backdrop-blur",
+            "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed",
+          )}
+          style={{
+            top: rowRailTop,
+            left: rowRailLeft,
+            width: visibleTableWidth,
+            height: 16,
+          }}
+        >
+          <span className="text-sm font-medium leading-none">+</span>
+        </button>
+      </Tooltip>
       )}
 
       {dragPreview?.kind === "row" && (

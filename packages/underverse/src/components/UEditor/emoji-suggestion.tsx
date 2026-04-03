@@ -9,6 +9,7 @@ import type { Editor } from "@tiptap/core";
 import type { SuggestionProps } from "@tiptap/suggestion";
 import { Smile } from "lucide-react";
 import { cn } from "../../utils/cn";
+import { Tooltip } from "../Tooltip";
 import tippy, { type Instance as TippyInstance } from "tippy.js";
 import { EMOJI_LIST } from "./emojis";
 
@@ -94,18 +95,22 @@ const EmojiList = forwardRef<EmojiListRef, EmojiListProps>((props, ref) => {
             <div className="p-3">
                 <div className="grid grid-cols-8 gap-1">
                     {props.items.slice(0, 64).map((item, index) => (
-                        <button
+                        <Tooltip
                             key={item.name}
-                            type="button"
-                            onClick={() => props.command(item)}
-                            className={cn(
-                                "w-9 h-9 flex items-center justify-center rounded-lg text-xl transition-colors",
-                                selectedIndex === index ? "bg-primary/10 ring-2 ring-primary/30" : "hover:bg-accent"
-                            )}
-                            title={item.name.replace(/_/g, " ")}
+                            placement="top"
+                            content={<span className="text-xs font-medium">{item.name.replace(/_/g, " ")}</span>}
                         >
-                            {item.emoji}
-                        </button>
+                            <button
+                                type="button"
+                                onClick={() => props.command(item)}
+                                className={cn(
+                                    "w-9 h-9 flex items-center justify-center rounded-lg text-xl transition-colors",
+                                    selectedIndex === index ? "bg-primary/10 ring-2 ring-primary/30" : "hover:bg-accent"
+                                )}
+                            >
+                                {item.emoji}
+                            </button>
+                        </Tooltip>
                     ))}
                 </div>
                 {props.items.length > 64 && (

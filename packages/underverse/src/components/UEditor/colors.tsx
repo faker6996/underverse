@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { X } from "lucide-react";
 import { cn } from "../../utils/cn";
+import { Tooltip } from "../Tooltip";
 
 export type UEditorColorOption = { name: string; color: string; cssClass?: string };
 
@@ -57,23 +58,22 @@ export const EditorColorPalette = ({
     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2">{label}</span>
     <div className="grid grid-cols-4 gap-1.5 mt-2">
       {colors.map((c) => (
-        <button
-          key={c.name}
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => onSelect(c.color)}
-          className={cn(
-            "flex items-center justify-center w-9 h-9 rounded-lg border-2 transition-all hover:scale-105",
-            currentColor === c.color ? "border-primary ring-2 ring-primary/20" : "border-border/50 hover:border-primary/50",
-          )}
-          style={{ backgroundColor: c.color || "transparent" }}
-          title={c.name}
-        >
-          {c.color === "" && <X className="w-4 h-4 text-muted-foreground" />}
-          {c.color === "inherit" && <span className="text-xs font-medium">A</span>}
-        </button>
+        <Tooltip key={c.name} placement="top" content={<span className="text-xs font-medium">{c.name}</span>}>
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => onSelect(c.color)}
+            className={cn(
+              "flex items-center justify-center w-9 h-9 rounded-lg border-2 transition-all hover:scale-105",
+              currentColor === c.color ? "border-primary ring-2 ring-primary/20" : "border-border/50 hover:border-primary/50",
+            )}
+            style={{ backgroundColor: c.color || "transparent" }}
+          >
+            {c.color === "" && <X className="w-4 h-4 text-muted-foreground" />}
+            {c.color === "inherit" && <span className="text-xs font-medium">A</span>}
+          </button>
+        </Tooltip>
       ))}
     </div>
   </div>
 );
-
