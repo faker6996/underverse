@@ -11,11 +11,10 @@ This phase targets the interaction layer only. The editor still stores standard 
 ### Ship in Phase 1
 
 - Contextual table controls that appear when the caret or hover is inside a table
-- Quick add column action near the active column
-- Quick add row action near the active row
+- Right-side column rail for add / drag-preview
+- Bottom row rail for add / drag-preview
 - Row drag handles for reorder
 - Column drag handles for reorder
-- Bottom-right corner drag-preview handle for table expansion
 - Table context menu with:
   - add row before
   - add row after
@@ -40,10 +39,9 @@ This phase targets the interaction layer only. The editor still stores standard 
 When the user enters a table, `UEditor` shows a light interaction layer:
 
 - a top-left context button for the whole table
-- a quick add button above the active column
-- a quick add button beside the active row
+- a right rail to add or drag-preview columns
+- a bottom rail to add or drag-preview rows
 - drag handles for every visible row and column
-- a corner handle that previews the added size before commit
 - drag badges and target highlights so reorder intent is visible while moving
 
 This keeps the existing global toolbar, but the primary table workflow moves next to the table itself.
@@ -96,9 +94,10 @@ Add interaction coverage for:
 - contextual controls appear when a table cell is focused
 - header row toggle converts the first row into header cells
 - quick add row/column actions modify table structure
+- row rail preview reflects the number of rows that will be added
+- column rail preview reflects the number of columns that will be added
 - row drag reorder changes row order
 - column drag reorder changes column order
-- corner preview reflects the number of rows and columns that will be added
 
 ## Follow-Up Milestones
 
@@ -110,6 +109,5 @@ Add interaction coverage for:
 
 ### Phase 3
 
-- corner drag-to-expand
 - richer hover affordances and animation polish
 - table-specific floating toolbar variants

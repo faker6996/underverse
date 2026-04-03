@@ -213,16 +213,14 @@ test("UEditor shows contextual table controls and applies table actions near the
   const openControlsButton = await body.findByRole("button", { name: "Open Table Controls" });
   const quickAddRowButton = await body.findByRole("button", { name: "Quick Add Row After" });
   const quickAddColumnButton = await body.findByRole("button", { name: "Quick Add Column After" });
-  const dragRowButton = await body.findByRole("button", { name: "Drag Row 1" });
-  const expandTableButton = await body.findByRole("button", { name: "Expand Table" });
 
   assert.ok(openControlsButton);
   assert.ok(quickAddRowButton);
   assert.ok(quickAddColumnButton);
   assert.equal(quickAddRowButton.disabled, false);
   assert.equal(quickAddColumnButton.disabled, false);
-  assert.equal(expandTableButton.disabled, false);
-  assert.ok(parseFloat(quickAddRowButton.style.left) > parseFloat(dragRowButton.style.left));
+  assert.notEqual(quickAddRowButton.style.width, "");
+  assert.notEqual(quickAddColumnButton.style.height, "");
 
   await user.click(openControlsButton);
   const toggleHeaderRowItem = await body.findByRole("menuitem", { name: "Toggle Header Row" });
@@ -312,6 +310,71 @@ test("UEditor table context menu applies header column and structural actions", 
   });
 });
 
+test("UEditor row and column handle menus expose notion-like structural actions", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const body = within(window.document.body);
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<table><tbody><tr><td>A1</td><td>B1</td></tr><tr><td>A2</td><td>B2</td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+
+  await user.click(firstCell);
+
+  const columnHandle = await body.findByRole("button", { name: "Drag Column 1" });
+  await user.click(columnHandle);
+  await body.findByRole("menuitem", { name: "Duplicate Column" });
+  await user.click(body.getByRole("menuitem", { name: "Duplicate Column" }));
+
+  await waitFor(() => {
+    const firstRowCells = view.container.querySelectorAll("tr")[0]?.querySelectorAll("th,td") ?? [];
+    assert.equal(firstRowCells.length, 3);
+    assert.equal(firstRowCells[0]?.textContent?.trim(), "A1");
+    assert.equal(firstRowCells[1]?.textContent?.trim(), "A1");
+  });
+
+  await user.click(await body.findByRole("button", { name: "Drag Column 2" }));
+  await user.click(await body.findByRole("menuitem", { name: "Clear Column Contents" }));
+
+  await waitFor(() => {
+    const secondColumnCells = Array.from(view.container.querySelectorAll("tr")).map(
+      (row) => row.querySelectorAll("th,td")[1]?.textContent?.trim() ?? "",
+    );
+    assert.deepEqual(secondColumnCells, ["", ""]);
+  });
+
+  await user.click(await body.findByRole("button", { name: "Drag Row 1" }));
+  await user.click(await body.findByRole("menuitem", { name: "Duplicate Row" }));
+
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("tr").length, 3);
+  });
+
+  await user.click(await body.findByRole("button", { name: "Drag Row 2" }));
+  await user.click(await body.findByRole("menuitem", { name: "Clear Row Contents" }));
+
+  await waitFor(() => {
+    const clearedRowCells = view.container.querySelectorAll("tr")[1]?.querySelectorAll("th,td") ?? [];
+    assert.deepEqual(
+      Array.from(clearedRowCells).map((cell) => cell.textContent?.trim() ?? ""),
+      ["", "", ""],
+    );
+  });
+});
+
 test("UEditor row drag handle reorders table rows", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -392,7 +455,7 @@ test("UEditor column drag handle reorders table columns", async () => {
   });
 });
 
-test("UEditor corner drag preview expands table by the previewed rows and columns", async () => {
+test("UEditor edge rails preview expands table by the previewed rows and columns", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
   const body = within(window.document.body);
@@ -415,19 +478,34 @@ test("UEditor corner drag preview expands table by the previewed rows and column
 
   fireEvent.click(firstCell);
 
-  const expandTableButton = await body.findByRole("button", { name: "Expand Table" });
-  assert.equal(expandTableButton.disabled, false);
-  fireEvent.mouseDown(expandTableButton, { clientX: 320, clientY: 88 });
-  fireEvent.mouseMove(window, { clientX: 500, clientY: 140 });
+  const quickAddRowButton = await body.findByRole("button", { name: "Quick Add Row After" });
+  const quickAddColumnButton = await body.findByRole("button", { name: "Quick Add Column After" });
+  assert.equal(quickAddRowButton.disabled, false);
+  assert.equal(quickAddColumnButton.disabled, false);
+
+  fireEvent.mouseDown(quickAddRowButton, { clientY: 88 });
+  fireEvent.mouseMove(window, { clientY: 140 });
 
   await waitFor(() => {
-    assert.equal(body.getByRole("status").textContent?.trim(), "+2R +2C");
+    assert.equal(body.getByRole("status").textContent?.trim(), "+2R");
   });
 
-  fireEvent.mouseUp(window, { clientX: 500, clientY: 140 });
+  fireEvent.mouseUp(window, { clientY: 140 });
 
   await waitFor(() => {
     assert.equal(view.container.querySelectorAll("tr").length, 4);
+  });
+
+  fireEvent.mouseDown(quickAddColumnButton, { clientX: 320 });
+  fireEvent.mouseMove(window, { clientX: 500 });
+
+  await waitFor(() => {
+    assert.equal(body.getByRole("status").textContent?.trim(), "+2C");
+  });
+
+  fireEvent.mouseUp(window, { clientX: 500 });
+
+  await waitFor(() => {
     const firstRowCells = view.container.querySelectorAll("tr")[0]?.querySelectorAll("th,td") ?? [];
     assert.equal(firstRowCells.length, 4);
   });

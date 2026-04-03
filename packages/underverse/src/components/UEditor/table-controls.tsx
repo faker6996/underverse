@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
+  Copy,
   GripHorizontal,
   GripVertical,
   MoreHorizontal,
@@ -244,6 +245,12 @@ function focusCell(editor: Editor, cellPos: number) {
   editor.view.focus();
 }
 
+function collectChildren(node: any) {
+  const children: any[] = [];
+  node.forEach((child: any) => children.push(child));
+  return children;
+}
+
 export function TableControls({ editor, containerRef }: TableControlsProps) {
   const t = useSmartTranslations("UEditor");
   const [layout, setLayout] = React.useState<TableControlLayout | null>(null);
@@ -351,6 +358,70 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
   const runAtCornerCell = React.useCallback((command: (chain: any) => any, options?: { sync?: boolean }) => {
     return runAtCellPos(getCurrentCornerCellPos(), command, options);
   }, [getCurrentCornerCellPos, runAtCellPos]);
+
+  const replaceTableAtCellPos = React.useCallback((cellPos: number | null, updateTable: (tableNode: any) => any | null) => {
+    if (cellPos == null) return false;
+    const tableInfo = findTableInfo(editor, cellPos);
+    if (!tableInfo) return false;
+
+    const nextTable = updateTable(tableInfo.node);
+    if (!nextTable) return false;
+
+    editor.view.dispatch(editor.state.tr.replaceWith(tableInfo.pos, tableInfo.pos + tableInfo.node.nodeSize, nextTable));
+    requestAnimationFrame(syncFromSelection);
+    return true;
+  }, [editor, syncFromSelection]);
+
+  const createEmptyCellNode = React.useCallback((cellNode: any) => {
+    return cellNode.type.createAndFill(cellNode.attrs) ?? cellNode;
+  }, []);
+
+  const duplicateRowAt = React.useCallback((rowIndex: number, cellPos: number | null) => {
+    return replaceTableAtCellPos(cellPos, (tableNode) => {
+      const rows = collectChildren(tableNode);
+      const rowNode = rows[rowIndex];
+      if (!rowNode) return null;
+      rows.splice(rowIndex + 1, 0, rowNode.copy(rowNode.content));
+      return tableNode.type.create(tableNode.attrs, rows);
+    });
+  }, [replaceTableAtCellPos]);
+
+  const clearRowAt = React.useCallback((rowIndex: number, cellPos: number | null) => {
+    return replaceTableAtCellPos(cellPos, (tableNode) => {
+      const rows = collectChildren(tableNode);
+      const rowNode = rows[rowIndex];
+      if (!rowNode) return null;
+      const cells = collectChildren(rowNode).map((cellNode) => createEmptyCellNode(cellNode));
+      rows[rowIndex] = rowNode.type.create(rowNode.attrs, cells);
+      return tableNode.type.create(tableNode.attrs, rows);
+    });
+  }, [createEmptyCellNode, replaceTableAtCellPos]);
+
+  const duplicateColumnAt = React.useCallback((columnIndex: number, cellPos: number | null) => {
+    return replaceTableAtCellPos(cellPos, (tableNode) => {
+      const rows = collectChildren(tableNode).map((rowNode) => {
+        const cells = collectChildren(rowNode);
+        const cellNode = cells[columnIndex];
+        if (!cellNode) return rowNode;
+        cells.splice(columnIndex + 1, 0, cellNode.copy(cellNode.content));
+        return rowNode.type.create(rowNode.attrs, cells);
+      });
+      return tableNode.type.create(tableNode.attrs, rows);
+    });
+  }, [replaceTableAtCellPos]);
+
+  const clearColumnAt = React.useCallback((columnIndex: number, cellPos: number | null) => {
+    return replaceTableAtCellPos(cellPos, (tableNode) => {
+      const rows = collectChildren(tableNode).map((rowNode) => {
+        const cells = collectChildren(rowNode);
+        const cellNode = cells[columnIndex];
+        if (!cellNode) return rowNode;
+        cells[columnIndex] = createEmptyCellNode(cellNode);
+        return rowNode.type.create(rowNode.attrs, cells);
+      });
+      return tableNode.type.create(tableNode.attrs, rows);
+    });
+  }, [createEmptyCellNode, replaceTableAtCellPos]);
 
   const expandTableBy = React.useCallback((rows: number, cols: number) => {
     let ok = true;
@@ -527,6 +598,64 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     ];
   }, [layout, runAtActiveCell, t]);
 
+  const getRowHandleMenuItems = React.useCallback((rowHandle: TableAxisHandle) => ([
+    {
+      label: t("tableMenu.addRowBefore"),
+      icon: ArrowUp,
+      onClick: () => runAtCellPos(rowHandle.cellPos, (chain) => chain.addRowBefore()),
+    },
+    {
+      label: t("tableMenu.addRowAfter"),
+      icon: ArrowDown,
+      onClick: () => runAtCellPos(rowHandle.cellPos, (chain) => chain.addRowAfter()),
+    },
+    {
+      label: t("tableMenu.duplicateRow"),
+      icon: Copy,
+      onClick: () => duplicateRowAt(rowHandle.index, rowHandle.cellPos),
+    },
+    {
+      label: t("tableMenu.clearRowContents"),
+      icon: TableIcon,
+      onClick: () => clearRowAt(rowHandle.index, rowHandle.cellPos),
+    },
+    {
+      label: t("tableMenu.deleteRow"),
+      icon: Trash2,
+      onClick: () => runAtCellPos(rowHandle.cellPos, (chain) => chain.deleteRow()),
+      destructive: true,
+    },
+  ]), [clearRowAt, duplicateRowAt, runAtCellPos, t]);
+
+  const getColumnHandleMenuItems = React.useCallback((columnHandle: TableAxisHandle) => ([
+    {
+      label: t("tableMenu.addColumnBefore"),
+      icon: ArrowLeft,
+      onClick: () => runAtCellPos(columnHandle.cellPos, (chain) => chain.addColumnBefore()),
+    },
+    {
+      label: t("tableMenu.addColumnAfter"),
+      icon: ArrowRight,
+      onClick: () => runAtCellPos(columnHandle.cellPos, (chain) => chain.addColumnAfter()),
+    },
+    {
+      label: t("tableMenu.duplicateColumn"),
+      icon: Copy,
+      onClick: () => duplicateColumnAt(columnHandle.index, columnHandle.cellPos),
+    },
+    {
+      label: t("tableMenu.clearColumnContents"),
+      icon: TableIcon,
+      onClick: () => clearColumnAt(columnHandle.index, columnHandle.cellPos),
+    },
+    {
+      label: t("tableMenu.deleteColumn"),
+      icon: Trash2,
+      onClick: () => runAtCellPos(columnHandle.cellPos, (chain) => chain.deleteColumn()),
+      destructive: true,
+    },
+  ]), [clearColumnAt, duplicateColumnAt, runAtCellPos, t]);
+
   if (!layout) {
     return null;
   }
@@ -558,73 +687,85 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
   return (
     <>
       {layout.rowHandles.map((rowHandle) => (
-        <button
-          key={`row-handle-${rowHandle.index}`}
-          type="button"
-          aria-label={`${t("tableMenu.dragRow")} ${rowHandle.index + 1}`}
-          title={`${t("tableMenu.dragRow")} ${rowHandle.index + 1}`}
-          onMouseDown={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            dragStateRef.current = {
-              kind: "row",
-              originIndex: rowHandle.index,
-              targetIndex: rowHandle.index,
-              anchorPos: rowHandle.cellPos,
-            };
-            setDragPreview({
-              kind: "row",
-              originIndex: rowHandle.index,
-              targetIndex: rowHandle.index,
-              targetStart: rowHandle.start,
-              targetSize: rowHandle.size,
-            });
-            document.body.style.cursor = "grabbing";
-          }}
-          className={cn(
-            "absolute z-30 inline-flex h-6 w-6 items-center justify-center rounded-full",
-            "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
-            "transition-colors hover:bg-accent hover:text-foreground",
-          )}
-          style={{ top: Math.max(8, rowHandle.center - 12), left: rowHandleLeft }}
-        >
-          <GripVertical className="h-3.5 w-3.5" />
-        </button>
+        <div key={`row-handle-${rowHandle.index}`} className="absolute z-30" style={{ top: Math.max(8, rowHandle.center - 12), left: rowHandleLeft }}>
+          <DropdownMenu
+            placement="right"
+            items={getRowHandleMenuItems(rowHandle)}
+            trigger={(
+              <button
+                type="button"
+                aria-label={`${t("tableMenu.dragRow")} ${rowHandle.index + 1}`}
+                title={`${t("tableMenu.dragRow")} ${rowHandle.index + 1}`}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  dragStateRef.current = {
+                    kind: "row",
+                    originIndex: rowHandle.index,
+                    targetIndex: rowHandle.index,
+                    anchorPos: rowHandle.cellPos,
+                  };
+                  setDragPreview({
+                    kind: "row",
+                    originIndex: rowHandle.index,
+                    targetIndex: rowHandle.index,
+                    targetStart: rowHandle.start,
+                    targetSize: rowHandle.size,
+                  });
+                  document.body.style.cursor = "grabbing";
+                }}
+                className={cn(
+                  "inline-flex h-6 w-6 items-center justify-center rounded-full",
+                  "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
+                  "transition-colors hover:bg-accent hover:text-foreground",
+                )}
+              >
+                <GripVertical className="h-3.5 w-3.5" />
+              </button>
+            )}
+          />
+        </div>
       ))}
 
       {layout.columnHandles.map((columnHandle) => (
-        <button
-          key={`column-handle-${columnHandle.index}`}
-          type="button"
-          aria-label={`${t("tableMenu.dragColumn")} ${columnHandle.index + 1}`}
-          title={`${t("tableMenu.dragColumn")} ${columnHandle.index + 1}`}
-          onMouseDown={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            dragStateRef.current = {
-              kind: "column",
-              originIndex: columnHandle.index,
-              targetIndex: columnHandle.index,
-              anchorPos: columnHandle.cellPos,
-            };
-            setDragPreview({
-              kind: "column",
-              originIndex: columnHandle.index,
-              targetIndex: columnHandle.index,
-              targetStart: columnHandle.start,
-              targetSize: columnHandle.size,
-            });
-            document.body.style.cursor = "grabbing";
-          }}
-          className={cn(
-            "absolute z-30 inline-flex h-6 w-6 items-center justify-center rounded-full",
-            "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
-            "transition-colors hover:bg-accent hover:text-foreground",
-          )}
-          style={{ top: columnHandleTop, left: Math.max(8, columnHandle.center - 12) }}
-        >
-          <GripHorizontal className="h-3.5 w-3.5" />
-        </button>
+        <div key={`column-handle-${columnHandle.index}`} className="absolute z-30" style={{ top: columnHandleTop, left: Math.max(8, columnHandle.center - 12) }}>
+          <DropdownMenu
+            placement="bottom-start"
+            items={getColumnHandleMenuItems(columnHandle)}
+            trigger={(
+              <button
+                type="button"
+                aria-label={`${t("tableMenu.dragColumn")} ${columnHandle.index + 1}`}
+                title={`${t("tableMenu.dragColumn")} ${columnHandle.index + 1}`}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  dragStateRef.current = {
+                    kind: "column",
+                    originIndex: columnHandle.index,
+                    targetIndex: columnHandle.index,
+                    anchorPos: columnHandle.cellPos,
+                  };
+                  setDragPreview({
+                    kind: "column",
+                    originIndex: columnHandle.index,
+                    targetIndex: columnHandle.index,
+                    targetStart: columnHandle.start,
+                    targetSize: columnHandle.size,
+                  });
+                  document.body.style.cursor = "grabbing";
+                }}
+                className={cn(
+                  "inline-flex h-6 w-6 items-center justify-center rounded-full",
+                  "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
+                  "transition-colors hover:bg-accent hover:text-foreground",
+                )}
+              >
+                <GripHorizontal className="h-3.5 w-3.5" />
+              </button>
+            )}
+          />
+        </div>
       ))}
 
       <div className="pointer-events-none absolute z-30" style={{ top: menuTop, left: menuLeft }}>

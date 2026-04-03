@@ -121,7 +121,7 @@ export default function UEditorExample() {
           <span className="text-sm text-muted-foreground">Full-featured editor with all formatting options</span>
         </div>
         <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
-          Resize demo: drag the right edge of a table cell for columns, drag the bottom edge of a row for row height, and place the caret on an empty line to open the floating block menu.
+          Resize demo: drag the right edge of a table cell for columns, drag the bottom edge of a row for row height, and use the right or bottom rail to add columns and rows like Notion.
         </div>
         <UEditor
           content={content}
