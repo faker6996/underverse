@@ -45,6 +45,9 @@ export default function EmojiPickerExample() {
                             maxHeight="18rem"
                         />
                     </div>
+                    <p className="text-xs text-muted-foreground text-center">
+                        Search and empty-state texts automatically follow the active locale unless you override them with props.
+                    </p>
                 </div>
             </div>
 
@@ -58,6 +61,8 @@ export default function EmojiPickerExample() {
                             <EmojiPicker
                                 onEmojiSelect={(emoji) => console.log(emoji)}
                                 searchPlaceholder="Tìm emoji..."
+                                emptyText="Không có kết quả"
+                                emptyHint="Thử từ khóa khác"
                                 columns={8}
                                 maxHeight="20rem"
                             />
@@ -91,6 +96,8 @@ const [selectedEmoji, setSelectedEmoji] = useState('')
 <EmojiPicker
   onEmojiSelect={(emoji) => console.log(emoji)}
   searchPlaceholder="Tìm emoji..."
+  emptyText="Không có kết quả"
+  emptyHint="Thử từ khóa khác"
   columns={8}
   maxHeight="25rem"
   className="w-full max-w-md"
@@ -138,7 +145,19 @@ function ChatInput() {
             property: "searchPlaceholder",
             description: "Placeholder text for search input",
             type: "string",
-            default: '"Search emojis..."',
+            default: "Localized by current locale",
+        },
+        {
+            property: "emptyText",
+            description: "Empty-state title shown when no emoji matches",
+            type: "string",
+            default: "Localized by current locale",
+        },
+        {
+            property: "emptyHint",
+            description: "Helper text shown under the empty state",
+            type: "string",
+            default: "Localized by current locale",
         },
         {
             property: "showSearch",
@@ -170,6 +189,8 @@ function ChatInput() {
         "onEmojiSelect",
         "className",
         "searchPlaceholder",
+        "emptyText",
+        "emptyHint",
         "showSearch",
         "showCategoryNav",
         "columns",

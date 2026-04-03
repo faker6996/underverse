@@ -2,17 +2,19 @@
 
 Source: `packages/underverse/src/components/EmojiPicker.tsx`
 
-A standalone Messenger-style emoji picker component with 740+ emojis, search functionality, and auto-highlighting category navigation.
+A standalone Messenger-style emoji picker component with 740+ emojis, search functionality, localized defaults, and auto-highlighting category navigation.
 
 ## Features
 
 - 🎨 **Messenger-Style Design** - All categories in a single scrollable list
 - 🔍 **Real-time Search** - Search emojis by name
+- 🌐 **Locale-Aware Defaults** - Uses the active Underverse locale via `TranslationProvider`, `NextIntlAdapter`, or document language fallback
 - 📱 **Responsive Grid** - Customizable column layout
 - 🎯 **Auto-Highlighting** - Category icons highlight based on scroll position
 - ⚡ **Smooth Scrolling** - Click category icon to scroll to section
 - 🌍 **740+ Emojis** - Organized in 7 categories
 - ⌨️ **Keyboard Accessible** - Full keyboard navigation support
+- 💬 **System Tooltips** - Emoji names use the shared Underverse `Tooltip` instead of native browser titles
 
 ## Installation
 
@@ -46,10 +48,27 @@ export default function Example() {
 <EmojiPicker
   onEmojiSelect={(emoji) => console.log(emoji)}
   searchPlaceholder="Find your emoji..."
+  emptyText="Nothing matched"
+  emptyHint="Try another keyword"
   columns={8}
   maxHeight="25rem"
   className="w-full max-w-md"
 />
+```
+
+### Locale-Aware Defaults
+
+If you don't pass `searchPlaceholder`, `emptyText`, or `emptyHint`, the component resolves them from the active Underverse locale.
+
+```tsx
+import { EmojiPicker, NextIntlAdapter } from "@underverse-ui/underverse";
+import { NextIntlClientProvider } from "next-intl";
+
+<NextIntlClientProvider locale="vi" messages={messages}>
+  <NextIntlAdapter>
+    <EmojiPicker onEmojiSelect={(emoji) => console.log(emoji)} />
+  </NextIntlAdapter>
+</NextIntlClientProvider>
 ```
 
 ### Without Search
@@ -79,9 +98,9 @@ export default function Example() {
 |------|------|---------|-------------|
 | `onEmojiSelect` | `(emoji: string) => void` | **Required** | Callback when emoji is selected |
 | `className` | `string` | `undefined` | Additional CSS classes for container |
-| `searchPlaceholder` | `string` | `"Search emojis..."` | Placeholder text for search input |
-| `emptyText` | `string` | `"No emoji found"` | Text shown when no emoji matches |
-| `emptyHint` | `string` | `"Try a different search term"` | Helper text shown under empty state |
+| `searchPlaceholder` | `string` | Localized by current locale | Placeholder text for search input |
+| `emptyText` | `string` | Localized by current locale | Text shown when no emoji matches |
+| `emptyHint` | `string` | Localized by current locale | Helper text shown under empty state |
 | `showSearch` | `boolean` | `true` | Show/hide search bar |
 | `showCategoryNav` | `boolean` | `true` | Show/hide bottom category navigation |
 | `columns` | `number` | `9` | Number of emoji columns in grid |
@@ -135,6 +154,16 @@ emojis.filter((emoji) =>
   emoji.emoji.includes(search)
 )
 ```
+
+### Translation Resolution
+
+The component resolves text in this order:
+
+1. Explicit props such as `searchPlaceholder`, `emptyText`, `emptyHint`
+2. `NextIntlAdapter` bridge when available
+3. `TranslationProvider`
+4. `document.documentElement.lang` / browser locale fallback
+5. Built-in English defaults
 
 ## Use Cases
 

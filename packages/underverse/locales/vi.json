@@ -216,6 +216,11 @@
       "noResults": "Không tìm thấy emoji",
       "tryDifferentSearch": "Thử từ khóa khác"
     },
+    "emojiSuggestion": {
+      "title": "Emoji",
+      "noResults": "Không tìm thấy emoji",
+      "showingCount": "Hiển thị {shown} trong tổng số {total} emoji"
+    },
     "tableMenu": {
       "insert3x3": "Chèn bảng 3×3",
       "addColumnBefore": "Thêm cột trước",

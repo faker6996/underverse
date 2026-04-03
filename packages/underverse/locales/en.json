@@ -216,6 +216,11 @@
       "noResults": "No emoji found",
       "tryDifferentSearch": "Try a different keyword"
     },
+    "emojiSuggestion": {
+      "title": "Emoji",
+      "noResults": "No emoji found",
+      "showingCount": "Showing first {shown} of {total} emojis"
+    },
     "tableMenu": {
       "insert3x3": "Insert 3×3 Table",
       "addColumnBefore": "Add Column Before",

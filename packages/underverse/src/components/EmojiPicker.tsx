@@ -2,7 +2,10 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Search, X, Smile, Leaf, Utensils, Dumbbell, Lightbulb, Hash, Flag } from "lucide-react";
+import { useSmartTranslations } from "../hooks/useSmartTranslations";
 import { cn } from "../utils/cn";
+import { EmojiGridButton } from "./emoji-ui";
+import { Tooltip } from "./Tooltip";
 import { EMOJI_LIST } from "./UEditor/emojis";
 
 export interface EmojiPickerProps {
@@ -30,19 +33,23 @@ const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>
 export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   onEmojiSelect,
   className,
-  searchPlaceholder = "Search emojis...",
-  emptyText = "No emoji found",
-  emptyHint = "Try a different search term",
+  searchPlaceholder,
+  emptyText,
+  emptyHint,
   showSearch = true,
   showCategoryNav = true,
   columns = 9,
   maxHeight = "20rem",
 }) => {
+  const t = useSmartTranslations("UEditor");
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState(EMOJI_LIST[0]?.id || "");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isUserScrolling = useRef(false);
+  const resolvedSearchPlaceholder = searchPlaceholder ?? t("emojiPicker.searchPlaceholder");
+  const resolvedEmptyText = emptyText ?? t("emojiPicker.noResults");
+  const resolvedEmptyHint = emptyHint ?? t("emojiPicker.tryDifferentSearch");
 
   const filteredCategories = useMemo(() => {
     if (!search.trim()) return EMOJI_LIST;
@@ -96,35 +103,42 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   }, []);
 
   const gridColsClass = `grid-cols-${columns}`;
+  const renderEmojiCategory = (category: (typeof EMOJI_LIST)[number], assignRef = false) => (
+    <div
+      key={category.id}
+      ref={assignRef
+        ? (el) => {
+          categoryRefs.current[category.id] = el;
+        }
+        : undefined}
+    >
+      <div className="sticky top-0 z-10 bg-card py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{category.name}</div>
+      <div className={cn("grid gap-1", gridColsClass)}>
+        {category.emojis.map((emoji) => (
+          <EmojiGridButton
+            key={emoji.name}
+            emoji={emoji.emoji}
+            name={emoji.name}
+            onClick={() => handleEmojiClick(emoji.emoji)}
+            className="text-2xl"
+          />
+        ))}
+      </div>
+    </div>
+  );
 
   const searchResultContent =
     filteredCategories.length > 0 ? (
       filteredCategories.map((category) => (
         <div key={category.id} className="mb-4">
-          <div className="sticky top-0 z-10 bg-card py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{category.name}</div>
-          <div className={cn("grid gap-1", gridColsClass)}>
-            {category.emojis.map((emoji) => (
-              <button
-                key={emoji.name}
-                type="button"
-                onClick={() => handleEmojiClick(emoji.emoji)}
-                className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-lg text-2xl transition-colors",
-                  "hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary/20",
-                )}
-                title={emoji.name.replaceAll("_", " ")}
-              >
-                {emoji.emoji}
-              </button>
-            ))}
-          </div>
+          {renderEmojiCategory(category)}
         </div>
       ))
     ) : (
       <div className="flex h-full flex-col items-center justify-center text-center">
         <div className="mb-2 text-4xl">🔍</div>
-        <div className="text-sm font-medium text-muted-foreground">{emptyText}</div>
-        <div className="mt-1 text-xs text-muted-foreground">{emptyHint}</div>
+        <div className="text-sm font-medium text-muted-foreground">{resolvedEmptyText}</div>
+        <div className="mt-1 text-xs text-muted-foreground">{resolvedEmptyHint}</div>
       </div>
     );
 
@@ -154,7 +168,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
-              placeholder={searchPlaceholder}
+              placeholder={resolvedSearchPlaceholder}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className={cn(
@@ -180,34 +194,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
           searchResultContent
         ) : (
           <div className="space-y-4">
-            {EMOJI_LIST.map((category) => (
-              <div
-                key={category.id}
-                ref={(el) => {
-                  categoryRefs.current[category.id] = el;
-                }}
-              >
-                <div className="sticky top-0 z-10 bg-card py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {category.name}
-                </div>
-                <div className={cn("grid gap-1", gridColsClass)}>
-                  {category.emojis.map((emoji) => (
-                    <button
-                      key={emoji.name}
-                      type="button"
-                      onClick={() => handleEmojiClick(emoji.emoji)}
-                      className={cn(
-                        "flex h-9 w-9 items-center justify-center rounded-lg text-2xl transition-colors",
-                        "hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary/20",
-                      )}
-                      title={emoji.name.replaceAll("_", " ")}
-                    >
-                      {emoji.emoji}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
+            {EMOJI_LIST.map((category) => renderEmojiCategory(category, true))}
           </div>
         )}
       </div>
@@ -225,9 +212,12 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
                   "rounded-lg p-2 transition-colors",
                   activeCategory === category.id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground",
                 )}
-                title={category.name}
               >
-                <IconComponent className="h-5 w-5" />
+                <Tooltip placement="top" content={<span className="text-xs font-medium">{category.name}</span>}>
+                  <span className="inline-flex">
+                    <IconComponent className="h-5 w-5" />
+                  </span>
+                </Tooltip>
               </button>
             );
           })}

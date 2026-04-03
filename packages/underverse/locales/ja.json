@@ -215,6 +215,11 @@
       "noResults": "絵文字が見つかりません",
       "tryDifferentSearch": "別のキーワードでお試しください"
     },
+    "emojiSuggestion": {
+      "title": "絵文字",
+      "noResults": "絵文字が見つかりません",
+      "showingCount": "{total} 件中 {shown} 件の絵文字を表示中"
+    },
     "tableMenu": {
       "insert3x3": "3x3 表を挿入",
       "addColumnBefore": "前に列を追加",

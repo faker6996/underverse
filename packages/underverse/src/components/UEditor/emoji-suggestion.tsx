@@ -8,9 +8,9 @@ import React, { forwardRef, useImperativeHandle } from "react";
 import type { Editor } from "@tiptap/core";
 import type { SuggestionProps } from "@tiptap/suggestion";
 import { Smile } from "lucide-react";
-import { cn } from "../../utils/cn";
-import { Tooltip } from "../Tooltip";
-import tippy, { type Instance as TippyInstance } from "tippy.js";
+import { useSmartTranslations } from "../../hooks/useSmartTranslations";
+import { EmojiGridButton, formatEmojiCountLabel } from "../emoji-ui";
+import { destroyTippyInstance, getFirstTippyInstance, hideTippyInstance, tippy, type TippyInstance } from "./tippy-interop";
 import { EMOJI_LIST } from "./emojis";
 
 type EmojiItem = {
@@ -45,7 +45,9 @@ function useResettingIndex(resetToken: unknown) {
 }
 
 const EmojiList = forwardRef<EmojiListRef, EmojiListProps>((props, ref) => {
+    const t = useSmartTranslations("UEditor");
     const [selectedIndex, setSelectedIndex] = useResettingIndex(props.items);
+    const showingCountLabel = formatEmojiCountLabel(t("emojiSuggestion.showingCount"), 64, props.items.length);
 
     useImperativeHandle(ref, () => ({
         onKeyDown: ({ event }: { event: KeyboardEvent }) => {
@@ -79,7 +81,7 @@ const EmojiList = forwardRef<EmojiListRef, EmojiListProps>((props, ref) => {
     if (props.items.length === 0) {
         return (
             <div className="w-80 p-4 text-center text-sm text-muted-foreground bg-card border border-border/50 rounded-2xl shadow-lg">
-                No emoji found
+                {t("emojiSuggestion.noResults")}
             </div>
         );
     }
@@ -89,33 +91,25 @@ const EmojiList = forwardRef<EmojiListRef, EmojiListProps>((props, ref) => {
             <div className="px-3 py-2 border-b bg-muted/30">
                 <div className="flex items-center gap-2">
                     <Smile className="w-4 h-4 text-primary" />
-                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Emoji</span>
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("emojiSuggestion.title")}</span>
                 </div>
             </div>
             <div className="p-3">
                 <div className="grid grid-cols-8 gap-1">
                     {props.items.slice(0, 64).map((item, index) => (
-                        <Tooltip
+                        <EmojiGridButton
                             key={item.name}
-                            placement="top"
-                            content={<span className="text-xs font-medium">{item.name.replace(/_/g, " ")}</span>}
-                        >
-                            <button
-                                type="button"
-                                onClick={() => props.command(item)}
-                                className={cn(
-                                    "w-9 h-9 flex items-center justify-center rounded-lg text-xl transition-colors",
-                                    selectedIndex === index ? "bg-primary/10 ring-2 ring-primary/30" : "hover:bg-accent"
-                                )}
-                            >
-                                {item.emoji}
-                            </button>
-                        </Tooltip>
+                            emoji={item.emoji}
+                            name={item.name}
+                            onClick={() => props.command(item)}
+                            active={selectedIndex === index}
+                            className="text-xl"
+                        />
                     ))}
                 </div>
                 {props.items.length > 64 && (
                     <div className="mt-2 text-xs text-center text-muted-foreground">
-                        Showing first 64 of {props.items.length} emojis
+                        {showingCountLabel}
                     </div>
                 )}
             </div>
@@ -191,15 +185,16 @@ export const EmojiSuggestion = Extension.create({
                             });
                         },
                         onKeyDown(props: { event: KeyboardEvent }) {
+                            const popupInstance = getFirstTippyInstance(popup);
                             if (props.event.key === "Escape") {
-                                popup?.[0]?.hide();
+                                hideTippyInstance(popupInstance);
                                 return true;
                             }
 
                             return component?.ref?.onKeyDown(props) ?? false;
                         },
                         onExit() {
-                            popup?.[0]?.destroy();
+                            destroyTippyInstance(getFirstTippyInstance(popup));
                             component?.destroy();
                         },
                     };

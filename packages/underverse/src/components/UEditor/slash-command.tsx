@@ -20,7 +20,7 @@ import {
   Type,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
-import tippy, { type Instance as TippyInstance } from "tippy.js";
+import { destroyTippyInstance, getFirstTippyInstance, hideTippyInstance, tippy, type TippyInstance } from "./tippy-interop";
 
 export type SlashCommandMessages = {
   noResults: string;
@@ -390,15 +390,16 @@ export const SlashCommand = Extension.create<{ messages: SlashCommandMessages }>
               });
             },
             onKeyDown(props: { event: KeyboardEvent }) {
+              const popupInstance = getFirstTippyInstance(popup);
               if (props.event.key === "Escape") {
-                popup?.[0]?.hide();
+                hideTippyInstance(popupInstance);
                 return true;
               }
 
               return component?.ref?.onKeyDown(props) ?? false;
             },
             onExit() {
-              popup?.[0]?.destroy();
+              destroyTippyInstance(getFirstTippyInstance(popup));
               component?.destroy();
             },
           };
