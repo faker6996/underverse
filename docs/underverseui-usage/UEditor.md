@@ -151,7 +151,7 @@ Display content without editing capabilities:
 | `autofocus`          | `boolean`                            | `false`                      | Auto focus editor on mount.                   |
 | `showToolbar`        | `boolean`                            | `true`                       | Show the main toolbar.                        |
 | `showBubbleMenu`     | `boolean`                            | `true`                       | Show bubble menu on text selection.           |
-| `showFloatingMenu`   | `boolean`                            | `false`                      | Deprecated. Empty-line floating menu is disabled in the current UI. |
+| `showFloatingMenu`   | `boolean`                            | `false`                      | Show the empty-line floating block menu.      |
 | `showCharacterCount` | `boolean`                            | `true`                       | Show character & word count footer.           |
 | `maxCharacters`      | `number`                             | `undefined`                  | Maximum character limit.                      |
 | `minHeight`          | `number \| string`                   | `"200px"`                    | Minimum height of editor area.                |

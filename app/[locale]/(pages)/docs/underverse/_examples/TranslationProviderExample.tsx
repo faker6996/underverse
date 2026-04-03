@@ -7,7 +7,7 @@ import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 import { useTranslations } from "next-intl";
 
 // Note: This example shows how to use TranslationProvider in standalone React apps (Vite, CRA, etc.)
-// In Next.js with next-intl, you don't need TranslationProvider - components auto-detect next-intl
+// In Next.js with next-intl, wrap your app with NextIntlAdapter so Underverse components can read next-intl messages.
 
 export default function TranslationProviderExample() {
   const td = useTranslations("DocsUnderverse");
@@ -100,11 +100,11 @@ function App() {
 }`;
 
   const nextjsCode = `// For Next.js with next-intl
-// No TranslationProvider needed! Components auto-detect next-intl
+// No TranslationProvider needed, but Underverse components should be wrapped with NextIntlAdapter
 
 // 1. Merge underverse messages in layout.tsx
 import { NextIntlClientProvider, getMessages } from 'next-intl/server'
-import { underverseMessages } from '@underverse-ui/underverse'
+import { NextIntlAdapter, underverseMessages } from '@underverse-ui/underverse'
 
 export default async function RootLayout({ children, params }) {
   const locale = params.locale || 'vi'
@@ -116,12 +116,12 @@ export default async function RootLayout({ children, params }) {
       locale={locale} 
       messages={{ ...uvMessages, ...appMessages }}
     >
-      {children}
+      <NextIntlAdapter>{children}</NextIntlAdapter>
     </NextIntlClientProvider>
   )
 }
 
-// 2. Use components directly - they auto-detect next-intl
+// 2. Use components directly inside the adapter
 import { DatePicker, Pagination } from '@underverse-ui/underverse'
 
 function MyPage() {
@@ -151,7 +151,7 @@ function MyPage() {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Next.js with next-intl</h3>
         <p className="text-sm text-muted-foreground">
-          In Next.js projects using next-intl, you don&apos;t need TranslationProvider. Components auto-detect and use next-intl&apos;s translations.
+          In Next.js projects using next-intl, keep your existing NextIntlClientProvider and add NextIntlAdapter once so Underverse components read the same locale/messages.
         </p>
       </div>
 

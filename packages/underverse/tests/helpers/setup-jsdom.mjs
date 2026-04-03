@@ -24,6 +24,9 @@ export function installJSDOM() {
   assign("HTMLAnchorElement", window.HTMLAnchorElement);
   assign("HTMLButtonElement", window.HTMLButtonElement);
   assign("HTMLInputElement", window.HTMLInputElement);
+  assign("HTMLTableElement", window.HTMLTableElement);
+  assign("HTMLTableRowElement", window.HTMLTableRowElement);
+  assign("HTMLTableCellElement", window.HTMLTableCellElement);
   assign("Element", window.Element);
   assign("Node", window.Node);
   assign("Text", window.Text);

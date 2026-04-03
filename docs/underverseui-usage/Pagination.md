@@ -8,7 +8,7 @@ Exports:
 - SimplePagination
 - CompactPagination
 
-Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja). Tự động detect `next-intl` hoặc sử dụng `TranslationProvider`.
+Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja). Với `next-intl`, bọc app bằng `NextIntlAdapter`; với React standalone, dùng `TranslationProvider`.
 
 ## Accessibility (Web Interface Guidelines Compliant)
 

@@ -188,13 +188,13 @@ function App() {
 ### Next.js với next-intl
 
 ```tsx
-import { underverseMessages } from "@underverse-ui/underverse";
+import { NextIntlAdapter, underverseMessages } from "@underverse-ui/underverse";
 
 // Merge với app messages
 const messages = { ...underverseMessages.vi, ...appMessages };
 
 <NextIntlClientProvider locale="vi" messages={messages}>
-  {children}
+  <NextIntlAdapter>{children}</NextIntlAdapter>
 </NextIntlClientProvider>;
 ```
 

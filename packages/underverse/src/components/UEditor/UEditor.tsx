@@ -9,7 +9,7 @@ import { cn } from "../../utils/cn";
 import { buildUEditorExtensions } from "./extensions";
 import type { UEditorPrepareContentForSaveResult, UEditorProps, UEditorRef } from "./types";
 import { EditorToolbar } from "./toolbar";
-import { CustomBubbleMenu } from "./menus";
+import { CustomBubbleMenu, CustomFloatingMenu } from "./menus";
 import { CharacterCountDisplay } from "./CharacterCount";
 import { prepareUEditorContentForSave, UEditorPrepareContentForSaveError } from "./prepare-content-for-save";
 
@@ -111,6 +111,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   autofocus = false,
   showToolbar = true,
   showBubbleMenu = true,
+  showFloatingMenu = false,
   showCharacterCount = true,
   maxCharacters,
   minHeight = "200px",
@@ -579,6 +580,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         <EditorToolbar editor={editor} variant={variant} uploadImage={uploadImage} imageInsertMode={imageInsertMode} />
       )}
       {editable && showBubbleMenu && <CustomBubbleMenu editor={editor} />}
+      {editable && showFloatingMenu && <CustomFloatingMenu editor={editor} />}
 
       <div
         ref={editorContentRef}

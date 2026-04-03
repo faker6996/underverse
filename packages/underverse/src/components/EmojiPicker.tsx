@@ -50,9 +50,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
     const query = search.toLowerCase();
     return EMOJI_LIST.map((category) => ({
       ...category,
-      emojis: category.emojis.filter(
-        (emoji) => emoji.name.toLowerCase().includes(query) || emoji.emoji.includes(search),
-      ),
+      emojis: category.emojis.filter((emoji) => emoji.name.toLowerCase().includes(query) || emoji.emoji.includes(search)),
     })).filter((category) => category.emojis.length > 0);
   }, [search]);
 
@@ -98,6 +96,37 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   }, []);
 
   const gridColsClass = `grid-cols-${columns}`;
+
+  const searchResultContent =
+    filteredCategories.length > 0 ? (
+      filteredCategories.map((category) => (
+        <div key={category.id} className="mb-4">
+          <div className="sticky top-0 z-10 bg-card py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{category.name}</div>
+          <div className={cn("grid gap-1", gridColsClass)}>
+            {category.emojis.map((emoji) => (
+              <button
+                key={emoji.name}
+                type="button"
+                onClick={() => handleEmojiClick(emoji.emoji)}
+                className={cn(
+                  "flex h-9 w-9 items-center justify-center rounded-lg text-2xl transition-colors",
+                  "hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary/20",
+                )}
+                title={emoji.name.replaceAll("_", " ")}
+              >
+                {emoji.emoji}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))
+    ) : (
+      <div className="flex h-full flex-col items-center justify-center text-center">
+        <div className="mb-2 text-4xl">🔍</div>
+        <div className="text-sm font-medium text-muted-foreground">{emptyText}</div>
+        <div className="mt-1 text-xs text-muted-foreground">{emptyHint}</div>
+      </div>
+    );
 
   const handleEmojiClick = (emoji: string) => {
     onEmojiSelect(emoji);
@@ -148,41 +177,16 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
 
       <div ref={scrollContainerRef} className="shrink overflow-y-auto px-3 py-2" style={{ height: maxHeight }}>
         {search ? (
-          filteredCategories.length > 0 ? (
-            filteredCategories.map((category) => (
-              <div key={category.id} className="mb-4">
-                <div className="sticky top-0 z-10 bg-card py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {category.name}
-                </div>
-                <div className={cn("grid gap-1", gridColsClass)}>
-                  {category.emojis.map((emoji) => (
-                    <button
-                      key={emoji.name}
-                      type="button"
-                      onClick={() => handleEmojiClick(emoji.emoji)}
-                      className={cn(
-                        "flex h-9 w-9 items-center justify-center rounded-lg text-2xl transition-colors",
-                        "hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary/20",
-                      )}
-                      title={emoji.name.replace(/_/g, " ")}
-                    >
-                      {emoji.emoji}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="flex h-full flex-col items-center justify-center text-center">
-              <div className="mb-2 text-4xl">🔍</div>
-              <div className="text-sm font-medium text-muted-foreground">{emptyText}</div>
-              <div className="mt-1 text-xs text-muted-foreground">{emptyHint}</div>
-            </div>
-          )
+          searchResultContent
         ) : (
           <div className="space-y-4">
             {EMOJI_LIST.map((category) => (
-              <div key={category.id} ref={(el) => { categoryRefs.current[category.id] = el; }}>
+              <div
+                key={category.id}
+                ref={(el) => {
+                  categoryRefs.current[category.id] = el;
+                }}
+              >
                 <div className="sticky top-0 z-10 bg-card py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {category.name}
                 </div>
@@ -196,7 +200,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
                         "flex h-9 w-9 items-center justify-center rounded-lg text-2xl transition-colors",
                         "hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary/20",
                       )}
-                      title={emoji.name.replace(/_/g, " ")}
+                      title={emoji.name.replaceAll("_", " ")}
                     >
                       {emoji.emoji}
                     </button>
@@ -219,9 +223,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
                 onClick={() => handleCategoryClick(category.id)}
                 className={cn(
                   "rounded-lg p-2 transition-colors",
-                  activeCategory === category.id
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                  activeCategory === category.id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground",
                 )}
                 title={category.name}
               >

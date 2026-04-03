@@ -111,7 +111,7 @@ export function DataTableHeader<T extends Record<string, any>>({
               !col.align && "justify-start",
             )}
           >
-            <span className={cn("font-medium whitespace-nowrap", headerTitleClass)}>{col.title}</span>
+            <span className={cn("font-medium whitespace-nowrap select-text", headerTitleClass)}>{col.title}</span>
           </div>
         );
       }
@@ -121,7 +121,7 @@ export function DataTableHeader<T extends Record<string, any>>({
 
       const titleContent = (
         <div className="flex items-center gap-1">
-          <span className={cn("font-medium whitespace-nowrap", headerTitleClass)}>{col.title}</span>
+          <span className={cn("font-medium whitespace-nowrap select-text", headerTitleClass)}>{col.title}</span>
           {col.sortable && (
             <button
               className={cn(
@@ -201,7 +201,7 @@ export function DataTableHeader<T extends Record<string, any>>({
       return (
         <div
           className={cn(
-            "flex items-center gap-2 select-none",
+            "flex items-center gap-2",
             headerMinHeightClass,
             isRightAlign && "justify-end",
             isCenterAlign && "justify-center",

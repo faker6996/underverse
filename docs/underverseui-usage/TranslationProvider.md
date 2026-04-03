@@ -105,12 +105,12 @@ function MyComponent() {
 
 ## Sử dụng với Next.js (next-intl)
 
-Nếu bạn đang dùng Next.js với next-intl, không cần TranslationProvider. Components sẽ tự động detect và sử dụng next-intl:
+Nếu bạn đang dùng Next.js với `next-intl`, không cần `TranslationProvider`, nhưng nên bọc app bằng `NextIntlAdapter` để Underverse đọc đúng locale/messages từ `next-intl`:
 
 ```tsx
 // app/layout.tsx
 import { NextIntlClientProvider } from "next-intl";
-import { underverseMessages } from "@underverse-ui/underverse";
+import { NextIntlAdapter, underverseMessages } from "@underverse-ui/underverse";
 
 export default async function RootLayout({ children, params }) {
   const locale = params.locale || "vi";
@@ -119,7 +119,7 @@ export default async function RootLayout({ children, params }) {
 
   return (
     <NextIntlClientProvider locale={locale} messages={{ ...uvMessages, ...appMessages }}>
-      {children}
+      <NextIntlAdapter>{children}</NextIntlAdapter>
     </NextIntlClientProvider>
   );
 }

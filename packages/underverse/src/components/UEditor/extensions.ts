@@ -29,7 +29,7 @@ import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import { common, createLowlight } from "lowlight";
-import { SlashCommand } from "./slash-command";
+import { buildSlashCommandMessages, SlashCommand } from "./slash-command";
 import { ClipboardImages } from "./clipboard-images";
 import { EmojiSuggestion } from "./emoji-suggestion";
 import { UEditorPlaceholder } from "./placeholder";
@@ -160,32 +160,7 @@ export function buildUEditorExtensions({
       },
     }),
     SlashCommand.configure({
-      messages: {
-        noResults: translate("slashCommand.noResults"),
-        basicBlocks: translate("slashCommand.basicBlocks"),
-        text: translate("slashCommand.text"),
-        textDesc: translate("slashCommand.textDesc"),
-        heading1: translate("slashCommand.heading1"),
-        heading1Desc: translate("slashCommand.heading1Desc"),
-        heading2: translate("slashCommand.heading2"),
-        heading2Desc: translate("slashCommand.heading2Desc"),
-        heading3: translate("slashCommand.heading3"),
-        heading3Desc: translate("slashCommand.heading3Desc"),
-        bulletList: translate("slashCommand.bulletList"),
-        bulletListDesc: translate("slashCommand.bulletListDesc"),
-        orderedList: translate("slashCommand.orderedList"),
-        orderedListDesc: translate("slashCommand.orderedListDesc"),
-        todoList: translate("slashCommand.todoList"),
-        todoListDesc: translate("slashCommand.todoListDesc"),
-        quote: translate("slashCommand.quote"),
-        quoteDesc: translate("slashCommand.quoteDesc"),
-        codeBlock: translate("slashCommand.codeBlock"),
-        codeBlockDesc: translate("slashCommand.codeBlockDesc"),
-        divider: translate("slashCommand.divider"),
-        dividerDesc: translate("slashCommand.dividerDesc"),
-        table: translate("slashCommand.table"),
-        tableDesc: translate("slashCommand.tableDesc"),
-      },
+      messages: buildSlashCommandMessages(translate),
     }),
     EmojiSuggestion,
   ];

@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
 import ts from "typescript";
 
@@ -12,6 +13,7 @@ const tempRoot = fs.mkdtempSync(path.join(tempBaseDir, "run-"));
 const packageNodeModules = path.join(packageRoot, "node_modules");
 const workspaceNodeModules = path.join(workspaceRoot, "node_modules");
 const tempNodeModules = path.join(tempRoot, "node_modules");
+const requireFromTemp = createRequire(path.join(tempRoot, "index.mjs"));
 
 function linkNodeModulesEntries(fromDir) {
   if (!fs.existsSync(fromDir)) return;
@@ -39,18 +41,18 @@ function linkScopedEntries(fromDir, scopeName) {
 if (!fs.existsSync(tempNodeModules)) {
   fs.mkdirSync(tempNodeModules, { recursive: true });
   for (const entry of ["react", "react-dom", "scheduler"]) {
-    const source = fs.existsSync(path.join(packageNodeModules, entry))
-      ? path.join(packageNodeModules, entry)
-      : path.join(workspaceNodeModules, entry);
+    const source = fs.existsSync(path.join(workspaceNodeModules, entry))
+      ? path.join(workspaceNodeModules, entry)
+      : path.join(packageNodeModules, entry);
     const target = path.join(tempNodeModules, entry);
     if (fs.existsSync(source) && !fs.existsSync(target)) {
       fs.symlinkSync(source, target, fs.statSync(source).isDirectory() ? "dir" : "file");
     }
   }
-  linkNodeModulesEntries(packageNodeModules);
-  linkScopedEntries(packageNodeModules, "@tiptap");
   linkNodeModulesEntries(workspaceNodeModules);
   linkScopedEntries(workspaceNodeModules, "@tiptap");
+  linkNodeModulesEntries(packageNodeModules);
+  linkScopedEntries(packageNodeModules, "@tiptap");
 }
 
 const compiledCache = new Map();
@@ -155,4 +157,8 @@ function compileModule(filePath) {
 export async function importTsModule(filePath) {
   const outFile = compileModule(filePath);
   return import(pathToFileURL(outFile).href);
+}
+
+export function requireTempModule(specifier) {
+  return requireFromTemp(specifier);
 }

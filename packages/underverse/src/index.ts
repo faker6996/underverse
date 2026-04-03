@@ -179,6 +179,7 @@ export { VARIANT_STYLES_ALERT } from "../../../lib/constants/constants-ui/alert"
 // TranslationProvider - Optional context for i18n support
 // When not wrapped in TranslationProvider, components use English fallback texts
 export { TranslationProvider, useUnderverseTranslations, useUnderverseLocale } from "./contexts/TranslationContext";
+export { NextIntlAdapter, UnderverseNextIntlProvider } from "./contexts/NextIntlAdapter";
 export type { Locale, Translations, TranslationProviderProps } from "./contexts/TranslationContext";
 
 // UnderverseProvider - Alternative name for TranslationProvider (for standalone React usage)
@@ -189,7 +190,7 @@ export {
 } from "../../../lib/i18n/translation-adapter";
 export type { UnderverseProviderProps } from "../../../lib/i18n/translation-adapter";
 
-// Smart hooks that auto-detect next-intl or fallback to internal translations
+// Smart hooks that read NextIntlAdapter or fallback to internal translations
 export { useSmartTranslations, useSmartLocale, ForceInternalTranslationsProvider } from "./hooks/useSmartTranslations";
 
 // Excluded: NotificationBell (depends on project-specific API, auth, and sockets)

@@ -10,25 +10,14 @@ import {
   AlignRight,
   Bold as BoldIcon,
   Code as CodeIcon,
-  FileCode,
-  Heading1 as Heading1Icon,
-  Heading2 as Heading2Icon,
-  Heading3 as Heading3Icon,
   Italic as ItalicIcon,
   Link as LinkIcon,
-  List as ListIcon,
-  ListOrdered as ListOrderedIcon,
-  ListTodo,
-  Minus,
   Palette,
   Plus,
-  Quote as QuoteIcon,
   RotateCcw,
   Subscript as SubscriptIcon,
   Superscript as SuperscriptIcon,
-  Table as TableIcon,
   Trash2,
-  Type,
   Underline as UnderlineIcon,
   Strikethrough as StrikethroughIcon,
 } from "lucide-react";
@@ -37,267 +26,42 @@ import { ToolbarButton } from "./toolbar";
 import { LinkInput } from "./inputs";
 import { EditorColorPalette, useEditorColors } from "./colors";
 import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
+import { buildSlashCommandItems, buildSlashCommandMessages, SlashCommandList, type SlashCommandListRef } from "./slash-command";
 
-type SlashCommand = {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  description: string;
-  action: () => void;
-};
-
-function useResettingIndex(resetToken: unknown) {
-  const [state, setState] = React.useState<{ resetToken: unknown; index: number }>({ resetToken, index: 0 });
-  const selectedIndex = Object.is(state.resetToken, resetToken) ? state.index : 0;
-
-  const setSelectedIndex = React.useCallback((nextIndex: React.SetStateAction<number>) => {
-    setState((prev) => {
-      const prevIndex = Object.is(prev.resetToken, resetToken) ? prev.index : 0;
-      return {
-        resetToken,
-        index: typeof nextIndex === "function" ? (nextIndex as (value: number) => number)(prevIndex) : nextIndex,
-      };
-    });
-  }, [resetToken]);
-
-  return [selectedIndex, setSelectedIndex] as const;
-}
-
-const SlashCommandMenu = ({ editor, onClose, filterText = "" }: { editor: Editor; onClose: () => void; filterText?: string }) => {
+const FloatingSlashCommandMenu = ({ editor, onClose }: { editor: Editor; onClose: () => void }) => {
   const t = useSmartTranslations("UEditor");
-  const [selectedIndex, setSelectedIndex] = useResettingIndex(filterText);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  const allCommands = useMemo<SlashCommand[]>(
-    () => [
-      {
-        icon: Type,
-        label: t("slashCommand.text"),
-        description: t("slashCommand.textDesc"),
-        action: () => editor.chain().focus().setParagraph().run(),
-      },
-      {
-        icon: Heading1Icon,
-        label: t("slashCommand.heading1"),
-        description: t("slashCommand.heading1Desc"),
-        action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
-      },
-      {
-        icon: Heading2Icon,
-        label: t("slashCommand.heading2"),
-        description: t("slashCommand.heading2Desc"),
-        action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
-      },
-      {
-        icon: Heading3Icon,
-        label: t("slashCommand.heading3"),
-        description: t("slashCommand.heading3Desc"),
-        action: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
-      },
-      {
-        icon: ListIcon,
-        label: t("slashCommand.bulletList"),
-        description: t("slashCommand.bulletListDesc"),
-        action: () => editor.chain().focus().toggleBulletList().run(),
-      },
-      {
-        icon: ListOrderedIcon,
-        label: t("slashCommand.orderedList"),
-        description: t("slashCommand.orderedListDesc"),
-        action: () => editor.chain().focus().toggleOrderedList().run(),
-      },
-      {
-        icon: ListTodo,
-        label: t("slashCommand.todoList"),
-        description: t("slashCommand.todoListDesc"),
-        action: () => editor.chain().focus().toggleTaskList().run(),
-      },
-      {
-        icon: QuoteIcon,
-        label: t("slashCommand.quote"),
-        description: t("slashCommand.quoteDesc"),
-        action: () => editor.chain().focus().toggleBlockquote().run(),
-      },
-      {
-        icon: FileCode,
-        label: t("slashCommand.codeBlock"),
-        description: t("slashCommand.codeBlockDesc"),
-        action: () => editor.chain().focus().toggleCodeBlock().run(),
-      },
-      {
-        icon: Minus,
-        label: t("slashCommand.divider"),
-        description: t("slashCommand.dividerDesc"),
-        action: () => editor.chain().focus().setHorizontalRule().run(),
-      },
-      {
-        icon: TableIcon,
-        label: t("slashCommand.table"),
-        description: t("slashCommand.tableDesc"),
-        action: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
-      },
-    ],
-    [editor, t],
-  );
-
-  const commands = useMemo(() => {
-    if (!filterText) return allCommands;
-    const lowerFilter = filterText.toLowerCase();
-    return allCommands.filter((cmd) => cmd.label.toLowerCase().includes(lowerFilter) || cmd.description.toLowerCase().includes(lowerFilter));
-  }, [allCommands, filterText]);
+  const messages = useMemo(() => buildSlashCommandMessages(t), [t]);
+  const items = useMemo(() => buildSlashCommandItems({ query: "", messages }), [messages]);
+  const listRef = useRef<SlashCommandListRef>(null);
 
   useEffect(() => {
-    const selectedElement = menuRef.current?.querySelector(`[data-index="${selectedIndex}"]`);
-    selectedElement?.scrollIntoView({ block: "nearest" });
-  }, [commands, selectedIndex, setSelectedIndex]);
-
-  const selectCommand = useCallback(
-    (index: number) => {
-      const command = commands[index];
-      if (command) {
-        command.action();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
         onClose();
+        return;
       }
-    },
-    [commands, onClose],
-  );
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (commands.length === 0) return;
-
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setSelectedIndex((prev) => (prev + 1) % commands.length);
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedIndex((prev) => (prev - 1 + commands.length) % commands.length);
-      } else if (e.key === "Enter") {
-        e.preventDefault();
-        selectCommand(selectedIndex);
-      } else if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
+      const handled = listRef.current?.onKeyDown({ event }) ?? false;
+      if (handled) {
+        event.preventDefault();
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [commands, onClose, selectCommand, selectedIndex, setSelectedIndex]);
-
-  if (commands.length === 0) {
-    return <div className="w-72 p-4 text-center text-muted-foreground text-sm">{t("slashCommand.noResults")}</div>;
-  }
+  }, [onClose]);
 
   return (
-    <div ref={menuRef} className="w-72 max-h-80 overflow-y-auto">
-      <div className="px-3 py-2 border-b">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("slashCommand.basicBlocks")}</span>
-      </div>
-      <div className="p-1">
-        {commands.map((cmd, index) => (
-          <button
-            key={cmd.label}
-            type="button"
-            data-index={index}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => selectCommand(index)}
-            onMouseEnter={() => setSelectedIndex(index)}
-            className={cn(
-              "flex items-center w-full px-3 py-2.5 rounded-lg transition-colors group",
-              selectedIndex === index ? "bg-accent" : "hover:bg-accent/50",
-            )}
-          >
-            <div
-              className={cn(
-                "flex items-center justify-center w-10 h-10 rounded-lg mr-3 transition-colors",
-                selectedIndex === index ? "bg-primary/10" : "bg-muted/50 group-hover:bg-muted",
-              )}
-            >
-              <cmd.icon className={cn("w-5 h-5", selectedIndex === index ? "text-primary" : "text-muted-foreground")} />
-            </div>
-            <div className="text-left">
-              <div className={cn("text-sm font-medium", selectedIndex === index && "text-primary")}>{cmd.label}</div>
-              <div className="text-xs text-muted-foreground">{cmd.description}</div>
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-export const SlashCommandTrigger = ({ editor }: { editor: Editor }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
-  const [filterText, setFilterText] = useState("");
-  const slashPosRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const handleUpdate = () => {
-      const { state, view } = editor;
-      const { $from, empty } = state.selection;
-
-      if (!empty || !view.hasFocus()) {
-        setIsVisible(false);
-        slashPosRef.current = null;
-        return;
-      }
-
-      const textBefore = $from.parent.textContent.slice(0, $from.parentOffset);
-      const slashMatch = textBefore.match(/\/([^\s\/]*)$/);
-
-      if (slashMatch) {
-        const slashIndex = textBefore.lastIndexOf("/");
-        const absoluteSlashPos = $from.start() + slashIndex;
-
-        const coords = view.coordsAtPos(absoluteSlashPos);
-        setPosition({ top: coords.bottom + 5, left: coords.left });
-        setFilterText(slashMatch[1] || "");
-        slashPosRef.current = absoluteSlashPos;
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-        slashPosRef.current = null;
-        setFilterText("");
-      }
-    };
-
-    editor.on("selectionUpdate", handleUpdate);
-    editor.on("update", handleUpdate);
-
-    return () => {
-      editor.off("selectionUpdate", handleUpdate);
-      editor.off("update", handleUpdate);
-    };
-  }, [editor]);
-
-  const handleClose = useCallback(() => {
-    if (slashPosRef.current !== null) {
-      const { state } = editor;
-      const { $from } = state.selection;
-      const deleteFrom = slashPosRef.current;
-      const deleteTo = $from.pos;
-      editor.chain().focus().deleteRange({ from: deleteFrom, to: deleteTo }).run();
-    }
-    setIsVisible(false);
-    slashPosRef.current = null;
-    setFilterText("");
-  }, [editor]);
-
-  if (!isVisible) return null;
-
-  return createPortal(
-    <div
-      className="fixed z-50 rounded-2xl border border-border/50 bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 zoom-in-95 slide-in-from-top-2"
-      style={{
-        top: `${position.top}px`,
-        left: `${position.left}px`,
+    <SlashCommandList
+      ref={listRef}
+      items={items}
+      messages={messages}
+      command={(item) => {
+        item.command({ editor });
+        onClose();
       }}
-      onMouseDown={(e) => e.preventDefault()}
-    >
-      <SlashCommandMenu editor={editor} onClose={handleClose} filterText={filterText} />
-    </div>,
-    document.body,
+    />
   );
 };
 
@@ -306,7 +70,7 @@ const FloatingMenuContent = ({ editor }: { editor: Editor }) => {
   const [showCommands, setShowCommands] = useState(false);
 
   if (showCommands) {
-    return <SlashCommandMenu editor={editor} onClose={() => setShowCommands(false)} />;
+    return <FloatingSlashCommandMenu editor={editor} onClose={() => setShowCommands(false)} />;
   }
 
   return (

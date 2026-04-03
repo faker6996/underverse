@@ -55,6 +55,7 @@ export default function UEditorExample() {
     `  onChange={setContent}\n` +
     `  placeholder="Type '/' for commands..."\n` +
     `  variant="notion"\n` +
+    `  showFloatingMenu\n` +
     `/>\n\n` +
     `// Optional: upload images immediately (instead of base64)\n` +
     `<UEditor\n` +
@@ -105,7 +106,7 @@ export default function UEditorExample() {
           <span className="text-sm text-muted-foreground">Full-featured editor with all formatting options</span>
         </div>
         <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
-          Resize demo: drag the right edge of a table cell for columns, or drag the bottom edge of a row for row height.
+          Resize demo: drag the right edge of a table cell for columns, drag the bottom edge of a row for row height, and place the caret on an empty line to open the floating block menu.
         </div>
         <UEditor
           content={content}
@@ -114,6 +115,7 @@ export default function UEditorExample() {
           variant="notion"
           showCharacterCount
           showBubbleMenu
+          showFloatingMenu
           minHeight={300}
         />
       </div>
@@ -191,7 +193,7 @@ export default function UEditorExample() {
     { property: "autofocus", description: "Auto focus editor on mount", type: "boolean", default: "false" },
     { property: "showToolbar", description: "Show the main toolbar", type: "boolean", default: "true" },
     { property: "showBubbleMenu", description: "Show bubble menu on text selection", type: "boolean", default: "true" },
-    { property: "showFloatingMenu", description: "Deprecated. Empty-line floating menu is disabled in the current UI.", type: "boolean", default: "false" },
+    { property: "showFloatingMenu", description: "Show the empty-line floating block menu.", type: "boolean", default: "false" },
     { property: "showCharacterCount", description: "Show character & word count footer", type: "boolean", default: "true" },
     { property: "maxCharacters", description: "Maximum character limit", type: "number", default: "undefined" },
     { property: "minHeight", description: "Minimum height of editor area", type: "number | string", default: '"200px"' },
@@ -251,6 +253,7 @@ export default function UEditorExample() {
         <h3 className="text-lg font-semibold mb-3">⚡ UX Features</h3>
         <ul className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
           <li>✓ Bubble menu on selection</li>
+          <li>✓ Floating block menu on empty lines</li>
           <li>✓ Keyboard shortcuts</li>
           <li>✓ Undo/Redo with history</li>
           <li>✓ Character & word count</li>

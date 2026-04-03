@@ -1,12 +1,16 @@
 import assert from "node:assert/strict";
 import path from "node:path";
+import { createRequire } from "node:module";
 import test, { after, afterEach } from "node:test";
-import React, { act } from "react";
-import { createRoot } from "react-dom/client";
-import { NextIntlClientProvider } from "next-intl";
+import React from "./helpers/workspace-react.mjs";
 
-import { importTsModule } from "./helpers/import-ts-module.mjs";
+import { importTsModule, requireTempModule } from "./helpers/import-ts-module.mjs";
 import { installJSDOM } from "./helpers/setup-jsdom.mjs";
+
+const { act } = React;
+const requireWorkspace = createRequire(path.resolve(import.meta.dirname, "../../../package.json"));
+const { createRoot } = requireWorkspace("react-dom/client");
+const { NextIntlClientProvider } = requireTempModule("next-intl");
 
 const restoreDom = installJSDOM();
 after(() => restoreDom());
@@ -26,22 +30,28 @@ afterEach(async () => {
 
 const componentsRoot = path.resolve(import.meta.dirname, "../src/components");
 const hooksRoot = path.resolve(import.meta.dirname, "../src/hooks");
+const contextsRoot = path.resolve(import.meta.dirname, "../src/contexts");
 
-function render(element) {
+async function render(element) {
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);
   mountedRoots.push({ root, container });
 
-  return act(async () => {
+  await act(async () => {
     root.render(element);
     await new Promise((resolve) => setTimeout(resolve, 0));
-  }).then(() => ({ container, root }));
+  });
+
+  return { container, root };
 }
 
-test("useSmartTranslations falls back to internal localized defaults when next-intl returns a raw key", async () => {
-  const mod = await importTsModule(path.join(hooksRoot, "useSmartTranslations.tsx"));
-  const { useSmartTranslations } = mod;
+test("useSmartTranslations falls back to internal localized defaults when NextIntlAdapter receives a raw key", async () => {
+  document.documentElement.lang = "vi";
+  const hooksMod = await importTsModule(path.join(hooksRoot, "useSmartTranslations.tsx"));
+  const adapterMod = await importTsModule(path.join(contextsRoot, "NextIntlAdapter.tsx"));
+  const { useSmartTranslations } = hooksMod;
+  const { NextIntlAdapter } = adapterMod;
 
   function Probe() {
     const t = useSmartTranslations("UEditor");
@@ -53,17 +63,91 @@ test("useSmartTranslations falls back to internal localized defaults when next-i
       NextIntlClientProvider,
       {
         locale: "vi",
+        onError: () => {},
         messages: {
           UEditor: {
             toolbar: {},
           },
         },
       },
-      React.createElement(Probe),
+      React.createElement(
+        NextIntlAdapter,
+        null,
+        React.createElement(Probe),
+      ),
     ),
   );
 
   assert.equal(view.container.textContent, "Văn bản thường");
+});
+
+test("useSmartLocale prefers the NextIntlAdapter locale over the document locale", async () => {
+  document.documentElement.lang = "ko";
+  const hooksMod = await importTsModule(path.join(hooksRoot, "useSmartTranslations.tsx"));
+  const adapterMod = await importTsModule(path.join(contextsRoot, "NextIntlAdapter.tsx"));
+  const { useSmartLocale } = hooksMod;
+  const { NextIntlAdapter } = adapterMod;
+
+  function Probe() {
+    const locale = useSmartLocale();
+    return React.createElement("div", null, locale);
+  }
+
+  const view = await render(
+    React.createElement(
+      NextIntlClientProvider,
+      {
+        locale: "vi",
+        onError: () => {},
+        messages: {},
+      },
+      React.createElement(
+        NextIntlAdapter,
+        null,
+        React.createElement(Probe),
+      ),
+    ),
+  );
+
+  assert.equal(view.container.textContent, "vi");
+});
+
+test("useSmartLocale falls back to the document locale without NextIntlAdapter", async () => {
+  document.documentElement.lang = "ko";
+  const hooksMod = await importTsModule(path.join(hooksRoot, "useSmartTranslations.tsx"));
+  const { useSmartLocale } = hooksMod;
+
+  function Probe() {
+    const locale = useSmartLocale();
+    return React.createElement("div", null, locale);
+  }
+
+  const view = await render(React.createElement(Probe));
+
+  assert.equal(view.container.textContent, "ko");
+});
+
+test("useSmartLocale preserves an explicit internal locale without NextIntlAdapter", async () => {
+  document.documentElement.lang = "en";
+  const hooksMod = await importTsModule(path.join(hooksRoot, "useSmartTranslations.tsx"));
+  const contextMod = await importTsModule(path.join(path.resolve(import.meta.dirname, "../src/contexts"), "TranslationContext.tsx"));
+  const { useSmartLocale } = hooksMod;
+  const { TranslationProvider } = contextMod;
+
+  function Probe() {
+    const locale = useSmartLocale();
+    return React.createElement("div", null, locale);
+  }
+
+  const view = await render(
+    React.createElement(
+      TranslationProvider,
+      { locale: "ja" },
+      React.createElement(Probe),
+    ),
+  );
+
+  assert.equal(view.container.textContent, "ja");
 });
 
 test("UEditor does not attach placeholder decorations when the document contains a table", async () => {

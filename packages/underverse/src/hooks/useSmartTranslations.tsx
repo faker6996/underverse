@@ -7,27 +7,7 @@ import {
   useUnderverseLocale,
   type Locale,
 } from "../contexts/TranslationContext";
-
-/**
- * Try to dynamically import next-intl hooks.
- * This allows the package to work with or without next-intl.
- */
-let nextIntlHooks: {
-  useTranslations?: (namespace: string) => (key: string) => string;
-  useLocale?: () => string;
-} | null = null;
-
-// Try to load next-intl at module initialization
-try {
-  const nextIntl = require("next-intl");
-  nextIntlHooks = {
-    useTranslations: nextIntl.useTranslations,
-    useLocale: nextIntl.useLocale,
-  };
-} catch {
-  // next-intl not available, will use internal translations
-  nextIntlHooks = null;
-}
+import { useNextIntlBridge } from "../contexts/NextIntlAdapter";
 
 /**
  * Context to force using internal translations even when next-intl is available.
@@ -52,9 +32,36 @@ function isUnresolvedTranslation(value: string, namespace: string, key: string) 
   return value === key || value === `${namespace}.${key}`;
 }
 
+function getEnvironmentLocale(fallback: Locale): Locale {
+  if (typeof document !== "undefined") {
+    const documentLocale = document.documentElement?.lang?.trim();
+    if (documentLocale) {
+      return normalizeLocale(documentLocale, fallback);
+    }
+  }
+
+  if (typeof navigator !== "undefined") {
+    const navigatorLocale = navigator.language?.trim();
+    if (navigatorLocale) {
+      return normalizeLocale(navigatorLocale, fallback);
+    }
+  }
+
+  return fallback;
+}
+
+function getExternalLocaleFallback(internalLocale: Locale): Locale {
+  // An explicit internal locale should win over environment sniffing.
+  if (internalLocale !== "en") {
+    return internalLocale;
+  }
+
+  return getEnvironmentLocale(internalLocale);
+}
+
 /**
  * Smart translation hook that:
- * 1. Uses next-intl if available and not forced to use internal
+ * 1. Uses NextIntlAdapter if available and not forced to use internal
  * 2. Falls back to internal TranslationContext
  * 3. Falls back to English defaults if no provider is available
  *
@@ -63,7 +70,7 @@ function isUnresolvedTranslation(value: string, namespace: string, key: string) 
  *
  * @example
  * ```tsx
- * // Works in Next.js with next-intl
+ * // Works in Next.js with <NextIntlAdapter />
  * // Works in React without next-intl
  * // Works without any provider (English fallback)
  * const t = useSmartTranslations("DatePicker");
@@ -72,59 +79,58 @@ function isUnresolvedTranslation(value: string, namespace: string, key: string) 
  */
 export function useSmartTranslations(namespace: string): (key: string) => string {
   const forceInternal = React.useContext(ForceInternalContext);
+  const nextIntlBridge = useNextIntlBridge();
   const internalT = useUnderverseTranslations(namespace);
   const internalLocale = useUnderverseLocale();
 
-  // If forced to use internal or next-intl is not available, use internal
-  if (forceInternal || !nextIntlHooks?.useTranslations) {
+  if (forceInternal) {
     return internalT;
   }
 
-  let resolvedLocale = internalLocale;
+  const resolvedLocale = nextIntlBridge?.locale ?? getExternalLocaleFallback(internalLocale);
 
-  try {
-    resolvedLocale = normalizeLocale(nextIntlHooks.useLocale?.(), internalLocale);
-  } catch {
-    resolvedLocale = internalLocale;
-  }
+  return (key: string) => {
+    let translated: string | null = null;
 
-  // Try to use next-intl
-  try {
-    const nextIntlT = nextIntlHooks.useTranslations(namespace);
+    if (nextIntlBridge) {
+      const nextIntlResult = nextIntlBridge.translate(namespace, key);
+      translated = nextIntlResult.translated;
+    }
 
-    return (key: string) => {
-      try {
-        const translated = nextIntlT(key);
+    const effectiveLocale = nextIntlBridge?.locale ?? getEnvironmentLocale(resolvedLocale);
+    const localizedDefault = getUnderverseDefaultTranslation(effectiveLocale, namespace, key);
+    const englishDefault = getUnderverseDefaultTranslation("en", namespace, key);
+    const internalValue = internalT(key);
 
-        if (!isUnresolvedTranslation(translated, namespace, key)) {
-          return translated;
-        }
-      } catch {
-        // Fall through to internal defaults when next-intl cannot resolve the message.
-      }
+    if (
+      translated
+      && !isUnresolvedTranslation(translated, namespace, key)
+      && !(effectiveLocale !== "en" && localizedDefault !== englishDefault && translated === englishDefault)
+    ) {
+      return translated;
+    }
 
-      const internalValue = internalT(key);
-      if (internalValue !== key) {
-        return internalValue;
-      }
+    // Only trust internal translations ahead of locale defaults when the
+    // internal provider is actually aligned with the resolved locale.
+    if (internalLocale === effectiveLocale && internalValue !== key) {
+      return internalValue;
+    }
 
-      return getUnderverseDefaultTranslation(resolvedLocale, namespace, key);
-    };
-  } catch {
-    return (key: string) => {
-      const internalValue = internalT(key);
-      if (internalValue !== key) {
-        return internalValue;
-      }
+    if (localizedDefault !== key) {
+      return localizedDefault;
+    }
 
-      return getUnderverseDefaultTranslation(resolvedLocale, namespace, key);
-    };
-  }
+    if (internalValue !== key) {
+      return internalValue;
+    }
+
+    return key;
+  };
 }
 
 /**
  * Smart locale hook that:
- * 1. Uses next-intl if available
+ * 1. Uses NextIntlAdapter if available
  * 2. Falls back to internal TranslationContext
  * 3. Falls back to "en" if no provider is available
  *
@@ -132,21 +138,15 @@ export function useSmartTranslations(namespace: string): (key: string) => string
  */
 export function useSmartLocale(): Locale {
   const forceInternal = React.useContext(ForceInternalContext);
+  const nextIntlBridge = useNextIntlBridge();
   const internalLocale = useUnderverseLocale();
 
-  // If forced to use internal or next-intl is not available, use internal
-  if (forceInternal || !nextIntlHooks?.useLocale) {
+  // If forced to use internal, use internal locale only
+  if (forceInternal) {
     return internalLocale;
   }
 
-  // Try to use next-intl
-  try {
-    const nextIntlLocale = nextIntlHooks.useLocale();
-    return (nextIntlLocale as Locale) || internalLocale;
-  } catch {
-    // If next-intl throws (e.g., no provider), fall back to internal
-    return internalLocale;
-  }
+  return nextIntlBridge?.locale ?? getExternalLocaleFallback(internalLocale);
 }
 
 export default useSmartTranslations;
