@@ -19,6 +19,32 @@ const componentsRoot = path.resolve(import.meta.dirname, "../src/components");
 const ONE_PIXEL_PNG_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Z5eUAAAAASUVORK5CYII=";
 
+function getEditorSurface(view) {
+  const surface = view.container.querySelector(".relative.flex-1.overflow-y-auto");
+  assert.ok(surface);
+  return surface;
+}
+
+function hoverTableMenuZone(view) {
+  fireEvent.mouseMove(getEditorSurface(view), { clientX: 12, clientY: 8 });
+}
+
+function hoverAddColumnRail(view) {
+  fireEvent.mouseMove(getEditorSurface(view), { clientX: 332, clientY: 40 });
+}
+
+function hoverAddRowRail(view) {
+  fireEvent.mouseMove(getEditorSurface(view), { clientX: 40, clientY: 96 });
+}
+
+function hoverColumnHandle(view, index = 0) {
+  fireEvent.mouseMove(getEditorSurface(view), { clientX: 80 + index * 160, clientY: -10 });
+}
+
+function hoverRowHandle(view, index = 0) {
+  fireEvent.mouseMove(getEditorSurface(view), { clientX: -10, clientY: 22 + index * 44 });
+}
+
 test("UEditor renders content and reuses the same in-flight prepareContentForSave promise", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -209,9 +235,12 @@ test("UEditor shows contextual table controls and applies table actions near the
   });
 
   await user.click(firstCell);
+  hoverTableMenuZone(view);
 
   const openControlsButton = await body.findByRole("button", { name: "Open Table Controls" });
+  hoverAddRowRail(view);
   const quickAddRowButton = await body.findByRole("button", { name: "Quick Add Row After" });
+  hoverAddColumnRail(view);
   const quickAddColumnButton = await body.findByRole("button", { name: "Quick Add Column After" });
 
   assert.ok(openControlsButton);
@@ -232,12 +261,14 @@ test("UEditor shows contextual table controls and applies table actions near the
     assert.equal(headerCells[0]?.textContent?.trim(), "A1");
   });
 
-  await user.click(quickAddRowButton);
+  hoverAddRowRail(view);
+  await user.click(await body.findByRole("button", { name: "Quick Add Row After" }));
   await waitFor(() => {
     assert.equal(view.container.querySelectorAll("tr").length, 3);
   });
 
-  await user.click(quickAddColumnButton);
+  hoverAddColumnRail(view);
+  await user.click(await body.findByRole("button", { name: "Quick Add Column After" }));
   await waitFor(() => {
     const firstRowCells = view.container.querySelectorAll("tr")[0]?.querySelectorAll("th,td") ?? [];
     assert.equal(firstRowCells.length, 3);
@@ -268,8 +299,8 @@ test("UEditor table context menu applies header column and structural actions", 
 
   await user.click(secondRowSecondCell);
 
+  hoverTableMenuZone(view);
   const openControlsButton = await body.findByRole("button", { name: "Open Table Controls" });
-
   await user.click(openControlsButton);
   await user.click(await body.findByRole("menuitem", { name: "Toggle Header Column" }));
 
@@ -279,14 +310,16 @@ test("UEditor table context menu applies header column and structural actions", 
     assert.equal(secondRowCells[1]?.tagName, "TD");
   });
 
-  await user.click(openControlsButton);
+  hoverTableMenuZone(view);
+  await user.click(await body.findByRole("button", { name: "Open Table Controls" }));
   await user.click(await body.findByRole("menuitem", { name: "Add Row Before" }));
 
   await waitFor(() => {
     assert.equal(view.container.querySelectorAll("tr").length, 3);
   });
 
-  await user.click(openControlsButton);
+  hoverTableMenuZone(view);
+  await user.click(await body.findByRole("button", { name: "Open Table Controls" }));
   await user.click(await body.findByRole("menuitem", { name: "Add Column Before" }));
 
   await waitFor(() => {
@@ -294,14 +327,16 @@ test("UEditor table context menu applies header column and structural actions", 
     assert.equal(firstRowCells.length, 3);
   });
 
-  await user.click(openControlsButton);
+  hoverTableMenuZone(view);
+  await user.click(await body.findByRole("button", { name: "Open Table Controls" }));
   await user.click(await body.findByRole("menuitem", { name: "Delete Row" }));
 
   await waitFor(() => {
     assert.equal(view.container.querySelectorAll("tr").length, 2);
   });
 
-  await user.click(openControlsButton);
+  hoverTableMenuZone(view);
+  await user.click(await body.findByRole("button", { name: "Open Table Controls" }));
   await user.click(await body.findByRole("menuitem", { name: "Delete Column" }));
 
   await waitFor(() => {
@@ -334,8 +369,12 @@ test("UEditor row and column handle menus expose notion-like structural actions"
 
   await user.click(firstCell);
 
+  hoverColumnHandle(view, 0);
   const columnHandle = await body.findByRole("button", { name: "Drag Column 1" });
   await user.click(columnHandle);
+  fireEvent.mouseLeave(view.container.querySelector(".ProseMirror"));
+  fireEvent.mouseMove(window.document.body, { clientX: 0, clientY: 0 });
+  await body.findByRole("menuitem", { name: "Duplicate Column" });
   await body.findByRole("menuitem", { name: "Duplicate Column" });
   await user.click(body.getByRole("menuitem", { name: "Duplicate Column" }));
 
@@ -346,6 +385,7 @@ test("UEditor row and column handle menus expose notion-like structural actions"
     assert.equal(firstRowCells[1]?.textContent?.trim(), "A1");
   });
 
+  hoverColumnHandle(view, 1);
   await user.click(await body.findByRole("button", { name: "Drag Column 2" }));
   await user.click(await body.findByRole("menuitem", { name: "Clear Column Contents" }));
 
@@ -356,6 +396,7 @@ test("UEditor row and column handle menus expose notion-like structural actions"
     assert.deepEqual(secondColumnCells, ["", ""]);
   });
 
+  hoverRowHandle(view, 0);
   await user.click(await body.findByRole("button", { name: "Drag Row 1" }));
   await user.click(await body.findByRole("menuitem", { name: "Duplicate Row" }));
 
@@ -363,6 +404,7 @@ test("UEditor row and column handle menus expose notion-like structural actions"
     assert.equal(view.container.querySelectorAll("tr").length, 3);
   });
 
+  hoverRowHandle(view, 1);
   await user.click(await body.findByRole("button", { name: "Drag Row 2" }));
   await user.click(await body.findByRole("menuitem", { name: "Clear Row Contents" }));
 
@@ -397,6 +439,7 @@ test("UEditor row drag handle reorders table rows", async () => {
   });
 
   fireEvent.click(firstCell);
+  hoverRowHandle(view, 0);
 
   const dragRowButton = await body.findByRole("button", { name: "Drag Row 1" });
   fireEvent.mouseDown(dragRowButton, { clientY: 24 });
@@ -437,6 +480,7 @@ test("UEditor column drag handle reorders table columns", async () => {
   });
 
   fireEvent.click(firstCell);
+  hoverColumnHandle(view, 0);
 
   const dragColumnButton = await body.findByRole("button", { name: "Drag Column 1" });
   fireEvent.mouseDown(dragColumnButton, { clientX: 80 });
@@ -478,10 +522,9 @@ test("UEditor edge rails preview expands table by the previewed rows and columns
 
   fireEvent.click(firstCell);
 
+  hoverAddRowRail(view);
   const quickAddRowButton = await body.findByRole("button", { name: "Quick Add Row After" });
-  const quickAddColumnButton = await body.findByRole("button", { name: "Quick Add Column After" });
   assert.equal(quickAddRowButton.disabled, false);
-  assert.equal(quickAddColumnButton.disabled, false);
 
   fireEvent.mouseDown(quickAddRowButton, { clientY: 88 });
   fireEvent.mouseMove(window, { clientY: 140 });
@@ -495,6 +538,10 @@ test("UEditor edge rails preview expands table by the previewed rows and columns
   await waitFor(() => {
     assert.equal(view.container.querySelectorAll("tr").length, 4);
   });
+
+  hoverAddColumnRail(view);
+  const quickAddColumnButton = await body.findByRole("button", { name: "Quick Add Column After" });
+  assert.equal(quickAddColumnButton.disabled, false);
 
   fireEvent.mouseDown(quickAddColumnButton, { clientX: 320 });
   fireEvent.mouseMove(window, { clientX: 500 });

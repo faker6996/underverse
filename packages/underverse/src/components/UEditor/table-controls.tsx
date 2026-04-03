@@ -77,6 +77,8 @@ type HoverState = {
   columnHandleIndex: number | null;
 };
 
+type OpenMenuKey = `row:${number}` | `column:${number}` | "table" | null;
+
 const DEFAULT_HOVER_STATE: HoverState = {
   menuVisible: false,
   addColumnVisible: false,
@@ -285,6 +287,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
   const [layout, setLayout] = React.useState<TableControlLayout | null>(null);
   const [dragPreview, setDragPreview] = React.useState<DragPreview | null>(null);
   const [hoverState, setHoverState] = React.useState<HoverState>(DEFAULT_HOVER_STATE);
+  const [openMenuKey, setOpenMenuKey] = React.useState<OpenMenuKey>(null);
   const layoutRef = React.useRef<TableControlLayout | null>(null);
   const dragStateRef = React.useRef<DragState | null>(null);
 
@@ -336,34 +339,52 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     const surfaceRect = surface.getBoundingClientRect();
     const relativeX = event.clientX - surfaceRect.left + surface.scrollLeft;
     const relativeY = event.clientY - surfaceRect.top + surface.scrollTop;
+    const targetElement = resolveElement(event.target);
 
-    const rowHandleIndex = activeLayout.rowHandles.find((rowHandle) => (
+    const directRowHandle = targetElement?.closest?.("[data-row-handle-index]");
+    const directColumnHandle = targetElement?.closest?.("[data-column-handle-index]");
+    const directTableMenu = targetElement?.closest?.("[data-table-control='table-menu']");
+    const directAddColumn = targetElement?.closest?.("[data-table-control='add-column']");
+    const directAddRow = targetElement?.closest?.("[data-table-control='add-row']");
+
+    const directRowHandleIndex = directRowHandle instanceof HTMLElement
+      ? Number.parseInt(directRowHandle.dataset.rowHandleIndex ?? "", 10)
+      : Number.NaN;
+    const directColumnHandleIndex = directColumnHandle instanceof HTMLElement
+      ? Number.parseInt(directColumnHandle.dataset.columnHandleIndex ?? "", 10)
+      : Number.NaN;
+
+    const rowHandleIndex = Number.isFinite(directRowHandleIndex)
+      ? directRowHandleIndex
+      : activeLayout.rowHandles.find((rowHandle) => (
       relativeX >= activeLayout.tableLeft - ROW_HANDLE_HOVER_WIDTH
       && relativeX <= activeLayout.tableLeft
       && Math.abs(relativeY - rowHandle.center) <= HANDLE_HOVER_RADIUS
     ))?.index ?? null;
 
-    const columnHandleIndex = activeLayout.columnHandles.find((columnHandle) => (
+    const columnHandleIndex = Number.isFinite(directColumnHandleIndex)
+      ? directColumnHandleIndex
+      : activeLayout.columnHandles.find((columnHandle) => (
       relativeY >= activeLayout.tableTop - COLUMN_HANDLE_HOVER_HEIGHT
       && relativeY <= activeLayout.tableTop
       && Math.abs(relativeX - columnHandle.center) <= HANDLE_HOVER_RADIUS
     ))?.index ?? null;
 
-    const menuVisible = (
+    const menuVisible = Boolean(directTableMenu) || (
       relativeX >= activeLayout.tableLeft - MENU_HOVER_PADDING
       && relativeX <= activeLayout.tableLeft + 42
       && relativeY >= activeLayout.tableTop - COLUMN_HANDLE_HOVER_HEIGHT
       && relativeY <= activeLayout.tableTop + MENU_HOVER_PADDING
     );
 
-    const addColumnVisible = (
+    const addColumnVisible = Boolean(directAddColumn) || (
       relativeX >= activeLayout.tableLeft + activeLayout.tableWidth
       && relativeX <= activeLayout.tableLeft + activeLayout.tableWidth + ADD_COLUMN_HOVER_WIDTH
       && relativeY >= activeLayout.tableTop
       && relativeY <= activeLayout.tableTop + activeLayout.tableHeight
     );
 
-    const addRowVisible = (
+    const addRowVisible = Boolean(directAddRow) || (
       relativeY >= activeLayout.tableTop + activeLayout.tableHeight
       && relativeY <= activeLayout.tableTop + activeLayout.tableHeight + ADD_ROW_HOVER_HEIGHT
       && relativeX >= activeLayout.tableLeft
@@ -420,6 +441,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     proseMirror.addEventListener("mouseover", handleMouseOver);
     proseMirror.addEventListener("mouseleave", handleMouseLeave);
     proseMirror.addEventListener("focusin", handleFocusIn);
+    surface.addEventListener("mouseover", handleSurfaceMouseMove);
     surface.addEventListener("mousemove", handleSurfaceMouseMove);
     surface.addEventListener("scroll", refreshCurrentLayout, { passive: true });
     window.addEventListener("resize", refreshCurrentLayout);
@@ -432,6 +454,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       proseMirror.removeEventListener("mouseover", handleMouseOver);
       proseMirror.removeEventListener("mouseleave", handleMouseLeave);
       proseMirror.removeEventListener("focusin", handleFocusIn);
+      surface.removeEventListener("mouseover", handleSurfaceMouseMove);
       surface.removeEventListener("mousemove", handleSurfaceMouseMove);
       surface.removeEventListener("scroll", refreshCurrentLayout);
       window.removeEventListener("resize", refreshCurrentLayout);
@@ -546,6 +569,9 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
 
   const canExpandTable = Boolean(layout);
   const controlsVisible = dragPreview !== null;
+  const tableMenuOpen = openMenuKey === "table";
+  const getRowMenuKey = React.useCallback((index: number) => `row:${index}` as const, []);
+  const getColumnMenuKey = React.useCallback((index: number) => `column:${index}` as const, []);
 
   React.useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
@@ -792,12 +818,14 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
   return (
     <>
       {layout.rowHandles.map((rowHandle) => {
-        const visible = controlsVisible || hoverState.rowHandleIndex === rowHandle.index;
+        const menuKey = getRowMenuKey(rowHandle.index);
+        const visible = controlsVisible || hoverState.rowHandleIndex === rowHandle.index || openMenuKey === menuKey;
         if (!visible) return null;
         return (
         <div
           key={`row-handle-${rowHandle.index}`}
           className="absolute z-30"
+          data-row-handle-index={rowHandle.index}
           style={{
             top: Math.max(8, rowHandle.center - 12),
             left: rowHandleLeft,
@@ -805,6 +833,10 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
         >
           <DropdownMenu
             placement="right"
+            isOpen={openMenuKey === menuKey}
+            onOpenChange={(open) => {
+              setOpenMenuKey((prev) => (open ? menuKey : prev === menuKey ? null : prev));
+            }}
             items={getRowHandleMenuItems(rowHandle)}
             trigger={(
               <button
@@ -814,6 +846,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
                 onMouseDown={(event) => {
                   event.preventDefault();
                   event.stopPropagation();
+                  setOpenMenuKey(null);
                   dragStateRef.current = {
                     kind: "row",
                     originIndex: rowHandle.index,
@@ -843,12 +876,14 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       )})}
 
       {layout.columnHandles.map((columnHandle) => {
-        const visible = controlsVisible || hoverState.columnHandleIndex === columnHandle.index;
+        const menuKey = getColumnMenuKey(columnHandle.index);
+      const visible = controlsVisible || hoverState.columnHandleIndex === columnHandle.index || openMenuKey === menuKey;
         if (!visible) return null;
         return (
         <div
           key={`column-handle-${columnHandle.index}`}
           className="absolute z-30"
+          data-column-handle-index={columnHandle.index}
           style={{
             top: columnHandleTop,
             left: Math.max(8, columnHandle.center - 12),
@@ -856,6 +891,10 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
         >
           <DropdownMenu
             placement="bottom-start"
+            isOpen={openMenuKey === menuKey}
+            onOpenChange={(open) => {
+              setOpenMenuKey((prev) => (open ? menuKey : prev === menuKey ? null : prev));
+            }}
             items={getColumnHandleMenuItems(columnHandle)}
             trigger={(
               <button
@@ -865,6 +904,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
                 onMouseDown={(event) => {
                   event.preventDefault();
                   event.stopPropagation();
+                  setOpenMenuKey(null);
                   dragStateRef.current = {
                     kind: "column",
                     originIndex: columnHandle.index,
@@ -893,9 +933,10 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
         </div>
       )})}
 
-      {(controlsVisible || hoverState.menuVisible) && (
+      {(controlsVisible || hoverState.menuVisible || tableMenuOpen) && (
       <div
         className="absolute z-30"
+        data-table-control="table-menu"
         style={{
           top: menuTop,
           left: menuLeft,
@@ -903,6 +944,10 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       >
         <DropdownMenu
           placement="bottom-start"
+          isOpen={tableMenuOpen}
+          onOpenChange={(open) => {
+            setOpenMenuKey((prev) => (open ? "table" : prev === "table" ? null : prev));
+          }}
           items={menuItems}
           trigger={(
             <button
@@ -926,11 +971,13 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       {(controlsVisible || hoverState.addColumnVisible) && (
       <button
         type="button"
+        data-table-control="add-column"
         aria-label={t("tableMenu.quickAddColumnAfter")}
         title={t("tableMenu.quickAddColumnAfter")}
         onMouseDown={(event) => {
           event.preventDefault();
           event.stopPropagation();
+          setOpenMenuKey(null);
           if (!canExpandTable) return;
           dragStateRef.current = { kind: "add-column", previewCols: 1 };
           setDragPreview({ kind: "add-column", previewCols: 1 });
@@ -956,11 +1003,13 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       {(controlsVisible || hoverState.addRowVisible) && (
       <button
         type="button"
+        data-table-control="add-row"
         aria-label={t("tableMenu.quickAddRowAfter")}
         title={t("tableMenu.quickAddRowAfter")}
         onMouseDown={(event) => {
           event.preventDefault();
           event.stopPropagation();
+          setOpenMenuKey(null);
           if (!canExpandTable) return;
           dragStateRef.current = { kind: "add-row", previewRows: 1 };
           setDragPreview({ kind: "add-row", previewRows: 1 });
