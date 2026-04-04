@@ -150,6 +150,17 @@
       "undo": "실행 취소",
       "redo": "다시 실행",
       "textStyle": "텍스트 스타일",
+      "fontFamily": "글꼴",
+      "fontSize": "글자 크기",
+      "lineHeight": "줄 간격",
+      "fontDefault": "기본 글꼴",
+      "sizeDefault": "기본 크기",
+      "lineHeightDefault": "기본 줄 간격",
+      "letterSpacing": "자간",
+      "letterSpacingDefault": "기본 자간",
+      "fontSans": "Sans",
+      "fontSerif": "Serif",
+      "fontMono": "Mono",
       "normal": "일반 텍스트",
       "heading1": "제목 1",
       "heading2": "제목 2",
@@ -222,6 +233,8 @@
     },
     "tableMenu": {
       "insert3x3": "3x3 표 삽입",
+      "insertTable": "표 삽입",
+      "gridPreview": "{rows}×{cols} 표 삽입",
       "addColumnBefore": "앞에 열 추가",
       "addColumnAfter": "뒤에 열 추가",
       "addRowBefore": "위에 행 추가",
@@ -240,7 +253,10 @@
       "quickAddRowAfter": "아래 행 빠르게 추가",
       "expandTable": "표 확장",
       "dragRow": "행 드래그",
-      "dragColumn": "열 드래그"
+      "dragColumn": "열 드래그",
+      "alignLeft": "표 왼쪽 정렬",
+      "alignCenter": "표 가운데 정렬",
+      "alignRight": "표 오른쪽 정렬"
     }
   }
 }

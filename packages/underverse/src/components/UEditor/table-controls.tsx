@@ -5,6 +5,9 @@ import type { Editor } from "@tiptap/core";
 import { TableMap, moveTableColumn, moveTableRow } from "prosemirror-tables";
 import { TextSelection } from "prosemirror-state";
 import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
   ArrowDown,
   ArrowLeft,
   ArrowRight,
@@ -20,15 +23,23 @@ import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { cn } from "../../utils/cn";
 import { DropdownMenu } from "../DropdownMenu";
 import { Tooltip } from "../Tooltip";
+import { applyTableAlignment } from "./table-align-utils";
 
 const FALLBACK_TABLE_ROW_HEIGHT = 44;
 const FALLBACK_TABLE_COLUMN_WIDTH = 160;
 const MENU_HOVER_PADDING = 18;
 const ROW_HANDLE_HOVER_WIDTH = 28;
 const COLUMN_HANDLE_HOVER_HEIGHT = 28;
+const ROW_HANDLE_GUTTER = 20;
+const TABLE_MENU_TOP_OFFSET = 10;
+const COLUMN_HANDLE_TOP_OFFSET = 8;
+const ADD_COLUMN_RAIL_GAP = 4;
+const ADD_ROW_RAIL_GAP = 4;
 const ADD_COLUMN_HOVER_WIDTH = 24;
 const ADD_ROW_HOVER_HEIGHT = 24;
 const HANDLE_HOVER_RADIUS = 14;
+const IDLE_HANDLE_OPACITY = "0.4";
+const IDLE_HANDLE_SCALE = "0.78";
 
 type TableControlsProps = {
   editor: Editor;
@@ -408,17 +419,17 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     );
 
     const addColumnVisible = Boolean(directAddColumn) || (
-      relativeX >= activeLayout.wrapperLeft + visibleTableWidth
-      && relativeX <= activeLayout.wrapperLeft + visibleTableWidth + ADD_COLUMN_HOVER_WIDTH
-      && relativeY >= activeLayout.wrapperTop
-      && relativeY <= activeLayout.wrapperTop + visibleTableHeight
+      relativeX >= activeLayout.tableLeft + visibleTableWidth
+      && relativeX <= activeLayout.tableLeft + visibleTableWidth + ADD_COLUMN_HOVER_WIDTH
+      && relativeY >= activeLayout.tableTop
+      && relativeY <= activeLayout.tableTop + visibleTableHeight
     );
 
     const addRowVisible = Boolean(directAddRow) || (
-      relativeY >= activeLayout.wrapperTop + activeLayout.wrapperHeight
-      && relativeY <= activeLayout.wrapperTop + activeLayout.wrapperHeight + ADD_ROW_HOVER_HEIGHT
-      && relativeX >= activeLayout.wrapperLeft
-      && relativeX <= activeLayout.wrapperLeft + visibleTableWidth
+      relativeY >= activeLayout.tableTop + visibleTableHeight
+      && relativeY <= activeLayout.tableTop + visibleTableHeight + ADD_ROW_HOVER_HEIGHT
+      && relativeX >= activeLayout.tableLeft
+      && relativeX <= activeLayout.tableLeft + visibleTableWidth
     );
 
     setHoverState((prev) => {
@@ -709,6 +720,21 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
 
     return [
       {
+        label: t("tableMenu.alignLeft"),
+        icon: AlignLeft,
+        onClick: () => applyTableAlignment(editor, "left", layout.cellPos),
+      },
+      {
+        label: t("tableMenu.alignCenter"),
+        icon: AlignCenter,
+        onClick: () => applyTableAlignment(editor, "center", layout.cellPos),
+      },
+      {
+        label: t("tableMenu.alignRight"),
+        icon: AlignRight,
+        onClick: () => applyTableAlignment(editor, "right", layout.cellPos),
+      },
+      {
         label: t("tableMenu.addColumnBefore"),
         icon: ArrowLeft,
         onClick: () => runAtActiveCell((chain) => chain.addColumnBefore()),
@@ -821,16 +847,16 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     return null;
   }
 
-  const menuTop = Math.max(8, layout.tableTop - 16);
+  const menuTop = Math.max(8, layout.tableTop - TABLE_MENU_TOP_OFFSET);
   const menuLeft = Math.max(8, layout.tableLeft);
-  const rowHandleLeft = Math.max(8, layout.tableLeft - 66);
-  const columnHandleTop = Math.max(8, layout.tableTop - 14);
+  const rowHandleLeft = Math.max(8, layout.tableLeft - ROW_HANDLE_GUTTER);
+  const columnHandleTop = Math.max(8, layout.tableTop - COLUMN_HANDLE_TOP_OFFSET);
   const visibleTableWidth = Math.min(layout.tableWidth, layout.viewportWidth);
   const visibleTableHeight = Math.min(layout.tableHeight, layout.viewportHeight);
-  const columnRailTop = layout.wrapperTop;
-  const columnRailLeft = layout.wrapperLeft + visibleTableWidth + 8;
-  const rowRailTop = layout.wrapperTop + layout.wrapperHeight + 8;
-  const rowRailLeft = layout.wrapperLeft;
+  const columnRailTop = layout.tableTop;
+  const columnRailLeft = layout.tableLeft + visibleTableWidth + ADD_COLUMN_RAIL_GAP;
+  const rowRailTop = layout.tableTop + visibleTableHeight + ADD_ROW_RAIL_GAP;
+  const rowRailLeft = layout.tableLeft;
   const expandPreviewWidth = dragPreview?.kind === "add-column"
     ? layout.tableWidth + dragPreview.previewCols * layout.avgColumnWidth
     : layout.tableWidth;
@@ -852,7 +878,6 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       {layout.rowHandles.map((rowHandle) => {
         const menuKey = getRowMenuKey(rowHandle.index);
         const visible = controlsVisible || hoverState.rowHandleIndex === rowHandle.index || openMenuKey === menuKey;
-        if (!visible) return null;
         return (
         <div
           key={`row-handle-${rowHandle.index}`}
@@ -865,6 +890,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
         >
           <Tooltip
             placement="right"
+            disabled={openMenuKey === menuKey}
             content={<span className="text-xs font-medium">{`${t("tableMenu.dragRow")} ${rowHandle.index + 1}`}</span>}
           >
             <span className="inline-flex">
@@ -874,6 +900,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
                 onOpenChange={(open) => {
                   setOpenMenuKey((prev) => (open ? menuKey : prev === menuKey ? null : prev));
                 }}
+                contentClassName="p-2"
                 items={getRowHandleMenuItems(rowHandle)}
                 trigger={(
                   <button
@@ -901,8 +928,13 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
                     className={cn(
                       "inline-flex h-6 w-6 items-center justify-center rounded-full",
                       "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
+                      "cursor-grab active:cursor-grabbing",
                       "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
                     )}
+                    style={{
+                      opacity: visible ? 1 : Number(IDLE_HANDLE_OPACITY),
+                      transform: visible ? "scale(1)" : `scale(${IDLE_HANDLE_SCALE})`,
+                    }}
                   >
                     <GripVertical className="h-3.5 w-3.5" />
                   </button>
@@ -916,7 +948,6 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       {layout.columnHandles.map((columnHandle) => {
         const menuKey = getColumnMenuKey(columnHandle.index);
       const visible = controlsVisible || hoverState.columnHandleIndex === columnHandle.index || openMenuKey === menuKey;
-        if (!visible) return null;
         return (
         <div
           key={`column-handle-${columnHandle.index}`}
@@ -929,6 +960,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
         >
           <Tooltip
             placement="top"
+            disabled={openMenuKey === menuKey}
             content={<span className="text-xs font-medium">{`${t("tableMenu.dragColumn")} ${columnHandle.index + 1}`}</span>}
           >
             <span className="inline-flex">
@@ -938,6 +970,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
                 onOpenChange={(open) => {
                   setOpenMenuKey((prev) => (open ? menuKey : prev === menuKey ? null : prev));
                 }}
+                contentClassName="p-2"
                 items={getColumnHandleMenuItems(columnHandle)}
                 trigger={(
                   <button
@@ -965,8 +998,13 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
                     className={cn(
                       "inline-flex h-6 w-6 items-center justify-center rounded-full",
                       "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
+                      "cursor-grab active:cursor-grabbing",
                       "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
                     )}
+                    style={{
+                      opacity: visible ? 1 : Number(IDLE_HANDLE_OPACITY),
+                      transform: visible ? "scale(1)" : `scale(${IDLE_HANDLE_SCALE})`,
+                    }}
                   >
                     <GripHorizontal className="h-3.5 w-3.5" />
                   </button>
@@ -977,7 +1015,6 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
         </div>
       )})}
 
-      {(controlsVisible || hoverState.menuVisible || tableMenuOpen) && (
       <div
         className="absolute z-30"
         data-table-control="table-menu"
@@ -988,6 +1025,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       >
         <Tooltip
           placement="top"
+          disabled={tableMenuOpen}
           content={<span className="text-xs font-medium">{t("tableMenu.openControls")}</span>}
         >
           <span className="inline-flex">
@@ -997,6 +1035,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
               onOpenChange={(open) => {
                 setOpenMenuKey((prev) => (open ? "table" : prev === "table" ? null : prev));
               }}
+              contentClassName="p-2"
               items={menuItems}
               trigger={(
                 <button
@@ -1008,6 +1047,10 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
                     "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
                     "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
                   )}
+                  style={{
+                    opacity: controlsVisible || hoverState.menuVisible || tableMenuOpen ? 1 : 0.5,
+                    transform: controlsVisible || hoverState.menuVisible || tableMenuOpen ? "scale(1)" : "scale(0.82)",
+                  }}
                 >
                   <MoreHorizontal className="h-4 w-4" />
                 </button>
@@ -1016,9 +1059,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
           </span>
         </Tooltip>
       </div>
-      )}
 
-      {(controlsVisible || hoverState.addColumnVisible) && (
       <Tooltip
         placement="right"
         content={<span className="text-xs font-medium">{t("tableMenu.quickAddColumnAfter")}</span>}
@@ -1043,18 +1084,18 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
             "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed",
           )}
           style={{
-            top: columnRailTop,
+            top: controlsVisible || hoverState.addColumnVisible ? columnRailTop : columnRailTop + Math.max(0, visibleTableHeight / 2 - 24),
             left: columnRailLeft,
-            width: 18,
-            height: visibleTableHeight,
+            width: controlsVisible || hoverState.addColumnVisible ? 18 : 12,
+            height: controlsVisible || hoverState.addColumnVisible ? visibleTableHeight : 48,
+            opacity: controlsVisible || hoverState.addColumnVisible ? 1 : 0.45,
+            transform: controlsVisible || hoverState.addColumnVisible ? "scale(1)" : "scale(0.92)",
           }}
         >
           <span className="text-sm font-medium leading-none">+</span>
         </button>
       </Tooltip>
-      )}
 
-      {(controlsVisible || hoverState.addRowVisible) && (
       <Tooltip
         placement="bottom"
         content={<span className="text-xs font-medium">{t("tableMenu.quickAddRowAfter")}</span>}
@@ -1080,15 +1121,16 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
           )}
           style={{
             top: rowRailTop,
-            left: rowRailLeft,
-            width: visibleTableWidth,
-            height: 16,
+            left: controlsVisible || hoverState.addRowVisible ? rowRailLeft : rowRailLeft + Math.max(0, visibleTableWidth / 2 - 24),
+            width: controlsVisible || hoverState.addRowVisible ? visibleTableWidth : 48,
+            height: controlsVisible || hoverState.addRowVisible ? 16 : 12,
+            opacity: controlsVisible || hoverState.addRowVisible ? 1 : 0.45,
+            transform: controlsVisible || hoverState.addRowVisible ? "scale(1)" : "scale(0.92)",
           }}
         >
           <span className="text-sm font-medium leading-none">+</span>
         </button>
       </Tooltip>
-      )}
 
       {dragPreview?.kind === "row" && (
         <>

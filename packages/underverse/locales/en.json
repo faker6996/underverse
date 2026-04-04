@@ -150,6 +150,17 @@
       "undo": "Undo (Ctrl+Z)",
       "redo": "Redo (Ctrl+Y)",
       "textStyle": "Text Style",
+      "fontFamily": "Font Family",
+      "fontSize": "Font Size",
+      "lineHeight": "Line Height",
+      "fontDefault": "Default Font",
+      "sizeDefault": "Default Size",
+      "lineHeightDefault": "Default Leading",
+      "letterSpacing": "Letter Spacing",
+      "letterSpacingDefault": "Default Tracking",
+      "fontSans": "Sans",
+      "fontSerif": "Serif",
+      "fontMono": "Mono",
       "normal": "Normal text",
       "heading1": "Heading 1",
       "heading2": "Heading 2",
@@ -223,6 +234,8 @@
     },
     "tableMenu": {
       "insert3x3": "Insert 3×3 Table",
+      "insertTable": "Insert Table",
+      "gridPreview": "Insert {rows}×{cols} Table",
       "addColumnBefore": "Add Column Before",
       "addColumnAfter": "Add Column After",
       "addRowBefore": "Add Row Before",
@@ -241,7 +254,10 @@
       "quickAddRowAfter": "Quick Add Row After",
       "expandTable": "Expand Table",
       "dragRow": "Drag Row",
-      "dragColumn": "Drag Column"
+      "dragColumn": "Drag Column",
+      "alignLeft": "Align Table Left",
+      "alignCenter": "Align Table Center",
+      "alignRight": "Align Table Right"
     }
   }
 }

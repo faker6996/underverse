@@ -59,14 +59,56 @@ export default function Example() {
 - Wrapped images preserve aspect ratio by default while dragging the resize handle. Hold `Ctrl` if you need to break the ratio manually.
 - Wrapped image layout is preserved in saved HTML using `data-image-layout="left" | "right"`.
 
+## Typography
+
+- Toolbar includes separate font family, font size, line-height, and letter-spacing dropdowns.
+- Bubble menu includes quick font-size and line-height controls for fast inline changes.
+- All four settings are stored through `textStyle`, so existing HTML save/load remains compatible.
+- Built-in defaults:
+  - font families: `Inter`, `System UI`, `Georgia`, `Palatino`, `Times`, `JetBrains Mono`
+  - font sizes: `12px`, `14px`, `16px`, `18px`, `24px`, `32px`
+  - line heights: `1.2`, `1.5`, `1.75`, `2`
+  - letter spacings: `-0.02em`, `0`, `0.02em`, `0.05em`, `0.08em`
+- Font size dropdown also supports direct numeric input in `px`.
+- You can override the toolbar options with `fontFamilies`, `fontSizes`, `lineHeights`, and `letterSpacings`.
+
+```tsx
+<UEditor
+  content={content}
+  onChange={setContent}
+  fontFamilies={[
+    { label: "Inter", value: "Inter, ui-sans-serif, system-ui, sans-serif" },
+    { label: "Georgia", value: "Georgia, 'Times New Roman', serif" },
+    { label: "JetBrains Mono", value: "'JetBrains Mono', 'Fira Code', monospace" },
+  ]}
+  fontSizes={[
+    { label: "14", value: "14px" },
+    { label: "16", value: "16px" },
+    { label: "24", value: "24px" },
+  ]}
+  lineHeights={[
+    { label: "1.2", value: "1.2" },
+    { label: "1.5", value: "1.5" },
+    { label: "1.75", value: "1.75" },
+  ]}
+  letterSpacings={[
+    { label: "-0.02em", value: "-0.02em" },
+    { label: "0", value: "0" },
+    { label: "0.05em", value: "0.05em" },
+  ]}
+/>
+```
+
 ## Tables
 
 - Contextual table controls appear when selection or hover is inside a table.
+- Toolbar table menu includes a grid picker so users can drag-select the initial table size.
 - Use the bottom rail and right rail to add rows and columns in a Notion-like way.
 - Drag row and column handles to reorder the table without leaving the editor surface.
 - Reorder drag shows a live target highlight and status badge while you move.
 - Drag the bottom rail or right rail to preview and add multiple rows or columns at once.
 - The table context menu supports add/remove row or column plus header row/column toggles.
+- Toolbar and contextual table menus support aligning the whole table left, center, or right.
 - Columns use TipTap's native resize handles on the right edge of cells.
 - Rows support resize on the bottom edge. Hover near the row boundary to reveal the stronger guide line, then drag vertically.
 - Row height is preserved in saved HTML using `data-row-height="..."` and inline `height: ...px`.
@@ -164,6 +206,10 @@ Display content without editing capabilities:
 | `minHeight`          | `number \| string`                   | `"200px"`                    | Minimum height of editor area.                |
 | `maxHeight`          | `number \| string`                   | `"auto"`                     | Maximum height with scroll.                   |
 | `variant`            | `"default" \| "minimal" \| "notion"` | `"default"`                  | UI style variant.                             |
+| `fontFamilies`       | `{ label: string; value: string }[]` | built-in presets             | Override font family options shown in the toolbar. |
+| `fontSizes`          | `{ label: string; value: string }[]` | built-in presets             | Override font size options shown in the toolbar. |
+| `lineHeights`        | `{ label: string; value: string }[]` | built-in presets             | Override line-height options shown in the toolbar. |
+| `letterSpacings`     | `{ label: string; value: string }[]` | built-in presets             | Override letter-spacing options shown in the toolbar. |
 
 ## Ref API
 
@@ -203,6 +249,10 @@ Helper exports for URL matching:
 - **Underline** (Ctrl+U)
 - **Strikethrough**
 - **Inline Code**
+- **Font Family Presets**
+- **Font Size Presets**
+- **Line-height Presets**
+- **Letter-spacing Presets**
 - **Subscript** & **Superscript**
 - **Text Color** (using CSS variables: primary, secondary, success, warning, destructive, info, muted, accent)
 - **Highlight/Background Color** (using CSS variables)

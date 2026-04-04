@@ -20,7 +20,6 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
 import TextAlign from "@tiptap/extension-text-align";
-import { Table } from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import CharacterCount from "@tiptap/extension-character-count";
@@ -35,6 +34,11 @@ import { EmojiSuggestion } from "./emoji-suggestion";
 import { UEditorPlaceholder } from "./placeholder";
 import ResizableImage from "./resizable-image";
 import UEditorTableRow from "./table-row";
+import FontFamily from "./font-family";
+import FontSize from "./font-size";
+import LineHeight from "./line-height";
+import LetterSpacing from "./letter-spacing";
+import UEditorTable from "./table-align";
 
 const lowlight = createLowlight(common);
 
@@ -98,7 +102,7 @@ export function buildUEditorExtensions({
     CodeBlockLowlight.configure({
       lowlight,
       HTMLAttributes: {
-        class: "rounded-lg bg-[#1e1e1e] p-4 font-mono text-sm overflow-x-auto",
+        class: "rounded-lg border border-border/60 bg-muted/40 text-foreground p-4 font-mono text-sm overflow-x-auto",
       },
     }),
     HorizontalRule,
@@ -111,6 +115,10 @@ export function buildUEditorExtensions({
     ResizableImage,
     ClipboardImages.configure({ upload: uploadImage, insertMode: imageInsertMode }),
     TextStyle,
+    FontFamily,
+    FontSize,
+    LineHeight,
+    LetterSpacing,
     Color,
     Highlight.configure({
       multicolor: true,
@@ -118,7 +126,7 @@ export function buildUEditorExtensions({
     TextAlign.configure({
       types: ["heading", "paragraph", "image"],
     }),
-    Table.configure({
+    UEditorTable.configure({
       resizable: true,
       handleWidth: 10,
       allowTableNodeSelection: true,

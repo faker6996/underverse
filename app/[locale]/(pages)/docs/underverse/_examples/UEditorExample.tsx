@@ -49,6 +49,8 @@ export default function UEditorExample() {
       </tbody>
     </table>
     <p><img src="${wrappedImageDataUrl}" alt="Wrapped" data-image-layout="right" data-image-size="md" width="220" height="150" />This editor now supports wrapped images as well, so you can keep an image on one side and let the text flow naturally beside it. Select an image and use the image menu or image bubble menu to switch between block, left wrap, and right wrap layouts, then choose S, M, or L width presets without losing the setting when you save HTML.</p>
+    <h2>🔤 Typography</h2>
+    <p><span style="font-family: serif; font-size: 24px; line-height: 1.2; letter-spacing: -0.02em;">Serif lead text</span> can now live beside <span style="font-family: monospace; font-size: 14px; line-height: 1.75; letter-spacing: 0.05em;">monospace notes</span> and regular body content.</p>
     <h2>✨ Features</h2>
     <ul data-type="taskList">
       <li data-type="taskItem" data-checked="true"><label><input type="checkbox" checked></label><div>Rich text formatting (bold, italic, underline, strike)</div></li>
@@ -96,6 +98,32 @@ export default function UEditorExample() {
     `  onChange={setContent}\n` +
     `  showCharacterCount\n` +
     `  maxCharacters={500}\n` +
+    `/>\n\n` +
+    `// Optional: customize font dropdowns\n` +
+    `<UEditor\n` +
+    `  content={content}\n` +
+    `  onChange={setContent}\n` +
+    `  fontFamilies={[\n` +
+    `    { label: 'Inter', value: 'Inter, ui-sans-serif, system-ui, sans-serif' },\n` +
+    `    { label: 'Georgia', value: \"Georgia, 'Times New Roman', serif\" },\n` +
+    `    { label: 'JetBrains Mono', value: \"'JetBrains Mono', 'Fira Code', monospace\" },\n` +
+    `  ]}\n` +
+    `  fontSizes={[\n` +
+    `    { label: '14', value: '14px' },\n` +
+    `    { label: '16', value: '16px' },\n` +
+    `    { label: '24', value: '24px' },\n` +
+    `  ]}\n` +
+    `  // Font size dropdown also accepts direct px input\n` +
+    `  lineHeights={[\n` +
+    `    { label: '1.2', value: '1.2' },\n` +
+    `    { label: '1.5', value: '1.5' },\n` +
+    `    { label: '1.75', value: '1.75' },\n` +
+    `  ]}\n` +
+    `  letterSpacings={[\n` +
+    `    { label: '-0.02em', value: '-0.02em' },\n` +
+    `    { label: '0', value: '0' },\n` +
+    `    { label: '0.05em', value: '0.05em' },\n` +
+    `  ]}\n` +
     `/>\n\n` +
     `// Read-only mode\n` +
     `<UEditor\n` +
@@ -213,6 +241,10 @@ export default function UEditorExample() {
     { property: "minHeight", description: "Minimum height of editor area", type: "number | string", default: '"200px"' },
     { property: "maxHeight", description: "Maximum height with scroll", type: "number | string", default: '"auto"' },
     { property: "variant", description: "UI style variant", type: '"default" | "minimal" | "notion"', default: '"default"' },
+    { property: "fontFamilies", description: "Override font family options shown in the toolbar dropdown", type: "{ label: string; value: string }[]", default: "built-in presets" },
+    { property: "fontSizes", description: "Override font size options shown in the toolbar dropdown", type: "{ label: string; value: string }[]", default: "built-in presets" },
+    { property: "lineHeights", description: "Override line-height options shown in the toolbar dropdown", type: "{ label: string; value: string }[]", default: "built-in presets" },
+    { property: "letterSpacings", description: "Override letter-spacing options shown in the toolbar dropdown", type: "{ label: string; value: string }[]", default: "built-in presets" },
   ];
 
   const order = [
@@ -234,6 +266,10 @@ export default function UEditorExample() {
     "minHeight",
     "maxHeight",
     "variant",
+    "fontFamilies",
+    "fontSizes",
+    "lineHeights",
+    "letterSpacings",
   ];
 
   const featuresDoc = (
@@ -244,6 +280,10 @@ export default function UEditorExample() {
           <li>✓ Bold, Italic, Underline, Strikethrough</li>
           <li>✓ Subscript & Superscript</li>
           <li>✓ Text color & Highlight</li>
+          <li>✓ Font family presets</li>
+          <li>✓ Font size presets</li>
+          <li>✓ Line-height presets</li>
+          <li>✓ Letter-spacing presets</li>
           <li>✓ Headings (H1, H2, H3)</li>
           <li>✓ Text alignment (left, center, right, justify)</li>
           <li>✓ Inline code</li>
@@ -267,7 +307,6 @@ export default function UEditorExample() {
         <h3 className="text-lg font-semibold mb-3">⚡ UX Features</h3>
         <ul className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
           <li>✓ Bubble menu on selection</li>
-          <li>✓ Floating block menu on empty lines</li>
           <li>✓ Keyboard shortcuts</li>
           <li>✓ Undo/Redo with history</li>
           <li>✓ Character & word count</li>

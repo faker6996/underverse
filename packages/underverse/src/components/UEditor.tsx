@@ -8,6 +8,10 @@ export {
   UEditorPrepareContentForSaveError,
 } from "./UEditor/prepare-content-for-save";
 export type {
+  UEditorFontFamilyOption,
+  UEditorFontSizeOption,
+  UEditorLetterSpacingOption,
+  UEditorLineHeightOption,
   UEditorInlineUploadedItem,
   UEditorPrepareContentForSaveOptions,
   UEditorPrepareContentForSaveResult,

@@ -1320,6 +1320,17 @@
       "undo": "元に戻す",
       "redo": "やり直し",
       "textStyle": "テキストスタイル",
+      "fontFamily": "フォント",
+      "fontSize": "文字サイズ",
+      "lineHeight": "行間",
+      "fontDefault": "標準フォント",
+      "sizeDefault": "標準サイズ",
+      "lineHeightDefault": "標準の行間",
+      "letterSpacing": "文字間隔",
+      "letterSpacingDefault": "標準の字間",
+      "fontSans": "Sans",
+      "fontSerif": "Serif",
+      "fontMono": "Mono",
       "normal": "標準テキスト",
       "heading1": "見出し 1",
       "heading2": "見出し 2",
@@ -1382,13 +1393,18 @@
     },
     "tableMenu": {
       "insert3x3": "3x3 表を挿入",
+      "insertTable": "表を挿入",
+      "gridPreview": "{rows}×{cols} の表を挿入",
       "addColumnBefore": "前に列を追加",
       "addColumnAfter": "後に列を追加",
       "addRowBefore": "前に行を追加",
       "addRowAfter": "後に行を追加",
       "deleteColumn": "列を削除",
       "deleteRow": "行を削除",
-      "deleteTable": "表を削除"
+      "deleteTable": "表を削除",
+      "alignLeft": "表を左寄せ",
+      "alignCenter": "表を中央揃え",
+      "alignRight": "表を右寄せ"
     }
   },
   "CalendarTimeline": {

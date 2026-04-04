@@ -7,7 +7,15 @@ import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import type { EditorView } from "@tiptap/pm/view";
 import { cn } from "../../utils/cn";
 import { buildUEditorExtensions } from "./extensions";
-import type { UEditorPrepareContentForSaveResult, UEditorProps, UEditorRef } from "./types";
+import type {
+  UEditorFontFamilyOption,
+  UEditorFontSizeOption,
+  UEditorLetterSpacingOption,
+  UEditorLineHeightOption,
+  UEditorPrepareContentForSaveResult,
+  UEditorProps,
+  UEditorRef,
+} from "./types";
 import { EditorToolbar } from "./toolbar";
 import { CustomBubbleMenu, CustomFloatingMenu } from "./menus";
 import { CharacterCountDisplay } from "./CharacterCount";
@@ -125,6 +133,37 @@ function getRelativeCellMetrics(surface: HTMLElement, cell: HTMLElement) {
   };
 }
 
+function getRelativeSelectedCellsMetrics(surface: HTMLElement) {
+  const selectedCells = Array.from(
+    surface.querySelectorAll<HTMLElement>("td.selectedCell, th.selectedCell"),
+  );
+
+  if (selectedCells.length === 0) {
+    return null;
+  }
+
+  const surfaceRect = surface.getBoundingClientRect();
+  let left = Number.POSITIVE_INFINITY;
+  let top = Number.POSITIVE_INFINITY;
+  let right = Number.NEGATIVE_INFINITY;
+  let bottom = Number.NEGATIVE_INFINITY;
+
+  selectedCells.forEach((cell) => {
+    const rect = cell.getBoundingClientRect();
+    left = Math.min(left, rect.left);
+    top = Math.min(top, rect.top);
+    right = Math.max(right, rect.right);
+    bottom = Math.max(bottom, rect.bottom);
+  });
+
+  return {
+    left: left - surfaceRect.left + surface.scrollLeft,
+    top: top - surfaceRect.top + surface.scrollTop,
+    width: right - left,
+    height: bottom - top,
+  };
+}
+
 const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   content = "",
   onChange,
@@ -145,6 +184,10 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   minHeight = "200px",
   maxHeight = "auto",
   variant = "default",
+  fontFamilies,
+  fontSizes,
+  lineHeights,
+  letterSpacings,
 }: UEditorProps, ref) => {
   const t = useSmartTranslations("UEditor");
   const effectivePlaceholder = placeholder ?? t("placeholder");
@@ -206,7 +249,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
       return;
     }
 
-    const metrics = getRelativeCellMetrics(surface, cell);
+    const metrics = getRelativeSelectedCellsMetrics(surface) ?? getRelativeCellMetrics(surface, cell);
     highlight.style.display = "block";
     highlight.style.left = `${metrics.left}px`;
     highlight.style.top = `${metrics.top}px`;
@@ -329,8 +372,10 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           "[&_ul[data-type='taskList']_li>label>input]:border-2",
           "[&_ul[data-type='taskList']_li>label>input]:border-primary/50",
           "[&_ul[data-type='taskList']_li>label>input]:accent-primary",
-          "[&_pre]:bg-[#1e1e1e]!",
-          "[&_pre]:text-[#d4d4d4]!",
+          "[&_pre]:bg-muted/40!",
+          "[&_pre]:text-foreground!",
+          "[&_pre]:border!",
+          "[&_pre]:border-border/60!",
           "[&_pre_code]:bg-transparent!",
           "[&_.tableWrapper]:overflow-x-auto",
           "[&_.tableWrapper]:pb-1.5",
@@ -350,6 +395,11 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           "[&_table]:table-fixed",
           "[&_table]:overflow-hidden",
           "[&_table]:select-text",
+          "[&_table[data-table-align]]:w-max",
+          "[&_table[data-table-align]]:max-w-full",
+          "[&_table[data-table-align='center']]:mx-auto",
+          "[&_table[data-table-align='right']]:ml-auto",
+          "[&_table[data-table-align='right']]:mr-0",
           "[&_td]:relative",
           "[&_td]:align-top",
           "[&_td]:box-border",
@@ -754,9 +804,24 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
       )}
     >
       {editable && showToolbar && (
-        <EditorToolbar editor={editor} variant={variant} uploadImage={uploadImage} imageInsertMode={imageInsertMode} />
+        <EditorToolbar
+          editor={editor}
+          variant={variant}
+          uploadImage={uploadImage}
+          imageInsertMode={imageInsertMode}
+          fontFamilies={fontFamilies as UEditorFontFamilyOption[] | undefined}
+          fontSizes={fontSizes as UEditorFontSizeOption[] | undefined}
+          lineHeights={lineHeights as UEditorLineHeightOption[] | undefined}
+          letterSpacings={letterSpacings as UEditorLetterSpacingOption[] | undefined}
+        />
       )}
-      {editable && showBubbleMenu && <CustomBubbleMenu editor={editor} />}
+      {editable && showBubbleMenu && (
+        <CustomBubbleMenu
+          editor={editor}
+          fontSizes={fontSizes as UEditorFontSizeOption[] | undefined}
+          lineHeights={lineHeights as UEditorLineHeightOption[] | undefined}
+        />
+      )}
       {editable && showFloatingMenu && <CustomFloatingMenu editor={editor} />}
 
       <div
@@ -780,7 +845,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         <span
           ref={activeTableCellHighlightRef}
           aria-hidden="true"
-          className="pointer-events-none hidden absolute z-20 rounded-[2px] border-2 border-[#2383e2] bg-[#2383e2]/[0.06] transition-[left,top,width,height] duration-100"
+          className="pointer-events-none hidden absolute z-20 rounded-[2px] border-2 border-primary bg-primary/10 transition-[left,top,width,height] duration-100"
         />
         {editable && <TableControls editor={editor} containerRef={editorContentRef} />}
         <EditorContent

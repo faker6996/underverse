@@ -149,6 +149,51 @@ test("UEditor minimal toolbar applies bold and italic formatting while typing", 
   });
 });
 
+test("UEditor toolbar applies font family, font size, line height, and letter spacing while typing", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const htmlUpdates = [];
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "",
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+      onHtmlChange: (html) => htmlUpdates.push(html),
+    }),
+  );
+
+  const editorElement = await waitFor(() => {
+    const element = view.container.querySelector(".ProseMirror");
+    assert.ok(element);
+    return element;
+  });
+
+  await user.click(editorElement);
+  await user.click(await view.findByRole("button", { name: "Font Family" }));
+  await user.click(await within(window.document.body).findByText("Georgia"));
+  await user.click(await view.findByRole("button", { name: "Font Size" }));
+  const fontSizeInput = await within(window.document.body).findByRole("spinbutton", { name: "Font Size" });
+  await user.clear(fontSizeInput);
+  await user.type(fontSizeInput, "22{enter}");
+  await user.click(await view.findByRole("button", { name: "Line Height" }));
+  await user.click(await within(window.document.body).findByText("1.75"));
+  await user.click(await view.findByRole("button", { name: "Letter Spacing" }));
+  await user.click(await within(window.document.body).findByText("0.05em"));
+  await user.type(editorElement, "Styled text");
+
+  await waitFor(() => {
+    const latestHtml = htmlUpdates.at(-1) ?? "";
+    assert.match(latestHtml, /font-family:\s*Georgia/i);
+    assert.match(latestHtml, /font-size:\s*22px/i);
+    assert.match(latestHtml, /line-height:\s*1.75/i);
+    assert.match(latestHtml, /letter-spacing:\s*0.05em/i);
+    assert.match(latestHtml, /Styled text/);
+  });
+});
+
 test("UEditor preserves wrapped image layout in editor DOM and saved HTML", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -177,6 +222,59 @@ test("UEditor preserves wrapped image layout in editor DOM and saved HTML", asyn
   assert.match(result.html, /data-image-layout="left"/);
   assert.match(result.html, /data-image-size="md"/);
   assert.match(result.html, /float:\s*left/i);
+});
+
+test("UEditor bubble menu applies quick line-height controls to selected text", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const htmlUpdates = [];
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<p>Quick spacing sample</p>",
+      showFloatingMenu: false,
+      showCharacterCount: false,
+      onHtmlChange: (html) => htmlUpdates.push(html),
+    }),
+  );
+
+  const paragraph = await view.findByText("Quick spacing sample");
+  await user.tripleClick(paragraph);
+  await user.click(await within(window.document.body).findByText("1.75"));
+
+  await waitFor(() => {
+    const latestHtml = htmlUpdates.at(-1) ?? "";
+    assert.match(latestHtml, /line-height:\s*1.75/i);
+    assert.match(latestHtml, /Quick spacing sample/);
+  });
+});
+
+test("UEditor preserves font family, font size, line height, and letter spacing from initial HTML", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: `<p><span style="font-family: serif; font-size: 24px; line-height: 1.75; letter-spacing: 0.05em;">Styled copy</span></p>`,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await view.findByText("Styled copy");
+  await waitFor(() => {
+    assert.ok(ref.current);
+  });
+
+  const result = await ref.current.prepareContentForSave();
+  assert.match(result.html, /font-family:\s*serif/i);
+  assert.match(result.html, /font-size:\s*24px/i);
+  assert.match(result.html, /line-height:\s*1.75/i);
+  assert.match(result.html, /letter-spacing:\s*0.05em/i);
 });
 
 test("UEditor preserves table row height from content HTML", async () => {
@@ -210,6 +308,78 @@ test("UEditor preserves table row height from content HTML", async () => {
   const result = await ref.current.prepareContentForSave();
   assert.match(result.html, /data-row-height="72"/);
   assert.match(result.html, /height:\s*72px/i);
+});
+
+test("UEditor table toolbar inserts a custom-sized table from the grid picker", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const body = within(window.document.body);
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<p>Table grid</p>",
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const editorElement = await waitFor(() => {
+    const element = view.container.querySelector(".ProseMirror");
+    assert.ok(element);
+    return element;
+  });
+
+  await user.click(editorElement);
+  await user.click(await view.findByRole("button", { name: "Insert Table" }));
+  const gridCell = await body.findByRole("button", { name: "Insert 4×5 Table" });
+  await user.hover(gridCell);
+  await user.click(gridCell);
+
+  await waitFor(() => {
+    const rows = view.container.querySelectorAll("tr");
+    assert.equal(rows.length, 4);
+    const firstRowCells = rows[0]?.querySelectorAll("th,td") ?? [];
+    assert.equal(firstRowCells.length, 5);
+  });
+});
+
+test("UEditor table toolbar applies table alignment and preserves it in HTML", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const htmlUpdates = [];
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<table><tbody><tr><td>A1</td><td>B1</td></tr></tbody></table>",
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+      onHtmlChange: (html) => htmlUpdates.push(html),
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+
+  await user.click(firstCell);
+  await user.click(await view.findByRole("button", { name: "Insert Table" }));
+  await user.click(await within(window.document.body).findByRole("button", { name: "Align Table Center" }));
+
+  await waitFor(() => {
+    const table = view.container.querySelector("table");
+    assert.ok(table);
+    assert.equal(table.getAttribute("data-table-align"), "center");
+    assert.match(table.getAttribute("style") ?? "", /margin-left:\s*auto/i);
+    assert.match(table.getAttribute("style") ?? "", /margin-right:\s*auto/i);
+    assert.match(table.getAttribute("style") ?? "", /width:\s*max-content/i);
+    assert.match(htmlUpdates.at(-1) ?? "", /data-table-align="center"/);
+  });
 });
 
 test("UEditor shows contextual table controls and applies table actions near the active cell", async () => {

@@ -27,6 +27,26 @@ export interface UEditorRef {
   prepareContentForSave: (options?: UEditorPrepareContentForSaveOptions) => Promise<UEditorPrepareContentForSaveResult>;
 }
 
+export type UEditorFontFamilyOption = {
+  label: string;
+  value: string;
+};
+
+export type UEditorFontSizeOption = {
+  label: string;
+  value: string;
+};
+
+export type UEditorLineHeightOption = {
+  label: string;
+  value: string;
+};
+
+export type UEditorLetterSpacingOption = {
+  label: string;
+  value: string;
+};
+
 export interface UEditorProps {
   content?: string;
   onChange?: (content: string) => void;
@@ -47,6 +67,10 @@ export interface UEditorProps {
   minHeight?: number | string;
   maxHeight?: number | string;
   variant?: "default" | "minimal" | "notion";
+  fontFamilies?: UEditorFontFamilyOption[];
+  fontSizes?: UEditorFontSizeOption[];
+  lineHeights?: UEditorLineHeightOption[];
+  letterSpacings?: UEditorLetterSpacingOption[];
 }
 
 export type UEditorVariant = NonNullable<UEditorProps["variant"]>;

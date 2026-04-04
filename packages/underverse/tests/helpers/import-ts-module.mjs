@@ -41,18 +41,18 @@ function linkScopedEntries(fromDir, scopeName) {
 if (!fs.existsSync(tempNodeModules)) {
   fs.mkdirSync(tempNodeModules, { recursive: true });
   for (const entry of ["react", "react-dom", "scheduler"]) {
-    const source = fs.existsSync(path.join(workspaceNodeModules, entry))
-      ? path.join(workspaceNodeModules, entry)
-      : path.join(packageNodeModules, entry);
+    const source = fs.existsSync(path.join(packageNodeModules, entry))
+      ? path.join(packageNodeModules, entry)
+      : path.join(workspaceNodeModules, entry);
     const target = path.join(tempNodeModules, entry);
     if (fs.existsSync(source) && !fs.existsSync(target)) {
       fs.symlinkSync(source, target, fs.statSync(source).isDirectory() ? "dir" : "file");
     }
   }
-  linkNodeModulesEntries(workspaceNodeModules);
-  linkScopedEntries(workspaceNodeModules, "@tiptap");
   linkNodeModulesEntries(packageNodeModules);
   linkScopedEntries(packageNodeModules, "@tiptap");
+  linkNodeModulesEntries(workspaceNodeModules);
+  linkScopedEntries(workspaceNodeModules, "@tiptap");
 }
 
 const compiledCache = new Map();

@@ -1397,6 +1397,17 @@
       "undo": "Hoàn tác (Ctrl+Z)",
       "redo": "Làm lại (Ctrl+Y)",
       "textStyle": "Kiểu chữ",
+      "fontFamily": "Phông chữ",
+      "fontSize": "Cỡ chữ",
+      "lineHeight": "Giãn dòng",
+      "fontDefault": "Phông mặc định",
+      "sizeDefault": "Cỡ mặc định",
+      "lineHeightDefault": "Giãn dòng mặc định",
+      "letterSpacing": "Giãn chữ",
+      "letterSpacingDefault": "Giãn chữ mặc định",
+      "fontSans": "Sans",
+      "fontSerif": "Serif",
+      "fontMono": "Mono",
       "normal": "Văn bản thường",
       "heading1": "Tiêu đề 1",
       "heading2": "Tiêu đề 2",
@@ -1460,13 +1471,18 @@
     },
     "tableMenu": {
       "insert3x3": "Chèn bảng 3×3",
+      "insertTable": "Chèn bảng",
+      "gridPreview": "Chèn bảng {rows}×{cols}",
       "addColumnBefore": "Thêm cột trước",
       "addColumnAfter": "Thêm cột sau",
       "addRowBefore": "Thêm hàng trước",
       "addRowAfter": "Thêm hàng sau",
       "deleteColumn": "Xóa cột",
       "deleteRow": "Xóa hàng",
-      "deleteTable": "Xóa bảng"
+      "deleteTable": "Xóa bảng",
+      "alignLeft": "Căn bảng trái",
+      "alignCenter": "Căn bảng giữa",
+      "alignRight": "Căn bảng phải"
     }
   },
   "CalendarTimeline": {

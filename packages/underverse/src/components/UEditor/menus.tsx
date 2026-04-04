@@ -27,6 +27,8 @@ import { LinkInput } from "./inputs";
 import { EditorColorPalette, useEditorColors } from "./colors";
 import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
 import { buildSlashCommandItems, buildSlashCommandMessages, SlashCommandList, type SlashCommandListRef } from "./slash-command";
+import type { UEditorFontSizeOption, UEditorLineHeightOption } from "./types";
+import { getDefaultFontSizes, getDefaultLineHeights, normalizeStyleValue } from "./typography-options";
 
 const FloatingSlashCommandMenu = ({ editor, onClose }: { editor: Editor; onClose: () => void }) => {
   const t = useSmartTranslations("UEditor");
@@ -88,9 +90,13 @@ const FloatingMenuContent = ({ editor }: { editor: Editor }) => {
 const BubbleMenuContent = ({
   editor,
   onKeepOpenChange,
+  fontSizes,
+  lineHeights,
 }: {
   editor: Editor;
   onKeepOpenChange?: (keepOpen: boolean) => void;
+  fontSizes?: UEditorFontSizeOption[];
+  lineHeights?: UEditorLineHeightOption[];
 }) => {
   const t = useSmartTranslations("UEditor");
   const { textColors, highlightColors } = useEditorColors();
@@ -102,6 +108,17 @@ const BubbleMenuContent = ({
   const imageWidthPreset = imageAttrs.imageWidthPreset === "sm" || imageAttrs.imageWidthPreset === "md" || imageAttrs.imageWidthPreset === "lg"
     ? imageAttrs.imageWidthPreset
     : null;
+  const textStyleAttrs = editor.getAttributes("textStyle") as { fontSize?: string; lineHeight?: string };
+  const currentFontSize = normalizeStyleValue(textStyleAttrs.fontSize);
+  const currentLineHeight = normalizeStyleValue(textStyleAttrs.lineHeight);
+  const quickFontSizes = useMemo(
+    () => (fontSizes ?? getDefaultFontSizes()).filter((option) => ["14px", "16px", "24px"].includes(option.value)),
+    [fontSizes],
+  );
+  const quickLineHeights = useMemo(
+    () => (lineHeights ?? getDefaultLineHeights()).filter((option) => ["1.2", "1.5", "1.75"].includes(option.value)),
+    [lineHeights],
+  );
 
   useEffect(() => {
     onKeepOpenChange?.(showLinkInput);
@@ -263,6 +280,50 @@ const BubbleMenuContent = ({
       <div className="w-px h-6 bg-border/50 mx-1" />
 
       <ToolbarButton
+        onClick={() => editor.chain().focus().unsetFontSize().run()}
+        active={!currentFontSize}
+        title={t("toolbar.sizeDefault")}
+        className="px-2 w-auto"
+      >
+        <span className="text-[10px] font-semibold">A</span>
+      </ToolbarButton>
+      {quickFontSizes.map((option) => (
+        <ToolbarButton
+          key={option.value}
+          onClick={() => editor.chain().focus().setFontSize(option.value).run()}
+          active={normalizeStyleValue(option.value) === currentFontSize}
+          title={`${t("toolbar.fontSize")} ${option.label}`}
+          className="px-2 w-auto"
+        >
+          <span className="text-[10px] font-semibold">{option.label}</span>
+        </ToolbarButton>
+      ))}
+
+      <div className="w-px h-6 bg-border/50 mx-1" />
+
+      <ToolbarButton
+        onClick={() => editor.chain().focus().unsetLineHeight().run()}
+        active={!currentLineHeight}
+        title={t("toolbar.lineHeightDefault")}
+        className="px-2 w-auto"
+      >
+        <span className="text-[10px] font-semibold leading-none">LH</span>
+      </ToolbarButton>
+      {quickLineHeights.map((option) => (
+        <ToolbarButton
+          key={option.value}
+          onClick={() => editor.chain().focus().setLineHeight(option.value).run()}
+          active={normalizeStyleValue(option.value) === currentLineHeight}
+          title={`${t("toolbar.lineHeight")} ${option.label}`}
+          className="px-2 w-auto"
+        >
+          <span className="text-[10px] font-semibold">{option.label}</span>
+        </ToolbarButton>
+      ))}
+
+      <div className="w-px h-6 bg-border/50 mx-1" />
+
+      <ToolbarButton
         onClick={() => editor.chain().focus().toggleSubscript().run()}
         active={editor.isActive("subscript")}
         title={t("toolbar.subscript")}
@@ -280,8 +341,17 @@ const BubbleMenuContent = ({
   );
 };
 
-export const CustomBubbleMenu = ({ editor }: { editor: Editor }) => {
+export const CustomBubbleMenu = ({
+  editor,
+  fontSizes,
+  lineHeights,
+}: {
+  editor: Editor;
+  fontSizes?: UEditorFontSizeOption[];
+  lineHeights?: UEditorLineHeightOption[];
+}) => {
   const SHOW_DELAY_MS = 180;
+  const BUBBLE_MENU_OFFSET = 16;
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
@@ -314,7 +384,7 @@ export const CustomBubbleMenu = ({ editor }: { editor: Editor }) => {
       const end = view.coordsAtPos(to);
 
       const left = (start.left + end.left) / 2;
-      const top = start.top - 10;
+      const top = start.top - BUBBLE_MENU_OFFSET;
 
       setPosition({ top, left });
       if (keepOpenRef.current) {
@@ -365,6 +435,8 @@ export const CustomBubbleMenu = ({ editor }: { editor: Editor }) => {
       <BubbleMenuContent
         editor={editor}
         onKeepOpenChange={setKeepOpen}
+        fontSizes={fontSizes}
+        lineHeights={lineHeights}
       />
     </div>,
     document.body,
@@ -372,6 +444,7 @@ export const CustomBubbleMenu = ({ editor }: { editor: Editor }) => {
 };
 
 export const CustomFloatingMenu = ({ editor }: { editor: Editor }) => {
+  const FLOATING_MENU_OFFSET = 16;
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
@@ -389,7 +462,7 @@ export const CustomFloatingMenu = ({ editor }: { editor: Editor }) => {
       }
 
       const coords = view.coordsAtPos($from.pos);
-      setPosition({ top: coords.top - 10, left: coords.left });
+      setPosition({ top: coords.top - FLOATING_MENU_OFFSET, left: coords.left });
       setIsVisible(true);
     };
 

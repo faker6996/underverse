@@ -202,6 +202,10 @@ export {
   UEditorPrepareContentForSaveError,
 } from "./components/UEditor";
 export type {
+  UEditorFontFamilyOption,
+  UEditorFontSizeOption,
+  UEditorLetterSpacingOption,
+  UEditorLineHeightOption,
   UEditorInlineUploadedItem,
   UEditorPrepareContentForSaveOptions,
   UEditorPrepareContentForSaveResult,
