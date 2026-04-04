@@ -1,8 +1,8 @@
 {
   "package": "@underverse-ui/underverse",
-  "version": "1.0.75",
+  "version": "1.0.76",
   "sourceEntry": "src/index.ts",
-  "totalExports": 221,
+  "totalExports": 225,
   "exports": [
     {
       "name": "*",
@@ -1373,7 +1373,35 @@
       "aliasOf": "default"
     },
     {
+      "name": "UEditorFontFamilyOption",
+      "kind": "type",
+      "source": "./components/UEditor",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "UEditorFontSizeOption",
+      "kind": "type",
+      "source": "./components/UEditor",
+      "reexport": true,
+      "local": false
+    },
+    {
       "name": "UEditorInlineUploadedItem",
+      "kind": "type",
+      "source": "./components/UEditor",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "UEditorLetterSpacingOption",
+      "kind": "type",
+      "source": "./components/UEditor",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "UEditorLineHeightOption",
       "kind": "type",
       "source": "./components/UEditor",
       "reexport": true,
