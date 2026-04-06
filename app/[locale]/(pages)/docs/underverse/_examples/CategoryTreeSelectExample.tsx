@@ -29,6 +29,7 @@ export default function CategoryTreeSelectExample() {
   const [selected, setSelected] = React.useState<number[]>([]);
   const [selectedInit, setSelectedInit] = React.useState<number[]>([1, 2]);
   const [singleSelected, setSingleSelected] = React.useState<number | null>(null);
+  const [leafOnlySelected, setLeafOnlySelected] = React.useState<number | null>(null);
   const [inlineSingle, setInlineSingle] = React.useState<number | null>(1);
   const [withFieldState, setWithFieldState] = React.useState<number[]>([]);
 
@@ -101,6 +102,7 @@ export default function CategoryTreeSelectExample() {
     `  value={singleSelected}     // number | null\n` +
     `  onChange={setSingleSelected}\n` +
     `  singleSelect               // NEW: only one node\n` +
+    `  leafOnlySelect             // NEW: only leaf nodes can be selected\n` +
     `/>\n\n` +
     `// 3) Inline mode (always visible, no radio buttons)\n` +
     `<CategoryTreeSelect\n` +
@@ -173,6 +175,20 @@ export default function CategoryTreeSelectExample() {
         <div className="text-sm text-muted-foreground">Selected: {singleSelected ?? "(none)"}</div>
       </div>
 
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Leaf-only select</p>
+        <CategoryTreeSelect
+          categories={categories}
+          value={leafOnlySelected}
+          onChange={setLeafOnlySelected}
+          placeholder="Select one leaf category"
+          singleSelect
+          leafOnlySelect
+          defaultExpanded
+        />
+        <div className="text-sm text-muted-foreground">Selected leaf: {leafOnlySelected ?? "(none)"}</div>
+      </div>
+
       {/* 3) Single-select inline */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Single-select inline (always visible)</p>
@@ -210,6 +226,7 @@ export default function CategoryTreeSelectExample() {
     { property: "helperText", description: t("props.categoryTreeSelect.helperText"), type: "string", default: "-" },
     { property: "singleSelect", description: t("props.categoryTreeSelect.singleSelect"), type: "boolean", default: "false" },
     { property: "inline", description: t("props.categoryTreeSelect.inline"), type: "boolean", default: "false" },
+    { property: "leafOnlySelect", description: "Only allow selecting leaf nodes; parent nodes only expand/collapse.", type: "boolean", default: "false" },
     { property: "onNodeClick", description: t("props.categoryTreeSelect.onNodeClick"), type: "(node: Category) => void", default: "-" },
     { property: "viewOnly", description: t("props.categoryTreeSelect.viewOnly"), type: "boolean", default: "false" },
     { property: "defaultExpanded", description: t("props.categoryTreeSelect.defaultExpanded"), type: "boolean", default: "false" },

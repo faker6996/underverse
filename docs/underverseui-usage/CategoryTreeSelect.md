@@ -57,6 +57,23 @@ const [selected, setSelected] = useState<number | null>(null);
 <CategoryTreeSelect categories={categories} value={selected} onChange={setSelected} singleSelect />;
 ```
 
+### Leaf-only select
+
+```tsx
+const [selectedLeaf, setSelectedLeaf] = useState<number | null>(null);
+
+<CategoryTreeSelect
+  categories={categories}
+  value={selectedLeaf}
+  onChange={setSelectedLeaf}
+  singleSelect
+  leafOnlySelect
+  defaultExpanded
+/>;
+```
+
+When `leafOnlySelect` is enabled, nodes that have children are not selectable. Clicking them will only expand or collapse the subtree.
+
 ### Inline mode (always visible, no dropdown)
 
 ```tsx
@@ -124,6 +141,7 @@ interface CategoryTreeSelectProps {
   defaultExpanded?: boolean; // Expand all nodes by default
   enableSearch?: boolean; // Show search input (default: categories.length > 10)
   inline?: boolean; // Always visible, no dropdown
+  leafOnlySelect?: boolean; // Only leaf nodes can be selected
   onNodeClick?: (node: Category) => void; // Click callback
   labels?: CategoryTreeSelectLabels;
   className?: string;

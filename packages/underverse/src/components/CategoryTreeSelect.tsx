@@ -58,6 +58,8 @@ export interface CategoryTreeSelectBaseProps {
   className?: string;
   /** Enable OverlayScrollbars for dropdown tree viewport. Default: false */
   useOverlayScrollbar?: boolean;
+  /** When true, only leaf nodes can be selected; parent nodes only expand/collapse */
+  leafOnlySelect?: boolean;
 }
 
 // Multi-select mode (default)
@@ -118,6 +120,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     onNodeClick,
     className,
     useOverlayScrollbar = false,
+    leafOnlySelect = false,
     singleSelect = false,
   } = props;
 
@@ -237,8 +240,15 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   const handleSelect = (categoryId: number, category: Category) => {
     if (viewOnly) return;
 
+    const hasChildren = (childrenMap.get(categoryId) ?? []).length > 0;
+
     // Call onNodeClick if provided
     onNodeClick?.(category);
+
+    if (leafOnlySelect && hasChildren) {
+      toggleExpand(categoryId);
+      return;
+    }
 
     // If no onChange, just handle the click callback
     if (!props.onChange) return;
@@ -289,6 +299,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     const hasChildren = children.length > 0;
     const isExpanded = hasChildren && (isSearchMode || expandedNodes.has(category.id));
     const isSelected = selectedIds.has(category.id);
+    const isSelectable = !viewOnly && (!leafOnlySelect || !hasChildren);
 
     return (
       <div
@@ -300,9 +311,8 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           onClick={() => !viewOnly && handleSelect(category.id, category)}
           className={cn(
             "relative flex min-w-0 items-center gap-2.5 px-3 py-2.5 min-h-11 transition-all duration-200 rounded-3xl",
-            // Không phân biệt parent/child - đồng bộ màu
-            !viewOnly && "cursor-pointer",
-            !viewOnly && !isSelected && "hover:bg-accent/50",
+            !viewOnly && (isSelectable ? "cursor-pointer" : "cursor-default"),
+            isSelectable && !isSelected && "hover:bg-accent/50",
             // Selected state - đồng bộ cho tất cả
             !viewOnly && isSelected && "bg-accent/40",
           )}
@@ -355,6 +365,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
                 className={cn(
                   "min-w-0 flex-1 text-sm leading-snug break-words [overflow-wrap:anywhere] transition-all duration-200",
                   isSelected ? "font-semibold text-primary" : "text-foreground/80",
+                  !isSelectable && "text-foreground",
                 )}
               >
                 {category.name}
