@@ -9,5 +9,5 @@ interface EmojiPickerProps {
 }
 
 export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect }) => {
-  return <BaseEmojiPicker onEmojiSelect={onSelect} />;
+  return <BaseEmojiPicker onEmojiSelect={onSelect} chrome="embedded" />;
 };

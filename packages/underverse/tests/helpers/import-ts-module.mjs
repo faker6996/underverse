@@ -14,6 +14,8 @@ const packageNodeModules = path.join(packageRoot, "node_modules");
 const workspaceNodeModules = path.join(workspaceRoot, "node_modules");
 const tempNodeModules = path.join(tempRoot, "node_modules");
 const requireFromTemp = createRequire(path.join(tempRoot, "index.mjs"));
+const requireFromPackage = createRequire(path.join(packageRoot, "package.json"));
+const requireFromWorkspace = createRequire(path.join(workspaceRoot, "package.json"));
 
 function linkNodeModulesEntries(fromDir) {
   if (!fs.existsSync(fromDir)) return;
@@ -108,6 +110,39 @@ function rewriteRelativeSpecifiers(sourceText, sourceFile, outFile) {
     .replace(/(import\s*)(["'])(\.{1,2}\/[^"']+)(\2)/g, rewrite);
 }
 
+const stableBareSpecifiers = [
+  "react",
+  "react/jsx-runtime",
+  "react/jsx-dev-runtime",
+  "react-dom",
+  "react-dom/client",
+  "scheduler",
+];
+
+function resolveBareSpecifier(specifier) {
+  try {
+    return requireFromPackage.resolve(specifier);
+  } catch {
+    return requireFromWorkspace.resolve(specifier);
+  }
+}
+
+function rewriteBareSpecifiers(sourceText, outFile) {
+  let rewritten = sourceText;
+
+  for (const specifier of stableBareSpecifiers) {
+    const resolved = resolveBareSpecifier(specifier);
+    const relativePath = path.relative(path.dirname(outFile), resolved).replaceAll(path.sep, "/");
+    const normalized = relativePath.startsWith(".") ? relativePath : `./${relativePath}`;
+
+    rewritten = rewritten
+      .replace(new RegExp(`(from\\s*)(["'])${specifier.replace("/", "\\/")}(\\2)`, "g"), `$1$2${normalized}$2`)
+      .replace(new RegExp(`(import\\s*)(["'])${specifier.replace("/", "\\/")}(\\2)`, "g"), `$1$2${normalized}$2`);
+  }
+
+  return rewritten;
+}
+
 function compileModule(filePath) {
   const normalizedPath = path.resolve(filePath);
   const cached = compiledCache.get(normalizedPath);
@@ -147,7 +182,8 @@ function compileModule(filePath) {
     });
 
     fs.mkdirSync(path.dirname(outFile), { recursive: true });
-    fs.writeFileSync(outFile, transpiled.outputText, "utf8");
+    const finalOutput = rewriteBareSpecifiers(transpiled.outputText, outFile);
+    fs.writeFileSync(outFile, finalOutput, "utf8");
     compiledCache.set(normalizedPath, outFile);
     return outFile;
   } catch (error) {

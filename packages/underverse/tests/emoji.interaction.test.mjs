@@ -1,25 +1,52 @@
 import assert from "node:assert/strict";
 import path from "node:path";
+import { createRequire } from "node:module";
 import test, { after, afterEach } from "node:test";
 import React from "./helpers/workspace-react.mjs";
-import { cleanup, render, waitFor, within } from "@testing-library/react";
+import { waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { importTsModule, requireTempModule } from "./helpers/import-ts-module.mjs";
 import { installJSDOM } from "./helpers/setup-jsdom.mjs";
 
 const { NextIntlClientProvider } = requireTempModule("next-intl");
+const { act } = React;
+const requirePackage = createRequire(path.resolve(import.meta.dirname, "../package.json"));
+const { createRoot } = requirePackage("react-dom/client");
 
 const restoreDom = installJSDOM();
 after(() => restoreDom());
+let mountedRoots = [];
+
 afterEach(async () => {
-  cleanup();
+  for (const entry of mountedRoots) {
+    await act(async () => {
+      entry.root.unmount();
+    });
+    entry.container.remove();
+  }
+  mountedRoots = [];
   document.documentElement.lang = "en";
   await new Promise((resolve) => setTimeout(resolve, 0));
 });
 
 const componentsRoot = path.resolve(import.meta.dirname, "../src/components");
 const contextsRoot = path.resolve(import.meta.dirname, "../src/contexts");
+
+async function renderElement(element) {
+  const container = document.createElement("div");
+  document.body.appendChild(container);
+  const root = createRoot(container);
+  mountedRoots.push({ root, container });
+
+  await act(async () => {
+    root.render(element);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  return { container, root };
+}
+
 test("EmojiPicker filters emoji results and calls onEmojiSelect", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "EmojiPicker.tsx"));
   const EmojiPicker = mod.default;
@@ -27,13 +54,17 @@ test("EmojiPicker filters emoji results and calls onEmojiSelect", async () => {
   const selections = [];
   document.documentElement.lang = "en";
 
-  const view = render(
+  const view = await renderElement(
     React.createElement(EmojiPicker, {
       onEmojiSelect: (emoji) => selections.push(emoji),
     }),
   );
 
-  const searchInput = await view.findByPlaceholderText("Search emoji");
+  const searchInput = await waitFor(() => {
+    const input = within(view.container).getByPlaceholderText("Search emoji");
+    assert.ok(input);
+    return input;
+  });
   await user.type(searchInput, "heart");
 
   const matchingEmojiButton = await waitFor(() => {
@@ -48,15 +79,40 @@ test("EmojiPicker filters emoji results and calls onEmojiSelect", async () => {
   assert.equal(searchInput.value, "");
 });
 
+test("EmojiPicker renders the configured number of columns via grid template", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "EmojiPicker.tsx"));
+  const EmojiPicker = mod.default;
+  document.documentElement.lang = "en";
+
+  const view = await renderElement(
+    React.createElement(EmojiPicker, {
+      onEmojiSelect: () => {},
+      columns: 9,
+    }),
+  );
+
+  const firstCategoryGrid = await waitFor(() => {
+    const grid = view.container.querySelector(".grid.gap-1");
+    assert.ok(grid);
+    return grid;
+  });
+
+  assert.equal(firstCategoryGrid.style.gridTemplateColumns, "repeat(9, minmax(0, 1fr))");
+});
+
 test("EmojiPicker uses localized placeholder and empty state", async () => {
   const pickerMod = await importTsModule(path.join(componentsRoot, "EmojiPicker.tsx"));
   const EmojiPicker = pickerMod.default;
   const user = userEvent.setup({ document: window.document });
   document.documentElement.lang = "vi";
 
-  const view = render(React.createElement(EmojiPicker, { onEmojiSelect: () => {} }));
+  const view = await renderElement(React.createElement(EmojiPicker, { onEmojiSelect: () => {} }));
 
-  const searchInput = await view.findByPlaceholderText("Tìm kiếm biểu tượng cảm xúc");
+  const searchInput = await waitFor(() => {
+    const input = within(view.container).getByPlaceholderText("Tìm kiếm biểu tượng cảm xúc");
+    assert.ok(input);
+    return input;
+  });
   await user.type(searchInput, "khong-co-emoji");
 
   await waitFor(() => {
@@ -73,7 +129,7 @@ test("EmojiPicker prefers NextIntlAdapter messages over document locale fallback
   const user = userEvent.setup({ document: window.document });
   document.documentElement.lang = "en";
 
-  const view = render(
+  const view = await renderElement(
     React.createElement(
       NextIntlClientProvider,
       {
@@ -97,7 +153,11 @@ test("EmojiPicker prefers NextIntlAdapter messages over document locale fallback
     ),
   );
 
-  const searchInput = await view.findByPlaceholderText("브리지 이모지 검색");
+  const searchInput = await waitFor(() => {
+    const input = within(view.container).getByPlaceholderText("브리지 이모지 검색");
+    assert.ok(input);
+    return input;
+  });
   await user.type(searchInput, "khong-co-emoji");
 
   await waitFor(() => {
@@ -112,7 +172,7 @@ test("UEditor emoji suggestion inserts the selected emoji", async () => {
   const user = userEvent.setup({ document: window.document });
   document.documentElement.lang = "en";
 
-  const view = render(
+  const view = await renderElement(
     React.createElement(UEditor, {
       content: "",
       showBubbleMenu: false,
@@ -151,7 +211,7 @@ test("UEditor emoji suggestion localizes the empty state", async () => {
   const user = userEvent.setup({ document: window.document });
   document.documentElement.lang = "vi";
 
-  const view = render(
+  const view = await renderElement(
     React.createElement(UEditor, {
       content: "",
       showBubbleMenu: false,
@@ -182,7 +242,7 @@ test("UEditor emoji suggestion prefers NextIntlAdapter messages over document lo
   const user = userEvent.setup({ document: window.document });
   document.documentElement.lang = "en";
 
-  const view = render(
+  const view = await renderElement(
     React.createElement(
       NextIntlClientProvider,
       {
@@ -231,7 +291,7 @@ test("UEditor slash command inserts a table block", async () => {
   const user = userEvent.setup({ document: window.document });
   document.documentElement.lang = "en";
 
-  const view = render(
+  const view = await renderElement(
     React.createElement(UEditor, {
       content: "",
       showBubbleMenu: false,
@@ -250,7 +310,8 @@ test("UEditor slash command inserts a table block", async () => {
   await user.type(editorElement, "/table");
 
   const tableCommandButton = await waitFor(() => {
-    const button = within(window.document.body).getByRole("button", { name: /table/i });
+    const description = within(window.document.body).getByText("Add a table");
+    const button = description.closest("button");
     assert.ok(button);
     return button;
   });

@@ -18,6 +18,7 @@ export interface EmojiPickerProps {
   showCategoryNav?: boolean;
   columns?: number;
   maxHeight?: string;
+  chrome?: "standalone" | "embedded";
 }
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -40,6 +41,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   showCategoryNav = true,
   columns = 9,
   maxHeight = "20rem",
+  chrome = "standalone",
 }) => {
   const t = useSmartTranslations("UEditor");
   const [search, setSearch] = useState("");
@@ -50,6 +52,11 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   const resolvedSearchPlaceholder = searchPlaceholder ?? t("emojiPicker.searchPlaceholder");
   const resolvedEmptyText = emptyText ?? t("emojiPicker.noResults");
   const resolvedEmptyHint = emptyHint ?? t("emojiPicker.tryDifferentSearch");
+  const resolvedColumns = Math.max(1, Math.floor(columns));
+  const isEmbedded = chrome === "embedded";
+  const gridStyle = {
+    gridTemplateColumns: `repeat(${resolvedColumns}, minmax(0, 1fr))`,
+  } satisfies React.CSSProperties;
 
   const filteredCategories = useMemo(() => {
     if (!search.trim()) return EMOJI_LIST;
@@ -102,7 +109,6 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
     isUserScrolling.current = true;
   }, []);
 
-  const gridColsClass = `grid-cols-${columns}`;
   const renderEmojiCategory = (category: (typeof EMOJI_LIST)[number], assignRef = false) => (
     <div
       key={category.id}
@@ -113,7 +119,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
         : undefined}
     >
       <div className="sticky top-0 z-10 bg-card py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{category.name}</div>
-      <div className={cn("grid gap-1", gridColsClass)}>
+      <div className="grid gap-1" style={gridStyle}>
         {category.emojis.map((emoji) => (
           <EmojiGridButton
             key={emoji.name}
@@ -161,9 +167,15 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   };
 
   return (
-    <div className={cn("flex max-h-128 w-96 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xl", className)}>
+    <div
+      className={cn(
+        "flex max-h-128 w-96 flex-col overflow-hidden",
+        isEmbedded ? "bg-transparent" : "rounded-2xl border border-border bg-card shadow-xl",
+        className,
+      )}
+    >
       {showSearch && (
-        <div className="shrink-0 border-b bg-muted/30 p-3">
+        <div className={cn("shrink-0 border-b p-3", isEmbedded ? "bg-transparent" : "bg-muted/30")}>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -200,7 +212,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
       </div>
 
       {!search && showCategoryNav && (
-        <div className="flex shrink-0 items-center justify-around border-t bg-muted/30 px-2 py-2">
+        <div className={cn("flex shrink-0 items-center justify-around border-t px-2 py-2", isEmbedded ? "bg-transparent" : "bg-muted/30")}>
           {EMOJI_LIST.map((category) => {
             const IconComponent = CATEGORY_ICONS[category.id] || Smile;
             return (

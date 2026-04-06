@@ -566,6 +566,7 @@ export const EditorToolbar = ({
       <ToolbarDivider />
 
       <DropdownMenu
+        contentClassName="p-0 overflow-hidden"
         trigger={
           <ToolbarButton onClick={() => { }} title={t("toolbar.emoji")}>
             <Smile className="w-4 h-4" />
