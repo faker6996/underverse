@@ -112,11 +112,13 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   const renderEmojiCategory = (category: (typeof EMOJI_LIST)[number], assignRef = false) => (
     <div
       key={category.id}
-      ref={assignRef
-        ? (el) => {
-          categoryRefs.current[category.id] = el;
-        }
-        : undefined}
+      ref={
+        assignRef
+          ? (el) => {
+              categoryRefs.current[category.id] = el;
+            }
+          : undefined
+      }
     >
       <div className="sticky top-0 z-10 bg-card py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{category.name}</div>
       <div className="grid gap-1" style={gridStyle}>
@@ -184,7 +186,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className={cn(
-                "w-full rounded-lg border border-border bg-background py-2 pl-9 pr-9 text-sm",
+                "w-full rounded-full border border-border bg-background py-2 pl-9 pr-9 text-sm",
                 "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20",
               )}
             />
@@ -202,13 +204,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
       )}
 
       <div ref={scrollContainerRef} className="shrink overflow-y-auto px-3 py-2" style={{ height: maxHeight }}>
-        {search ? (
-          searchResultContent
-        ) : (
-          <div className="space-y-4">
-            {EMOJI_LIST.map((category) => renderEmojiCategory(category, true))}
-          </div>
-        )}
+        {search ? searchResultContent : <div className="space-y-4">{EMOJI_LIST.map((category) => renderEmojiCategory(category, true))}</div>}
       </div>
 
       {!search && showCategoryNav && (
