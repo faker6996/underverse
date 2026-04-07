@@ -15,6 +15,8 @@ Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja). Với `next-intl`, 
 | ---------------------------------------------------- | ------ |
 | Label `htmlFor` attribute                            | ✅     |
 | `aria-labelledby` on trigger                         | ✅     |
+| `aria-required` when required                        | ✅     |
+| `aria-invalid` for validation state                  | ✅     |
 | ESC to close                                         | ✅     |
 | `focus-visible` ring                                 | ✅     |
 | Locale-aware date formatting (`Intl.DateTimeFormat`) | ✅     |
@@ -96,6 +98,22 @@ export function App() {
 ```tsx
 <DatePicker value={date} onChange={setDate} todayLabel="今日 (custom)" clearLabel="クリア (custom)" placeholder="日付を選んでください" />
 ```
+
+### Required Validation
+
+```tsx
+<form>
+  <DatePicker value={date} onChange={setDate} label="Delivery Date" required />
+  <button type="submit">Submit</button>
+</form>
+```
+
+When `required` is set, `DatePicker` now participates in form validation like `Input`:
+
+- exposes `aria-required`
+- reports invalid state through `aria-invalid`
+- shows a destructive label + trigger state if the form is validated without a selected date
+- clears the local required error as soon as the user picks a valid date
 
 ```ts
 export interface DatePickerProps {

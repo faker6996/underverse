@@ -13,6 +13,17 @@ Exports:
 - Uses `Popover` internally (portal + fixed positioning).
 - Popover auto-adjusts to stay within the viewport; on small screens it may scroll instead of overflowing.
 - Calendar and time columns are kept compact to avoid overly wide popovers.
+- `required` now participates in form validation for the trigger, similar to `Input`.
+
+## Accessibility
+
+| Feature                       | Status |
+| ----------------------------- | ------ |
+| Label association             | ✅     |
+| `aria-required` when required | ✅     |
+| `aria-invalid` for errors     | ✅     |
+| ESC to close popover          | ✅     |
+| `focus-visible` ring          | ✅     |
 
 ## DateTimePicker
 
@@ -28,6 +39,17 @@ export function Example() {
   return <DateTimePicker value={date} onChange={setDate} label="Schedule Meeting" />;
 }
 ```
+
+### Required Validation
+
+```tsx
+<form>
+  <DateTimePicker value={date} onChange={setDate} label="Appointment" required />
+  <button type="submit">Submit</button>
+</form>
+```
+
+If the form is validated before a date-time is selected, the trigger and label switch to the destructive state and the local required error is shown below the field.
 
 ```ts
 export interface DateTimePickerProps {

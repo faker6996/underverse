@@ -54,6 +54,8 @@ export interface MultiComboboxProps {
   useOverlayScrollbar?: boolean;
 }
 
+const REQUIRED_ERROR_MESSAGE = "This field is required";
+
 // Helper functions
 const getOptionIcon = (option: MultiComboboxOption | string): React.ReactNode | undefined => {
   return typeof option === "string" ? undefined : option.icon;
@@ -103,6 +105,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   const [query, setQuery] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+  const [localRequiredError, setLocalRequiredError] = React.useState<string | undefined>();
   const inputRef = React.useRef<HTMLInputElement>(null);
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const optionsListRef = React.useRef<HTMLUListElement>(null);
@@ -158,6 +161,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
       onChange(value.filter((v) => v !== optionValue));
     } else {
       if (!maxSelected || value.length < maxSelected) {
+        setLocalRequiredError(undefined);
         onChange([...value, optionValue]);
       }
     }
@@ -181,6 +185,14 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   const handleClearAll = () => {
     onChange([]);
   };
+
+  const effectiveError = error ?? localRequiredError;
+
+  React.useEffect(() => {
+    if (disabled || !required || value.length > 0) {
+      setLocalRequiredError(undefined);
+    }
+  }, [disabled, required, value.length]);
 
   // Auto-focus input when dropdown opens (only if search is enabled)
   React.useEffect(() => {
@@ -424,7 +436,8 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
       aria-haspopup="listbox"
       aria-expanded={open}
       aria-controls={listboxId}
-      aria-invalid={!!error}
+      aria-required={required}
+      aria-invalid={!!effectiveError}
       className={cn(
         "group flex w-full items-center gap-2 rounded-full transition-all duration-200",
         sizeStyles[size].trigger,
@@ -432,7 +445,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary",
         "disabled:cursor-not-allowed disabled:opacity-50",
         open && "ring-2 ring-primary/20 border-primary",
-        !!error && "border-destructive focus-visible:ring-destructive/30",
+        !!effectiveError && "border-destructive focus-visible:ring-destructive/30",
       )}
     >
       <div className={cn("flex items-center gap-1.5 flex-1 overflow-hidden", size === "sm" ? "min-h-4" : size === "lg" ? "min-h-8" : "min-h-6")}>
@@ -530,6 +543,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
               size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
               "font-medium transition-colors duration-200",
               disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary",
+              effectiveError && "text-destructive",
               labelClassName,
             )}
           >
@@ -548,6 +562,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
             labelSize,
             "font-medium transition-colors duration-200",
             disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary",
+            effectiveError && "text-destructive",
             labelClassName,
           )}
         >
@@ -555,6 +570,19 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
           {required && <span className="text-destructive ml-1">*</span>}
         </label>
       )}
+      <input
+        tabIndex={-1}
+        aria-hidden="true"
+        readOnly
+        value={value.length > 0 ? "selected" : ""}
+        required={required}
+        disabled={disabled}
+        onInvalid={(e) => {
+          e.preventDefault();
+          setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+        }}
+        className="pointer-events-none absolute h-0 w-0 opacity-0"
+      />
 
       <Popover
         open={open}
@@ -569,9 +597,14 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
       </Popover>
 
       {/* Helper text / Error message */}
-      {(helperText || error) && (
-        <p className={cn("text-xs transition-colors duration-200 flex items-center gap-1.5", error ? "text-destructive" : "text-muted-foreground")}>
-          {error && (
+      {(helperText || effectiveError) && (
+        <p
+          className={cn(
+            "text-xs transition-colors duration-200 flex items-center gap-1.5",
+            effectiveError ? "text-destructive" : "text-muted-foreground",
+          )}
+        >
+          {effectiveError && (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5 shrink-0">
               <path
                 fillRule="evenodd"
@@ -580,7 +613,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
               />
             </svg>
           )}
-          {error || helperText}
+          {effectiveError || helperText}
         </p>
       )}
     </div>

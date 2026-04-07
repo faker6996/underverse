@@ -20,6 +20,7 @@ export default function MultiComboboxExample() {
   const [valueWithIcons, setValueWithIcons] = React.useState<string[]>([]);
   const [valueGrouped, setValueGrouped] = React.useState<string[]>([]);
   const [valueError, setValueError] = React.useState<string[]>([]);
+  const [requiredDemoValue, setRequiredDemoValue] = React.useState<string[]>([]);
   const [valueVariant, setValueVariant] = React.useState<string[]>([]);
   const [valueLongNames, setValueLongNames] = React.useState<string[]>(["user1", "user2", "user3", "user4", "user5"]);
 
@@ -100,7 +101,12 @@ export default function MultiComboboxExample() {
     `<MultiCombobox options={groupedOptions} groupBy={(opt) => opt.group || ''} label="Tech Stack" />\n\n` +
     `// 4) With error and helper text\n` +
     `<MultiCombobox options={options} error={!value.length ? 'Required' : undefined} helperText="Select at least one" />\n\n` +
-    `// 5) Variants\n` +
+    `// 5) Required validation via form submit\n` +
+    `<form>\n` +
+    `  <MultiCombobox options={options} value={value} onChange={setValue} label="Technologies" required />\n` +
+    `  <button type="submit">Submit</button>\n` +
+    `</form>\n\n` +
+    `// 6) Variants\n` +
     `<MultiCombobox options={options} variant="default" />\n` +
     `<MultiCombobox options={options} variant="outline" />\n` +
     `<MultiCombobox options={options} variant="ghost" />\n`;
@@ -180,10 +186,31 @@ export default function MultiComboboxExample() {
         />
       </div>
 
-      {/* Section 5: Sizes */}
+      {/* Section 5: Required validation */}
       <div className="space-y-3">
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">5</span>
+          <span className="w-6 h-6 rounded-full bg-warning/10 text-warning flex items-center justify-center text-xs">5</span>
+          Required Validation
+        </h4>
+        <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+          <MultiCombobox
+            options={options}
+            value={requiredDemoValue}
+            onChange={setRequiredDemoValue}
+            label="Submit-required field"
+            required
+            placeholder="Submit form without selecting to see error"
+          />
+          <button type="submit" className="rounded-full border border-border px-3 py-1.5 text-xs font-medium">
+            Submit
+          </button>
+        </form>
+      </div>
+
+      {/* Section 6: Sizes */}
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">6</span>
           Sizes
         </h4>
         <div className="flex flex-wrap items-end gap-3">
@@ -193,10 +220,10 @@ export default function MultiComboboxExample() {
         </div>
       </div>
 
-      {/* Section 6: Variants */}
+      {/* Section 7: Variants */}
       <div className="space-y-3">
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">6</span>
+          <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">7</span>
           Variants
         </h4>
         <div className="flex flex-wrap items-end gap-3">
@@ -206,10 +233,10 @@ export default function MultiComboboxExample() {
         </div>
       </div>
 
-      {/* Section 7: Max Selected & Tags */}
+      {/* Section 8: Max Selected & Tags */}
       <div className="space-y-3">
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">7</span>
+          <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">8</span>
           Max Selected & Tags Limit
         </h4>
         <MultiCombobox
@@ -223,10 +250,10 @@ export default function MultiComboboxExample() {
         />
       </div>
 
-      {/* Section 8: Long Names Overflow Test */}
+      {/* Section 9: Long Names Overflow Test */}
       <div className="space-y-3">
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-destructive/10 text-destructive flex items-center justify-center text-xs">8</span>
+          <span className="w-6 h-6 rounded-full bg-destructive/10 text-destructive flex items-center justify-center text-xs">9</span>
           Long Names (Overflow Test)
         </h4>
         <MultiCombobox
@@ -240,10 +267,10 @@ export default function MultiComboboxExample() {
         />
       </div>
 
-      {/* Section 9: Advanced */}
+      {/* Section 10: Advanced */}
       <div className="space-y-3">
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-linear-to-r from-primary to-secondary text-white flex items-center justify-center text-xs">9</span>
+          <span className="w-6 h-6 rounded-full bg-linear-to-r from-primary to-secondary text-white flex items-center justify-center text-xs">10</span>
           Advanced (Many Options + Search)
         </h4>
         <MultiCombobox

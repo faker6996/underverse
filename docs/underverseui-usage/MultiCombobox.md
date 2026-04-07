@@ -13,6 +13,7 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 - **Icons & Descriptions**: Options can have icons, descriptions, and be disabled
 - **Grouped Options**: Group options using `groupBy` function
 - **Error & Helper Text**: Display validation errors and helper text
+- **Required Validation**: `required` now participates in form validation for the custom trigger
 - **Custom Rendering**: Use `renderOption` and `renderTag` for custom UI
 - **Variants**: Three visual styles - `default`, `outline`, `ghost`
 - **Tag Limit**: Control visible tags with `maxTagsVisible`
@@ -23,8 +24,9 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 
 - Dropdown uses `Popover` internally (portal + fixed positioning + auto flip/clamp in viewport).
 - Dropdown width matches the trigger by default.
-- Search is enabled automatically when options > 10
-- Header shows selected count and max limit
+- Search is enabled automatically when options > 10.
+- Header shows selected count and max limit.
+- When `required` is set, the component exposes required semantics and shows a red error state if the form is validated without any selected value.
 
 ## Accessibility
 
@@ -34,6 +36,7 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 | `role="listbox"` on dropdown  | ✅     |
 | `aria-multiselectable="true"` | ✅     |
 | `aria-expanded` state         | ✅     |
+| `aria-required` when required | ✅     |
 | `aria-invalid` for errors     | ✅     |
 | Keyboard navigation           | ✅     |
 | Screen reader labels          | ✅     |
@@ -91,6 +94,17 @@ const options = [
   helperText="This field is required"
 />
 ```
+
+### Required Validation
+
+```tsx
+<form>
+  <MultiCombobox options={options} value={value} onChange={setValue} label="Technologies" required />
+  <button type="submit">Submit</button>
+</form>
+```
+
+If the form is validated before at least one item is selected, the trigger and label switch to the destructive state and the helper area shows the required error.
 
 ### Limited Tags Display
 

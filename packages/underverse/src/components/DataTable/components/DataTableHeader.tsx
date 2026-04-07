@@ -302,7 +302,7 @@ export function DataTableHeader<T extends Record<string, any>>({
                       className={cn(
                         "absolute inset-y-0 right-0 z-10 w-3 -mr-1",
                         "cursor-col-resize select-none bg-transparent",
-                        "after:absolute after:inset-y-2 after:right-[3px] after:w-px after:bg-border/0 after:transition-colors",
+                        "after:absolute after:inset-y-2 after:right-0.8 after:w-px after:bg-border/0 after:transition-colors",
                         "hover:after:bg-primary/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary",
                       )}
                     />

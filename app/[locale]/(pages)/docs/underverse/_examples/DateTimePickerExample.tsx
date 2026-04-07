@@ -11,6 +11,7 @@ export default function DateTimePickerExample() {
   const t = useTranslations("DocsUnderverse");
   const [date, setDate] = React.useState<Date | undefined>(new Date());
   const [date2, setDate2] = React.useState<Date | undefined>();
+  const [requiredDateTime, setRequiredDateTime] = React.useState<Date | undefined>();
 
   const demo = (
     <div className="space-y-8 min-h-100">
@@ -41,6 +42,19 @@ export default function DateTimePickerExample() {
           placeholder="Future dates only"
         />
       </div>
+
+      <form className="max-w-sm space-y-3" onSubmit={(e) => e.preventDefault()}>
+        <DateTimePicker
+          label="Required Appointment"
+          value={requiredDateTime}
+          onChange={setRequiredDateTime}
+          required
+          placeholder="Submit form without selecting to see error"
+        />
+        <button type="submit" className="rounded-full border border-border px-3 py-1.5 text-xs font-medium">
+          Submit
+        </button>
+      </form>
     </div>
   );
 
@@ -57,11 +71,22 @@ export default function DateTimePickerExample() {
     `  format="12"\n` +
     `  includeSeconds\n` +
     `  label="Event Start"\n` +
-    `/>\n\n`;
+    `/>\n\n` +
+    `// Required validation via form submit\n` +
+    `<form>\n` +
+    `  <DateTimePicker value={requiredDateTime} onChange={setRequiredDateTime} label="Required Appointment" required />\n` +
+    `  <button type="submit">Submit</button>\n` +
+    `</form>\n`;
 
   const rows: PropsRow[] = [
     { property: "value", description: "Selected Date object", type: "Date", default: "-" },
     { property: "onChange", description: "Update callback", type: "(date: Date | undefined) => void", default: "-" },
+    { property: "placeholder", description: "Placeholder text when empty", type: "string", default: "'Select date and time'" },
+    { property: "disabled", description: "Disable interaction", type: "boolean", default: "false" },
+    { property: "label", description: "Field label", type: "string", default: "-" },
+    { property: "labelClassName", description: "Custom label classes", type: "string", default: "-" },
+    { property: "required", description: "Participates in form validation like Input", type: "boolean", default: "false" },
+    { property: "size", description: "Trigger size", type: "'sm' | 'md' | 'lg'", default: "'md'" },
     { property: "format", description: "Time format", type: "'12' | '24'", default: "'24'" },
     { property: "includeSeconds", description: "Enable seconds selection", type: "boolean", default: "false" },
     { property: "minDate", description: "Minimum selectable date", type: "Date", default: "-" },
@@ -80,7 +105,7 @@ export default function DateTimePickerExample() {
           label: t("tabs.document"),
           content: (
             <div className="p-1">
-              <PropsDocsTable rows={rows} />
+              <PropsDocsTable rows={rows} markdownFile="DateTimePicker.md" />
             </div>
           ),
         },

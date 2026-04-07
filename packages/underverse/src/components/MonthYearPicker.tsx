@@ -7,6 +7,7 @@ import { Calendar, X, Check, ChevronDown } from "lucide-react";
 
 type MonthYearPickerVariant = "default" | "compact" | "inline";
 type PickerSize = "sm" | "md" | "lg";
+const REQUIRED_ERROR_MESSAGE = "This field is required";
 
 export interface MonthYearPickerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange" | "value" | "defaultValue"> {
   /** Current value as Date or {month, year} */
@@ -622,6 +623,7 @@ export default function MonthYearPicker({
   const [open, setOpen] = React.useState(false);
   const [parts, setParts] = React.useState(initial);
   const [focusedColumn, setFocusedColumn] = React.useState<WheelColumnKind | null>(null);
+  const [localRequiredError, setLocalRequiredError] = React.useState<string | undefined>();
 
   const monthScrollRef = React.useRef<HTMLDivElement>(null);
   const yearScrollRef = React.useRef<HTMLDivElement>(null);
@@ -632,6 +634,15 @@ export default function MonthYearPicker({
       if (parsed) setParts(parsed);
     }
   }, [value, isControlled]);
+
+  const hasValue = isControlled ? !!value : !!defaultValue || parts !== initial;
+  const effectiveError = error ?? localRequiredError;
+
+  React.useEffect(() => {
+    if (disabled || !required || hasValue) {
+      setLocalRequiredError(undefined);
+    }
+  }, [disabled, hasValue, required]);
 
   const years = React.useMemo(() => {
     return Array.from({ length: resolvedMaxYear - resolvedMinYear + 1 }, (_, i) => resolvedMinYear + i);
@@ -659,11 +670,13 @@ export default function MonthYearPicker({
   const emit = React.useCallback(
     (next: { month: number; year: number } | undefined) => {
       if (!next) {
+        setLocalRequiredError(undefined);
         onChange?.(undefined);
         return;
       }
       if (!isDateInRange(next.month, next.year)) return;
       const date = new Date(next.year, next.month, 1);
+      setLocalRequiredError(undefined);
       onChange?.({ ...next, date });
     },
     [isDateInRange, onChange],
@@ -751,7 +764,6 @@ export default function MonthYearPicker({
   const yearIndex = years.indexOf(parts.year);
 
   const display = `${shortMonthNames[parts.month]} ${parts.year}`;
-  const hasValue = isControlled ? !!value : !!defaultValue || parts !== initial;
 
   const trigger =
     variant === "inline" ? null : (
@@ -761,6 +773,8 @@ export default function MonthYearPicker({
         aria-label="Select month and year"
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-required={required}
+        aria-invalid={!!effectiveError}
         className={cn(
           "group flex w-full items-center justify-between rounded-full border bg-background/80 backdrop-blur-sm",
           sz.height,
@@ -769,9 +783,9 @@ export default function MonthYearPicker({
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           "transition-all duration-300 ease-out",
-          error && "border-destructive/60 focus-visible:ring-destructive/50 bg-destructive/5",
-          success && "border-success/60 focus-visible:ring-success/50 bg-success/5",
-          !error && !success && "border-border/60 hover:border-primary/40 hover:bg-accent/10",
+          effectiveError && "border-destructive/60 focus-visible:ring-destructive/50 bg-destructive/5",
+          success && !effectiveError && "border-success/60 focus-visible:ring-success/50 bg-success/5",
+          !effectiveError && !success && "border-border/60 hover:border-primary/40 hover:bg-accent/10",
           animate && !disabled && "hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
           open && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
           className,
@@ -781,7 +795,7 @@ export default function MonthYearPicker({
           <div
             className={cn(
               "flex items-center justify-center transition-colors duration-300",
-              error ? "text-destructive" : success ? "text-success" : open ? "text-primary" : "text-muted-foreground group-hover:text-primary",
+              effectiveError ? "text-destructive" : success ? "text-success" : open ? "text-primary" : "text-muted-foreground group-hover:text-primary",
             )}
           >
             <Calendar className={cn(sz.icon, "transition-transform duration-300", open && "rotate-12")} />
@@ -909,14 +923,35 @@ export default function MonthYearPicker({
     return (
       <div className={cn("w-full", className)} {...rest}>
         {label && (
-          <label className={cn(sz.label, "block mb-1.5 font-medium text-foreground/80", labelClassName)}>
+          <label className={cn(sz.label, "block mb-1.5 font-medium text-foreground/80", effectiveError && "text-destructive", labelClassName)}>
             {label}
             {required && <span className="text-destructive ml-0.5">*</span>}
           </label>
         )}
-        <div className={cn(panelSz.contentPadding, "rounded-2xl border border-border/50 bg-background/80 backdrop-blur-sm")}>{pickerContent}</div>
-        {(helperText || error) && (
-          <div className={cn("mt-1.5 text-xs", error ? "text-destructive" : "text-muted-foreground")}>{error || helperText}</div>
+        <input
+          tabIndex={-1}
+          aria-hidden="true"
+          readOnly
+          value={hasValue ? "selected" : ""}
+          required={required}
+          disabled={disabled}
+          onInvalid={(e) => {
+            e.preventDefault();
+            setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+          }}
+          className="pointer-events-none absolute h-0 w-0 opacity-0"
+        />
+        <div
+          className={cn(
+            panelSz.contentPadding,
+            "rounded-2xl border bg-background/80 backdrop-blur-sm",
+            effectiveError ? "border-destructive/60 bg-destructive/5" : "border-border/50",
+          )}
+        >
+          {pickerContent}
+        </div>
+        {(helperText || effectiveError) && (
+          <div className={cn("mt-1.5 text-xs", effectiveError ? "text-destructive" : "text-muted-foreground")}>{effectiveError || helperText}</div>
         )}
       </div>
     );
@@ -925,11 +960,24 @@ export default function MonthYearPicker({
   return (
     <div className={cn("w-full", className)} {...rest}>
       {label && (
-        <label className={cn(sz.label, "block mb-1.5 font-medium text-foreground/80", labelClassName)}>
+        <label className={cn(sz.label, "block mb-1.5 font-medium text-foreground/80", effectiveError && "text-destructive", labelClassName)}>
           {label}
           {required && <span className="text-destructive ml-0.5">*</span>}
         </label>
       )}
+      <input
+        tabIndex={-1}
+        aria-hidden="true"
+        readOnly
+        value={hasValue ? "selected" : ""}
+        required={required}
+        disabled={disabled}
+        onInvalid={(e) => {
+          e.preventDefault();
+          setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+        }}
+        className="pointer-events-none absolute h-0 w-0 opacity-0"
+      />
       <Popover
         trigger={trigger!}
         open={open}
@@ -942,8 +990,8 @@ export default function MonthYearPicker({
       >
         {pickerContent}
       </Popover>
-      {(helperText || error) && (
-        <div className={cn("mt-1.5 text-xs", error ? "text-destructive" : "text-muted-foreground")}>{error || helperText}</div>
+      {(helperText || effectiveError) && (
+        <div className={cn("mt-1.5 text-xs", effectiveError ? "text-destructive" : "text-muted-foreground")}>{effectiveError || helperText}</div>
       )}
     </div>
   );

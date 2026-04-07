@@ -12,6 +12,7 @@ import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 export default function DatePickerExample() {
   const [date1, setDate1] = React.useState<Date | undefined>();
   const [date2, setDate2] = React.useState<Date | undefined>();
+  const [requiredDate, setRequiredDate] = React.useState<Date | undefined>();
   const [rangeStart, setRangeStart] = React.useState<Date | undefined>();
   const [rangeEnd, setRangeEnd] = React.useState<Date | undefined>();
   const [advancedDate, setAdvancedDate] = React.useState<Date | undefined>();
@@ -49,8 +50,11 @@ export default function DatePickerExample() {
     `// 1) Basic (md) + Small (sm)\n` +
     `<DatePicker value={date1} onChange={setDate1} label='Default (md)' clearLabel={t('clear')} weekdayLabels={weekdays} />\n` +
     `<DatePicker value={date2} onChange={setDate2} size='sm' label='Small (sm)' clearLabel={t('clear')} weekdayLabels={weekdays} />\n\n` +
-    `// 2) Placeholder + required\n` +
-    `<DatePicker value={date1} onChange={setDate1} label='Required' required placeholder='Select date' clearLabel={t('clear')} />\n\n` +
+    `// 2) Required validation via form submit\n` +
+    `<form>\n` +
+    `  <DatePicker value={requiredDate} onChange={setRequiredDate} label='Required' required placeholder='Select date' clearLabel={t('clear')} />\n` +
+    `  <button type='submit'>Submit</button>\n` +
+    `</form>\n\n` +
     `// 3) Disabled\n` +
     `<DatePicker value={new Date()} onChange={()=>{}} label='Disabled' disabled />\n\n` +
     `// 4) DateRangePicker\n` +
@@ -82,7 +86,12 @@ export default function DatePickerExample() {
       </div>
 
       {/* 2) Placeholder + required */}
-      <DatePicker value={date1} onChange={setDate1} label="Required" required placeholder="Select date" clearLabel={t("clear")} />
+      <form className="max-w-sm space-y-3" onSubmit={(e) => e.preventDefault()}>
+        <DatePicker value={requiredDate} onChange={setRequiredDate} label="Required" required placeholder="Select date" clearLabel={t("clear")} />
+        <button type="submit" className="rounded-full border border-border px-3 py-1.5 text-xs font-medium">
+          Submit
+        </button>
+      </form>
 
       {/* 3) Disabled */}
       <DatePicker value={new Date()} onChange={() => {}} label="Disabled" disabled />

@@ -28,6 +28,7 @@ export default function MonthYearPickerExample() {
   const t = useTranslations("DocsUnderverse");
   const [value, setValue] = React.useState<{ month: number; year: number } | undefined>({ month: 1, year: 2026 });
   const [dateValue, setDateValue] = React.useState<Date>(new Date());
+  const [requiredValue, setRequiredValue] = React.useState<{ month: number; year: number; date: Date } | undefined>();
 
   const demo = (
     <div className="space-y-8">
@@ -132,7 +133,17 @@ export default function MonthYearPickerExample() {
             <MonthYearPicker label="Disabled" disabled defaultValue={{ month: 2, year: 2026 }} />
           </div>
           <div className="space-y-2">
-            <MonthYearPicker label="Required Field" required />
+            <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+              <MonthYearPicker
+                label="Required Field"
+                value={requiredValue ? { month: requiredValue.month, year: requiredValue.year } : undefined}
+                onChange={setRequiredValue}
+                required
+              />
+              <button type="submit" className="rounded-full border border-border px-3 py-1.5 text-xs font-medium">
+                Submit
+              </button>
+            </form>
           </div>
         </div>
       </div>
@@ -201,7 +212,18 @@ const VIETNAMESE_MONTHS = [
   label="End Month"
   success
   helperText="Looks good!"
-/>`;
+/>
+
+// Required validation via form submit
+<form>
+  <MonthYearPicker
+    value={requiredValue ? { month: requiredValue.month, year: requiredValue.year } : undefined}
+    onChange={setRequiredValue}
+    label="Billing Period"
+    required
+  />
+  <button type="submit">Submit</button>
+</form>`;
 
   const rows: PropsRow[] = [
     { property: "value", description: t("props.monthYearPicker.value"), type: "Date | { month: number; year: number }", default: "-" },

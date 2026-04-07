@@ -85,6 +85,8 @@ const defaultLabels: Required<CategoryTreeSelectLabels> = {
   noResultsText: "No results found",
 };
 
+const REQUIRED_ERROR_MESSAGE = "This field is required";
+
 function getInitialExpandedNodes(categories: Category[], defaultExpanded: boolean, viewOnly: boolean, inline: boolean) {
   if (!(viewOnly || inline) || !defaultExpanded) return new Set<number>();
 
@@ -127,6 +129,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [expandedNodes, setExpandedNodes] = useState<Set<number>>(() => getInitialExpandedNodes(categories, defaultExpanded, viewOnly, inline));
   const [query, setQuery] = useState("");
+  const [localRequiredError, setLocalRequiredError] = useState<string | undefined>();
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const dropdownViewportRef = useRef<HTMLDivElement | null>(null);
 
@@ -135,8 +138,9 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   const autoId = useId();
   const resolvedId = id ? String(id) : `category-tree-select-${autoId}`;
   const labelId = label ? `${resolvedId}-label` : undefined;
-  const helperId = helperText && !error ? `${resolvedId}-helper` : undefined;
-  const errorId = error ? `${resolvedId}-error` : undefined;
+  const effectiveError = error ?? localRequiredError;
+  const helperId = helperText && !effectiveError ? `${resolvedId}-helper` : undefined;
+  const errorId = effectiveError ? `${resolvedId}-error` : undefined;
   const describedBy = errorId || helperId;
 
   // Merge user labels with defaults
@@ -226,6 +230,12 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     return () => clearTimeout(t);
   }, [isOpen, isSearchEnabled]);
 
+  useEffect(() => {
+    if (disabled || !required || valueArray.length > 0) {
+      setLocalRequiredError(undefined);
+    }
+  }, [disabled, required, valueArray.length]);
+
   const toggleExpand = (id: number) => {
     if (isSearchMode) return;
     const newExpanded = new Set(expandedNodes);
@@ -249,6 +259,8 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
       toggleExpand(categoryId);
       return;
     }
+
+    setLocalRequiredError(undefined);
 
     // If no onChange, just handle the click callback
     if (!props.onChange) return;
@@ -473,7 +485,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           className={cn(
             size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
             disabled ? "text-muted-foreground" : "text-foreground",
-            error && "text-destructive",
+            effectiveError && "text-destructive",
             labelClassName,
           )}
         >
@@ -484,9 +496,9 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     ) : null;
 
   const renderAssistiveText = () =>
-    error ? (
+    effectiveError ? (
       <p id={errorId} className="text-sm text-destructive">
-        {error}
+        {effectiveError}
       </p>
     ) : helperText ? (
       <p id={helperId} className="text-sm text-muted-foreground">
@@ -499,6 +511,19 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     return (
       <div className={cn("w-full space-y-2", className)}>
         {renderLabel()}
+        <input
+          tabIndex={-1}
+          aria-hidden="true"
+          readOnly
+          value={valueArray.length > 0 ? "selected" : ""}
+          required={required}
+          disabled={disabled}
+          onInvalid={(e) => {
+            e.preventDefault();
+            setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+          }}
+          className="pointer-events-none absolute h-0 w-0 opacity-0"
+        />
         <div
           id={resolvedId}
           aria-labelledby={labelId}
@@ -518,6 +543,19 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     return (
       <div className={cn("w-full space-y-2", className)}>
         {renderLabel()}
+        <input
+          tabIndex={-1}
+          aria-hidden="true"
+          readOnly
+          value={valueArray.length > 0 ? "selected" : ""}
+          required={required}
+          disabled={disabled}
+          onInvalid={(e) => {
+            e.preventDefault();
+            setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+          }}
+          className="pointer-events-none absolute h-0 w-0 opacity-0"
+        />
         <div
           id={resolvedId}
           aria-labelledby={labelId}
@@ -635,6 +673,19 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   return (
     <div className={cn("w-full space-y-2", className)}>
       {renderLabel()}
+      <input
+        tabIndex={-1}
+        aria-hidden="true"
+        readOnly
+        value={valueArray.length > 0 ? "selected" : ""}
+        required={required}
+        disabled={disabled}
+        onInvalid={(e) => {
+          e.preventDefault();
+          setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+        }}
+        className="pointer-events-none absolute h-0 w-0 opacity-0"
+      />
       <Popover
         open={isOpen}
         onOpenChange={handleOpenChange}
@@ -658,7 +709,8 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
             aria-controls={`${resolvedId}-tree`}
             aria-labelledby={labelId}
             aria-describedby={describedBy}
-            aria-invalid={!!error}
+            aria-required={required}
+            aria-invalid={!!effectiveError}
             className={cn(
               "group flex w-full items-center justify-between rounded-full transition-all duration-200",
               "backdrop-blur-sm",
@@ -667,7 +719,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               disabled && "opacity-50 cursor-not-allowed hover:transform-none hover:shadow-none",
               isOpen && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
-              error && "border-destructive focus-visible:ring-destructive/30",
+              effectiveError && "border-destructive focus-visible:ring-destructive/30",
             )}
           >
             <div className="flex min-w-0 flex-1 items-center gap-2.5 text-left">

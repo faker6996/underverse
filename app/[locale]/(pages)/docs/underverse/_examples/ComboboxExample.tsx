@@ -18,6 +18,7 @@ export default function ComboboxExample() {
   const [valueWithIcons, setValueWithIcons] = React.useState<string | null>(null);
   const [valueGrouped, setValueGrouped] = React.useState<string | null>(null);
   const [valueError, setValueError] = React.useState<string | null>(null);
+  const [requiredDemoValue, setRequiredDemoValue] = React.useState<string | null>(null);
 
   const options = [
     { label: "Apple", value: "apple" },
@@ -97,14 +98,20 @@ export default function ComboboxExample() {
     `<Combobox options={groupedOptions} groupBy={(opt) => opt.group || ''} label='Settings' />\n\n` +
     `// 4) With error state\n` +
     `<Combobox options={options} value={null} error='Please select an option' helperText='Required field' />\n\n` +
-    `// 5) Sizes\n` +
+    `// 5) Required validation via form submit\n` +
+    `<form>\n` +
+    `  <Combobox options={options} value={value} onChange={setValue} label='Fruit' required />\n` +
+    `  <button type='submit'>Submit</button>\n` +
+    `</form>\n\n` +
+    `// 6) Sizes\n` +
     `<Combobox options={options} size='sm' placeholder='Small' />\n` +
     `<Combobox options={options} size='md' placeholder='Medium' />\n` +
     `<Combobox options={options} size='lg' placeholder='Large' />\n\n` +
-    `// 6) Variants\n` +
+    `// 7) Variants\n` +
     `<Combobox options={options} variant='default' placeholder='Default' />\n` +
     `<Combobox options={options} variant='outline' placeholder='Outline' />\n` +
-    `<Combobox options={options} variant='ghost' placeholder='Ghost' />\n`;
+    `<Combobox options={options} variant='ghost' placeholder='Ghost' />\n` +
+    `<Combobox options={options} variant='filled' placeholder='Filled' />\n`;
 
   const demo = (
     <div className="space-y-8">
@@ -174,10 +181,31 @@ export default function ComboboxExample() {
         />
       </div>
 
-      {/* Section 5: Sizes */}
+      {/* Section 5: Required validation */}
       <div className="space-y-3">
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">5</span>
+          <span className="w-6 h-6 rounded-full bg-warning/10 text-warning flex items-center justify-center text-xs">5</span>
+          Required Validation
+        </h4>
+        <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+          <Combobox
+            options={options}
+            value={requiredDemoValue}
+            onChange={setRequiredDemoValue}
+            label="Submit-required field"
+            required
+            placeholder="Submit form without selecting to see error"
+          />
+          <button type="submit" className="rounded-full border border-border px-3 py-1.5 text-xs font-medium">
+            Submit
+          </button>
+        </form>
+      </div>
+
+      {/* Section 6: Sizes */}
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">6</span>
           Sizes
         </h4>
         <div className="flex flex-wrap items-end gap-3">
@@ -187,32 +215,33 @@ export default function ComboboxExample() {
         </div>
       </div>
 
-      {/* Section 6: Variants */}
+      {/* Section 7: Variants */}
       <div className="space-y-3">
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">6</span>
+          <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">7</span>
           Variants
         </h4>
         <div className="flex flex-wrap items-end gap-3">
           <Combobox options={options} value={value} onChange={setValue} variant="default" placeholder="Default" />
           <Combobox options={options} value={valueOutline} onChange={setValueOutline} variant="outline" placeholder="Outline" />
           <Combobox options={options} value={valueGhost} onChange={setValueGhost} variant="ghost" placeholder="Ghost" />
+          <Combobox options={options} value={valueAdvanced} onChange={setValueAdvanced} variant="filled" placeholder="Filled" />
         </div>
       </div>
 
-      {/* Section 7: Disabled */}
+      {/* Section 8: Disabled */}
       <div className="space-y-3">
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs">7</span>
+          <span className="w-6 h-6 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs">8</span>
           Disabled State
         </h4>
         <Combobox options={options} value={valueDisabled} onChange={() => {}} disabled placeholder="Disabled" />
       </div>
 
-      {/* Section 8: Advanced */}
+      {/* Section 9: Advanced */}
       <div className="space-y-3">
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-linear-to-r from-primary to-secondary text-white flex items-center justify-center text-xs">8</span>
+          <span className="w-6 h-6 rounded-full bg-linear-to-r from-primary to-secondary text-white flex items-center justify-center text-xs">9</span>
           Advanced (Many Options + Search)
         </h4>
         <Combobox
@@ -249,7 +278,7 @@ export default function ComboboxExample() {
     { property: "className", description: t("props.combobox.className"), type: "string", default: "-" },
     { property: "disabled", description: t("props.combobox.disabled"), type: "boolean", default: "false" },
     { property: "size", description: t("props.combobox.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
-    { property: "variant", description: t("props.combobox.variant"), type: '"default" | "outline" | "ghost"', default: '"default"' },
+    { property: "variant", description: t("props.combobox.variant"), type: '"default" | "outline" | "ghost" | "filled"', default: '"default"' },
     { property: "allowClear", description: t("props.combobox.allowClear"), type: "boolean", default: "false" },
     { property: "searchPlaceholder", description: t("props.combobox.searchPlaceholder"), type: "string", default: '"Search..."' },
     { property: "emptyText", description: t("props.combobox.emptyText"), type: "string", default: '"No results found"' },

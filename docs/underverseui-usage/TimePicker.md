@@ -13,11 +13,23 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 - Popover dropdown width matches the trigger by default (`matchTriggerWidth=true`). Set `matchTriggerWidth={false}` to use the component’s default fixed dropdown widths.
 - `size` scales the trigger and the dropdown content (typography, paddings, wheel sizes).
 - Time range constraints: use `minTime`/`maxTime` or the aliases `min`/`max` (same format).
+- `required` now participates in form validation for both popover and inline variants.
 - The wheel is circular (wraps around). You can change values via:
   - Mouse wheel/trackpad scroll
   - Click a value
   - Click-and-drag inside a column (mouse)
   - Keyboard navigation (Arrow keys, Home/End, PageUp/PageDown)
+
+## Accessibility
+
+| Feature                          | Status |
+| -------------------------------- | ------ |
+| Label association                | ✅     |
+| `aria-required` when required    | ✅     |
+| `aria-invalid` for validation    | ✅     |
+| Keyboard navigation              | ✅     |
+| ESC to close popover             | ✅     |
+| `focus-visible` ring             | ✅     |
 
 ## TimePicker
 
@@ -136,3 +148,14 @@ Restrict selectable time range:
 ```tsx
 <TimePicker min="09:00" max="18:00" />
 ```
+
+Required validation through form submit:
+
+```tsx
+<form>
+  <TimePicker label="Meeting Time" required />
+  <button type="submit">Submit</button>
+</form>
+```
+
+If the form is validated before a time is selected, the label, trigger or inline panel, and helper area switch to the destructive state. The local required error clears once a valid time is chosen.

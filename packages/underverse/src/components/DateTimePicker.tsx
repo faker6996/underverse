@@ -32,6 +32,8 @@ export interface DateTimePickerProps {
   size?: "sm" | "md" | "lg";
 }
 
+const REQUIRED_ERROR_MESSAGE = "This field is required";
+
 export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   value,
   onChange,
@@ -53,6 +55,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   const locale = useSmartLocale();
 
   const [open, setOpen] = React.useState(false);
+  const [localRequiredError, setLocalRequiredError] = React.useState<string | undefined>();
 
   // Size styles for consistent sizing
   const sizeStyles = {
@@ -96,6 +99,12 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     setTempDate(value);
     setCalendarMonth(value ?? new Date());
   }, [value, open]);
+
+  React.useEffect(() => {
+    if (disabled || !required || value) {
+      setLocalRequiredError(undefined);
+    }
+  }, [disabled, required, value]);
 
   // Helper to get time string from date
   const getTimeString = (date?: Date) => {
@@ -171,12 +180,14 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
   const handleApply = () => {
     onChange(tempDate);
+    setLocalRequiredError(undefined);
     setOpen(false);
   };
 
   const handleClear = () => {
     onChange(undefined);
     setTempDate(undefined);
+    setLocalRequiredError(undefined);
     setOpen(false);
   };
 
@@ -214,14 +225,28 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   };
 
   const weekdays = getWeekdays(locale);
+  const effectiveError = localRequiredError;
 
   return (
     <div className={cn("space-y-1.5", className)}>
       {label && (
-        <label className={cn(sizeStyles[size].label, "font-medium text-foreground flex items-center gap-1", labelClassName)}>
+        <label className={cn(sizeStyles[size].label, "font-medium text-foreground flex items-center gap-1", effectiveError && "text-destructive", labelClassName)}>
           {label} {required && <span className="text-destructive">*</span>}
         </label>
       )}
+      <input
+        tabIndex={-1}
+        aria-hidden="true"
+        readOnly
+        value={value ? "selected" : ""}
+        required={required}
+        disabled={disabled}
+        onInvalid={(e) => {
+          e.preventDefault();
+          setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+        }}
+        className="pointer-events-none absolute h-0 w-0 opacity-0"
+      />
 
       <Popover
         open={open}
@@ -230,12 +255,15 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           <button
             type="button"
             disabled={disabled}
+            aria-required={required}
+            aria-invalid={!!effectiveError}
             className={cn(
               "flex w-full items-center justify-between rounded-full border border-input bg-background",
               sizeStyles[size].trigger,
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               disabled && "opacity-50 cursor-not-allowed",
               !displayValue && "text-muted-foreground",
+              effectiveError && "border-destructive/60 bg-destructive/5",
             )}
           >
             <span className="truncate">{displayValue || placeholder || "Select date & time"}</span>
@@ -247,6 +275,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
                   onClick={(e) => {
                     e.stopPropagation();
                     onChange(undefined);
+                    setLocalRequiredError(undefined);
                   }}
                   className="hover:text-foreground p-0.5 rounded-md hover:bg-accent"
                 >
@@ -310,6 +339,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
           </Button>
         </div>
       </Popover>
+      {effectiveError && <div className="text-xs text-destructive">{effectiveError}</div>}
     </div>
   );
 };

@@ -8,6 +8,12 @@ Exports:
 
 A professional month/year picker with smooth wheel column selection, similar to TimePicker.
 
+## Behavior
+
+- `required` now participates in form validation like `Input`.
+- Both default and inline variants expose required semantics through `aria-required`.
+- If the form is validated before a value is selected, the component shows a destructive label, trigger or inline panel, and helper message.
+
 ## Basic Usage
 
 ```tsx
@@ -122,6 +128,17 @@ export function Example() {
   );
 }
 ```
+
+## Required Validation
+
+```tsx
+<form>
+  <MonthYearPicker label="Billing Period" required />
+  <button type="submit">Submit</button>
+</form>
+```
+
+Once the user selects a month/year, the local required error is cleared automatically.
 
 ## Props
 

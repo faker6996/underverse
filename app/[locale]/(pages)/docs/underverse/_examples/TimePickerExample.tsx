@@ -12,6 +12,7 @@ export default function TimePickerExample() {
   const [time24, setTime24] = React.useState<string | undefined>("14:30");
   const [time12, setTime12] = React.useState<string | undefined>("02:30 PM");
   const [validatedTime, setValidatedTime] = React.useState<string | undefined>();
+  const [requiredTime, setRequiredTime] = React.useState<string | undefined>();
   const [error, setError] = React.useState<string>("");
 
   const handleValidatedTimeChange = (time: string | undefined) => {
@@ -198,6 +199,23 @@ export default function TimePickerExample() {
         </div>
       </div>
 
+      {/* Required validation */}
+      <div className="space-y-3">
+        <p className="text-sm font-semibold text-foreground/90">Required Validation</p>
+        <form className="max-w-sm space-y-3" onSubmit={(e) => e.preventDefault()}>
+          <TimePicker
+            label="Submit-required time"
+            value={requiredTime}
+            onChange={setRequiredTime}
+            required
+            placeholder="Submit form without selecting to see error"
+          />
+          <button type="submit" className="rounded-full border border-border px-3 py-1.5 text-xs font-medium">
+            Submit
+          </button>
+        </form>
+      </div>
+
       {/* Full Featured */}
       <div className="space-y-3">
         <p className="text-sm font-semibold text-foreground/90">Full Featured Example</p>
@@ -301,6 +319,11 @@ export default function TimePickerExample() {
     `  animate\n` +
     `  helperText="Click to open and try keyboard controls"\n` +
     `/>\n\n` +
+    `// Required validation via form submit\n` +
+    `<form>\n` +
+    `  <TimePicker label="Submit-required time" value={requiredTime} onChange={setRequiredTime} required />\n` +
+    `  <button type="submit">Submit</button>\n` +
+    `</form>\n\n` +
     `// Full featured\n` +
     `<TimePicker\n` +
     `  label="Appointment Time"\n` +

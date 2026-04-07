@@ -13,15 +13,17 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 - **Icons & Descriptions**: Options can have icons, descriptions, and be disabled
 - **Grouped Options**: Group options using `groupBy` function
 - **Error & Helper Text**: Display validation errors and helper text
+- **Required Validation**: `required` now participates in form validation for the custom trigger
 - **Custom Rendering**: Use `renderOption` and `renderValue` for custom UI
-- **Variants**: Three visual styles - `default`, `outline`, `ghost`
+- **Variants**: Four visual styles - `default`, `outline`, `ghost`, `filled`
 - **Keyboard Navigation**: Full keyboard support with arrow keys, Enter, Escape
 
 ## Behavior
 
 - Dropdown uses `Popover` internally (portal + fixed positioning + auto flip/clamp in viewport).
 - Dropdown width matches the trigger by default.
-- Search is enabled automatically when options > 10
+- Search is enabled automatically when options > 10.
+- When `required` is set, the component exposes required semantics and shows a red error state if the form is validated without a selected value.
 
 ## Accessibility (Web Interface Guidelines Compliant)
 
@@ -29,8 +31,8 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 | -------------------------------- | ------ |
 | Label `htmlFor` attribute        | ✅     |
 | `role="combobox"` on trigger     | ✅     |
-| `role="listbox"` on dropdown     | ✅     |
 | `aria-expanded` state            | ✅     |
+| `aria-required` when required    | ✅     |
 | `aria-invalid` for errors        | ✅     |
 | Keyboard navigation (Arrow keys) | ✅     |
 | ESC to close                     | ✅     |
@@ -89,6 +91,17 @@ const options = [
 />
 ```
 
+### Required Validation
+
+```tsx
+<form>
+  <Combobox options={options} value={value} onChange={setValue} label="Fruit" required />
+  <button type="submit">Submit</button>
+</form>
+```
+
+If the form is validated before a value is selected, the trigger and label switch to the destructive state and the helper area shows the required error.
+
 ## Option Type
 
 ```ts
@@ -116,7 +129,7 @@ export interface ComboboxProps {
   className?: string;
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
-  variant?: "default" | "outline" | "ghost";
+  variant?: "default" | "outline" | "ghost" | "filled";
   allowClear?: boolean;
   searchPlaceholder?: string;
   emptyText?: string;

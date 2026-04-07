@@ -32,6 +32,7 @@ export default function CategoryTreeSelectExample() {
   const [leafOnlySelected, setLeafOnlySelected] = React.useState<number | null>(null);
   const [inlineSingle, setInlineSingle] = React.useState<number | null>(1);
   const [withFieldState, setWithFieldState] = React.useState<number[]>([]);
+  const [requiredCategoryIds, setRequiredCategoryIds] = React.useState<number[]>([]);
 
   const categories = [
     // Electronics
@@ -122,7 +123,12 @@ export default function CategoryTreeSelectExample() {
     `  inline\n` +
     `  onNodeClick={(node) => router.push(\`/dept/\${node.id}\`)}\n` +
     `/>\n\n` +
-    `// 5) View Only\n` +
+    `// 5) Required validation\n` +
+    `<form>\n` +
+    `  <CategoryTreeSelect categories={categories} value={selected} onChange={setSelected} required />\n` +
+    `  <button type="submit">Submit</button>\n` +
+    `</form>\n\n` +
+    `// 6) View Only\n` +
     `<CategoryTreeSelect categories={categories} viewOnly defaultExpanded />`;
 
   const demo = (
@@ -160,6 +166,23 @@ export default function CategoryTreeSelectExample() {
           allowClear
           variant="outline"
         />
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Required validation</p>
+        <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+          <CategoryTreeSelect
+            categories={categories}
+            value={requiredCategoryIds}
+            onChange={setRequiredCategoryIds}
+            label="Required categories"
+            required
+            placeholder="Submit without selecting to see required state"
+          />
+          <button type="submit" className="rounded-full border border-border px-3 py-1.5 text-xs font-medium">
+            Submit
+          </button>
+        </form>
       </div>
 
       {/* 2) Single-select dropdown */}

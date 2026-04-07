@@ -32,6 +32,8 @@ export interface DatePickerProps {
   maxDate?: Date;
 }
 
+const REQUIRED_ERROR_MESSAGE = "This field is required";
+
 export const DatePicker: React.FC<DatePickerProps> = ({
   id,
   value,
@@ -55,6 +57,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const [isOpen, setIsOpen] = React.useState(false);
   const [viewDate, setViewDate] = React.useState(value || new Date());
   const [viewMode, setViewMode] = React.useState<"calendar" | "month" | "year">("calendar");
+  const [localRequiredError, setLocalRequiredError] = React.useState<string | undefined>();
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const wheelContainerRef = React.useRef<HTMLDivElement>(null);
   const wheelDeltaRef = React.useRef(0);
@@ -152,6 +155,12 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     }
   }, [value]);
 
+  React.useEffect(() => {
+    if (disabled || !required || value) {
+      setLocalRequiredError(undefined);
+    }
+  }, [disabled, required, value]);
+
   // Reset view mode when popover closes
   React.useEffect(() => {
     if (!isOpen) {
@@ -172,6 +181,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), now.getHours(), now.getMinutes(), now.getSeconds());
     }
     onChange(selectedDate);
+    setLocalRequiredError(undefined);
     setIsOpen(false);
   };
 
@@ -501,6 +511,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   // Radius consistent with Input: sm => rounded-md, md/lg => rounded-lg
   const radiusClass = size === "sm" ? "rounded-md" : "rounded-lg";
   const verticalGap = size === "sm" ? "space-y-1.5" : size === "lg" ? "space-y-2.5" : "space-y-2";
+  const effectiveError = localRequiredError;
 
   return (
     <div className={cn("w-full group", verticalGap)}>
@@ -514,6 +525,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               labelSize,
               "font-semibold transition-colors duration-300 cursor-pointer",
               disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary hover:text-primary",
+              effectiveError && "text-destructive",
               labelClassName,
             )}
           >
@@ -522,6 +534,19 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           </label>
         </div>
       )}
+      <input
+        tabIndex={-1}
+        aria-hidden="true"
+        readOnly
+        value={value ? "selected" : ""}
+        required={required}
+        disabled={disabled}
+        onInvalid={(e) => {
+          e.preventDefault();
+          setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+        }}
+        className="pointer-events-none absolute h-0 w-0 opacity-0"
+      />
       <Popover
         open={isOpen}
         onOpenChange={setIsOpen}
@@ -544,6 +569,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             disabled={disabled}
             id={resolvedId}
             aria-labelledby={labelId}
+            aria-required={required}
+            aria-invalid={!!effectiveError}
             className={cn(
               "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
               "rounded-full",
@@ -554,6 +581,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
               "transition-all duration-300 ease-out",
               isOpen && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
+              effectiveError && "border-destructive/60 focus-visible:ring-destructive/50 bg-destructive/5",
               className,
             )}
           >
@@ -589,6 +617,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                       e.preventDefault();
                       e.stopPropagation();
                       onChange(undefined);
+                      setLocalRequiredError(undefined);
                       setViewDate(new Date());
                     }
                   }}
@@ -614,6 +643,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       >
         {datePickerContent}
       </Popover>
+      {effectiveError && <div className="text-xs text-destructive">{effectiveError}</div>}
     </div>
   );
 };

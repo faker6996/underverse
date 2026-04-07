@@ -69,6 +69,8 @@ const findOptionByValue = (options: ComboboxOption[], value: any): ComboboxOptio
   return options.find((opt) => getOptionValue(opt) === value);
 };
 
+const REQUIRED_ERROR_MESSAGE = "This field is required";
+
 // --- MAIN COMPONENT ---
 export const Combobox: React.FC<ComboboxProps> = ({
   id,
@@ -102,11 +104,11 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+  const [localRequiredError, setLocalRequiredError] = React.useState<string | undefined>();
 
   // Inject ShadCN animations
   useShadCNAnimations();
 
-  const listRef = React.useRef<(HTMLLIElement | null)[]>([]);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const optionsViewportRef = React.useRef<HTMLDivElement>(null);
 
@@ -133,6 +135,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
     if (getOptionDisabled(option)) return;
     const val = getOptionValue(option);
     if (val !== undefined && val !== null) {
+      setLocalRequiredError(undefined);
       onChange(val);
       setOpen(false);
       triggerRef.current?.focus();
@@ -161,6 +164,14 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const selectedOption = findOptionByValue(options, value);
   const displayValue = selectedOption ? getOptionLabel(selectedOption) : "";
   const selectedIcon = selectedOption ? getOptionIcon(selectedOption) : undefined;
+  const hasValue = value !== undefined && value !== null && value !== "";
+  const effectiveError = error ?? localRequiredError;
+
+  React.useEffect(() => {
+    if (disabled || !required || hasValue) {
+      setLocalRequiredError(undefined);
+    }
+  }, [disabled, hasValue, required]);
 
   // Group options if groupBy is provided
   const groupedOptions = React.useMemo(() => {
@@ -203,59 +214,56 @@ export const Combobox: React.FC<ComboboxProps> = ({
     const isSelected = itemValue === value;
 
     return (
-      <li
-        key={`${itemValue}-${index}`}
-        ref={(node) => {
-          listRef.current[index] = node;
-        }}
-        id={`combobox-item-${index}`}
-        role="option"
-        tabIndex={-1}
-        aria-selected={isSelected}
-        aria-disabled={itemDisabled}
-        onClick={() => !itemDisabled && handleSelect(item)}
-        style={{
-          animationDelay: open ? `${Math.min(index * 15, 150)}ms` : "0ms",
-        }}
-        className={cn(
-          "dropdown-item group flex cursor-pointer items-center rounded-full",
-          itemSizeStyles[size],
-          "outline-none focus:outline-none focus-visible:outline-none",
-          "transition-all duration-150",
-          !itemDisabled && "hover:bg-accent/70 hover:shadow-sm",
-          !itemDisabled && "focus:bg-accent/80 focus:text-accent-foreground",
-          index === activeIndex && !itemDisabled && "bg-accent/60",
-          isSelected && "bg-primary/10 text-primary font-medium",
-          itemDisabled && "opacity-50 cursor-not-allowed",
-        )}
-      >
-        {/* Icon */}
-        {itemIcon && (
-          <span
-            className={cn("shrink-0 flex items-center justify-center", iconSizeStyles[size], isSelected ? "text-primary" : "text-muted-foreground")}
-          >
-            {itemIcon}
-          </span>
-        )}
+      <li key={`${itemValue}-${index}`} className="list-none">
+        <button
+          id={`combobox-item-${index}`}
+          type="button"
+          tabIndex={-1}
+          disabled={itemDisabled}
+          aria-pressed={isSelected}
+          onClick={() => handleSelect(item)}
+          style={{
+            animationDelay: open ? `${Math.min(index * 15, 150)}ms` : "0ms",
+          }}
+          className={cn(
+            "dropdown-item group flex w-full items-center rounded-full text-left",
+            itemSizeStyles[size],
+            "outline-none focus:outline-none focus-visible:outline-none",
+            "transition-all duration-150",
+            !itemDisabled && "cursor-pointer hover:bg-accent/70 hover:shadow-sm",
+            !itemDisabled && "focus:bg-accent/80 focus:text-accent-foreground",
+            index === activeIndex && !itemDisabled && "bg-accent/60",
+            isSelected && "bg-primary/10 text-primary font-medium",
+            itemDisabled && "opacity-50 cursor-not-allowed",
+          )}
+        >
+          {itemIcon && (
+            <span
+              className={cn("shrink-0 flex items-center justify-center", iconSizeStyles[size], isSelected ? "text-primary" : "text-muted-foreground")}
+            >
+              {itemIcon}
+            </span>
+          )}
 
-        {/* Custom render or default */}
-        {renderOption ? (
-          <div className="flex-1 min-w-0">{renderOption(item, isSelected)}</div>
-        ) : (
-          <div className="flex-1 min-w-0">
-            <span className="block truncate">{itemLabel}</span>
-            {itemDescription && (
-              <span className={cn("block text-muted-foreground truncate mt-0.5", size === "sm" ? "text-[10px]" : "text-xs")}>{itemDescription}</span>
-            )}
-          </div>
-        )}
+          {renderOption ? (
+            <div className="flex-1 min-w-0">{renderOption(item, isSelected)}</div>
+          ) : (
+            <div className="flex-1 min-w-0">
+              <span className="block truncate">{itemLabel}</span>
+              {itemDescription && (
+                <span className={cn("block text-muted-foreground truncate mt-0.5", size === "sm" ? "text-[10px]" : "text-xs")}>
+                  {itemDescription}
+                </span>
+              )}
+            </div>
+          )}
 
-        {/* Selected indicator */}
-        {isSelected && showSelectedIcon && (
-          <span className="shrink-0 ml-auto">
-            <Check className={cn(checkIconSizeStyles[size], "text-primary")} />
-          </span>
-        )}
+          {isSelected && showSelectedIcon && (
+            <span className="shrink-0 ml-auto">
+              <Check className={cn(checkIconSizeStyles[size], "text-primary")} />
+            </span>
+          )}
+        </button>
       </li>
     );
   };
@@ -264,7 +272,6 @@ export const Combobox: React.FC<ComboboxProps> = ({
     <div
       data-combobox-dropdown
       data-state={open ? "open" : "closed"}
-      role="listbox"
       id={`${resolvedId}-listbox`}
       className="w-full rounded-2xl md:rounded-3xl overflow-hidden"
     >
@@ -318,7 +325,6 @@ export const Combobox: React.FC<ComboboxProps> = ({
                 "placeholder:text-muted-foreground/50",
               )}
               aria-autocomplete="list"
-              aria-activedescendant={activeIndex != null ? `combobox-item-${activeIndex}` : undefined}
             />
             {query && (
               <button
@@ -423,7 +429,8 @@ export const Combobox: React.FC<ComboboxProps> = ({
     "aria-haspopup": "listbox" as const,
     "aria-expanded": open,
     "aria-controls": `${resolvedId}-listbox`,
-    "aria-invalid": !!error,
+    "aria-required": required,
+    "aria-invalid": !!effectiveError,
     id: resolvedId,
     "aria-labelledby": labelId,
     onKeyDown: (e: React.KeyboardEvent) => {
@@ -444,7 +451,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary",
       "disabled:cursor-not-allowed disabled:opacity-50",
       open && "ring-2 ring-primary/20 border-primary",
-      !!error && "border-destructive focus-visible:ring-destructive/30",
+      !!effectiveError && "border-destructive focus-visible:ring-destructive/30",
       className,
     ),
   };
@@ -514,6 +521,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
               labelSize,
               "font-medium transition-colors duration-200",
               disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary",
+              effectiveError && "text-destructive",
               labelClassName,
             )}
           >
@@ -522,6 +530,19 @@ export const Combobox: React.FC<ComboboxProps> = ({
           </label>
         </div>
       )}
+      <input
+        tabIndex={-1}
+        aria-hidden="true"
+        readOnly
+        value={hasValue ? "selected" : ""}
+        required={required}
+        disabled={disabled}
+        onInvalid={(e) => {
+          e.preventDefault();
+          setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+        }}
+        className="pointer-events-none absolute h-0 w-0 opacity-0"
+      />
       {usePortal ? (
         <Popover
           open={open}
@@ -548,9 +569,14 @@ export const Combobox: React.FC<ComboboxProps> = ({
       )}
 
       {/* Helper text / Error message */}
-      {(helperText || error) && (
-        <p className={cn("text-xs transition-colors duration-200 flex items-center gap-1.5", error ? "text-destructive" : "text-muted-foreground")}>
-          {error && (
+      {(helperText || effectiveError) && (
+        <p
+          className={cn(
+            "text-xs transition-colors duration-200 flex items-center gap-1.5",
+            effectiveError ? "text-destructive" : "text-muted-foreground",
+          )}
+        >
+          {effectiveError && (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5 shrink-0">
               <path
                 fillRule="evenodd"
@@ -559,7 +585,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
               />
             </svg>
           )}
-          {error || helperText}
+          {effectiveError || helperText}
         </p>
       )}
     </div>

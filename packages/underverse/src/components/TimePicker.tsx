@@ -8,6 +8,7 @@ import Input from "./Input";
 
 type TimeFormat = "24" | "12";
 type TimePickerVariant = "default" | "compact" | "inline";
+const REQUIRED_ERROR_MESSAGE = "This field is required";
 
 export interface TimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
   value?: string; // e.g. "14:05" or "02:05 PM"
@@ -633,6 +634,8 @@ export default function TimePicker({
   const [parts, setParts] = React.useState<Parts>(initial);
   const [manualInput, setManualInput] = React.useState("");
   const [focusedColumn, setFocusedColumn] = React.useState<"hour" | "minute" | "second" | "period" | null>(null);
+  const [localRequiredError, setLocalRequiredError] = React.useState<string | undefined>();
+  const [hasCommittedValue, setHasCommittedValue] = React.useState<boolean>(Boolean(isControlled ? value : defaultValue));
 
   const hourScrollRef = React.useRef<HTMLDivElement>(null);
   const minuteScrollRef = React.useRef<HTMLDivElement>(null);
@@ -644,6 +647,12 @@ export default function TimePicker({
       if (parsed) setParts(parsed);
     }
   }, [value, isControlled, format, includeSeconds]);
+
+  React.useEffect(() => {
+    if (isControlled) {
+      setHasCommittedValue(Boolean(value));
+    }
+  }, [isControlled, value]);
 
   // Check if time is disabled
   const isTimeDisabled = React.useCallback(
@@ -708,9 +717,13 @@ export default function TimePicker({
     (next: Parts | undefined) => {
       const timeStr = next ? formatTime(next, format, includeSeconds) : undefined;
       if (!canEmit(next)) return;
+      setLocalRequiredError(undefined);
+      if (!isControlled) {
+        setHasCommittedValue(Boolean(next));
+      }
       onChange?.(timeStr);
     },
-    [canEmit, format, includeSeconds, onChange],
+    [canEmit, format, includeSeconds, isControlled, onChange],
   );
 
   const tryUpdate = React.useCallback(
@@ -732,6 +745,12 @@ export default function TimePicker({
       setFocusedColumn(null);
     }
   };
+
+  React.useEffect(() => {
+    if (disabled || !required || hasCommittedValue) {
+      setLocalRequiredError(undefined);
+    }
+  }, [disabled, hasCommittedValue, required]);
 
   // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent, column: "hour" | "minute" | "second" | "period") => {
@@ -889,6 +908,7 @@ export default function TimePicker({
   const panelSz = panelSizeClasses[effectivePanelSize];
   const shouldMatchTriggerWidth = matchTriggerWidth ?? (variant !== "compact");
   const compactPanel = variant === "compact";
+  const effectiveError = error ?? localRequiredError;
 
   const display = formatTime(parts, format, includeSeconds);
 
@@ -900,6 +920,8 @@ export default function TimePicker({
         aria-label="Select time"
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-required={required}
+        aria-invalid={!!effectiveError}
         className={cn(
           "group flex w-full items-center justify-between rounded-full border bg-background/80 backdrop-blur-sm",
           sz.height,
@@ -908,9 +930,9 @@ export default function TimePicker({
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           "transition-all duration-300 ease-out",
-          error && "border-destructive/60 focus-visible:ring-destructive/50 bg-destructive/5",
-          success && "border-success/60 focus-visible:ring-success/50 bg-success/5",
-          !error && !success && "border-border/60 hover:border-primary/40 hover:bg-accent/10",
+          effectiveError && "border-destructive/60 focus-visible:ring-destructive/50 bg-destructive/5",
+          success && !effectiveError && "border-success/60 focus-visible:ring-success/50 bg-success/5",
+          !effectiveError && !success && "border-border/60 hover:border-primary/40 hover:bg-accent/10",
           animate && !disabled && "hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
           open && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
           className,
@@ -920,7 +942,7 @@ export default function TimePicker({
           <div
             className={cn(
               "flex items-center justify-center transition-colors duration-300",
-              error
+              effectiveError
                 ? "text-destructive"
                 : success
                   ? "text-success"
@@ -1254,17 +1276,36 @@ export default function TimePicker({
       <div className="w-fit max-w-full" {...rest}>
         {label && (
           <div className="flex items-center justify-between mb-3">
-            <label className={cn(sz.label, "font-semibold", disabled ? "text-muted-foreground" : "text-foreground")}>
+            <label className={cn(sz.label, "font-semibold", disabled ? "text-muted-foreground" : "text-foreground", effectiveError && "text-destructive")}>
               {label}
               {required && <span className="text-destructive ml-1">*</span>}
             </label>
           </div>
         )}
+        <input
+          tabIndex={-1}
+          aria-hidden="true"
+          readOnly
+          value={hasCommittedValue ? "selected" : ""}
+          required={required}
+          disabled={disabled}
+          onInvalid={(e) => {
+            e.preventDefault();
+            setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+          }}
+          className="pointer-events-none absolute h-0 w-0 opacity-0"
+        />
         <div
-          className={cn(panelSz.contentPadding, "rounded-2xl md:rounded-3xl border border-border/60 bg-card/95 backdrop-blur-sm shadow-xl", className)}
+          className={cn(
+            panelSz.contentPadding,
+            "rounded-2xl md:rounded-3xl border bg-card/95 backdrop-blur-sm shadow-xl",
+            effectiveError ? "border-destructive/60 bg-destructive/5" : "border-border/60",
+            className,
+          )}
         >
           {timePickerContent}
         </div>
+        {effectiveError && <div className={cn("mt-2", sz.label, "text-destructive")}>{effectiveError}</div>}
       </div>
     );
   }
@@ -1278,6 +1319,7 @@ export default function TimePicker({
               sz.label,
               "font-semibold",
               disabled ? "text-muted-foreground" : "text-foreground",
+              effectiveError && "text-destructive",
               "cursor-pointer transition-colors hover:text-primary",
             )}
             onClick={() => !disabled && handleOpenChange(true)}
@@ -1287,6 +1329,19 @@ export default function TimePicker({
           </label>
         </div>
       )}
+      <input
+        tabIndex={-1}
+        aria-hidden="true"
+        readOnly
+        value={hasCommittedValue ? "selected" : ""}
+        required={required}
+        disabled={disabled}
+        onInvalid={(e) => {
+          e.preventDefault();
+          setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+        }}
+        className="pointer-events-none absolute h-0 w-0 opacity-0"
+      />
 
       <Popover
         trigger={trigger!}
@@ -1299,9 +1354,9 @@ export default function TimePicker({
           panelSz.contentPadding,
           compactPanel && "max-w-[calc(100vw-2rem)] p-4 rounded-2xl",
           "rounded-2xl md:rounded-3xl border bg-popover/98 backdrop-blur-md shadow-2xl",
-          error && "border-destructive/40",
-          success && "border-success/40",
-          !error && !success && "border-border/60",
+          effectiveError && "border-destructive/40",
+          success && !effectiveError && "border-success/40",
+          !effectiveError && !success && "border-border/60",
           animate && "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
         )}
       >
@@ -1309,21 +1364,21 @@ export default function TimePicker({
       </Popover>
 
       {/* Validation and Helper Text */}
-      {(error || success || helperText) && (
+      {(effectiveError || success || helperText) && (
         <div className={cn("mt-2 flex items-start gap-2", sz.label)}>
-          {error && (
+          {effectiveError && (
             <div className="flex items-center gap-2 text-destructive bg-destructive/10 px-3 py-1.5 rounded-lg">
               <X className="w-3.5 h-3.5 shrink-0" />
-              <span className="font-medium">{error}</span>
+              <span className="font-medium">{effectiveError}</span>
             </div>
           )}
-          {success && !error && (
+          {success && !effectiveError && (
             <div className="flex items-center gap-2 text-success bg-success/10 px-3 py-1.5 rounded-lg">
               <Check className="w-3.5 h-3.5 shrink-0" />
               <span className="font-medium">Valid time selected</span>
             </div>
           )}
-          {helperText && !error && !success && <span className="text-muted-foreground/80 italic">{helperText}</span>}
+          {helperText && !effectiveError && !success && <span className="text-muted-foreground/80 italic">{helperText}</span>}
         </div>
       )}
     </div>

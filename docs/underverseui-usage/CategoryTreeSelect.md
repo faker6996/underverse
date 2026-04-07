@@ -49,6 +49,23 @@ const [selected, setSelected] = useState<number[]>([]);
 />
 ```
 
+### Required Validation
+
+```tsx
+<form>
+  <CategoryTreeSelect
+    categories={categories}
+    value={selected}
+    onChange={setSelected}
+    label="Categories"
+    required
+  />
+  <button type="submit">Submit</button>
+</form>
+```
+
+When `required` is enabled, the custom trigger exposes required semantics and turns red if the parent form validates while nothing is selected.
+
 ### Single-select mode
 
 ```tsx
@@ -137,6 +154,7 @@ interface CategoryTreeSelectProps {
   allowClear?: boolean;
   error?: string;
   helperText?: string;
+  required?: boolean; // Shows required semantics + error state on form validation
   viewOnly?: boolean; // Read-only tree
   defaultExpanded?: boolean; // Expand all nodes by default
   enableSearch?: boolean; // Show search input (default: categories.length > 10)

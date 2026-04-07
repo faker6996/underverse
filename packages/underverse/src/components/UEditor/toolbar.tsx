@@ -167,7 +167,7 @@ const TableInsertGrid = ({
                 onFocus={() => setSelection({ rows, cols })}
                 onClick={() => onInsert(rows, cols)}
                 className={cn(
-                  "h-5 w-5 rounded-[4px] border transition-colors",
+                  "h-5 w-5 rounded-sm border transition-colors",
                   active
                     ? "border-primary bg-primary/20"
                     : "border-border/70 bg-background hover:border-primary/60 hover:bg-primary/10",
