@@ -177,7 +177,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
       )}
     >
       {showSearch && (
-        <div className={cn("shrink-0 border-b p-3", isEmbedded ? "bg-transparent" : "bg-muted/30")}>
+        <div className="shrink-0 border-b p-3 bg-transparent">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -186,7 +186,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className={cn(
-                "w-full rounded-full border border-border bg-background py-2 pl-9 pr-9 text-sm",
+                "w-full rounded-full border border-border bg-background/90 py-2 pl-9 pr-9 text-sm shadow-sm",
                 "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20",
               )}
             />
