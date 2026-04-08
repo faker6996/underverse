@@ -58,13 +58,28 @@ export function useOverlayScrollbarTarget<T extends HTMLElement>(
 ) {
   const inherited = useContext(OverlayScrollbarConfigContext);
 
+  const enabled = options.enabled ?? inherited.enabled;
+  const theme = options.theme ?? inherited.theme;
+  const visibility = options.visibility ?? inherited.visibility;
+  const autoHide = options.autoHide ?? inherited.autoHide;
+  const autoHideDelay = options.autoHideDelay ?? inherited.autoHideDelay;
+  const dragScroll = options.dragScroll ?? inherited.dragScroll;
+  const clickScroll = options.clickScroll ?? inherited.clickScroll;
+  const exclude = options.exclude ?? inherited.exclude;
+
   const resolved = useMemo(
     () =>
       resolveOverlayScrollbarBehavior({
-        ...inherited,
-        ...options,
+        enabled,
+        theme,
+        visibility,
+        autoHide,
+        autoHideDelay,
+        dragScroll,
+        clickScroll,
+        exclude,
       }),
-    [inherited, options],
+    [enabled, theme, visibility, autoHide, autoHideDelay, dragScroll, clickScroll, exclude],
   );
 
   useEffect(() => {
@@ -84,7 +99,17 @@ export function useOverlayScrollbarTarget<T extends HTMLElement>(
     return () => {
       controller.destroy();
     };
-  }, [targetRef, resolved]);
+  }, [
+    targetRef,
+    resolved.enabled,
+    resolved.theme,
+    resolved.visibility,
+    resolved.autoHide,
+    resolved.autoHideDelay,
+    resolved.dragScroll,
+    resolved.clickScroll,
+    resolved.exclude,
+  ]);
 }
 
 export default OverlayScrollbarProvider;
