@@ -1065,9 +1065,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
             type="button"
             onClick={() => setViewMode(viewMode === "year" ? "calendar" : "year")}
             className={cn(
-              "rounded-lg px-2 py-0.5 font-medium transition-colors duration-200",
-              size === "sm" ? "text-[10px]" : size === "lg" ? "text-sm" : "text-xs",
-              viewMode === "year" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+              "rounded-lg px-2 py-0.5 font-bold transition-colors duration-200",
+              size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
+              viewMode === "year" ? "bg-primary/15 text-primary" : "text-foreground hover:bg-accent/50",
             )}
           >
             {viewDate.getFullYear()}
