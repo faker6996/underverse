@@ -261,6 +261,12 @@ export default function ListExample() {
     { property: "as", description: t("props.list.as"), type: "'ul' | 'ol' | 'div'", default: "'ul'" },
     { property: "variant", description: t("props.list.variant"), type: "'plain' | 'outlined' | ...", default: "'plain'" },
     { property: "itemClassName", description: "Class for all list items padding", type: "string", default: "-" },
+    {
+      property: "overflowHidden",
+      description: "Clip overflow on the outer list wrapper; useful to disable when striped lists contain shadows or focus rings that should extend outward",
+      type: "boolean",
+      default: "true",
+    },
     { property: "divided", description: t("props.list.divided"), type: "boolean", default: "false" },
     { property: "loading", description: "Show loading skeleton", type: "boolean", default: "false" },
     { property: "emptyText", description: "Empty state text", type: "string", default: "-" },

@@ -416,6 +416,12 @@ const groupedColumns: DataTableColumn<User>[] = [
                       default: "500",
                     },
                     {
+                      property: "overflowHidden",
+                      description: "Clip overflow của outer wrapper; tắt nếu cần cho shadow/focus ring tràn ra ngoài",
+                      type: "boolean",
+                      default: "true",
+                    },
+                    {
                       property: "storageKey",
                       description: "Key để lưu pageSize vào localStorage. Nếu không cung cấp, pageSize sẽ không được persist",
                       type: "string",

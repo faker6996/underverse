@@ -20,13 +20,13 @@ export default function ScrollAreaExample() {
     `  </div>\n` +
     `</ScrollArea>\n\n` +
     `// 2) With padding via contentClassName\n` +
-    `<ScrollArea className="h-48 w-full" contentClassName="p-4 space-y-2">\n` +
+    `<ScrollArea className="h-48 w-full border border-border rounded-md" contentClassName="p-4 space-y-2">\n` +
     `  {Array.from({ length: 30 }).map((_, i) => (\n` +
     `    <div key={i} className="text-sm">Item {i + 1}</div>\n` +
     `  ))}\n` +
     `</ScrollArea>\n\n` +
     `// 3) With variant (muted background)\n` +
-    `<ScrollArea variant="muted" outlined className="h-48 w-full">\n` +
+    `<ScrollArea className="h-48 w-full rounded-md" variant="muted" outlined>\n` +
     `  <div className="p-4 space-y-2">\n` +
     `    {Array.from({ length: 30 }).map((_, i) => (\n` +
     `      <div key={i} className="text-sm">Row {i + 1}</div>\n` +
@@ -43,6 +43,10 @@ export default function ScrollAreaExample() {
     `      <div key={i} className="text-sm">Row {i + 1}</div>\n` +
     `    ))}\n` +
     `  </div>\n` +
+    `</ScrollArea>\n\n` +
+    `// 5) Disable clipping on outer wrapper\n` +
+    `<ScrollArea className="h-40 w-full" overflowHidden={false} contentClassName="rounded-md border border-border p-4">\n` +
+    `  <div className="min-w-[32rem]">Wide content can overflow the outer wrapper when needed.</div>\n` +
     `</ScrollArea>`;
 
   const demo = (
@@ -76,7 +80,7 @@ export default function ScrollAreaExample() {
       {/* 3) With variant */}
       <div className="space-y-2">
         <p className="text-sm font-medium">With variant (muted background) + outlined</p>
-        <ScrollArea variant="muted" outlined className="h-48 w-full">
+        <ScrollArea className="h-48 w-full rounded-md" variant="muted" outlined>
           <div className="p-4 space-y-2">
             {Array.from({ length: 30 }).map((_, i) => (
               <div key={i} className="text-sm">
@@ -101,6 +105,17 @@ export default function ScrollAreaExample() {
           </div>
         </ScrollArea>
       </div>
+
+      {/* 5) Overflow hidden toggle */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">With overflowHidden disabled</p>
+        <ScrollArea className="h-40 w-full" overflowHidden={false} contentClassName="rounded-md border border-border p-4">
+          <div className="min-w-[32rem] space-y-2">
+            <div className="text-sm font-medium">Wide content is allowed to extend outside the outer wrapper.</div>
+            <div className="text-sm text-muted-foreground">Use this when clipping the wrapper would cut off shadows, sticky elements, or horizontal overflow previews.</div>
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   );
 
@@ -109,10 +124,11 @@ export default function ScrollAreaExample() {
     { property: "contentClassName", description: t("props.scrollArea.contentClassName"), type: "string", default: "-" },
     { property: "variant", description: t("props.scrollArea.variant"), type: '"default" | "muted" | "primary" | "accent"', default: '"default"' },
     { property: "outlined", description: t("props.scrollArea.outlined"), type: "boolean", default: "false" },
+    { property: "overflowHidden", description: t("props.scrollArea.overflowHidden"), type: "boolean", default: "true" },
     { property: "useOverlayScrollbar", description: "Enable OverlayScrollbars for viewport", type: "boolean", default: "false" },
     { property: "children", description: t("props.scrollArea.children"), type: "React.ReactNode", default: "-" },
   ];
-  const order = ["className", "contentClassName", "variant", "outlined", "useOverlayScrollbar", "children"];
+  const order = ["className", "contentClassName", "variant", "outlined", "overflowHidden", "useOverlayScrollbar", "children"];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="ScrollArea.md" />;
 
   return (

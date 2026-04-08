@@ -8,11 +8,12 @@ export interface OverlayScrollAreaProps extends React.HTMLAttributes<HTMLDivElem
   viewportClassName?: string;
   viewportProps?: React.HTMLAttributes<HTMLDivElement>;
   enabled?: boolean;
+  overflowHidden?: boolean;
   overlayScrollbarOptions?: Omit<UseOverlayScrollbarTargetOptions, "enabled">;
 }
 
 export const OverlayScrollArea = forwardRef<HTMLDivElement, OverlayScrollAreaProps>(
-  ({ className, viewportClassName, viewportProps, enabled = true, overlayScrollbarOptions, children, ...props }, ref) => {
+  ({ className, viewportClassName, viewportProps, enabled = true, overflowHidden = true, overlayScrollbarOptions, children, ...props }, ref) => {
     const viewportRef = useRef<HTMLDivElement>(null);
 
     useOverlayScrollbarTarget(viewportRef, {
@@ -21,7 +22,7 @@ export const OverlayScrollArea = forwardRef<HTMLDivElement, OverlayScrollAreaPro
     });
 
     return (
-      <div ref={ref} className={cn("relative overflow-hidden", className)} {...props}>
+      <div ref={ref} className={cn("relative", overflowHidden && "overflow-hidden", className)} {...props}>
         <div
           ref={viewportRef}
           {...viewportProps}

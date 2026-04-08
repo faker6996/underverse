@@ -106,6 +106,8 @@ interface DataTableProps<T> {
   stickyHeader?: boolean;
   /** Chiều cao tối đa của bảng khi bật stickyHeader. Mặc định là 500px */
   maxHeight?: number | string;
+  /** Clip overflow của outer wrapper. Mặc định là true */
+  overflowHidden?: boolean;
   /** Enable OverlayScrollbars on table viewport. Default: false */
   useOverlayScrollbar?: boolean;
   labels?: {
@@ -137,6 +139,20 @@ Ví dụ:
   columns={columns}
   data={data}
   size="md"
+/>
+```
+
+### Outer Wrapper Clipping
+
+`DataTable` mặc định vẫn `overflow-hidden` ở outer wrapper để giữ behavior cũ.
+
+Nếu cell content, custom render, hoặc focus ring cần tràn ra ngoài viền bảng, có thể tắt:
+
+```tsx
+<DataTable
+  columns={columns}
+  data={data}
+  overflowHidden={false}
 />
 ```
 

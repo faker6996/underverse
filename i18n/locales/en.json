@@ -947,10 +947,11 @@
         }
       },
       "scrollArea": {
-        "className": "Custom class for wrapper (sets height/width).",
-        "contentClassName": "Custom class for inner viewport (set padding here).",
-        "variant": "Background color variant (default|muted|primary|accent).",
-        "outlined": "Show subtle border like Card.",
+        "className": "Custom class for the outer wrapper (set height, width, border, radius here).",
+        "contentClassName": "Custom class for the scroll viewport (set padding and viewport radius here).",
+        "variant": "Background color variant for the outer surface (default|muted|primary|accent).",
+        "outlined": "Show subtle border on the outer wrapper.",
+        "overflowHidden": "Clip outer wrapper overflow; disable to allow overflow outside the wrapper.",
         "children": "Scrollable content."
       },
       "table": {
@@ -1179,6 +1180,7 @@
         "columnDividers": "Show vertical column dividers.",
         "enableDensityToggle": "Allow density toggle.",
         "enableColumnVisibilityToggle": "Allow column visibility toggle.",
+        "overflowHidden": "Clip outer wrapper overflow; disable to allow shadows and focus rings to extend outside.",
         "labels": "Localized labels for density/options.",
         "className": "Custom class."
       },

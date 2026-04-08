@@ -26,7 +26,7 @@
     {
       "id": "overlay-scrollbar-provider",
       "title": "Enable overlay scrollbars (opt-in)",
-      "code": "import \"overlayscrollbars/overlayscrollbars.css\";\nimport { OverlayScrollbarProvider, ScrollArea } from \"@underverse-ui/underverse\";\n\nexport function App(){\n  return (\n    <OverlayScrollbarProvider theme=\"os-theme-underverse\" autoHide=\"leave\">\n      <ScrollArea className=\"h-56\" useOverlayScrollbar>{/* content */}</ScrollArea>\n    </OverlayScrollbarProvider>\n  );\n}\n"
+      "code": "import \"overlayscrollbars/overlayscrollbars.css\";\nimport { OverlayScrollbarProvider, ScrollArea } from \"@underverse-ui/underverse\";\n\nexport function App(){\n  return (\n    <OverlayScrollbarProvider theme=\"os-theme-underverse\" autoHide=\"leave\">\n      <ScrollArea className=\"h-56 rounded-xl border border-border\" useOverlayScrollbar>{/* content */}</ScrollArea>\n    </OverlayScrollbarProvider>\n  );\n}\n"
     },
     {
       "id": "overlay-scrollbar-custom-component",

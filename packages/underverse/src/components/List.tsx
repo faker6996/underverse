@@ -25,6 +25,8 @@ export interface ListProps extends React.HTMLAttributes<HTMLUListElement> {
   dense?: boolean;
   /** Class name customization for all list items */
   itemClassName?: string;
+  /** Clip overflow on the outer list wrapper. Mainly relevant for striped/card-like variants. */
+  overflowHidden?: boolean;
 }
 
 export interface ListItemProps extends React.HTMLAttributes<HTMLLIElement> {
@@ -105,6 +107,7 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
       dense = false,
       className,
       itemClassName, // New prop
+      overflowHidden = true,
       children,
       ...rest
     },
@@ -122,7 +125,7 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
       bordered: "border border-border/50 rounded-2xl md:rounded-3xl max-md:rounded-xl",
       card: "rounded-2xl md:rounded-3xl bg-card shadow-md border border-border/50 max-md:rounded-xl max-md:shadow-sm",
       flush: "",
-      striped: "rounded-2xl md:rounded-3xl border border-border/50 overflow-hidden max-md:rounded-xl",
+      striped: "rounded-2xl md:rounded-3xl border border-border/50 max-md:rounded-xl",
     };
 
     // Loading state
@@ -130,7 +133,14 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
       return (
         <Comp
           ref={ref}
-          className={cn("group/list", variantClasses[variant], inset && "p-1.5 md:p-2 max-md:p-1", divided && "divide-y divide-border/60", className)}
+          className={cn(
+            "group/list",
+            variantClasses[variant],
+            variant === "striped" && overflowHidden && "overflow-hidden",
+            inset && "p-1.5 md:p-2 max-md:p-1",
+            divided && "divide-y divide-border/60",
+            className,
+          )}
           {...rest}
         >
           {Array.from({ length: loadingCount }).map((_, i) => (
@@ -143,7 +153,11 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
     // Empty state
     if (!hasChildren && emptyText) {
       return (
-        <Comp ref={ref} className={cn("group/list", variantClasses[variant], inset && "p-1.5 md:p-2 max-md:p-1", className)} {...rest}>
+        <Comp
+          ref={ref}
+          className={cn("group/list", variantClasses[variant], variant === "striped" && overflowHidden && "overflow-hidden", inset && "p-1.5 md:p-2 max-md:p-1", className)}
+          {...rest}
+        >
           <div className="text-center py-8 text-muted-foreground text-sm">{emptyText}</div>
         </Comp>
       );
@@ -155,6 +169,7 @@ const ListRoot = React.forwardRef<HTMLUListElement, ListProps>(
         className={cn(
           "group/list",
           variantClasses[variant],
+          variant === "striped" && overflowHidden && "overflow-hidden",
           inset && "p-1.5 md:p-2 max-md:p-1",
           divided && "divide-y divide-border/60",
           variant === "striped" && "[&>*:nth-child(even)]:bg-muted/30",

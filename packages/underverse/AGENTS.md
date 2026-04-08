@@ -51,7 +51,7 @@ import { OverlayScrollbarProvider, ScrollArea, DataTable } from "@underverse-ui/
 export function App() {
   return (
     <OverlayScrollbarProvider theme="os-theme-underverse" autoHide="leave">
-      <ScrollArea className="h-56" useOverlayScrollbar />
+      <ScrollArea className="h-56 rounded-xl border border-border" useOverlayScrollbar />
       <DataTable columns={columns} data={rows} useOverlayScrollbar />
     </OverlayScrollbarProvider>
   );

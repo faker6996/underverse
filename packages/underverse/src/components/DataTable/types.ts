@@ -94,6 +94,8 @@ export interface DataTableProps<T> {
   stickyHeader?: boolean;
   /** Chiều cao tối đa của bảng khi bật stickyHeader (mặc định: 500px) */
   maxHeight?: number | string;
+  /** Clip overflow của outer wrapper. Tắt khi cần cho phép shadow/focus ring tràn ra ngoài. */
+  overflowHidden?: boolean;
   /** Enable OverlayScrollbars on table viewport. Default: false */
   useOverlayScrollbar?: boolean;
   /** Double-click leaf headers to auto-fit column width based on visible content. Default: true */

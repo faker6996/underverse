@@ -940,10 +940,11 @@
         }
       },
       "scrollArea": {
-        "className": "Class tuỳ chỉnh cho wrapper (đặt chiều cao/rộng).",
-        "contentClassName": "Class tuỳ chỉnh cho viewport bên trong (đặt padding ở đây).",
-        "variant": "Biến thể màu nền (default|muted|primary|accent).",
-        "outlined": "Hiển thị viền nhẹ giống Card.",
+        "className": "Class tuỳ chỉnh cho outer wrapper (đặt chiều cao, rộng, border, radius ở đây).",
+        "contentClassName": "Class tuỳ chỉnh cho viewport cuộn (đặt padding và radius của viewport ở đây).",
+        "variant": "Biến thể màu nền cho outer surface (default|muted|primary|accent).",
+        "outlined": "Hiển thị viền nhẹ trên outer wrapper.",
+        "overflowHidden": "Clip overflow của outer wrapper; tắt đi nếu muốn cho phép nội dung tràn ra ngoài.",
         "children": "Nội dung có thể cuộn."
       },
       "table": {
@@ -1172,6 +1173,7 @@
         "columnDividers": "Đường chia cột.",
         "enableDensityToggle": "Bật đổi density.",
         "enableColumnVisibilityToggle": "Bật ẩn/hiện cột.",
+        "overflowHidden": "Clip overflow của outer wrapper; tắt nếu muốn cho shadow và focus ring tràn ra ngoài.",
         "labels": "Nhãn i18n cho density tuỳ chọn.",
         "className": "Class tuỳ chỉnh."
       },

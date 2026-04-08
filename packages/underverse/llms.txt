@@ -40,7 +40,7 @@ import { OverlayScrollbarProvider, ScrollArea } from "@underverse-ui/underverse"
 export default function App() {
   return (
     <OverlayScrollbarProvider theme="os-theme-underverse" autoHide="leave">
-      <ScrollArea className="h-56" useOverlayScrollbar />
+      <ScrollArea className="h-56 rounded-xl border border-border" useOverlayScrollbar />
     </OverlayScrollbarProvider>
   );
 }

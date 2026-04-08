@@ -903,10 +903,11 @@
         }
       },
       "scrollArea": {
-        "className": "ラッパーのカスタムクラス（高さ/幅を指定）。",
-        "contentClassName": "内部ビューポートのカスタムクラス（パディングを指定）。",
-        "variant": "背景色バリアント（default|muted|primary|accent）。",
-        "outlined": "Card風の薄い枠線を表示。",
+        "className": "外側ラッパーのカスタムクラス（高さ、幅、枠線、角丸を指定）。",
+        "contentClassName": "スクロールビューポートのカスタムクラス（padding とビューポート角丸を指定）。",
+        "variant": "外側 surface の背景色バリアント（default|muted|primary|accent）。",
+        "outlined": "外側ラッパーに薄い枠線を表示。",
+        "overflowHidden": "外側ラッパーの overflow を clip。false で外にはみ出しを許可。",
         "children": "スクロール可能な内容。"
       },
       "table": {
@@ -1135,6 +1136,7 @@
         "columnDividers": "垂直方向の列区切り線を表示。",
         "enableDensityToggle": "密度切替を許可。",
         "enableColumnVisibilityToggle": "列表示切替を許可。",
+        "overflowHidden": "外側ラッパーの overflow を clip。false で shadow や focus ring のはみ出しを許可。",
         "labels": "密度/オプションのローカライズラベル。",
         "className": "カスタムクラス。"
       },

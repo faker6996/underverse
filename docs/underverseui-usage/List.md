@@ -58,6 +58,8 @@ export interface ListProps extends React.HTMLAttributes<HTMLUListElement> {
   dense?: boolean;
   /** Class name customization for all list items padding */
   itemClassName?: string;
+  /** Clip overflow on the outer list wrapper (mainly relevant for striped/card-like variants) */
+  overflowHidden?: boolean;
 }
 ```
 

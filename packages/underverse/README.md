@@ -147,7 +147,7 @@ import { OverlayScrollbarProvider, ScrollArea, DataTable } from "@underverse-ui/
 function App() {
   return (
     <OverlayScrollbarProvider theme="os-theme-underverse" autoHide="leave">
-      <ScrollArea className="h-56" useOverlayScrollbar>
+      <ScrollArea className="h-56 rounded-xl border border-border" useOverlayScrollbar>
         {/* long content */}
       </ScrollArea>
 
@@ -183,6 +183,9 @@ Provider props:
 Component-level enable flags:
 
 - `ScrollArea`: `useOverlayScrollbar?: boolean` (default `false`)
+  - `className` styles the outer wrapper
+  - `contentClassName` styles the scroll viewport
+  - set border/radius explicitly; the primitive no longer hardcodes rounded corners
 - `Table`: `useOverlayScrollbar?: boolean` (default `false`)
 - `DataTable`: `useOverlayScrollbar?: boolean` (default `false`)
 - `Combobox`: `useOverlayScrollbar?: boolean` (default `false`)

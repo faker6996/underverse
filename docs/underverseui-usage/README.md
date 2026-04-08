@@ -162,7 +162,7 @@ import { OverlayScrollbarProvider, ScrollArea } from "@underverse-ui/underverse"
 function App() {
   return (
     <OverlayScrollbarProvider theme="os-theme-underverse">
-      <ScrollArea className="h-56" useOverlayScrollbar>
+      <ScrollArea className="h-56 rounded-xl border border-border" useOverlayScrollbar>
         ...
       </ScrollArea>
     </OverlayScrollbarProvider>

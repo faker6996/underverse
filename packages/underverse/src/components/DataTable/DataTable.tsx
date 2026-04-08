@@ -117,6 +117,7 @@ export function DataTable<T extends Record<string, any>>({
   storageKey,
   stickyHeader = true,
   maxHeight = 500,
+  overflowHidden = true,
   useOverlayScrollbar = false,
   enableHeaderAutoFit = true,
   labels,
@@ -265,7 +266,8 @@ export function DataTable<T extends Record<string, any>>({
 
       <div
         className={cn(
-          "relative rounded-2xl md:rounded-3xl border border-border/50 bg-card overflow-hidden",
+          "relative rounded-2xl md:rounded-3xl border border-border/50 bg-card",
+          overflowHidden && "overflow-hidden",
           loading && "opacity-60 pointer-events-none",
         )}
       >

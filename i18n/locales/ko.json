@@ -903,10 +903,11 @@
         }
       },
       "scrollArea": {
-        "className": "래퍼 커스텀 클래스(높이/너비 지정).",
-        "contentClassName": "내부 뷰포트의 커스텀 클래스(패딩 지정).",
-        "variant": "배경색 변형(default|muted|primary|accent).",
-        "outlined": "Card와 유사한 얇은 테두리 표시.",
+        "className": "바깥 래퍼 커스텀 클래스(높이, 너비, 테두리, 라운드 지정).",
+        "contentClassName": "스크롤 뷰포트 커스텀 클래스(패딩과 뷰포트 라운드 지정).",
+        "variant": "바깥 surface 배경색 변형(default|muted|primary|accent).",
+        "outlined": "바깥 래퍼에 얇은 테두리 표시.",
+        "overflowHidden": "바깥 래퍼의 overflow를 clip; false면 바깥으로 넘침 허용.",
         "children": "스크롤 가능한 내용."
       },
       "table": {
@@ -1135,6 +1136,7 @@
         "columnDividers": "세로 열 구분선 표시.",
         "enableDensityToggle": "밀도 토글 허용.",
         "enableColumnVisibilityToggle": "열 표시 토글 허용.",
+        "overflowHidden": "바깥 래퍼의 overflow를 clip; false면 shadow와 focus ring이 밖으로 확장될 수 있습니다.",
         "labels": "밀도/옵션 로컬라이즈 라벨.",
         "className": "커스텀 클래스."
       },
