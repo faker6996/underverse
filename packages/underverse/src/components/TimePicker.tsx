@@ -2,13 +2,13 @@
 
 import * as React from "react";
 import { cn } from "../utils/cn";
+import { useSmartTranslations } from "../hooks/useSmartTranslations";
 import { Popover } from "./Popover";
 import { Clock, X, Check, Sun, Moon, Sunset, Coffee } from "lucide-react";
 import Input from "./Input";
 
 type TimeFormat = "24" | "12";
 type TimePickerVariant = "default" | "compact" | "inline";
-const REQUIRED_ERROR_MESSAGE = "This field is required";
 
 export interface TimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
   value?: string; // e.g. "14:05" or "02:05 PM"
@@ -622,6 +622,7 @@ export default function TimePicker({
   className,
   ...rest
 }: TimePickerProps) {
+  const tv = useSmartTranslations("ValidationInput");
   const isControlled = value !== undefined;
   const now = new Date();
   const initial: Parts =
@@ -1285,13 +1286,13 @@ export default function TimePicker({
         <input
           tabIndex={-1}
           aria-hidden="true"
-          readOnly
           value={hasCommittedValue ? "selected" : ""}
+          onChange={() => {}}
           required={required}
           disabled={disabled}
           onInvalid={(e) => {
             e.preventDefault();
-            setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+            setLocalRequiredError(tv("required"));
           }}
           className="pointer-events-none absolute h-0 w-0 opacity-0"
         />
@@ -1332,13 +1333,13 @@ export default function TimePicker({
       <input
         tabIndex={-1}
         aria-hidden="true"
-        readOnly
         value={hasCommittedValue ? "selected" : ""}
+        onChange={() => {}}
         required={required}
         disabled={disabled}
         onInvalid={(e) => {
           e.preventDefault();
-          setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+          setLocalRequiredError(tv("required"));
         }}
         className="pointer-events-none absolute h-0 w-0 opacity-0"
       />

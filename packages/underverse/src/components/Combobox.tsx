@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useId } from "react";
 import { cn } from "../utils/cn";
+import { useSmartTranslations } from "../hooks/useSmartTranslations";
 import { ChevronDown, Search, SearchX, Check, X, Loader2, Sparkles } from "lucide-react";
 import { useShadCNAnimations } from "../utils/animations";
 import { Popover } from "./Popover";
@@ -69,8 +70,6 @@ const findOptionByValue = (options: ComboboxOption[], value: any): ComboboxOptio
   return options.find((opt) => getOptionValue(opt) === value);
 };
 
-const REQUIRED_ERROR_MESSAGE = "This field is required";
-
 // --- MAIN COMPONENT ---
 export const Combobox: React.FC<ComboboxProps> = ({
   id,
@@ -101,6 +100,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   helperText,
   useOverlayScrollbar = false,
 }) => {
+  const tv = useSmartTranslations("ValidationInput");
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
@@ -533,13 +533,13 @@ export const Combobox: React.FC<ComboboxProps> = ({
       <input
         tabIndex={-1}
         aria-hidden="true"
-        readOnly
         value={hasValue ? "selected" : ""}
+        onChange={() => {}}
         required={required}
         disabled={disabled}
         onInvalid={(e) => {
           e.preventDefault();
-          setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+          setLocalRequiredError(tv("required"));
         }}
         className="pointer-events-none absolute h-0 w-0 opacity-0"
       />

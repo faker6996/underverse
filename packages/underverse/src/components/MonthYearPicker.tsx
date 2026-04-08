@@ -2,12 +2,12 @@
 
 import * as React from "react";
 import { cn } from "../utils/cn";
+import { useSmartTranslations } from "../hooks/useSmartTranslations";
 import { Popover } from "./Popover";
 import { Calendar, X, Check, ChevronDown } from "lucide-react";
 
 type MonthYearPickerVariant = "default" | "compact" | "inline";
 type PickerSize = "sm" | "md" | "lg";
-const REQUIRED_ERROR_MESSAGE = "This field is required";
 
 export interface MonthYearPickerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange" | "value" | "defaultValue"> {
   /** Current value as Date or {month, year} */
@@ -603,6 +603,7 @@ export default function MonthYearPicker({
   className,
   ...rest
 }: MonthYearPickerProps) {
+  const tv = useSmartTranslations("ValidationInput");
   const now = new Date();
   const currentYear = now.getFullYear();
 
@@ -624,6 +625,7 @@ export default function MonthYearPicker({
   const [parts, setParts] = React.useState(initial);
   const [focusedColumn, setFocusedColumn] = React.useState<WheelColumnKind | null>(null);
   const [localRequiredError, setLocalRequiredError] = React.useState<string | undefined>();
+  const [hasCommittedValue, setHasCommittedValue] = React.useState<boolean>(Boolean(parseValue(isControlled ? value : defaultValue)));
 
   const monthScrollRef = React.useRef<HTMLDivElement>(null);
   const yearScrollRef = React.useRef<HTMLDivElement>(null);
@@ -635,7 +637,13 @@ export default function MonthYearPicker({
     }
   }, [value, isControlled]);
 
-  const hasValue = isControlled ? !!value : !!defaultValue || parts !== initial;
+  React.useEffect(() => {
+    if (isControlled) {
+      setHasCommittedValue(Boolean(parseValue(value)));
+    }
+  }, [isControlled, value]);
+
+  const hasValue = hasCommittedValue;
   const effectiveError = error ?? localRequiredError;
 
   React.useEffect(() => {
@@ -671,15 +679,17 @@ export default function MonthYearPicker({
     (next: { month: number; year: number } | undefined) => {
       if (!next) {
         setLocalRequiredError(undefined);
+        if (!isControlled) setHasCommittedValue(false);
         onChange?.(undefined);
         return;
       }
       if (!isDateInRange(next.month, next.year)) return;
       const date = new Date(next.year, next.month, 1);
       setLocalRequiredError(undefined);
+      if (!isControlled) setHasCommittedValue(true);
       onChange?.({ ...next, date });
     },
-    [isDateInRange, onChange],
+    [isControlled, isDateInRange, onChange],
   );
 
   const tryUpdate = React.useCallback(
@@ -931,13 +941,13 @@ export default function MonthYearPicker({
         <input
           tabIndex={-1}
           aria-hidden="true"
-          readOnly
           value={hasValue ? "selected" : ""}
+          onChange={() => {}}
           required={required}
           disabled={disabled}
           onInvalid={(e) => {
             e.preventDefault();
-            setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+            setLocalRequiredError(tv("required"));
           }}
           className="pointer-events-none absolute h-0 w-0 opacity-0"
         />
@@ -968,13 +978,13 @@ export default function MonthYearPicker({
       <input
         tabIndex={-1}
         aria-hidden="true"
-        readOnly
         value={hasValue ? "selected" : ""}
+        onChange={() => {}}
         required={required}
         disabled={disabled}
         onInvalid={(e) => {
           e.preventDefault();
-          setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+          setLocalRequiredError(tv("required"));
         }}
         className="pointer-events-none absolute h-0 w-0 opacity-0"
       />

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useId } from "react";
 import { cn } from "../utils/cn";
+import { useSmartTranslations } from "../hooks/useSmartTranslations";
 import { ChevronDown, Search, Check, SearchX, Loader2, X, Sparkles } from "lucide-react";
 import { useShadCNAnimations } from "../utils/animations";
 import { Popover } from "./Popover";
@@ -54,8 +55,6 @@ export interface MultiComboboxProps {
   useOverlayScrollbar?: boolean;
 }
 
-const REQUIRED_ERROR_MESSAGE = "This field is required";
-
 // Helper functions
 const getOptionIcon = (option: MultiComboboxOption | string): React.ReactNode | undefined => {
   return typeof option === "string" ? undefined : option.icon;
@@ -102,6 +101,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   maxTagsVisible = 3,
   useOverlayScrollbar = false,
 }) => {
+  const tv = useSmartTranslations("ValidationInput");
   const [query, setQuery] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
@@ -573,13 +573,13 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
       <input
         tabIndex={-1}
         aria-hidden="true"
-        readOnly
         value={value.length > 0 ? "selected" : ""}
+        onChange={() => {}}
         required={required}
         disabled={disabled}
         onInvalid={(e) => {
           e.preventDefault();
-          setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+          setLocalRequiredError(tv("required"));
         }}
         className="pointer-events-none absolute h-0 w-0 opacity-0"
       />

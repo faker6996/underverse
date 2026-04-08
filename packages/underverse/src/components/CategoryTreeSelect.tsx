@@ -3,6 +3,7 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { ChevronRight, ChevronDown, FolderTree, Layers, Search, SearchX, X } from "lucide-react";
 import { cn } from "../utils/cn";
+import { useSmartTranslations } from "../hooks/useSmartTranslations";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { Label } from "./label";
 import { Popover } from "./Popover";
@@ -85,8 +86,6 @@ const defaultLabels: Required<CategoryTreeSelectLabels> = {
   noResultsText: "No results found",
 };
 
-const REQUIRED_ERROR_MESSAGE = "This field is required";
-
 function getInitialExpandedNodes(categories: Category[], defaultExpanded: boolean, viewOnly: boolean, inline: boolean) {
   if (!(viewOnly || inline) || !defaultExpanded) return new Set<number>();
 
@@ -101,6 +100,7 @@ function getInitialExpandedNodes(categories: Category[], defaultExpanded: boolea
 }
 
 export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
+  const tv = useSmartTranslations("ValidationInput");
   const {
     id,
     label,
@@ -514,13 +514,13 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
         <input
           tabIndex={-1}
           aria-hidden="true"
-          readOnly
           value={valueArray.length > 0 ? "selected" : ""}
+          onChange={() => {}}
           required={required}
           disabled={disabled}
           onInvalid={(e) => {
             e.preventDefault();
-            setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+            setLocalRequiredError(tv("required"));
           }}
           className="pointer-events-none absolute h-0 w-0 opacity-0"
         />
@@ -546,13 +546,13 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
         <input
           tabIndex={-1}
           aria-hidden="true"
-          readOnly
           value={valueArray.length > 0 ? "selected" : ""}
+          onChange={() => {}}
           required={required}
           disabled={disabled}
           onInvalid={(e) => {
             e.preventDefault();
-            setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+            setLocalRequiredError(tv("required"));
           }}
           className="pointer-events-none absolute h-0 w-0 opacity-0"
         />
@@ -676,13 +676,13 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
       <input
         tabIndex={-1}
         aria-hidden="true"
-        readOnly
         value={valueArray.length > 0 ? "selected" : ""}
+        onChange={() => {}}
         required={required}
         disabled={disabled}
         onInvalid={(e) => {
           e.preventDefault();
-          setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+          setLocalRequiredError(tv("required"));
         }}
         className="pointer-events-none absolute h-0 w-0 opacity-0"
       />

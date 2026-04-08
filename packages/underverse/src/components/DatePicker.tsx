@@ -32,8 +32,6 @@ export interface DatePickerProps {
   maxDate?: Date;
 }
 
-const REQUIRED_ERROR_MESSAGE = "This field is required";
-
 export const DatePicker: React.FC<DatePickerProps> = ({
   id,
   value,
@@ -53,6 +51,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   maxDate,
 }) => {
   const t = useSmartTranslations("DatePicker");
+  const tv = useSmartTranslations("ValidationInput");
   const locale = useSmartLocale();
   const [isOpen, setIsOpen] = React.useState(false);
   const [viewDate, setViewDate] = React.useState(value || new Date());
@@ -537,13 +536,13 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       <input
         tabIndex={-1}
         aria-hidden="true"
-        readOnly
         value={value ? "selected" : ""}
+        onChange={() => {}}
         required={required}
         disabled={disabled}
         onInvalid={(e) => {
           e.preventDefault();
-          setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+          setLocalRequiredError(tv("required"));
         }}
         className="pointer-events-none absolute h-0 w-0 opacity-0"
       />

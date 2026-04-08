@@ -32,8 +32,6 @@ export interface DateTimePickerProps {
   size?: "sm" | "md" | "lg";
 }
 
-const REQUIRED_ERROR_MESSAGE = "This field is required";
-
 export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   value,
   onChange,
@@ -52,6 +50,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   size = "md",
 }) => {
   const t = useSmartTranslations("DateTimePicker");
+  const tv = useSmartTranslations("ValidationInput");
   const locale = useSmartLocale();
 
   const [open, setOpen] = React.useState(false);
@@ -237,13 +236,13 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       <input
         tabIndex={-1}
         aria-hidden="true"
-        readOnly
         value={value ? "selected" : ""}
+        onChange={() => {}}
         required={required}
         disabled={disabled}
         onInvalid={(e) => {
           e.preventDefault();
-          setLocalRequiredError(REQUIRED_ERROR_MESSAGE);
+          setLocalRequiredError(tv("required"));
         }}
         className="pointer-events-none absolute h-0 w-0 opacity-0"
       />
