@@ -50,5 +50,16 @@ interface AccessDeniedProps {
   icon?: React.ComponentType<{ className?: string }>;
   className?: string;
   children?: React.ReactNode; // actions
+  overflowHidden?: boolean;
 }
+```
+
+### Overflow Behavior
+
+`AccessDenied` clips its inner card surface by default with `overflowHidden={true}`.
+
+Disable it when action hover shadows or focus rings should escape the card:
+
+```tsx
+<AccessDenied overflowHidden={false}>...</AccessDenied>
 ```

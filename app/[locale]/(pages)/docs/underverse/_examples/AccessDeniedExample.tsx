@@ -41,6 +41,8 @@ export default function AccessDeniedExample() {
     `    <Button variant="primary">Sign In</Button>\n` +
     `  </div>\n` +
     `</AccessDenied>\n\n` +
+    `// Disable inner clipping\n` +
+    `<AccessDenied overflowHidden={false}>...</AccessDenied>\n\n` +
     `// Minimal\n` +
     `<AccessDenied />`;
 
@@ -99,6 +101,17 @@ export default function AccessDeniedExample() {
         <p className="text-sm font-medium">Minimal (Default)</p>
         <AccessDenied className="max-w-xl" />
       </div>
+
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Overflow Hidden Off</p>
+        <AccessDenied title="Unclipped Actions" description="Disable inner clipping when child hover or focus visuals should escape." variant="info" className="max-w-xl" overflowHidden={false}>
+          <div className="flex gap-2">
+            <Button variant="outline" className="shadow-lg ring-2 ring-primary/30">
+              Escaped ring
+            </Button>
+          </div>
+        </AccessDenied>
+      </div>
     </div>
   );
 
@@ -109,8 +122,9 @@ export default function AccessDeniedExample() {
     { property: "icon", description: t("props.accessDenied.icon"), type: "React.ComponentType<{ className?: string }>", default: "-" },
     { property: "className", description: t("props.accessDenied.className"), type: "string", default: "-" },
     { property: "children", description: t("props.accessDenied.children"), type: "React.ReactNode", default: "-" },
+    { property: "overflowHidden", description: t("props.accessDenied.overflowHidden"), type: "boolean", default: "true" },
   ];
-  const order = ["title","description","variant","icon","className","children"];
+  const order = ["title", "description", "variant", "icon", "className", "children", "overflowHidden"];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="AccessDenied.md" />;
 
   return (

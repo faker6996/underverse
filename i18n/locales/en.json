@@ -822,7 +822,8 @@
         "variant": "Visual variant.",
         "icon": "Icon component for header.",
         "className": "Custom class for card.",
-        "children": "Optional actions/content in footer."
+        "children": "Optional actions/content in footer.",
+        "overflowHidden": "Clip the inner card surface. Disable when hover shadows or focus rings should escape."
       },
       "popover": {
         "trigger": "Trigger element (button/link).",

@@ -778,7 +778,8 @@
         "variant": "表示バリアント。",
         "icon": "ヘッダーのアイコンコンポーネント。",
         "className": "カードのカスタムクラス。",
-        "children": "フッターのアクション／追加内容。"
+        "children": "フッターのアクション／追加内容。",
+        "overflowHidden": "内側カード表面を clip します。hover shadow や focus ring を外へ出したい場合は無効にします。"
       },
       "popover": {
         "trigger": "トリガー要素（ボタン/リンク）。",

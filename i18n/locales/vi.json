@@ -815,7 +815,8 @@
         "variant": "Biến thể hiển thị.",
         "icon": "Icon cho phần đầu.",
         "className": "Class tuỳ chỉnh cho thẻ.",
-        "children": "Khu vực hành động/nội dung bổ sung."
+        "children": "Khu vực hành động/nội dung bổ sung.",
+        "overflowHidden": "Clip bề mặt card bên trong. Tắt khi muốn hover shadow hoặc focus ring thoát ra ngoài."
       },
       "popover": {
         "trigger": "Phần tử trigger (nút/liên kết).",

@@ -778,7 +778,8 @@
         "variant": "표시 변형.",
         "icon": "헤더 아이콘 컴포넌트.",
         "className": "카드 커스텀 클래스.",
-        "children": "풋터 동작/추가 내용."
+        "children": "풋터 동작/추가 내용.",
+        "overflowHidden": "안쪽 카드 표면을 clip합니다. hover shadow나 focus ring이 밖으로 나가야 하면 끄세요."
       },
       "popover": {
         "trigger": "트리거 요소(버튼/링크).",

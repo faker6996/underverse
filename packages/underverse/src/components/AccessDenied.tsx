@@ -14,6 +14,7 @@ export interface AccessDeniedProps {
   icon?: React.ComponentType<{ className?: string }>;
   className?: string;
   children?: React.ReactNode; // actions
+  overflowHidden?: boolean;
 }
 
 const VARIANT_STYLES: Record<Variant, { bg: string; border: string; text: string }> = {
@@ -35,12 +36,16 @@ export default function AccessDenied({
   icon: Icon,
   className,
   children,
+  overflowHidden = true,
 }: AccessDeniedProps) {
   const styles = VARIANT_STYLES[variant];
   const UsedIcon = Icon || DEFAULT_ICONS[variant];
 
   return (
-    <Card className={cn("p-8 text-center shadow-sm", styles.bg, styles.border, className)}>
+    <Card
+      className={cn("p-8 text-center shadow-sm", styles.bg, styles.border, className)}
+      innerClassName={!overflowHidden ? "overflow-visible" : undefined}
+    >
       <div className="flex flex-col items-center gap-4">
         <div className={cn("p-3 rounded-lg", styles.bg.replace("/5", "/10"))}>
           <UsedIcon className={cn("w-8 h-8", styles.text)} />
