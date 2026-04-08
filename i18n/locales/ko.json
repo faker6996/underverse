@@ -370,6 +370,7 @@
         "defaultDate": "비제어 시 초기 날짜.",
         "onDateChange": "날짜 변경 시 호출.",
         "weekStartsOn": "주 시작 요일(0-6).",
+        "overflowHidden": "바깥 timeline 카드의 clip 여부입니다. hover shadow나 focus ring이 밖으로 나가야 하면 끄세요.",
         "timeZone": "렌더링/계산에 사용하는 IANA 타임존.",
         "locale": "헤더 포맷에 사용하는 BCP47 로케일.",
         "labels": "UI 텍스트용 i18n 라벨.",
@@ -662,7 +663,8 @@
         "ToastProvider": "앱 전역에서 토스트 사용을 가능하게 하는 Provider.",
         "useToast": "addToast 함수를 반환하는 훅.",
         "position": "토스트 위치.",
-        "maxToasts": "동시 표시 최대 개수."
+        "maxToasts": "동시 표시 최대 개수.",
+        "overflowHidden": "토스트 바깥 표면의 clip 여부를 개별 토스트마다 제어합니다."
       },
       "loading": {
         "GlobalLoading": "전체 화면 로딩 오버레이.",
@@ -767,7 +769,8 @@
         "dismissible": "닫기 버튼을 표시하고 닫을 수 있게 함.",
         "onClose": "닫은 뒤 콜백.",
         "actions": "동작 영역(버튼, 링크 등).",
-        "closeAriaLabel": "닫기 버튼 ARIA 라벨."
+        "closeAriaLabel": "닫기 버튼 ARIA 라벨.",
+        "overflowHidden": "바깥 alert 표면을 clip합니다. hover shadow나 focus ring이 바깥으로 나가야 하면 끄세요."
       },
       "accessDenied": {
         "title": "제목.",

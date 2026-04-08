@@ -35,6 +35,11 @@ export default function MusicPlayerExample() {
         <p className="text-sm font-medium">Default Music Player</p>
         <MusicPlayer />
       </div>
+
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Overflow Hidden Off</p>
+        <MusicPlayer overflowHidden={false} />
+      </div>
     </div>
   );
 
@@ -69,6 +74,7 @@ export function CustomPlaylistExample() {
       playlist={myPlaylist}
       autoPlay={false}
       showPlaylist={true}
+      overflowHidden={false}
       className="max-w-2xl"
     />
   );
@@ -98,6 +104,12 @@ export function CustomPlaylistExample() {
       type: "string",
       default: '""',
       description: "Additional CSS classes to apply to the container.",
+    },
+    {
+      property: "overflowHidden",
+      type: "boolean",
+      default: "true",
+      description: "Clip the outer player surface. Disable when nested hover shadows or focus rings should escape the card.",
     },
   ];
 

@@ -74,7 +74,18 @@ export interface MusicPlayerProps {
   autoPlay?: boolean; // Default: false
   showPlaylist?: boolean; // Default: true
   className?: string;
+  overflowHidden?: boolean; // Default: true
 }
+```
+
+## Overflow Behavior
+
+`MusicPlayer` keeps `overflowHidden={true}` by default to preserve the existing card shape.
+
+Disable it when nested hover cards, focus rings, or translated content should escape the player surface:
+
+```tsx
+<MusicPlayer overflowHidden={false} className="max-w-2xl" />
 ```
 
 ## Features

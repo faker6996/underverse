@@ -33,7 +33,9 @@ export default function ToastExample() {
     `  addToast({ type: 'success', message: 'Short toast', duration: 2000 })\n` +
     `  addToast({ type: 'info', message: 'Persistent toast', duration: 0 }) // 0 = no auto-dismiss\n\n` +
     `  // Non-dismissible\n` +
-    `  addToast({ type: 'warning', message: 'Cannot dismiss', dismissible: false })\n` +
+    `  addToast({ type: 'warning', message: 'Cannot dismiss', dismissible: false })\n\n` +
+    `  // Disable toast clipping when needed\n` +
+    `  addToast({ type: 'info', message: 'Unclipped toast', overflowHidden: false })\n` +
     `}\n\n` +
     `// Wrap app with ToastProvider\n` +
     `<ToastProvider position="top-right" maxToasts={5}>\n` +
@@ -121,6 +123,25 @@ export default function ToastExample() {
           Non-dismissible Toast
         </Button>
       </div>
+
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Overflow Hidden Off</p>
+        <Button
+          onClick={() =>
+            addToast({
+              type: "info",
+              title: "Unclipped",
+              message: "Disable clipping when focus rings or hover shadows should escape the toast edge.",
+              overflowHidden: false,
+              action: { label: "Action", onClick: () => alert("Action") },
+            })
+          }
+          variant="outline"
+          size="sm"
+        >
+          Toast without clipping
+        </Button>
+      </div>
     </div>
   );
 
@@ -129,8 +150,9 @@ export default function ToastExample() {
     { property: "useToast", description: t("props.toast.useToast"), type: "() => { addToast: (opts) => void }", default: "—" },
     { property: "position", description: t("props.toast.position"), type: '"top-left" | "top-right" | "bottom-left" | "bottom-right"', default: '"top-right"' },
     { property: "maxToasts", description: t("props.toast.maxToasts"), type: "number", default: "5" },
+    { property: "addToast(...).overflowHidden", description: t("props.toast.overflowHidden"), type: "boolean", default: "true" },
   ];
-  const order = ["ToastProvider","useToast","position","maxToasts"];
+  const order = ["ToastProvider", "useToast", "position", "maxToasts", "addToast(...).overflowHidden"];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Toast.md" />;
 
   return (
@@ -145,5 +167,4 @@ export default function ToastExample() {
     />
   );
 }
-
 

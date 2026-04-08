@@ -88,6 +88,7 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   dayEventMaxWidth,
   monthEventStyle = "span",
   monthEventMaxWidth,
+  overflowHidden = true,
   dayTimeStepMinutes = 60,
   enableEventTooltips = true,
   dayHeaderMode = "full",
@@ -1333,9 +1334,10 @@ export default function CalendarTimeline<TResourceMeta = unknown, TEventMeta = u
   return (
     <div
       className={cn(
-        "rounded-2xl md:rounded-3xl overflow-hidden bg-card text-card-foreground backdrop-blur-sm",
+        "rounded-2xl md:rounded-3xl bg-card text-card-foreground backdrop-blur-sm",
         "border border-border/50 shadow-sm md:hover:shadow-md",
         "transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft",
+        overflowHidden && "overflow-hidden",
         densityClass,
         className,
       )}

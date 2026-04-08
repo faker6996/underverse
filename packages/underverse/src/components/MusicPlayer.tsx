@@ -18,6 +18,7 @@ export interface MusicPlayerProps {
   autoPlay?: boolean;
   showPlaylist?: boolean;
   className?: string;
+  overflowHidden?: boolean;
 }
 
 // Playlist mặc định dùng 1 file mp3 dài với timestamps
@@ -139,6 +140,7 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
   autoPlay = false,
   showPlaylist: initialShowPlaylist = true,
   className = "",
+  overflowHidden = true,
 }) => {
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -264,7 +266,15 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
   }, [currentSongIndex, currentSong.startTime, isPlaying]);
 
   return (
-    <div className={`underverse-music-player bg-card dark:bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden ${className}`}>
+    <div
+      className={[
+        "underverse-music-player bg-card dark:bg-card border border-border/50 rounded-2xl shadow-2xl",
+        overflowHidden ? "overflow-hidden" : "",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <audio ref={audioRef} src={currentSong.audioUrl} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={playNext} />
 
       <div className="p-6">

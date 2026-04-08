@@ -18,6 +18,7 @@ interface Toast {
     onClick: () => void;
   };
   dismissible?: boolean;
+  overflowHidden?: boolean;
 }
 
 interface ToastContextType {
@@ -155,9 +156,10 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
   return (
     <div
       className={cn(
-        "relative w-80 rounded-xl border backdrop-blur-md transition-all duration-300 pointer-events-auto overflow-hidden",
+        "relative w-80 rounded-xl border backdrop-blur-md transition-all duration-300 pointer-events-auto",
         "bg-card shadow-xl",
         "animate-in slide-in-from-right-full",
+        toast.overflowHidden !== false && "overflow-hidden",
         config.containerClassName,
         isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full",
       )}

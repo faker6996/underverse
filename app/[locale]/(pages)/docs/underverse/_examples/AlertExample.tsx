@@ -42,6 +42,8 @@ export default function AlertExample() {
     `    </div>\n` +
     `  }\n` +
     `/>\n\n` +
+    `// Disable outer clipping\n` +
+    `<Alert title="Unclipped" description="Outer wrapper does not clip" overflowHidden={false} />\n\n` +
     `// Without Title\n` +
     `<Alert description="Alert without title" variant="warning" />`;
 
@@ -95,6 +97,23 @@ export default function AlertExample() {
         <Alert description="This is an alert without a title" variant="warning" />
       </div>
 
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Overflow Hidden Off</p>
+        <Alert
+          title="Unclipped Actions"
+          description="Disable outer clipping when child hover or focus visuals should escape the surface."
+          variant="info"
+          overflowHidden={false}
+          actions={
+            <div className="flex gap-2">
+              <Button size="sm" className="shadow-lg ring-2 ring-primary/30">
+                Escaped ring
+              </Button>
+            </div>
+          }
+        />
+      </div>
+
       {/* Rich Description */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Rich Description (ReactNode)</p>
@@ -126,10 +145,9 @@ export default function AlertExample() {
     { property: "onClose", description: t("props.alert.onClose"), type: "() => void", default: "-" },
     { property: "actions", description: t("props.alert.actions"), type: "React.ReactNode", default: "-" },
     { property: "closeAriaLabel", description: t("props.alert.closeAriaLabel"), type: "string", default: "t('Common.closeAlert')" },
+    { property: "overflowHidden", description: t("props.alert.overflowHidden"), type: "boolean", default: "true" },
   ];
-  const order = [
-    "title","description","variant","className","icon","dismissible","onClose","actions","closeAriaLabel"
-  ];
+  const order = ["title", "description", "variant", "className", "icon", "dismissible", "onClose", "actions", "closeAriaLabel", "overflowHidden"];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Alert.md" />;
 
   return (
@@ -146,4 +164,3 @@ export default function AlertExample() {
     </IntlDemoProvider>
   );
 }
-

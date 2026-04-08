@@ -381,6 +381,7 @@
         "defaultDate": "Ngày ban đầu khi uncontrolled.",
         "onDateChange": "Gọi khi date thay đổi.",
         "weekStartsOn": "Ngày bắt đầu tuần (0-6).",
+        "overflowHidden": "Clip thẻ timeline bên ngoài. Tắt khi muốn hover shadow hoặc focus ring thoát ra ngoài.",
         "timeZone": "Múi giờ IANA dùng để render và tính toán.",
         "locale": "Locale BCP47 dùng để format header.",
         "labels": "Nhãn i18n cho UI text.",
@@ -699,7 +700,8 @@
         "ToastProvider": "Provider bọc ứng dụng để dùng toast.",
         "useToast": "Hook trả về hàm addToast.",
         "position": "Vị trí hiển thị toast.",
-        "maxToasts": "Số toast tối đa hiển thị."
+        "maxToasts": "Số toast tối đa hiển thị.",
+        "overflowHidden": "Cờ clip theo từng toast cho bề mặt ngoài."
       },
       "loading": {
         "GlobalLoading": "Overlay toàn màn hình.",
@@ -804,7 +806,8 @@
         "dismissible": "Hiển thị nút đóng và cho phép đóng.",
         "onClose": "Callback sau khi đóng.",
         "actions": "Khu vực hành động (nút, link...).",
-        "closeAriaLabel": "Nhãn ARIA cho nút đóng."
+        "closeAriaLabel": "Nhãn ARIA cho nút đóng.",
+        "overflowHidden": "Clip bề mặt alert ngoài. Tắt khi muốn hover shadow hoặc focus ring thoát ra ngoài."
       },
       "accessDenied": {
         "title": "Tiêu đề.",

@@ -56,6 +56,7 @@ export default function CalendarTimelineExample() {
   const [autoRowHeight, setAutoRowHeight] = React.useState(true);
   const [onlyMonth, setOnlyMonth] = React.useState(false);
   const [hideResourceColumn, setHideResourceColumn] = React.useState(false);
+  const [overflowHidden, setOverflowHidden] = React.useState(true);
   const [monthCompact, setMonthCompact] = React.useState(true);
   const [monthEventMaxWidth, setMonthEventMaxWidth] = React.useState(180);
   const [customCreateOpen, setCustomCreateOpen] = React.useState(false);
@@ -159,6 +160,9 @@ export default function CalendarTimelineExample() {
           <Button variant={hideResourceColumn ? "default" : "ghost"} size="sm" onClick={() => setHideResourceColumn((v) => !v)}>
             Hide resources
           </Button>
+          <Button variant={overflowHidden ? "default" : "ghost"} size="sm" onClick={() => setOverflowHidden((v) => !v)}>
+            Overflow hidden
+          </Button>
           <Button variant={monthCompact ? "default" : "ghost"} size="sm" onClick={() => setMonthCompact((v) => !v)} disabled={!onlyMonth && view !== "month"}>
             Month: Compact
           </Button>
@@ -217,6 +221,7 @@ export default function CalendarTimelineExample() {
           date={date}
           onDateChange={setDate}
           weekStartsOn={1}
+          overflowHidden={overflowHidden}
           hideResourceColumn={hideResourceColumn}
           slotMinWidth={view === "month" && monthCompact ? undefined : 56}
           monthEventStyle={monthCompact ? "compact" : "span"}
@@ -353,6 +358,7 @@ export function Example() {
         events={events}
         view={view}
         onViewChange={setView}
+        overflowHidden={false}
         // Month view: shorten long spans (visual width capped; start day stays correct)
         monthEventStyle={monthCompact ? 'compact' : 'span'}
         monthEventMaxWidth={180}
@@ -446,6 +452,7 @@ export function Example() {
     { property: "defaultDate", description: t("props.calendarTimeline.defaultDate"), type: "Date", default: "new Date()" },
     { property: "onDateChange", description: t("props.calendarTimeline.onDateChange"), type: "(date: Date) => void", default: "—" },
     { property: "weekStartsOn", description: t("props.calendarTimeline.weekStartsOn"), type: "0 | 1 | 2 | 3 | 4 | 5 | 6", default: "1" },
+    { property: "overflowHidden", description: t("props.calendarTimeline.overflowHidden"), type: "boolean", default: "true" },
     { property: "timeZone", description: t("props.calendarTimeline.timeZone"), type: "string (IANA TZ)", default: "Intl resolved" },
     { property: "locale", description: t("props.calendarTimeline.locale"), type: "string (BCP47)", default: "from i18n" },
     { property: "labels", description: t("props.calendarTimeline.labels"), type: "CalendarTimelineLabels", default: "—" },

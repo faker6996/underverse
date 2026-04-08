@@ -81,5 +81,20 @@ interface AlertProps {
   onClose?: () => void;
   actions?: ReactNode;
   closeAriaLabel?: string;
+  overflowHidden?: boolean;
 }
+```
+
+### Overflow Behavior
+
+`Alert` clips its outer wrapper by default with `overflowHidden={true}`.
+
+Disable it when nested hover shadows, focus rings, or translated children should escape the alert surface:
+
+```tsx
+<Alert
+  title="Unclipped"
+  description="Outer wrapper does not clip"
+  overflowHidden={false}
+/>
 ```

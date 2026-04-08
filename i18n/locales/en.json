@@ -388,6 +388,7 @@
         "defaultDate": "Initial date when uncontrolled.",
         "onDateChange": "Called when the date changes.",
         "weekStartsOn": "First day of the week (0-6).",
+        "overflowHidden": "Clip the outer timeline card. Disable when hover shadows or focus rings should escape.",
         "timeZone": "IANA timezone used for rendering and calculations.",
         "locale": "BCP47 locale used for formatting headers.",
         "labels": "Localization labels for UI text.",
@@ -706,7 +707,8 @@
         "ToastProvider": "Provider that enables toasts across the app.",
         "useToast": "Hook returning addToast function.",
         "position": "Toast position on screen.",
-        "maxToasts": "Maximum number of toasts to display."
+        "maxToasts": "Maximum number of toasts to display.",
+        "overflowHidden": "Per-toast clipping flag for the outer surface."
       },
       "loading": {
         "GlobalLoading": "Full-screen loading overlay.",
@@ -811,7 +813,8 @@
         "dismissible": "Show a close button and allow dismiss.",
         "onClose": "Callback after dismissed.",
         "actions": "Optional action nodes (buttons, links).",
-        "closeAriaLabel": "ARIA label for close button."
+        "closeAriaLabel": "ARIA label for close button.",
+        "overflowHidden": "Clip the outer alert surface. Disable when hover shadows or focus rings should escape."
       },
       "accessDenied": {
         "title": "Title text.",

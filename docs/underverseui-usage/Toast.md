@@ -63,6 +63,33 @@ interface ToastProviderProps {
 }
 ```
 
+Toast clipping is configured per toast payload, not on `ToastProvider`.
+
+```ts
+type AddToastOptions = {
+  type: "success" | "error" | "warning" | "info";
+  title?: string;
+  message: string;
+  duration?: number;
+  dismissible?: boolean;
+  overflowHidden?: boolean;
+}
+```
+
+### Overflow Behavior
+
+Each toast clips by default with `overflowHidden: true`.
+
+Disable it when action focus rings, hover shadows, or translated children should escape the toast surface:
+
+```tsx
+addToast({
+  type: "info",
+  message: "Unclipped toast",
+  overflowHidden: false,
+})
+```
+
 ## useToast
 
 Hook API

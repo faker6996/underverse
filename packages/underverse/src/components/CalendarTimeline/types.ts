@@ -266,6 +266,8 @@ export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unk
   monthEventStyle?: "span" | "compact";
   /** Month view only (when `monthEventStyle="compact"`): max visual width (px). */
   monthEventMaxWidth?: number;
+  /** Clip overflow at the outer surface. Disable when child hover shadows or focus rings should escape the timeline card. Default: true. */
+  overflowHidden?: boolean;
   dayTimeStepMinutes?: number; // day view slot size
 
   /** Render tooltips on events (can be expensive for large datasets). Default: true. */

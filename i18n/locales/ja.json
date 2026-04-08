@@ -370,6 +370,7 @@
         "defaultDate": "非制御時の初期日付。",
         "onDateChange": "日付が変わるときに呼び出し。",
         "weekStartsOn": "週の開始曜日（0-6）。",
+        "overflowHidden": "外側の timeline カードを clip します。hover shadow や focus ring を外へ出したい場合は無効にします。",
         "timeZone": "レンダリング/計算に使う IANA タイムゾーン。",
         "locale": "ヘッダーのフォーマットに使う BCP47 ロケール。",
         "labels": "UI テキスト用 i18n ラベル。",
@@ -662,7 +663,8 @@
         "ToastProvider": "アプリ全体で toast を有効にする Provider。",
         "useToast": "addToast を返すフック。",
         "position": "画面上の表示位置。",
-        "maxToasts": "表示する最大トースト数。"
+        "maxToasts": "表示する最大トースト数。",
+        "overflowHidden": "各 toast ごとに外側表面の clip を制御します。"
       },
       "loading": {
         "GlobalLoading": "全画面のローディングオーバーレイ。",
@@ -767,7 +769,8 @@
         "dismissible": "閉じるボタンを表示して閉じられるようにする。",
         "onClose": "閉じた後のコールバック。",
         "actions": "アクション領域（ボタンやリンクなど）。",
-        "closeAriaLabel": "閉じるボタンの ARIA ラベル。"
+        "closeAriaLabel": "閉じるボタンの ARIA ラベル。",
+        "overflowHidden": "外側のアラート面を clip します。hover shadow や focus ring を外へ出したい場合は無効にします。"
       },
       "accessDenied": {
         "title": "タイトル。",

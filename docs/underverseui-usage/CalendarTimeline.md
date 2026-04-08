@@ -27,6 +27,7 @@ export function Example() {
 
 - **Weekend columns** (Saturday/Sunday) in **month/week** views are rendered with a subtle background tint (timezone-aware). “Today” highlight still takes precedence.
 - CalendarTimeline uses **Card surface tokens** by default (`bg-card` / `text-card-foreground`) so it visually matches `Card`.
+- Outer surface clipping is controlled by `overflowHidden` and defaults to `true` for backward compatibility.
 
 ## Usage Recipes
 
@@ -109,6 +110,16 @@ Use when you want to ship a single mode (no view switcher UI).
 
 ```tsx
 <CalendarTimeline resources={resources} events={events} hideResourceColumn />
+```
+
+### 5.1) Let hover/focus visuals escape the outer card
+
+```tsx
+<CalendarTimeline
+  resources={resources}
+  events={events}
+  overflowHidden={false}
+/>
 ```
 
 ### 6) Month view: shrink empty days to free space

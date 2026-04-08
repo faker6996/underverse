@@ -62,9 +62,21 @@ interface AlertProps {
   onClose?: () => void;
   actions?: ReactNode;
   closeAriaLabel?: string;
+  overflowHidden?: boolean;
 }
 
-const Alert = ({ title, description, variant = "default", className, icon, dismissible = false, onClose, actions, closeAriaLabel }: AlertProps) => {
+const Alert = ({
+  title,
+  description,
+  variant = "default",
+  className,
+  icon,
+  dismissible = false,
+  onClose,
+  actions,
+  closeAriaLabel,
+  overflowHidden = true,
+}: AlertProps) => {
   const [open, setOpen] = useState(true);
   const t = useSmartTranslations("Common");
 
@@ -81,9 +93,10 @@ const Alert = ({ title, description, variant = "default", className, icon, dismi
   return (
     <div
       className={cn(
-        "relative w-full rounded-r-xl border border-l-0 overflow-hidden",
+        "relative w-full rounded-r-xl border border-l-0",
         "flex items-start gap-3 p-4 pl-5",
         "backdrop-blur-md",
+        overflowHidden && "overflow-hidden",
         config.containerClassName,
         className,
       )}
