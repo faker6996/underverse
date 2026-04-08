@@ -1238,11 +1238,16 @@
         "maxDate": "Maximum selectable date (inclusive)."
       },
       "dateRangePicker": {
+        "id": "Native id attribute for the trigger button.",
         "startDate": "Range start date.",
         "endDate": "Range end date.",
         "onChange": "Change handler receiving (start, end).",
         "placeholder": "Placeholder when no range is selected.",
         "className": "Custom class for the trigger.",
+        "label": "Field label above the trigger.",
+        "labelClassName": "Custom class for the field label.",
+        "required": "Mark as required.",
+        "size": "Display size (sm, md, lg).",
         "disablePastDates": "Disable selecting dates before today.",
         "minDate": "Minimum selectable date (inclusive).",
         "maxDate": "Maximum selectable date (inclusive)."

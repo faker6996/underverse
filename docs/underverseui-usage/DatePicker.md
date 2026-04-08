@@ -197,17 +197,30 @@ import { DateRangePicker } from "@underverse-ui/underverse";
 
 export function Example() {
   const [range, setRange] = React.useState({ start: undefined, end: undefined });
-  return <DateRangePicker value={range} onChange={setRange} label="Khoang ngay" placeholder="Chon khoang" />;
+  return <DateRangePicker startDate={range.start} endDate={range.end} onChange={(start, end) => setRange({ start, end })} placeholder="Chon khoang" />;
 }
 ```
 
+### Month/Year Selector (DateRangePicker)
+
+DateRangePicker giờ cũng hỗ trợ chọn tháng và năm nhanh:
+
+- **Click vào tên tháng** -> mở grid chọn tháng
+- **Click vào năm** -> mở grid chọn năm
+- **Nút Today** -> chọn range một ngày là hôm nay
+- **Nút Clear** -> xóa toàn bộ range hiện tại
+
 ```ts
 type DateRangePickerProps = {
+  id?: string;
   startDate?: Date;
   endDate?: Date;
-  onChange: (start: Date, end: Date) => void;
+  onChange: (start: Date | undefined, end: Date | undefined) => void;
   placeholder?: string;
   className?: string;
+  label?: string;
+  labelClassName?: string;
+  required?: boolean;
   /** Disable selecting past dates (before today) */
   disablePastDates?: boolean;
   /** Minimum selectable date (inclusive). Compared by day in local timezone. */
@@ -215,8 +228,35 @@ type DateRangePickerProps = {
   /** Maximum selectable date (inclusive). Compared by day in local timezone. */
   maxDate?: Date;
   /** Size variant */
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
 };
+```
+
+### Required Validation (DateRangePicker)
+
+`DateRangePicker` giờ cũng tham gia form validation giống `Input`:
+
+- `required` không chỉ hiển thị dấu `*`
+- submit form khi chưa chọn đủ `startDate` và `endDate` sẽ hiện lỗi
+- lỗi tự clear khi người dùng chọn lại khoảng hợp lệ
+
+```tsx
+function Example() {
+  const [range, setRange] = React.useState({ start: undefined, end: undefined });
+
+  return (
+    <form>
+      <DateRangePicker
+        label="Booking range"
+        required
+        startDate={range.start}
+        endDate={range.end}
+        onChange={(start, end) => setRange({ start, end })}
+      />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
 ```
 
 ### Size variants (DateRangePicker)

@@ -1194,11 +1194,16 @@
         "maxDate": "選択可能な最大日付（含む）。"
       },
       "dateRangePicker": {
+        "id": "トリガーボタンのネイティブ id 属性。",
         "startDate": "開始日。",
         "endDate": "終了日。",
         "onChange": "(start, end) を受け取るハンドラ。",
         "placeholder": "未選択時のプレースホルダ。",
         "className": "トリガーのカスタムクラス。",
+        "label": "トリガー上部に表示するラベル。",
+        "labelClassName": "ラベルのカスタムクラス。",
+        "required": "必須としてマーク。",
+        "size": "表示サイズ (sm, md, lg)。",
         "disablePastDates": "今日より前の日付を選択不可にする。",
         "minDate": "選択可能な最小日付（含む）。",
         "maxDate": "選択可能な最大日付（含む）。"

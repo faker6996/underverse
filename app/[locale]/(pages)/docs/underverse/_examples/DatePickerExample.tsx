@@ -13,6 +13,8 @@ export default function DatePickerExample() {
   const [date1, setDate1] = React.useState<Date | undefined>();
   const [date2, setDate2] = React.useState<Date | undefined>();
   const [requiredDate, setRequiredDate] = React.useState<Date | undefined>();
+  const [requiredRangeStart, setRequiredRangeStart] = React.useState<Date | undefined>();
+  const [requiredRangeEnd, setRequiredRangeEnd] = React.useState<Date | undefined>();
   const [rangeStart, setRangeStart] = React.useState<Date | undefined>();
   const [rangeEnd, setRangeEnd] = React.useState<Date | undefined>();
   const [advancedDate, setAdvancedDate] = React.useState<Date | undefined>();
@@ -53,11 +55,18 @@ export default function DatePickerExample() {
     `// 2) Required validation via form submit\n` +
     `<form>\n` +
     `  <DatePicker value={requiredDate} onChange={setRequiredDate} label='Required' required placeholder='Select date' clearLabel={t('clear')} />\n` +
+    `  <DateRangePicker\n` +
+    `    label='Required range'\n` +
+    `    required\n` +
+    `    startDate={requiredRangeStart}\n` +
+    `    endDate={requiredRangeEnd}\n` +
+    `    onChange={(s,e)=>{ setRequiredRangeStart(s); setRequiredRangeEnd(e); }}\n` +
+    `  />\n` +
     `  <button type='submit'>Submit</button>\n` +
     `</form>\n\n` +
     `// 3) Disabled\n` +
     `<DatePicker value={new Date()} onChange={()=>{}} label='Disabled' disabled />\n\n` +
-    `// 4) DateRangePicker\n` +
+    `// 4) DateRangePicker with month/year selector + footer actions\n` +
     `<DateRangePicker startDate={rangeStart} endDate={rangeEnd} onChange={(s,e)=>{ setRangeStart(s); setRangeEnd(e); }} />\n\n` +
     `// 5) Advanced example: small DatePicker with custom weekdayLabels + required\n` +
     `<DatePicker\n` +
@@ -88,6 +97,16 @@ export default function DatePickerExample() {
       {/* 2) Placeholder + required */}
       <form className="max-w-sm space-y-3" onSubmit={(e) => e.preventDefault()}>
         <DatePicker value={requiredDate} onChange={setRequiredDate} label="Required" required placeholder="Select date" clearLabel={t("clear")} />
+        <DateRangePicker
+          label="Required range"
+          required
+          startDate={requiredRangeStart}
+          endDate={requiredRangeEnd}
+          onChange={(s, e) => {
+            setRequiredRangeStart(s);
+            setRequiredRangeEnd(e);
+          }}
+        />
         <button type="submit" className="rounded-full border border-border px-3 py-1.5 text-xs font-medium">
           Submit
         </button>
@@ -107,6 +126,7 @@ export default function DatePickerExample() {
             setRangeEnd(e);
           }}
         />
+        <div className="text-xs text-muted-foreground">Click the month or year in the header to jump quickly. Footer actions now support Today and Clear.</div>
         <div className="text-sm text-muted-foreground">
           Range: {rangeStart?.toLocaleDateString() || "(start)"} - {rangeEnd?.toLocaleDateString() || "(end)"}
         </div>
@@ -216,10 +236,11 @@ export default function DatePickerExample() {
                     rows={[
                       { property: "startDate", description: td("props.dateRangePicker.startDate"), type: "Date", default: "-" },
                       { property: "endDate", description: td("props.dateRangePicker.endDate"), type: "Date", default: "-" },
+                      { property: "id", description: td("props.dateRangePicker.id"), type: "string", default: "-" },
                       {
                         property: "onChange",
                         description: td("props.dateRangePicker.onChange"),
-                        type: "(start: Date, end: Date) => void",
+                        type: "(start: Date | undefined, end: Date | undefined) => void",
                         default: "-",
                       },
                       {
@@ -229,11 +250,15 @@ export default function DatePickerExample() {
                         default: '"Select date range..."',
                       },
                       { property: "className", description: td("props.dateRangePicker.className"), type: "string", default: "-" },
+                      { property: "label", description: td("props.dateRangePicker.label"), type: "string", default: "-" },
+                      { property: "labelClassName", description: td("props.dateRangePicker.labelClassName"), type: "string", default: "-" },
+                      { property: "required", description: td("props.dateRangePicker.required"), type: "boolean", default: "false" },
+                      { property: "size", description: td("props.dateRangePicker.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
                       { property: "disablePastDates", description: td("props.dateRangePicker.disablePastDates"), type: "boolean", default: "false" },
                       { property: "minDate", description: td("props.dateRangePicker.minDate"), type: "Date", default: "-" },
                       { property: "maxDate", description: td("props.dateRangePicker.maxDate"), type: "Date", default: "-" },
                     ]}
-                    order={["startDate", "endDate", "onChange", "placeholder", "className", "disablePastDates", "minDate", "maxDate"]}
+                    order={["id", "startDate", "endDate", "onChange", "placeholder", "className", "label", "labelClassName", "required", "size", "disablePastDates", "minDate", "maxDate"]}
                   />
                 </div>
               </div>

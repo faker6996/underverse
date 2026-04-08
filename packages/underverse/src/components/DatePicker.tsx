@@ -649,11 +649,15 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
 // Additional components for backward compatibility
 export interface DateRangePickerProps {
+  id?: string;
   startDate?: Date;
   endDate?: Date;
-  onChange: (start: Date, end: Date) => void;
+  onChange: (start: Date | undefined, end: Date | undefined) => void;
   placeholder?: string;
   className?: string;
+  label?: string;
+  labelClassName?: string;
+  required?: boolean;
   /** Disable selecting past dates (before today) */
   disablePastDates?: boolean;
   /** Minimum selectable date (inclusive). Compared by day in local timezone. */
@@ -664,10 +668,27 @@ export interface DateRangePickerProps {
   size?: "sm" | "md" | "lg";
 }
 
-export const DateRangePicker: React.FC<DateRangePickerProps> = ({ startDate, endDate, onChange, placeholder = "Select date range...", className, disablePastDates = false, minDate, maxDate, size = "md" }) => {
+export const DateRangePicker: React.FC<DateRangePickerProps> = ({
+  id,
+  startDate,
+  endDate,
+  onChange,
+  placeholder = "Select date range...",
+  className,
+  label,
+  labelClassName,
+  required = false,
+  disablePastDates = false,
+  minDate,
+  maxDate,
+  size = "md",
+}) => {
   const locale = useSmartLocale();
   const t = useSmartTranslations("DatePicker");
+  const tv = useSmartTranslations("ValidationInput");
   const [isOpen, setIsOpen] = React.useState(false);
+  const [viewMode, setViewMode] = React.useState<"calendar" | "month" | "year">("calendar");
+  const [localRequiredError, setLocalRequiredError] = React.useState<string | undefined>();
   const wheelContainerRef = React.useRef<HTMLDivElement>(null);
   const wheelDeltaRef = React.useRef(0);
 
@@ -750,6 +771,18 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ startDate, end
     setTempEnd(normalizeToLocal(endDate));
   }, [endDate]);
 
+  React.useEffect(() => {
+    if (!isOpen) {
+      setViewMode("calendar");
+    }
+  }, [isOpen]);
+
+  React.useEffect(() => {
+    if (!required || (startDate && endDate)) {
+      setLocalRequiredError(undefined);
+    }
+  }, [endDate, required, startDate]);
+
   const isSameDay = (a: Date | null, b: Date | null) => {
     if (!a || !b) return false;
     return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -760,6 +793,10 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ startDate, end
 
   const navigateMonth = React.useCallback((direction: "prev" | "next") => {
     setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + (direction === "next" ? 1 : -1), 1));
+  }, []);
+
+  const navigateYearRange = React.useCallback((direction: "prev" | "next") => {
+    setViewDate((prev) => new Date(prev.getFullYear() + (direction === "next" ? 12 : -12), prev.getMonth(), 1));
   }, []);
 
   const isElementVerticallyScrollable = (el: Element) => {
@@ -817,10 +854,36 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ startDate, end
         setTempStart(localDate);
       } else {
         setTempEnd(localDate);
+        setLocalRequiredError(undefined);
         onChange(tempStart, localDate);
         setIsOpen(false);
       }
     }
+  };
+
+  const handleSelectToday = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const localToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    const isPastDate = disablePastDates && localToday < today;
+    const isOutOfRange = (!!minDay && localToday < minDay) || (!!maxDay && localToday > maxDay);
+    if (isPastDate || isOutOfRange) return;
+
+    setTempStart(localToday);
+    setTempEnd(localToday);
+    setHoveredDate(null);
+    setLocalRequiredError(undefined);
+    onChange(localToday, localToday);
+    setIsOpen(false);
+  };
+
+  const handleClear = () => {
+    setTempStart(null);
+    setTempEnd(null);
+    setHoveredDate(null);
+    onChange(undefined, undefined);
+    setIsOpen(false);
   };
 
   const renderGrid = () => {
@@ -903,13 +966,79 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ startDate, end
     return nodes;
   };
 
+  const renderMonthSelector = () => {
+    const months =
+      locale === "vi"
+        ? ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"]
+        : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    return (
+      <div className="grid grid-cols-3 gap-2 p-2">
+        {months.map((month, idx) => {
+          const isSelected = viewDate.getMonth() === idx;
+          return (
+            <button
+              key={month}
+              type="button"
+              onClick={() => {
+                setViewDate(new Date(viewDate.getFullYear(), idx, 1));
+                setViewMode("calendar");
+              }}
+              className={cn(
+                "py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200",
+                isSelected ? "bg-primary text-primary-foreground shadow-md" : "hover:bg-accent/80 text-foreground hover:scale-105",
+              )}
+            >
+              {month}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderYearSelector = () => {
+    const startYear = Math.floor(viewDate.getFullYear() / 12) * 12;
+    const years = Array.from({ length: 12 }, (_, i) => startYear + i);
+
+    return (
+      <div className="grid grid-cols-3 gap-2 p-2">
+        {years.map((year) => {
+          const isSelected = viewDate.getFullYear() === year;
+          return (
+            <button
+              key={year}
+              type="button"
+              onClick={() => {
+                setViewDate(new Date(year, viewDate.getMonth(), 1));
+                setViewMode("month");
+              }}
+              className={cn(
+                "py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200",
+                isSelected ? "bg-primary text-primary-foreground shadow-md" : "hover:bg-accent/80 text-foreground hover:scale-105",
+              )}
+            >
+              {year}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const todayDate = React.useMemo(() => {
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  }, []);
+  const isTodayUnavailable = (!!minDay && todayDate < minDay) || (!!maxDay && todayDate > maxDay);
+
   const panel = (
     <div ref={wheelContainerRef} className="w-full">
       {/* Header */}
       <div className={cn("flex items-center justify-between px-1", sizeStyles[size].headerMargin)}>
         <button
           type="button"
-          onClick={() => navigateMonth("prev")}
+          onClick={() => (viewMode === "year" ? navigateYearRange("prev") : navigateMonth("prev"))}
           className={cn(
             "rounded-xl transition-all duration-200",
             sizeStyles[size].navButton,
@@ -920,17 +1049,33 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ startDate, end
         >
           <ChevronLeft className={sizeStyles[size].navIcon} />
         </button>
-        <div className="flex flex-col items-center">
-          <span className={cn("font-bold text-foreground", size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm")}>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setViewMode(viewMode === "month" ? "calendar" : "month")}
+            className={cn(
+              "rounded-lg px-2 py-0.5 font-bold transition-colors duration-200",
+              size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
+              viewMode === "month" ? "bg-primary/15 text-primary" : "text-foreground hover:bg-accent/50",
+            )}
+          >
             {viewDate.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", { month: "long" })}
-          </span>
-          <span className={cn("text-muted-foreground font-medium", size === "sm" ? "text-[10px]" : size === "lg" ? "text-sm" : "text-xs")}>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode(viewMode === "year" ? "calendar" : "year")}
+            className={cn(
+              "rounded-lg px-2 py-0.5 font-medium transition-colors duration-200",
+              size === "sm" ? "text-[10px]" : size === "lg" ? "text-sm" : "text-xs",
+              viewMode === "year" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+            )}
+          >
             {viewDate.getFullYear()}
-          </span>
+          </button>
         </div>
         <button
           type="button"
-          onClick={() => navigateMonth("next")}
+          onClick={() => (viewMode === "year" ? navigateYearRange("next") : navigateMonth("next"))}
           className={cn(
             "rounded-xl transition-all duration-200",
             sizeStyles[size].navButton,
@@ -942,88 +1087,160 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ startDate, end
           <ChevronRight className={sizeStyles[size].navIcon} />
         </button>
       </div>
-      {/* Weekday headers */}
-      <div className={cn("grid grid-cols-7 gap-1 px-0.5", size === "sm" ? "mb-1" : size === "lg" ? "mb-3" : "mb-2")}>
-        {(locale === "vi" ? ["CN", "T2", "T3", "T4", "T5", "T6", "T7"] : ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]).map((d, idx) => (
-          <div
-            key={d}
-            className={cn(
-              "text-center font-bold uppercase tracking-wide",
-              sizeStyles[size].weekdayLabel,
-              idx === 0 || idx === 6 ? "text-primary/70" : "text-muted-foreground/60",
-            )}
-          >
-            {d}
+      {viewMode === "calendar" && (
+        <>
+          <div className={cn("grid grid-cols-7 gap-1 px-0.5", size === "sm" ? "mb-1" : size === "lg" ? "mb-3" : "mb-2")}>
+            {(locale === "vi" ? ["CN", "T2", "T3", "T4", "T5", "T6", "T7"] : ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]).map((d, idx) => (
+              <div
+                key={d}
+                className={cn(
+                  "text-center font-bold uppercase tracking-wide",
+                  sizeStyles[size].weekdayLabel,
+                  idx === 0 || idx === 6 ? "text-primary/70" : "text-muted-foreground/60",
+                )}
+              >
+                {d}
+              </div>
+            ))}
           </div>
-        ))}
+          <div className="grid grid-cols-7 gap-0.5 p-1 rounded-xl bg-muted/20">{renderGrid()}</div>
+        </>
+      )}
+      {viewMode === "month" && renderMonthSelector()}
+      {viewMode === "year" && renderYearSelector()}
+
+      <div className={cn("flex items-center border-t border-border/50", sizeStyles[size].footerMargin)}>
+        <button
+          type="button"
+          onClick={handleSelectToday}
+          disabled={isTodayUnavailable}
+          className={cn(
+            "flex-1 font-semibold rounded-xl",
+            "bg-linear-to-r from-primary/10 to-primary/5 border border-primary/30",
+            "text-primary hover:from-primary/20 hover:to-primary/10 hover:border-primary/50",
+            "transition-all duration-300 flex items-center justify-center",
+            "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:shadow-primary/10",
+            sizeStyles[size].actionButton,
+            isTodayUnavailable && "opacity-50 cursor-not-allowed hover:scale-100 active:scale-100",
+          )}
+        >
+          <Sparkles className={sizeStyles[size].actionIcon} />
+          {t("today")}
+        </button>
+        <button
+          type="button"
+          onClick={handleClear}
+          className={cn(
+            "flex-1 font-semibold rounded-xl",
+            "bg-linear-to-r from-destructive/10 to-destructive/5 border border-destructive/30",
+            "text-destructive hover:from-destructive/20 hover:to-destructive/10 hover:border-destructive/50",
+            "transition-all duration-300 flex items-center justify-center",
+            "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:shadow-destructive/10",
+            sizeStyles[size].actionButton,
+          )}
+        >
+          <XIcon className={sizeStyles[size].actionIcon} />
+          {t("clear")}
+        </button>
       </div>
-      {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-0.5 p-1 rounded-xl bg-muted/20">{renderGrid()}</div>
     </div>
   );
 
   const displayFormat = (date: Date) => formatDateShort(date);
 
-  const label =
+  const displayLabel =
     tempStart && tempEnd ? `${displayFormat(tempStart)} - ${displayFormat(tempEnd)}` : tempStart ? `${displayFormat(tempStart)} - ...` : placeholder;
+  const effectiveError = localRequiredError;
+  const autoId = useId();
+  const resolvedId = id ? String(id) : `daterangepicker-${autoId}`;
+  const labelId = label ? `${resolvedId}-label` : undefined;
 
   return (
-    <Popover
-      open={isOpen}
-      onOpenChange={setIsOpen}
-      placement="bottom-start"
-      contentWidth={size === "sm" ? 240 : 280}
-      contentClassName={cn(
-        "p-0",
-        "backdrop-blur-xl bg-popover/95 border-border/40 shadow-2xl",
-        "rounded-2xl md:rounded-3xl",
-        "max-w-[calc(100vw-1rem)] max-h-[calc(100vh-6rem)] overflow-auto overscroll-contain",
-        size === "sm" ? "p-3" : "p-5",
-        "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
-      )}
-      trigger={
-        <button
-          type="button"
-          className={cn(
-            "group flex w-full items-center justify-between rounded-full border bg-background/80 backdrop-blur-sm",
-            size === "sm" ? "px-2 py-1.5 text-xs" : "px-3 py-2.5 text-sm",
-            "border-border/60 hover:border-primary/40",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-            "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
-            "transition-all duration-300 ease-out",
-            isOpen && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
-            className,
-          )}
+    <div className={cn("space-y-1.5", className)}>
+      {label && (
+        <label
+          id={labelId}
+          htmlFor={resolvedId}
+          className={cn(size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm", "font-medium text-foreground", effectiveError && "text-destructive", labelClassName)}
         >
-          <div className={cn("flex items-center", size === "sm" ? "gap-1.5" : "gap-2.5")}>
-            <div
-              className={cn(
-                "flex items-center justify-center transition-colors duration-300",
-                isOpen ? "text-primary" : "text-muted-foreground group-hover:text-primary",
-              )}
-            >
-              <Calendar className={cn("transition-transform duration-300", size === "sm" ? "h-3 w-3" : "h-4 w-4", isOpen && "scale-110")} />
+          {label}
+          {required && <span className="text-destructive ml-1">*</span>}
+        </label>
+      )}
+      <input
+        tabIndex={-1}
+        aria-hidden="true"
+        value={startDate && endDate ? "selected" : ""}
+        onChange={() => {}}
+        required={required}
+        onInvalid={(e) => {
+          e.preventDefault();
+          setLocalRequiredError(tv("required"));
+        }}
+        className="pointer-events-none absolute h-0 w-0 opacity-0"
+      />
+      <Popover
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        placement="bottom-start"
+        contentWidth={sizeStyles[size].contentWidth}
+        contentClassName={cn(
+          "p-0",
+          "backdrop-blur-xl bg-popover/95 border-border/40 shadow-2xl",
+          "rounded-2xl md:rounded-3xl",
+          "max-w-[calc(100vw-1rem)] max-h-[calc(100vh-6rem)] overflow-auto overscroll-contain",
+          sizeStyles[size].contentPadding,
+          "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
+        )}
+        trigger={
+          <button
+            id={resolvedId}
+            type="button"
+            aria-labelledby={labelId}
+            aria-required={required}
+            aria-invalid={!!effectiveError}
+            className={cn(
+              "group flex w-full items-center justify-between rounded-full border bg-background/80 backdrop-blur-sm",
+              sizeStyles[size].trigger,
+              "border-border/60 hover:border-primary/40",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
+              "transition-all duration-300 ease-out",
+              isOpen && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
+              effectiveError && "border-destructive/60 focus-visible:ring-destructive/50 bg-destructive/5",
+            )}
+          >
+            <div className={cn("flex items-center", size === "sm" ? "gap-1.5" : "gap-2.5")}>
+              <div
+                className={cn(
+                  "flex items-center justify-center transition-colors duration-300",
+                  effectiveError ? "text-destructive" : isOpen ? "text-primary" : "text-muted-foreground group-hover:text-primary",
+                )}
+              >
+                <Calendar className={cn("transition-transform duration-300", sizeStyles[size].calendarIcon, isOpen && "scale-110")} />
+              </div>
+              <span
+                className={cn(
+                  "truncate font-medium transition-colors duration-200",
+                  !tempStart && !tempEnd && "text-muted-foreground",
+                  (tempStart || tempEnd) && "text-foreground",
+                )}
+              >
+                {displayLabel}
+              </span>
             </div>
-            <span
-              className={cn(
-                "truncate font-medium transition-colors duration-200",
-                !tempStart && !tempEnd && "text-muted-foreground",
-                (tempStart || tempEnd) && "text-foreground",
-              )}
-            >
-              {label}
+            <span className={cn("transition-all duration-300 text-muted-foreground group-hover:text-foreground", isOpen && "rotate-180 text-primary")}>
+              <svg className={cn(sizeStyles[size].navIcon)} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
             </span>
-          </div>
-          <span className={cn("transition-all duration-300 text-muted-foreground group-hover:text-foreground", isOpen && "rotate-180 text-primary")}>
-            <svg className={cn(size === "sm" ? "h-3 w-3" : "h-4 w-4")} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </span>
-        </button>
-      }
-    >
-      {panel}
-    </Popover>
+          </button>
+        }
+      >
+        {panel}
+      </Popover>
+      {effectiveError && <div className="text-xs text-destructive">{effectiveError}</div>}
+    </div>
   );
 };
 

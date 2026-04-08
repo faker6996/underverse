@@ -1231,11 +1231,16 @@
         "maxDate": "Ngày lớn nhất có thể chọn (bao gồm)."
       },
       "dateRangePicker": {
+        "id": "Thuộc tính id cho nút kích hoạt.",
         "startDate": "Ngày bắt đầu.",
         "endDate": "Ngày kết thúc.",
         "onChange": "Hàm thay đổi nhận (start, end).",
         "placeholder": "Placeholder khi chưa chọn khoảng.",
         "className": "Class tuỳ chỉnh cho nút kích hoạt.",
+        "label": "Nhãn hiển thị phía trên.",
+        "labelClassName": "Class tuỳ chỉnh cho nhãn.",
+        "required": "Đánh dấu bắt buộc.",
+        "size": "Kích thước hiển thị (sm, md, lg).",
         "disablePastDates": "Không cho phép chọn ngày trước hôm nay.",
         "minDate": "Ngày nhỏ nhất có thể chọn (bao gồm).",
         "maxDate": "Ngày lớn nhất có thể chọn (bao gồm)."
