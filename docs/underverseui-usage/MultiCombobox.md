@@ -13,7 +13,7 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 - **Icons & Descriptions**: Options can have icons, descriptions, and be disabled
 - **Grouped Options**: Group options using `groupBy` function
 - **Error & Helper Text**: Display validation errors and helper text
-- **Required Validation**: `required` now participates in form validation for the custom trigger
+- **Required Validation**: `required` now participates in form validation like `Input`
 - **Custom Rendering**: Use `renderOption` and `renderTag` for custom UI
 - **Variants**: Three visual styles - `default`, `outline`, `ghost`
 - **Tag Limit**: Control visible tags with `maxTagsVisible`
@@ -26,7 +26,7 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 - Dropdown width matches the trigger by default.
 - Search is enabled automatically when options > 10.
 - Header shows selected count and max limit.
-- When `required` is set, the component exposes required semantics and shows a red error state if the form is validated without any selected value.
+- When `required` is set, the component exposes required semantics, switches to the destructive state if the parent form validates before any value is selected, and clears the local required error as soon as at least one valid value is chosen.
 
 ## Accessibility
 
@@ -104,7 +104,7 @@ const options = [
 </form>
 ```
 
-If the form is validated before at least one item is selected, the trigger and label switch to the destructive state and the helper area shows the required error.
+If the form is validated before at least one item is selected, the trigger, label, and helper area switch to the destructive state. The local required error clears once the user selects a valid value.
 
 ### Limited Tags Display
 

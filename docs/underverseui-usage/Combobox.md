@@ -13,7 +13,7 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 - **Icons & Descriptions**: Options can have icons, descriptions, and be disabled
 - **Grouped Options**: Group options using `groupBy` function
 - **Error & Helper Text**: Display validation errors and helper text
-- **Required Validation**: `required` now participates in form validation for the custom trigger
+- **Required Validation**: `required` now participates in form validation like `Input`
 - **Custom Rendering**: Use `renderOption` and `renderValue` for custom UI
 - **Variants**: Four visual styles - `default`, `outline`, `ghost`, `filled`
 - **Keyboard Navigation**: Full keyboard support with arrow keys, Enter, Escape
@@ -23,7 +23,7 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 - Dropdown uses `Popover` internally (portal + fixed positioning + auto flip/clamp in viewport).
 - Dropdown width matches the trigger by default.
 - Search is enabled automatically when options > 10.
-- When `required` is set, the component exposes required semantics and shows a red error state if the form is validated without a selected value.
+- When `required` is set, the component exposes required semantics, switches to the destructive state if the parent form validates before a value is selected, and clears the local required error as soon as a valid value is chosen.
 
 ## Accessibility (Web Interface Guidelines Compliant)
 
@@ -100,7 +100,7 @@ const options = [
 </form>
 ```
 
-If the form is validated before a value is selected, the trigger and label switch to the destructive state and the helper area shows the required error.
+If the form is validated before a value is selected, the trigger, label, and helper area switch to the destructive state. The local required error clears once the user selects a valid value.
 
 ## Option Type
 

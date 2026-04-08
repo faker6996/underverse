@@ -64,7 +64,7 @@ const [selected, setSelected] = useState<number[]>([]);
 </form>
 ```
 
-When `required` is enabled, the custom trigger exposes required semantics and turns red if the parent form validates while nothing is selected.
+When `required` is enabled, the custom trigger participates in form validation like `Input`, switches to the destructive state if the parent form validates while nothing is selected, and clears the local required error once a valid selection is made.
 
 ### Single-select mode
 
@@ -148,7 +148,6 @@ interface CategoryTreeSelectProps {
   disabled?: boolean;
   label?: string;
   labelClassName?: string;
-  required?: boolean;
   size?: "sm" | "md" | "lg";
   variant?: "default" | "outline" | "ghost" | "filled";
   allowClear?: boolean;
