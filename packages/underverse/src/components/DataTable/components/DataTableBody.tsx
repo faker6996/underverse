@@ -96,6 +96,7 @@ export function DataTableBodyRows<T extends Record<string, any>>({
   getStickyColumnStyle,
   getStickyCellClass,
   t,
+  labels,
 }: {
   leafColumns: DataTableColumn<T>[];
   displayedData: T[];
@@ -109,6 +110,7 @@ export function DataTableBodyRows<T extends Record<string, any>>({
   getStickyColumnStyle: (col: DataTableColumn<T>) => React.CSSProperties;
   getStickyCellClass: (col: DataTableColumn<T>, isStripedRow: boolean) => string;
   t: (key: string) => string;
+  labels?: { noData?: string };
 }) {
   return (
     <TableBody>
@@ -131,7 +133,7 @@ export function DataTableBodyRows<T extends Record<string, any>>({
       ) : displayedData.length === 0 ? (
         <TableRow>
           <TableCell colSpan={leafColumns.length} className="text-center py-6 text-muted-foreground">
-            {t("noData")}
+            {labels?.noData || t("noData")}
           </TableCell>
         </TableRow>
       ) : (

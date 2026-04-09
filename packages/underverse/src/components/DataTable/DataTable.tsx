@@ -319,6 +319,7 @@ export function DataTable<T extends Record<string, any>>({
               getStickyColumnStyle={getStickyColumnStyle}
               getStickyCellClass={getStickyCellClass}
               t={t}
+              labels={labels}
             />
           </Table>
         </div>

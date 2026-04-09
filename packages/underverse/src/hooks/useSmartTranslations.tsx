@@ -50,15 +50,6 @@ function getEnvironmentLocale(fallback: Locale): Locale {
   return fallback;
 }
 
-function getExternalLocaleFallback(internalLocale: Locale): Locale {
-  // An explicit internal locale should win over environment sniffing.
-  if (internalLocale !== "en") {
-    return internalLocale;
-  }
-
-  return getEnvironmentLocale(internalLocale);
-}
-
 /**
  * Smart translation hook that:
  * 1. Uses NextIntlAdapter if available and not forced to use internal
@@ -82,14 +73,25 @@ export function useSmartTranslations(namespace: string): (key: string) => string
   const nextIntlBridge = useNextIntlBridge();
   const internalT = useUnderverseTranslations(namespace);
   const internalLocale = useUnderverseLocale();
+  const [environmentLocale, setEnvironmentLocale] = React.useState<Locale | null>(null);
+
+  React.useEffect(() => {
+    if (forceInternal) return;
+    if (nextIntlBridge) return;
+    if (internalLocale !== "en") return;
+    const detected = getEnvironmentLocale(internalLocale);
+    if (detected !== internalLocale) {
+      setEnvironmentLocale(detected);
+    }
+  }, [forceInternal, internalLocale, nextIntlBridge]);
 
   if (forceInternal) {
     return internalT;
   }
 
-  const resolvedLocale = nextIntlBridge?.locale ?? getExternalLocaleFallback(internalLocale);
-
   return (key: string) => {
+    const primaryLocale = nextIntlBridge?.locale ?? internalLocale;
+    const fallbackLocale = environmentLocale && environmentLocale !== primaryLocale ? environmentLocale : null;
     let translated: string | null = null;
 
     if (nextIntlBridge) {
@@ -97,27 +99,31 @@ export function useSmartTranslations(namespace: string): (key: string) => string
       translated = nextIntlResult.translated;
     }
 
-    const effectiveLocale = nextIntlBridge?.locale ?? getEnvironmentLocale(resolvedLocale);
-    const localizedDefault = getUnderverseDefaultTranslation(effectiveLocale, namespace, key);
+    const localizedDefault = getUnderverseDefaultTranslation(primaryLocale, namespace, key);
+    const fallbackLocalizedDefault = fallbackLocale ? getUnderverseDefaultTranslation(fallbackLocale, namespace, key) : key;
     const englishDefault = getUnderverseDefaultTranslation("en", namespace, key);
     const internalValue = internalT(key);
 
     if (
       translated
       && !isUnresolvedTranslation(translated, namespace, key)
-      && !(effectiveLocale !== "en" && localizedDefault !== englishDefault && translated === englishDefault)
+      && !(primaryLocale !== "en" && localizedDefault !== englishDefault && translated === englishDefault)
     ) {
       return translated;
     }
 
     // Only trust internal translations ahead of locale defaults when the
     // internal provider is actually aligned with the resolved locale.
-    if (internalLocale === effectiveLocale && internalValue !== key) {
+    if (internalLocale === primaryLocale && internalValue !== key) {
       return internalValue;
     }
 
     if (localizedDefault !== key) {
       return localizedDefault;
+    }
+
+    if (fallbackLocalizedDefault !== key) {
+      return fallbackLocalizedDefault;
     }
 
     if (internalValue !== key) {
@@ -141,12 +147,11 @@ export function useSmartLocale(): Locale {
   const nextIntlBridge = useNextIntlBridge();
   const internalLocale = useUnderverseLocale();
 
-  // If forced to use internal, use internal locale only
   if (forceInternal) {
     return internalLocale;
   }
 
-  return nextIntlBridge?.locale ?? getExternalLocaleFallback(internalLocale);
+  return nextIntlBridge?.locale ?? internalLocale;
 }
 
 export default useSmartTranslations;
