@@ -86,6 +86,12 @@ const defaultLabels: Required<CategoryTreeSelectLabels> = {
   noResultsText: "No results found",
 };
 
+const TREE_NODE_BASE_PADDING_REM = 0.75;
+const TREE_NODE_INDENT_REM = 1;
+const TREE_BRANCH_OFFSET_CLASS = "ml-1.5 pl-1.5";
+const TREE_NODE_GAP_CLASS = "gap-1.5";
+const TREE_EXPANDER_PLACEHOLDER_CLASS = "w-5";
+
 function getInitialExpandedNodes(categories: Category[], defaultExpanded: boolean, viewOnly: boolean, inline: boolean) {
   if (!(viewOnly || inline) || !defaultExpanded) return new Set<number>();
 
@@ -322,13 +328,14 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
         <div
           onClick={() => !viewOnly && handleSelect(category.id, category)}
           className={cn(
-            "relative flex min-w-0 items-center gap-2.5 px-3 py-2.5 min-h-11 transition-all duration-200 rounded-3xl",
+            "relative flex min-w-0 items-center px-3 py-2.5 min-h-11 transition-all duration-200 rounded-3xl",
+            TREE_NODE_GAP_CLASS,
             !viewOnly && (isSelectable ? "cursor-pointer" : "cursor-default"),
             isSelectable && !isSelected && "hover:bg-accent/50",
             // Selected state - đồng bộ cho tất cả
             !viewOnly && isSelected && "bg-accent/40",
           )}
-          style={{ paddingLeft: `${level * 1.25 + 0.75}rem` }}
+          style={{ paddingLeft: `${level * TREE_NODE_INDENT_REM + TREE_NODE_BASE_PADDING_REM}rem` }}
         >
           {/* Left indicator removed - using border instead */}
 
@@ -341,7 +348,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
                 toggleExpand(category.id);
               }}
               className={cn(
-                "p-1.5 rounded-lg transition-all duration-200",
+                "p-0.5 rounded-lg transition-all duration-200",
                 "hover:scale-110 active:scale-95",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
                 isExpanded && "text-primary",
@@ -354,12 +361,12 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
               </div>
             </button>
           ) : (
-            <span className="w-7" />
+            <span className={TREE_EXPANDER_PLACEHOLDER_CLASS} />
           )}
 
           {viewOnly ? (
             // View-only mode: just display the name with folder icon
-            <div className="flex min-w-0 items-center gap-2.5">
+            <div className={cn("flex min-w-0 items-center", TREE_NODE_GAP_CLASS)}>
               {category.icon ? (
                 <div className="h-4 w-4 shrink-0 flex items-center justify-center text-muted-foreground/60">{category.icon}</div>
               ) : hasChildren ? (
@@ -371,7 +378,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
             </div>
           ) : (
             // Single/Multi select mode: icon + text + badge
-            <div className="flex min-w-0 flex-1 items-center gap-2.5 overflow-hidden">
+            <div className={cn("flex min-w-0 flex-1 items-center overflow-hidden", TREE_NODE_GAP_CLASS)}>
               {category.icon && <div className="h-4 w-4 shrink-0 flex items-center justify-center text-current">{category.icon}</div>}
               <span
                 className={cn(
@@ -393,7 +400,13 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
 
         {/* Children with animated container */}
         {hasChildren && isExpanded && (
-          <div className={cn("ml-2 pl-2 border-l-2 border-dashed border-border/50", "animate-in slide-in-from-top-2 fade-in-50 duration-200")}>
+          <div
+            className={cn(
+              TREE_BRANCH_OFFSET_CLASS,
+              "border-l-2 border-dashed border-border/50",
+              "animate-in slide-in-from-top-2 fade-in-50 duration-200",
+            )}
+          >
             {children.map((child) => renderCategory(child, level + 1))}
           </div>
         )}
