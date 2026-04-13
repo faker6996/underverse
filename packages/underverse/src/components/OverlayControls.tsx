@@ -6,6 +6,34 @@ import { cn } from "../utils/cn";
 import { Dot, Maximize2, Pause, Play, RotateCcw, RotateCw, Volume2, VolumeX } from "lucide-react";
 import React from "react";
 
+function resolveKeyboardEventElement(target: EventTarget | null) {
+  if (target instanceof Element) return target;
+  if (target instanceof Node) return target.parentElement;
+  return null;
+}
+
+function isEditableKeyboardTarget(target: EventTarget | null) {
+  const element = resolveKeyboardEventElement(target);
+  if (!element) return false;
+
+  if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) {
+    return true;
+  }
+
+  if (element instanceof HTMLElement && element.isContentEditable) {
+    return true;
+  }
+
+  if (
+    element.closest?.('[contenteditable=""],[contenteditable="true"],[contenteditable="plaintext-only"]')
+    || element.closest?.('[role="textbox"]')
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 export interface OverlayControlsProps {
   mode: "live" | "review";
   value: number;
@@ -170,8 +198,8 @@ export default function OverlayControls({
     if (!enableKeyboardShortcuts) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is typing in an input
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      // Ignore when focus is inside any editable surface, including contentEditable editors.
+      if (isEditableKeyboardTarget(e.target)) return;
 
       switch (e.key) {
         case " ":
