@@ -3,6 +3,7 @@ import type React from "react";
 export type FilterType = "text" | "select" | "date";
 export type DataTableSize = "sm" | "md" | "lg";
 export type DataTableDensity = "compact" | "normal" | "comfortable";
+export type DataTableHorizontalMode = "auto" | "scroll" | "fit";
 
 export type DataTableColumn<T> = {
   key: string; // unique key
@@ -95,6 +96,13 @@ export interface DataTableProps<T> {
   stickyHeader?: boolean;
   /** Chiều cao tối đa của bảng khi bật stickyHeader (mặc định: 500px) */
   maxHeight?: number | string;
+  /**
+   * Horizontal sizing strategy for the table viewport.
+   * - "auto": default, prefer fitting the container and only scroll when content truly overflows
+   * - "scroll": preserve explicit column widths and force horizontal scrolling via min-width aggregation
+   * - "fit": use fixed table layout and suppress horizontal scrolling
+   */
+  horizontalMode?: DataTableHorizontalMode;
   /** Clip overflow của outer wrapper. Tắt khi cần cho phép shadow/focus ring tràn ra ngoài. */
   overflowHidden?: boolean;
   /** Enable OverlayScrollbars on table viewport. Default: false */

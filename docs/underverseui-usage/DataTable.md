@@ -106,6 +106,13 @@ interface DataTableProps<T> {
   stickyHeader?: boolean;
   /** Chiều cao tối đa của bảng khi bật stickyHeader. Mặc định là 500px */
   maxHeight?: number | string;
+  /**
+   * Chiến lược layout ngang của bảng.
+   * - "auto": mặc định, không ép minWidth; chỉ cuộn ngang khi layout thực sự overflow
+   * - "scroll": giữ width cột và ép horizontal scroll như behavior cũ
+   * - "fit": dùng fixed layout và khóa cuộn ngang
+   */
+  horizontalMode?: "auto" | "scroll" | "fit";
   /** Clip overflow của outer wrapper. Mặc định là true */
   overflowHidden?: boolean;
   /** Enable OverlayScrollbars on table viewport. Default: false */
@@ -155,6 +162,39 @@ Nếu cell content, custom render, hoặc focus ring cần tràn ra ngoài viề
   overflowHidden={false}
 />
 ```
+
+### Horizontal Layout Mode
+
+`DataTable` hỗ trợ `horizontalMode` để kiểm soát cách xử lý chiều ngang:
+
+- `auto` -> mặc định, không ép `minWidth`; bảng sẽ fit container trước và chỉ cuộn ngang khi content thực sự overflow
+- `scroll` -> giữ behavior width-driven cũ bằng cách ép `minWidth` theo tổng width cột
+- `fit` -> dùng `table-fixed` và khóa cuộn ngang ở cả viewport lẫn OverlayScrollbars nếu đang bật `useOverlayScrollbar`
+
+Ví dụ:
+
+```tsx
+<DataTable columns={columns} data={data} horizontalMode="auto" />
+<DataTable columns={columns} data={data} horizontalMode="scroll" />
+<DataTable columns={columns} data={data} horizontalMode="fit" />
+```
+
+### Vertical Scroll Only
+
+Khi cần header sticky + cuộn dọc nhưng không muốn có track cuộn ngang, dùng:
+
+```tsx
+<DataTable
+  columns={compactColumns}
+  data={rows}
+  stickyHeader
+  maxHeight={260}
+  horizontalMode="fit"
+  useOverlayScrollbar
+/>
+```
+
+Mode này phù hợp cho các bảng ít cột hoặc dashboard summary, nơi bạn muốn bảng bám đúng chiều ngang container.
 
 ## DataTableColumn
 
@@ -286,6 +326,7 @@ DataTable hỗ trợ cố định header khi cuộn dọc. Mặc định đượ
 | -------------- | ---------------- | ------- | ---------------------------------------------- |
 | `stickyHeader` | `boolean`        | `true`  | Cố định header khi cuộn dọc                    |
 | `maxHeight`    | `number\|string` | `500`   | Chiều cao tối đa của bảng (px hoặc CSS string) |
+| `horizontalMode` | `"auto" \| "scroll" \| "fit"` | `"auto"` | `auto`: fit trước rồi mới overflow, `scroll`: ép scroll ngang, `fit`: khóa cuộn ngang |
 | `useOverlayScrollbar` | `boolean` | `false` | Bật OverlayScrollbars cho viewport cuộn của DataTable |
 
 ### Tính năng

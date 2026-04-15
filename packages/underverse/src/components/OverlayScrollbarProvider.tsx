@@ -28,6 +28,8 @@ export function OverlayScrollbarProvider({
   autoHideDelay = DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR.autoHideDelay,
   dragScroll = DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR.dragScroll,
   clickScroll = DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR.clickScroll,
+  overflowX = DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR.overflowX,
+  overflowY = DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR.overflowY,
   exclude = DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR.exclude,
   selector,
   children,
@@ -42,9 +44,11 @@ export function OverlayScrollbarProvider({
         autoHideDelay,
         dragScroll,
         clickScroll,
+        overflowX,
+        overflowY,
         exclude,
       }),
-    [enabled, theme, visibility, autoHide, autoHideDelay, dragScroll, clickScroll, exclude],
+    [enabled, theme, visibility, autoHide, autoHideDelay, dragScroll, clickScroll, overflowX, overflowY, exclude],
   );
 
   void selector;
@@ -65,6 +69,8 @@ export function useOverlayScrollbarTarget<T extends HTMLElement>(
   const autoHideDelay = options.autoHideDelay ?? inherited.autoHideDelay;
   const dragScroll = options.dragScroll ?? inherited.dragScroll;
   const clickScroll = options.clickScroll ?? inherited.clickScroll;
+  const overflowX = options.overflowX ?? inherited.overflowX;
+  const overflowY = options.overflowY ?? inherited.overflowY;
   const exclude = options.exclude ?? inherited.exclude;
 
   const resolved = useMemo(
@@ -77,9 +83,11 @@ export function useOverlayScrollbarTarget<T extends HTMLElement>(
         autoHideDelay,
         dragScroll,
         clickScroll,
+        overflowX,
+        overflowY,
         exclude,
       }),
-    [enabled, theme, visibility, autoHide, autoHideDelay, dragScroll, clickScroll, exclude],
+    [enabled, theme, visibility, autoHide, autoHideDelay, dragScroll, clickScroll, overflowX, overflowY, exclude],
   );
 
   useEffect(() => {
@@ -108,6 +116,8 @@ export function useOverlayScrollbarTarget<T extends HTMLElement>(
     resolved.autoHideDelay,
     resolved.dragScroll,
     resolved.clickScroll,
+    resolved.overflowX,
+    resolved.overflowY,
     resolved.exclude,
   ]);
 }

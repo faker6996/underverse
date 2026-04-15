@@ -18,6 +18,8 @@ export interface OverlayScrollbarBehavior {
   autoHideDelay: number;
   dragScroll: boolean;
   clickScroll: boolean;
+  overflowX: "hidden" | "visible" | "scroll" | "visible-hidden" | "visible-scroll";
+  overflowY: "hidden" | "visible" | "scroll" | "visible-hidden" | "visible-scroll";
   exclude: string;
 }
 
@@ -29,6 +31,8 @@ export const DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR: OverlayScrollbarBehavior = {
   autoHideDelay: 600,
   dragScroll: true,
   clickScroll: false,
+  overflowX: "scroll",
+  overflowY: "scroll",
   exclude: DEFAULT_OVERLAY_SCROLLBAR_EXCLUDE,
 };
 
@@ -41,6 +45,10 @@ export function resolveOverlayScrollbarBehavior(overrides: Partial<OverlayScroll
 
 export function buildOverlayScrollbarOptions(config: OverlayScrollbarBehavior): PartialOptions {
   return {
+    overflow: {
+      x: config.overflowX,
+      y: config.overflowY,
+    },
     scrollbars: {
       theme: config.theme,
       visibility: config.visibility,

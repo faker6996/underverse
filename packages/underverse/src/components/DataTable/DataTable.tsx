@@ -117,6 +117,7 @@ export function DataTable<T extends Record<string, any>>({
   storageKey,
   stickyHeader = true,
   maxHeight = 500,
+  horizontalMode = "auto",
   overflowHidden = true,
   useOverlayScrollbar = false,
   enableHeaderAutoFit = true,
@@ -198,6 +199,10 @@ export function DataTable<T extends Record<string, any>>({
   });
 
   const { getStickyCellClass, getStickyColumnStyle, getStickyHeaderClass, getStickyHeaderCellStyle } = useStickyColumns(visibleColumns);
+  const shouldForceHorizontalScroll = horizontalMode === "scroll";
+  const shouldUseFixedLayout = horizontalMode !== "auto";
+  const viewportOverflowXClass = horizontalMode === "fit" ? "overflow-x-hidden" : "overflow-x-auto";
+  const overlayOverflowX = horizontalMode === "fit" ? "hidden" : "scroll";
 
   const getRowKey = (row: T, idx: number) => {
     if (!rowKey) return String(idx);
@@ -207,7 +212,10 @@ export function DataTable<T extends Record<string, any>>({
 
   const viewportRef = React.useRef<HTMLDivElement>(null);
   const tableRef = React.useRef<HTMLTableElement>(null);
-  useOverlayScrollbarTarget(viewportRef, { enabled: useOverlayScrollbar });
+  useOverlayScrollbarTarget(viewportRef, {
+    enabled: useOverlayScrollbar,
+    overflowX: overlayOverflowX,
+  });
 
   const autoFitColumn = React.useCallback((columnKey: string) => {
     const tableElement = tableRef.current;
@@ -273,17 +281,17 @@ export function DataTable<T extends Record<string, any>>({
       >
         <div
           ref={viewportRef}
-          className={cn("w-full overflow-x-auto", stickyHeader && "overflow-y-auto")}
+          className={cn("w-full", viewportOverflowXClass, stickyHeader && "overflow-y-auto")}
           style={stickyHeader ? { maxHeight: typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight } : undefined}
         >
           <Table
             ref={tableRef}
             disableContainer
             className={cn(
-              "table-fixed",
+              shouldUseFixedLayout ? "table-fixed" : "table-auto",
               stickyHeader && ["[&_thead]:sticky", "[&_thead]:top-0", "[&_thead]:z-20", "[&_thead]:shadow-[0_1px_3px_rgba(0,0,0,0.1)]"],
             )}
-            style={{ minWidth: totalColumnsWidth > 0 ? `${totalColumnsWidth}px` : undefined }}
+            style={{ minWidth: shouldForceHorizontalScroll && totalColumnsWidth > 0 ? `${totalColumnsWidth}px` : undefined }}
           >
             <TableHeader>
               <DataTableHeader

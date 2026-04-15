@@ -159,6 +159,7 @@ export default function DataTableExample() {
   toolbar={toolbar}
   striped
   columnDividers
+  horizontalMode="auto" // default: do not force minWidth; scroll only when actual overflow happens
   enableHeaderAlignToggle  // New: toggle header alignment
   storageKey="example-table"  // Lưu pageSize vào localStorage
   useOverlayScrollbar // bật OverlayScrollbars cho viewport bảng
@@ -244,6 +245,13 @@ export default function DataTableExample() {
     },
   ];
 
+  const verticalOnlyColumns: DataTableColumn<Row>[] = [
+    { key: "name", title: "Name", dataIndex: "name", sortable: true },
+    { key: "role", title: "Role", dataIndex: "role" },
+    { key: "status", title: "Status", dataIndex: "status" },
+    { key: "created_at", title: "Created", dataIndex: "created_at" },
+  ];
+
   const demo = (
     <DataTable<Row>
       columns={columns}
@@ -291,6 +299,7 @@ export default function DataTableExample() {
       toolbar={toolbar}
       striped
       columnDividers
+      horizontalMode="scroll"
       storageKey="example-table-grouped"
       stickyHeader
       maxHeight={400}
@@ -303,6 +312,37 @@ export default function DataTableExample() {
         comfortable: t("comfortable"),
       }}
     />
+  );
+
+  const demoVerticalOnly = (
+    <div className="space-y-4">
+      <div className="rounded-lg border border-border/50 bg-muted/40 p-4">
+        <h3 className="text-sm font-semibold">Vertical Scroll Without Horizontal Scroll</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          This example keeps sticky header and vertical scrolling, but uses a compact column set with
+          <code className="mx-1 rounded bg-background px-1 py-0.5">horizontalMode="fit"</code>
+          to lock horizontal scrolling. OverlayScrollbars is still enabled here for the vertical axis only.
+        </p>
+      </div>
+      <DataTable<Row>
+        columns={verticalOnlyColumns}
+        data={ALL.slice(0, 20)}
+        rowKey="id"
+        page={1}
+        pageSize={20}
+        stickyHeader
+        maxHeight={260}
+        horizontalMode="fit"
+        useOverlayScrollbar
+        labels={{
+          density: t("density"),
+          columns: t("columns"),
+          compact: t("compact"),
+          normal: t("normal"),
+          comfortable: t("comfortable"),
+        }}
+      />
+    </div>
   );
 
   const groupedCode = `// Multi-row headers example with column grouping
@@ -350,6 +390,7 @@ const groupedColumns: DataTableColumn<User>[] = [
       <Tabs
         tabs={[
           { value: "preview", label: td("tabs.preview"), content: <div className="p-1">{demo}</div> },
+          { value: "vertical-only", label: "Vertical Only", content: <div className="p-1">{demoVerticalOnly}</div> },
           {
             value: "multi-row",
             label: "Multi-Row Headers",
@@ -394,6 +435,7 @@ const groupedColumns: DataTableColumn<User>[] = [
                     { property: "size", description: td("props.dataTable.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
                     { property: "striped", description: td("props.dataTable.striped"), type: "boolean", default: "true" },
                     { property: "columnDividers", description: td("props.dataTable.columnDividers"), type: "boolean", default: "false" },
+                    { property: "horizontalMode", description: 'Chiến lược layout ngang của bảng: "auto" = fit trước rồi mới overflow, "scroll" = ép cuộn ngang, "fit" = khóa cuộn ngang', type: '"auto" | "scroll" | "fit"', default: '"auto"' },
                     { property: "useOverlayScrollbar", description: "Enable OverlayScrollbars for table viewport", type: "boolean", default: "false" },
                     { property: "enableDensityToggle", description: td("props.dataTable.enableDensityToggle"), type: "boolean", default: "true" },
                     {

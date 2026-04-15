@@ -11,7 +11,7 @@ export interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
   useOverlayScrollbar?: boolean;
 }
 
-const TABLE_BASE_CLASS = "w-full caption-bottom text-sm";
+const TABLE_BASE_CLASS = "w-full border-collapse caption-bottom text-sm";
 const TABLE_CONTAINER_BASE_CLASS = [
   "relative w-full overflow-auto",
   "rounded-2xl md:rounded-3xl border border-border/50",
