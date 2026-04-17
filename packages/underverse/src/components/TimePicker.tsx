@@ -478,7 +478,7 @@ function WheelColumn({
          
           className={cn(
             "h-full overflow-y-auto overscroll-contain snap-y snap-mandatory",
-            "select-none cursor-grab active:cursor-grabbing",
+            "select-none",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xl",
             "[scrollbar-width:none] [-ms-overflow-style:none]",
             "[&::-webkit-scrollbar]:hidden",
@@ -489,15 +489,7 @@ function WheelColumn({
           tabIndex={focused ? 0 : -1}
           onKeyDown={(e) => onKeyDown(e, column)}
           onFocus={() => setFocusedColumn(column)}
-          onScroll={() => {
-            if (draggingRef.current) return;
-            if (inertialRef.current) return;
-            handleScroll();
-          }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={(e) => endDrag(e.pointerId)}
-          onPointerCancel={(e) => endDrag(e.pointerId)}
+          onScroll={handleScroll}
         >
           <div>
             {extendedItems.map((n, index) => {
@@ -580,6 +572,21 @@ function formatTime({ h, m, s, p }: Parts, fmt: TimeFormat, includeSeconds?: boo
   return includeSeconds ? `${base}:${pad(s)}` : base;
 }
 
+function isCompleteTimeInput(input: string, fmt: TimeFormat, includeSeconds?: boolean): boolean {
+  const trimmed = input.trim().toUpperCase();
+  if (!trimmed) return false;
+
+  if (fmt === "12") {
+    return includeSeconds
+      ? /^\d{1,2}:\d{2}:\d{2}\s?(AM|PM)$/.test(trimmed)
+      : /^\d{1,2}:\d{2}\s?(AM|PM)$/.test(trimmed);
+  }
+
+  return includeSeconds
+    ? /^\d{1,2}:\d{2}:\d{2}$/.test(trimmed)
+    : /^\d{1,2}:\d{2}$/.test(trimmed);
+}
+
 // Time presets with icons
 const PRESETS = {
   morning: { h: 9, m: 0, s: 0, icon: Coffee, label: "Morning", color: "from-amber-400 to-orange-400" },
@@ -623,6 +630,7 @@ export default function TimePicker({
   ...rest
 }: TimePickerProps) {
   const tv = useSmartTranslations("ValidationInput");
+  const autoId = React.useId();
   const isControlled = value !== undefined;
   const now = new Date();
   const initial: Parts =
@@ -633,7 +641,8 @@ export default function TimePicker({
 
   const [open, setOpen] = React.useState(false);
   const [parts, setParts] = React.useState<Parts>(initial);
-  const [manualInput, setManualInput] = React.useState("");
+  const [manualInput, setManualInput] = React.useState(formatTime(initial, format, includeSeconds));
+  const [isDirectEditing, setIsDirectEditing] = React.useState(false);
   const [focusedColumn, setFocusedColumn] = React.useState<"hour" | "minute" | "second" | "period" | null>(null);
   const [localRequiredError, setLocalRequiredError] = React.useState<string | undefined>();
   const [hasCommittedValue, setHasCommittedValue] = React.useState<boolean>(Boolean(isControlled ? value : defaultValue));
@@ -641,6 +650,10 @@ export default function TimePicker({
   const hourScrollRef = React.useRef<HTMLDivElement>(null);
   const minuteScrollRef = React.useRef<HTMLDivElement>(null);
   const secondScrollRef = React.useRef<HTMLDivElement>(null);
+  const periodRef = React.useRef<HTMLDivElement>(null);
+  const directEditInputRef = React.useRef<HTMLInputElement>(null);
+  const triggerId = `time-picker-trigger-${autoId}`;
+  const labelId = label ? `time-picker-label-${autoId}` : undefined;
 
   React.useEffect(() => {
     if (isControlled) {
@@ -648,6 +661,16 @@ export default function TimePicker({
       if (parsed) setParts(parsed);
     }
   }, [value, isControlled, format, includeSeconds]);
+
+  React.useEffect(() => {
+    setManualInput(formatTime(parts, format, includeSeconds));
+  }, [format, includeSeconds, parts]);
+
+  React.useEffect(() => {
+    if (!isDirectEditing) return;
+    directEditInputRef.current?.focus();
+    directEditInputRef.current?.select();
+  }, [isDirectEditing]);
 
   React.useEffect(() => {
     if (isControlled) {
@@ -753,6 +776,24 @@ export default function TimePicker({
     }
   }, [disabled, hasCommittedValue, required]);
 
+  const focusColumn = React.useCallback((column: "hour" | "minute" | "second" | "period" | null) => {
+    if (!column) return;
+    const target =
+      column === "hour"
+        ? hourScrollRef.current
+        : column === "minute"
+          ? minuteScrollRef.current
+          : column === "second"
+            ? secondScrollRef.current
+            : periodRef.current;
+    target?.focus({ preventScroll: true });
+  }, []);
+
+  React.useEffect(() => {
+    if (variant !== "inline" && !open) return;
+    focusColumn(focusedColumn);
+  }, [focusColumn, focusedColumn, open, variant]);
+
   // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent, column: "hour" | "minute" | "second" | "period") => {
     if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End", "PageUp", "PageDown"].includes(e.key)) return;
@@ -801,6 +842,8 @@ export default function TimePicker({
     tryUpdate(newParts);
   };
 
+  const display = formatTime(parts, format, includeSeconds);
+
   const setNow = () => {
     const now = new Date();
     const h = now.getHours();
@@ -828,6 +871,7 @@ export default function TimePicker({
 
   const handleManualInput = (input: string) => {
     setManualInput(input);
+    if (!isCompleteTimeInput(input, format, includeSeconds)) return;
     const parsed = parseTime(input, format, includeSeconds);
     if (parsed) {
       const timeStr = formatTime(parsed, format, includeSeconds);
@@ -836,6 +880,61 @@ export default function TimePicker({
       }
     }
   };
+
+  const commitManualInput = React.useCallback(
+    (input: string) => {
+      const trimmed = input.trim();
+      if (!trimmed) {
+        setManualInput(display);
+        return false;
+      }
+
+      if (!isCompleteTimeInput(trimmed, format, includeSeconds)) {
+        setManualInput(display);
+        return false;
+      }
+
+      const parsed = parseTime(trimmed, format, includeSeconds);
+      if (!parsed) {
+        setManualInput(display);
+        return false;
+      }
+
+      const timeStr = formatTime(parsed, format, includeSeconds);
+      if (!isTimeInRange(timeStr) || isTimeDisabled(timeStr)) {
+        setManualInput(display);
+        return false;
+      }
+
+      const updated = tryUpdate(parsed);
+      if (!updated) {
+        setManualInput(display);
+        return false;
+      }
+
+      setManualInput(timeStr);
+      return true;
+    },
+    [display, format, includeSeconds, isTimeDisabled, isTimeInRange, tryUpdate],
+  );
+
+  const startDirectEdit = React.useCallback(() => {
+    if (disabled) return;
+    setManualInput(display);
+    setIsDirectEditing(true);
+  }, [disabled, display]);
+
+  const stopDirectEdit = React.useCallback(
+    (mode: "commit" | "cancel") => {
+      if (mode === "commit") {
+        commitManualInput(manualInput);
+      } else {
+        setManualInput(display);
+      }
+      setIsDirectEditing(false);
+    },
+    [commitManualInput, display, manualInput],
+  );
 
   const handleCustomPreset = (time: string) => {
     const parsed = parseTime(time, format, includeSeconds);
@@ -911,14 +1010,14 @@ export default function TimePicker({
   const compactPanel = variant === "compact";
   const effectiveError = error ?? localRequiredError;
 
-  const display = formatTime(parts, format, includeSeconds);
-
   const trigger =
     variant === "inline" ? null : (
       <button
+        id={triggerId}
         type="button"
         disabled={disabled}
         aria-label="Select time"
+        aria-labelledby={labelId}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-required={required}
@@ -957,11 +1056,11 @@ export default function TimePicker({
           <span
             className={cn(
               "truncate font-medium transition-colors duration-200",
-              !value && !defaultValue && "text-muted-foreground",
-              value || defaultValue ? "text-foreground" : "",
+              !hasCommittedValue && "text-muted-foreground",
+              hasCommittedValue ? "text-foreground" : "",
             )}
           >
-            {value || defaultValue ? display : placeholder}
+            {hasCommittedValue ? display : placeholder}
           </span>
         </div>
         <span className={cn("ml-2 transition-all duration-300 text-muted-foreground group-hover:text-foreground", open && "rotate-180 text-primary")}>
@@ -993,9 +1092,44 @@ export default function TimePicker({
     <div className={cn(panelSz.stackGap, compactPanel && "space-y-2.5")}>
       {/* Current Time Display */}
       <div className={cn("flex items-center justify-center py-1", compactPanel && "py-0.5")}>
-        <span className={cn(panelSz.timeText, "font-bold tabular-nums tracking-wide text-foreground underline underline-offset-8 decoration-primary/60")}>
-          {display}
-        </span>
+        {isDirectEditing ? (
+          <input
+            ref={directEditInputRef}
+            type="text"
+            value={manualInput}
+            onChange={(e) => setManualInput(e.target.value)}
+            onBlur={() => stopDirectEdit("commit")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                stopDirectEdit("commit");
+              }
+              if (e.key === "Escape") {
+                e.preventDefault();
+                stopDirectEdit("cancel");
+              }
+            }}
+            aria-label="Edit time value"
+            className={cn(
+              panelSz.timeText,
+              "min-w-0 w-36 bg-transparent border-b border-primary/60 text-center font-bold tabular-nums tracking-wide text-foreground",
+              "focus:outline-none focus:border-primary",
+            )}
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={startDirectEdit}
+            className={cn(
+              panelSz.timeText,
+              "font-bold tabular-nums tracking-wide text-foreground underline underline-offset-8 decoration-primary/60",
+              "rounded-md px-2 transition-colors hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+            )}
+            aria-label="Edit selected time"
+          >
+            {display}
+          </button>
+        )}
       </div>
 
       {/* Manual Input */}
@@ -1003,7 +1137,7 @@ export default function TimePicker({
         <div className="relative">
           <Input
             placeholder={format === "12" ? "02:30 PM" : "14:30"}
-            value={manualInput || display}
+            value={manualInput}
             onChange={(e) => handleManualInput(e.target.value)}
             size={panelSz.inputSize}
             variant="outlined"
@@ -1176,9 +1310,11 @@ export default function TimePicker({
           >
             <div className={cn(panelSz.periodLabel, "font-bold uppercase tracking-wider text-muted-foreground/70 text-center")}>Period</div>
             <div
+              ref={periodRef}
               className={cn("flex flex-col p-1 rounded-xl bg-muted/30", panelSz.periodGap)}
               role="radiogroup"
               aria-label="Select AM or PM"
+              aria-labelledby={labelId}
               tabIndex={focusedColumn === "period" ? 0 : -1}
               onKeyDown={(e) => handleKeyDown(e, "period")}
               onFocus={() => setFocusedColumn("period")}
@@ -1277,7 +1413,10 @@ export default function TimePicker({
       <div className="w-fit max-w-full" {...rest}>
         {label && (
           <div className="flex items-center justify-between mb-3">
-            <label className={cn(sz.label, "font-semibold", disabled ? "text-muted-foreground" : "text-foreground", effectiveError && "text-destructive")}>
+            <label
+              id={labelId}
+              className={cn(sz.label, "font-semibold", disabled ? "text-muted-foreground" : "text-foreground", effectiveError && "text-destructive")}
+            >
               {label}
               {required && <span className="text-destructive ml-1">*</span>}
             </label>
@@ -1316,6 +1455,8 @@ export default function TimePicker({
       {label && (
         <div className="flex items-center justify-between mb-2">
           <label
+            id={labelId}
+            htmlFor={triggerId}
             className={cn(
               sz.label,
               "font-semibold",

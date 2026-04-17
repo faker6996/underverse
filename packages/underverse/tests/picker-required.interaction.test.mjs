@@ -199,6 +199,59 @@ test("TimePicker inline variant clears required error after choosing now", async
   });
 });
 
+test("TimePicker arrow navigation moves DOM focus between wheel columns", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "TimePicker.tsx"));
+  const TimePicker = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  const view = await renderElement(React.createElement(TimePicker, { defaultValue: "14:30" }));
+  const body = within(window.document.body);
+  const trigger = view.container.querySelector('button[aria-label="Select time"]');
+  assert.ok(trigger);
+
+  await clickWithAct(user, trigger);
+  const hourListbox = await body.findByRole("listbox", { name: "Select hour" });
+  const minuteListbox = await body.findByRole("listbox", { name: "Select min" });
+
+  await act(async () => {
+    hourListbox.focus();
+  });
+  assert.equal(window.document.activeElement, hourListbox);
+
+  await act(async () => {
+    await user.keyboard("{ArrowRight}");
+  });
+
+  await waitFor(() => {
+    assert.equal(window.document.activeElement, minuteListbox);
+  });
+});
+
+test("TimePicker lets users click the current value and edit it directly", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "TimePicker.tsx"));
+  const TimePicker = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  const view = await renderElement(React.createElement(TimePicker, { defaultValue: "14:30" }));
+  const body = within(window.document.body);
+  const trigger = view.container.querySelector('button[aria-label="Select time"]');
+  assert.ok(trigger);
+
+  await clickWithAct(user, trigger);
+  await clickWithAct(user, await body.findByRole("button", { name: "Edit selected time" }));
+
+  const editInput = await body.findByRole("textbox", { name: "Edit time value" });
+  await act(async () => {
+    await user.clear(editInput);
+    await user.type(editInput, "09:15{Enter}");
+  });
+
+  await waitFor(() => {
+    assert.equal(body.queryByRole("textbox", { name: "Edit time value" }), null);
+    assert.ok(body.getByRole("button", { name: "Edit selected time" }).textContent?.includes("09:15"));
+  });
+});
+
 test("MonthYearPicker shows required error on submit and clears it after choosing this month", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "MonthYearPicker.tsx"));
   const MonthYearPicker = mod.MonthYearPicker ?? mod.default;

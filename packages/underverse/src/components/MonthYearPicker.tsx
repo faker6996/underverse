@@ -505,7 +505,7 @@ function WheelColumn({
          
           className={cn(
             "h-full overflow-y-auto overscroll-contain snap-y snap-mandatory",
-            "select-none cursor-grab active:cursor-grabbing",
+            "select-none",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xl",
             "[scrollbar-width:none] [-ms-overflow-style:none]",
             "[&::-webkit-scrollbar]:hidden",
@@ -516,15 +516,7 @@ function WheelColumn({
           tabIndex={focused ? 0 : -1}
           onKeyDown={(e) => onKeyDown(e, column)}
           onFocus={() => setFocusedColumn(column)}
-          onScroll={() => {
-            if (draggingRef.current) return;
-            if (inertialRef.current) return;
-            handleScroll();
-          }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={(e) => endDrag(e.pointerId)}
-          onPointerCancel={(e) => endDrag(e.pointerId)}
+          onScroll={handleScroll}
         >
           <div>
             {extendedItems.map((n, index) => {
