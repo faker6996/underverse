@@ -1,6 +1,6 @@
 # Tooltip
 
-Source: `components/ui/Tooltip.tsx`
+Source: `packages/underverse/src/components/Tooltip.tsx`
 
 Exports:
 
@@ -12,6 +12,8 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 
 - Renders in a portal (`document.body`) using `position: fixed` and measures actual tooltip size.
 - Auto-flips/clamps to stay within the viewport (no hardcoded width).
+- Uses `asChild` pattern by default: the child remains the real trigger element and `Tooltip` only augments props.
+- Does not add an extra wrapper by default, so event path stays safe for interactive triggers such as dropdown/menu buttons.
 
 ## Accessibility (Web Interface Guidelines Compliant)
 
@@ -57,5 +59,8 @@ interface TooltipProps {
   className?: string;
   disabled?: boolean;
   variant?: "default" | "info" | "warning" | "error" | "success";
+  asChild?: boolean;
 }
 ```
+
+`asChild` mặc định là `true`. Chỉ dùng `asChild={false}` nếu bạn thật sự muốn `Tooltip` tự bọc child bằng một phần tử trung gian.

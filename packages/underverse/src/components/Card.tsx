@@ -102,7 +102,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
               {title && (
                 <h3
                   className={cn(
-                    "min-w-0 text-base md:text-lg font-semibold leading-tight tracking-tight break-words [overflow-wrap:anywhere] transition-colors duration-200 max-md:text-sm",
+                    "min-w-0 text-base md:text-lg font-semibold leading-tight tracking-tight wrap-anywhere transition-colors duration-200 max-md:text-sm",
                     hoverable && "group-hover:text-primary",
                   )}
                 >
@@ -110,7 +110,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
                 </h3>
               )}
               {description && (
-                <p className="min-w-0 text-sm md:text-base text-muted-foreground leading-relaxed break-words [overflow-wrap:anywhere]">
+                <p className="min-w-0 text-sm md:text-base text-muted-foreground leading-relaxed wrap-anywhere">
                   {description}
                 </p>
               )}

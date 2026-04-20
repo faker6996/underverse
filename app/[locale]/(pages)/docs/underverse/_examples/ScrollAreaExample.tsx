@@ -46,7 +46,7 @@ export default function ScrollAreaExample() {
     `</ScrollArea>\n\n` +
     `// 5) Disable clipping on outer wrapper\n` +
     `<ScrollArea className="h-40 w-full" overflowHidden={false} contentClassName="rounded-md border border-border p-4">\n` +
-    `  <div className="min-w-[32rem]">Wide content can overflow the outer wrapper when needed.</div>\n` +
+    `  <div className="min-w-lg">Wide content can overflow the outer wrapper when needed.</div>\n` +
     `</ScrollArea>`;
 
   const demo = (
@@ -110,7 +110,7 @@ export default function ScrollAreaExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">With overflowHidden disabled</p>
         <ScrollArea className="h-40 w-full" overflowHidden={false} contentClassName="rounded-md border border-border p-4">
-          <div className="min-w-[32rem] space-y-2">
+          <div className="min-w-lg space-y-2">
             <div className="text-sm font-medium">Wide content is allowed to extend outside the outer wrapper.</div>
             <div className="text-sm text-muted-foreground">Use this when clipping the wrapper would cut off shadows, sticky elements, or horizontal overflow previews.</div>
           </div>

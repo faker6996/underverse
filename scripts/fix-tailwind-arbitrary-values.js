@@ -15,12 +15,13 @@
 
 import fs from "fs";
 import path from "path";
+import { spawnSync } from "node:child_process";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const FAIL_ON_UNHANDLED = process.argv.includes("--fail-on-unhandled");
 
 const NUMERIC_SIZE_UTILITY_PREFIXES = ["min-w", "max-w", "min-h", "max-h", "w", "h", "top", "left", "right", "bottom", "ml", "-ml"];
-const CONVERTIBLE_UTILITY_PREFIXES = [...NUMERIC_SIZE_UTILITY_PREFIXES, "text", "rounded"];
+const CONVERTIBLE_UTILITY_PREFIXES = [...NUMERIC_SIZE_UTILITY_PREFIXES, "text", "rounded", "blur", "backdrop-blur"];
 
 const UTILITY_GROUP = CONVERTIBLE_UTILITY_PREFIXES.map(escapeRegExp)
   // Ensure longer prefixes match first (e.g. "min-w" before "w")
@@ -60,7 +61,75 @@ const ANY_ARBITRARY_VALUE_REGEX = new RegExp(
   "gm",
 );
 
-const MAX_WIDTH_CANONICAL_REM = {
+const ARBITRARY_OPACITY_SLASH_REGEX = new RegExp(
+  TOKEN_BOUNDARY_REGEX_PART +
+    String.raw`((?:(?:[\w-]+|\[[^\]]+\]):)*)` +
+    String.raw`(!?)` +
+    String.raw`([\w-]+(?:-[\w-]+)*)` +
+    String.raw`/\[(\d+(?:\.\d+)?)\]`,
+  "gm",
+);
+
+const ARBITRARY_PROPERTY_REPLACEMENTS = {
+  "overflow-wrap:anywhere": "wrap-anywhere",
+};
+
+const ARBITRARY_PROPERTY_GROUP = Object.keys(ARBITRARY_PROPERTY_REPLACEMENTS)
+  .map(escapeRegExp)
+  .sort((a, b) => b.length - a.length)
+  .join("|");
+
+const ARBITRARY_PROPERTY_REGEX = new RegExp(
+  TOKEN_BOUNDARY_REGEX_PART +
+    String.raw`((?:(?:[\w-]+|\[[^\]]+\]):)*)` +
+    String.raw`(!?)` +
+    String.raw`\[(` +
+    ARBITRARY_PROPERTY_GROUP +
+    String.raw`)\]`,
+  "gm",
+);
+
+const CANONICAL_UTILITY_REPLACEMENTS = {
+  "break-words": "wrap-break-word",
+};
+
+const SELF_VARIANT_UTILITY_REPLACEMENTS = {
+  "w-full": "w-full",
+  "max-w-full": "max-w-full",
+};
+
+const CANONICAL_UTILITY_GROUP = Object.keys(CANONICAL_UTILITY_REPLACEMENTS)
+  .map(escapeRegExp)
+  .sort((a, b) => b.length - a.length)
+  .join("|");
+
+const SELF_VARIANT_UTILITY_GROUP = Object.keys(SELF_VARIANT_UTILITY_REPLACEMENTS)
+  .map(escapeRegExp)
+  .sort((a, b) => b.length - a.length)
+  .join("|");
+
+const CANONICAL_UTILITY_REGEX = new RegExp(
+  TOKEN_BOUNDARY_REGEX_PART + String.raw`((?:(?:[\w-]+|\[[^\]]+\]):)*)` + String.raw`(!?)` + String.raw`(` + CANONICAL_UTILITY_GROUP + String.raw`)`,
+  "gm",
+);
+
+const SELF_VARIANT_UTILITY_REGEX = new RegExp(
+  TOKEN_BOUNDARY_REGEX_PART +
+    String.raw`((?:(?:[\w-]+|\[[^\]]+\]):)*)` +
+    String.raw`(!?)` +
+    String.raw`\[&\]:(` +
+    SELF_VARIANT_UTILITY_GROUP +
+    String.raw`)`,
+  "gm",
+);
+
+const FAST_PRECHECK_REGEX = new RegExp(
+  `-\\[[^\\]]+\\]|/\\[[^\\]]+\\]|\\[(${ARBITRARY_PROPERTY_GROUP})\\]|\\b(?:${CANONICAL_UTILITY_GROUP})\\b|\\[&\\]:(?:${SELF_VARIANT_UTILITY_GROUP})`,
+);
+
+const CONTAINER_SIZE_CANONICAL_REM = {
+  16: "3xs",
+  18: "2xs",
   20: "xs",
   24: "sm",
   28: "md",
@@ -72,6 +141,23 @@ const MAX_WIDTH_CANONICAL_REM = {
   64: "5xl",
   72: "6xl",
   80: "7xl",
+};
+
+const BLUR_CANONICAL = {
+  "4px": "xs",
+  "0.25rem": "xs",
+  "8px": "sm",
+  "0.5rem": "sm",
+  "12px": "md",
+  "0.75rem": "md",
+  "16px": "lg",
+  "1rem": "lg",
+  "24px": "xl",
+  "1.5rem": "xl",
+  "40px": "2xl",
+  "2.5rem": "2xl",
+  "64px": "3xl",
+  "4rem": "3xl",
 };
 
 const TEXT_SIZE_CANONICAL = {
@@ -149,9 +235,13 @@ function getCanonicalClassName(utility, rawValue, unit) {
     return ROUNDED_CANONICAL[normalizedKey] ? `${utility}-${ROUNDED_CANONICAL[normalizedKey]}` : null;
   }
 
-  if (unit === "rem" && utility === "max-w") {
+  if (utility === "blur" || utility === "backdrop-blur") {
+    return BLUR_CANONICAL[normalizedKey] ? `${utility}-${BLUR_CANONICAL[normalizedKey]}` : null;
+  }
+
+  if (unit === "rem" && ["w", "min-w", "max-w"].includes(utility)) {
     const parsed = parseFloat(rawValue);
-    const canonical = MAX_WIDTH_CANONICAL_REM[parsed];
+    const canonical = CONTAINER_SIZE_CANONICAL_REM[parsed];
     if (canonical) {
       return `${utility}-${canonical}`;
     }
@@ -159,6 +249,22 @@ function getCanonicalClassName(utility, rawValue, unit) {
 
   const tailwindUnit = unit === "px" ? pxToTailwindUnit(rawValue) : remToTailwindUnit(rawValue);
   return `${utility}-${tailwindUnit}`;
+}
+
+function normalizeOpacityValue(rawValue) {
+  const parsed = Number(rawValue);
+  if (!Number.isFinite(parsed) || parsed < 0) return null;
+
+  if (parsed <= 1) {
+    const percent = parsed * 100;
+    return Number.isInteger(percent) ? String(percent) : String(percent).replace(/\.?0+$/, "");
+  }
+
+  if (parsed <= 100) {
+    return Number.isInteger(parsed) ? String(parsed) : String(parsed).replace(/\.?0+$/, "");
+  }
+
+  return null;
 }
 
 function collectUnhandledArbitraryValues(content) {
@@ -217,19 +323,146 @@ function replaceArbitraryPxValues(content) {
   return { content: nextContent, changes };
 }
 
+function replaceArbitraryOpacitySlashValues(content) {
+  const changes = [];
+
+  const nextContent = content.replace(ARBITRARY_OPACITY_SLASH_REGEX, (match, boundary, variants, important, token, rawValue, offset) => {
+    const tokenStartIndex = offset + (boundary ? boundary.length : 0);
+    const nextChar = content[offset + match.length];
+    if (!isValidTokenBoundaryChar(nextChar)) return match;
+
+    const normalizedOpacity = normalizeOpacityValue(rawValue);
+    if (!normalizedOpacity) return match;
+
+    const oldClass = `${variants}${important}${token}/[${rawValue}]`;
+    const newClass = `${variants}${important}${token}/${normalizedOpacity}`;
+
+    if (oldClass === newClass) return match;
+
+    changes.push({
+      old: oldClass,
+      new: newClass,
+      line: getLineNumberFromIndex(content, tokenStartIndex),
+    });
+
+    return `${boundary}${newClass}`;
+  });
+
+  return { content: nextContent, changes };
+}
+
+function replaceCanonicalUtilityClasses(content) {
+  const changes = [];
+
+  const nextContent = content.replace(CANONICAL_UTILITY_REGEX, (match, boundary, variants, important, utility, offset) => {
+    const tokenStartIndex = offset + (boundary ? boundary.length : 0);
+    const nextChar = content[offset + match.length];
+    if (!isValidTokenBoundaryChar(nextChar)) return match;
+
+    const replacement = CANONICAL_UTILITY_REPLACEMENTS[utility];
+    if (!replacement) return match;
+
+    const oldClass = `${variants}${important}${utility}`;
+    const newClass = `${variants}${important}${replacement}`;
+
+    if (oldClass === newClass) return match;
+
+    changes.push({
+      old: oldClass,
+      new: newClass,
+      line: getLineNumberFromIndex(content, tokenStartIndex),
+    });
+
+    return `${boundary}${newClass}`;
+  });
+
+  return { content: nextContent, changes };
+}
+
+function replaceArbitraryPropertyClasses(content) {
+  const changes = [];
+
+  const nextContent = content.replace(ARBITRARY_PROPERTY_REGEX, (match, boundary, variants, important, propertyToken, offset) => {
+    const tokenStartIndex = offset + (boundary ? boundary.length : 0);
+    const nextChar = content[offset + match.length];
+    if (!isValidTokenBoundaryChar(nextChar)) return match;
+
+    const replacement = ARBITRARY_PROPERTY_REPLACEMENTS[propertyToken];
+    if (!replacement) return match;
+
+    const oldClass = `${variants}${important}[${propertyToken}]`;
+    const newClass = `${variants}${important}${replacement}`;
+
+    if (oldClass === newClass) return match;
+
+    changes.push({
+      old: oldClass,
+      new: newClass,
+      line: getLineNumberFromIndex(content, tokenStartIndex),
+    });
+
+    return `${boundary}${newClass}`;
+  });
+
+  return { content: nextContent, changes };
+}
+
+function replaceSelfVariantUtilityClasses(content) {
+  const changes = [];
+
+  const nextContent = content.replace(SELF_VARIANT_UTILITY_REGEX, (match, boundary, variants, important, utility, offset) => {
+    const tokenStartIndex = offset + (boundary ? boundary.length : 0);
+    const nextChar = content[offset + match.length];
+    if (!isValidTokenBoundaryChar(nextChar)) return match;
+
+    const replacement = SELF_VARIANT_UTILITY_REPLACEMENTS[utility];
+    if (!replacement) return match;
+
+    const oldClass = `${variants}${important}[&]:${utility}`;
+    const newClass = `${variants}${important}${replacement}`;
+
+    if (oldClass === newClass) return match;
+
+    changes.push({
+      old: oldClass,
+      new: newClass,
+      line: getLineNumberFromIndex(content, tokenStartIndex),
+    });
+
+    return `${boundary}${newClass}`;
+  });
+
+  return { content: nextContent, changes };
+}
+
 /**
  * Process a single file
  */
 function processFile(filePath) {
   let content = fs.readFileSync(filePath, "utf8");
 
-  const result = replaceArbitraryPxValues(content);
-  const unhandled = collectUnhandledArbitraryValues(result.content);
-  if (result.changes.length > 0) {
+  if (!FAST_PRECHECK_REGEX.test(content)) {
+    return null;
+  }
+
+  const numericResult = replaceArbitraryPxValues(content);
+  const opacityResult = replaceArbitraryOpacitySlashValues(numericResult.content);
+  const selfVariantResult = replaceSelfVariantUtilityClasses(opacityResult.content);
+  const canonicalUtilityResult = replaceCanonicalUtilityClasses(selfVariantResult.content);
+  const arbitraryPropertyResult = replaceArbitraryPropertyClasses(canonicalUtilityResult.content);
+  const changes = [
+    ...numericResult.changes,
+    ...opacityResult.changes,
+    ...selfVariantResult.changes,
+    ...canonicalUtilityResult.changes,
+    ...arbitraryPropertyResult.changes,
+  ];
+  const unhandled = collectUnhandledArbitraryValues(arbitraryPropertyResult.content);
+  if (changes.length > 0) {
     if (!DRY_RUN) {
-      fs.writeFileSync(filePath, result.content, "utf8");
+      fs.writeFileSync(filePath, arbitraryPropertyResult.content, "utf8");
     }
-    return { filePath, changes: result.changes, unhandled };
+    return { filePath, changes, unhandled };
   }
 
   return unhandled.length > 0 ? { filePath, changes: [], unhandled } : null;
@@ -239,6 +472,29 @@ function processFile(filePath) {
  * Recursively find files matching extensions
  */
 function findFiles(dir, extensions, excludeDirs = ["node_modules", ".next", "dist", "build", "scripts"]) {
+  const rgArgs = [
+    "--files",
+    "app",
+    "components",
+    "lib",
+    ...extensions.flatMap((ext) => ["-g", `*${ext}`]),
+    ...excludeDirs.flatMap((excluded) => ["-g", `!${excluded}/**`]),
+  ];
+
+  const rgResult = spawnSync("rg", rgArgs, {
+    cwd: dir,
+    encoding: "utf8",
+    maxBuffer: 10 * 1024 * 1024,
+  });
+
+  if (rgResult.status === 0 && rgResult.stdout) {
+    return rgResult.stdout
+      .split("\n")
+      .map((file) => file.trim())
+      .filter(Boolean)
+      .map((file) => path.join(dir, file));
+  }
+
   const files = [];
 
   function walk(currentPath) {

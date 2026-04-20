@@ -374,7 +374,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
               ) : (
                 <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground/40" />
               )}
-              <span className="min-w-0 text-sm font-medium leading-snug break-words [overflow-wrap:anywhere]">{category.name}</span>
+              <span className="min-w-0 text-sm font-medium leading-snug wrap-anywhere">{category.name}</span>
             </div>
           ) : (
             // Single/Multi select mode: icon + text + badge
@@ -382,7 +382,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
               {category.icon && <div className="h-4 w-4 shrink-0 flex items-center justify-center text-current">{category.icon}</div>}
               <span
                 className={cn(
-                  "min-w-0 flex-1 text-sm leading-snug break-words [overflow-wrap:anywhere] transition-all duration-200",
+                  "min-w-0 flex-1 text-sm leading-snug wrap-anywhere transition-all duration-200",
                   isSelected ? "font-semibold text-primary" : "text-foreground/80",
                   !isSelectable && "text-foreground",
                 )}

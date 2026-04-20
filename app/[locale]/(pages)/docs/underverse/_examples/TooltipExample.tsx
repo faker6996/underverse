@@ -158,8 +158,9 @@ export default function TooltipExample() {
     { property: "delay", description: t("props.tooltip.delay", { openBrace: "{", closeBrace: "}" }), type: "number | { open?: number; close?: number }", default: "700" },
     { property: "variant", description: t("props.tooltip.variant"), type: '"default" | "info" | "success" | "warning" | "error"', default: '"default"' },
     { property: "disabled", description: t("props.tooltip.disabled"), type: "boolean", default: "false" },
+    { property: "asChild", description: "Augment child trực tiếp như trigger thật, không thêm wrapper", type: "boolean", default: "true" },
   ];
-  const order = ["content","placement","delay","variant","disabled"];
+  const order = ["content","placement","delay","variant","disabled","asChild"];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Tooltip.md" />;
 
   return (
@@ -174,5 +175,4 @@ export default function TooltipExample() {
     />
   );
 }
-
 
