@@ -14,6 +14,7 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 - Auto-flips/clamps to stay within the viewport (no hardcoded width).
 - Uses `asChild` pattern by default: the child remains the real trigger element and `Tooltip` only augments props.
 - Does not add an extra wrapper by default, so event path stays safe for interactive triggers such as dropdown/menu buttons.
+- Forwards trigger props and `ref` when used as a child of higher-level trigger components such as `DropdownMenu` or `Popover`.
 
 ## Accessibility (Web Interface Guidelines Compliant)
 
@@ -64,3 +65,16 @@ interface TooltipProps {
 ```
 
 `asChild` mặc định là `true`. Chỉ dùng `asChild={false}` nếu bạn thật sự muốn `Tooltip` tự bọc child bằng một phần tử trung gian.
+
+Example trigger composition:
+
+```tsx
+<DropdownMenu
+  trigger={
+    <Tooltip content="More actions" asChild>
+      <button type="button">Actions</button>
+    </Tooltip>
+  }
+  items={[{ label: "Edit", onClick: () => {} }]}
+/>
+```

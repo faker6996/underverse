@@ -3,6 +3,7 @@
 import { cn } from "../utils/cn";
 import { useShadCNAnimations } from "../utils/animations";
 import React, { useState } from "react";
+import { chainEventHandlers, mergeRefs } from "../utils/react-compose";
 import { Popover } from "./Popover";
 
 interface DropdownMenuProps {
@@ -151,16 +152,18 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
     </div>
   );
 
-  const TriggerComponent = trigger.type as React.ElementType;
-  const triggerProps = trigger.props as any;
-  const enhancedTrigger = (
-    <TriggerComponent
-      {...triggerProps}
-      aria-haspopup="menu"
-      aria-expanded={open}
-      onKeyDown={(e: React.KeyboardEvent) => {
-        triggerRef.current = e.currentTarget as HTMLElement;
-        if (disabled) return;
+  const triggerProps = trigger.props as React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<HTMLElement> };
+  const childRef = triggerProps.ref;
+  const enhancedTrigger = React.cloneElement(trigger as React.ReactElement<any>, {
+    ...triggerProps,
+    ref: mergeRefs<HTMLElement>(childRef, (node) => {
+      triggerRef.current = node;
+    }),
+    "aria-haspopup": "menu",
+    "aria-expanded": open,
+    onKeyDown: chainEventHandlers<React.KeyboardEvent<HTMLElement>>((e) => {
+      triggerRef.current = e.currentTarget as HTMLElement;
+      if (!disabled) {
         if (e.key === "ArrowDown") {
           e.preventDefault();
           setOpen(true);
@@ -176,22 +179,12 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
           e.preventDefault();
           setOpen(false);
         }
-        if (typeof triggerProps.onKeyDown === "function") {
-          triggerProps.onKeyDown(e);
-        }
-      }}
-      onFocus={(e: React.FocusEvent) => {
-        triggerRef.current = e.currentTarget as HTMLElement;
-        if (typeof triggerProps.onFocus === "function") {
-          triggerProps.onFocus(e);
-        }
-      }}
-      className={cn(
-        triggerProps.className,
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-      )}
-    />
-  );
+      }
+    }, triggerProps.onKeyDown),
+    onFocus: chainEventHandlers<React.FocusEvent<HTMLElement>>((e) => {
+      triggerRef.current = e.currentTarget as HTMLElement;
+    }, triggerProps.onFocus),
+  });
 
   return (
     <Popover

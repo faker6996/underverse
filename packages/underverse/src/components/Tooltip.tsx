@@ -4,11 +4,12 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../utils/cn";
 import { useHydrated } from "../hooks/useHydrated";
+import { chainEventHandlers, mergeRefs } from "../utils/react-compose";
 
 type Side = "top" | "right" | "bottom" | "left";
 type TooltipPlacement = Side;
 
-interface TooltipProps {
+type TooltipProps = Omit<React.HTMLAttributes<HTMLElement>, "children" | "content"> & {
   children: React.ReactElement;
   content: React.ReactNode;
   placement?: TooltipPlacement;
@@ -18,7 +19,7 @@ interface TooltipProps {
   variant?: "default" | "info" | "warning" | "error" | "success";
   /** When true, augment the child directly instead of adding a wrapper. Default: true */
   asChild?: boolean;
-}
+};
 
 const variantStyles = {
   default: "bg-popover text-popover-foreground border-border/50",
@@ -29,31 +30,6 @@ const variantStyles = {
 };
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
-
-function composeEventHandlers<EventType>(
-  theirHandler: ((event: EventType) => void) | undefined,
-  ourHandler: (event: EventType) => void,
-) {
-  return (event: EventType) => {
-    theirHandler?.(event);
-    ourHandler(event);
-  };
-}
-
-function setRefValue<T>(ref: React.Ref<T> | undefined, value: T | null) {
-  if (!ref) return;
-  if (typeof ref === "function") {
-    ref(value);
-    return;
-  }
-  (ref as React.MutableRefObject<T | null>).current = value;
-}
-
-function mergeRefs<T>(...refs: Array<React.Ref<T> | undefined>) {
-  return (value: T | null) => {
-    refs.forEach((ref) => setRefValue(ref, value));
-  };
-}
 
 function getTransformOrigin(side: Side) {
   switch (side) {
@@ -115,7 +91,7 @@ function computeTooltipPosition(args: {
   return { top, left, side };
 }
 
-export const Tooltip: React.FC<TooltipProps> = ({
+export const Tooltip = React.forwardRef<HTMLElement, TooltipProps>(({
   children,
   content,
   placement = "top",
@@ -124,7 +100,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
   disabled = false,
   variant = "default",
   asChild = true,
-}) => {
+  ...triggerPassthroughProps
+}, forwardedRef) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const isMounted = useHydrated();
   const triggerRef = React.useRef<HTMLElement>(null);
@@ -259,32 +236,55 @@ export const Tooltip: React.FC<TooltipProps> = ({
     return () => ro.disconnect();
   }, [isOpen, updatePosition]);
 
+  const childProps = children.props as React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<HTMLElement> };
+  const childRef = childProps.ref;
+  const passthroughRef = mergeRefs<HTMLElement>(forwardedRef, childRef, (node) => {
+    triggerRef.current = node;
+  });
+
   if (disabled || !content) {
-    return children;
+    if (!asChild) return children;
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ...triggerPassthroughProps,
+      ref: passthroughRef,
+    });
   }
 
-  const childProps = children.props as React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<HTMLElement> };
-  const childRef = (children as React.ReactElement & { ref?: React.Ref<HTMLElement> }).ref ?? childProps.ref;
   const triggerProps = {
-    ref: mergeRefs<HTMLElement>(childRef, (node) => {
-      triggerRef.current = node;
-    }),
+    ...triggerPassthroughProps,
+    ref: passthroughRef,
     "data-underverse-tooltip-trigger": triggerSelector,
-    onMouseEnter: composeEventHandlers(childProps.onMouseEnter, (e: React.MouseEvent) => {
+    onMouseEnter: chainEventHandlers<React.MouseEvent<HTMLElement>>(
+      triggerPassthroughProps.onMouseEnter,
+      childProps.onMouseEnter,
+      (e) => {
       triggerRef.current = e.currentTarget as HTMLElement;
       handleMouseEnter();
-    }),
-    onMouseLeave: composeEventHandlers(childProps.onMouseLeave, (e: React.MouseEvent) => {
+      },
+    ),
+    onMouseLeave: chainEventHandlers<React.MouseEvent<HTMLElement>>(
+      triggerPassthroughProps.onMouseLeave,
+      childProps.onMouseLeave,
+      (e) => {
       triggerRef.current = e.currentTarget as HTMLElement;
       handleMouseLeave();
-    }),
-    onFocus: composeEventHandlers(childProps.onFocus, (e: React.FocusEvent) => {
+      },
+    ),
+    onFocus: chainEventHandlers<React.FocusEvent<HTMLElement>>(
+      triggerPassthroughProps.onFocus,
+      childProps.onFocus,
+      (e) => {
       triggerRef.current = e.currentTarget as HTMLElement;
       handleFocus();
-    }),
-    onBlur: composeEventHandlers(childProps.onBlur, () => {
+      },
+    ),
+    onBlur: chainEventHandlers<React.FocusEvent<HTMLElement>>(
+      triggerPassthroughProps.onBlur,
+      childProps.onBlur,
+      (e) => {
       handleBlur();
-    }),
+      },
+    ),
   } satisfies React.HTMLAttributes<HTMLElement> & {
     ref: React.Ref<HTMLElement>;
     "data-underverse-tooltip-trigger": string;
@@ -337,4 +337,6 @@ export const Tooltip: React.FC<TooltipProps> = ({
         )}
     </>
   );
-};
+});
+
+Tooltip.displayName = "Tooltip";

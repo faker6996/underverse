@@ -4,6 +4,7 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../utils/cn";
 import { useShadCNAnimations } from "../utils/animations";
+import { chainEventHandlers, mergeRefs } from "../utils/react-compose";
 
 type PopoverPlacement = "top" | "bottom" | "left" | "right" | "top-start" | "bottom-start" | "top-end" | "bottom-end";
 
@@ -395,36 +396,36 @@ export const Popover: React.FC<PopoverProps> = ({
   return (
     <>
       {(() => {
-        const TriggerComponent = trigger.type as React.ElementType;
-        const triggerProps = trigger.props as any;
+        const triggerProps = trigger.props as React.HTMLAttributes<HTMLElement> & {
+          ref?: React.Ref<HTMLElement>;
+          "aria-haspopup"?: React.AriaAttributes["aria-haspopup"];
+        };
+        const childRef = triggerProps.ref;
 
-        return (
-          <TriggerComponent
-            {...triggerProps}
-            data-underverse-popover-trigger={triggerSelector}
-            onClick={(e: React.MouseEvent) => {
-              triggerRef.current = e.currentTarget as HTMLElement;
-              e.preventDefault();
-              e.stopPropagation();
-              handleTriggerClick();
-              if (typeof triggerProps.onClick === "function") {
-                triggerProps.onClick(e);
-              }
-            }}
-            onFocus={(e: React.FocusEvent) => {
-              triggerRef.current = e.currentTarget as HTMLElement;
-              if (typeof triggerProps.onFocus === "function") {
-                triggerProps.onFocus(e);
-              }
-            }}
-            aria-expanded={isOpen}
-            aria-haspopup={triggerProps["aria-haspopup"] ?? "dialog"}
-            className={cn(
-              triggerProps.className,
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-            )}
-          />
-        );
+        return React.cloneElement(trigger as React.ReactElement<any>, {
+          ...triggerProps,
+          ref: mergeRefs<HTMLElement>(childRef, (node) => {
+            triggerRef.current = node;
+          }),
+          "data-underverse-popover-trigger": triggerSelector,
+          onClick: chainEventHandlers<React.MouseEvent<HTMLElement>>(
+            (e) => {
+            triggerRef.current = e.currentTarget as HTMLElement;
+            e.preventDefault();
+            e.stopPropagation();
+            handleTriggerClick();
+            },
+            triggerProps.onClick,
+          ),
+          onFocus: chainEventHandlers<React.FocusEvent<HTMLElement>>(
+            (e) => {
+            triggerRef.current = e.currentTarget as HTMLElement;
+            },
+            triggerProps.onFocus,
+          ),
+          "aria-expanded": isOpen,
+          "aria-haspopup": triggerProps["aria-haspopup"] ?? "dialog",
+        });
       })()}
       {popoverContent}
     </>

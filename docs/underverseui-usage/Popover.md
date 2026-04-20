@@ -1,6 +1,6 @@
 # Popover
 
-Source: `components/ui/Popover.tsx`
+Source: `packages/underverse/src/components/Popover.tsx`
 
 Exports:
 
@@ -11,6 +11,8 @@ Exports:
 - Renders in a portal (`document.body`) using `position: fixed` (stable when scrolling).
 - Auto-adjusts placement to stay within the viewport (flip/clamp when near edges).
 - Supports controlled (`open`/`onOpenChange`) and uncontrolled modes.
+- Augments the provided trigger directly instead of recreating `trigger.type`.
+- Safe to use as a building block for higher-level trigger composition such as `DropdownMenu -> Tooltip asChild -> button`.
 
 ## Accessibility (Web Interface Guidelines Compliant)
 
@@ -71,3 +73,7 @@ interface PopoverProps {
 
 - Use `contentWidth` to set a fixed width, or `matchTriggerWidth` to match the trigger.
 - Use `contentClassName` for constraints like `max-w-[calc(100vw-1rem)]` / `max-h-[calc(100vh-6rem)] overflow-auto`.
+
+### Trigger Composition
+
+`Popover` expects a trigger component that can receive props and `ref`. Components like `Tooltip` now support this pattern when used with `asChild`.

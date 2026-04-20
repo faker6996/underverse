@@ -1,6 +1,6 @@
 # DropdownMenu
 
-Source: `components/ui/DropdownMenu.tsx`
+Source: `packages/underverse/src/components/DropdownMenu.tsx`
 
 Exports:
 
@@ -15,6 +15,8 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 
 - Dropdown uses `Popover` internally (portal + fixed positioning + auto flip/clamp in viewport).
 - Closes on outside click and `Escape` (handled by `Popover`).
+- Trigger is augmented in place via `cloneElement`; the real trigger element stays intact.
+- Safe to compose with `Tooltip asChild` or other trigger-like wrappers that forward props/ref.
 
 ## Accessibility (Web Interface Guidelines Compliant)
 
@@ -78,6 +80,23 @@ interface DropdownMenuProps {
     destructive?: boolean;
   }>;
 }
+```
+
+### Trigger Composition
+
+`DropdownMenu` no longer recreates `trigger.type`. It augments the existing trigger element, so nested trigger composition stays stable.
+
+Example:
+
+```tsx
+<DropdownMenu
+  trigger={
+    <Tooltip content="More actions" asChild>
+      <button type="button">Actions</button>
+    </Tooltip>
+  }
+  items={[{ label: "Edit", onClick: () => {} }]}
+/>
 ```
 
 ## DropdownMenuItem

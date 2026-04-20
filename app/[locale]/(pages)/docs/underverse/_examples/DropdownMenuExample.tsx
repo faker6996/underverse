@@ -4,6 +4,7 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import DropdownMenu, { DropdownMenuItem, DropdownMenuSeparator, SelectDropdown } from "@/components/ui/DropdownMenu";
 import Button from "@/components/ui/Button";
+import { Tooltip } from "@/components/ui/Tooltip";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { Edit, Trash2, Settings, User } from "lucide-react";
@@ -40,7 +41,16 @@ export default function DropdownMenuExample() {
     `// 4) Controlled open\n` +
     `<DropdownMenu trigger={<Button>Controlled</Button>} isOpen={open} onOpenChange={setOpen} items={[{label:'Toggle', onClick:()=>{}}]} />\n\n` +
     `// 5) SelectDropdown helper\n` +
-    `<SelectDropdown options={["All", "Active", "Archived"]} value={'Active'} onChange={(v)=>{}} />`;
+    `<SelectDropdown options={["All", "Active", "Archived"]} value={'Active'} onChange={(v)=>{}} />\n\n` +
+    `// 6) Tooltip asChild + DropdownMenu trigger\n` +
+    `<DropdownMenu\n` +
+    `  trigger={\n` +
+    `    <Tooltip content="More actions" asChild>\n` +
+    `      <button type="button">Actions</button>\n` +
+    `    </Tooltip>\n` +
+    `  }\n` +
+    `  items={[{ label: 'Edit', onClick: () => {} }]}\n` +
+    `/>`;
 
   const demo = (
     <div className="space-y-6">
@@ -86,6 +96,27 @@ export default function DropdownMenuExample() {
       {/* 5) SelectDropdown helper */}
       <div className="flex items-center gap-3">
         <SelectDropdown options={["All", "Active", "Archived"]} value={"Active"} onChange={() => {}} />
+      </div>
+
+      {/* 6) Trigger composition */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Tooltip asChild Trigger Composition</p>
+        <DropdownMenu
+          trigger={
+            <Tooltip content="More actions" asChild>
+              <button
+                type="button"
+                className="inline-flex h-10 items-center rounded-2xl border border-border/60 bg-background px-4 text-sm font-medium hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                Actions
+              </button>
+            </Tooltip>
+          }
+          items={[
+            { label: "Edit", icon: Edit, onClick: () => {} },
+            { label: "Delete", icon: Trash2, destructive: true, onClick: () => {} },
+          ]}
+        />
       </div>
     </div>
   );
