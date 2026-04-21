@@ -327,7 +327,7 @@ export default function FallingIconsExample() {
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="FallingIcons.md" />;
 
   return (
-    <Tabs
+    <Tabs id="falling-icons-tabs"
       variant="underline"
       size="sm"
       tabs={[

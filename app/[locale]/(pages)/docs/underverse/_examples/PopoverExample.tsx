@@ -241,7 +241,7 @@ export default function PopoverExample() {
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Popover.md" />;
 
   return (
-    <Tabs
+    <Tabs id="popover-tabs"
       tabs={[
         { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
         { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },

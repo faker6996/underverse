@@ -108,7 +108,7 @@ function DocsInner() {
   React.useEffect(() => {
     if (typeof window === "undefined") return;
 
-    if (window.location.hash) {
+    if (window.location.hash && !window.location.hash.startsWith("#tabs-")) {
       window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
     }
 

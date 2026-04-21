@@ -226,7 +226,7 @@ export default function SliderExample() {
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Slider.md" />;
 
   return (
-    <Tabs
+    <Tabs id="slider-tabs"
       tabs={[
         { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
         { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },

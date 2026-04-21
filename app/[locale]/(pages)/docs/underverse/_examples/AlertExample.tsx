@@ -152,7 +152,7 @@ export default function AlertExample() {
 
   return (
     <IntlDemoProvider>
-      <Tabs
+      <Tabs id="alert-tabs"
         tabs={[
           { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
           { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },

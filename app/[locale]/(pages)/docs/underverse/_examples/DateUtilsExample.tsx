@@ -222,7 +222,7 @@ DateUtils.formatDateTimeForInput(new Date())   // "2026-01-05T14:30"`;
   const docs = <PropsDocsTable rows={functionsRows} />;
 
   return (
-    <Tabs
+    <Tabs id="date-utils-tabs"
       tabs={[
         { value: "preview", label: td("tabs.preview"), content: <div className="p-1">{demo}</div> },
         { value: "code", label: td("tabs.code"), content: <CodeBlock code={code} /> },

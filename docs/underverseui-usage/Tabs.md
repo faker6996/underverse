@@ -61,6 +61,17 @@ const tabs = [
 <Tabs tabs={tabs} stretch />
 ```
 
+## `id` – namespace ổn định cho nhiều nhóm tabs
+
+Khi một trang có nhiều `Tabs` dùng cùng `value` như `preview / code / docs`, truyền `id` để tạo hash/link ổn định cho từng group:
+
+```tsx
+<Tabs id="button-example-tabs" tabs={tabs} />
+<Tabs id="input-example-tabs" tabs={tabs} />
+```
+
+Điều này tránh collision giữa nhiều nhóm tabs trên cùng một page và giúp middle-click mở đúng tab group.
+
 ## Open tab mới bằng middle-click / chuột phải
 
 Mặc định, tab thường render trigger dạng link nội bộ theo `#panel-id`, nên:
@@ -181,6 +192,7 @@ import { VerticalTabs } from "@underverse-ui/underverse";
 
 ```ts
 interface TabsProps {
+  id?: string;
   tabs: Array<{
     label: string;
     value: string;

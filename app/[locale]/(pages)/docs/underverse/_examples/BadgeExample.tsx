@@ -63,7 +63,7 @@ export default function BadgeExample() {
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Badge.md" />;
 
   return (
-    <Tabs
+    <Tabs id="badge-tabs"
       tabs={[
         { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
         { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },

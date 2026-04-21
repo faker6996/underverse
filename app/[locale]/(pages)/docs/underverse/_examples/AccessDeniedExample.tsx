@@ -128,7 +128,7 @@ export default function AccessDeniedExample() {
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="AccessDenied.md" />;
 
   return (
-    <Tabs
+    <Tabs id="access-denied-tabs"
       tabs={[
         { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
         { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },

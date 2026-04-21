@@ -144,7 +144,7 @@ export default function BreadcrumbExample() {
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Breadcrumb.md" />;
 
   return (
-    <Tabs
+    <Tabs id="breadcrumb-tabs"
       tabs={[
         { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
         { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },

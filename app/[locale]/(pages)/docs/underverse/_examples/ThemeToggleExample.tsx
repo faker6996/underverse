@@ -105,7 +105,7 @@ export default function ThemeToggleExample() {
   const docs = <PropsDocsTable rows={rows} order={["—"]} />;
 
   return (
-    <Tabs
+    <Tabs id="theme-toggle-tabs"
       tabs={[
         { value: "preview", label: td("tabs.preview"), content: <div className="p-1">{demo}</div> },
         { value: "code", label: td("tabs.code"), content: <CodeBlock code={code} /> },

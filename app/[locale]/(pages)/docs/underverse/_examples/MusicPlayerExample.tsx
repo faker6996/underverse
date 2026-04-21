@@ -200,7 +200,7 @@ export function CustomPlaylistExample() {
 
   return (
     <div className="space-y-4">
-      <Tabs tabs={tabs} />
+      <Tabs id="music-player-tabs" tabs={tabs} />
     </div>
   );
 }

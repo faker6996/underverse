@@ -387,7 +387,7 @@ const groupedColumns: DataTableColumn<User>[] = [
 
   return (
     <IntlDemoProvider>
-      <Tabs
+      <Tabs id="data-table-tabs"
         tabs={[
           { value: "preview", label: td("tabs.preview"), content: <div className="p-1">{demo}</div> },
           { value: "vertical-only", label: "Vertical Only", content: <div className="p-1">{demoVerticalOnly}</div> },

@@ -24,7 +24,7 @@ export default function ThemeToggleHeadlessExample() {
   );
 
   return (
-    <Tabs
+    <Tabs id="theme-toggle-headless-tabs"
       tabs={[
         { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
         { value: "code", label: "Code", content: <CodeBlock code={code} /> },

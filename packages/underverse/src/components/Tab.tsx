@@ -15,6 +15,7 @@ export interface Tab {
 }
 
 export interface TabsProps {
+  id?: string;
   tabs: Tab[];
   defaultValue?: string;
   className?: string;
@@ -82,9 +83,22 @@ const variantStyles = {
   },
 };
 
-export function getTabsBaseId(tabs: Pick<Tab, "value">[]) {
+export function normalizeTabsId(value: string) {
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return normalized || "default";
+}
+
+export function getTabsBaseId(tabs: Pick<Tab, "value">[], id?: string, fallbackId?: string) {
+  if (id) return `tabs-${normalizeTabsId(id)}`;
+  if (fallbackId) return `tabs-${normalizeTabsId(fallbackId)}`;
+
   const key = tabs.map((t) => t.value).join("-");
-  return `tabs-${key || "default"}`;
+  return `tabs-${normalizeTabsId(key || "default")}`;
 }
 
 export function getTabTriggerId(baseId: string, index: number) {
@@ -117,6 +131,7 @@ export function shouldHandleTabClickLocally(event: TabClickLikeEvent, target?: R
 }
 
 export const Tabs: React.FC<TabsProps> = ({
+  id,
   tabs,
   defaultValue,
   className,
@@ -133,8 +148,9 @@ export const Tabs: React.FC<TabsProps> = ({
   const [active, setActive] = React.useState<string>(defaultValue || tabs[0]?.value);
   const [underlineStyle, setUnderlineStyle] = React.useState<React.CSSProperties>({});
   const tabRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const autoId = React.useId();
   // Generate a deterministic base id from tab values to avoid SSR/client mismatch
-  const baseId = React.useMemo(() => getTabsBaseId(tabs), [tabs]);
+  const baseId = React.useMemo(() => getTabsBaseId(tabs, id, autoId), [autoId, id, tabs]);
 
   const handleTabChange = (value: string) => {
     setActive(value);

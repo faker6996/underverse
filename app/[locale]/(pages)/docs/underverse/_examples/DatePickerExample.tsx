@@ -181,7 +181,7 @@ export default function DatePickerExample() {
 
   return (
     <IntlDemoProvider>
-      <Tabs
+      <Tabs id="date-picker-tabs"
         tabs={[
           { value: "preview", label: td("tabs.preview"), content: <div className="p-1">{demo}</div> },
           { value: "code", label: td("tabs.code"), content: <CodeBlock code={code} /> },

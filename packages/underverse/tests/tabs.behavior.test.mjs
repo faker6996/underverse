@@ -27,6 +27,7 @@ test("Tabs derive stable internal href targets for middle-click and context-menu
 
   const baseId = getTabsBaseId(tabs);
   assert.equal(baseId, "tabs-preview-code-docs");
+  assert.equal(getTabsBaseId(tabs, "Button Example Tabs"), "tabs-button-example-tabs");
   assert.equal(getTabHref({}, `${baseId}-panel-1`), "#tabs-preview-code-docs-panel-1");
   assert.equal(getTabHref({ href: "/docs/tabs" }, `${baseId}-panel-1`), "/docs/tabs");
 });

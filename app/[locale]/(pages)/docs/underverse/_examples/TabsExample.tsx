@@ -183,6 +183,7 @@ export default function TabsExample() {
   );
 
   const rows: PropsRow[] = [
+    { property: "id", description: "Stable namespace for generated tab and panel ids when multiple tab groups share the same values.", type: "string", default: "auto-generated" },
     { property: "tabs", description: t("props.tabs.tabs"), type: "Array<{ value: string; label: React.ReactNode; content: React.ReactNode; icon?: React.ComponentType; disabled?: boolean; href?: string; target?: string; rel?: string }>", default: "—" },
     { property: "variant", description: t("props.tabs.variant"), type: '"default" | "pills" | "underline" | "card" | "underline-card"', default: '"default"' },
     { property: "size", description: t("props.tabs.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
@@ -193,11 +194,11 @@ export default function TabsExample() {
     { property: "noContentPadding", description: "Disable the default content padding on the panel wrapper", type: "boolean", default: "false" },
     { property: "animateContent", description: "Add a small fade transition when switching tabs", type: "boolean", default: "true" },
   ];
-  const order = ["tabs","variant","size","orientation","stretch","contentClassName","noContentCard","noContentPadding","animateContent"];
+  const order = ["id","tabs","variant","size","orientation","stretch","contentClassName","noContentCard","noContentPadding","animateContent"];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Tabs.md" />;
 
   return (
-    <Tabs
+    <Tabs id="tabs-docs"
       tabs={[
         { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
         { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },

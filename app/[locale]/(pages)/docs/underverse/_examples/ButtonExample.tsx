@@ -201,7 +201,7 @@ export default function ButtonExample() {
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Button.md" />;
 
   return (
-    <Tabs
+    <Tabs id="button-tabs"
       tabs={[
         { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
         { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },

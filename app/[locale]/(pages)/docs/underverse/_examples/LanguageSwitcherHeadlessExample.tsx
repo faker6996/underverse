@@ -120,7 +120,7 @@ export default function LanguageSwitcherHeadlessExample() {
   const docs = <PropsDocsTable rows={rows} order={rows.map(r=>r.property)} />;
 
   return (
-    <Tabs
+    <Tabs id="language-switcher-headless-tabs"
       tabs={[
         { value: "preview", label: td('tabs.preview'), content: <div className="p-1">{demo}</div> },
         { value: "code", label: td('tabs.code'), content: <CodeBlock code={code} /> },
