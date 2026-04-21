@@ -3,15 +3,18 @@
 import * as React from "react";
 import { cn } from "../utils/cn";
 
-interface Tab {
+export interface Tab {
   label: string;
   value: string;
   content: React.ReactNode;
   icon?: React.ComponentType<{ className?: string }>;
   disabled?: boolean;
+  href?: string;
+  target?: React.HTMLAttributeAnchorTarget;
+  rel?: string;
 }
 
-interface TabsProps {
+export interface TabsProps {
   tabs: Tab[];
   defaultValue?: string;
   className?: string;
@@ -25,6 +28,8 @@ interface TabsProps {
   noContentPadding?: boolean;
   animateContent?: boolean;
 }
+
+type TabClickLikeEvent = Pick<MouseEvent, "metaKey" | "ctrlKey" | "shiftKey" | "altKey">;
 
 const sizeStyles = {
   sm: {
@@ -77,6 +82,40 @@ const variantStyles = {
   },
 };
 
+export function getTabsBaseId(tabs: Pick<Tab, "value">[]) {
+  const key = tabs.map((t) => t.value).join("-");
+  return `tabs-${key || "default"}`;
+}
+
+export function getTabTriggerId(baseId: string, index: number) {
+  return `${baseId}-tab-${index}`;
+}
+
+export function getTabPanelId(baseId: string, index: number) {
+  return `${baseId}-panel-${index}`;
+}
+
+export function getTabHref(tab: Pick<Tab, "href">, panelId: string) {
+  return tab.href ?? `#${panelId}`;
+}
+
+export function resolveTabValueFromHash(hash: string, tabs: Pick<Tab, "value">[], baseId: string) {
+  const normalizedHash = hash.replace(/^#/, "");
+  if (!normalizedHash) return null;
+
+  const matchIndex = tabs.findIndex((tab, index) => {
+    const tabId = getTabTriggerId(baseId, index);
+    const panelId = getTabPanelId(baseId, index);
+    return normalizedHash === tabId || normalizedHash === panelId;
+  });
+
+  return matchIndex >= 0 ? tabs[matchIndex]?.value ?? null : null;
+}
+
+export function shouldHandleTabClickLocally(event: TabClickLikeEvent, target?: React.HTMLAttributeAnchorTarget) {
+  return !(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || target === "_blank");
+}
+
 export const Tabs: React.FC<TabsProps> = ({
   tabs,
   defaultValue,
@@ -93,16 +132,39 @@ export const Tabs: React.FC<TabsProps> = ({
 }) => {
   const [active, setActive] = React.useState<string>(defaultValue || tabs[0]?.value);
   const [underlineStyle, setUnderlineStyle] = React.useState<React.CSSProperties>({});
-  const tabRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
+  const tabRefs = React.useRef<(HTMLElement | null)[]>([]);
   // Generate a deterministic base id from tab values to avoid SSR/client mismatch
-  const baseId = React.useMemo(() => {
-    const key = tabs.map((t) => t.value).join("-");
-    return `tabs-${key || "default"}`;
-  }, [tabs]);
+  const baseId = React.useMemo(() => getTabsBaseId(tabs), [tabs]);
 
   const handleTabChange = (value: string) => {
     setActive(value);
     onTabChange?.(value);
+  };
+
+  const handleTabKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    const count = tabs.length;
+    const idx = tabs.findIndex((t) => t.value === active);
+    let next = idx;
+
+    if (orientation === "horizontal") {
+      if (event.key === "ArrowRight") next = (idx + 1) % count;
+      if (event.key === "ArrowLeft") next = (idx - 1 + count) % count;
+    } else {
+      if (event.key === "ArrowDown") next = (idx + 1) % count;
+      if (event.key === "ArrowUp") next = (idx - 1 + count) % count;
+    }
+
+    if (event.key === "Home") next = 0;
+    if (event.key === "End") next = count - 1;
+
+    if (next !== idx) {
+      event.preventDefault();
+      const nextTab = tabs[next];
+      if (!nextTab?.disabled) {
+        handleTabChange(nextTab.value);
+      }
+      tabRefs.current[next]?.focus();
+    }
   };
 
   // Update underline position for underline variant
@@ -120,6 +182,21 @@ export const Tabs: React.FC<TabsProps> = ({
       }
     }
   }, [active, variant, orientation, tabs]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const syncFromHash = () => {
+      const nextValue = resolveTabValueFromHash(window.location.hash, tabs, baseId);
+      if (nextValue) {
+        setActive(nextValue);
+      }
+    };
+
+    syncFromHash();
+    window.addEventListener("hashchange", syncFromHash);
+    return () => window.removeEventListener("hashchange", syncFromHash);
+  }, [baseId, tabs]);
 
   const containerClasses = cn(
     "relative",
@@ -149,59 +226,69 @@ export const Tabs: React.FC<TabsProps> = ({
         {tabs.map((tab, index) => {
           const isActive = active === tab.value;
           const Icon = tab.icon;
-          const tabId = `${baseId}-tab-${index}`;
-          const panelId = `${baseId}-panel-${index}`;
+          const tabId = getTabTriggerId(baseId, index);
+          const panelId = getTabPanelId(baseId, index);
+          const tabHref = getTabHref(tab, panelId);
+          const sharedClassName = cn(
+            "font-medium transition-all duration-200 cursor-pointer flex items-center gap-2",
+            "focus:outline-none focus-visible:outline-none",
+            "disabled:opacity-50 disabled:cursor-not-allowed",
+            sizeStyles[size].tab,
+            variantStyles[variant].tab,
+            isActive ? variantStyles[variant].activeTab : variantStyles[variant].inactiveTab,
+            orientation === "vertical" && "justify-start w-full",
+            stretch && orientation === "horizontal" && "flex-1 justify-center",
+            tab.href && tab.disabled && "pointer-events-none cursor-not-allowed opacity-50",
+          );
+          const sharedStyle: React.CSSProperties = {
+            boxShadow: "none",
+            transform: "none",
+            outline: "none",
+            border: "none",
+          };
+          const sharedProps = {
+            ref: (el: HTMLElement | null) => {
+              tabRefs.current[index] = el;
+            },
+            id: tabId,
+            role: "tab" as const,
+            "aria-selected": isActive,
+            "aria-controls": panelId,
+            tabIndex: isActive ? 0 : -1,
+            className: sharedClassName,
+            style: sharedStyle,
+            onKeyDown: handleTabKeyDown,
+          };
+
+          if (!tab.disabled) {
+            return (
+              <a
+                key={tab.value}
+                {...sharedProps}
+                href={tabHref}
+                target={tab.target}
+                rel={tab.rel}
+                onClick={(event) => {
+                  if (shouldHandleTabClickLocally(event, tab.target)) {
+                    event.preventDefault();
+                    handleTabChange(tab.value);
+                  }
+                }}
+                className={cn(sharedClassName, "no-underline")}
+              >
+                {Icon && <Icon className="h-4 w-4" />}
+                {tab.label}
+              </a>
+            );
+          }
 
           return (
             <button
               key={tab.value}
-              ref={(el) => {
-                tabRefs.current[index] = el;
-              }}
+              {...sharedProps}
               onClick={() => !tab.disabled && handleTabChange(tab.value)}
               disabled={tab.disabled}
-              style={{
-                boxShadow: "none",
-                transform: "none",
-                outline: "none",
-                border: "none",
-              }}
-              className={cn(
-                "font-medium transition-all duration-200 cursor-pointer flex items-center gap-2",
-                "focus:outline-none focus-visible:outline-none",
-                "disabled:opacity-50 disabled:cursor-not-allowed",
-                "border-0 bg-transparent outline-none", // Reset button default styles
-                sizeStyles[size].tab,
-                variantStyles[variant].tab,
-                isActive ? variantStyles[variant].activeTab : variantStyles[variant].inactiveTab,
-                orientation === "vertical" && "justify-start w-full",
-                stretch && orientation === "horizontal" && "flex-1 justify-center",
-              )}
-              role="tab"
-              id={tabId}
-              aria-selected={isActive}
-              aria-controls={panelId}
-              tabIndex={isActive ? 0 : -1}
-              onKeyDown={(e) => {
-                const count = tabs.length;
-                const idx = tabs.findIndex((t) => t.value === active);
-                let next = idx;
-                if (orientation === "horizontal") {
-                  if (e.key === "ArrowRight") next = (idx + 1) % count;
-                  if (e.key === "ArrowLeft") next = (idx - 1 + count) % count;
-                } else {
-                  if (e.key === "ArrowDown") next = (idx + 1) % count;
-                  if (e.key === "ArrowUp") next = (idx - 1 + count) % count;
-                }
-                if (e.key === "Home") next = 0;
-                if (e.key === "End") next = count - 1;
-                if (next !== idx) {
-                  e.preventDefault();
-                  const nextVal = tabs[next].value;
-                  handleTabChange(nextVal);
-                  tabRefs.current[next]?.focus();
-                }
-              }}
+              className={cn(sharedClassName, "border-0 bg-transparent outline-none")}
             >
               {Icon && <Icon className="h-4 w-4" />}
               {tab.label}

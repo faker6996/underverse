@@ -1,6 +1,6 @@
 # Tabs
 
-Source: `components/ui/Tab.tsx`
+Source: `packages/underverse/src/components/Tab.tsx`
 
 Exports: `Tabs`, `SimpleTabs`, `PillTabs`, `VerticalTabs`
 
@@ -59,6 +59,32 @@ const tabs = [
 
 ```tsx
 <Tabs tabs={tabs} stretch />
+```
+
+## Open tab mới bằng middle-click / chuột phải
+
+Mặc định, tab thường render trigger dạng link nội bộ theo `#panel-id`, nên:
+
+- middle-click mở tab/cửa sổ mới được
+- `Ctrl/Cmd + click` dùng native browser behavior
+- chuột trái vẫn chỉ đổi tab tại chỗ
+
+Nếu cần đích tùy chỉnh, truyền `href` để override link mặc định:
+
+```tsx
+const tabs = [
+  {
+    value: "docs",
+    label: "Docs",
+    href: "/docs/tabs",
+    target: "_blank",
+    rel: "noreferrer",
+    content: <div>Docs tab content</div>,
+  },
+  { value: "api", label: "API", content: <div>API content</div> },
+];
+
+<Tabs tabs={tabs} variant="underline" />
 ```
 
 ## Tab bị disabled
@@ -145,7 +171,7 @@ import { VerticalTabs } from "@underverse-ui/underverse";
 | Feature | Status |
 |---------|--------|
 | `role="tablist"` trên container | ✅ |
-| `role="tab"` trên button | ✅ |
+| `role="tab"` trên trigger (`button` hoặc `a`) | ✅ |
 | `aria-selected` state | ✅ |
 | `aria-controls` / `id` liên kết tabpanel | ✅ |
 | `focus-visible` ring | ✅ |
@@ -161,6 +187,9 @@ interface TabsProps {
     content: React.ReactNode;
     icon?: React.ComponentType<{ className?: string }>;
     disabled?: boolean;
+    href?: string;
+    target?: string;
+    rel?: string;
   }>;
   defaultValue?: string;
   className?: string;

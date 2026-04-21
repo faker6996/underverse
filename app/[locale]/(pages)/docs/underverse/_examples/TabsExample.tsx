@@ -43,6 +43,27 @@ export default function TabsExample() {
     },
   ];
 
+  const linkTabs = [
+    {
+      value: "overview",
+      label: "Overview",
+      content: <div className="p-3">Plain tabs now expose a real link target, so middle-click and open-in-new-tab work out of the box.</div>,
+    },
+    {
+      value: "api",
+      label: "API",
+      content: <div className="p-3">Left click still switches content locally. The link is there mainly for middle-click and context menu open-in-new-tab.</div>,
+    },
+    {
+      value: "docs",
+      label: "Docs",
+      href: "/docs/underverse#tabs",
+      target: "_blank" as const,
+      rel: "noreferrer",
+      content: <div className="p-3">Pass `href` only when a tab should open a custom destination instead of the built-in same-page hash link.</div>,
+    },
+  ];
+
   const code =
     `import { Tabs } from '@underverse-ui/underverse'\n` +
     `import { Home, User, Settings } from 'lucide-react'\n\n` +
@@ -68,6 +89,10 @@ export default function TabsExample() {
     `<Tabs tabs={tabs} stretch />\n\n` +
     `// Bare content panel (avoid nested card)\n` +
     `<Tabs tabs={tabs} variant="underline" noContentCard noContentPadding contentClassName="mt-4" />\n\n` +
+    `// Tabs expose a link target for middle-click / open in new tab by default\n` +
+    `<Tabs tabs={tabs} />\n\n` +
+    `// Optional custom destination\n` +
+    `<Tabs tabs={[{ value: "docs", label: "Docs", href: "/docs/tabs", target: "_blank", rel: "noreferrer", content: <div /> }]} />\n\n` +
     `// Disabled Tab\n` +
     `const tabs = [\n` +
     `  { value: "a", label: "Active", content: <div>Active</div> },\n` +
@@ -136,6 +161,12 @@ export default function TabsExample() {
         <Tabs tabs={nestedCardTabs} variant="underline" noContentCard noContentPadding contentClassName="mt-4" animateContent />
       </div>
 
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Open In New Tab</p>
+        <p className="text-xs text-muted-foreground">Middle-click and context menu open-in-new-tab work even on normal tabs. `href` is only needed when you want a custom destination.</p>
+        <Tabs tabs={linkTabs} variant="underline" />
+      </div>
+
       {/* Disabled Tab */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Disabled Tab</p>
@@ -152,7 +183,7 @@ export default function TabsExample() {
   );
 
   const rows: PropsRow[] = [
-    { property: "tabs", description: t("props.tabs.tabs"), type: "Array<{ value: string; label: React.ReactNode; content: React.ReactNode; icon?: React.ComponentType; disabled?: boolean }>", default: "—" },
+    { property: "tabs", description: t("props.tabs.tabs"), type: "Array<{ value: string; label: React.ReactNode; content: React.ReactNode; icon?: React.ComponentType; disabled?: boolean; href?: string; target?: string; rel?: string }>", default: "—" },
     { property: "variant", description: t("props.tabs.variant"), type: '"default" | "pills" | "underline" | "card" | "underline-card"', default: '"default"' },
     { property: "size", description: t("props.tabs.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
     { property: "orientation", description: t("props.tabs.orientation"), type: '"horizontal" | "vertical"', default: '"horizontal"' },
@@ -177,4 +208,3 @@ export default function TabsExample() {
     />
   );
 }
-
