@@ -4,6 +4,7 @@ import React from 'react';
 import { cn } from "../utils/cn";
 import { Activity } from 'lucide-react';
 
+/** Public props for the `LoadingSpinner` component. */
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
@@ -39,6 +40,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   );
 };
 
+/** Public props for the `LoadingDots` component. */
 interface LoadingDotsProps {
   className?: string;
   color?: 'primary' | 'foreground' | 'muted';
@@ -73,6 +75,7 @@ export const LoadingDots: React.FC<LoadingDotsProps> = ({
   );
 };
 
+/** Public props for the `LoadingBar` component. */
 interface LoadingBarProps {
   progress?: number; // 0-100
   className?: string;
@@ -109,6 +112,7 @@ export const LoadingBar: React.FC<LoadingBarProps> = ({
   );
 };
 
+/** Public props for the `InlineLoading` component. */
 interface InlineLoadingProps {
   message?: string;
   size?: 'sm' | 'md' | 'lg';

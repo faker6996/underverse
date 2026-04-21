@@ -121,6 +121,7 @@ export type CalendarTimelineAdaptiveSlotWidths =
       fillDistribute?: "event" | "all";
     };
 
+/** Public props for the `CalendarTimeline` component. */
 export interface CalendarTimelineProps<TResourceMeta = unknown, TEventMeta = unknown>
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
   resources: CalendarTimelineResource<TResourceMeta>[];

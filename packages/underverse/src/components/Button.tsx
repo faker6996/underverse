@@ -5,7 +5,7 @@ import { VARIANT_STYLES_BTN, SIZE_STYLES_BTN } from "../constants/button";
 import { cn } from "../utils/cn";
 import { Activity } from "lucide-react";
 
-// Khai báo kiểu cho props
+/** Public props for the `Button` component. */
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   children?: React.ReactNode;

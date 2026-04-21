@@ -4,6 +4,7 @@ import React from "react";
 import { cn } from "../utils/cn";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 
+/** Public props for the `Table` component. */
 export interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
   containerClassName?: string;
   disableContainer?: boolean;
@@ -68,6 +69,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
 );
 Table.displayName = "Table";
 
+/** Public props for the `TableHeader` component. */
 export interface TableHeaderProps extends React.HTMLAttributes<HTMLTableSectionElement> {
   filterRow?: React.ReactNode;
 }

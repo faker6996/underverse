@@ -18,6 +18,7 @@ type EmojiItem = {
     name: string;
 };
 
+/** Public props for the `EmojiList` component. */
 type EmojiListProps = {
     items: EmojiItem[];
     command: (item: EmojiItem) => void;

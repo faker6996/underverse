@@ -9,6 +9,7 @@ import { useHydrated } from "../hooks/useHydrated";
 
 export type ThemeMode = "light" | "dark" | "system";
 
+/** Public props for the `ThemeToggleHeadless` component. */
 export interface ThemeToggleHeadlessProps {
   theme: ThemeMode;
   onChange: (theme: ThemeMode) => void;

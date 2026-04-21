@@ -19,6 +19,7 @@ const getPaddingInfo = (className?: string) => {
   return { hasAll, hasX, hasY };
 };
 
+/** Public props for the `Card` component. */
 export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
   title?: React.ReactNode;
   description?: React.ReactNode;

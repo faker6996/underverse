@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { cn } from "../utils/cn";
 import { X } from "lucide-react";
 
+/** Public props for the `Modal` component. */
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;

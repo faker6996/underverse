@@ -51,6 +51,7 @@ export function getUnderverseDefaultTranslation(locale: Locale, namespace: strin
 
 const TranslationContext = React.createContext<TranslationContextType | null>(null);
 
+/** Public props for the `TranslationProvider` component. */
 export interface TranslationProviderProps {
   children: React.ReactNode;
   /** Current locale. Defaults to "en" */

@@ -16,6 +16,7 @@ interface NotificationItem {
   metadata?: any;
 }
 
+/** Public props for the `NotificationModal` component. */
 interface NotificationModalProps {
   isOpen: boolean;
   onClose: () => void;

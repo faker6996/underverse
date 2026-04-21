@@ -9,6 +9,7 @@ import { Calendar, X, Check, ChevronDown } from "lucide-react";
 type MonthYearPickerVariant = "default" | "compact" | "inline";
 type PickerSize = "sm" | "md" | "lg";
 
+/** Public props for the `MonthYearPicker` component. */
 export interface MonthYearPickerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange" | "value" | "defaultValue"> {
   /** Current value as Date or {month, year} */
   value?: Date | { month: number; year: number };

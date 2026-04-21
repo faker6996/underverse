@@ -7,6 +7,7 @@ import { ChevronRight } from "lucide-react";
 type Variant = "plain" | "outlined" | "soft" | "bordered" | "card" | "flush" | "striped";
 type Size = "xs" | "sm" | "md" | "lg";
 
+/** Public props for the `List` component. */
 export interface ListProps extends React.HTMLAttributes<HTMLUListElement> {
   as?: "ul" | "ol" | "div";
   ordered?: boolean;
@@ -29,6 +30,7 @@ export interface ListProps extends React.HTMLAttributes<HTMLUListElement> {
   overflowHidden?: boolean;
 }
 
+/** Public props for the `ListItem` component. */
 export interface ListItemProps extends React.HTMLAttributes<HTMLLIElement> {
   as?: "li" | "div" | "a" | "button";
   selected?: boolean;

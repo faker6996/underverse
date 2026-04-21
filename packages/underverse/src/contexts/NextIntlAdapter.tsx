@@ -25,6 +25,7 @@ type NextIntlBridgeContextValue = {
 
 const NextIntlBridgeContext = React.createContext<NextIntlBridgeContextValue | null>(null);
 
+/** Public props for the `NextIntlAdapter` component. */
 export interface NextIntlAdapterProps {
   children: React.ReactNode;
   locale?: string | null;

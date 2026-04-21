@@ -6,6 +6,7 @@ import { cn } from "../utils/cn";
 
 type Fit = "cover" | "contain";
 
+/** Public props for the `SmartImage` component. */
 interface SmartImageProps {
   src: string | undefined | null;
   alt: string;

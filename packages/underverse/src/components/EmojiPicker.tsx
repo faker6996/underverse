@@ -8,6 +8,7 @@ import { EmojiGridButton } from "./emoji-ui";
 import { Tooltip } from "./Tooltip";
 import { EMOJI_LIST } from "./UEditor/emojis";
 
+/** Public props for the `EmojiPicker` component. */
 export interface EmojiPickerProps {
   onEmojiSelect: (emoji: string) => void;
   className?: string;

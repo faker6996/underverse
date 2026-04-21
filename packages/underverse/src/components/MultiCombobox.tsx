@@ -18,6 +18,7 @@ export interface MultiComboboxOption {
   group?: string;
 }
 
+/** Public props for the `MultiCombobox` component. */
 export interface MultiComboboxProps {
   id?: string;
   options: Array<string | MultiComboboxOption>;

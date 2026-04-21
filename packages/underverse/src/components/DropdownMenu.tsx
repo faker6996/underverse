@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { chainEventHandlers, mergeRefs } from "../utils/react-compose";
 import { Popover } from "./Popover";
 
+/** Public props for the `DropdownMenu` component. */
 interface DropdownMenuProps {
   trigger: React.ReactElement;
   children?: React.ReactNode;
@@ -200,7 +201,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   );
 };
 
-// ========== Enhanced Dropdown Menu Item ==========
+/** Public props for the `DropdownMenuItem` component. */
 export interface DropdownMenuItemProps {
   children?: React.ReactNode;
   label?: string;

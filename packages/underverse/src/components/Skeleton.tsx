@@ -1,6 +1,7 @@
 import React from "react";
 import { cn } from "../utils/cn";
 
+/** Public props for the `Skeleton` component. */
 interface SkeletonProps {
   className?: string;
   width?: string | number;

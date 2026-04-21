@@ -8,6 +8,7 @@ import { chainEventHandlers, mergeRefs } from "../utils/react-compose";
 
 type PopoverPlacement = "top" | "bottom" | "left" | "right" | "top-start" | "bottom-start" | "top-end" | "bottom-end";
 
+/** Public props for the `Popover` component. */
 interface PopoverProps {
   trigger: React.ReactElement;
   children: React.ReactNode;

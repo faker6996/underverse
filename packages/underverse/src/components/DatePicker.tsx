@@ -9,6 +9,7 @@ import * as React from "react";
 import { useId } from "react";
 import { Popover } from "./Popover";
 
+/** Public props for the `DatePicker` component. */
 export interface DatePickerProps {
   id?: string;
   value?: Date;
@@ -647,7 +648,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   );
 };
 
-// Additional components for backward compatibility
+/** Public props for the `DateRangePicker` component. */
 export interface DateRangePickerProps {
   id?: string;
   startDate?: Date;

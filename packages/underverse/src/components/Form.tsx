@@ -10,6 +10,7 @@ import Button from "./Button";
 import { Checkbox } from "./CheckBox";
 
 // Form wrapper with validation support
+/** Public props for the `FormWrapper` component. */
 interface FormWrapperProps<T extends FieldValues = FieldValues> {
   children: React.ReactNode;
   onSubmit: SubmitHandler<T>;

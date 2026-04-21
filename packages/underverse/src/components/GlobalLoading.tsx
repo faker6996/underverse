@@ -6,6 +6,7 @@ import { Activity } from "lucide-react";
 import { loading, type LoadingState } from "../utils/loading";
 import { useSmartTranslations } from "../hooks/useSmartTranslations";
 
+/** Public props for the `GlobalLoading` component. */
 interface GlobalLoadingProps {
   className?: string;
   backdrop?: boolean;
@@ -53,6 +54,7 @@ export const GlobalLoading: React.FC<GlobalLoadingProps> = ({ className, backdro
   );
 };
 
+/** Public props for the `PageLoading` component. */
 interface PageLoadingProps {
   message?: string;
   className?: string;
@@ -75,6 +77,7 @@ export const PageLoading: React.FC<PageLoadingProps> = ({ message, className }) 
 };
 
 // Inline loading component cho buttons hoặc containers nhỏ
+/** Public props for the `InlineLoading` component. */
 interface InlineLoadingProps {
   isLoading: boolean;
   text?: string;
@@ -100,6 +103,7 @@ export const InlineLoading: React.FC<InlineLoadingProps> = ({ isLoading, text, c
 };
 
 // Button loading wrapper
+/** Public props for the `ButtonLoading` component. */
 interface ButtonLoadingProps {
   isLoading: boolean;
   children: React.ReactNode;

@@ -47,6 +47,7 @@ export type UEditorLetterSpacingOption = {
   value: string;
 };
 
+/** Public props for the `UEditor` component. */
 export interface UEditorProps {
   content?: string;
   onChange?: (content: string) => void;

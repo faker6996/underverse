@@ -7,6 +7,7 @@ import React from "react";
 
 type Variant = "destructive" | "warning" | "info";
 
+/** Public props for the `AccessDenied` component. */
 export interface AccessDeniedProps {
   title?: string;
   description?: string;

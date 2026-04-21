@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "../utils/cn";
 
+/** Public props for the `Switch` component. */
 interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;

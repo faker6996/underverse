@@ -12,6 +12,7 @@ import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 // --- PROPS ---
 export type ComboboxOption = string | { label: string; value: any; icon?: React.ReactNode; description?: string; disabled?: boolean };
 
+/** Public props for the `Combobox` component. */
 export interface ComboboxProps {
   id?: string;
   options: ComboboxOption[];

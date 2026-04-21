@@ -34,6 +34,7 @@ function isEditableKeyboardTarget(target: EventTarget | null) {
   return false;
 }
 
+/** Public props for the `OverlayControls` component. */
 export interface OverlayControlsProps {
   mode: "live" | "review";
   value: number;

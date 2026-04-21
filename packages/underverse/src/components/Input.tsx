@@ -6,6 +6,7 @@ import { cn } from "../utils/cn";
 import { Eye, EyeOff, Search, X, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 
+/** Public props for the `Input` component. */
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
   label?: string;
   /** Custom class for label */
@@ -369,7 +370,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
 Input.displayName = "Input";
 
-// Search Input - specialized for search functionality
+/** Public props for the `SearchInput` component. */
 export interface SearchInputProps extends Omit<InputProps, "leftIcon" | "type"> {
   onSearch?: (value: string) => void;
   searchDelay?: number;
@@ -408,7 +409,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
 
 SearchInput.displayName = "SearchInput";
 
-// Password Input - enhanced password field
+/** Public props for the `PasswordInput` component. */
 export interface PasswordInputProps extends Omit<InputProps, "type"> {
   showStrength?: boolean;
   strengthLabels?: string[];
@@ -466,7 +467,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
 
 PasswordInput.displayName = "PasswordInput";
 
-// Number Input - enhanced numeric input
+/** Public props for the `NumberInput` component. */
 export interface NumberInputProps extends Omit<InputProps, "type" | "value" | "onChange"> {
   min?: number;
   max?: number;
@@ -628,7 +629,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
 
 NumberInput.displayName = "NumberInput";
 
-// Textarea - multi-line text input
+/** Public props for the `Textarea` component. */
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   /** Custom class for label */

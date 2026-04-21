@@ -1,6 +1,6 @@
 # CategoryTreeSelect
 
-Source: `components/ui/CategoryTreeSelect.tsx`
+Source: `packages/underverse/src/components/CategoryTreeSelect.tsx`
 
 Exports:
 
@@ -99,6 +99,45 @@ When `leafOnlySelect` is enabled, nodes that have children are not selectable. C
 
 **Note:** In inline mode with `singleSelect`, radio buttons are automatically hidden for a cleaner navigation experience.
 
+### Expand đến node cụ thể
+
+```tsx
+<CategoryTreeSelect
+  categories={categories}
+  inline
+  expandToId={42}
+/>
+```
+
+`expandToId` sẽ mở ancestor path cần thiết để node đó nhìn thấy ngay từ đầu. Nếu node đó là parent node, chính node đó cũng sẽ được đánh dấu expanded.
+
+### Expand sẵn nhiều nhánh cụ thể
+
+```tsx
+<CategoryTreeSelect
+  categories={categories}
+  inline
+  defaultExpandedIds={[1, 6, 13]}
+/>
+```
+
+`defaultExpandedIds` hữu ích khi chỉ muốn mở vài branch nhất định thay vì `defaultExpanded` mở toàn bộ parent nodes.
+
+### Controlled expanded state
+
+```tsx
+const [expandedIds, setExpandedIds] = useState<number[]>([1, 6]);
+
+<CategoryTreeSelect
+  categories={categories}
+  inline
+  expandedIds={expandedIds}
+  onExpandedChange={setExpandedIds}
+/>
+```
+
+Khi truyền `expandedIds`, component chuyển sang controlled mode cho expand/collapse. Lúc đó `defaultExpanded`, `defaultExpandedIds`, và `expandToId` chỉ còn ý nghĩa cho các trường hợp uncontrolled khác.
+
 ### With onNodeClick (for navigation)
 
 ```tsx
@@ -156,6 +195,10 @@ interface CategoryTreeSelectProps {
   required?: boolean; // Shows required semantics + error state on form validation
   viewOnly?: boolean; // Read-only tree
   defaultExpanded?: boolean; // Expand all nodes by default
+  defaultExpandedIds?: number[]; // Expand specific branch ids by default
+  expandToId?: number | null; // Expand ancestor path so this node is visible by default
+  expandedIds?: number[]; // Controlled expanded branch ids
+  onExpandedChange?: (expandedIds: number[]) => void; // Controlled expand/collapse callback
   enableSearch?: boolean; // Show search input (default: categories.length > 10)
   inline?: boolean; // Always visible, no dropdown
   leafOnlySelect?: boolean; // Only leaf nodes can be selected

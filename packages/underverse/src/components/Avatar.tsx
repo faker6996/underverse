@@ -4,6 +4,7 @@ import SmartImage from "./SmartImage";
 
 type StatusType = "online" | "offline" | "busy" | "away" | "none";
 
+/** Public props for the `Avatar` component. */
 interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   src?: string;
   alt?: string;

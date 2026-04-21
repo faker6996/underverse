@@ -3,6 +3,7 @@ import { cn } from "../utils/cn";
 
 type GradientDirection = "to-r" | "to-l" | "to-b" | "to-t" | "to-br" | "to-bl" | "to-tr" | "to-tl";
 
+/** Public props for the `Section` component. */
 interface SectionProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
   className?: string;

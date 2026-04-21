@@ -22,6 +22,7 @@ const useRadioGroup = () => {
   return context;
 };
 
+/** Public props for the `RadioGroup` component. */
 interface RadioGroupProps {
   value?: string;
   defaultValue?: string;
@@ -110,6 +111,7 @@ export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
 
 RadioGroup.displayName = "RadioGroup";
 
+/** Public props for the `RadioGroupItem` component. */
 interface RadioGroupItemProps {
   value: string;
   id?: string;
@@ -317,6 +319,7 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
 RadioGroupItem.displayName = "RadioGroupItem";
 
 // Simplified Radio Group with predefined items
+/** Public props for the `SimpleRadioGroup` component. */
 interface SimpleRadioGroupProps {
   items: Array<{
     value: string;
@@ -387,6 +390,7 @@ export const SimpleRadioGroup: React.FC<SimpleRadioGroupProps> = ({
 export const RadioGroupWithLabel = SimpleRadioGroup;
 
 // Button-style Radio Group (connected buttons)
+/** Public props for the `RadioButtonGroup` component. */
 interface RadioButtonGroupProps {
   items: Array<{
     value: string;
@@ -503,6 +507,7 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
 };
 
 // Segmented Control (iOS-style)
+/** Public props for the `SegmentedControl` component. */
 interface SegmentedControlProps extends Omit<RadioButtonGroupProps, "variant"> {}
 
 export const SegmentedControl: React.FC<SegmentedControlProps> = (props) => {
@@ -510,6 +515,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = (props) => {
 };
 
 // Toggle Group (Connected outline buttons)
+/** Public props for the `ToggleGroup` component. */
 interface ToggleGroupProps extends Omit<RadioButtonGroupProps, "variant"> {}
 
 export const ToggleGroup: React.FC<ToggleGroupProps> = (props) => {

@@ -6,6 +6,7 @@ import { cn } from "../utils/cn";
 import { X } from "lucide-react";
 import Button from "./Button";
 
+/** Public props for the `Sheet` component. */
 interface SheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -251,6 +252,7 @@ export const Sheet: React.FC<SheetProps> = ({
 };
 
 // Specialized Sheet components
+/** Public props for the `Drawer` component. */
 interface DrawerProps extends Omit<SheetProps, "side"> {
   placement?: "left" | "right";
 }
@@ -259,12 +261,14 @@ export const Drawer: React.FC<DrawerProps> = ({ placement = "right", ...props })
   return <Sheet {...props} side={placement} variant="overlay" />;
 };
 
+/** Public props for the `SlideOver` component. */
 interface SlideOverProps extends Omit<SheetProps, "side" | "variant"> {}
 
 export const SlideOver: React.FC<SlideOverProps> = (props) => {
   return <Sheet {...props} side="right" variant="overlay" size="lg" />;
 };
 
+/** Public props for the `BottomSheet` component. */
 interface BottomSheetProps extends Omit<SheetProps, "side"> {
   snapPoints?: string[];
   defaultSnap?: number;
@@ -274,6 +278,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ snapPoints = ["25%", "
   return <Sheet {...props} side="bottom" variant="overlay" className={cn("rounded-t-3xl", props.className)} />;
 };
 
+/** Public props for the `SidebarSheet` component. */
 interface SidebarSheetProps extends Omit<SheetProps, "side" | "variant"> {
   navigation?: React.ReactNode;
 }

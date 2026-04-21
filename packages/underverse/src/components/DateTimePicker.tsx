@@ -9,6 +9,7 @@ import Calendar from "./Calendar";
 import TimePicker from "./TimePicker";
 import { useSmartLocale, useSmartTranslations } from "../hooks/useSmartTranslations";
 
+/** Public props for the `DateTimePicker` component. */
 export interface DateTimePickerProps {
   value?: Date;
   onChange: (date: Date | undefined) => void;

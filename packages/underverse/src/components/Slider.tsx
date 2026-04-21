@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "../utils/cn";
 
+/** Public props for the `Slider` component. */
 interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "size"> {
   mode?: "single" | "range";
   value?: number;

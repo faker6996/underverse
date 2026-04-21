@@ -4,6 +4,7 @@ import { forwardRef, type HTMLAttributes, useRef } from "react";
 import { cn } from "../utils/cn";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 
+/** Public props for the `ScrollArea` component. */
 export interface ScrollAreaProps extends HTMLAttributes<HTMLDivElement> {
   className?: string;
   contentClassName?: string;

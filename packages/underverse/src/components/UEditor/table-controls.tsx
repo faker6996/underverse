@@ -41,6 +41,7 @@ const HANDLE_HOVER_RADIUS = 14;
 const IDLE_HANDLE_OPACITY = "0.4";
 const IDLE_HANDLE_SCALE = "0.78";
 
+/** Public props for the `TableControls` component. */
 type TableControlsProps = {
   editor: Editor;
   containerRef: React.RefObject<HTMLDivElement | null>;

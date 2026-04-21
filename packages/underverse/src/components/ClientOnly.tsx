@@ -2,6 +2,7 @@
 
 import { useHydrated } from "../hooks/useHydrated";
 
+/** Public props for the `ClientOnly` component. */
 interface ClientOnlyProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;

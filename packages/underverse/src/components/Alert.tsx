@@ -52,6 +52,7 @@ const variantConfig: Record<
   },
 };
 
+/** Public props for the `Alert` component. */
 interface AlertProps {
   title?: string;
   description?: ReactNode;

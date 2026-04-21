@@ -9,6 +9,7 @@ import { chainEventHandlers, mergeRefs } from "../utils/react-compose";
 type Side = "top" | "right" | "bottom" | "left";
 type TooltipPlacement = Side;
 
+/** Public props for the `Tooltip` component. */
 type TooltipProps = Omit<React.HTMLAttributes<HTMLElement>, "children" | "content"> & {
   children: React.ReactElement;
   content: React.ReactNode;

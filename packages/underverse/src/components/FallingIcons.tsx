@@ -5,6 +5,7 @@ import { cn } from "../utils/cn";
 
 export type IconComponent = React.ComponentType<{ className?: string }>;
 
+/** Public props for the `FallingIcons` component. */
 export interface FallingIconsProps {
   icon?: IconComponent;
   imageUrl?: string; // Custom image URL to use instead of icon

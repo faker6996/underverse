@@ -14,6 +14,7 @@ export interface Tab {
   rel?: string;
 }
 
+/** Public props for the `Tabs` component. */
 export interface TabsProps {
   id?: string;
   tabs: Tab[];
@@ -338,6 +339,7 @@ export const Tabs: React.FC<TabsProps> = ({
 };
 
 // Additional Tab components for specific use cases
+/** Public props for the `SimpleTabs` component. */
 interface SimpleTabsProps {
   tabs: Array<{
     label: string;
@@ -352,6 +354,7 @@ export const SimpleTabs: React.FC<SimpleTabsProps> = ({ tabs, defaultValue, clas
   return <Tabs tabs={tabs} defaultValue={defaultValue} className={className} variant="default" size="sm" />;
 };
 
+/** Public props for the `PillTabs` component. */
 interface PillTabsProps extends TabsProps {
   contained?: boolean;
 }
@@ -360,6 +363,7 @@ export const PillTabs: React.FC<PillTabsProps> = ({ contained = true, ...props }
   return <Tabs {...props} variant="pills" className={cn(contained && "max-w-fit", props.className)} />;
 };
 
+/** Public props for the `VerticalTabs` component. */
 interface VerticalTabsProps extends TabsProps {
   sidebarWidth?: string;
 }

@@ -8,6 +8,7 @@ type WatermarkPreset = "confidential" | "draft" | "sample" | "copyright" | "doNo
 type WatermarkPattern = "diagonal" | "grid" | "straight";
 type AnimationVariant = "fade" | "slide" | "scale" | "pulse" | "none";
 
+/** Public props for the `Watermark` component. */
 export interface WatermarkProps extends React.HTMLAttributes<HTMLDivElement> {
   text?: string | string[]; // text watermark (support multi-line)
   image?: string; // image src watermark

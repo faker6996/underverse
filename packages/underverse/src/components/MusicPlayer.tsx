@@ -13,6 +13,7 @@ export interface Song {
   endTime?: number; // Timestamp kết thúc (giây) cho file mp3 dài
 }
 
+/** Public props for the `MusicPlayer` component. */
 export interface MusicPlayerProps {
   playlist?: Song[];
   autoPlay?: boolean;

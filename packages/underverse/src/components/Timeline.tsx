@@ -10,6 +10,7 @@ type Size = "sm" | "md" | "lg" | "xl";
 type Mode = "vertical" | "horizontal";
 type LineStyle = "solid" | "dashed" | "dotted";
 
+/** Public props for the `Timeline` component. */
 export interface TimelineProps extends React.HTMLAttributes<HTMLDivElement> {
   align?: Align;
   variant?: Variant;
@@ -27,6 +28,7 @@ export interface TimelineProps extends React.HTMLAttributes<HTMLDivElement> {
   showLine?: boolean;
 }
 
+/** Public props for the `TimelineItem` component. */
 export interface TimelineItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
   title?: React.ReactNode;
   description?: React.ReactNode;

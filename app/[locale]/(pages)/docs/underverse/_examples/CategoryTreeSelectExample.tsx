@@ -31,6 +31,8 @@ export default function CategoryTreeSelectExample() {
   const [singleSelected, setSingleSelected] = React.useState<number | null>(null);
   const [leafOnlySelected, setLeafOnlySelected] = React.useState<number | null>(null);
   const [inlineSingle, setInlineSingle] = React.useState<number | null>(1);
+  const [expandedPathSelected, setExpandedPathSelected] = React.useState<number | null>(7);
+  const [controlledExpandedIds, setControlledExpandedIds] = React.useState<number[]>([1, 6]);
   const [withFieldState, setWithFieldState] = React.useState<number[]>([]);
   const [requiredCategoryIds, setRequiredCategoryIds] = React.useState<number[]>([]);
 
@@ -114,7 +116,21 @@ export default function CategoryTreeSelectExample() {
     `  inline                     // NEW: no dropdown, no radio\n` +
     `  defaultExpanded\n` +
     `/>\n\n` +
-    `// 4) With onNodeClick (navigation)\n` +
+    `// 4) Expand to a specific node path\n` +
+    `<CategoryTreeSelect\n` +
+    `  categories={categories}\n` +
+    `  inline\n` +
+    `  expandToId={7}\n` +
+    `/>\n\n` +
+    `// 5) Controlled expanded state\n` +
+    `const [expandedIds, setExpandedIds] = useState([1, 6])\n` +
+    `<CategoryTreeSelect\n` +
+    `  categories={categories}\n` +
+    `  inline\n` +
+    `  expandedIds={expandedIds}\n` +
+    `  onExpandedChange={setExpandedIds}\n` +
+    `/>\n\n` +
+    `// 6) With onNodeClick (navigation)\n` +
     `<CategoryTreeSelect\n` +
     `  categories={departments}\n` +
     `  value={selectedId}\n` +
@@ -123,12 +139,12 @@ export default function CategoryTreeSelectExample() {
     `  inline\n` +
     `  onNodeClick={(node) => router.push(\`/dept/\${node.id}\`)}\n` +
     `/>\n\n` +
-    `// 5) Required validation\n` +
+    `// 7) Required validation\n` +
     `<form>\n` +
     `  <CategoryTreeSelect categories={categories} value={selected} onChange={setSelected} required />\n` +
     `  <button type="submit">Submit</button>\n` +
     `</form>\n\n` +
-    `// 6) View Only\n` +
+    `// 8) View Only\n` +
     `<CategoryTreeSelect categories={categories} viewOnly defaultExpanded />`;
 
   const demo = (
@@ -219,6 +235,30 @@ export default function CategoryTreeSelectExample() {
         <div className="text-sm text-muted-foreground">Selected: {inlineSingle ?? "(none)"}</div>
       </div>
 
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Expand to a specific node path</p>
+        <CategoryTreeSelect
+          categories={categories}
+          value={expandedPathSelected}
+          onChange={setExpandedPathSelected}
+          singleSelect
+          inline
+          expandToId={7}
+        />
+        <div className="text-sm text-muted-foreground">Expanded to: Headphones (id 7)</div>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Controlled expanded state</p>
+        <CategoryTreeSelect
+          categories={categories}
+          inline
+          expandedIds={controlledExpandedIds}
+          onExpandedChange={setControlledExpandedIds}
+        />
+        <div className="text-sm text-muted-foreground">Expanded ids: {controlledExpandedIds.join(", ") || "(none)"}</div>
+      </div>
+
       {/* 4) View Only */}
       <div className="space-y-2">
         <p className="text-sm font-medium">View Only</p>
@@ -253,6 +293,10 @@ export default function CategoryTreeSelectExample() {
     { property: "onNodeClick", description: t("props.categoryTreeSelect.onNodeClick"), type: "(node: Category) => void", default: "-" },
     { property: "viewOnly", description: t("props.categoryTreeSelect.viewOnly"), type: "boolean", default: "false" },
     { property: "defaultExpanded", description: t("props.categoryTreeSelect.defaultExpanded"), type: "boolean", default: "false" },
+    { property: "defaultExpandedIds", description: "Explicit node ids that should start expanded.", type: "number[]", default: "-" },
+    { property: "expandToId", description: "Expand the ancestor path so a specific node is visible by default.", type: "number | null", default: "-" },
+    { property: "expandedIds", description: "Controlled expanded branch ids.", type: "number[]", default: "-" },
+    { property: "onExpandedChange", description: "Callback fired when expanded branch ids change.", type: "(expandedIds: number[]) => void", default: "-" },
     { property: "enableSearch", description: t("props.categoryTreeSelect.enableSearch"), type: "boolean", default: "categories.length > 10" },
     { property: "useOverlayScrollbar", description: "Enable OverlayScrollbars for dropdown tree viewport", type: "boolean", default: "false" },
     { property: "labels", description: t("props.categoryTreeSelect.labels"), type: "CategoryTreeSelectLabels", default: "-" },

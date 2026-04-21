@@ -9,74 +9,125 @@ import { Label } from "./label";
 import { Popover } from "./Popover";
 
 export interface Category {
+  /** Unique category id used for selection and tree relationships. */
   id: number;
+  /** Visible label rendered for this node. */
   name: string;
+  /** Parent category id. Omit or set `null` for a root node. */
   parent_id?: number | null;
+  /** Optional custom icon rendered before the category label. */
   icon?: React.ReactNode;
 }
 
+/**
+ * Override the built-in copy used by {@link CategoryTreeSelect}.
+ * Useful for i18n or product-specific wording.
+ */
 export interface CategoryTreeSelectLabels {
-  /** Text shown when no categories available */
+  /** Text shown when no categories are available. */
   emptyText?: string;
-  /** Text shown when categories are selected, receives count as parameter */
+  /** Text shown when categories are selected. Receives the selected count. */
   selectedText?: (count: number) => string;
-  /** Placeholder text for search input (when enabled) */
+  /** Placeholder text for the search input when search is enabled. */
   searchPlaceholder?: string;
-  /** Text shown when search yields no results */
+  /** Text shown when search yields no results. */
   noResultsText?: string;
 }
 
-// Base props shared between multi and single select
+/**
+ * Shared props for both single-select and multi-select modes.
+ *
+ * @remarks
+ * Use `defaultExpanded`, `defaultExpandedIds`, or `expandToId` for initial
+ * uncontrolled expand state. If you need to fully control the expanded tree
+ * from the outside, use `expandedIds` together with `onExpandedChange`.
+ */
 export interface CategoryTreeSelectBaseProps {
   id?: string;
+  /** Optional field label rendered above the control. */
   label?: string;
+  /** Extra classes for the label element. */
   labelClassName?: string;
+  /** Flat category list. Parent/child relationships are resolved via `parent_id`. */
   categories: Category[];
+  /** Placeholder text when no category is selected. */
   placeholder?: string;
+  /** Disables interaction and fades the control. */
   disabled?: boolean;
+  /** Participate in form-required validation. */
   required?: boolean;
+  /** Visual size of the trigger. */
   size?: "sm" | "md" | "lg";
+  /** Visual style of the trigger. */
   variant?: "default" | "outline" | "ghost" | "filled";
+  /** Show a clear button when a selection exists. */
   allowClear?: boolean;
+  /** External error message. Takes precedence over helper text. */
   error?: string;
+  /** Helper text shown below the field when there is no error. */
   helperText?: string;
-  /** When true, renders as a read-only tree view without select functionality */
+  /** When true, renders as a read-only tree view without selection behavior. */
   viewOnly?: boolean;
-  /** Default expanded state for all nodes */
+  /**
+   * Expand every parent node by default.
+   *
+   * @remarks
+   * This applies to `inline` and `viewOnly` trees. In dropdown mode, branches
+   * still start collapsed unless expanded by other props.
+   */
   defaultExpanded?: boolean;
+  /** Explicit branch ids that should start expanded in uncontrolled mode. */
+  defaultExpandedIds?: number[];
+  /**
+   * Expand the ancestor path so a specific node is visible by default.
+   *
+   * @remarks
+   * The node id itself is also added to the expanded set, which is useful when
+   * `expandToId` points to a parent category.
+   */
+  expandToId?: number | null;
+  /** Controlled expanded branch ids. */
+  expandedIds?: number[];
+  /** Called whenever expand/collapse changes the expanded branch ids. */
+  onExpandedChange?: (expandedIds: number[]) => void;
   /**
    * Enable search input for filtering categories.
    * Default: auto-enabled when `categories.length > 10` (similar to MultiCombobox).
    */
   enableSearch?: boolean;
-  /** i18n labels for localization */
+  /** Replace built-in labels for localization or custom wording. */
   labels?: CategoryTreeSelectLabels;
-  /** When true, render tree directly without dropdown trigger */
+  /** Render the tree directly instead of inside a dropdown trigger. */
   inline?: boolean;
-  /** Callback when a node is clicked (useful for navigation) */
+  /** Called when a node row is clicked. Useful for navigation flows. */
   onNodeClick?: (node: Category) => void;
-  /** Custom class for the tree container */
+  /** Custom class for the outer tree container. */
   className?: string;
-  /** Enable OverlayScrollbars for dropdown tree viewport. Default: false */
+  /** Enable OverlayScrollbars for the dropdown tree viewport. Default: `false`. */
   useOverlayScrollbar?: boolean;
-  /** When true, only leaf nodes can be selected; parent nodes only expand/collapse */
+  /** When true, only leaf nodes can be selected; parent nodes only expand/collapse. */
   leafOnlySelect?: boolean;
 }
 
-// Multi-select mode (default)
+/** Multi-select mode. This is the default when `singleSelect` is omitted. */
 export interface CategoryTreeSelectMultiProps extends CategoryTreeSelectBaseProps {
   singleSelect?: false;
+  /** Selected category ids. */
   value?: number[];
+  /** Called with the full selected id list. */
   onChange?: (selectedIds: number[]) => void;
 }
 
-// Single-select mode
+/** Single-select mode. */
 export interface CategoryTreeSelectSingleProps extends CategoryTreeSelectBaseProps {
   singleSelect: true;
+  /** Selected category id or `null` when nothing is selected. */
   value?: number | null;
+  /** Called with the selected id or `null`. */
   onChange?: (selectedId: number | null) => void;
 }
 
+/** Union of the single-select and multi-select prop shapes. */
 export type CategoryTreeSelectProps = CategoryTreeSelectMultiProps | CategoryTreeSelectSingleProps;
 
 const defaultLabels: Required<CategoryTreeSelectLabels> = {
@@ -92,19 +143,75 @@ const TREE_BRANCH_OFFSET_CLASS = "ml-1.5 pl-1.5";
 const TREE_NODE_GAP_CLASS = "gap-1.5";
 const TREE_EXPANDER_PLACEHOLDER_CLASS = "w-5";
 
-function getInitialExpandedNodes(categories: Category[], defaultExpanded: boolean, viewOnly: boolean, inline: boolean) {
-  if (!(viewOnly || inline) || !defaultExpanded) return new Set<number>();
+export function getAncestorPathIds(categories: Category[], targetId: number) {
+  const byId = new Map(categories.map((category) => [category.id, category] as const));
+  const expanded = new Set<number>();
+  let current = byId.get(targetId);
+  let guard = 0;
 
-  const parentIds = new Set<number>();
-  for (const category of categories) {
-    if (typeof category.parent_id === "number") {
-      parentIds.add(category.parent_id);
+  while (current && guard++ < categories.length) {
+    expanded.add(current.id);
+    if (typeof current.parent_id !== "number") break;
+    current = byId.get(current.parent_id);
+  }
+
+  return expanded;
+}
+
+export function getInitialExpandedNodes(
+  categories: Category[],
+  {
+    defaultExpanded,
+    defaultExpandedIds,
+    expandToId,
+    viewOnly,
+    inline,
+  }: Pick<CategoryTreeSelectBaseProps, "defaultExpanded" | "defaultExpandedIds" | "expandToId" | "viewOnly" | "inline">,
+) {
+  const expanded = new Set<number>();
+
+  if ((viewOnly || inline) && defaultExpanded) {
+    for (const category of categories) {
+      if (typeof category.parent_id === "number") {
+        expanded.add(category.parent_id);
+      }
     }
   }
 
-  return parentIds;
+  for (const id of defaultExpandedIds ?? []) {
+    if (typeof id === "number") {
+      expanded.add(id);
+    }
+  }
+
+  if (typeof expandToId === "number") {
+    for (const id of getAncestorPathIds(categories, expandToId)) {
+      expanded.add(id);
+    }
+  }
+
+  return expanded;
 }
 
+export function getExpandedNodesState(expandedIds: number[] | undefined, uncontrolledExpandedNodes: Set<number>) {
+  return expandedIds !== undefined ? new Set(expandedIds) : uncontrolledExpandedNodes;
+}
+
+/**
+ * Tree-based category picker with single-select, multi-select, inline, and
+ * read-only modes.
+ *
+ * @example
+ * ```tsx
+ * <CategoryTreeSelect
+ *   categories={categories}
+ *   value={selectedIds}
+ *   onChange={setSelectedIds}
+ *   label="Categories"
+ *   allowClear
+ * />
+ * ```
+ */
 export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   const tv = useSmartTranslations("ValidationInput");
   const {
@@ -122,6 +229,10 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     helperText,
     viewOnly = false,
     defaultExpanded = false,
+    defaultExpandedIds,
+    expandToId = null,
+    expandedIds,
+    onExpandedChange,
     enableSearch,
     labels,
     inline = false,
@@ -133,7 +244,9 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   } = props;
 
   const [isOpen, setIsOpen] = useState(false);
-  const [expandedNodes, setExpandedNodes] = useState<Set<number>>(() => getInitialExpandedNodes(categories, defaultExpanded, viewOnly, inline));
+  const [expandedNodes, setExpandedNodes] = useState<Set<number>>(() =>
+    getInitialExpandedNodes(categories, { defaultExpanded, defaultExpandedIds, expandToId, viewOnly, inline }),
+  );
   const [query, setQuery] = useState("");
   const [localRequiredError, setLocalRequiredError] = useState<string | undefined>();
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -181,6 +294,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   const isSearchEnabled = useMemo(() => enableSearch ?? categories.length > 10, [enableSearch, categories.length]);
   const normalizedQuery = useMemo(() => query.trim().toLowerCase(), [query]);
   const isSearchMode = isSearchEnabled && normalizedQuery.length > 0;
+  const effectiveExpandedNodes = useMemo(() => getExpandedNodesState(expandedIds, expandedNodes), [expandedIds, expandedNodes]);
 
   const visibleIds = useMemo(() => {
     if (!isSearchMode) return null;
@@ -244,13 +358,16 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
 
   const toggleExpand = (id: number) => {
     if (isSearchMode) return;
-    const newExpanded = new Set(expandedNodes);
+    const newExpanded = new Set(effectiveExpandedNodes);
     if (newExpanded.has(id)) {
       newExpanded.delete(id);
     } else {
       newExpanded.add(id);
     }
-    setExpandedNodes(newExpanded);
+    if (expandedIds === undefined) {
+      setExpandedNodes(newExpanded);
+    }
+    onExpandedChange?.(Array.from(newExpanded));
   };
 
   const handleSelect = (categoryId: number, category: Category) => {
@@ -315,7 +432,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   const renderCategory = (category: Category, level: number = 0) => {
     const children = effectiveChildrenMap.get(category.id) || [];
     const hasChildren = children.length > 0;
-    const isExpanded = hasChildren && (isSearchMode || expandedNodes.has(category.id));
+    const isExpanded = hasChildren && (isSearchMode || effectiveExpandedNodes.has(category.id));
     const isSelected = selectedIds.has(category.id);
     const isSelectable = !viewOnly && (!leafOnlySelect || !hasChildren);
 

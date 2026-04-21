@@ -11,6 +11,7 @@ type OutputFormat = "hex" | "rgba" | "hsl" | "hsla";
 type ColorPickerSize = "sm" | "md" | "lg";
 type ColorPickerVariant = "default" | "compact" | "full" | "minimal";
 
+/** Public props for the `ColorPicker` component. */
 export interface ColorPickerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
   value?: string;
   defaultValue?: string;

@@ -4,6 +4,7 @@ import * as React from "react";
 import { cn } from "../utils/cn";
 import { Check } from "lucide-react";
 
+/** Public props for the `Checkbox` component. */
 export interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: React.ReactNode;
   labelClassName?: string;

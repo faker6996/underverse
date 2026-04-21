@@ -15,6 +15,7 @@ type ResponsiveConfig = Partial<{
 type GridVariant = "default" | "bordered" | "card" | "flat" | "glass";
 type GridAutoFlow = "row" | "column" | "row dense" | "column dense";
 
+/** Public props for the `Grid` component. */
 export interface GridProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Number of columns or full template string. Default: 12 (1fr each). */
   columns?: number | string;
@@ -52,6 +53,7 @@ export interface GridProps extends React.HTMLAttributes<HTMLDivElement> {
   outlined?: boolean;
 }
 
+/** Public props for the `GridItem` component. */
 export interface GridItemProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Column span (e.g., 3 => span 3). */
   colSpan?: number | string;

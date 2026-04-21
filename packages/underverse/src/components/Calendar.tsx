@@ -40,6 +40,7 @@ type CalendarSelectedEventRef = {
   index?: number;
 };
 
+/** Public props for the `Calendar` component. */
 export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "value" | "onSelect"> {
   month?: Date; // visible month
   defaultMonth?: Date;

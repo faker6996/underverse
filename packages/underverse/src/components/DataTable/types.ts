@@ -69,6 +69,7 @@ export type HeaderCell<T> = {
 /** Internal type for a single header row in multi-row headers */
 export type HeaderRow<T> = HeaderCell<T>[];
 
+/** Public props for the `DataTable` component. */
 export interface DataTableProps<T> {
   columns: DataTableColumn<T>[];
   data: T[];

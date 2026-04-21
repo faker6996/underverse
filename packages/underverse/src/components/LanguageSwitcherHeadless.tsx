@@ -12,6 +12,7 @@ export interface LanguageOption {
   flag?: string;
 }
 
+/** Public props for the `LanguageSwitcherHeadless` component. */
 export interface LanguageSwitcherHeadlessProps {
   locales: LanguageOption[];
   currentLocale: string;

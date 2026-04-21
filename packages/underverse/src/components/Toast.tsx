@@ -37,6 +37,7 @@ export const useToast = () => {
   return context;
 };
 
+/** Public props for the `ToastProvider` component. */
 interface ToastProviderProps {
   children: React.ReactNode;
   position?: ToastPosition;
@@ -87,6 +88,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children, position
   );
 };
 
+/** Public props for the `ToastComponent` component. */
 interface ToastComponentProps {
   toast: Toast;
   onRemove: (id: string) => void;

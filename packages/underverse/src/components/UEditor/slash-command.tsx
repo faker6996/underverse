@@ -88,6 +88,7 @@ export type SlashCommandItem = {
   command: (ctx: SlashCommandExecutionContext) => void;
 };
 
+/** Public props for the `SlashCommandList` component. */
 type SlashCommandListProps = {
   items: SlashCommandItem[];
   command: (item: SlashCommandItem) => void;

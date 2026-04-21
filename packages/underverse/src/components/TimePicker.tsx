@@ -10,6 +10,7 @@ import Input from "./Input";
 type TimeFormat = "24" | "12";
 type TimePickerVariant = "default" | "compact" | "inline";
 
+/** Public props for the `TimePicker` component. */
 export interface TimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
   value?: string; // e.g. "14:05" or "02:05 PM"
   defaultValue?: string;

@@ -20,6 +20,7 @@ export interface UploadedImage {
   formattedSize?: string;
 }
 
+/** Public props for the `ImageUpload` component. */
 export interface ImageUploadProps {
   onUpload?: (image: UploadedImage) => void;
   onRemove?: (imageId: string) => void;

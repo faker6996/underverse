@@ -2,6 +2,7 @@ import React from "react";
 import { cn } from "../utils/cn";
 import { Check, X, Clock, AlertTriangle } from "lucide-react";
 
+/** Public props for the `Progress` component. */
 interface ProgressProps {
   value: number;
   max?: number;
@@ -125,6 +126,7 @@ export const Progress: React.FC<ProgressProps> = ({
 };
 
 // Circular Progress Component
+/** Public props for the `CircularProgress` component. */
 interface CircularProgressProps {
   value: number;
   max?: number;
@@ -236,6 +238,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
 };
 
 // Multi-step Progress Component
+/** Public props for the `StepProgress` component. */
 interface StepProgressProps {
   steps: string[];
   currentStep: number;
@@ -304,6 +307,7 @@ export const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStep, 
 };
 
 // Mini Progress - compact version for tight spaces
+/** Public props for the `MiniProgress` component. */
 interface MiniProgressProps {
   value: number;
   max?: number;
@@ -332,6 +336,7 @@ export const MiniProgress: React.FC<MiniProgressProps> = ({ value, max = 100, cl
 };
 
 // Battery Progress - for battery/power indicators
+/** Public props for the `BatteryProgress` component. */
 interface BatteryProgressProps {
   value: number;
   max?: number;
@@ -382,6 +387,7 @@ export const BatteryProgress: React.FC<BatteryProgressProps> = ({ value, max = 1
 };
 
 // Segmented Progress - for multi-segment indicators
+/** Public props for the `SegmentedProgress` component. */
 interface SegmentedProgressProps {
   segments: number;
   activeSegments: number;
@@ -414,6 +420,7 @@ export const SegmentedProgress: React.FC<SegmentedProgressProps> = ({ segments, 
 };
 
 // Loading Progress - for file uploads, downloads etc
+/** Public props for the `LoadingProgress` component. */
 interface LoadingProgressProps {
   value: number;
   max?: number;

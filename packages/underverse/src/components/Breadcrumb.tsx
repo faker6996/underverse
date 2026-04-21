@@ -18,6 +18,7 @@ interface BreadcrumbItem {
   disabled?: boolean;
 }
 
+/** Public props for the `Breadcrumb` component. */
 interface BreadcrumbProps {
   items: BreadcrumbItem[];
   className?: string;
@@ -191,6 +192,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
 };
 
 // Specialized Breadcrumb components
+/** Public props for the `SimpleBreadcrumb` component. */
 interface SimpleBreadcrumbProps {
   items: string[];
   baseHref?: string;
@@ -206,6 +208,7 @@ export const SimpleBreadcrumb: React.FC<SimpleBreadcrumbProps> = ({ items, baseH
   return <Breadcrumb items={breadcrumbItems} variant="simple" className={className} />;
 };
 
+/** Public props for the `IconBreadcrumb` component. */
 interface IconBreadcrumbProps extends Omit<BreadcrumbProps, "items"> {
   items: Array<{
     label: string;
@@ -218,6 +221,7 @@ export const IconBreadcrumb: React.FC<IconBreadcrumbProps> = ({ items, ...props 
   return <Breadcrumb items={items} {...props} />;
 };
 
+/** Public props for the `CompactBreadcrumb` component. */
 interface CompactBreadcrumbProps extends BreadcrumbProps {
   alwaysShowFirst?: boolean;
   alwaysShowLast?: boolean;

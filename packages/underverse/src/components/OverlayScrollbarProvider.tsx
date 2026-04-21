@@ -12,6 +12,7 @@ import {
 
 const OverlayScrollbarConfigContext = createContext<OverlayScrollbarBehavior>(DEFAULT_OVERLAY_SCROLLBAR_BEHAVIOR);
 
+/** Public props for the `OverlayScrollbarProvider` component. */
 export interface OverlayScrollbarProviderProps extends Partial<OverlayScrollbarBehavior> {
   children?: React.ReactNode;
   /** @deprecated Global selector scanning is removed. Kept only for backward compatibility. */

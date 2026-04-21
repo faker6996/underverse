@@ -23,6 +23,7 @@ export interface CarouselEffectOptions {
   stackLift?: number;
 }
 
+/** Public props for the `Carousel` component. */
 interface CarouselProps {
   children: React.ReactNode;
   autoScroll?: boolean;

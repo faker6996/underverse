@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "../utils/cn";
 
+/** Public props for the `Badge` component. */
 interface BadgeProps {
   children?: React.ReactNode;
   variant?:
@@ -201,6 +202,7 @@ export const Badge: React.FC<BadgeProps> = ({
 };
 
 // Notification Badge component - wrapper for positioning badges over other elements
+/** Public props for the `NotificationBadge` component. */
 interface NotificationBadgeProps {
   children: React.ReactNode;
   count?: number;
@@ -258,6 +260,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({
 };
 
 // Specialized Badge components
+/** Public props for the `StatusBadge` component. */
 interface StatusBadgeProps extends Omit<BadgeProps, "variant"> {
   status?: "online" | "offline" | "busy" | "away" | "idle";
 }
@@ -274,6 +277,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status = "offline", ..
   return <Badge {...props} variant={statusVariants[status]} dot={true} pulse={status === "online"} />;
 };
 
+/** Public props for the `TagBadge` component. */
 interface TagBadgeProps extends Omit<BadgeProps, "removable"> {
   tags?: string[];
   onTagRemove?: (tag: string) => void;
@@ -300,6 +304,7 @@ export const TagBadge: React.FC<TagBadgeProps> = ({ tags = [], onTagRemove, maxT
   );
 };
 
+/** Public props for the `InteractiveBadge` component. */
 interface InteractiveBadgeProps extends BadgeProps {
   active?: boolean;
   disabled?: boolean;
@@ -316,6 +321,7 @@ export const InteractiveBadge: React.FC<InteractiveBadgeProps> = ({ active = fal
   );
 };
 
+/** Public props for the `GradientBadge` component. */
 interface GradientBadgeProps extends Omit<BadgeProps, "variant"> {
   from?: string;
   to?: string;
@@ -331,6 +337,7 @@ export const GradientBadge: React.FC<GradientBadgeProps> = ({ from = "from-prima
   );
 };
 
+/** Public props for the `PulseBadge` component. */
 interface PulseBadgeProps extends BadgeProps {
   speed?: "slow" | "normal" | "fast";
 }

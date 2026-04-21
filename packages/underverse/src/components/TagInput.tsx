@@ -5,6 +5,7 @@ import { cn } from "../utils/cn";
 import { X, Search, Loader2 } from "lucide-react";
 import Button from "./Button";
 
+/** Public props for the `TagInput` component. */
 export interface TagInputProps {
   /** Danh sách tags hiện tại */
   value: string[];

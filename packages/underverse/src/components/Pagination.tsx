@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-r
 import { Combobox } from "./Combobox";
 import { useSmartTranslations } from "../hooks/useSmartTranslations";
 
+/** Public props for the `Pagination` component. */
 export interface PaginationProps {
   page: number;
   totalPages: number;
@@ -256,7 +257,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   );
 };
 
-// Simple Pagination - minimal version with just prev/next
+/** Public props for the `SimplePagination` component. */
 export interface SimplePaginationProps {
   page: number;
   totalPages: number;
@@ -341,7 +342,7 @@ export const SimplePagination: React.FC<SimplePaginationProps> = ({
   );
 };
 
-// Compact Pagination - icon only version
+/** Public props for the `CompactPagination` component. */
 export interface CompactPaginationProps {
   page: number;
   totalPages: number;

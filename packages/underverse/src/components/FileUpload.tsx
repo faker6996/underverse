@@ -41,6 +41,7 @@ export interface UploadedFile {
   formattedSize?: string;
 }
 
+/** Public props for the `FileUpload` component. */
 export interface FileUploadProps {
   /** Callback when a file is uploaded */
   onUpload?: (file: UploadedFile) => void;
