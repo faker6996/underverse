@@ -239,6 +239,12 @@ function pruneAncestorSelection(categories: Category[], childrenMap: Map<number,
   }
 }
 
+function toCategoryOrderSelection(categories: Category[], selected: Set<number>) {
+  return categories
+    .map((category) => category.id)
+    .filter((categoryId) => selected.has(categoryId));
+}
+
 /**
  * Tree-based category picker with single-select, multi-select, inline, and
  * read-only modes.
@@ -468,7 +474,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
         }
       }
 
-      onChange(Array.from(newSelected));
+      onChange(toCategoryOrderSelection(categories, newSelected));
     }
   };
 
