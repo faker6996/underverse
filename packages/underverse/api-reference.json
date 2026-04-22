@@ -1,6 +1,6 @@
 {
   "package": "@underverse-ui/underverse",
-  "version": "1.0.98",
+  "version": "1.0.99",
   "sourceEntry": "src/index.ts",
   "totalExports": 225,
   "exports": [
@@ -361,7 +361,7 @@
     {
       "name": "cn",
       "kind": "value",
-      "source": "../../../lib/utils/cn",
+      "source": "./utils/cn",
       "reexport": true,
       "local": false
     },
@@ -1487,14 +1487,14 @@
     {
       "name": "UnderverseProvider",
       "kind": "value",
-      "source": "../../../lib/i18n/translation-adapter",
+      "source": "./contexts/translation-adapter",
       "reexport": true,
       "local": false
     },
     {
       "name": "UnderverseProviderProps",
       "kind": "type",
-      "source": "../../../lib/i18n/translation-adapter",
+      "source": "./contexts/translation-adapter",
       "reexport": true,
       "local": false
     },
@@ -1557,7 +1557,7 @@
     {
       "name": "useUnderverseI18n",
       "kind": "value",
-      "source": "../../../lib/i18n/translation-adapter",
+      "source": "./contexts/translation-adapter",
       "reexport": true,
       "local": false,
       "aliasOf": "useTranslations"
@@ -1565,7 +1565,7 @@
     {
       "name": "useUnderverseI18nLocale",
       "kind": "value",
-      "source": "../../../lib/i18n/translation-adapter",
+      "source": "./contexts/translation-adapter",
       "reexport": true,
       "local": false,
       "aliasOf": "useLocale"
@@ -1587,7 +1587,7 @@
     {
       "name": "VARIANT_STYLES_ALERT",
       "kind": "value",
-      "source": "../../../lib/constants/constants-ui/alert",
+      "source": "./constants/alert",
       "reexport": true,
       "local": false
     },
