@@ -1,15 +1,12 @@
 import assert from "node:assert/strict";
 import path from "node:path";
-import { createRequire } from "node:module";
 import test, { after, afterEach } from "node:test";
-import React from "./helpers/workspace-react.mjs";
+import React, { createRoot } from "./helpers/workspace-react.mjs";
 
 import { importTsModule, requireTempModule } from "./helpers/import-ts-module.mjs";
 import { installJSDOM } from "./helpers/setup-jsdom.mjs";
 
 const { act } = React;
-const requireWorkspace = createRequire(path.resolve(import.meta.dirname, "../../../package.json"));
-const { createRoot } = requireWorkspace("react-dom/client");
 const { NextIntlClientProvider } = requireTempModule("next-intl");
 
 const restoreDom = installJSDOM();
@@ -29,7 +26,7 @@ afterEach(async () => {
 });
 
 const contextsRoot = path.resolve(import.meta.dirname, "../src/contexts");
-const legacyAdapterPath = path.resolve(import.meta.dirname, "../../../lib/i18n/translation-adapter.tsx");
+const legacyAdapterPath = path.resolve(import.meta.dirname, "../src/contexts/translation-adapter.tsx");
 
 async function render(element) {
   const container = document.createElement("div");
@@ -134,4 +131,3 @@ test("legacy translation-adapter locale follows NextIntlAdapter", async () => {
 
   assert.equal(view.container.textContent, "ja");
 });
-

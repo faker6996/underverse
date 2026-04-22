@@ -11,6 +11,27 @@ import { Tooltip } from "../../Tooltip";
 import { cn } from "../../../utils/cn";
 import type { DataTableColumn, HeaderRow, Sorter, DataTableSize } from "../types";
 
+function getColumnLabel(title: React.ReactNode): string {
+  if (typeof title === "string" || typeof title === "number") {
+    return String(title).replace(/\s+/g, " ").trim();
+  }
+
+  if (Array.isArray(title)) {
+    return title
+      .map((item) => getColumnLabel(item))
+      .filter(Boolean)
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  if (React.isValidElement<{ children?: React.ReactNode }>(title)) {
+    return getColumnLabel(title.props.children);
+  }
+
+  return "";
+}
+
 export function DataTableHeader<T extends Record<string, any>>({
   headerRows,
   headerAlign,
@@ -53,12 +74,13 @@ export function DataTableHeader<T extends Record<string, any>>({
       if (!col.filter) return null;
       const key = col.key;
       const commonProps = { className: "w-full", size } as const;
+      const columnLabel = getColumnLabel(col.title) || key;
 
       if (col.filter.type === "text") {
         return (
           <Input
             {...commonProps}
-            placeholder={col.filter.placeholder || `Search ${String(col.title)}`}
+            placeholder={col.filter.placeholder || `Search ${columnLabel}`}
             value={filters[key] || ""}
             onChange={(e) => {
               setCurPage(1);
@@ -79,7 +101,7 @@ export function DataTableHeader<T extends Record<string, any>>({
               setCurPage(1);
               setFilters((prev) => ({ ...prev, [key]: value || undefined }));
             }}
-            placeholder={col.filter.placeholder || `Select ${String(col.title)}`}
+            placeholder={col.filter.placeholder || `Select ${columnLabel}`}
           />
         );
       }
@@ -88,7 +110,7 @@ export function DataTableHeader<T extends Record<string, any>>({
         return (
           <DatePicker
             size={size}
-            placeholder={col.filter.placeholder || `Select ${String(col.title)}`}
+            placeholder={col.filter.placeholder || `Select ${columnLabel}`}
             value={filters[key] || null}
             onChange={(date) => {
               setCurPage(1);
@@ -123,6 +145,7 @@ export function DataTableHeader<T extends Record<string, any>>({
 
       const isRightAlign = col.align === "right" || (!col.align && headerAlign === "right");
       const isCenterAlign = col.align === "center" || (!col.align && headerAlign === "center");
+      const columnLabel = getColumnLabel(col.title) || col.key;
 
       const titleContent = (
         <div className="flex items-center gap-1">
@@ -130,9 +153,11 @@ export function DataTableHeader<T extends Record<string, any>>({
           {col.sortable && (
             <Tooltip
               placement="top"
-              content={<span className="text-xs font-medium">{`Sort by ${String(col.title)}`}</span>}
+              content={<span className="text-xs font-medium">{`Sort by ${columnLabel}`}</span>}
             >
               <button
+                type="button"
+                title={`Sort by ${columnLabel}`}
                 className={cn(
                   "p-1 rounded-lg transition-all duration-200 hover:bg-accent",
                   sort?.key === col.key ? "opacity-100 bg-accent" : "opacity-60 hover:opacity-100",
@@ -145,7 +170,7 @@ export function DataTableHeader<T extends Record<string, any>>({
                     return null;
                   });
                 }}
-                aria-label="Sort"
+                aria-label={`Sort by ${columnLabel}`}
               >
                 <svg viewBox="0 0 20 20" fill="none" className={cn("inline-block", sortIconClass)}>
                   <path
@@ -178,14 +203,16 @@ export function DataTableHeader<T extends Record<string, any>>({
             <span className="inline-flex">
               <Tooltip
                 placement="top"
-                content={<span className="text-xs font-medium">{`Filter by ${String(col.title)}`}</span>}
+                content={<span className="text-xs font-medium">{`Filter by ${columnLabel}`}</span>}
               >
                 <button
+                  type="button"
+                  title={`Filter by ${columnLabel}`}
                   className={cn(
                     "p-1.5 rounded-lg transition-all duration-200 hover:bg-accent",
                     filters[col.key] ? "bg-accent text-primary" : "text-muted-foreground",
                   )}
-                  aria-label="Filter"
+                  aria-label={`Filter by ${columnLabel}`}
                 >
                   <FilterIcon className="w-4 h-4" />
                 </button>

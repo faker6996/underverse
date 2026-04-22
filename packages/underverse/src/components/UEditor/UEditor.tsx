@@ -192,6 +192,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   const t = useSmartTranslations("UEditor");
   const effectivePlaceholder = placeholder ?? t("placeholder");
   const inFlightPrepareRef = useRef<Promise<UEditorPrepareContentForSaveResult> | null>(null);
+  const lastAppliedContentRef = useRef(content ?? "");
   const editorContentRef = useRef<HTMLDivElement | null>(null);
   const tableColumnGuideRef = useRef<HTMLSpanElement | null>(null);
   const tableRowGuideRef = useRef<HTMLSpanElement | null>(null);
@@ -535,10 +536,14 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   );
 
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      if (editor.isEmpty && content) {
-        editor.commands.setContent(content);
-      }
+    if (!editor) return;
+
+    const nextContent = content ?? "";
+    if (lastAppliedContentRef.current === nextContent) return;
+
+    lastAppliedContentRef.current = nextContent;
+    if (editor.getHTML() !== nextContent) {
+      editor.commands.setContent(nextContent, { emitUpdate: false });
     }
   }, [content, editor]);
 

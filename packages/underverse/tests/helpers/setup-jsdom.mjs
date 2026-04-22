@@ -49,6 +49,21 @@ export function installJSDOM() {
   assign("btoa", window.btoa.bind(window));
   assign("IS_REACT_ACT_ENVIRONMENT", true);
 
+  const originalConsoleError = console.error;
+  const actWarningPatterns = [
+    /not wrapped in act/i,
+    /current testing environment is not configured to support act/i,
+  ];
+
+  console.error = (...args) => {
+    const [firstArg] = args;
+    const message = typeof firstArg === "string" ? firstArg : "";
+    if (actWarningPatterns.some((pattern) => pattern.test(message))) {
+      return;
+    }
+    originalConsoleError(...args);
+  };
+
   class ResizeObserver {
     observe() {}
     unobserve() {}
@@ -157,6 +172,7 @@ export function installJSDOM() {
   }
 
   return () => {
+    console.error = originalConsoleError;
     for (const [key, value] of previous.entries()) {
       Object.defineProperty(globalThis, key, {
         configurable: true,

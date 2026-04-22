@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
 import path from "node:path";
-import { createRequire } from "node:module";
 import test, { after, afterEach } from "node:test";
-import React from "./helpers/workspace-react.mjs";
+import React, { createRoot } from "./helpers/workspace-react.mjs";
 import { act, cleanup, fireEvent, waitFor, within } from "@testing-library/react";
 
 import { importTsModule } from "./helpers/import-ts-module.mjs";
@@ -11,27 +10,6 @@ import { installJSDOM } from "./helpers/setup-jsdom.mjs";
 const restoreDom = installJSDOM();
 after(() => restoreDom());
 afterEach(() => cleanup());
-const requirePackage = createRequire(path.resolve(import.meta.dirname, "../package.json"));
-const { createRoot } = requirePackage("react-dom/client");
-
-const originalConsoleError = console.error;
-const ACT_WARNING_PATTERNS = [
-  /not wrapped in act/i,
-  /current testing environment is not configured to support act/i,
-];
-
-console.error = (...args) => {
-  const [firstArg] = args;
-  const message = typeof firstArg === "string" ? firstArg : "";
-  if (ACT_WARNING_PATTERNS.some((pattern) => pattern.test(message))) {
-    return;
-  }
-  originalConsoleError(...args);
-};
-
-after(() => {
-  console.error = originalConsoleError;
-});
 
 let mountedRoots = [];
 afterEach(async () => {

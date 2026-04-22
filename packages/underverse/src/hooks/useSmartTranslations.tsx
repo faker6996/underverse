@@ -90,8 +90,9 @@ export function useSmartTranslations(namespace: string): (key: string) => string
   }
 
   return (key: string) => {
-    const primaryLocale = nextIntlBridge?.locale ?? internalLocale;
-    const fallbackLocale = environmentLocale && environmentLocale !== primaryLocale ? environmentLocale : null;
+    const resolvedEnvironmentLocale = environmentLocale && environmentLocale !== internalLocale ? environmentLocale : null;
+    const primaryLocale = nextIntlBridge?.locale ?? resolvedEnvironmentLocale ?? internalLocale;
+    const fallbackLocale = resolvedEnvironmentLocale && resolvedEnvironmentLocale !== primaryLocale ? resolvedEnvironmentLocale : null;
     let translated: string | null = null;
 
     if (nextIntlBridge) {
@@ -146,12 +147,23 @@ export function useSmartLocale(): Locale {
   const forceInternal = React.useContext(ForceInternalContext);
   const nextIntlBridge = useNextIntlBridge();
   const internalLocale = useUnderverseLocale();
+  const [environmentLocale, setEnvironmentLocale] = React.useState<Locale | null>(null);
+
+  React.useEffect(() => {
+    if (forceInternal) return;
+    if (nextIntlBridge) return;
+    if (internalLocale !== "en") return;
+    const detected = getEnvironmentLocale(internalLocale);
+    if (detected !== internalLocale) {
+      setEnvironmentLocale(detected);
+    }
+  }, [forceInternal, internalLocale, nextIntlBridge]);
 
   if (forceInternal) {
     return internalLocale;
   }
 
-  return nextIntlBridge?.locale ?? internalLocale;
+  return nextIntlBridge?.locale ?? environmentLocale ?? internalLocale;
 }
 
 export default useSmartTranslations;

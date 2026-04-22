@@ -1,10 +1,12 @@
 import path from "node:path";
 import { createRequire } from "node:module";
 
-const requireWorkspace = createRequire(path.resolve(import.meta.dirname, "../../package.json"));
+const requireWorkspace = createRequire(path.resolve(import.meta.dirname, "../../../../package.json"));
 
 const React = requireWorkspace("react");
+const reactDomClient = requireWorkspace("react-dom/client");
 const reactDomServer = requireWorkspace("react-dom/server");
 
 export default React;
+export const createRoot = reactDomClient.createRoot;
 export const renderToStaticMarkup = reactDomServer.renderToStaticMarkup;

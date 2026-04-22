@@ -219,9 +219,10 @@ export const Combobox: React.FC<ComboboxProps> = ({
         <button
           id={`combobox-item-${index}`}
           type="button"
+          role="option"
           tabIndex={-1}
           disabled={itemDisabled}
-          aria-pressed={isSelected}
+          aria-selected={isSelected}
           onClick={() => handleSelect(item)}
           style={{
             animationDelay: open ? `${Math.min(index * 15, 150)}ms` : "0ms",
@@ -341,7 +342,13 @@ export const Combobox: React.FC<ComboboxProps> = ({
       )}
 
       {/* Options List */}
-      <div ref={optionsViewportRef} className="overflow-y-auto overscroll-contain" style={{ maxHeight }}>
+      <div
+        ref={optionsViewportRef}
+        role="listbox"
+        aria-labelledby={labelId}
+        className="overflow-y-auto overscroll-contain"
+        style={{ maxHeight }}
+      >
         <div className={cn(size === "sm" ? "p-1" : size === "lg" ? "p-2" : "p-1.5")}>
           {loading ? (
             <div className="px-3 py-10 text-center">

@@ -41,6 +41,7 @@ async function main() {
     const text = await fs.readFile(file, 'utf8');
     if (/from\s+["']@\//.test(text)) addViolation(file, 'must not import from @/ alias');
     if (/from\s+["'][^"']*components\/ui\//.test(text)) addViolation(file, 'must not import from app ui source');
+    if (/from\s+["'][^"']*\.\.\/\.\.\/\.\.\/lib\//.test(text)) addViolation(file, 'must not import from root lib source');
   }
 
   const pkgEntries = await fs.readdir(PACKAGE_COMPONENTS, { withFileTypes: true });

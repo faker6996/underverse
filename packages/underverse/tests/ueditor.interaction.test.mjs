@@ -79,6 +79,38 @@ test("UEditor renders content and reuses the same in-flight prepareContentForSav
   assert.match(first.html, /Hello editor/);
 });
 
+test("UEditor updates editor content when the controlled content prop changes", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  function Harness() {
+    const [content, setContent] = React.useState("<p>Initial body</p>");
+
+    return React.createElement(
+      React.Fragment,
+      null,
+      React.createElement("button", { type: "button", onClick: () => setContent("<p>Updated body</p>") }, "Replace"),
+      React.createElement(UEditor, {
+        content,
+        showBubbleMenu: false,
+        showFloatingMenu: false,
+        showCharacterCount: false,
+      }),
+    );
+  }
+
+  render(React.createElement(Harness));
+  await within(window.document.body).findByText("Initial body");
+
+  await user.click(within(window.document.body).getByRole("button", { name: "Replace" }));
+
+  await waitFor(() => {
+    assert.ok(within(window.document.body).getByText("Updated body"));
+    assert.equal(within(window.document.body).queryByText("Initial body"), null);
+  });
+});
+
 test("UEditor prepareContentForSave resolves cleanly for plain content", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;

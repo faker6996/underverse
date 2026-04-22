@@ -14,7 +14,6 @@ const packageNodeModules = path.join(packageRoot, "node_modules");
 const workspaceNodeModules = path.join(workspaceRoot, "node_modules");
 const tempNodeModules = path.join(tempRoot, "node_modules");
 const requireFromTemp = createRequire(path.join(tempRoot, "index.mjs"));
-const requireFromPackage = createRequire(path.join(packageRoot, "package.json"));
 const requireFromWorkspace = createRequire(path.join(workspaceRoot, "package.json"));
 
 function linkNodeModulesEntries(fromDir) {
@@ -43,16 +42,12 @@ function linkScopedEntries(fromDir, scopeName) {
 if (!fs.existsSync(tempNodeModules)) {
   fs.mkdirSync(tempNodeModules, { recursive: true });
   for (const entry of ["react", "react-dom", "scheduler"]) {
-    const source = fs.existsSync(path.join(packageNodeModules, entry))
-      ? path.join(packageNodeModules, entry)
-      : path.join(workspaceNodeModules, entry);
+    const source = path.join(workspaceNodeModules, entry);
     const target = path.join(tempNodeModules, entry);
     if (fs.existsSync(source) && !fs.existsSync(target)) {
       fs.symlinkSync(source, target, fs.statSync(source).isDirectory() ? "dir" : "file");
     }
   }
-  linkNodeModulesEntries(packageNodeModules);
-  linkScopedEntries(packageNodeModules, "@tiptap");
   linkNodeModulesEntries(workspaceNodeModules);
   linkScopedEntries(workspaceNodeModules, "@tiptap");
 }
@@ -120,11 +115,7 @@ const stableBareSpecifiers = [
 ];
 
 function resolveBareSpecifier(specifier) {
-  try {
-    return requireFromPackage.resolve(specifier);
-  } catch {
-    return requireFromWorkspace.resolve(specifier);
-  }
+  return requireFromWorkspace.resolve(specifier);
 }
 
 function rewriteBareSpecifiers(sourceText, outFile) {

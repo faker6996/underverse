@@ -257,7 +257,7 @@ export type { LanguageSwitcherHeadlessProps } from "./components/LanguageSwitche
 
 // Class name utility (cn)
 /** Utility for merging Tailwind and conditional class names. */
-export { cn } from "../../../lib/utils/cn";
+export { cn } from "./utils/cn";
 export { cn as cnLocal } from "./utils/cn";
 
 // Date utilities with locale support (standalone)
@@ -273,7 +273,7 @@ export { shadcnAnimationStyles, useShadCNAnimations, injectAnimationStyles, getA
 // Constants for styling
 /** Button style maps reused by button-like components. */
 export { VARIANT_STYLES_BTN, SIZE_STYLES_BTN } from "./constants/button";
-export { VARIANT_STYLES_ALERT } from "../../../lib/constants/constants-ui/alert";
+export { VARIANT_STYLES_ALERT } from "./constants/alert";
 
 // ============================================================================
 // TRANSLATION SYSTEM (for React/Next.js without next-intl)
@@ -292,9 +292,9 @@ export {
   UnderverseProvider,
   useTranslations as useUnderverseI18n,
   useLocale as useUnderverseI18nLocale,
-} from "../../../lib/i18n/translation-adapter";
+} from "./contexts/translation-adapter";
 /** Public props for the standalone `UnderverseProvider` alias. */
-export type { UnderverseProviderProps } from "../../../lib/i18n/translation-adapter";
+export type { UnderverseProviderProps } from "./contexts/translation-adapter";
 
 // Smart hooks that read NextIntlAdapter or fallback to internal translations
 /** Smart translation hooks that prefer `next-intl` and fall back to internal messages. */

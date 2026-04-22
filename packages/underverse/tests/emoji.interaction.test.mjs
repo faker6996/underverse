@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
 import path from "node:path";
-import { createRequire } from "node:module";
 import test, { after, afterEach } from "node:test";
-import React from "./helpers/workspace-react.mjs";
+import React, { createRoot } from "./helpers/workspace-react.mjs";
 import { waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
@@ -11,8 +10,6 @@ import { installJSDOM } from "./helpers/setup-jsdom.mjs";
 
 const { NextIntlClientProvider } = requireTempModule("next-intl");
 const { act } = React;
-const requirePackage = createRequire(path.resolve(import.meta.dirname, "../package.json"));
-const { createRoot } = requirePackage("react-dom/client");
 
 const restoreDom = installJSDOM();
 after(() => restoreDom());

@@ -197,6 +197,48 @@ export function getExpandedNodesState(expandedIds: number[] | undefined, uncontr
   return expandedIds !== undefined ? new Set(expandedIds) : uncontrolledExpandedNodes;
 }
 
+function collectAncestorIds(categories: Category[], categoryId: number) {
+  const ancestorIds = getAncestorPathIds(categories, categoryId);
+  ancestorIds.delete(categoryId);
+  return ancestorIds;
+}
+
+function collectDescendantIds(childrenMap: Map<number, Category[]>, categoryId: number) {
+  const descendants = new Set<number>();
+  const stack = [categoryId];
+
+  while (stack.length > 0) {
+    const currentId = stack.pop()!;
+    for (const child of childrenMap.get(currentId) ?? []) {
+      if (descendants.has(child.id)) continue;
+      descendants.add(child.id);
+      stack.push(child.id);
+    }
+  }
+
+  return descendants;
+}
+
+function pruneAncestorSelection(categories: Category[], childrenMap: Map<number, Category[]>, selected: Set<number>, fromCategoryId: number) {
+  const byId = new Map(categories.map((category) => [category.id, category] as const));
+  let current = byId.get(fromCategoryId);
+  let guard = 0;
+
+  while (current && typeof current.parent_id === "number" && guard++ < categories.length) {
+    const parent = byId.get(current.parent_id);
+    if (!parent) break;
+
+    const descendantIds = collectDescendantIds(childrenMap, parent.id);
+    const hasSelectedDescendant = Array.from(descendantIds).some((id) => selected.has(id));
+
+    if (!hasSelectedDescendant) {
+      selected.delete(parent.id);
+    }
+
+    current = parent;
+  }
+}
+
 /**
  * Tree-based category picker with single-select, multi-select, inline, and
  * read-only modes.
@@ -412,16 +454,17 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
         // Unselect
         newSelected.delete(categoryId);
 
-        // Also unselect children if it's a parent
-        const children = childrenMap.get(categoryId) || [];
-        children.forEach((child) => newSelected.delete(child.id));
+        for (const descendantId of collectDescendantIds(childrenMap, categoryId)) {
+          newSelected.delete(descendantId);
+        }
+
+        pruneAncestorSelection(categories, childrenMap, newSelected, categoryId);
       } else {
         // Select
         newSelected.add(categoryId);
 
-        // Also select parent if this is a child
-        if (category.parent_id) {
-          newSelected.add(category.parent_id);
+        for (const ancestorId of collectAncestorIds(categories, categoryId)) {
+          newSelected.add(ancestorId);
         }
       }
 
@@ -829,10 +872,9 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           "shadow-2xl backdrop-blur-xl",
         )}
         trigger={
-          <button
+          <div
             id={resolvedId}
-            type="button"
-            disabled={disabled}
+            tabIndex={disabled ? -1 : 0}
             role="combobox"
             aria-haspopup="tree"
             aria-expanded={isOpen}
@@ -841,6 +883,13 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
             aria-describedby={describedBy}
             aria-required={required}
             aria-invalid={!!effectiveError}
+            onKeyDown={(event) => {
+              if (disabled) return;
+              if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") {
+                event.preventDefault();
+                handleOpenChange(!isOpen);
+              }
+            }}
             className={cn(
               "group flex w-full items-center justify-between rounded-full transition-all duration-200",
               "backdrop-blur-sm",
@@ -875,12 +924,10 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
             </div>
             <div className="ml-2 flex shrink-0 items-center gap-1.5">
               {allowClear && selectedCount > 0 && !disabled && (
-                <div
-                  role="button"
-                  tabIndex={0}
+                <button
+                  type="button"
                   aria-label="Clear selection"
                   onClick={handleClear}
-                  onKeyDown={(event) => (event.key === "Enter" || event.key === " ") && handleClear(event)}
                   className={cn(
                     "opacity-0 group-hover:opacity-100 transition-all duration-200",
                     "p-1 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive",
@@ -888,7 +935,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
                   )}
                 >
                   <X className={triggerSizeStyles[size].clearIcon} />
-                </div>
+                </button>
               )}
               {selectedCount > 0 && !singleSelect && (
                 <span className={cn("rounded-full bg-primary/15 font-bold text-primary", triggerSizeStyles[size].badge)}>{selectedCount}</span>
@@ -897,7 +944,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
                 <ChevronDown className={triggerSizeStyles[size].actionIcon} />
               </span>
             </div>
-          </button>
+          </div>
         }
       >
         {dropdownBody}

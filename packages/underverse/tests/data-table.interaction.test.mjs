@@ -65,6 +65,40 @@ test("DataTable supports client-side sort, filter, and pagination interactions",
   });
 });
 
+test("DataTable derives accessible labels from JSX column titles", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
+  const DataTable = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  render(
+    React.createElement(DataTable, {
+      columns: [
+        {
+          key: "status",
+          title: React.createElement("span", null, "Status", React.createElement("strong", null, " Label")),
+          dataIndex: "status",
+          sortable: true,
+          filter: { type: "text" },
+        },
+      ],
+      data: [{ id: "1", status: "active" }],
+      rowKey: "id",
+      pageSize: 10,
+      size: "md",
+      stickyHeader: false,
+    }),
+  );
+
+  const body = within(window.document.body);
+  const sortButton = body.getByRole("button", { name: "Sort by Status Label" });
+  const filterButton = body.getByRole("button", { name: "Filter by Status Label" });
+
+  await user.click(filterButton);
+  await body.findByPlaceholderText("Search Status Label");
+  assert.equal(sortButton.getAttribute("title"), "Sort by Status Label");
+  assert.equal(filterButton.getAttribute("title"), "Filter by Status Label");
+});
+
 test("DataTable supports density and column visibility controls", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
   const DataTable = mod.default;
