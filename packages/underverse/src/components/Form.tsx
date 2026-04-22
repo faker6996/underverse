@@ -112,7 +112,7 @@ const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div ref={ref} className={cn("space-y-2", className)} {...props} />
+      <div ref={ref} className={cn("group space-y-2", className)} {...props} />
     </FormItemContext.Provider>
   );
 });
@@ -125,7 +125,17 @@ const FormLabel = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<H
     const sizeClass = config.size === "sm" ? "text-xs" : config.size === "lg" ? "text-base" : "text-sm";
 
     return (
-      <Label ref={ref} className={cn(sizeClass, error && "text-destructive", className)} htmlFor={formItemId} {...props}>
+      <Label
+        ref={ref}
+        className={cn(
+          sizeClass,
+          "transition-colors duration-200",
+          error ? "text-destructive" : "group-focus-within:text-primary",
+          className,
+        )}
+        htmlFor={formItemId}
+        {...props}
+      >
         {children}
         {required && <span className="text-destructive ml-1">*</span>}
       </Label>
