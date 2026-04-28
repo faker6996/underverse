@@ -55,7 +55,11 @@ export interface UEditorProps {
   onJsonChange?: (json: object) => void;
   uploadImage?: (file: File) => Promise<string> | string;
   uploadImageForSave?: UEditorUploadImageForSave;
+  uploadImageConcurrency?: number;
   imageInsertMode?: "base64" | "upload";
+  maxImageFileSize?: number;
+  allowedImageMimeTypes?: string[];
+  fallbackToDataUrl?: boolean;
   placeholder?: string;
   className?: string;
   editable?: boolean;

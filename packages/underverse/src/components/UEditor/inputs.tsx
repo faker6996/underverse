@@ -3,17 +3,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { Check, X } from "lucide-react";
+import { sanitizeUEditorUrl } from "./url-safety";
 
 function normalizeUrl(raw: string) {
-  const url = raw.trim();
-  if (!url) return "";
-
-  // Keep absolute URLs, protocol URLs, anchors, and relative paths as-is.
-  if (url.startsWith("#") || url.startsWith("/")) return url;
-  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)) return url;
-
-  // Otherwise treat it like a hostname and default to https.
-  return `https://${url}`;
+  return sanitizeUEditorUrl(raw, "link");
 }
 
 export const LinkInput = ({
@@ -72,8 +65,9 @@ export const ImageInput = ({ onSubmit, onCancel }: { onSubmit: (url: string, alt
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (url) {
-      onSubmit(url, alt);
+    const safeUrl = sanitizeUEditorUrl(url, "image");
+    if (safeUrl) {
+      onSubmit(safeUrl, alt);
     }
   };
 

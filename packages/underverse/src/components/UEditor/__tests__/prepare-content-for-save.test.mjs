@@ -116,6 +116,45 @@ test("prepareUEditorContentForSave reports missing uploadImageForSave for data:i
   assert.match(result.inlineImageUrls[0] ?? "", /data:image\/png;base64/);
 });
 
+test("prepareUEditorContentForSave limits concurrent uploads", async () => {
+  const inputHtml = [
+    `<img src="data:image/png;base64,${ONE_PIXEL_PNG_BASE64}" />`,
+    `<img src="data:image/png;base64,${ONE_PIXEL_PNG_BASE64}" />`,
+    `<img src="data:image/png;base64,${ONE_PIXEL_PNG_BASE64}" />`,
+  ].join("");
+  let activeUploads = 0;
+  let maxActiveUploads = 0;
+
+  const result = await prepareUEditorContentForSave({
+    html: inputHtml,
+    uploadConcurrency: 1,
+    uploadImageForSave: async () => {
+      activeUploads += 1;
+      maxActiveUploads = Math.max(maxActiveUploads, activeUploads);
+      await new Promise((resolve) => setTimeout(resolve, 1));
+      activeUploads -= 1;
+      return "https://cdn.example.com/uploaded/image.png";
+    },
+  });
+
+  assert.equal(result.errors.length, 0);
+  assert.equal(result.uploaded.length, 3);
+  assert.equal(maxActiveUploads, 1);
+});
+
+test("prepareUEditorContentForSave rejects unsafe uploaded image urls", async () => {
+  const inputHtml = `<img src="data:image/png;base64,${ONE_PIXEL_PNG_BASE64}" />`;
+  const result = await prepareUEditorContentForSave({
+    html: inputHtml,
+    uploadImageForSave: async () => "javascript:alert(1)",
+  });
+
+  assert.equal(result.uploaded.length, 0);
+  assert.equal(result.errors.length, 1);
+  assert.match(result.errors[0]?.reason ?? "", /empty URL/);
+  assert.match(result.html, /data:image\/png;base64/);
+});
+
 test("dedupe helpers provide stable inline URL matching for attachment filtering", async () => {
   const html = [
     '<img src="https://CDN.Example.com/uploaded/photo.png#viewer" />',

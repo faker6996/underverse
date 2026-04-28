@@ -1,5 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { Plugin } from "@tiptap/pm/state";
+import { sanitizeUEditorUrl } from "./url-safety";
 
 export type ClipboardImagesOptions = {
   maxFileSize: number;
@@ -8,6 +9,9 @@ export type ClipboardImagesOptions = {
   fallbackToDataUrl: boolean;
   insertMode: "base64" | "upload";
 };
+
+export const DEFAULT_UEDITOR_IMAGE_MAX_FILE_SIZE = 10 * 1024 * 1024;
+export const DEFAULT_UEDITOR_IMAGE_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml"];
 
 function getImageFiles(dataTransfer: DataTransfer | null): File[] {
   if (!dataTransfer) return [];
@@ -49,7 +53,7 @@ async function resolveImageSrc(file: File, options: ClipboardImagesOptions): Pro
   if (options.insertMode === "upload" && options.upload) {
     try {
       const result = await options.upload(file);
-      const src = typeof result === "string" ? result : "";
+      const src = typeof result === "string" ? sanitizeUEditorUrl(result, "image") : "";
       if (src) return src;
     } catch (err) {
       if (!options.fallbackToDataUrl) throw err;
@@ -64,8 +68,8 @@ export const ClipboardImages = Extension.create<ClipboardImagesOptions>({
 
   addOptions() {
     return {
-      maxFileSize: 10 * 1024 * 1024,
-      allowedMimeTypes: ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml"],
+      maxFileSize: DEFAULT_UEDITOR_IMAGE_MAX_FILE_SIZE,
+      allowedMimeTypes: DEFAULT_UEDITOR_IMAGE_MIME_TYPES,
       upload: undefined,
       fallbackToDataUrl: true,
       insertMode: "base64",

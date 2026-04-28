@@ -7,6 +7,7 @@ import {
   prepareUEditorContentForSave,
   UEditorPrepareContentForSaveError,
 } from "../src/components/UEditor/prepare-content-for-save.ts";
+import { sanitizeUEditorUrl } from "../src/components/UEditor/url-safety.ts";
 
 const ONE_PIXEL_PNG_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Z5eUAAAAASUVORK5CYII=";
@@ -30,6 +31,15 @@ test("extractImageSrcsFromHtml reads quoted, unquoted, and entity-encoded src va
     "/images/b.png#preview",
     "relative/c.png",
   ]);
+});
+
+test("sanitizeUEditorUrl blocks unsafe editor urls", () => {
+  assert.equal(sanitizeUEditorUrl("example.com/post", "link"), "https://example.com/post");
+  assert.equal(sanitizeUEditorUrl("/posts/1", "link"), "/posts/1");
+  assert.equal(sanitizeUEditorUrl("mailto:hello@example.com", "link"), "mailto:hello@example.com");
+  assert.equal(sanitizeUEditorUrl("javascript:alert(1)", "link"), "");
+  assert.equal(sanitizeUEditorUrl("data:text/html;base64,PGgxPkJvb208L2gxPg==", "image"), "");
+  assert.equal(sanitizeUEditorUrl("https://cdn.example.com/photo.png", "image"), "https://cdn.example.com/photo.png");
 });
 
 test("prepareUEditorContentForSave keeps invalid data urls untouched and records structured upload errors", async () => {

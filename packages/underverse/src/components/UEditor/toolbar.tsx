@@ -45,9 +45,11 @@ import { cn } from "../../utils/cn";
 import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu";
 import { Tooltip } from "../Tooltip";
 import { EditorColorPalette, useEditorColors } from "./colors";
+import { DEFAULT_UEDITOR_IMAGE_MAX_FILE_SIZE, DEFAULT_UEDITOR_IMAGE_MIME_TYPES } from "./clipboard-images";
 import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
 import { ImageInput } from "./inputs";
 import { EmojiPicker } from "./emoji-picker";
+import { sanitizeUEditorUrl } from "./url-safety";
 import { applyTableAlignment } from "./table-align-utils";
 import type {
   UEditorFontFamilyOption,
@@ -187,6 +189,8 @@ export const EditorToolbar = ({
   variant,
   uploadImage,
   imageInsertMode = "base64",
+  maxImageFileSize = DEFAULT_UEDITOR_IMAGE_MAX_FILE_SIZE,
+  allowedImageMimeTypes = DEFAULT_UEDITOR_IMAGE_MIME_TYPES,
   fontFamilies,
   fontSizes,
   lineHeights,
@@ -196,6 +200,8 @@ export const EditorToolbar = ({
   variant: UEditorVariant;
   uploadImage?: UploadImageFn;
   imageInsertMode?: "base64" | "upload";
+  maxImageFileSize?: number;
+  allowedImageMimeTypes?: string[];
   fontFamilies?: UEditorFontFamilyOption[];
   fontSizes?: UEditorFontSizeOption[];
   lineHeights?: UEditorLineHeightOption[];
@@ -282,10 +288,13 @@ export const EditorToolbar = ({
 
     for (const file of files) {
       if (!file.type.startsWith("image/")) continue;
+      if (file.size > maxImageFileSize) continue;
+      if (allowedImageMimeTypes.length > 0 && !allowedImageMimeTypes.includes(file.type)) continue;
       try {
         const src = imageInsertMode === "upload" && uploadImage ? await uploadImage(file) : await fileToDataUrl(file);
-        if (!src) continue;
-        editor.chain().focus().setImage({ src, alt: file.name }).run();
+        const safeSrc = sanitizeUEditorUrl(src, "image");
+        if (!safeSrc) continue;
+        editor.chain().focus().setImage({ src: safeSrc, alt: file.name }).run();
         editor.commands.createParagraphNear();
       } catch {
         setImageUploadError(t("imageInput.uploadError"));

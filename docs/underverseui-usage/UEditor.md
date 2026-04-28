@@ -53,6 +53,8 @@ export default function Example() {
 - Paste (`Ctrl+V`), drag & drop, and toolbar file picker all insert images as base64 (`data:`) by default.
 - If you want to upload immediately, set `imageInsertMode="upload"` and provide `uploadImage(file)` to return the final URL.
 - For teams that prefer base64 while editing but URL-only in DB, keep `imageInsertMode="base64"` and call `prepareContentForSave()` before saving.
+- Paste, drop, and toolbar file insertion share the same validation options: `maxImageFileSize`, `allowedImageMimeTypes`, and `fallbackToDataUrl`.
+- Image URLs inserted from controls are sanitized; accepted image URLs are `http(s)`, relative paths, anchors, and safe image `data:` URLs.
 - Select an image, then use the image menu to switch between block, image-left/text-right, or image-right/text-left layout.
 - When an image is selected, the bubble menu also shows quick layout controls plus `S / M / L` width presets.
 - Width presets are context-aware: wrapped images use smaller presets than block images.
@@ -127,7 +129,7 @@ To transform only on save:
 `prepareContentForSave()` will:
 
 - Scan HTML for `<img src="data:image/...;base64,...">`.
-- Upload each base64 image through `uploadImageForSave`.
+- Upload each base64 image through `uploadImageForSave` with a configurable concurrency limit.
 - Replace only the `src` value with returned URL.
 - Keep other image attributes (`alt`, `width`, `height`, `style`, etc.) unchanged.
 - Leave non-base64 images unchanged (`http(s)://`, `/path`, relative URLs).
@@ -193,7 +195,11 @@ Display content without editing capabilities:
 | `onJsonChange`       | `(json: object) => void`             | `undefined`                  | Callback with JSON structure of content.      |
 | `uploadImage`        | `(file: File) => Promise<string> \| string` | `undefined`            | Image upload handler (used when `imageInsertMode="upload"`). Must return the image URL. |
 | `uploadImageForSave` | `(file: File) => Promise<string \| { url: string; [k: string]: any }>` | `undefined` | Optional upload handler used by `prepareContentForSave()` to transform base64 images before save. |
+| `uploadImageConcurrency` | `number` | `3` | Maximum number of base64 inline images uploaded at once during `prepareContentForSave()`. |
 | `imageInsertMode`    | `"base64" \| "upload"`               | `"base64"`                   | Insert images as base64 (default) or upload via `uploadImage`. |
+| `maxImageFileSize`   | `number`                             | `10485760`                   | Maximum image file size for paste, drop, and toolbar file insertion. |
+| `allowedImageMimeTypes` | `string[]`                         | common web image MIME types  | Allowed image MIME types for paste, drop, and toolbar file insertion. |
+| `fallbackToDataUrl`  | `boolean`                            | `true`                       | For paste/drop upload mode, fall back to base64 if `uploadImage` fails. |
 | `placeholder`        | `string`                             | `"Type '/' for commands..."` | Placeholder text when empty.                  |
 | `className`          | `string`                             | `undefined`                  | Additional CSS classes for the container.     |
 | `editable`           | `boolean`                            | `true`                       | Whether the editor is editable.               |
@@ -239,6 +245,12 @@ Helper exports for URL matching:
 
 - `extractImageSrcsFromHtml(html): string[]`
 - `normalizeImageUrl(url): string`
+
+## Security Notes
+
+- Link URLs inserted through the link input are sanitized and limited to `http`, `https`, `mailto`, `tel`, anchors, and relative URLs.
+- Image URLs inserted through controls are sanitized and limited to `http`, `https`, relative URLs, and safe image `data:` URLs.
+- If you render saved HTML outside `UEditor`, still sanitize on the server or at render time for your application threat model.
 
 ## Features
 

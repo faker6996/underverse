@@ -4,6 +4,7 @@ import type {
   UEditorUploadImageForSave,
   UEditorUploadImageForSaveResult,
 } from "./types.ts";
+import { sanitizeUEditorUrl } from "./url-safety.ts";
 
 type ImgTagMatch = {
   start: number;
@@ -84,7 +85,7 @@ function createFileFromDataImageUrl(dataUrl: string, index: number): File {
 
 function normalizeUploadResult(result: UEditorUploadImageForSaveResult): { url: string; meta?: UEditorPrepareContentUploadMeta } {
   if (typeof result === "string") {
-    const url = result.trim();
+    const url = sanitizeUEditorUrl(result, "image");
     if (!url) throw new Error("Upload handler returned an empty URL.");
     return { url };
   }
@@ -93,12 +94,33 @@ function normalizeUploadResult(result: UEditorUploadImageForSaveResult): { url: 
     throw new Error("Upload handler returned invalid result.");
   }
 
-  const url = typeof result.url === "string" ? result.url.trim() : "";
+  const url = typeof result.url === "string" ? sanitizeUEditorUrl(result.url, "image") : "";
   if (!url) throw new Error("Upload handler object result is missing `url`.");
 
   const { url: _ignoredUrl, ...rest } = result;
   const meta = Object.keys(rest).length > 0 ? rest : undefined;
   return { url, meta };
+}
+
+async function runWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const limit = Math.max(1, Math.floor(concurrency));
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+
+  async function runNext() {
+    while (nextIndex < items.length) {
+      const currentIndex = nextIndex;
+      nextIndex += 1;
+      results[currentIndex] = await worker(items[currentIndex]);
+    }
+  }
+
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, runNext));
+  return results;
 }
 
 function getErrorReason(error: unknown): string {
@@ -239,9 +261,11 @@ export class UEditorPrepareContentForSaveError extends Error {
 export async function prepareUEditorContentForSave({
   html,
   uploadImageForSave,
+  uploadConcurrency = 3,
 }: {
   html: string;
   uploadImageForSave?: UEditorUploadImageForSave;
+  uploadConcurrency?: number;
 }): Promise<UEditorPrepareContentForSaveResult> {
   if (!html || !html.includes("<img")) {
     return createResult({ html, uploaded: [], inlineUploaded: [], errors: [] });
@@ -287,8 +311,10 @@ export async function prepareUEditorContentForSave({
   const errors: UEditorPrepareContentForSaveResult["errors"] = [];
   const replacements = new Map<string, string>();
 
-  const uploadResults = await Promise.all(
-    base64Candidates.map(async (candidate) => {
+  const uploadResults = await runWithConcurrency(
+    base64Candidates,
+    uploadConcurrency,
+    async (candidate) => {
       try {
         const file = createFileFromDataImageUrl(candidate.src, candidate.index);
         const uploadResult = await uploadImageForSave(file);
@@ -297,7 +323,7 @@ export async function prepareUEditorContentForSave({
       } catch (error) {
         return { candidate, error: getErrorReason(error) };
       }
-    }),
+    },
   );
 
   for (const item of uploadResults) {

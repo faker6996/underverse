@@ -171,7 +171,11 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   onJsonChange,
   uploadImage,
   uploadImageForSave,
+  uploadImageConcurrency = 3,
   imageInsertMode = "base64",
+  maxImageFileSize,
+  allowedImageMimeTypes,
+  fallbackToDataUrl,
   placeholder,
   className,
   editable = true,
@@ -309,8 +313,18 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   }, [setEditorResizeCursor]);
 
   const extensions = useMemo(
-    () => buildUEditorExtensions({ placeholder: effectivePlaceholder, translate: t, maxCharacters, uploadImage, imageInsertMode, editable }),
-    [effectivePlaceholder, t, maxCharacters, uploadImage, imageInsertMode, editable],
+    () => buildUEditorExtensions({
+      placeholder: effectivePlaceholder,
+      translate: t,
+      maxCharacters,
+      uploadImage,
+      imageInsertMode,
+      maxImageFileSize,
+      allowedImageMimeTypes,
+      fallbackToDataUrl,
+      editable,
+    }),
+    [effectivePlaceholder, t, maxCharacters, uploadImage, imageInsertMode, maxImageFileSize, allowedImageMimeTypes, fallbackToDataUrl, editable],
   );
 
   const editor = useEditor({
@@ -520,6 +534,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           inFlightPrepareRef.current = prepareUEditorContentForSave({
             html: htmlSnapshot,
             uploadImageForSave,
+            uploadConcurrency: uploadImageConcurrency,
           }).finally(() => {
             inFlightPrepareRef.current = null;
           });
@@ -532,7 +547,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         return result;
       },
     }),
-    [content, editor, uploadImageForSave],
+    [content, editor, uploadImageForSave, uploadImageConcurrency],
   );
 
   useEffect(() => {
@@ -695,21 +710,6 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
 
       state.previewHeight = nextHeight;
       applyPreviewRowHeight(state.rowElement, nextHeight);
-      const tr = editor.view.state.tr;
-      tr.setNodeMarkup(state.rowPos, undefined, {
-        ...state.rowNode.attrs,
-        rowHeight: nextHeight,
-      });
-      editor.view.dispatch(tr);
-      state.rowNode = editor.view.state.doc.nodeAt(state.rowPos) ?? state.rowNode;
-      const refreshedRow = state.tableElement.rows.item(state.rowElement.rowIndex);
-      if (refreshedRow instanceof HTMLTableRowElement) {
-        state.rowElement = refreshedRow;
-        const refreshedCell = refreshedRow.cells.item(state.cellIndex);
-        if (refreshedCell instanceof HTMLTableCellElement) {
-          state.cellElement = refreshedCell;
-        }
-      }
       document.body.style.cursor = "row-resize";
       showRowGuide(state.tableElement, state.rowElement, state.cellElement);
     };
@@ -723,7 +723,16 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         Math.round(state.startHeight + (event.clientY - state.startY)),
       );
 
+      const rowNode = editor.view.state.doc.nodeAt(state.rowPos) ?? state.rowNode;
       clearPreviewRowHeight(state.rowElement);
+      if (rowNode.attrs.rowHeight !== nextHeight) {
+        const tr = editor.view.state.tr;
+        tr.setNodeMarkup(state.rowPos, undefined, {
+          ...rowNode.attrs,
+          rowHeight: nextHeight,
+        });
+        editor.view.dispatch(tr);
+      }
       rowResizeStateRef.current = null;
       document.body.style.cursor = "";
       clearHoveredTableCell();
@@ -814,6 +823,8 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           variant={variant}
           uploadImage={uploadImage}
           imageInsertMode={imageInsertMode}
+          maxImageFileSize={maxImageFileSize}
+          allowedImageMimeTypes={allowedImageMimeTypes}
           fontFamilies={fontFamilies as UEditorFontFamilyOption[] | undefined}
           fontSizes={fontSizes as UEditorFontSizeOption[] | undefined}
           lineHeights={lineHeights as UEditorLineHeightOption[] | undefined}

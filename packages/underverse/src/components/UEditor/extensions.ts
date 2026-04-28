@@ -39,6 +39,7 @@ import FontSize from "./font-size";
 import LineHeight from "./line-height";
 import LetterSpacing from "./letter-spacing";
 import UEditorTable from "./table-align";
+import { isSafeUEditorUrl } from "./url-safety";
 
 const lowlight = createLowlight(common);
 
@@ -48,6 +49,9 @@ export function buildUEditorExtensions({
   maxCharacters,
   uploadImage,
   imageInsertMode = "base64",
+  maxImageFileSize,
+  allowedImageMimeTypes,
+  fallbackToDataUrl,
   editable = true,
 }: {
   placeholder: string;
@@ -55,6 +59,9 @@ export function buildUEditorExtensions({
   maxCharacters?: number;
   uploadImage?: (file: File) => Promise<string> | string;
   imageInsertMode?: "base64" | "upload";
+  maxImageFileSize?: number;
+  allowedImageMimeTypes?: string[];
+  fallbackToDataUrl?: boolean;
   editable?: boolean;
 }) {
   return [
@@ -108,12 +115,20 @@ export function buildUEditorExtensions({
     HorizontalRule,
     Link.configure({
       openOnClick: false,
+      protocols: ["http", "https", "mailto", "tel"],
+      isAllowedUri: (url) => isSafeUEditorUrl(url ?? "", "link"),
       HTMLAttributes: {
         class: "text-primary underline underline-offset-2 hover:text-primary/80 cursor-pointer",
       },
     }),
     ResizableImage,
-    ClipboardImages.configure({ upload: uploadImage, insertMode: imageInsertMode }),
+    ClipboardImages.configure({
+      upload: uploadImage,
+      insertMode: imageInsertMode,
+      ...(maxImageFileSize !== undefined ? { maxFileSize: maxImageFileSize } : {}),
+      ...(allowedImageMimeTypes ? { allowedMimeTypes: allowedImageMimeTypes } : {}),
+      ...(fallbackToDataUrl !== undefined ? { fallbackToDataUrl } : {}),
+    }),
     TextStyle,
     FontFamily,
     FontSize,
