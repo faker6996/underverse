@@ -24,6 +24,7 @@ import { cn } from "../../utils/cn";
 import { DropdownMenu } from "../DropdownMenu";
 import { Tooltip } from "../Tooltip";
 import { applyTableAlignment } from "./table-align-utils";
+import { UEDITOR_TABLE_LAYOUT_CHANGE_EVENT } from "./table-dom-utils";
 
 const FALLBACK_TABLE_ROW_HEIGHT = 44;
 const FALLBACK_TABLE_COLUMN_WIDTH = 160;
@@ -486,6 +487,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     surface.addEventListener("mouseover", handleSurfaceMouseMove);
     surface.addEventListener("mousemove", handleSurfaceMouseMove);
     surface.addEventListener("scroll", refreshCurrentLayout, { passive: true });
+    surface.addEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, refreshCurrentLayout);
     window.addEventListener("resize", refreshCurrentLayout);
     editor.on("selectionUpdate", syncFromSelection);
     editor.on("update", refreshCurrentLayout);
@@ -499,6 +501,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       surface.removeEventListener("mouseover", handleSurfaceMouseMove);
       surface.removeEventListener("mousemove", handleSurfaceMouseMove);
       surface.removeEventListener("scroll", refreshCurrentLayout);
+      surface.removeEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, refreshCurrentLayout);
       window.removeEventListener("resize", refreshCurrentLayout);
       editor.off("selectionUpdate", syncFromSelection);
       editor.off("update", refreshCurrentLayout);

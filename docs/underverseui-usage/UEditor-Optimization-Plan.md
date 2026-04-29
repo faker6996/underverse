@@ -23,20 +23,32 @@ Harden `UEditor` for production use without breaking the existing public API.
    - Preserve existing result shape and error behavior.
 
 4. Table row resize performance
-   - Preview row height with DOM styles while dragging.
-   - Commit a single ProseMirror transaction when the pointer is released.
-   - Avoid filling undo history with every mousemove.
+   - Keep row height live while dragging so the table layout follows the pointer.
+   - Throttle ProseMirror row-height updates through `requestAnimationFrame`.
+   - Mark drag-preview transactions outside history to avoid filling undo history with every mousemove.
+   - Notify contextual table controls after layout changes so handles stay aligned.
 
 5. Follow-up refactors
-   - Extract table resize logic from `UEditor.tsx` into a dedicated hook.
+   - Extract table DOM/resize helpers from `UEditor.tsx`.
    - Extract editor content class names into a separate module.
+   - Extract table resize event wiring from `UEditor.tsx` into a dedicated hook.
+   - Consider splitting active-cell highlight and row-resize behavior into smaller hooks if the table interaction hook grows further.
    - Consider a DOMParser-based HTML transform for `prepareContentForSave()`.
-   - Add browser-level tests for row resize and URL sanitization.
+   - Add browser-level tests for URL sanitization.
 
 ## Current Implementation Batch
 
 - Add shared URL sanitizer helpers.
 - Add public image validation props.
 - Add upload concurrency support.
-- Optimize row resize transaction frequency.
+- Optimize row resize transaction frequency while preserving live row-height feedback.
 - Update docs and focused tests.
+- Extract table DOM helpers into `table-dom-utils.ts`.
+- Extract ProseMirror content styling into `editor-styles.ts`.
+- Extract table interaction event wiring into `use-table-interactions.ts`.
+- Add a browser-level docs e2e test for live table row resize.
+
+## Deferred
+
+- DOMParser-based save transform: deferred because the current implementation intentionally preserves the original HTML and only replaces image `src` attributes. A DOMParser serializer can reorder/normalize markup, which is a behavior change for consumers that diff or store exact HTML.
+- Smaller table hooks: optional follow-up if `use-table-interactions.ts` grows further. It is currently isolated enough to keep `UEditor.tsx` readable.

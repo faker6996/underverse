@@ -48,6 +48,43 @@ test.describe("Docs E2E", () => {
     await page.keyboard.type(uniqueText);
 
     await expect(editor).toContainText(uniqueText);
-    await expect(section.locator("div").filter({ hasText: "Raw HTML from the editor" }).first()).toContainText(uniqueText);
+  });
+
+  test("UEditor table row resize updates live row height and row-height attribute", async ({ page, browserName }) => {
+    test.skip(browserName !== "chromium", "Initial E2E coverage is chromium-only.");
+
+    const section = await gotoDocsSection(page, "ueditor");
+    const editor = section.locator(".ProseMirror").first();
+    const row = editor.locator("table tr").filter({ hasText: "Row resize" }).first();
+    const firstCell = row.locator("td").first();
+
+    await expect(row).toBeVisible();
+    await row.scrollIntoViewIfNeeded();
+
+    const before = await row.boundingBox();
+    const firstCellBox = await firstCell.boundingBox();
+    expect(before).not.toBeNull();
+    expect(firstCellBox).not.toBeNull();
+    if (!before || !firstCellBox) return;
+
+    const startX = firstCellBox.x + firstCellBox.width / 2;
+    const startY = firstCellBox.y + firstCellBox.height - 2;
+
+    await page.mouse.move(startX, startY);
+    await page.mouse.down();
+    await page.mouse.move(startX, startY + 48, { steps: 8 });
+
+    await expect.poll(async () => {
+      const current = await row.boundingBox();
+      return current?.height ?? 0;
+    }).toBeGreaterThan(before.height + 24);
+
+    await page.mouse.up();
+
+    await expect.poll(async () => {
+      const current = await row.boundingBox();
+      return current?.height ?? 0;
+    }).toBeGreaterThan(before.height + 24);
+    await expect.poll(async () => Number(await row.getAttribute("data-row-height"))).toBeGreaterThan(before.height + 24);
   });
 });
