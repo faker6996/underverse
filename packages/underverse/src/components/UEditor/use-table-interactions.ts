@@ -23,6 +23,7 @@ export function useUEditorTableInteractions(editor: Editor | null) {
   const activeTableCellHighlightRef = useRef<HTMLSpanElement | null>(null);
   const hoveredTableCellRef = useRef<HTMLElement | null>(null);
   const activeTableCellRef = useRef<HTMLElement | null>(null);
+  const suppressActiveCellHighlightRef = useRef(false);
   const tableLayoutSyncFrameRef = useRef<number | null>(null);
 
   const setEditorResizeCursor = React.useCallback((cursor: string) => {
@@ -59,7 +60,7 @@ export function useUEditorTableInteractions(editor: Editor | null) {
     const highlight = activeTableCellHighlightRef.current;
     if (!highlight) return;
 
-    if (!surface || !cell) {
+    if (suppressActiveCellHighlightRef.current || !surface || !cell) {
       highlight.style.display = "none";
       return;
     }
@@ -255,7 +256,10 @@ export function useUEditorTableInteractions(editor: Editor | null) {
       const table = cell.closest("table");
       if (!(row instanceof HTMLTableRowElement) || !(table instanceof HTMLTableElement)) return;
 
-      beginResize(event, table, row, cell);
+      if (beginResize(event, table, row, cell)) {
+        suppressActiveCellHighlightRef.current = true;
+        updateActiveCellHighlight(null);
+      }
     };
 
     const handlePointerMove = (event: MouseEvent) => {
@@ -263,11 +267,23 @@ export function useUEditorTableInteractions(editor: Editor | null) {
     };
 
     const handlePointerUp = (event: MouseEvent) => {
+      const wasRowResizing = isRowResizing();
       handleRowResizePointerUp(event);
+      if (wasRowResizing) {
+        suppressActiveCellHighlightRef.current = false;
+        requestAnimationFrame(() => {
+          updateActiveCellHighlight(activeTableCellRef.current);
+        });
+      }
     };
 
     const handleWindowBlur = () => {
+      const wasRowResizing = isRowResizing();
       cancelResize();
+      if (wasRowResizing) {
+        suppressActiveCellHighlightRef.current = false;
+        updateActiveCellHighlight(activeTableCellRef.current);
+      }
     };
 
     proseMirror.addEventListener("mousemove", handleEditorMouseMove);
@@ -313,6 +329,7 @@ export function useUEditorTableInteractions(editor: Editor | null) {
         tableLayoutSyncFrameRef.current = null;
       }
       cleanupRowResize();
+      suppressActiveCellHighlightRef.current = false;
       document.body.style.cursor = "";
       clearActiveTableCell();
       clearHoveredTableCell();

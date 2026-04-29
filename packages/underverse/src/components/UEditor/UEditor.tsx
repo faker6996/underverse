@@ -232,6 +232,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         <span
           ref={activeTableCellHighlightRef}
           aria-hidden="true"
+          data-ueditor-active-cell-highlight=""
           className="pointer-events-none hidden absolute z-20 rounded-[2px] border-2 border-primary bg-primary/10 transition-[left,top,width,height] duration-100"
         />
         {editable && <TableControls editor={editor} containerRef={editorContentRef} />}

@@ -55,8 +55,10 @@ test.describe("Docs E2E", () => {
 
     const section = await gotoDocsSection(page, "ueditor");
     const editor = section.locator(".ProseMirror").first();
+    const editorSurface = editor.locator("xpath=ancestor::div[contains(@class, 'overflow-y-auto')][1]");
     const row = editor.locator("table tr").filter({ hasText: "Row resize" }).first();
     const firstCell = row.locator("td").first();
+    const activeCellHighlight = editorSurface.locator("[data-ueditor-active-cell-highlight]");
 
     await expect(row).toBeVisible();
     await row.scrollIntoViewIfNeeded();
@@ -74,6 +76,7 @@ test.describe("Docs E2E", () => {
     await page.mouse.down();
     await page.mouse.move(startX, startY + 48, { steps: 8 });
 
+    await expect(activeCellHighlight).toBeHidden();
     await expect.poll(async () => {
       const current = await row.boundingBox();
       return current?.height ?? 0;
@@ -81,6 +84,7 @@ test.describe("Docs E2E", () => {
 
     await page.mouse.up();
 
+    await expect(activeCellHighlight).toBeVisible();
     await expect.poll(async () => {
       const current = await row.boundingBox();
       return current?.height ?? 0;
