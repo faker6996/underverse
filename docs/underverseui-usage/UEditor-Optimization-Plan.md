@@ -32,7 +32,7 @@ Harden `UEditor` for production use without breaking the existing public API.
    - Extract table DOM/resize helpers from `UEditor.tsx`.
    - Extract editor content class names into a separate module.
    - Extract table resize event wiring from `UEditor.tsx` into a dedicated hook.
-   - Consider splitting active-cell highlight and row-resize behavior into smaller hooks if the table interaction hook grows further.
+   - Consider splitting active-cell highlight into a smaller hook if the table interaction hook grows further.
    - Consider a DOMParser-based HTML transform for `prepareContentForSave()`.
    - Add browser-level tests for URL sanitization.
 
@@ -46,9 +46,10 @@ Harden `UEditor` for production use without breaking the existing public API.
 - Extract table DOM helpers into `table-dom-utils.ts`.
 - Extract ProseMirror content styling into `editor-styles.ts`.
 - Extract table interaction event wiring into `use-table-interactions.ts`.
+- Extract row-height resize state and RAF commit behavior into `use-table-row-resize.ts`.
 - Add a browser-level docs e2e test for live table row resize.
 
 ## Deferred
 
 - DOMParser-based save transform: deferred because the current implementation intentionally preserves the original HTML and only replaces image `src` attributes. A DOMParser serializer can reorder/normalize markup, which is a behavior change for consumers that diff or store exact HTML.
-- Smaller table hooks: optional follow-up if `use-table-interactions.ts` grows further. It is currently isolated enough to keep `UEditor.tsx` readable.
+- Smaller active-cell/table-guide hooks: optional follow-up if `use-table-interactions.ts` grows further. Row resize is already isolated.
