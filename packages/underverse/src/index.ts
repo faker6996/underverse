@@ -62,6 +62,8 @@ export { Tooltip } from "./components/Tooltip";
 export { Popover } from "./components/Popover";
 /** Sheet-style overlay panels for side, bottom, and drawer interactions. */
 export { Sheet, Drawer, SlideOver, BottomSheet, SidebarSheet } from "./components/Sheet";
+/** Public props for sheet-style overlay panels. */
+export type { SheetProps, DrawerProps, SlideOverProps, BottomSheetProps, SidebarSheetProps } from "./components/Sheet";
 /** Alert banner for inline feedback and callout messages. */
 export { default as Alert } from "./components/Alert";
 /** Full-page and inline loading overlays for async states. */

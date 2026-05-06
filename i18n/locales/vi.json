@@ -845,7 +845,12 @@
         "closeOnOutsideClick": "Click overlay để đóng.",
         "closeOnEscape": "Nhấn Escape để đóng.",
         "header": "Header tuỳ chỉnh (ghi đè).",
-        "footer": "Footer tuỳ chỉnh."
+        "footer": "Footer tuỳ chỉnh.",
+        "overlayOpacity": "Tuỳ chỉnh opacity overlay từ 0 đến 1.",
+        "resizable": "Cho phép kéo mép sheet để đổi kích thước.",
+        "minSize": "Width/height nhỏ nhất khi resize, đơn vị px.",
+        "maxSize": "Width/height lớn nhất khi resize, đơn vị px.",
+        "onResize": "Gọi với width/height mới sau khi resize."
       },
       "switch": {
         "checked": "Giá trị bật/tắt (controlled).",

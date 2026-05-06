@@ -2,7 +2,7 @@
   "package": "@underverse-ui/underverse",
   "version": "1.0.104",
   "sourceEntry": "src/index.ts",
-  "totalExports": 225,
+  "totalExports": 230,
   "exports": [
     {
       "name": "*",
@@ -96,6 +96,13 @@
     {
       "name": "BottomSheet",
       "kind": "value",
+      "source": "./components/Sheet",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "BottomSheetProps",
+      "kind": "type",
       "source": "./components/Sheet",
       "reexport": true,
       "local": false
@@ -532,6 +539,13 @@
     {
       "name": "Drawer",
       "kind": "value",
+      "source": "./components/Sheet",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "DrawerProps",
+      "kind": "type",
       "source": "./components/Sheet",
       "reexport": true,
       "local": false
@@ -1102,8 +1116,22 @@
       "local": false
     },
     {
+      "name": "SheetProps",
+      "kind": "type",
+      "source": "./components/Sheet",
+      "reexport": true,
+      "local": false
+    },
+    {
       "name": "SidebarSheet",
       "kind": "value",
+      "source": "./components/Sheet",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "SidebarSheetProps",
+      "kind": "type",
       "source": "./components/Sheet",
       "reexport": true,
       "local": false
@@ -1147,6 +1175,13 @@
     {
       "name": "SlideOver",
       "kind": "value",
+      "source": "./components/Sheet",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "SlideOverProps",
+      "kind": "type",
       "source": "./components/Sheet",
       "reexport": true,
       "local": false

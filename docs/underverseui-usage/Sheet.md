@@ -73,7 +73,34 @@ interface SheetProps {
   footer?: React.ReactNode;
   /** Opacity của overlay (0–1). Không truyền → dùng mặc định theo variant. */
   overlayOpacity?: number;
+  /** Cho phép kéo mép sheet để đổi width/height. */
+  resizable?: boolean;
+  /** Kích thước nhỏ nhất khi resize, đơn vị px. */
+  minSize?: number;
+  /** Kích thước lớn nhất khi resize, đơn vị px. Mặc định là 90% viewport. */
+  maxSize?: number;
+  /** Gọi khi width/height thay đổi trong lúc người dùng resize sheet. */
+  onResize?: (size: number) => void;
 }
+```
+
+### Resizable sheet
+
+`resizable` bật handle kéo ở mép sheet gần nội dung trang. Với `side="left"` hoặc `"right"`, handle thay đổi width. Với `side="top"` hoặc `"bottom"`, handle thay đổi height. `size="full"` không resize.
+
+```tsx
+<Sheet
+  open={open}
+  onOpenChange={setOpen}
+  title="Resizable details"
+  side="right"
+  size="lg"
+  resizable
+  minSize={320}
+  maxSize={900}
+>
+  <div className="text-sm">Drag the left edge to resize.</div>
+</Sheet>
 ```
 
 ## Drawer

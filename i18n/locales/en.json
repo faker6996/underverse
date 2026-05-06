@@ -852,7 +852,12 @@
         "closeOnOutsideClick": "Close by clicking the overlay.",
         "closeOnEscape": "Close with Escape key.",
         "header": "Custom header node (override).",
-        "footer": "Custom footer node."
+        "footer": "Custom footer node.",
+        "overlayOpacity": "Custom overlay opacity from 0 to 1.",
+        "resizable": "Allow dragging the sheet edge to resize it.",
+        "minSize": "Minimum resizable width/height in pixels.",
+        "maxSize": "Maximum resizable width/height in pixels.",
+        "onResize": "Called with the new width/height after resizing."
       },
       "switch": {
         "checked": "Controlled checked value.",

@@ -7,7 +7,7 @@ import { X } from "lucide-react";
 import Button from "./Button";
 
 /** Public props for the `Sheet` component. */
-interface SheetProps {
+export interface SheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   side?: "left" | "right" | "top" | "bottom";
@@ -23,7 +23,22 @@ interface SheetProps {
   header?: React.ReactNode;
   footer?: React.ReactNode;
   overlayOpacity?: number;
+  /** Allow the user to resize the sheet from the edge closest to the page content. */
+  resizable?: boolean;
+  /** Minimum sheet width/height in pixels while resizing. */
+  minSize?: number;
+  /** Maximum sheet width/height in pixels while resizing. Defaults to 90% of the viewport. */
+  maxSize?: number;
+  /** Called with each width/height update while the user resizes the sheet. */
+  onResize?: (size: number) => void;
 }
+
+type ResizeState = {
+  pointerId: number;
+  startClientX: number;
+  startClientY: number;
+  startSize: number;
+};
 
 const sizeStyles = {
   sm: {
@@ -104,10 +119,20 @@ export const Sheet: React.FC<SheetProps> = ({
   header,
   footer,
   overlayOpacity,
+  resizable = false,
+  minSize = 280,
+  maxSize,
+  onResize,
 }) => {
   const [mounted, setMounted] = React.useState(false);
   const [isAnimating, setIsAnimating] = React.useState(true);
   const [isVisible, setIsVisible] = React.useState(false);
+  const [isResizing, setIsResizing] = React.useState(false);
+  const [sheetSize, setSheetSize] = React.useState<number | null>(null);
+  const sheetRef = React.useRef<HTMLDivElement | null>(null);
+  const resizeStateRef = React.useRef<ResizeState | null>(null);
+  const isHorizontalSheet = side === "left" || side === "right";
+  const canResize = resizable && size !== "full";
 
   React.useEffect(() => {
     setMounted(true);
@@ -169,6 +194,102 @@ export const Sheet: React.FC<SheetProps> = ({
     onOpenChange(false);
   };
 
+  const clampResizeSize = React.useCallback((nextSize: number) => {
+    const viewportSize = isHorizontalSheet ? window.innerWidth : window.innerHeight;
+    const resolvedMaxSize = maxSize ?? Math.round(viewportSize * 0.9);
+    return Math.min(Math.max(nextSize, minSize), resolvedMaxSize);
+  }, [isHorizontalSheet, maxSize, minSize]);
+
+  const endResize = React.useCallback(() => {
+    if (!resizeStateRef.current) return;
+    resizeStateRef.current = null;
+    setIsResizing(false);
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+  }, []);
+
+  const handleResizePointerMove = React.useCallback((event: PointerEvent) => {
+    const resizeState = resizeStateRef.current;
+    if (!resizeState || event.pointerId !== resizeState.pointerId) return;
+
+    const delta = isHorizontalSheet
+      ? side === "right"
+        ? resizeState.startClientX - event.clientX
+        : event.clientX - resizeState.startClientX
+      : side === "bottom"
+        ? resizeState.startClientY - event.clientY
+        : event.clientY - resizeState.startClientY;
+    const nextSize = clampResizeSize(Math.round(resizeState.startSize + delta));
+
+    setSheetSize(nextSize);
+    onResize?.(nextSize);
+  }, [clampResizeSize, isHorizontalSheet, onResize, side]);
+
+  const handleResizePointerUp = React.useCallback((event: PointerEvent) => {
+    const resizeState = resizeStateRef.current;
+    if (!resizeState || event.pointerId !== resizeState.pointerId) return;
+    endResize();
+  }, [endResize]);
+
+  React.useEffect(() => {
+    if (!isResizing) return undefined;
+
+    window.addEventListener("pointermove", handleResizePointerMove);
+    window.addEventListener("pointerup", handleResizePointerUp);
+    window.addEventListener("pointercancel", handleResizePointerUp);
+
+    return () => {
+      window.removeEventListener("pointermove", handleResizePointerMove);
+      window.removeEventListener("pointerup", handleResizePointerUp);
+      window.removeEventListener("pointercancel", handleResizePointerUp);
+    };
+  }, [handleResizePointerMove, handleResizePointerUp, isResizing]);
+
+  React.useEffect(() => {
+    if (!open) endResize();
+  }, [endResize, open]);
+
+  React.useEffect(() => endResize, [endResize]);
+
+  const handleResizePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (!canResize || !sheetRef.current) return;
+
+    const rect = sheetRef.current.getBoundingClientRect();
+    const startSize = isHorizontalSheet ? rect.width : rect.height;
+    resizeStateRef.current = {
+      pointerId: event.pointerId,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      startSize,
+    };
+    setIsResizing(true);
+
+    event.currentTarget.setPointerCapture(event.pointerId);
+    document.body.style.cursor = isHorizontalSheet ? "col-resize" : "row-resize";
+    document.body.style.userSelect = "none";
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  const sheetInlineStyle: React.CSSProperties = {
+    transform:
+      open && !isAnimating
+        ? "translate(0, 0)"
+        : side === "right"
+          ? "translateX(100%)"
+          : side === "left"
+            ? "translateX(-100%)"
+            : side === "top"
+              ? "translateY(-100%)"
+              : "translateY(100%)",
+    transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+    ...(sheetSize !== null
+      ? isHorizontalSheet
+        ? { width: `${sheetSize}px` }
+        : { height: `${sheetSize}px` }
+      : {}),
+  };
+
   if (!mounted || (!open && !isVisible)) return null;
 
   const sheetContent = (
@@ -186,6 +307,7 @@ export const Sheet: React.FC<SheetProps> = ({
 
       {/* Sheet */}
       <div
+        ref={sheetRef}
         className={cn(
           "fixed flex flex-col bg-background text-foreground shadow-2xl",
           "border-border/50 transition-all duration-300 ease-out",
@@ -200,20 +322,30 @@ export const Sheet: React.FC<SheetProps> = ({
           open && !isAnimating ? animationStyles[side].animate : animationStyles[side].initial,
           className,
         )}
-        style={{
-          transform:
-            open && !isAnimating
-              ? "translate(0, 0)"
-              : side === "right"
-                ? "translateX(100%)"
-                : side === "left"
-                  ? "translateX(-100%)"
-                  : side === "top"
-                    ? "translateY(-100%)"
-                    : "translateY(100%)",
-          transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
-        }}
+        style={sheetInlineStyle}
       >
+        {canResize && (
+          <button
+            type="button"
+            aria-label="Resize sheet"
+            className={cn(
+              "absolute z-10 bg-transparent outline-none transition-colors",
+              "after:absolute after:rounded-full after:bg-border after:opacity-0 after:transition-opacity hover:after:opacity-100 focus-visible:after:opacity-100",
+              isHorizontalSheet
+                ? "top-0 h-full w-3 cursor-col-resize after:top-1/2 after:h-12 after:w-1 after:-translate-y-1/2"
+                : "left-0 h-3 w-full cursor-row-resize after:left-1/2 after:h-1 after:w-12 after:-translate-x-1/2",
+              side === "right" && "-left-1.5 after:left-1/2",
+              side === "left" && "-right-1.5 after:right-1/2",
+              side === "bottom" && "-top-1.5 after:top-1/2",
+              side === "top" && "-bottom-1.5 after:bottom-1/2",
+            )}
+            onPointerDown={handleResizePointerDown}
+            onPointerMove={(event) => handleResizePointerMove(event.nativeEvent)}
+            onPointerUp={(event) => handleResizePointerUp(event.nativeEvent)}
+            onPointerCancel={(event) => handleResizePointerUp(event.nativeEvent)}
+          />
+        )}
+
         {/* Header */}
         {(title || description || header || showClose) && (
           <div className="shrink-0 border-b border-border/50">
@@ -253,7 +385,7 @@ export const Sheet: React.FC<SheetProps> = ({
 
 // Specialized Sheet components
 /** Public props for the `Drawer` component. */
-interface DrawerProps extends Omit<SheetProps, "side"> {
+export interface DrawerProps extends Omit<SheetProps, "side"> {
   placement?: "left" | "right";
 }
 
@@ -262,14 +394,14 @@ export const Drawer: React.FC<DrawerProps> = ({ placement = "right", ...props })
 };
 
 /** Public props for the `SlideOver` component. */
-interface SlideOverProps extends Omit<SheetProps, "side" | "variant"> {}
+export interface SlideOverProps extends Omit<SheetProps, "side" | "variant"> {}
 
 export const SlideOver: React.FC<SlideOverProps> = (props) => {
   return <Sheet {...props} side="right" variant="overlay" size="lg" />;
 };
 
 /** Public props for the `BottomSheet` component. */
-interface BottomSheetProps extends Omit<SheetProps, "side"> {
+export interface BottomSheetProps extends Omit<SheetProps, "side"> {
   snapPoints?: string[];
   defaultSnap?: number;
 }
@@ -279,7 +411,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ snapPoints = ["25%", "
 };
 
 /** Public props for the `SidebarSheet` component. */
-interface SidebarSheetProps extends Omit<SheetProps, "side" | "variant"> {
+export interface SidebarSheetProps extends Omit<SheetProps, "side" | "variant"> {
   navigation?: React.ReactNode;
 }
 

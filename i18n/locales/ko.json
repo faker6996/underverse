@@ -808,7 +808,12 @@
         "closeOnOutsideClick": "오버레이 클릭으로 닫기.",
         "closeOnEscape": "Esc 키로 닫기.",
         "header": "커스텀 헤더(오버라이드).",
-        "footer": "커스텀 푸터."
+        "footer": "커스텀 푸터.",
+        "overlayOpacity": "오버레이 opacity를 0부터 1까지 지정.",
+        "resizable": "시트 가장자리를 드래그해 크기를 조절.",
+        "minSize": "리사이즈 시 최소 너비/높이(px).",
+        "maxSize": "리사이즈 시 최대 너비/높이(px).",
+        "onResize": "리사이즈 후 새 너비/높이로 호출."
       },
       "switch": {
         "checked": "제어되는 체크 값.",

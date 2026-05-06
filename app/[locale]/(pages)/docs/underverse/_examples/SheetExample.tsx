@@ -19,6 +19,7 @@ export default function SheetExample() {
   const [open6, setOpen6] = React.useState(false);
   const [open7, setOpen7] = React.useState(false);
   const [open8, setOpen8] = React.useState(false);
+  const [open9, setOpen9] = React.useState(false);
 
   const code =
     `import { Sheet, Button, Input } from '@underverse-ui/underverse'\n` +
@@ -39,6 +40,8 @@ export default function SheetExample() {
     `<Sheet open={open} onOpenChange={setOpen} size="md" title="Medium">...</Sheet>\n` +
     `<Sheet open={open} onOpenChange={setOpen} size="lg" title="Large">...</Sheet>\n` +
     `<Sheet open={open} onOpenChange={setOpen} size="xl" title="Extra Large">...</Sheet>\n\n` +
+    `// Resizable\n` +
+    `<Sheet open={open} onOpenChange={setOpen} resizable minSize={320} maxSize={900} title="Resizable">...</Sheet>\n\n` +
     `// With Footer\n` +
     `<Sheet\n` +
     `  open={open}\n` +
@@ -111,6 +114,27 @@ export default function SheetExample() {
         </Sheet>
       </div>
 
+      {/* Resizable */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Resizable</p>
+        <Button variant="outline" onClick={() => setOpen9(true)}>Open Resizable Sheet</Button>
+        <Sheet
+          open={open9}
+          onOpenChange={setOpen9}
+          size="lg"
+          title="Resizable Sheet"
+          description="Drag the left edge to adjust the width."
+          resizable
+          minSize={320}
+          maxSize={900}
+        >
+          <div className="space-y-3 text-sm">
+            <p>This sheet can be resized while it stays open.</p>
+            <p className="text-muted-foreground">The configured min and max size keep it inside practical bounds.</p>
+          </div>
+        </Sheet>
+      </div>
+
       {/* With Footer */}
       <div className="space-y-2">
         <p className="text-sm font-medium">With Footer</p>
@@ -159,9 +183,14 @@ export default function SheetExample() {
     { property: "closeOnEscape", description: t("props.sheet.closeOnEscape"), type: "boolean", default: "true" },
     { property: "header", description: t("props.sheet.header"), type: "React.ReactNode", default: "-" },
     { property: "footer", description: t("props.sheet.footer"), type: "React.ReactNode", default: "-" },
+    { property: "overlayOpacity", description: t("props.sheet.overlayOpacity"), type: "number", default: "-" },
+    { property: "resizable", description: t("props.sheet.resizable"), type: "boolean", default: "false" },
+    { property: "minSize", description: t("props.sheet.minSize"), type: "number", default: "280" },
+    { property: "maxSize", description: t("props.sheet.maxSize"), type: "number", default: "90% viewport" },
+    { property: "onResize", description: t("props.sheet.onResize"), type: "(size: number) => void", default: "-" },
   ];
   const order = [
-    "open","onOpenChange","side","size","variant","children","title","description","className","showClose","closeOnOutsideClick","closeOnEscape","header","footer"
+    "open","onOpenChange","side","size","variant","children","title","description","className","showClose","closeOnOutsideClick","closeOnEscape","header","footer","overlayOpacity","resizable","minSize","maxSize","onResize"
   ];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="Sheet.md" />;
 
