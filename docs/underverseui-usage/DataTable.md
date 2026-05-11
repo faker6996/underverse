@@ -24,6 +24,7 @@ Note: Component hỗ trợ đa ngôn ngữ (en, vi, ko, ja) cho các labels như
 | `alignLeft`   | Align left       | Căn trái          | 왼쪽 정렬   | 左揃え             |
 | `alignCenter` | Align center     | Căn giữa          | 가운데 정렬 | 中央揃え           |
 | `alignRight`  | Align right      | Căn phải          | 오른쪽 정렬 | 右揃え             |
+| `sortBy`      | Sort by          | Sắp xếp theo      | 정렬 기준   | 並び替え           |
 
 ## Performance Optimizations
 
@@ -127,6 +128,7 @@ interface DataTableProps<T> {
     alignLeft?: string;
     alignCenter?: string;
     alignRight?: string;
+    sortBy?: string;
   };
 }
 ```
