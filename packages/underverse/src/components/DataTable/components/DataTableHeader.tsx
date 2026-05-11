@@ -49,6 +49,7 @@ export function DataTableHeader<T extends Record<string, any>>({
   enableHeaderAutoFit,
   getStickyHeaderClass,
   getStickyHeaderCellStyle,
+  sortByLabel,
   t,
 }: {
   headerRows: HeaderRow<T>[];
@@ -67,6 +68,7 @@ export function DataTableHeader<T extends Record<string, any>>({
   enableHeaderAutoFit?: boolean;
   getStickyHeaderClass: (col: DataTableColumn<T>) => string;
   getStickyHeaderCellStyle: (headerCell: HeaderRow<T>[number]) => React.CSSProperties;
+  sortByLabel?: string;
   t: (key: string) => string;
 }) {
   const renderFilterControl = React.useCallback(
@@ -146,6 +148,8 @@ export function DataTableHeader<T extends Record<string, any>>({
       const isRightAlign = col.align === "right" || (!col.align && headerAlign === "right");
       const isCenterAlign = col.align === "center" || (!col.align && headerAlign === "center");
       const columnLabel = getColumnLabel(col.title) || col.key;
+      const sortByText = sortByLabel ?? "Sort by";
+      const sortLabel = `${sortByText} ${columnLabel}`;
 
       const titleContent = (
         <div className="flex items-center gap-1">
@@ -153,11 +157,11 @@ export function DataTableHeader<T extends Record<string, any>>({
           {col.sortable && (
             <Tooltip
               placement="top"
-              content={<span className="text-xs font-medium">{`Sort by ${columnLabel}`}</span>}
+              content={<span className="text-xs font-medium">{sortLabel}</span>}
             >
               <button
                 type="button"
-                title={`Sort by ${columnLabel}`}
+                title={sortLabel}
                 className={cn(
                   "p-1 rounded-lg transition-all duration-200 hover:bg-accent",
                   sort?.key === col.key ? "opacity-100 bg-accent" : "opacity-60 hover:opacity-100",
@@ -170,7 +174,7 @@ export function DataTableHeader<T extends Record<string, any>>({
                     return null;
                   });
                 }}
-                aria-label={`Sort by ${columnLabel}`}
+                aria-label={sortLabel}
               >
                 <svg viewBox="0 0 20 20" fill="none" className={cn("inline-block", sortIconClass)}>
                   <path

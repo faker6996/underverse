@@ -54,6 +54,7 @@ export type DataTableLabels = {
   alignCenter?: string;
   alignRight?: string;
   noData?: string;
+  sortBy?: string;
 };
 
 /** Internal type for header cell in multi-row headers */

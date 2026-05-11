@@ -311,6 +311,7 @@ export function DataTable<T extends Record<string, any>>({
                 enableHeaderAutoFit={enableHeaderAutoFit}
                 getStickyHeaderClass={getStickyHeaderClass}
                 getStickyHeaderCellStyle={getStickyHeaderCellStyle}
+                sortByLabel={labels?.sortBy}
                 t={t}
               />
             </TableHeader>
