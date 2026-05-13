@@ -71,12 +71,15 @@ export function useTableRowResize({
     editor.view.dispatch(tr);
     state.rowNode = editor.view.state.doc.nodeAt(state.rowPos) ?? state.rowNode;
 
-    const refreshedRow = state.tableElement.rows.item(state.rowElement.rowIndex);
-    if (refreshedRow instanceof HTMLTableRowElement) {
-      state.rowElement = refreshedRow;
-      const refreshedCell = refreshedRow.cells.item(state.cellIndex);
-      if (refreshedCell instanceof HTMLTableCellElement) {
-        state.cellElement = refreshedCell;
+    const rowIndex = state.rowElement.rowIndex;
+    if (rowIndex >= 0) {
+      const refreshedRow = state.tableElement.rows.item(rowIndex);
+      if (refreshedRow instanceof HTMLTableRowElement) {
+        state.rowElement = refreshedRow;
+        const refreshedCell = refreshedRow.cells.item(state.cellIndex);
+        if (refreshedCell instanceof HTMLTableCellElement) {
+          state.cellElement = refreshedCell;
+        }
       }
     }
 

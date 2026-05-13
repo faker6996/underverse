@@ -296,9 +296,7 @@ export function useUEditorTableInteractions(editor: Editor | null) {
     document.addEventListener("selectionchange", handleSelectionChange);
     surface?.addEventListener("scroll", handleActiveCellLayoutChange, { passive: true });
     window.addEventListener("resize", handleActiveCellLayoutChange);
-    window.addEventListener("mousemove", handlePointerMove);
     document.addEventListener("pointermove", handlePointerMove as EventListener);
-    window.addEventListener("mouseup", handlePointerUp);
     document.addEventListener("pointerup", handlePointerUp as EventListener);
     window.addEventListener("blur", handleWindowBlur);
     editor.on("selectionUpdate", syncActiveTableCellFromSelection);
@@ -316,9 +314,7 @@ export function useUEditorTableInteractions(editor: Editor | null) {
       document.removeEventListener("selectionchange", handleSelectionChange);
       surface?.removeEventListener("scroll", handleActiveCellLayoutChange);
       window.removeEventListener("resize", handleActiveCellLayoutChange);
-      window.removeEventListener("mousemove", handlePointerMove);
       document.removeEventListener("pointermove", handlePointerMove as EventListener);
-      window.removeEventListener("mouseup", handlePointerUp);
       document.removeEventListener("pointerup", handlePointerUp as EventListener);
       window.removeEventListener("blur", handleWindowBlur);
       editor.off("selectionUpdate", syncActiveTableCellFromSelection);

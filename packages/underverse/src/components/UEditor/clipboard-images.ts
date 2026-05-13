@@ -89,9 +89,13 @@ export const ClipboardImages = Extension.create<ClipboardImagesOptions>({
         if (file.size > options.maxFileSize) continue;
         if (options.allowedMimeTypes.length > 0 && !options.allowedMimeTypes.includes(file.type)) continue;
 
-        const src = await resolveImageSrc(file, options);
-        editor.chain().focus().setImage({ src, alt: file.name }).run();
-        editor.commands.createParagraphNear();
+        try {
+          const src = await resolveImageSrc(file, options);
+          editor.chain().focus().setImage({ src, alt: file.name }).run();
+          editor.commands.createParagraphNear();
+        } catch {
+          // Upload failed with no fallback — skip this file and continue batch.
+        }
       }
     };
 
