@@ -175,7 +175,7 @@ export interface ComboboxProps {
   selectedOption?: ComboboxOption;
   error?: string; // Error message
   helperText?: string; // Helper text
-  /** Enable OverlayScrollbars on dropdown options list. Default: false */
+  /** Enable OverlayScrollbars on dropdown options list. Default: true when not virtualized */
   useOverlayScrollbar?: boolean;
   /** Virtualize large flat option lists. Grouped lists fall back to normal rendering. Default: false */
   virtualized?: boolean;

@@ -55,7 +55,7 @@ export interface MultiComboboxProps {
   error?: string;
   helperText?: string;
   maxTagsVisible?: number;
-  /** Enable OverlayScrollbars on dropdown options list. Default: false */
+  /** Enable OverlayScrollbars on dropdown options list. Default: true when not virtualized */
   useOverlayScrollbar?: boolean;
   /** Virtualize large flat option lists. Grouped lists fall back to normal rendering. Default: false */
   virtualized?: boolean;
@@ -76,6 +76,21 @@ export interface MultiComboboxProps {
   /** Show a prompt instead of options while the query is shorter than minSearchLength. Default: false */
   showSearchPromptWhenEmptyQuery?: boolean;
 }
+
+const comboboxScrollClassName = [
+  "scrollbar-thin",
+  "[scrollbar-width:thin]",
+  "[scrollbar-color:color-mix(in_oklch,var(--muted-foreground)_28%,transparent)_transparent]",
+  "[&::-webkit-scrollbar]:w-2",
+  "[&::-webkit-scrollbar-track]:bg-transparent",
+  "[&::-webkit-scrollbar-thumb]:rounded-full",
+  "[&::-webkit-scrollbar-thumb]:border-2",
+  "[&::-webkit-scrollbar-thumb]:border-solid",
+  "[&::-webkit-scrollbar-thumb]:border-transparent",
+  "[&::-webkit-scrollbar-thumb]:bg-clip-padding",
+  "[&::-webkit-scrollbar-thumb]:bg-muted-foreground/25",
+  "[&::-webkit-scrollbar-thumb:hover]:bg-muted-foreground/45",
+].join(" ");
 
 export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   id,
@@ -109,7 +124,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   error,
   helperText,
   maxTagsVisible = 3,
-  useOverlayScrollbar = false,
+  useOverlayScrollbar = true,
   virtualized = false,
   estimatedItemHeight = 44,
   overscan = 8,
@@ -129,7 +144,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const optionsListRef = React.useRef<HTMLUListElement>(null);
 
-  useOverlayScrollbarTarget(optionsListRef, { enabled: useOverlayScrollbar });
+  useOverlayScrollbarTarget(optionsListRef, { enabled: useOverlayScrollbar && !virtualized });
 
   const triggerRef = React.useRef<HTMLButtonElement>(null);
 
@@ -483,7 +498,11 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         aria-multiselectable="true"
         ref={optionsListRef}
         style={{ maxHeight }}
-        className={cn("overflow-y-auto p-1.5", size === "lg" ? "text-base" : size === "sm" ? "text-xs" : "text-sm")}
+        className={cn(
+          "overflow-y-auto p-1.5",
+          (!useOverlayScrollbar || virtualized) && comboboxScrollClassName,
+          size === "lg" ? "text-base" : size === "sm" ? "text-xs" : "text-sm",
+        )}
       >
         {loading ? (
           <li className="px-3 py-8 text-center">

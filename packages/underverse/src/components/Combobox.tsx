@@ -45,7 +45,7 @@ export interface ComboboxProps {
   selectedOption?: ComboboxOption;
   error?: string;
   helperText?: string;
-  /** Enable OverlayScrollbars on dropdown options list. Default: false */
+  /** Enable OverlayScrollbars on dropdown options list. Default: true when not virtualized */
   useOverlayScrollbar?: boolean;
   /** Virtualize large flat option lists. Grouped lists fall back to normal rendering. Default: false */
   virtualized?: boolean;
@@ -92,6 +92,21 @@ const findOptionByValue = (options: ComboboxOption[], value: any): ComboboxOptio
   return options.find((opt) => getOptionValue(opt) === value);
 };
 
+const comboboxScrollClassName = [
+  "scrollbar-thin",
+  "[scrollbar-width:thin]",
+  "[scrollbar-color:color-mix(in_oklch,var(--muted-foreground)_28%,transparent)_transparent]",
+  "[&::-webkit-scrollbar]:w-2",
+  "[&::-webkit-scrollbar-track]:bg-transparent",
+  "[&::-webkit-scrollbar-thumb]:rounded-full",
+  "[&::-webkit-scrollbar-thumb]:border-2",
+  "[&::-webkit-scrollbar-thumb]:border-solid",
+  "[&::-webkit-scrollbar-thumb]:border-transparent",
+  "[&::-webkit-scrollbar-thumb]:bg-clip-padding",
+  "[&::-webkit-scrollbar-thumb]:bg-muted-foreground/25",
+  "[&::-webkit-scrollbar-thumb:hover]:bg-muted-foreground/45",
+].join(" ");
+
 // --- MAIN COMPONENT ---
 export const Combobox: React.FC<ComboboxProps> = ({
   id,
@@ -121,7 +136,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   selectedOption: selectedOptionProp,
   error,
   helperText,
-  useOverlayScrollbar = false,
+  useOverlayScrollbar = true,
   virtualized = false,
   estimatedItemHeight = 44,
   overscan = 8,
@@ -144,7 +159,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const inputRef = React.useRef<HTMLInputElement>(null);
   const optionsViewportRef = React.useRef<HTMLDivElement>(null);
 
-  useOverlayScrollbarTarget(optionsViewportRef, { enabled: useOverlayScrollbar });
+  useOverlayScrollbarTarget(optionsViewportRef, { enabled: useOverlayScrollbar && !virtualized });
 
   // Stable ids for accessibility
   const autoId = useId();
@@ -465,7 +480,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
         id={`${resolvedId}-listbox`}
         role="listbox"
         aria-labelledby={labelId}
-        className="overflow-y-auto overscroll-contain"
+        className={cn("overflow-y-auto overscroll-contain", (!useOverlayScrollbar || virtualized) && comboboxScrollClassName)}
         style={{ maxHeight }}
       >
         <div className={cn(size === "sm" ? "p-1" : size === "lg" ? "p-2" : "p-1.5")}>
