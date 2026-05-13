@@ -159,7 +159,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const inputRef = React.useRef<HTMLInputElement>(null);
   const optionsViewportRef = React.useRef<HTMLDivElement>(null);
 
-  useOverlayScrollbarTarget(optionsViewportRef, { enabled: useOverlayScrollbar && !virtualized });
+  useOverlayScrollbarTarget(optionsViewportRef, { enabled: open && useOverlayScrollbar && !virtualized });
 
   // Stable ids for accessibility
   const autoId = useId();

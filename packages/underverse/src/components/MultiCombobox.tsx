@@ -144,7 +144,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const optionsListRef = React.useRef<HTMLUListElement>(null);
 
-  useOverlayScrollbarTarget(optionsListRef, { enabled: useOverlayScrollbar && !virtualized });
+  useOverlayScrollbarTarget(optionsListRef, { enabled: open && useOverlayScrollbar && !virtualized });
 
   const triggerRef = React.useRef<HTMLButtonElement>(null);
 
