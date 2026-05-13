@@ -44,6 +44,7 @@
     "test:data-table": "node --test --experimental-strip-types ./tests/data-table-sticky.test.mjs",
     "test:data-table-deep": "node --test --experimental-strip-types ./tests/data-table-headers-validation.test.mjs",
     "test:data-table-ui": "node --test ./tests/data-table.interaction.test.mjs",
+    "test:combobox-large-options": "node --test ./tests/combobox-large-options.test.mjs",
     "test:category-tree-select-ui": "node --test ./tests/category-tree-select.interaction.test.mjs",
     "test:calendar-timeline": "node --test --experimental-strip-types ./tests/calendar-timeline-model.test.mjs",
     "test:calendar-timeline-deep": "node --test --experimental-strip-types ./tests/calendar-timeline-date-layout.test.mjs",
@@ -122,6 +123,7 @@
     "zod": ">=3.0.0"
   },
   "dependencies": {
+    "@tanstack/react-virtual": "^3.13.24",
     "clsx": "^2.1.1",
     "tailwind-merge": "^3.3.0"
   },

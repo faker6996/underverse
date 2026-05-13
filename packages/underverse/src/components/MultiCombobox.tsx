@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useId } from "react";
+import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
 import { cn } from "../utils/cn";
 import { useSmartTranslations } from "../hooks/useSmartTranslations";
 import { ChevronDown, Search, Check, SearchX, Loader2, X, Sparkles } from "lucide-react";
@@ -49,25 +50,32 @@ export interface MultiComboboxProps {
   groupBy?: (option: MultiComboboxOption) => string;
   renderOption?: (option: MultiComboboxOption, isSelected: boolean) => React.ReactNode;
   renderTag?: (option: MultiComboboxOption, onRemove: () => void) => React.ReactNode;
+  /** Selected option fallbacks for manual/server search when options does not contain current values. */
+  selectedOptions?: MultiComboboxOption[];
   error?: string;
   helperText?: string;
   maxTagsVisible?: number;
   /** Enable OverlayScrollbars on dropdown options list. Default: false */
   useOverlayScrollbar?: boolean;
+  /** Virtualize large flat option lists. Grouped lists fall back to normal rendering. Default: false */
+  virtualized?: boolean;
+  /** Estimated option row height used by virtualized rendering. Default: 44 */
+  estimatedItemHeight?: number;
+  /** Number of extra rows rendered above and below the visible range. Default: 8 */
+  overscan?: number;
+  /** Use "manual" to let callers provide server-filtered options via onSearchChange. Default: "auto" */
+  searchMode?: "auto" | "manual";
+  /** Called whenever the search query changes. Required for manual/server search. */
+  onSearchChange?: (query: string) => void;
+  /** Debounce delay for onSearchChange. Default: 0 */
+  searchDebounceMs?: number;
+  /** Minimum query length before showing options in manual/search-prompt mode. Default: 0 */
+  minSearchLength?: number;
+  /** Limit the number of rendered options before the user types a query. */
+  maxInitialOptions?: number;
+  /** Show a prompt instead of options while the query is shorter than minSearchLength. Default: false */
+  showSearchPromptWhenEmptyQuery?: boolean;
 }
-
-// Helper functions
-const getOptionIcon = (option: MultiComboboxOption | string): React.ReactNode | undefined => {
-  return typeof option === "string" ? undefined : option.icon;
-};
-
-const getOptionDescription = (option: MultiComboboxOption | string): string | undefined => {
-  return typeof option === "string" ? undefined : option.description;
-};
-
-const getOptionDisabled = (option: MultiComboboxOption | string): boolean => {
-  return typeof option === "string" ? false : (option.disabled ?? false);
-};
 
 export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   id,
@@ -97,10 +105,20 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   groupBy,
   renderOption,
   renderTag,
+  selectedOptions: selectedOptionsProp,
   error,
   helperText,
   maxTagsVisible = 3,
   useOverlayScrollbar = false,
+  virtualized = false,
+  estimatedItemHeight = 44,
+  overscan = 8,
+  searchMode = "auto",
+  onSearchChange,
+  searchDebounceMs = 0,
+  minSearchLength = 0,
+  maxInitialOptions,
+  showSearchPromptWhenEmptyQuery = false,
 }) => {
   const tv = useSmartTranslations("ValidationInput");
   const [query, setQuery] = React.useState("");
@@ -129,31 +147,61 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
     [options],
   );
 
-  // Enable search only if options.length > 10
-  const enableSearch = normalizedOptions.length > 10;
+  // Enable search only when useful, or when controlled by server/manual mode.
+  const enableSearch = normalizedOptions.length > 10 || searchMode === "manual" || minSearchLength > 0 || !!onSearchChange;
+  const trimmedQuery = query.trim();
+  const queryMeetsMinimum = trimmedQuery.length >= minSearchLength;
+  const shouldPromptForSearch = minSearchLength > 0 && !queryMeetsMinimum && (searchMode === "manual" || showSearchPromptWhenEmptyQuery);
 
-  const filtered = React.useMemo(
-    () =>
-      enableSearch
-        ? normalizedOptions.filter(
-            (opt) =>
-              opt.label.toLowerCase().includes(query.trim().toLowerCase()) || opt.description?.toLowerCase().includes(query.trim().toLowerCase()),
-          )
-        : normalizedOptions,
-    [normalizedOptions, query, enableSearch],
-  );
+  const filtered = React.useMemo(() => {
+    if (shouldPromptForSearch) return [];
+    if (!enableSearch || searchMode === "manual") return normalizedOptions;
+
+    const normalizedQuery = trimmedQuery.toLowerCase();
+    if (!normalizedQuery) return normalizedOptions;
+    return normalizedOptions.filter(
+      (opt) => opt.label.toLowerCase().includes(normalizedQuery) || opt.description?.toLowerCase().includes(normalizedQuery),
+    );
+  }, [enableSearch, normalizedOptions, searchMode, shouldPromptForSearch, trimmedQuery]);
+
+  const renderLimitedOptions = React.useMemo(() => {
+    if (trimmedQuery || maxInitialOptions === undefined || maxInitialOptions < 1) {
+      return filtered;
+    }
+    return filtered.slice(0, maxInitialOptions);
+  }, [filtered, maxInitialOptions, trimmedQuery]);
+
+  const canVirtualize = virtualized && !groupBy;
+  const optionVirtualizer = useVirtualizer({
+    count: canVirtualize ? renderLimitedOptions.length : 0,
+    getScrollElement: () => optionsListRef.current,
+    estimateSize: () => estimatedItemHeight,
+    initialRect: { width: 0, height: maxHeight },
+    overscan,
+    enabled: canVirtualize,
+  });
+  const virtualItems = canVirtualize ? optionVirtualizer.getVirtualItems() : [];
+
+  const scrollVirtualListToIndex = React.useCallback((index: number) => {
+    if (!canVirtualize || renderLimitedOptions.length === 0) return;
+    optionVirtualizer.scrollToIndex(index, { align: "auto" });
+  }, [canVirtualize, optionVirtualizer, renderLimitedOptions.length]);
+
+  const scrollVirtualListToStart = React.useCallback(() => {
+    scrollVirtualListToIndex(0);
+  }, [scrollVirtualListToIndex]);
 
   // Group options if groupBy is provided
   const groupedOptions = React.useMemo(() => {
     if (!groupBy) return null;
     const groups = new Map<string, MultiComboboxOption[]>();
-    filtered.forEach((opt) => {
+    renderLimitedOptions.forEach((opt) => {
       const group = groupBy(opt);
       if (!groups.has(group)) groups.set(group, []);
       groups.get(group)!.push(opt);
     });
     return groups;
-  }, [filtered, groupBy]);
+  }, [renderLimitedOptions, groupBy]);
 
   const toggleSelect = (optionValue: string) => {
     const option = normalizedOptions.find((o) => o.value === optionValue);
@@ -175,11 +223,28 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!open) setOpen(true);
 
-    if (e.key === "Enter") {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
-      if (activeIndex !== null && filtered[activeIndex]) {
-        toggleSelect(filtered[activeIndex].value);
+      if (renderLimitedOptions.length === 0) return;
+      const next = activeIndex === null ? 0 : (activeIndex + 1) % renderLimitedOptions.length;
+      setActiveIndex(next);
+      scrollVirtualListToIndex(next);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (renderLimitedOptions.length === 0) return;
+      const next = activeIndex === null
+        ? renderLimitedOptions.length - 1
+        : (activeIndex - 1 + renderLimitedOptions.length) % renderLimitedOptions.length;
+      setActiveIndex(next);
+      scrollVirtualListToIndex(next);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (activeIndex !== null && renderLimitedOptions[activeIndex]) {
+        toggleSelect(renderLimitedOptions[activeIndex].value);
       }
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      setOpen(false);
     }
   };
 
@@ -202,8 +267,32 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
+    } else if (!open) {
+      setQuery("");
+      setActiveIndex(null);
+      scrollVirtualListToStart();
     }
-  }, [open, enableSearch]);
+  }, [enableSearch, open, scrollVirtualListToStart]);
+
+  React.useEffect(() => {
+    if (!onSearchChange) return undefined;
+    const timeoutId = window.setTimeout(() => onSearchChange(query), searchDebounceMs);
+    return () => window.clearTimeout(timeoutId);
+  }, [onSearchChange, query, searchDebounceMs]);
+
+  React.useEffect(() => {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      normalizedOptions.length > 300 &&
+      !virtualized &&
+      searchMode !== "manual" &&
+      maxInitialOptions === undefined
+    ) {
+      console.warn(
+        '[Underverse UI] MultiCombobox received more than 300 options without virtualization, manual search, or maxInitialOptions. Use virtualized, searchMode="manual", or maxInitialOptions to avoid rendering a large dropdown.',
+      );
+    }
+  }, [maxInitialOptions, normalizedOptions.length, searchMode, virtualized]);
 
   // Size styles to align with Input defaults
   const sizeStyles = {
@@ -243,26 +332,41 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   const listboxId = `${resolvedId}-listbox`;
 
   // Render a single option
-  const renderOptionItem = (item: MultiComboboxOption, index: number) => {
+  const renderOptionItem = (item: MultiComboboxOption, index: number, virtualItem?: VirtualItem) => {
     const isSelected = value.includes(item.value);
     const isDisabled = item.disabled || disabledOptions.includes(item.value);
     const optionIcon = item.icon;
     const optionDesc = item.description;
+    const itemStyle = {
+      animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms",
+      ...(virtualItem
+        ? {
+            position: "absolute" as const,
+            top: 0,
+            left: 0,
+            width: "100%",
+            transform: `translateY(${virtualItem.start}px)`,
+          }
+        : {}),
+    };
+    const measureRef = virtualItem ? optionVirtualizer.measureElement : undefined;
 
     if (renderOption) {
       return (
         <li
           key={item.value}
           ref={(node) => {
+            measureRef?.(node);
             listRef.current[index] = node;
           }}
+          data-index={virtualItem?.index}
+          style={itemStyle}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             if (!isDisabled) toggleSelect(item.value);
             inputRef.current?.focus();
           }}
-          style={{ animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms" }}
           className={cn("dropdown-item", isDisabled && "opacity-50 cursor-not-allowed pointer-events-none")}
         >
           {renderOption(item, isSelected)}
@@ -274,15 +378,17 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
       <li
         key={item.value}
         ref={(node) => {
+          measureRef?.(node);
           listRef.current[index] = node;
         }}
+        data-index={virtualItem?.index}
+        style={itemStyle}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
           if (!isDisabled) toggleSelect(item.value);
           inputRef.current?.focus();
         }}
-        style={{ animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms" }}
         className={cn(
           "dropdown-item flex cursor-pointer items-center gap-3 rounded-full transition-all duration-200",
           sizeStyles[size].item,
@@ -349,6 +455,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
             onChange={(e) => {
               setQuery(e.target.value);
               setActiveIndex(null);
+              scrollVirtualListToStart();
             }}
             onKeyDown={handleKeyDown}
             placeholder={searchPlaceholder}
@@ -357,7 +464,10 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
           {query && (
             <button
               type="button"
-              onClick={() => setQuery("")}
+              onClick={() => {
+                setQuery("");
+                scrollVirtualListToStart();
+              }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <X className="w-4 h-4" />
@@ -385,7 +495,14 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
               <span className="text-muted-foreground font-medium">{loadingText}</span>
             </div>
           </li>
-        ) : filtered.length ? (
+        ) : shouldPromptForSearch ? (
+          <li className="px-3 py-8 text-center text-muted-foreground">
+            <div className="flex flex-col items-center gap-3 animate-in fade-in-0 zoom-in-95 duration-300">
+              <Search className="h-10 w-10 opacity-30 text-muted-foreground" />
+              <span className="font-medium block text-foreground">Type at least {minSearchLength} characters to search</span>
+            </div>
+          </li>
+        ) : renderLimitedOptions.length ? (
           groupedOptions ? (
             // Render grouped options
             Array.from(groupedOptions.entries()).map(([group, items]) => (
@@ -393,12 +510,20 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
                 <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider sticky top-0 bg-popover/95 backdrop-blur-sm">
                   {group}
                 </div>
-                <ul>{items.map((item) => renderOptionItem(item, filtered.indexOf(item)))}</ul>
+                <ul>{items.map((item) => renderOptionItem(item, renderLimitedOptions.indexOf(item)))}</ul>
               </li>
             ))
           ) : (
             // Render flat options
-            filtered.map((item, index) => renderOptionItem(item, index))
+            canVirtualize ? (
+              <li role="presentation" className="list-none p-0">
+                <ul className="relative" style={{ height: `${optionVirtualizer.getTotalSize()}px` }}>
+                  {virtualItems.map((virtualItem) => renderOptionItem(renderLimitedOptions[virtualItem.index], virtualItem.index, virtualItem))}
+                </ul>
+              </li>
+            ) : (
+              renderLimitedOptions.map((item, index) => renderOptionItem(item, index))
+            )
           )
         ) : (
           <li className={cn("px-3 py-8 text-center text-muted-foreground")}>
@@ -409,7 +534,14 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
                 {query && <span className="text-xs opacity-60">Try a different search term</span>}
               </div>
               {query && (
-                <button type="button" onClick={() => setQuery("")} className="text-xs text-primary hover:underline flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery("");
+                    scrollVirtualListToStart();
+                  }}
+                  className="text-xs text-primary hover:underline flex items-center gap-1"
+                >
                   <X className="w-3 h-3" />
                   Clear search
                 </button>
@@ -422,7 +554,13 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   );
 
   // Selected options for rendering tags
-  const selectedOptions = value.map((v) => normalizedOptions.find((o) => o.value === v)).filter(Boolean) as MultiComboboxOption[];
+  const selectedOptionFallbackMap = React.useMemo(
+    () => new Map((selectedOptionsProp ?? []).map((option) => [option.value, option])),
+    [selectedOptionsProp],
+  );
+  const selectedOptions = value
+    .map((v) => normalizedOptions.find((o) => o.value === v) ?? selectedOptionFallbackMap.get(v))
+    .filter(Boolean) as MultiComboboxOption[];
   const visibleTags = maxTagsVisible ? selectedOptions.slice(0, maxTagsVisible) : selectedOptions;
   const hiddenCount = maxTagsVisible ? Math.max(0, selectedOptions.length - maxTagsVisible) : 0;
 

@@ -15,6 +15,7 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 - **Error & Helper Text**: Display validation errors and helper text
 - **Required Validation**: `required` now participates in form validation like `Input`
 - **Custom Rendering**: Use `renderOption` and `renderValue` for custom UI
+- **Large Lists**: Use `virtualized`, `maxInitialOptions`, or manual search for thousands of options
 - **Variants**: Four visual styles - `default`, `outline`, `ghost`, `filled`
 - **Keyboard Navigation**: Full keyboard support with arrow keys, Enter, Escape
 
@@ -23,6 +24,10 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 - Dropdown uses `Popover` internally (portal + fixed positioning + auto flip/clamp in viewport).
 - Dropdown width matches the trigger by default.
 - Search is enabled automatically when options > 10.
+- `searchMode="manual"` disables client-side filtering and calls `onSearchChange` so callers can provide server-filtered options.
+- `showSearchPromptWhenEmptyQuery` with `minSearchLength` prevents rendering options until the query is long enough.
+- Flat lists can be virtualized with `virtualized`; grouped lists render normally. Virtualization is powered by `@tanstack/react-virtual`.
+- Use `selectedOption` when manual/server search results do not include the currently selected value.
 - When `required` is set, the component exposes required semantics, switches to the destructive state if the parent form validates before a value is selected, and clears the local required error as soon as a valid value is chosen.
 
 ## Accessibility (Web Interface Guidelines Compliant)
@@ -102,6 +107,26 @@ const options = [
 
 If the form is validated before a value is selected, the trigger, label, and helper area switch to the destructive state. The local required error clears once the user selects a valid value.
 
+### Large User Picker
+
+```tsx
+<Combobox
+  options={users}
+  value={value}
+  onChange={setValue}
+  virtualized
+  searchMode="manual"
+  onSearchChange={setQuery}
+  searchDebounceMs={250}
+  loading={loading}
+  minSearchLength={2}
+  maxInitialOptions={80}
+  estimatedItemHeight={52}
+  overscan={8}
+  showSearchPromptWhenEmptyQuery
+/>
+```
+
 ## Option Type
 
 ```ts
@@ -146,9 +171,29 @@ export interface ComboboxProps {
   groupBy?: (option: ComboboxOption) => string; // Group options
   renderOption?: (option: ComboboxOption, isSelected: boolean) => React.ReactNode;
   renderValue?: (option: ComboboxOption) => React.ReactNode;
+  /** Selected option fallback for manual/server search when options does not contain the current value. */
+  selectedOption?: ComboboxOption;
   error?: string; // Error message
   helperText?: string; // Helper text
   /** Enable OverlayScrollbars on dropdown options list. Default: false */
   useOverlayScrollbar?: boolean;
+  /** Virtualize large flat option lists. Grouped lists fall back to normal rendering. Default: false */
+  virtualized?: boolean;
+  /** Estimated option row height used by virtualized rendering. Default: 44 */
+  estimatedItemHeight?: number;
+  /** Number of extra rows rendered above and below the visible range. Default: 8 */
+  overscan?: number;
+  /** Use "manual" to let callers provide server-filtered options via onSearchChange. Default: "auto" */
+  searchMode?: "auto" | "manual";
+  /** Called whenever the search query changes. Required for manual/server search. */
+  onSearchChange?: (query: string) => void;
+  /** Debounce delay for onSearchChange. Default: 0 */
+  searchDebounceMs?: number;
+  /** Minimum query length before showing options in manual/search-prompt mode. Default: 0 */
+  minSearchLength?: number;
+  /** Limit the number of rendered options before the user types a query. */
+  maxInitialOptions?: number;
+  /** Show a prompt instead of options while the query is shorter than minSearchLength. Default: false */
+  showSearchPromptWhenEmptyQuery?: boolean;
 }
 ```

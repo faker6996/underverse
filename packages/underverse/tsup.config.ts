@@ -12,7 +12,19 @@ export default defineConfig({
     "@": path.resolve(__dirname, "../../"),
   },
   // Mark peer dependencies as external to avoid bundling them
-  external: ["react", "react-dom", "next", "next-intl", "overlayscrollbars", "lucide-react", "class-variance-authority", "react-hook-form", "@hookform/resolvers", "zod"],
+  external: [
+    "react",
+    "react-dom",
+    "next",
+    "next-intl",
+    "overlayscrollbars",
+    "lucide-react",
+    "class-variance-authority",
+    "react-hook-form",
+    "@hookform/resolvers",
+    "zod",
+    "@tanstack/react-virtual",
+  ],
   esbuildOptions(options) {
     options.jsx = "automatic";
     options.jsxImportSource = "react";

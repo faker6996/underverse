@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import { useId } from "react";
+import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
 import { cn } from "../utils/cn";
 import { useSmartTranslations } from "../hooks/useSmartTranslations";
-import { ChevronDown, Search, SearchX, Check, X, Loader2, Sparkles } from "lucide-react";
+import { ChevronDown, Search, SearchX, Check, X } from "lucide-react";
 import { useShadCNAnimations } from "../utils/animations";
 import { Popover } from "./Popover";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
@@ -40,10 +41,30 @@ export interface ComboboxProps {
   groupBy?: (option: ComboboxOption) => string;
   renderOption?: (option: ComboboxOption, isSelected: boolean) => React.ReactNode;
   renderValue?: (option: ComboboxOption) => React.ReactNode;
+  /** Selected option fallback for manual/server search when options does not contain the current value. */
+  selectedOption?: ComboboxOption;
   error?: string;
   helperText?: string;
   /** Enable OverlayScrollbars on dropdown options list. Default: false */
   useOverlayScrollbar?: boolean;
+  /** Virtualize large flat option lists. Grouped lists fall back to normal rendering. Default: false */
+  virtualized?: boolean;
+  /** Estimated option row height used by virtualized rendering. Default: 44 */
+  estimatedItemHeight?: number;
+  /** Number of extra rows rendered above and below the visible range. Default: 8 */
+  overscan?: number;
+  /** Use "manual" to let callers provide server-filtered options via onSearchChange. Default: "auto" */
+  searchMode?: "auto" | "manual";
+  /** Called whenever the search query changes. Required for manual/server search. */
+  onSearchChange?: (query: string) => void;
+  /** Debounce delay for onSearchChange. Default: 0 */
+  searchDebounceMs?: number;
+  /** Minimum query length before showing options in manual/search-prompt mode. Default: 0 */
+  minSearchLength?: number;
+  /** Limit the number of rendered options before the user types a query. */
+  maxInitialOptions?: number;
+  /** Show a prompt instead of options while the query is shorter than minSearchLength. Default: false */
+  showSearchPromptWhenEmptyQuery?: boolean;
 }
 
 // Helper functions
@@ -97,9 +118,19 @@ export const Combobox: React.FC<ComboboxProps> = ({
   groupBy,
   renderOption,
   renderValue,
+  selectedOption: selectedOptionProp,
   error,
   helperText,
   useOverlayScrollbar = false,
+  virtualized = false,
+  estimatedItemHeight = 44,
+  overscan = 8,
+  searchMode = "auto",
+  onSearchChange,
+  searchDebounceMs = 0,
+  minSearchLength = 0,
+  maxInitialOptions,
+  showSearchPromptWhenEmptyQuery = false,
 }) => {
   const tv = useSmartTranslations("ValidationInput");
   const [open, setOpen] = React.useState(false);
@@ -120,16 +151,67 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const resolvedId = id ? String(id) : `combobox-${autoId}`;
   const labelId = label ? `${resolvedId}-label` : undefined;
 
-  // Enable search only when options length > 10
-  const enableSearch = options.length > 10;
+  // Enable search only when useful, or when controlled by server/manual mode.
+  const enableSearch = options.length > 10 || searchMode === "manual" || minSearchLength > 0 || !!onSearchChange;
+  const trimmedQuery = query.trim();
+  const queryMeetsMinimum = trimmedQuery.length >= minSearchLength;
+  const shouldPromptForSearch = minSearchLength > 0 && !queryMeetsMinimum && (searchMode === "manual" || showSearchPromptWhenEmptyQuery);
 
   // Filter options based on query (only when search enabled)
   const filteredOptions = React.useMemo(
-    () => (enableSearch ? options.filter((o) => getOptionLabel(o).toLowerCase().includes(query.trim().toLowerCase())) : options),
-    [options, query, enableSearch],
+    () => {
+      if (shouldPromptForSearch) return [];
+      if (!enableSearch || searchMode === "manual") return options;
+
+      const normalizedQuery = trimmedQuery.toLowerCase();
+      if (!normalizedQuery) return options;
+      return options.filter((o) => getOptionLabel(o).toLowerCase().includes(normalizedQuery));
+    },
+    [enableSearch, options, searchMode, shouldPromptForSearch, trimmedQuery],
   );
 
+  const renderLimitedOptions = React.useMemo(
+    () => {
+      if (trimmedQuery || maxInitialOptions === undefined || maxInitialOptions < 1) {
+        return filteredOptions;
+      }
+      return filteredOptions.slice(0, maxInitialOptions);
+    },
+    [filteredOptions, maxInitialOptions, trimmedQuery],
+  );
+
+  const canVirtualize = virtualized && !groupBy;
+  const optionVirtualizer = useVirtualizer({
+    count: canVirtualize ? renderLimitedOptions.length : 0,
+    getScrollElement: () => optionsViewportRef.current,
+    estimateSize: () => estimatedItemHeight,
+    initialRect: { width: 0, height: maxHeight },
+    overscan,
+    enabled: canVirtualize,
+  });
+  const virtualItems = canVirtualize ? optionVirtualizer.getVirtualItems() : [];
+
   const triggerRef = React.useRef<HTMLButtonElement>(null);
+
+  const scrollVirtualListToIndex = React.useCallback((index: number) => {
+    if (!canVirtualize || renderLimitedOptions.length === 0) return;
+    optionVirtualizer.scrollToIndex(index, { align: "auto" });
+  }, [canVirtualize, optionVirtualizer, renderLimitedOptions.length]);
+
+  const scrollVirtualListToStart = React.useCallback(() => {
+    scrollVirtualListToIndex(0);
+  }, [scrollVirtualListToIndex]);
+
+  const moveActiveIndex = React.useCallback((direction: 1 | -1) => {
+    if (renderLimitedOptions.length === 0) return;
+
+    const next = activeIndex === null
+      ? direction === 1 ? 0 : renderLimitedOptions.length - 1
+      : (activeIndex + direction + renderLimitedOptions.length) % renderLimitedOptions.length;
+
+    setActiveIndex(next);
+    scrollVirtualListToIndex(next);
+  }, [activeIndex, renderLimitedOptions.length, scrollVirtualListToIndex]);
 
   // Event Handlers
   const handleSelect = (option: ComboboxOption) => {
@@ -145,6 +227,10 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
+    clearValue();
+  };
+
+  const clearValue = () => {
     onChange(null);
     setOpen(false);
   };
@@ -154,15 +240,38 @@ export const Combobox: React.FC<ComboboxProps> = ({
     if (!open) {
       setQuery("");
       setActiveIndex(null);
+      scrollVirtualListToStart();
     } else if (enableSearch) {
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
     }
-  }, [open, enableSearch]);
+  }, [enableSearch, open, scrollVirtualListToStart]);
+
+  React.useEffect(() => {
+    if (!onSearchChange) return undefined;
+    const timeoutId = window.setTimeout(() => onSearchChange(query), searchDebounceMs);
+    return () => window.clearTimeout(timeoutId);
+  }, [onSearchChange, query, searchDebounceMs]);
+
+  React.useEffect(() => {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      options.length > 300 &&
+      !virtualized &&
+      searchMode !== "manual" &&
+      maxInitialOptions === undefined
+    ) {
+      console.warn(
+        "[Underverse UI] Combobox received more than 300 options without virtualization, manual search, or maxInitialOptions. Use virtualized, searchMode=\"manual\", or maxInitialOptions to avoid rendering a large dropdown.",
+      );
+    }
+  }, [maxInitialOptions, options.length, searchMode, virtualized]);
 
   // Get display values
-  const selectedOption = findOptionByValue(options, value);
+  const selectedOption =
+    findOptionByValue(options, value) ??
+    (selectedOptionProp && getOptionValue(selectedOptionProp) === value ? selectedOptionProp : undefined);
   const displayValue = selectedOption ? getOptionLabel(selectedOption) : "";
   const selectedIcon = selectedOption ? getOptionIcon(selectedOption) : undefined;
   const hasValue = value !== undefined && value !== null && value !== "";
@@ -178,13 +287,13 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const groupedOptions = React.useMemo(() => {
     if (!groupBy) return null;
     const groups: Record<string, ComboboxOption[]> = {};
-    filteredOptions.forEach((opt) => {
+    renderLimitedOptions.forEach((opt) => {
       const group = groupBy(opt);
       if (!groups[group]) groups[group] = [];
       groups[group].push(opt);
     });
     return groups;
-  }, [filteredOptions, groupBy]);
+  }, [renderLimitedOptions, groupBy]);
 
   // Size styles for dropdown items
   const itemSizeStyles = {
@@ -206,7 +315,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   } as const;
 
   // Render single option
-  const renderOptionItem = (item: ComboboxOption, index: number) => {
+  const renderOptionItem = (item: ComboboxOption, index: number, virtualItem?: VirtualItem) => {
     const itemValue = getOptionValue(item);
     const itemLabel = getOptionLabel(item);
     const itemIcon = getOptionIcon(item);
@@ -215,9 +324,21 @@ export const Combobox: React.FC<ComboboxProps> = ({
     const isSelected = itemValue === value;
 
     return (
-      <li key={`${itemValue}-${index}`} className="list-none">
+      <li
+        key={`${itemValue}-${index}`}
+        ref={virtualItem ? optionVirtualizer.measureElement : undefined}
+        data-index={virtualItem?.index}
+        className="list-none"
+        style={virtualItem ? {
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          transform: `translateY(${virtualItem.start}px)`,
+        } : undefined}
+      >
         <button
-          id={`combobox-item-${index}`}
+          id={`${resolvedId}-item-${index}`}
           type="button"
           role="option"
           tabIndex={-1}
@@ -274,7 +395,6 @@ export const Combobox: React.FC<ComboboxProps> = ({
     <div
       data-combobox-dropdown
       data-state={open ? "open" : "closed"}
-      id={`${resolvedId}-listbox`}
       className="w-full rounded-2xl md:rounded-3xl overflow-hidden"
     >
       {/* Search Input (only when many options) */}
@@ -293,24 +413,19 @@ export const Combobox: React.FC<ComboboxProps> = ({
               onChange={(e) => {
                 setQuery(e.target.value);
                 setActiveIndex(null);
+                scrollVirtualListToStart();
               }}
               onKeyDown={(e) => {
                 if (e.key === "ArrowDown") {
                   e.preventDefault();
-                  setActiveIndex((prev) => {
-                    const next = prev === null ? 0 : prev + 1;
-                    return next >= filteredOptions.length ? 0 : next;
-                  });
+                  moveActiveIndex(1);
                 } else if (e.key === "ArrowUp") {
                   e.preventDefault();
-                  setActiveIndex((prev) => {
-                    const next = prev === null ? filteredOptions.length - 1 : prev - 1;
-                    return next < 0 ? filteredOptions.length - 1 : next;
-                  });
+                  moveActiveIndex(-1);
                 } else if (e.key === "Enter") {
                   e.preventDefault();
-                  if (activeIndex !== null && filteredOptions[activeIndex] && !getOptionDisabled(filteredOptions[activeIndex])) {
-                    handleSelect(filteredOptions[activeIndex]);
+                  if (activeIndex !== null && renderLimitedOptions[activeIndex] && !getOptionDisabled(renderLimitedOptions[activeIndex])) {
+                    handleSelect(renderLimitedOptions[activeIndex]);
                   }
                 } else if (e.key === "Escape") {
                   e.preventDefault();
@@ -331,7 +446,10 @@ export const Combobox: React.FC<ComboboxProps> = ({
             {query && (
               <button
                 type="button"
-                onClick={() => setQuery("")}
+                onClick={() => {
+                  setQuery("");
+                  scrollVirtualListToStart();
+                }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X className={cn(size === "sm" ? "h-3 w-3" : size === "lg" ? "h-4 w-4" : "h-3.5 w-3.5")} />
@@ -344,6 +462,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
       {/* Options List */}
       <div
         ref={optionsViewportRef}
+        id={`${resolvedId}-listbox`}
         role="listbox"
         aria-labelledby={labelId}
         className="overflow-y-auto overscroll-contain"
@@ -359,7 +478,18 @@ export const Combobox: React.FC<ComboboxProps> = ({
                 <span className="text-sm text-muted-foreground">{loadingText}</span>
               </div>
             </div>
-          ) : filteredOptions.length > 0 ? (
+          ) : shouldPromptForSearch ? (
+            <div className="px-3 py-10 text-center">
+              <div className="flex flex-col items-center gap-3 animate-in fade-in-0 zoom-in-95 duration-300">
+                <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center">
+                  <Search className="h-6 w-6 text-muted-foreground/60" />
+                </div>
+                <div className="space-y-1">
+                  <span className="block text-sm font-medium text-foreground">Type at least {minSearchLength} characters to search</span>
+                </div>
+              </div>
+            </div>
+          ) : renderLimitedOptions.length > 0 ? (
             groupedOptions ? (
               // Render grouped options with global index tracking
               (() => {
@@ -378,7 +508,14 @@ export const Combobox: React.FC<ComboboxProps> = ({
               })()
             ) : (
               // Render flat options
-              <ul className="space-y-0.5">{filteredOptions.map((item, index) => renderOptionItem(item, index))}</ul>
+              <ul
+                className="space-y-0.5"
+                style={canVirtualize ? { height: `${optionVirtualizer.getTotalSize()}px`, position: "relative" } : undefined}
+              >
+                {canVirtualize
+                  ? virtualItems.map((virtualItem) => renderOptionItem(renderLimitedOptions[virtualItem.index], virtualItem.index, virtualItem))
+                  : renderLimitedOptions.map((item, index) => renderOptionItem(item, index))}
+              </ul>
             )
           ) : (
             <div className="px-3 py-10 text-center">
@@ -393,7 +530,10 @@ export const Combobox: React.FC<ComboboxProps> = ({
                 {query && (
                   <button
                     type="button"
-                    onClick={() => setQuery("")}
+                    onClick={() => {
+                      setQuery("");
+                      scrollVirtualListToStart();
+                    }}
                     className="px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-full hover:bg-primary/20 transition-colors"
                   >
                     Clear search
@@ -482,7 +622,13 @@ export const Combobox: React.FC<ComboboxProps> = ({
             tabIndex={0}
             aria-label="Clear selection"
             onClick={handleClear}
-            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleClear(e as any)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                e.stopPropagation();
+                clearValue();
+              }
+            }}
             className={cn(
               "opacity-0 group-hover:opacity-100 transition-all duration-200",
               "p-1 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive",
