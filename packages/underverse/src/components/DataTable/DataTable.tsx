@@ -218,6 +218,7 @@ export function DataTable<T extends Record<string, any>>({
   const viewportRef = React.useRef<HTMLDivElement>(null);
   const tableRef = React.useRef<HTMLTableElement>(null);
   const canVirtualizeRows = virtualizedRows && !loading && displayedData.length > 0;
+  const shouldUseScrollViewport = stickyHeader || canVirtualizeRows;
   const rowVirtualizer = useVirtualizer({
     count: canVirtualizeRows ? displayedData.length : 0,
     getScrollElement: () => viewportRef.current,
@@ -305,8 +306,8 @@ export function DataTable<T extends Record<string, any>>({
           <div
             ref={viewportRef}
             data-os-ignore={canVirtualizeRows ? "" : undefined}
-            className={cn("w-full", viewportOverflowXClass, stickyHeader && "overflow-y-auto")}
-          style={stickyHeader ? { maxHeight: typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight } : undefined}
+            className={cn("w-full", viewportOverflowXClass, shouldUseScrollViewport && "overflow-y-auto")}
+          style={shouldUseScrollViewport ? { maxHeight: typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight } : undefined}
         >
           <Table
             ref={tableRef}
