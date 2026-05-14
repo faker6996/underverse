@@ -480,6 +480,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
         id={`${resolvedId}-listbox`}
         role="listbox"
         aria-labelledby={labelId}
+        data-os-ignore={virtualized ? "" : undefined}
         className={cn("overflow-y-auto overscroll-contain", (!useOverlayScrollbar || virtualized) && comboboxScrollClassName)}
         style={{ maxHeight }}
       >

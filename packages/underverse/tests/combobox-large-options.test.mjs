@@ -171,6 +171,21 @@ test("MultiCombobox virtualized rendering does not render every large-list optio
   await user.click(within(window.document.body).getByRole("combobox", { name: /users/i }));
   fireEvent.scroll(within(window.document.body).getByRole("listbox"), { target: { scrollTop: 200 } });
 
+  const listbox = within(window.document.body).getByRole("listbox");
+  const virtualRows = Array.from(listbox.querySelectorAll("[data-index]"));
+  assert.ok(virtualRows.length > 0, "Expected virtual rows to render");
+  assert.equal(listbox.hasAttribute("data-os-ignore"), true);
+  assert.equal(
+    virtualRows.some((row) => row.classList.contains("dropdown-item")),
+    false,
+    "Virtual-positioned rows must not use dropdown-item because its transform animation overrides translateY",
+  );
+  assert.equal(
+    virtualRows.every((row) => row.firstElementChild?.classList.contains("dropdown-item")),
+    true,
+    "Dropdown item animation should stay on an inner element instead of the virtual-positioned row",
+  );
+
   assert.ok(renderCount > 0, "Expected visible options to render");
   assert.ok(renderCount < 80, `Expected virtualized rendering to avoid all options, got ${renderCount}`);
 });

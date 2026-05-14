@@ -376,15 +376,17 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
           }}
           data-index={virtualItem?.index}
           style={itemStyle}
+          className={cn(virtualItem && "list-none")}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             if (!isDisabled) toggleSelect(item.value);
             inputRef.current?.focus();
           }}
-          className={cn("dropdown-item", isDisabled && "opacity-50 cursor-not-allowed pointer-events-none")}
         >
-          {renderOption(item, isSelected)}
+          <div className={cn("dropdown-item", isDisabled && "opacity-50 cursor-not-allowed pointer-events-none")}>
+            {renderOption(item, isSelected)}
+          </div>
         </li>
       );
     }
@@ -398,38 +400,42 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         }}
         data-index={virtualItem?.index}
         style={itemStyle}
+        className={cn(virtualItem && "list-none")}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
           if (!isDisabled) toggleSelect(item.value);
           inputRef.current?.focus();
         }}
-        className={cn(
-          "dropdown-item flex cursor-pointer items-center gap-3 rounded-full transition-all duration-200",
-          sizeStyles[size].item,
-          "hover:bg-accent/70 hover:shadow-sm",
-          index === activeIndex && "bg-accent/60",
-          isSelected && "bg-primary/10 text-primary font-medium",
-          isDisabled && "opacity-40 cursor-not-allowed pointer-events-none",
-        )}
       >
-        {/* Checkbox indicator */}
-        <span
+        <div
           className={cn(
-            "shrink-0 w-5 h-5 flex items-center justify-center rounded-md border-2 transition-all duration-200",
-            isSelected ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground/30 bg-transparent",
+            "dropdown-item flex cursor-pointer items-center gap-3 rounded-full transition-all duration-200",
+            sizeStyles[size].item,
+            "hover:bg-accent/70 hover:shadow-sm",
+            index === activeIndex && "bg-accent/60",
+            isSelected && "bg-primary/10 text-primary font-medium",
+            isDisabled && "opacity-40 cursor-not-allowed pointer-events-none",
           )}
         >
-          {isSelected && <Check className="w-3 h-3" />}
-        </span>
+          {/* Checkbox indicator */}
+          <span
+            className={cn(
+              "shrink-0 w-5 h-5 flex items-center justify-center rounded-md border-2 transition-all duration-200",
+              isSelected ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground/30 bg-transparent",
+            )}
+          >
+            {isSelected && <Check className="w-3 h-3" />}
+          </span>
 
-        {/* Icon if exists */}
-        {optionIcon && <span className="shrink-0 w-5 h-5 flex items-center justify-center text-muted-foreground">{optionIcon}</span>}
+          {/* Icon if exists */}
+          {optionIcon && <span className="shrink-0 w-5 h-5 flex items-center justify-center text-muted-foreground">{optionIcon}</span>}
 
-        {/* Label and description */}
-        <div className="flex-1 min-w-0">
-          <div className={cn("truncate", isSelected && "font-medium text-primary")}>{item.label}</div>
-          {optionDesc && <div className="text-xs text-muted-foreground truncate mt-0.5">{optionDesc}</div>}
+          {/* Label and description */}
+          <div className="flex-1 min-w-0">
+            <div className={cn("truncate", isSelected && "font-medium text-primary")}>{item.label}</div>
+            {optionDesc && <div className="text-xs text-muted-foreground truncate mt-0.5">{optionDesc}</div>}
+          </div>
         </div>
       </li>
     );
@@ -497,6 +503,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         role="listbox"
         aria-multiselectable="true"
         ref={optionsListRef}
+        data-os-ignore={virtualized ? "" : undefined}
         style={{ maxHeight }}
         className={cn(
           "overflow-y-auto p-1.5",
