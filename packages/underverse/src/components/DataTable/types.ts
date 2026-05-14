@@ -109,6 +109,12 @@ export interface DataTableProps<T> {
   overflowHidden?: boolean;
   /** Enable OverlayScrollbars on table viewport. Default: false */
   useOverlayScrollbar?: boolean;
+  /** Virtualize body rows for large page sizes. Default: false */
+  virtualizedRows?: boolean;
+  /** Estimated row height used by virtualized rendering. Defaults to the active density row height. */
+  estimatedRowHeight?: number;
+  /** Number of extra rows rendered above and below the visible range. Default: 8 */
+  overscan?: number;
   /** Double-click leaf headers to auto-fit column width based on visible content. Default: true */
   enableHeaderAutoFit?: boolean;
   labels?: DataTableLabels;

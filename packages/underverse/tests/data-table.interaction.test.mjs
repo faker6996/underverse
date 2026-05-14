@@ -290,3 +290,44 @@ test("DataTable skips auto-fit when a column is already wide enough", async () =
     assert.equal(headerCell.style.width, "420px");
   });
 });
+
+test("DataTable can virtualize large body row sets", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
+  const DataTable = mod.default;
+  let renderCount = 0;
+  const data = Array.from({ length: 1000 }, (_, index) => ({
+    id: String(index + 1),
+    name: `Row ${index + 1}`,
+  }));
+
+  const view = render(
+    React.createElement(DataTable, {
+      columns: [
+        {
+          key: "name",
+          title: "Name",
+          dataIndex: "name",
+          render: (value) => {
+            renderCount += 1;
+            return React.createElement("span", null, value);
+          },
+        },
+      ],
+      data,
+      rowKey: "id",
+      pageSize: 1000,
+      stickyHeader: true,
+      maxHeight: 160,
+      virtualizedRows: true,
+      estimatedRowHeight: 40,
+      overscan: 2,
+      useOverlayScrollbar: true,
+    }),
+  );
+
+  const viewport = view.container.querySelector("[data-os-ignore]");
+  assert.ok(viewport, "Virtualized table viewport should ignore OverlayScrollbars");
+  assert.ok(renderCount > 0, "Expected visible rows to render");
+  assert.ok(renderCount < 80, `Expected virtualized rendering to avoid all rows, got ${renderCount}`);
+  assert.equal(view.container.textContent.includes("Row 1000"), false);
+});

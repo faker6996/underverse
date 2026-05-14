@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import type { VirtualItem } from "@tanstack/react-virtual";
 import { TableBody, TableCell, TableRow } from "../../Table";
 import { Tooltip } from "../../Tooltip";
 import { cn } from "../../../utils/cn";
@@ -97,6 +98,10 @@ export function DataTableBodyRows<T extends Record<string, any>>({
   getStickyCellClass,
   t,
   labels,
+  virtualRows,
+  virtualPaddingTop = 0,
+  virtualPaddingBottom = 0,
+  measureVirtualRow,
 }: {
   leafColumns: DataTableColumn<T>[];
   displayedData: T[];
@@ -111,7 +116,19 @@ export function DataTableBodyRows<T extends Record<string, any>>({
   getStickyCellClass: (col: DataTableColumn<T>, isStripedRow: boolean) => string;
   t: (key: string) => string;
   labels?: { noData?: string };
+  virtualRows?: VirtualItem[];
+  virtualPaddingTop?: number;
+  virtualPaddingBottom?: number;
+  measureVirtualRow?: (element: Element | null) => void;
 }) {
+  const rowsToRender = virtualRows
+    ? virtualRows.map((virtualRow) => ({
+        row: displayedData[virtualRow.index],
+        idx: virtualRow.index,
+        virtualRow,
+      })).filter((item): item is { row: T; idx: number; virtualRow: VirtualItem } => Boolean(item.row))
+    : displayedData.map((row, idx) => ({ row, idx, virtualRow: undefined }));
+
   return (
     <TableBody>
       {loading ? (
@@ -137,12 +154,20 @@ export function DataTableBodyRows<T extends Record<string, any>>({
           </TableCell>
         </TableRow>
       ) : (
-        displayedData.map((row, idx) => {
+        <>
+          {virtualPaddingTop > 0 && (
+            <TableRow aria-hidden="true" className="border-0 hover:bg-transparent hover:shadow-none">
+              <TableCell colSpan={leafColumns.length} className="p-0" style={{ height: virtualPaddingTop }} />
+            </TableRow>
+          )}
+          {rowsToRender.map(({ row, idx, virtualRow }) => {
           const isStripedRow = striped && idx % 2 === 0;
 
           return (
             <TableRow
               key={getRowKey(row, idx)}
+              ref={virtualRow ? measureVirtualRow : undefined}
+              data-index={virtualRow?.index}
               className={cn(densityRowClass, isStripedRow ? "bg-surface-1" : "bg-surface-0")}
               style={{
                 contentVisibility: "auto",
@@ -176,7 +201,13 @@ export function DataTableBodyRows<T extends Record<string, any>>({
               })}
             </TableRow>
           );
-        })
+          })}
+          {virtualPaddingBottom > 0 && (
+            <TableRow aria-hidden="true" className="border-0 hover:bg-transparent hover:shadow-none">
+              <TableCell colSpan={leafColumns.length} className="p-0" style={{ height: virtualPaddingBottom }} />
+            </TableRow>
+          )}
+        </>
       )}
     </TableBody>
   );

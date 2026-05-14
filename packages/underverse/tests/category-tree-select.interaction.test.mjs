@@ -114,3 +114,80 @@ test("CategoryTreeSelect single-select mode can select and clear one node", asyn
     assert.match(trigger.textContent || "", /Select one category/);
   });
 });
+
+test("CategoryTreeSelect supports virtualized manual search without OverlayScrollbars", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "CategoryTreeSelect.tsx"));
+  const CategoryTreeSelect = mod.CategoryTreeSelect;
+  const user = userEvent.setup({ document: window.document });
+  const largeCategories = Array.from({ length: 1000 }, (_, index) => ({
+    id: index + 1,
+    name: `Department ${index + 1}`,
+  }));
+  const queries = [];
+
+  render(
+    React.createElement(CategoryTreeSelect, {
+      categories: largeCategories,
+      value: [],
+      onChange: () => {},
+      label: "Virtual departments",
+      virtualized: true,
+      useOverlayScrollbar: true,
+      maxInitialOptions: 80,
+      searchMode: "manual",
+      onSearchChange: (query) => queries.push(query),
+      minSearchLength: 2,
+      showSearchPromptWhenEmptyQuery: true,
+    }),
+  );
+
+  const body = within(window.document.body);
+  const trigger = body.getByRole("combobox", { name: /virtual departments/i });
+  await user.click(trigger);
+
+  const tree = window.document.getElementById(trigger.getAttribute("aria-controls"));
+  assert.equal(tree?.hasAttribute("data-os-ignore"), true);
+  assert.ok(body.getByText("Type at least 2 characters to search"));
+  assert.equal(window.document.body.textContent.includes("Department 1"), false);
+
+  await user.type(body.getByPlaceholderText("Search..."), "hr");
+
+  await waitFor(() => {
+    assert.ok(queries.includes("hr"));
+  });
+});
+
+test("CategoryTreeSelect treats orphan manual-search nodes as roots and keeps manual expand enabled", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "CategoryTreeSelect.tsx"));
+  const CategoryTreeSelect = mod.CategoryTreeSelect;
+  const user = userEvent.setup({ document: window.document });
+
+  render(
+    React.createElement(CategoryTreeSelect, {
+      categories: [
+        { id: 10, name: "Orphan Department", parent_id: 999 },
+        { id: 20, name: "Manual Root" },
+        { id: 21, name: "Manual Child", parent_id: 20 },
+      ],
+      value: [],
+      onChange: () => {},
+      label: "Manual departments",
+      searchMode: "manual",
+      onSearchChange: () => {},
+      enableSearch: true,
+    }),
+  );
+
+  const body = within(window.document.body);
+  const trigger = body.getByRole("combobox", { name: /manual departments/i });
+  await user.click(trigger);
+
+  const tree = window.document.getElementById(trigger.getAttribute("aria-controls"));
+  assert.equal(tree?.getAttribute("role"), "tree");
+  assert.ok(body.getByRole("treeitem", { name: /orphan department/i }));
+
+  await user.type(body.getByPlaceholderText("Search..."), "manual");
+  await user.click(body.getByRole("button", { name: "Expand Manual Root" }));
+
+  assert.ok(body.getByRole("treeitem", { name: /manual child/i }));
+});

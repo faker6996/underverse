@@ -151,6 +151,40 @@ Khi truyền `expandedIds`, component chuyển sang controlled mode cho expand/c
 />
 ```
 
+### Large Trees
+
+Use `virtualized` for large dropdown trees. The component flattens only currently visible nodes, preserves indentation, and does not mount collapsed descendants.
+
+```tsx
+<CategoryTreeSelect
+  categories={departments}
+  value={selectedDepartmentIds}
+  onChange={setSelectedDepartmentIds}
+  label="Departments"
+  virtualized
+  estimatedItemHeight={44}
+  overscan={8}
+  maxInitialOptions={80}
+/>
+```
+
+For server-side search, use manual search mode. When `virtualized` is enabled, OverlayScrollbars is skipped for the dropdown viewport to avoid DOM conflicts with the virtualizer.
+
+```tsx
+<CategoryTreeSelect
+  categories={serverFilteredDepartments}
+  value={selectedDepartmentIds}
+  onChange={setSelectedDepartmentIds}
+  label="Departments"
+  virtualized
+  searchMode="manual"
+  onSearchChange={setQuery}
+  searchDebounceMs={250}
+  minSearchLength={2}
+  showSearchPromptWhenEmptyQuery
+/>
+```
+
 ### View Only (read-only tree)
 
 ```tsx
@@ -207,6 +241,15 @@ interface CategoryTreeSelectProps {
   className?: string;
   /** Enable OverlayScrollbars for dropdown tree viewport. Default: false */
   useOverlayScrollbar?: boolean;
+  virtualized?: boolean; // Virtualize dropdown tree rows
+  estimatedItemHeight?: number; // Default: 44
+  overscan?: number; // Default: 8
+  maxInitialOptions?: number; // Limit rows before typing a query
+  searchMode?: "auto" | "manual"; // Default: "auto"
+  onSearchChange?: (query: string) => void;
+  searchDebounceMs?: number; // Default: 0
+  minSearchLength?: number; // Default: 0
+  showSearchPromptWhenEmptyQuery?: boolean; // Default: false
 }
 
 interface Category {

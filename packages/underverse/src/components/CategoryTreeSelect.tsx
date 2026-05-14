@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
 import { ChevronRight, ChevronDown, FolderTree, Layers, Search, SearchX, X } from "lucide-react";
 import { cn } from "../utils/cn";
 import { useSmartTranslations } from "../hooks/useSmartTranslations";
@@ -107,6 +108,24 @@ export interface CategoryTreeSelectBaseProps {
   useOverlayScrollbar?: boolean;
   /** When true, only leaf nodes can be selected; parent nodes only expand/collapse. */
   leafOnlySelect?: boolean;
+  /** Virtualize the dropdown tree by rendering only visible rows. Inline/view-only trees keep recursive rendering. */
+  virtualized?: boolean;
+  /** Estimated tree row height used by virtualized rendering. Default: `44`. */
+  estimatedItemHeight?: number;
+  /** Number of extra rows rendered above and below the visible range. Default: `8`. */
+  overscan?: number;
+  /** Limit the number of rendered rows before the user types a query. */
+  maxInitialOptions?: number;
+  /** Use `"manual"` to let callers provide server-filtered categories via `onSearchChange`. Default: `"auto"`. */
+  searchMode?: "auto" | "manual";
+  /** Called whenever the search query changes. Useful for manual/server search. */
+  onSearchChange?: (query: string) => void;
+  /** Debounce delay for `onSearchChange`. Default: `0`. */
+  searchDebounceMs?: number;
+  /** Minimum query length before showing options in manual/search-prompt mode. Default: `0`. */
+  minSearchLength?: number;
+  /** Show a prompt instead of options while the query is shorter than `minSearchLength`. Default: `false`. */
+  showSearchPromptWhenEmptyQuery?: boolean;
 }
 
 /** Multi-select mode. This is the default when `singleSelect` is omitted. */
@@ -142,6 +161,12 @@ const TREE_NODE_INDENT_REM = 1;
 const TREE_BRANCH_OFFSET_CLASS = "ml-1.5 pl-1.5";
 const TREE_NODE_GAP_CLASS = "gap-1.5";
 const TREE_EXPANDER_PLACEHOLDER_CLASS = "w-5";
+const CATEGORY_TREE_DROPDOWN_MAX_HEIGHT = 320;
+
+type FlattenedCategoryRow = {
+  category: Category;
+  level: number;
+};
 
 export function getAncestorPathIds(categories: Category[], targetId: number) {
   const byId = new Map(categories.map((category) => [category.id, category] as const));
@@ -245,6 +270,36 @@ function toCategoryOrderSelection(categories: Category[], selected: Set<number>)
     .filter((categoryId) => selected.has(categoryId));
 }
 
+function flattenVisibleCategories(
+  roots: Category[],
+  childrenMap: Map<number, Category[]>,
+  expandedNodes: Set<number>,
+  expandAllVisibleBranches: boolean,
+) {
+  const rows: FlattenedCategoryRow[] = [];
+  const stack = roots.map((category) => ({ category, level: 0, path: new Set<number>() })).reverse();
+
+  while (stack.length > 0) {
+    const { category, level, path } = stack.pop()!;
+    if (path.has(category.id)) continue;
+
+    rows.push({ category, level });
+
+    const children = childrenMap.get(category.id) ?? [];
+    const isExpanded = children.length > 0 && (expandAllVisibleBranches || expandedNodes.has(category.id));
+    if (!isExpanded) continue;
+
+    const nextPath = new Set(path);
+    nextPath.add(category.id);
+
+    for (let index = children.length - 1; index >= 0; index -= 1) {
+      stack.push({ category: children[index], level: level + 1, path: nextPath });
+    }
+  }
+
+  return rows;
+}
+
 /**
  * Tree-based category picker with single-select, multi-select, inline, and
  * read-only modes.
@@ -288,6 +343,15 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     className,
     useOverlayScrollbar = false,
     leafOnlySelect = false,
+    virtualized = false,
+    estimatedItemHeight = 44,
+    overscan = 8,
+    maxInitialOptions,
+    searchMode = "auto",
+    onSearchChange,
+    searchDebounceMs = 0,
+    minSearchLength = 0,
+    showSearchPromptWhenEmptyQuery = false,
     singleSelect = false,
   } = props;
 
@@ -296,11 +360,14 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     getInitialExpandedNodes(categories, { defaultExpanded, defaultExpandedIds, expandToId, viewOnly, inline }),
   );
   const [query, setQuery] = useState("");
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [localRequiredError, setLocalRequiredError] = useState<string | undefined>();
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const dropdownViewportRef = useRef<HTMLDivElement | null>(null);
 
-  useOverlayScrollbarTarget(dropdownViewportRef, { enabled: useOverlayScrollbar });
+  useOverlayScrollbarTarget(dropdownViewportRef, {
+    enabled: isOpen && useOverlayScrollbar && !virtualized && !inline && !viewOnly,
+  });
 
   const autoId = useId();
   const resolvedId = id ? String(id) : `category-tree-select-${autoId}`;
@@ -328,7 +395,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     for (const cat of categories) byId.set(cat.id, cat);
 
     for (const cat of categories) {
-      if (cat.parent_id == null) {
+      if (cat.parent_id == null || !byId.has(cat.parent_id)) {
         parentCategories.push(cat);
         continue;
       }
@@ -339,13 +406,20 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     return { parentCategories, childrenMap, byId };
   }, [categories]);
 
-  const isSearchEnabled = useMemo(() => enableSearch ?? categories.length > 10, [enableSearch, categories.length]);
-  const normalizedQuery = useMemo(() => query.trim().toLowerCase(), [query]);
+  const isSearchEnabled = useMemo(
+    () => enableSearch ?? (categories.length > 10 || searchMode === "manual" || minSearchLength > 0 || !!onSearchChange),
+    [categories.length, enableSearch, minSearchLength, onSearchChange, searchMode],
+  );
+  const trimmedQuery = useMemo(() => query.trim(), [query]);
+  const normalizedQuery = useMemo(() => trimmedQuery.toLowerCase(), [trimmedQuery]);
+  const queryMeetsMinimum = trimmedQuery.length >= minSearchLength;
+  const shouldPromptForSearch = minSearchLength > 0 && !queryMeetsMinimum && (searchMode === "manual" || showSearchPromptWhenEmptyQuery);
   const isSearchMode = isSearchEnabled && normalizedQuery.length > 0;
+  const shouldAutoExpandSearchResults = searchMode === "auto" && isSearchMode;
   const effectiveExpandedNodes = useMemo(() => getExpandedNodesState(expandedIds, expandedNodes), [expandedIds, expandedNodes]);
 
   const visibleIds = useMemo(() => {
-    if (!isSearchMode) return null;
+    if (shouldPromptForSearch || !isSearchMode || searchMode === "manual") return null;
 
     const matches = categories.filter((c) => c.name.toLowerCase().includes(normalizedQuery));
     if (matches.length === 0) return new Set<number>();
@@ -388,7 +462,17 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     }
 
     return visible;
-  }, [byId, categories, childrenMap, isSearchMode, normalizedQuery]);
+  }, [byId, categories, childrenMap, isSearchMode, normalizedQuery, searchMode, shouldPromptForSearch]);
+
+  useEffect(() => {
+    if (!onSearchChange) return;
+
+    const timeoutId = window.setTimeout(() => {
+      onSearchChange(trimmedQuery);
+    }, Math.max(0, searchDebounceMs));
+
+    return () => window.clearTimeout(timeoutId);
+  }, [onSearchChange, searchDebounceMs, trimmedQuery]);
 
   // Auto-focus search input when dropdown opens (when enabled)
   useEffect(() => {
@@ -405,7 +489,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   }, [disabled, required, valueArray.length]);
 
   const toggleExpand = (id: number) => {
-    if (isSearchMode) return;
+    if (shouldAutoExpandSearchResults) return;
     const newExpanded = new Set(effectiveExpandedNodes);
     if (newExpanded.has(id)) {
       newExpanded.delete(id);
@@ -478,26 +562,158 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     }
   };
 
-  const renderCategory = (category: Category, level: number = 0) => {
+  const effectiveParentCategories = useMemo(() => {
+    if (shouldPromptForSearch) return [];
+    if (!isSearchMode || searchMode === "manual") return parentCategories;
+    return parentCategories.filter((c) => visibleIds?.has(c.id));
+  }, [isSearchMode, parentCategories, searchMode, shouldPromptForSearch, visibleIds]);
+
+  const effectiveChildrenMap = useMemo(() => {
+    if (shouldPromptForSearch || !isSearchMode || !visibleIds || searchMode === "manual") return childrenMap;
+
+    const nextChildrenMap = new Map<number, Category[]>();
+    for (const [parentId, children] of childrenMap.entries()) {
+      nextChildrenMap.set(
+        parentId,
+        children.filter((child) => visibleIds.has(child.id)),
+      );
+    }
+    return nextChildrenMap;
+  }, [childrenMap, isSearchMode, searchMode, shouldPromptForSearch, visibleIds]);
+
+  const flattenedRows = useMemo(() => {
+    if (shouldPromptForSearch) return [];
+
+    const rows = flattenVisibleCategories(effectiveParentCategories, effectiveChildrenMap, effectiveExpandedNodes, shouldAutoExpandSearchResults);
+    if (trimmedQuery || maxInitialOptions === undefined || maxInitialOptions < 1) {
+      return rows;
+    }
+
+    const limitedRows = rows.slice(0, maxInitialOptions);
+    const includedIds = new Set(limitedRows.map((row) => row.category.id));
+    const pinnedIds = new Set<number>();
+
+    for (const selectedId of selectedIds) {
+      for (const ancestorId of getAncestorPathIds(categories, selectedId)) {
+        pinnedIds.add(ancestorId);
+      }
+    }
+
+    if (typeof expandToId === "number") {
+      for (const ancestorId of getAncestorPathIds(categories, expandToId)) {
+        pinnedIds.add(ancestorId);
+      }
+    }
+
+    for (const row of rows) {
+      if (!pinnedIds.has(row.category.id) || includedIds.has(row.category.id)) continue;
+      limitedRows.push(row);
+      includedIds.add(row.category.id);
+    }
+
+    return limitedRows;
+  }, [
+    categories,
+    effectiveChildrenMap,
+    effectiveExpandedNodes,
+    effectiveParentCategories,
+    expandToId,
+    maxInitialOptions,
+    selectedIds,
+    shouldAutoExpandSearchResults,
+    shouldPromptForSearch,
+    trimmedQuery,
+  ]);
+
+  const canVirtualize = virtualized && !inline && !viewOnly;
+  const treeVirtualizer = useVirtualizer({
+    count: canVirtualize ? flattenedRows.length : 0,
+    getScrollElement: () => dropdownViewportRef.current,
+    estimateSize: () => estimatedItemHeight,
+    initialRect: { width: 0, height: CATEGORY_TREE_DROPDOWN_MAX_HEIGHT },
+    overscan,
+    enabled: canVirtualize,
+  });
+  const virtualRows = canVirtualize ? treeVirtualizer.getVirtualItems() : [];
+
+  const scrollVirtualTreeToStart = () => {
+    if (!canVirtualize || flattenedRows.length === 0) return;
+    treeVirtualizer.scrollToIndex(0, { align: "start" });
+  };
+
+  const moveActiveVirtualRow = (direction: 1 | -1) => {
+    if (!canVirtualize || flattenedRows.length === 0) return;
+    const nextIndex = activeIndex === null
+      ? direction === 1 ? 0 : flattenedRows.length - 1
+      : (activeIndex + direction + flattenedRows.length) % flattenedRows.length;
+    setActiveIndex(nextIndex);
+    treeVirtualizer.scrollToIndex(nextIndex, { align: "auto" });
+  };
+
+  const handleVirtualTreeKeyDown = (event: React.KeyboardEvent) => {
+    if (!canVirtualize) return;
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      moveActiveVirtualRow(1);
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      moveActiveVirtualRow(-1);
+      return;
+    }
+
+    if (event.key === "Enter" && activeIndex !== null) {
+      const row = flattenedRows[activeIndex];
+      if (!row) return;
+      event.preventDefault();
+      handleSelect(row.category.id, row.category);
+    }
+  };
+
+  useEffect(() => {
+    setActiveIndex(null);
+  }, [flattenedRows]);
+
+  const renderCategoryRow = (category: Category, level: number = 0, virtualItem?: VirtualItem) => {
     const children = effectiveChildrenMap.get(category.id) || [];
     const hasChildren = children.length > 0;
-    const isExpanded = hasChildren && (isSearchMode || effectiveExpandedNodes.has(category.id));
+    const isExpanded = hasChildren && (shouldAutoExpandSearchResults || effectiveExpandedNodes.has(category.id));
     const isSelected = selectedIds.has(category.id);
     const isSelectable = !viewOnly && (!leafOnlySelect || !hasChildren);
+    const isActive = virtualItem?.index === activeIndex;
+    const rowStyle = virtualItem
+      ? {
+          position: "absolute" as const,
+          top: 0,
+          left: 0,
+          width: "100%",
+          transform: `translateY(${virtualItem.start}px)`,
+        }
+      : undefined;
 
     return (
       <div
         key={category.id}
-        className="min-w-0 animate-in fade-in-50 duration-200 [content-visibility:auto] [contain-intrinsic-size:44px]"
-        style={{ animationDelay: `${level * 30}ms` }}
+        ref={virtualItem ? treeVirtualizer.measureElement : undefined}
+        data-index={virtualItem?.index}
+        className={cn("min-w-0 [content-visibility:auto] [contain-intrinsic-size:44px]", !virtualItem && "animate-in fade-in-50 duration-200")}
+        style={{ animationDelay: virtualItem ? undefined : `${level * 30}ms`, ...rowStyle }}
       >
         <div
+          role="treeitem"
+          aria-level={level + 1}
+          aria-expanded={hasChildren ? isExpanded : undefined}
+          aria-selected={viewOnly ? undefined : isSelected}
           onClick={() => !viewOnly && handleSelect(category.id, category)}
           className={cn(
             "relative flex min-w-0 items-center px-3 py-2.5 min-h-11 transition-all duration-200 rounded-3xl",
             TREE_NODE_GAP_CLASS,
             !viewOnly && (isSelectable ? "cursor-pointer" : "cursor-default"),
             isSelectable && !isSelected && "hover:bg-accent/50",
+            canVirtualize && isActive && "bg-accent/50",
             // Selected state - đồng bộ cho tất cả
             !viewOnly && isSelected && "bg-accent/40",
           )}
@@ -509,6 +725,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           {hasChildren ? (
             <button
               type="button"
+              aria-label={isExpanded ? `Collapse ${category.name}` : `Expand ${category.name}`}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleExpand(category.id);
@@ -518,9 +735,9 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
                 "hover:scale-110 active:scale-95",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
                 isExpanded && "text-primary",
-                isSearchMode && "opacity-60 cursor-not-allowed hover:scale-100 active:scale-100",
+                shouldAutoExpandSearchResults && "opacity-60 cursor-not-allowed hover:scale-100 active:scale-100",
               )}
-              disabled={isSearchMode}
+              disabled={shouldAutoExpandSearchResults}
             >
               <div className={cn("transition-transform duration-200", isExpanded && "rotate-90")}>
                 <ChevronRight className="w-4 h-4" />
@@ -565,15 +782,16 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
         </div>
 
         {/* Children with animated container */}
-        {hasChildren && isExpanded && (
+        {!virtualItem && hasChildren && isExpanded && (
           <div
+            role="group"
             className={cn(
               TREE_BRANCH_OFFSET_CLASS,
               "border-l-2 border-dashed border-border/50",
               "animate-in slide-in-from-top-2 fade-in-50 duration-200",
             )}
           >
-            {children.map((child) => renderCategory(child, level + 1))}
+            {children.map((child) => renderCategoryRow(child, level + 1))}
           </div>
         )}
       </div>
@@ -590,7 +808,11 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           <input
             ref={searchInputRef}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              scrollVirtualTreeToStart();
+            }}
+            onKeyDown={handleVirtualTreeKeyDown}
             placeholder={mergedLabels.searchPlaceholder}
             className={cn(
               "peer w-full rounded-full bg-background/90 py-2.5 pl-10 pr-10 text-sm shadow-sm",
@@ -605,6 +827,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
               type="button"
               onClick={() => {
                 setQuery("");
+                scrollVirtualTreeToStart();
                 searchInputRef.current?.focus();
               }}
               className={cn(
@@ -623,26 +846,17 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     );
   };
 
-  const effectiveParentCategories = useMemo(() => {
-    if (!isSearchMode) return parentCategories;
-    return parentCategories.filter((c) => visibleIds?.has(c.id));
-  }, [isSearchMode, parentCategories, visibleIds]);
-
-  let effectiveChildrenMap = childrenMap;
-  if (isSearchMode && visibleIds) {
-    effectiveChildrenMap = new Map<number, Category[]>();
-    for (const [parentId, children] of childrenMap.entries()) {
-      effectiveChildrenMap.set(
-        parentId,
-        children.filter((child) => visibleIds.has(child.id)),
-      );
-    }
-  }
-
   // Render tree content
   const renderTreeContent = () => (
     <div className="space-y-0.5 overflow-x-hidden">
-      {effectiveParentCategories.length === 0 ? (
+      {shouldPromptForSearch ? (
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center mb-3">
+            <Search className="w-6 h-6 text-muted-foreground/50" />
+          </div>
+          <span className="text-sm text-muted-foreground">Type at least {minSearchLength} characters to search</span>
+        </div>
+      ) : effectiveParentCategories.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center mb-3">
             {isSearchMode ? <SearchX className="w-6 h-6 text-muted-foreground/50" /> : <Layers className="w-6 h-6 text-muted-foreground/50" />}
@@ -650,10 +864,44 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           <span className="text-sm text-muted-foreground">{isSearchMode ? mergedLabels.noResultsText : mergedLabels.emptyText}</span>
         </div>
       ) : (
-        effectiveParentCategories.map((cat) => renderCategory(cat))
+        effectiveParentCategories.map((cat) => renderCategoryRow(cat))
       )}
     </div>
   );
+
+  const renderVirtualTreeContent = () => {
+    if (shouldPromptForSearch) {
+      return (
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center mb-3">
+            <Search className="w-6 h-6 text-muted-foreground/50" />
+          </div>
+          <span className="text-sm text-muted-foreground">Type at least {minSearchLength} characters to search</span>
+        </div>
+      );
+    }
+
+    if (flattenedRows.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center mb-3">
+            {isSearchMode ? <SearchX className="w-6 h-6 text-muted-foreground/50" /> : <Layers className="w-6 h-6 text-muted-foreground/50" />}
+          </div>
+          <span className="text-sm text-muted-foreground">{isSearchMode ? mergedLabels.noResultsText : mergedLabels.emptyText}</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="relative overflow-x-hidden" style={{ height: `${treeVirtualizer.getTotalSize()}px` }}>
+        {virtualRows.map((virtualRow) => {
+          const row = flattenedRows[virtualRow.index];
+          if (!row) return null;
+          return renderCategoryRow(row.category, row.level, virtualRow);
+        })}
+      </div>
+    );
+  };
 
   const renderLabel = () =>
     label ? (
@@ -705,8 +953,10 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
         />
         <div
           id={resolvedId}
+          role="tree"
           aria-labelledby={labelId}
           aria-describedby={describedBy}
+          aria-multiselectable={singleSelect ? undefined : true}
           className={cn("rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-3 shadow-sm", disabled && "opacity-50")}
         >
           {renderSearch()}
@@ -737,8 +987,10 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
         />
         <div
           id={resolvedId}
+          role="tree"
           aria-labelledby={labelId}
           aria-describedby={describedBy}
+          aria-multiselectable={singleSelect ? undefined : true}
           className={cn("rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-3 shadow-sm", disabled && "opacity-50 pointer-events-none")}
         >
           {renderSearch()}
@@ -811,6 +1063,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     setIsOpen(nextOpen);
     if (!nextOpen) {
       setQuery("");
+      scrollVirtualTreeToStart();
     }
   };
 
@@ -837,14 +1090,19 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   }
 
   const dropdownBody = (
-    <div className="flex max-h-80 flex-col overflow-hidden">
+    <div className="flex flex-col overflow-hidden" style={{ maxHeight: CATEGORY_TREE_DROPDOWN_MAX_HEIGHT }}>
       {renderSearch({ sticky: false, className: "border-b border-border/30 p-2 pb-2" })}
       <div
         ref={dropdownViewportRef}
         id={`${resolvedId}-tree`}
+        role="tree"
+        aria-multiselectable={singleSelect ? undefined : true}
+        data-os-ignore={virtualized ? "" : undefined}
+        tabIndex={canVirtualize ? 0 : undefined}
+        onKeyDown={handleVirtualTreeKeyDown}
         className={cn("min-h-0 flex-1 overflow-auto overflow-x-hidden p-2 pt-2")}
       >
-        {renderTreeContent()}
+        {canVirtualize ? renderVirtualTreeContent() : renderTreeContent()}
       </div>
     </div>
   );
@@ -894,6 +1152,10 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
               if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") {
                 event.preventDefault();
                 handleOpenChange(!isOpen);
+                if (event.key === "ArrowDown" && canVirtualize && flattenedRows.length > 0) {
+                  setActiveIndex(0);
+                  treeVirtualizer.scrollToIndex(0, { align: "start" });
+                }
               }
             }}
             className={cn(

@@ -1,6 +1,7 @@
 "use client";
 
 import { Table, TableHeader } from "../Table";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { useOverlayScrollbarTarget } from "../OverlayScrollbarProvider";
 import { cn } from "../../utils/cn";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
@@ -120,6 +121,9 @@ export function DataTable<T extends Record<string, any>>({
   horizontalMode = "auto",
   overflowHidden = true,
   useOverlayScrollbar = false,
+  virtualizedRows = false,
+  estimatedRowHeight,
+  overscan = 8,
   enableHeaderAutoFit = true,
   labels,
 }: DataTableProps<T>) {
@@ -181,6 +185,7 @@ export function DataTable<T extends Record<string, any>>({
   }, [columns, isServerMode, pageSizeOptions, rowKey]);
 
   const densityRowClass = density === "compact" ? "h-9" : density === "comfortable" ? "h-14" : "h-12";
+  const defaultEstimatedRowHeight = density === "compact" ? 36 : density === "comfortable" ? 56 : 48;
   const cellPadding = density === "compact" ? "py-1.5 px-3" : density === "comfortable" ? "py-3 px-4" : "py-2.5 px-4";
   const headerTitleClass = size === "sm" ? "text-xs" : size === "lg" ? "text-[15px]" : "text-sm";
   const headerMinHeightClass = size === "sm" ? "min-h-9" : size === "lg" ? "min-h-11" : "min-h-10";
@@ -212,8 +217,26 @@ export function DataTable<T extends Record<string, any>>({
 
   const viewportRef = React.useRef<HTMLDivElement>(null);
   const tableRef = React.useRef<HTMLTableElement>(null);
+  const canVirtualizeRows = virtualizedRows && !loading && displayedData.length > 0;
+  const rowVirtualizer = useVirtualizer({
+    count: canVirtualizeRows ? displayedData.length : 0,
+    getScrollElement: () => viewportRef.current,
+    estimateSize: () => estimatedRowHeight ?? defaultEstimatedRowHeight,
+    initialRect: {
+      width: 0,
+      height: typeof maxHeight === "number" ? maxHeight : 500,
+    },
+    overscan,
+    enabled: canVirtualizeRows,
+  });
+  const virtualRows = canVirtualizeRows ? rowVirtualizer.getVirtualItems() : [];
+  const virtualPaddingTop = canVirtualizeRows && virtualRows.length > 0 ? virtualRows[0]?.start ?? 0 : 0;
+  const virtualPaddingBottom = canVirtualizeRows && virtualRows.length > 0
+    ? Math.max(0, rowVirtualizer.getTotalSize() - (virtualRows[virtualRows.length - 1]?.end ?? 0))
+    : 0;
+
   useOverlayScrollbarTarget(viewportRef, {
-    enabled: useOverlayScrollbar,
+    enabled: useOverlayScrollbar && !canVirtualizeRows,
     overflowX: overlayOverflowX,
   });
 
@@ -279,9 +302,10 @@ export function DataTable<T extends Record<string, any>>({
           loading && "opacity-60 pointer-events-none",
         )}
       >
-        <div
-          ref={viewportRef}
-          className={cn("w-full", viewportOverflowXClass, stickyHeader && "overflow-y-auto")}
+          <div
+            ref={viewportRef}
+            data-os-ignore={canVirtualizeRows ? "" : undefined}
+            className={cn("w-full", viewportOverflowXClass, stickyHeader && "overflow-y-auto")}
           style={stickyHeader ? { maxHeight: typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight } : undefined}
         >
           <Table
@@ -329,6 +353,10 @@ export function DataTable<T extends Record<string, any>>({
               getStickyCellClass={getStickyCellClass}
               t={t}
               labels={labels}
+              virtualRows={canVirtualizeRows ? virtualRows : undefined}
+              virtualPaddingTop={canVirtualizeRows ? virtualPaddingTop : undefined}
+              virtualPaddingBottom={canVirtualizeRows ? virtualPaddingBottom : undefined}
+              measureVirtualRow={canVirtualizeRows ? rowVirtualizer.measureElement : undefined}
             />
           </Table>
         </div>

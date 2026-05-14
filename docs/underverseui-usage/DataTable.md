@@ -118,6 +118,9 @@ interface DataTableProps<T> {
   overflowHidden?: boolean;
   /** Enable OverlayScrollbars on table viewport. Default: false */
   useOverlayScrollbar?: boolean;
+  virtualizedRows?: boolean; // Virtualize body rows for large page sizes
+  estimatedRowHeight?: number; // Defaults to density row height
+  overscan?: number; // Default: 8
   labels?: {
     density?: string;
     columns?: string;
@@ -197,6 +200,26 @@ Khi cần header sticky + cuộn dọc nhưng không muốn có track cuộn nga
 ```
 
 Mode này phù hợp cho các bảng ít cột hoặc dashboard summary, nơi bạn muốn bảng bám đúng chiều ngang container.
+
+### Virtualized Rows
+
+Khi một page cần hiển thị hàng trăm hoặc hàng nghìn dòng, bật `virtualizedRows` để chỉ mount các row đang nằm trong viewport.
+
+```tsx
+<DataTable
+  columns={columns}
+  data={rows}
+  rowKey="id"
+  pageSize={1000}
+  stickyHeader
+  maxHeight={520}
+  virtualizedRows
+  estimatedRowHeight={48}
+  overscan={10}
+/>
+```
+
+Khi `virtualizedRows` bật, `DataTable` sẽ bỏ qua OverlayScrollbars trên viewport để tránh conflict với virtualizer-managed scroll state. Nếu dữ liệu đang paginate nhỏ, ví dụ `pageSize={20}`, thường chưa cần bật virtualization.
 
 ## DataTableColumn
 
