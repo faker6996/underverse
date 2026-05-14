@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { Popover } from "./Popover";
 import Input from "./Input";
 import { Slider } from "./Slider";
@@ -254,6 +255,7 @@ export default function ColorPicker({
   maxRecent = 8,
   ...rest
 }: ColorPickerProps) {
+  const gi18n = useGlobalI18n();
   const isControlled = value !== undefined;
   const initial = parseAnyColor(isControlled ? value! : defaultValue) || { r: 79, g: 70, b: 229, a: 1 };
   const [rgba, setRgba] = React.useState<RGBA>(initial);
@@ -370,7 +372,7 @@ export default function ColorPicker({
         disabled && "opacity-50 cursor-not-allowed",
         triggerClassName,
       )}
-      aria-label="Open color picker"
+      aria-label={gi18n.openColorPicker ?? "Open color picker"}
     >
       <div className="flex items-center gap-2">
         <span
@@ -480,7 +482,7 @@ export default function ColorPicker({
                 step={1}
                 value={alphaPct}
                 onChange={(v) => setAlpha(v)}
-                label="Alpha"
+                label={gi18n.alphaLabel ?? "Alpha"}
                 showValue
                 formatValue={(v) => `${v}%`}
                 size="sm"

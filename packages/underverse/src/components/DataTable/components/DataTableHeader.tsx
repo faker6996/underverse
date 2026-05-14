@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Filter as FilterIcon } from "lucide-react";
+import { useGlobalI18n } from "../../../contexts/GlobalI18nContext";
 import { Combobox } from "../../Combobox";
 import { DatePicker } from "../../DatePicker";
 import Input from "../../Input";
@@ -71,6 +72,7 @@ export function DataTableHeader<T extends Record<string, any>>({
   sortByLabel?: string;
   t: (key: string) => string;
 }) {
+  const gi18n = useGlobalI18n();
   const renderFilterControl = React.useCallback(
     (col: DataTableColumn<T>) => {
       if (!col.filter) return null;
@@ -148,7 +150,7 @@ export function DataTableHeader<T extends Record<string, any>>({
       const isRightAlign = col.align === "right" || (!col.align && headerAlign === "right");
       const isCenterAlign = col.align === "center" || (!col.align && headerAlign === "center");
       const columnLabel = getColumnLabel(col.title) || col.key;
-      const sortByText = sortByLabel ?? "Sort by";
+      const sortByText = sortByLabel ?? gi18n.sortBy ?? "Sort by";
       const sortLabel = `${sortByText} ${columnLabel}`;
 
       const titleContent = (
@@ -207,16 +209,16 @@ export function DataTableHeader<T extends Record<string, any>>({
             <span className="inline-flex">
               <Tooltip
                 placement="top"
-                content={<span className="text-xs font-medium">{`Filter by ${columnLabel}`}</span>}
+                content={<span className="text-xs font-medium">{gi18n.filterByColumn ? gi18n.filterByColumn(columnLabel) : `Filter by ${columnLabel}`}</span>}
               >
                 <button
                   type="button"
-                  title={`Filter by ${columnLabel}`}
+                  title={gi18n.filterByColumn ? gi18n.filterByColumn(columnLabel) : `Filter by ${columnLabel}`}
                   className={cn(
                     "p-1.5 rounded-lg transition-all duration-200 hover:bg-accent",
                     filters[col.key] ? "bg-accent text-primary" : "text-muted-foreground",
                   )}
-                  aria-label={`Filter by ${columnLabel}`}
+                  aria-label={gi18n.filterByColumn ? gi18n.filterByColumn(columnLabel) : `Filter by ${columnLabel}`}
                 >
                   <FilterIcon className="w-4 h-4" />
                 </button>
@@ -321,7 +323,7 @@ export function DataTableHeader<T extends Record<string, any>>({
                   >
                     <button
                       type="button"
-                      aria-label={`Auto fit ${String(col.title)}`}
+                      aria-label={gi18n.autoFitColumn ? gi18n.autoFitColumn(String(col.title)) : `Auto fit ${String(col.title)}`}
                       onClick={(event) => {
                         event.preventDefault();
                         event.stopPropagation();

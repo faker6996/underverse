@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils/cn";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 
 let NextLink: React.ComponentType<{ href: string; className?: string; children: React.ReactNode }> | null = null;
 try {
@@ -71,6 +72,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
   homeHref = "/",
   collapsible = true,
 }) => {
+  const gi18n = useGlobalI18n();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   React.useEffect(() => {
@@ -121,7 +123,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
   };
 
   return (
-    <nav className={cn("flex w-full items-center", sizeStyles[size].text, className)} aria-label="Breadcrumb navigation">
+    <nav className={cn("flex w-full items-center", sizeStyles[size].text, className)} aria-label={gi18n.breadcrumbNavigation ?? "Breadcrumb navigation"}>
       <ol className={cn("flex items-center", sizeStyles[size].spacing)}>
         {processedItems.map((item, index) => {
           const isLast = index === processedItems.length - 1;
@@ -139,7 +141,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
                     sizeStyles[size].padding,
                     "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
                   )}
-                  aria-label="Show all breadcrumb items"
+                  aria-label={gi18n.showAllBreadcrumbs ?? "Show all breadcrumb items"}
                 >
                   <MoreHorizontal className={sizeStyles[size].icon} />
                 </button>

@@ -5,6 +5,7 @@ import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
 import { ChevronRight, ChevronDown, FolderTree, Layers, Search, SearchX, X } from "lucide-react";
 import { cn } from "../utils/cn";
 import { useSmartTranslations } from "../hooks/useSmartTranslations";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { Label } from "./label";
 import { Popover } from "./Popover";
@@ -317,12 +318,13 @@ function flattenVisibleCategories(
  */
 export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   const tv = useSmartTranslations("ValidationInput");
+  const gi18n = useGlobalI18n();
   const {
     id,
     label,
     labelClassName,
     categories,
-    placeholder = "Select category",
+    placeholder: placeholderProp,
     disabled,
     required = false,
     size = "md",
@@ -377,8 +379,16 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   const errorId = effectiveError ? `${resolvedId}-error` : undefined;
   const describedBy = errorId || helperId;
 
-  // Merge user labels with defaults
-  const mergedLabels = { ...defaultLabels, ...labels };
+  const placeholder = placeholderProp ?? gi18n.selectCategoryPlaceholder ?? gi18n.selectPlaceholder ?? "Select category";
+
+  // Merge: hardcoded defaults ← gi18n global config ← per-instance labels prop
+  const gi18nLabels: Required<CategoryTreeSelectLabels> = {
+    emptyText: gi18n.noCategories ?? defaultLabels.emptyText,
+    selectedText: gi18n.selectedCount ?? defaultLabels.selectedText,
+    searchPlaceholder: gi18n.searchPlaceholder ?? defaultLabels.searchPlaceholder,
+    noResultsText: gi18n.noResults ?? defaultLabels.noResultsText,
+  };
+  const mergedLabels = { ...gi18nLabels, ...labels };
 
   // Normalize value to array for internal use
   const valueArray = useMemo<number[]>(
@@ -725,7 +735,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           {hasChildren ? (
             <button
               type="button"
-              aria-label={isExpanded ? `Collapse ${category.name}` : `Expand ${category.name}`}
+              aria-label={gi18n.toggleCategory ? gi18n.toggleCategory(category.name, isExpanded) : isExpanded ? `Collapse ${category.name}` : `Expand ${category.name}`}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleExpand(category.id);
@@ -836,7 +846,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
                 "text-muted-foreground/80 hover:text-foreground hover:bg-muted transition-colors",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
               )}
-              aria-label="Clear search"
+              aria-label={gi18n.clearSearch ?? "Clear search"}
             >
               <X className="h-4 w-4" />
             </button>
@@ -1194,7 +1204,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
               {allowClear && selectedCount > 0 && !disabled && (
                 <button
                   type="button"
-                  aria-label="Clear selection"
+                  aria-label={gi18n.clearSelection ?? "Clear selection"}
                   onClick={handleClear}
                   className={cn(
                     "opacity-0 group-hover:opacity-100 transition-all duration-200",

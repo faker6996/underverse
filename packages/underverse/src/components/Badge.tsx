@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "../utils/cn";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 
 /** Public props for the `Badge` component. */
 interface BadgeProps {
@@ -94,6 +95,7 @@ export const Badge: React.FC<BadgeProps> = ({
   clickable = false,
   onClick,
 }) => {
+  const gi18n = useGlobalI18n();
   const isCountBadge = typeof count === "number";
   const shouldShowCount = isCountBadge && (count > 0 || showZero);
   const displayCount = count && count > maxCount ? `${maxCount}+` : count;
@@ -190,7 +192,7 @@ export const Badge: React.FC<BadgeProps> = ({
             size === "lg" && "h-4 w-4",
             size === "xl" && "h-5 w-5",
           )}
-          aria-label="Remove badge"
+          aria-label={gi18n.removeBadge ?? "Remove badge"}
         >
           <svg className="h-full w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

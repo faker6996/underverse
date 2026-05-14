@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ChevronDown, GripVertical } from "lucide-react";
 import { cn } from "../../utils/cn";
+import { useGlobalI18n } from "../../contexts/GlobalI18nContext";
 import type { CalendarTimelineGroup, CalendarTimelineResource } from "./types";
 import type { CalendarTimelineSizeConfig } from "./config";
 
@@ -51,6 +52,7 @@ export function ResourceRowCell<TResourceMeta>(props: {
   beginResizeResourceRow: (resourceId: string) => (e: React.PointerEvent) => void;
   renderResource?: (resource: CalendarTimelineResource<TResourceMeta>) => React.ReactNode;
 }) {
+  const gi18n = useGlobalI18n();
   const { resource, sizeConfig, canResizeRow, beginResizeResourceRow, renderResource } = props;
 
   return (
@@ -72,7 +74,7 @@ export function ResourceRowCell<TResourceMeta>(props: {
         <div
           role="separator"
           aria-orientation="horizontal"
-          aria-label="Resize row height"
+          aria-label={gi18n.resizeRowHeight ?? "Resize row height"}
           className={cn(
             "absolute left-0 bottom-0 w-full h-3 cursor-row-resize z-20",
             "bg-transparent hover:bg-primary/10 active:bg-primary/15",

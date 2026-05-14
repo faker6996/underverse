@@ -3,6 +3,7 @@
 import * as React from "react";
 import { createTranslator, useLocale, useMessages } from "next-intl";
 import type { Locale } from "./TranslationContext";
+import { GlobalI18nProvider, type GlobalI18nConfig } from "./GlobalI18nContext";
 
 function normalizeLocale(locale: string | null | undefined, fallback: Locale): Locale {
   const normalized = locale?.toLowerCase().split("-")[0];
@@ -30,6 +31,8 @@ export interface NextIntlAdapterProps {
   children: React.ReactNode;
   locale?: string | null;
   messages?: Record<string, unknown> | null;
+  /** Global flat label overrides — lets callers skip per-component prop drilling for common strings. */
+  i18n?: GlobalI18nConfig;
 }
 
 function isMissingIntlContextError(error: unknown) {
@@ -138,20 +141,20 @@ function NextIntlAdapterWithContext({ children }: { children: React.ReactNode })
   );
 }
 
-export function NextIntlAdapter({ children, locale, messages }: NextIntlAdapterProps) {
-  if (locale && messages) {
-    return (
+export function NextIntlAdapter({ children, locale, messages, i18n }: NextIntlAdapterProps) {
+  const inner = locale && messages
+    ? (
       <NextIntlAdapterProvider locale={locale} messages={messages}>
         {children}
       </NextIntlAdapterProvider>
+    )
+    : (
+      <NextIntlAdapterBoundary fallback={children}>
+        <NextIntlAdapterWithContext>{children}</NextIntlAdapterWithContext>
+      </NextIntlAdapterBoundary>
     );
-  }
 
-  return (
-    <NextIntlAdapterBoundary fallback={children}>
-      <NextIntlAdapterWithContext>{children}</NextIntlAdapterWithContext>
-    </NextIntlAdapterBoundary>
-  );
+  return <GlobalI18nProvider i18n={i18n}>{inner}</GlobalI18nProvider>;
 }
 
 export const UnderverseNextIntlProvider = NextIntlAdapter;

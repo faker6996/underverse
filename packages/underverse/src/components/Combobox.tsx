@@ -5,6 +5,7 @@ import { useId } from "react";
 import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
 import { cn } from "../utils/cn";
 import { useSmartTranslations } from "../hooks/useSmartTranslations";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { ChevronDown, Search, SearchX, Check, X } from "lucide-react";
 import { useShadCNAnimations } from "../utils/animations";
 import { Popover } from "./Popover";
@@ -113,9 +114,9 @@ export const Combobox: React.FC<ComboboxProps> = ({
   options,
   value,
   onChange,
-  placeholder = "Select…",
-  searchPlaceholder = "Search…",
-  emptyText = "No results found",
+  placeholder: placeholderProp,
+  searchPlaceholder: searchPlaceholderProp,
+  emptyText: emptyTextProp,
   className,
   disabled = false,
   size = "md",
@@ -127,7 +128,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   required,
   fontBold = false,
   loading = false,
-  loadingText = "Loading...",
+  loadingText: loadingTextProp,
   showSelectedIcon = true,
   maxHeight = 280,
   groupBy,
@@ -148,6 +149,11 @@ export const Combobox: React.FC<ComboboxProps> = ({
   showSearchPromptWhenEmptyQuery = false,
 }) => {
   const tv = useSmartTranslations("ValidationInput");
+  const gi18n = useGlobalI18n();
+  const placeholder = placeholderProp ?? gi18n.selectPlaceholder ?? "Select…";
+  const searchPlaceholder = searchPlaceholderProp ?? gi18n.searchPlaceholder ?? "Search…";
+  const emptyText = emptyTextProp ?? gi18n.noResults ?? "No results found";
+  const loadingText = loadingTextProp ?? gi18n.loading ?? "Loading...";
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
@@ -636,7 +642,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
           <div
             role="button"
             tabIndex={0}
-            aria-label="Clear selection"
+            aria-label={gi18n.clearSelection ?? "Clear selection"}
             onClick={handleClear}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {

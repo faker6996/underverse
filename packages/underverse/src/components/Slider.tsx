@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils/cn";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 
 /** Public props for the `Slider` component. */
 interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "size"> {
@@ -131,6 +132,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
     },
     ref,
   ) => {
+    const gi18n = useGlobalI18n();
     const isRange = mode === "range";
     const trackRef = React.useRef<HTMLDivElement>(null);
     const [internalValue, setInternalValue] = React.useState<number>(defaultValue);
@@ -464,7 +466,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
                   onMouseUp={onMouseUp}
                   onTouchEnd={onTouchEnd}
                   disabled={disabled}
-                  aria-label="Minimum value"
+                  aria-label={gi18n.minimumValue ?? "Minimum value"}
                   onPointerDown={() => setActiveThumb("min")}
                   onFocus={() => setActiveThumb("min")}
                   className={cn(baseInputClassName, minZ, "pointer-events-none")}
@@ -480,7 +482,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
                   onMouseUp={onMouseUp}
                   onTouchEnd={onTouchEnd}
                   disabled={disabled}
-                  aria-label="Maximum value"
+                  aria-label={gi18n.maximumValue ?? "Maximum value"}
                   onPointerDown={() => setActiveThumb("max")}
                   onFocus={() => setActiveThumb("max")}
                   className={cn(baseInputClassName, maxZ, "pointer-events-none")}

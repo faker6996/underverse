@@ -13,6 +13,7 @@ Underverse UI là thư viện UI components cho React/Next.js với hỗ trợ �
 ### 🚀 Getting Started
 
 - [TranslationProvider](./TranslationProvider.md) - i18n context cho Standalone React
+- [GlobalI18nConfig](./GlobalI18n.md) - Override toàn bộ label tiếng Anh hardcoded (50+ key)
 
 ### 🎨 Design System
 
@@ -56,32 +57,33 @@ Underverse UI là thư viện UI components cho React/Next.js với hỗ trợ �
 | Component                                     | Description           | i18n |
 | --------------------------------------------- | --------------------- | ---- |
 | [DatePicker](./DatePicker.md)                 | Date picker           | ✅   |
-| [TimePicker](./TimePicker.md)                 | Time picker           | -    |
+| [TimePicker](./TimePicker.md)                 | Time picker           | ✅ᵍ  |
 | [Calendar](./Calendar.md)                     | Full calendar view    | -    |
 | [CalendarTimeline](./CalendarTimeline.md)     | Resource timeline     | ✅   |
-| [Combobox](./Combobox.md)                     | Searchable select     | -    |
-| [MultiCombobox](./MultiCombobox.md)           | Multi-select combobox | -    |
-| [CategoryTreeSelect](./CategoryTreeSelect.md) | Tree select           | -    |
-| [ColorPicker](./ColorPicker.md)               | Color picker          | -    |
+| [Combobox](./Combobox.md)                     | Searchable select     | ✅ᵍ  |
+| [MultiCombobox](./MultiCombobox.md)           | Multi-select combobox | ✅ᵍ  |
+| [CategoryTreeSelect](./CategoryTreeSelect.md) | Tree select           | ✅ᵍ  |
+| [ColorPicker](./ColorPicker.md)               | Color picker          | ✅ᵍ  |
+| [MonthYearPicker](./MonthYearPicker.md)       | Month/Year picker     | ✅ᵍ  |
 
 ### Feedback & Overlays
 
 | Component                                   | Description                     | i18n |
 | ------------------------------------------- | ------------------------------- | ---- |
-| [Modal](./Modal.md)                         | Modal dialog (+ Portal support) | -    |
-| [Toast](./Toast.md)                         | Toast notifications             | -    |
+| [Modal](./Modal.md)                         | Modal dialog (+ Portal support) | ✅ᵍ  |
+| [Toast](./Toast.md)                         | Toast notifications             | ✅ᵍ  |
 | [Tooltip](./Tooltip.md)                     | Tooltip                         | -    |
 | [Popover](./Popover.md)                     | Popover                         | -    |
-| [Sheet](./Sheet.md)                         | Slide-over panels               | -    |
+| [Sheet](./Sheet.md)                         | Slide-over panels               | ✅ᵍ  |
 | [Alert](./Alert.md)                         | Alert messages                  | ✅   |
-| [GlobalLoading](./GlobalLoading.md)         | Loading indicators              | ✅   |
+| [GlobalLoading](./GlobalLoading.md)         | Loading indicators              | ✅ᵍ  |
 | [NotificationModal](./NotificationModal.md) | Notification modal              | ✅   |
 
 ### Navigation & Structure
 
 | Component                         | Description           | i18n |
 | --------------------------------- | --------------------- | ---- |
-| [Breadcrumb](./Breadcrumb.md)     | Breadcrumb navigation | -    |
+| [Breadcrumb](./Breadcrumb.md)     | Breadcrumb navigation | ✅ᵍ  |
 | [Tabs](./Tabs.md)                 | Tab navigation        | -    |
 | [DropdownMenu](./DropdownMenu.md) | Dropdown menu         | -    |
 | [Pagination](./Pagination.md)     | Pagination controls   | ✅   |
@@ -98,6 +100,8 @@ Underverse UI là thư viện UI components cho React/Next.js với hỗ trợ �
 | [List](./List.md)           | List component      | -    |
 | [Grid](./Grid.md)           | Grid layout         | -    |
 | [Timeline](./Timeline.md)   | Timeline display    | -    |
+| [Slider](./Slider.md)       | Range slider        | ✅ᵍ  |
+| [Progress](./Progress.md)   | Progress / Battery  | ✅ᵍ  |
 
 ### Media
 
@@ -105,7 +109,8 @@ Underverse UI là thư viện UI components cho React/Next.js với hỗ trợ �
 | --------------------------------- | ----------------------- | ---- |
 | [SmartImage](./SmartImage.md)     | Optimized image         | -    |
 | [ImageUpload](./ImageUpload.md)   | Image upload            | ✅   |
-| [Carousel](./Carousel.md)         | Image carousel          | -    |
+| [FileUpload](./FileUpload.md)     | File upload             | ✅ᵍ  |
+| [Carousel](./Carousel.md)         | Image carousel          | ✅ᵍ  |
 | [FallingIcons](./FallingIcons.md) | Falling icons animation | -    |
 | [Watermark](./Watermark.md)       | Watermark overlay       | -    |
 | [MusicPlayer](./MusicPlayer.md)   | Music player            | -    |
@@ -124,9 +129,28 @@ Underverse UI là thư viện UI components cho React/Next.js với hỗ trợ �
 
 ---
 
-## i18n Components
+## i18n
 
-Components với i18n support tự động:
+### GlobalI18nConfig (✅ᵍ) — label override toàn cục
+
+Tất cả component đánh dấu **✅ᵍ** đều đọc từ `GlobalI18nConfig` — truyền một lần qua `i18n` prop trên provider, áp dụng cho toàn app:
+
+```tsx
+<NextIntlAdapter i18n={{ searchPlaceholder: "Tìm kiếm...", noResults: "Không có kết quả" }}>
+  ...
+</NextIntlAdapter>
+
+// hoặc Standalone React:
+<TranslationProvider locale="vi" i18n={{ searchPlaceholder: "Tìm kiếm..." }}>
+  ...
+</TranslationProvider>
+```
+
+→ [Xem đầy đủ 50+ key và ví dụ tiếng Việt](./GlobalI18n.md)
+
+### TranslationProvider / NextIntlAdapter (✅) — namespace-based
+
+Components với i18n namespace tự động (đọc từ locale files):
 
 | Component         | Namespace         | Keys                                    |
 | ----------------- | ----------------- | --------------------------------------- |

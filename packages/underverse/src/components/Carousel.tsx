@@ -4,6 +4,7 @@ import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Button from "./Button";
 import { cn } from "../utils/cn";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 
 type AnimationVariant = "slide" | "fade" | "scale" | "coverflow" | "stack";
 type Orientation = "horizontal" | "vertical";
@@ -69,6 +70,7 @@ export function Carousel({
   effectPreset,
   effectOptions,
 }: CarouselProps) {
+  const gi18n = useGlobalI18n();
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [isPaused, setIsPaused] = React.useState(false);
   // Progress bar handled via rAF to avoid frequent React state updates
@@ -552,7 +554,7 @@ export function Carousel({
               "max-md:h-8 max-md:w-8 max-md:border max-md:border-border/60 max-md:bg-background/75 max-md:backdrop-blur-sm max-md:shadow-sm",
               isHorizontal ? "left-4 max-md:left-2" : "top-4 left-1/2 -translate-x-1/2 rotate-90 max-md:top-2",
             )}
-            aria-label="Previous slide"
+            aria-label={gi18n.prevSlide ?? "Previous slide"}
           />
 
           <Button
@@ -567,7 +569,7 @@ export function Carousel({
               "max-md:h-8 max-md:w-8 max-md:border max-md:border-border/60 max-md:bg-background/75 max-md:backdrop-blur-sm max-md:shadow-sm",
               isHorizontal ? "right-4 max-md:right-2" : "bottom-4 left-1/2 -translate-x-1/2 rotate-90 max-md:bottom-2",
             )}
-            aria-label="Next slide"
+            aria-label={gi18n.nextSlide ?? "Next slide"}
           />
         </>
       )}
@@ -580,7 +582,7 @@ export function Carousel({
             isHorizontal ? "bottom-4 left-1/2 -translate-x-1/2 flex-row max-md:bottom-2" : "right-4 top-1/2 -translate-y-1/2 flex-col max-md:right-2",
           )}
           role="tablist"
-          aria-label="Carousel pagination"
+          aria-label={gi18n.carouselPagination ?? "Carousel pagination"}
         >
           {Array.from({ length: maxIndex + 1 }, (_, idx) => (
             <button
@@ -594,7 +596,7 @@ export function Carousel({
                   ? `bg-primary ${isHorizontal ? "w-6 max-md:w-4" : "h-6 max-md:h-4"}`
                   : "bg-muted-foreground/50 hover:bg-muted-foreground/75",
               )}
-              aria-label={`Go to slide ${idx + 1}`}
+              aria-label={gi18n.goToSlide ? gi18n.goToSlide(idx + 1) : `Go to slide ${idx + 1}`}
               aria-selected={idx === currentIndex}
               role="tab"
             />
@@ -621,7 +623,7 @@ export function Carousel({
                 "max-md:w-12 max-md:h-12",
                 idx === currentIndex ? "border-primary md:scale-110" : "border-transparent opacity-70 hover:opacity-100",
               )}
-              aria-label={`Thumbnail ${idx + 1}`}
+              aria-label={gi18n.carouselThumbnail ? gi18n.carouselThumbnail(idx + 1) : `Thumbnail ${idx + 1}`}
             >
               {thumbnailRenderer ? thumbnailRenderer(child, idx) : child}
             </button>

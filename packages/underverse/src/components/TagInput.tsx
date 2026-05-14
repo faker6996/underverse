@@ -4,6 +4,7 @@ import React, { forwardRef, useState, useRef, useId } from "react";
 import { cn } from "../utils/cn";
 import { X, Search, Loader2 } from "lucide-react";
 import Button from "./Button";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 
 /** Public props for the `TagInput` component. */
 export interface TagInputProps {
@@ -89,6 +90,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
     ref,
   ) => {
     const [inputValue, setInputValue] = useState("");
+    const gi18n = useGlobalI18n();
     const [isFocused, setIsFocused] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const autoId = useId();
@@ -278,7 +280,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
                   "focus:outline-none focus-visible:ring-1 focus-visible:ring-primary",
                   "disabled:pointer-events-none",
                 )}
-                aria-label={`Remove ${tag}`}
+                aria-label={gi18n.removeTag ? gi18n.removeTag(tag) : `Remove ${tag}`}
               >
                 <X className={sizeStyles[size].tagIcon} />
               </button>

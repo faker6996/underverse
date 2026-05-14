@@ -5,6 +5,7 @@ import { useId } from "react";
 import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
 import { cn } from "../utils/cn";
 import { useSmartTranslations } from "../hooks/useSmartTranslations";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { ChevronDown, Search, Check, SearchX, Loader2, X, Sparkles } from "lucide-react";
 import { useShadCNAnimations } from "../utils/animations";
 import { Popover } from "./Popover";
@@ -97,8 +98,8 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   options,
   value,
   onChange,
-  placeholder = "Select...",
-  searchPlaceholder = "Search...",
+  placeholder: placeholderProp,
+  searchPlaceholder: searchPlaceholderProp,
   maxSelected,
   disabledOptions = [],
   showTags = true,
@@ -113,8 +114,8 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   required,
   displayFormat = (option) => option.label,
   loading = false,
-  loadingText = "Loading...",
-  emptyText = "No results found",
+  loadingText: loadingTextProp,
+  emptyText: emptyTextProp,
   showSelectedIcons = true,
   maxHeight = 280,
   groupBy,
@@ -136,6 +137,11 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   showSearchPromptWhenEmptyQuery = false,
 }) => {
   const tv = useSmartTranslations("ValidationInput");
+  const gi18n = useGlobalI18n();
+  const placeholder = placeholderProp ?? gi18n.selectPlaceholder ?? "Select...";
+  const searchPlaceholder = searchPlaceholderProp ?? gi18n.searchPlaceholder ?? "Search...";
+  const loadingText = loadingTextProp ?? gi18n.loading ?? "Loading...";
+  const emptyText = emptyTextProp ?? gi18n.noResults ?? "No results found";
   const [query, setQuery] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
@@ -447,7 +453,13 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
       {value.length > 0 && (
         <div className="px-3 py-2 border-b border-border/40 flex items-center justify-between bg-muted/30">
           <span className="text-xs font-medium text-muted-foreground">
-            {value.length} selected{maxSelected && ` / ${maxSelected} max`}
+            {maxSelected
+              ? (gi18n.selectedCountWithMax
+                ? gi18n.selectedCountWithMax(value.length, maxSelected)
+                : `${value.length} / ${maxSelected} max`)
+              : (gi18n.itemSelectedCount
+                ? gi18n.itemSelectedCount(value.length)
+                : `${value.length} selected`)}
           </span>
           {showClear && (
             <button
@@ -460,7 +472,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
               className="text-xs text-muted-foreground hover:text-destructive transition-colors cursor-pointer flex items-center gap-1"
             >
               <X className="w-3 h-3" />
-              Clear all
+              {gi18n.clearAll ?? "Clear all"}
             </button>
           )}
         </div>
@@ -657,13 +669,15 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
               })}
               {hiddenCount > 0 && (
                 <span className={cn("inline-flex items-center bg-muted text-muted-foreground rounded-lg shrink-0", sizeStyles[size].tag)}>
-                  +{hiddenCount} more
+                  {gi18n.moreCount ? gi18n.moreCount(hiddenCount) : `+${hiddenCount} more`}
                 </span>
               )}
             </>
           ) : (
             <span className="truncate text-sm font-medium">
-              {value.length} item{value.length > 1 ? "s" : ""} selected
+              {gi18n.selectedCount
+                ? gi18n.selectedCount(value.length)
+                : `${value.length} item${value.length > 1 ? "s" : ""} selected`}
             </span>
           )
         ) : (
@@ -675,7 +689,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
           <div
             role="button"
             tabIndex={0}
-            aria-label="Clear all"
+            aria-label={gi18n.clearAll ?? "Clear all"}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();

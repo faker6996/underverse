@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
 import { cn } from "../utils/cn";
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 
 type ToastType = "success" | "error" | "warning" | "info";
 type ToastPosition = "top-right" | "top-left" | "bottom-right" | "bottom-left" | "top-center" | "bottom-center";
@@ -95,6 +96,7 @@ interface ToastComponentProps {
 }
 
 const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
+  const gi18n = useGlobalI18n();
   const [isVisible, setIsVisible] = useState(true);
   const [progress, setProgress] = useState(100);
   const [paused, setPaused] = useState(false);
@@ -208,7 +210,7 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onRemove }) => {
               "rounded-lg p-1 hover:bg-accent hover:text-accent-foreground",
               "transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50",
             )}
-            aria-label="Close toast"
+            aria-label={gi18n.closeToast ?? "Close toast"}
           >
             <X className="h-4 w-4" />
           </button>

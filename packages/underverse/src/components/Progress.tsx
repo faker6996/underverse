@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "../utils/cn";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { Check, X, Clock, AlertTriangle } from "lucide-react";
 
 /** Public props for the `Progress` component. */
@@ -248,6 +249,7 @@ interface StepProgressProps {
 }
 
 export const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStep, className, variant = "primary", size = "md" }) => {
+  const gi18n = useGlobalI18n();
   const stepSizes = {
     sm: "w-6 h-6 text-xs",
     md: "w-8 h-8 text-sm",
@@ -261,7 +263,7 @@ export const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStep, 
   };
 
   return (
-    <div className={cn("w-full", className)} role="list" aria-label="Progress steps">
+    <div className={cn("w-full", className)} role="list" aria-label={gi18n.progressSteps ?? "Progress steps"}>
       <div className="flex items-center justify-between">
         {steps.map((step, index) => {
           const status = getStepStatus(index);
@@ -346,6 +348,7 @@ interface BatteryProgressProps {
 }
 
 export const BatteryProgress: React.FC<BatteryProgressProps> = ({ value, max = 100, className, charging = false, showValue = false }) => {
+  const gi18n = useGlobalI18n();
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
   const getVariant = () => {
     if (charging) return "info";
@@ -359,7 +362,7 @@ export const BatteryProgress: React.FC<BatteryProgressProps> = ({ value, max = 1
       <div
         className="relative"
         role="progressbar"
-        aria-label="Battery level"
+        aria-label={gi18n.batteryLevel ?? "Battery level"}
         aria-valuemin={0}
         aria-valuemax={max}
         aria-valuenow={Math.round(percentage)}

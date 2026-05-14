@@ -4,6 +4,7 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../utils/cn";
 import { X } from "lucide-react";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 
 /** Public props for the `Modal` component. */
 interface ModalProps {
@@ -51,6 +52,7 @@ const Modal: React.FC<ModalProps> = ({
   width,
   height,
 }) => {
+  const gi18n = useGlobalI18n();
   const [isMounted, setIsMounted] = React.useState(false);
   const [isVisible, setIsVisible] = React.useState(false);
   const [isAnimating, setIsAnimating] = React.useState(true);
@@ -219,7 +221,7 @@ const Modal: React.FC<ModalProps> = ({
             {showCloseButton && (
               <button
                 onClick={onClose}
-                aria-label="Close modal"
+                aria-label={gi18n.closeModal ?? "Close modal"}
                 className={cn(
                   "rounded-lg opacity-70 ring-offset-background transition-opacity",
                   "hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",

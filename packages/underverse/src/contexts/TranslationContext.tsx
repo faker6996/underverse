@@ -5,6 +5,7 @@ import enLocale from "../../locales/en.json";
 import viLocale from "../../locales/vi.json";
 import koLocale from "../../locales/ko.json";
 import jaLocale from "../../locales/ja.json";
+import { GlobalI18nProvider, type GlobalI18nConfig } from "./GlobalI18nContext";
 
 export type Locale = "en" | "vi" | "ko" | "ja";
 export type Translations = Record<string, Record<string, string | Record<string, string>>>;
@@ -58,7 +59,11 @@ export interface TranslationProviderProps {
   locale?: Locale;
   /** Custom translations to merge with defaults */
   translations?: Partial<Record<Locale, Translations>>;
+  /** Global flat label overrides — lets callers skip per-component prop drilling for common strings. */
+  i18n?: GlobalI18nConfig;
 }
+
+export type { GlobalI18nConfig };
 
 /**
  * TranslationProvider for Underverse UI components.
@@ -84,7 +89,7 @@ export interface TranslationProviderProps {
  * </TranslationProvider>
  * ```
  */
-export const TranslationProvider: React.FC<TranslationProviderProps> = ({ children, locale = "en", translations }) => {
+export const TranslationProvider: React.FC<TranslationProviderProps> = ({ children, locale = "en", translations, i18n }) => {
   const t = React.useCallback(
     (namespace: string) => {
       return (key: string): string => {
@@ -100,7 +105,11 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({ childr
     [locale, translations]
   );
 
-  return <TranslationContext.Provider value={{ locale, t }}>{children}</TranslationContext.Provider>;
+  return (
+    <GlobalI18nProvider i18n={i18n}>
+      <TranslationContext.Provider value={{ locale, t }}>{children}</TranslationContext.Provider>
+    </GlobalI18nProvider>
+  );
 };
 
 /**

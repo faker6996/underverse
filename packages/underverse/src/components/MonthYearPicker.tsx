@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "../utils/cn";
 import { useSmartTranslations } from "../hooks/useSmartTranslations";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { Popover } from "./Popover";
 import { Calendar, X, Check, ChevronDown } from "lucide-react";
 
@@ -596,6 +597,7 @@ export default function MonthYearPicker({
   className,
   ...rest
 }: MonthYearPickerProps) {
+  const gi18n = useGlobalI18n();
   const tv = useSmartTranslations("ValidationInput");
   const now = new Date();
   const currentYear = now.getFullYear();
@@ -773,7 +775,7 @@ export default function MonthYearPicker({
       <button
         type="button"
         disabled={disabled}
-        aria-label="Select month and year"
+        aria-label={gi18n.selectMonthYear ?? "Select month and year"}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-required={required}

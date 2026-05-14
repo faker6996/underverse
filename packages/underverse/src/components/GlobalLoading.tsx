@@ -5,6 +5,7 @@ import { cn } from "../utils/cn";
 import { Activity } from "lucide-react";
 import { loading, type LoadingState } from "../utils/loading";
 import { useSmartTranslations } from "../hooks/useSmartTranslations";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 
 /** Public props for the `GlobalLoading` component. */
 interface GlobalLoadingProps {
@@ -19,6 +20,7 @@ interface GlobalLoadingProps {
  * Chỉ cần gắn 1 lần ở root của app
  */
 export const GlobalLoading: React.FC<GlobalLoadingProps> = ({ className, backdrop = true, position = "fixed", size = "lg" }) => {
+  const gi18n = useGlobalI18n();
   const [state, setState] = useState<LoadingState>(() => loading.getState());
 
   useEffect(() => {
@@ -39,7 +41,7 @@ export const GlobalLoading: React.FC<GlobalLoadingProps> = ({ className, backdro
       )}
       role="dialog"
       aria-modal
-      aria-label="Loading"
+      aria-label={gi18n.loading ?? "Loading"}
     >
       <div
         className="flex items-center justify-center space-x-3 backdrop-blur-sm rounded-lg px-6 py-4 shadow-lg"

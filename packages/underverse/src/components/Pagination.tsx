@@ -281,6 +281,7 @@ export const SimplePagination: React.FC<SimplePaginationProps> = ({
   totalItems,
   pageSize = 10,
 }) => {
+  const t = useSmartTranslations("Pagination");
   if (totalPages <= 1) return null;
 
   const sizeClasses = {
@@ -314,7 +315,7 @@ export const SimplePagination: React.FC<SimplePaginationProps> = ({
             "p-0 rounded-lg transition-colors flex items-center justify-center",
             disabled || page === 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
           )}
-          aria-label="Previous page"
+          aria-label={t("previousPage")}
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -331,7 +332,7 @@ export const SimplePagination: React.FC<SimplePaginationProps> = ({
             "p-0 rounded-lg transition-colors flex items-center justify-center",
             disabled || page === totalPages ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
           )}
-          aria-label="Next page"
+          aria-label={t("nextPage")}
         >
           <ChevronRight className="h-4 w-4" />
         </button>
@@ -352,10 +353,11 @@ export interface CompactPaginationProps {
 }
 
 export const CompactPagination: React.FC<CompactPaginationProps> = ({ page, totalPages, onChange, className, disabled = false }) => {
+  const t = useSmartTranslations("Pagination");
   if (totalPages <= 1) return null;
 
   return (
-    <nav className={cn("flex items-center gap-0.5 text-xs text-muted-foreground", className)} aria-label="Compact Pagination">
+    <nav className={cn("flex items-center gap-0.5 text-xs text-muted-foreground", className)} aria-label={t("navigationLabel")}>
       <button
         onClick={() => onChange(1)}
         disabled={disabled || page === 1}
@@ -363,8 +365,8 @@ export const CompactPagination: React.FC<CompactPaginationProps> = ({ page, tota
           "h-6 w-6 p-0 rounded-lg transition-colors flex items-center justify-center",
           disabled || page === 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
         )}
-        title="First page"
-        aria-label="First page"
+        title={t("firstPage")}
+        aria-label={t("firstPage")}
       >
         <ChevronsLeft className="h-3.5 w-3.5" />
       </button>
@@ -375,8 +377,8 @@ export const CompactPagination: React.FC<CompactPaginationProps> = ({ page, tota
           "h-6 w-6 p-0 rounded-lg transition-colors flex items-center justify-center",
           disabled || page === 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
         )}
-        title="Previous page"
-        aria-label="Previous page"
+        title={t("previousPage")}
+        aria-label={t("previousPage")}
       >
         <ChevronLeft className="h-3.5 w-3.5" />
       </button>
@@ -392,8 +394,8 @@ export const CompactPagination: React.FC<CompactPaginationProps> = ({ page, tota
           "h-6 w-6 p-0 rounded-lg transition-colors flex items-center justify-center",
           disabled || page === totalPages ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
         )}
-        title="Next page"
-        aria-label="Next page"
+        title={t("nextPage")}
+        aria-label={t("nextPage")}
       >
         <ChevronRight className="h-3.5 w-3.5" />
       </button>
@@ -404,8 +406,8 @@ export const CompactPagination: React.FC<CompactPaginationProps> = ({ page, tota
           "h-6 w-6 p-0 rounded-lg transition-colors flex items-center justify-center",
           disabled || page === totalPages ? "opacity-40 cursor-not-allowed" : "hover:bg-accent hover:text-accent-foreground",
         )}
-        title="Last page"
-        aria-label="Last page"
+        title={t("lastPage")}
+        aria-label={t("lastPage")}
       >
         <ChevronsRight className="h-3.5 w-3.5" />
       </button>

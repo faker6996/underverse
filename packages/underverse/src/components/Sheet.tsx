@@ -3,6 +3,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../utils/cn";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { X } from "lucide-react";
 import Button from "./Button";
 
@@ -124,6 +125,7 @@ export const Sheet: React.FC<SheetProps> = ({
   maxSize,
   onResize,
 }) => {
+  const gi18n = useGlobalI18n();
   const [mounted, setMounted] = React.useState(false);
   const [isAnimating, setIsAnimating] = React.useState(true);
   const [isVisible, setIsVisible] = React.useState(false);
@@ -327,7 +329,7 @@ export const Sheet: React.FC<SheetProps> = ({
         {canResize && (
           <button
             type="button"
-            aria-label="Resize sheet"
+            aria-label={gi18n.resizeSheet ?? "Resize sheet"}
             className={cn(
               "absolute z-10 bg-transparent outline-none transition-colors",
               "after:absolute after:rounded-full after:bg-border after:opacity-0 after:transition-opacity hover:after:opacity-100 focus-visible:after:opacity-100",

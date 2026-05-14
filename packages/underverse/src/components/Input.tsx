@@ -2,6 +2,7 @@
 
 import React, { forwardRef, InputHTMLAttributes, useCallback, useId, useRef, useState } from "react";
 import { useSmartTranslations } from "../hooks/useSmartTranslations";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { cn } from "../utils/cn";
 import { Eye, EyeOff, Search, X, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
@@ -59,6 +60,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const [showPassword, setShowPassword] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
     const tv = useSmartTranslations("ValidationInput");
+    const gi18n = useGlobalI18n();
     const autoId = useId();
     // Only attach a generated id when we need to reference it (label/description/error)
     const needsId = !!(label || description || hint || error);
@@ -300,7 +302,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                   sizeStyles[size].button,
                 )}
                 tabIndex={0}
-                aria-label="Clear input"
+                aria-label={gi18n.clearInput ?? "Clear input"}
               >
                 <X className={sizeStyles[size].icon} />
               </button>
@@ -318,7 +320,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                   sizeStyles[size].button,
                 )}
                 tabIndex={0}
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={showPassword ? (gi18n.hidePassword ?? "Hide password") : (gi18n.showPassword ?? "Show password")}
               >
                 {showPassword ? <EyeOff className={sizeStyles[size].icon} /> : <Eye className={sizeStyles[size].icon} />}
               </button>
@@ -486,6 +488,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
     { min, max, step = 1, showSteppers = true, onIncrement, onDecrement, formatThousands = false, locale = "vi-VN", value, onChange, ...props },
     ref,
   ) => {
+    const gi18n = useGlobalI18n();
     const toNumber = (v: any): number => {
       if (v === "" || v === undefined || v === null) return 0;
       const n = Number(v);
@@ -559,7 +562,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
             "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent",
             "text-muted-foreground hover:text-foreground",
           )}
-          aria-label="Increase value"
+          aria-label={gi18n.increaseValue ?? "Increase value"}
         >
           <svg width={ss.icon.width} height={ss.icon.height} viewBox={`0 0 ${ss.icon.width} ${ss.icon.height}`} fill="none" className="shrink-0">
             <path d={ss.icon.path.up} fill="currentColor" />
@@ -577,7 +580,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
             "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent",
             "text-muted-foreground hover:text-foreground",
           )}
-          aria-label="Decrease value"
+          aria-label={gi18n.decreaseValue ?? "Decrease value"}
         >
           <svg width={ss.icon.width} height={ss.icon.height} viewBox={`0 0 ${ss.icon.width} ${ss.icon.height}`} fill="none" className="shrink-0">
             <path d={ss.icon.path.down} fill="currentColor" />

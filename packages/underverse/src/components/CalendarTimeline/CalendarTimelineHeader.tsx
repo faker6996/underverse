@@ -4,6 +4,7 @@ import * as React from "react";
 import { Calendar, CalendarDays, CalendarRange, ChevronLeft, ChevronRight, GripVertical, Plus } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { useSmartLocale, useSmartTranslations } from "../../hooks/useSmartTranslations";
+import { useGlobalI18n } from "../../contexts/GlobalI18nContext";
 import Button from "../Button";
 import CalendarComponent from "../Calendar";
 import { Popover } from "../Popover";
@@ -68,6 +69,7 @@ export function CalendarTimelineHeader(props: {
   const showViewSwitcher = resolvedAvailableViews.length > 1;
   const showLeftColumn = showResourceColumn ?? true;
 
+  const gi18n = useGlobalI18n();
   const dt = useSmartTranslations("DateTimePicker");
   const locale = useSmartLocale();
 
@@ -292,7 +294,7 @@ export function CalendarTimelineHeader(props: {
               <div
                 role="separator"
                 aria-orientation="vertical"
-                aria-label="Resize resource column"
+                aria-label={gi18n.resizeResourceColumn ?? "Resize resource column"}
                 className={cn(
                   "absolute right-0 top-0 h-full w-3 cursor-col-resize z-20",
                   "bg-transparent hover:bg-primary/10 active:bg-primary/15",

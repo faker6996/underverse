@@ -20,6 +20,7 @@ import {
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import { useSmartTranslations } from "../hooks/useSmartTranslations";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { cn } from "../utils/cn";
 import Button from "./Button";
 import { useToast } from "./Toast";
@@ -213,6 +214,7 @@ export default function FileUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addToast } = useToast();
   const t = useSmartTranslations("FileUpload");
+  const gi18n = useGlobalI18n();
 
   // Size configurations
   const sizeConfig = useMemo(
@@ -500,7 +502,7 @@ export default function FileUpload({
         <div className="shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           {/* Preview button for images */}
           {isImage && allowPreview && (
-            <Button variant="ghost" size="icon" className="w-7 h-7" onClick={() => window.open(file.url, "_blank")} title="Preview">
+            <Button variant="ghost" size="icon" className="w-7 h-7" onClick={() => window.open(file.url, "_blank")} title={gi18n.previewFile ?? "Preview"}>
               <Eye className="w-4 h-4" />
             </Button>
           )}
@@ -517,7 +519,7 @@ export default function FileUpload({
                 link.download = file.name;
                 link.click();
               }}
-              title="Download"
+              title={gi18n.download ?? "Download"}
             >
               <Download className="w-4 h-4" />
             </Button>
@@ -525,7 +527,7 @@ export default function FileUpload({
 
           {/* Retry button for errors */}
           {file.status === "error" && uploadHandler && (
-            <Button variant="ghost" size="icon" className="w-7 h-7 text-primary" onClick={() => handleRetry(file)} title="Retry">
+            <Button variant="ghost" size="icon" className="w-7 h-7 text-primary" onClick={() => handleRetry(file)} title={gi18n.retryUpload ?? "Retry"}>
               <Upload className="w-4 h-4" />
             </Button>
           )}
@@ -537,7 +539,7 @@ export default function FileUpload({
             className="w-7 h-7 text-destructive hover:text-destructive hover:bg-destructive/10"
             onClick={() => handleRemove(file.id)}
             disabled={file.status === "uploading"}
-            title="Remove"
+            title={gi18n.removeFile ?? "Remove"}
           >
             <Trash2 className="w-4 h-4" />
           </Button>

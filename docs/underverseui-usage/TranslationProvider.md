@@ -63,8 +63,12 @@ export interface TranslationProviderProps {
   children: React.ReactNode;
   locale?: Locale;
   translations?: Translations;
+  /** Override built-in English labels across all components. See GlobalI18nConfig. */
+  i18n?: GlobalI18nConfig;
 }
 ```
+
+> **Xem thêm:** [`GlobalI18nConfig`](./GlobalI18n.md) — danh sách đầy đủ các key có thể override và ví dụ tiếng Việt.
 
 ### Supported Locales
 
@@ -105,12 +109,23 @@ function MyComponent() {
 
 ## Sử dụng với Next.js (next-intl)
 
-Nếu bạn đang dùng Next.js với `next-intl`, không cần `TranslationProvider`, nhưng nên bọc app bằng `NextIntlAdapter` để Underverse đọc đúng locale/messages từ `next-intl`:
+Nếu bạn đang dùng Next.js với `next-intl`, không cần `TranslationProvider`, nhưng nên bọc app bằng `NextIntlAdapter` để Underverse đọc đúng locale/messages từ `next-intl`. Truyền thêm `i18n` để override các label hardcoded tiếng Anh:
 
 ```tsx
 // app/layout.tsx
 import { NextIntlClientProvider } from "next-intl";
 import { NextIntlAdapter, underverseMessages } from "@underverse-ui/underverse";
+import type { GlobalI18nConfig } from "@underverse-ui/underverse";
+
+const i18n: GlobalI18nConfig = {
+  searchPlaceholder: "Tìm kiếm...",
+  selectPlaceholder: "Chọn...",
+  noResults: "Không có kết quả",
+  clearAll: "Xóa tất cả",
+  selectedCount: (n) => `Đã chọn ${n}`,
+  moreCount: (n) => `+${n} khác`,
+  // ... xem GlobalI18nConfig để biết đầy đủ các key
+};
 
 export default async function RootLayout({ children, params }) {
   const locale = params.locale || "vi";
@@ -119,11 +134,13 @@ export default async function RootLayout({ children, params }) {
 
   return (
     <NextIntlClientProvider locale={locale} messages={{ ...uvMessages, ...appMessages }}>
-      <NextIntlAdapter>{children}</NextIntlAdapter>
+      <NextIntlAdapter i18n={i18n}>{children}</NextIntlAdapter>
     </NextIntlClientProvider>
   );
 }
 ```
+
+> **Xem thêm:** [`GlobalI18nConfig`](./GlobalI18n.md) — danh sách đầy đủ 50+ key.
 
 ## Available Message Keys
 

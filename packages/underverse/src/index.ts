@@ -288,6 +288,10 @@ export { TranslationProvider, useUnderverseTranslations, useUnderverseLocale } f
 export { NextIntlAdapter, UnderverseNextIntlProvider } from "./contexts/NextIntlAdapter";
 /** Public locale, messages, and provider props for the translation system. */
 export type { Locale, Translations, TranslationProviderProps } from "./contexts/TranslationContext";
+/** Flat label config passed via the `i18n` prop on any Underverse provider. */
+export type { GlobalI18nConfig } from "./contexts/GlobalI18nContext";
+/** Read the nearest `GlobalI18nConfig` — useful for building wrapper components. */
+export { useGlobalI18n } from "./contexts/GlobalI18nContext";
 
 // UnderverseProvider - Alternative name for TranslationProvider (for standalone React usage)
 export {

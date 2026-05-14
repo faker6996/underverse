@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "../utils/cn";
 import { useSmartTranslations } from "../hooks/useSmartTranslations";
+import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { Popover } from "./Popover";
 import { Clock, X, Check, Sun, Moon, Sunset, Coffee } from "lucide-react";
 import Input from "./Input";
@@ -631,6 +632,7 @@ export default function TimePicker({
   ...rest
 }: TimePickerProps) {
   const tv = useSmartTranslations("ValidationInput");
+  const gi18n = useGlobalI18n();
   const autoId = React.useId();
   const isControlled = value !== undefined;
   const now = new Date();
@@ -1017,7 +1019,7 @@ export default function TimePicker({
         id={triggerId}
         type="button"
         disabled={disabled}
-        aria-label="Select time"
+        aria-label={gi18n.selectTime ?? "Select time"}
         aria-labelledby={labelId}
         aria-haspopup="dialog"
         aria-expanded={open}
@@ -1110,7 +1112,7 @@ export default function TimePicker({
                 stopDirectEdit("cancel");
               }
             }}
-            aria-label="Edit time value"
+            aria-label={gi18n.editTimeValue ?? "Edit time value"}
             className={cn(
               panelSz.timeText,
               "min-w-0 w-36 bg-transparent border-b border-primary/60 text-center font-bold tabular-nums tracking-wide text-foreground",
@@ -1126,7 +1128,7 @@ export default function TimePicker({
               "font-bold tabular-nums tracking-wide text-foreground underline underline-offset-8 decoration-primary/60",
               "rounded-md px-2 transition-colors hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
             )}
-            aria-label="Edit selected time"
+            aria-label={gi18n.editSelectedTime ?? "Edit selected time"}
           >
             {display}
           </button>
@@ -1214,7 +1216,7 @@ export default function TimePicker({
           const hourIndex = Math.max(0, hours.indexOf(hourDisplay));
           return (
             <WheelColumn
-              labelText="Hour"
+              labelText={gi18n.hourLabel ?? "Hour"}
               column="hour"
               items={hours}
               valueIndex={hourIndex}
@@ -1243,7 +1245,7 @@ export default function TimePicker({
           const minuteIndex = Math.max(0, Math.min(minutes.length - 1, Math.round(parts.m / minuteStep)));
           return (
             <WheelColumn
-              labelText="Min"
+              labelText={gi18n.minuteLabel ?? "Min"}
               column="minute"
               items={minutes}
               valueIndex={minuteIndex}
@@ -1276,7 +1278,7 @@ export default function TimePicker({
               const secondIndex = Math.max(0, Math.min(seconds.length - 1, Math.round(parts.s / secondStep)));
               return (
                 <WheelColumn
-                  labelText="Sec"
+                  labelText={gi18n.secondLabel ?? "Sec"}
                   column="second"
                   items={seconds}
                   valueIndex={secondIndex}
@@ -1314,7 +1316,7 @@ export default function TimePicker({
               ref={periodRef}
               className={cn("flex flex-col p-1 rounded-xl bg-muted/30", panelSz.periodGap)}
               role="radiogroup"
-              aria-label="Select AM or PM"
+              aria-label={gi18n.selectAmPm ?? "Select AM or PM"}
               aria-labelledby={labelId}
               tabIndex={focusedColumn === "period" ? 0 : -1}
               onKeyDown={(e) => handleKeyDown(e, "period")}
@@ -1374,7 +1376,7 @@ export default function TimePicker({
                 setNow();
                 if (variant === "compact") handleOpenChange(false);
               }}
-              aria-label="Set current time"
+              aria-label={gi18n.setCurrentTime ?? "Set current time"}
             >
               <Clock className={panelSz.icon} />
               Now
@@ -1397,7 +1399,7 @@ export default function TimePicker({
                 emit(undefined);
                 handleOpenChange(false);
               }}
-              aria-label="Clear selected time"
+              aria-label={gi18n.clearTime ?? "Clear selected time"}
             >
               <X className={panelSz.icon} />
               Clear
