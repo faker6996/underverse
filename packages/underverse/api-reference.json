@@ -1,8 +1,8 @@
 {
   "package": "@underverse-ui/underverse",
-  "version": "1.0.116",
+  "version": "1.0.117",
   "sourceEntry": "src/index.ts",
-  "totalExports": 230,
+  "totalExports": 232,
   "exports": [
     {
       "name": "*",
@@ -644,6 +644,13 @@
       "source": null,
       "reexport": false,
       "local": true
+    },
+    {
+      "name": "GlobalI18nConfig",
+      "kind": "type",
+      "source": "./contexts/GlobalI18nContext",
+      "reexport": true,
+      "local": false
     },
     {
       "name": "GlobalLoading",
@@ -1544,6 +1551,13 @@
       "name": "UploadedImage",
       "kind": "type",
       "source": "./components/ImageUpload",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "useGlobalI18n",
+      "kind": "value",
+      "source": "./contexts/GlobalI18nContext",
       "reexport": true,
       "local": false
     },
