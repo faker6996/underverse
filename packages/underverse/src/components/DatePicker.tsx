@@ -652,8 +652,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 export interface DateRangePickerProps {
   id?: string;
   startDate?: Date;
-  endDate?: Date;
-  onChange: (start: Date | undefined, end: Date | undefined) => void;
+  endDate?: Date | null;
+  onChange: (start: Date | undefined, end: Date | null | undefined) => void;
   placeholder?: string;
   className?: string;
   label?: string;
@@ -850,9 +850,11 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
       setTempStart(localDate);
       setTempEnd(null);
       setHoveredDate(null);
+      onChange(localDate, null);
     } else if (tempStart && !tempEnd) {
       if (localDate < tempStart) {
         setTempStart(localDate);
+        onChange(localDate, null);
       } else {
         setTempEnd(localDate);
         setLocalRequiredError(undefined);

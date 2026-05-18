@@ -196,10 +196,12 @@ import React from "react";
 import { DateRangePicker } from "@underverse-ui/underverse";
 
 export function Example() {
-  const [range, setRange] = React.useState({ start: undefined, end: undefined });
+  const [range, setRange] = React.useState<{ start?: Date; end?: Date | null }>({ start: undefined, end: undefined });
   return <DateRangePicker startDate={range.start} endDate={range.end} onChange={(start, end) => setRange({ start, end })} placeholder="Chon khoang" />;
 }
 ```
+
+Khi người dùng mới chọn ngày bắt đầu nhưng chưa chọn ngày kết thúc, `onChange` sẽ trả về `end = null`.
 
 ### Month/Year Selector (DateRangePicker)
 
@@ -214,8 +216,8 @@ DateRangePicker giờ cũng hỗ trợ chọn tháng và năm nhanh:
 type DateRangePickerProps = {
   id?: string;
   startDate?: Date;
-  endDate?: Date;
-  onChange: (start: Date | undefined, end: Date | undefined) => void;
+  endDate?: Date | null;
+  onChange: (start: Date | undefined, end: Date | null | undefined) => void;
   placeholder?: string;
   className?: string;
   label?: string;
@@ -277,7 +279,7 @@ import { DateRangePicker } from "@underverse-ui/underverse";
 
 export function Example() {
   const [startDate, setStartDate] = React.useState<Date>();
-  const [endDate, setEndDate] = React.useState<Date>();
+  const [endDate, setEndDate] = React.useState<Date | null>();
 
   return (
     <DateRangePicker

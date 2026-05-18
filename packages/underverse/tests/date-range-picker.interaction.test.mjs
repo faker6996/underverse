@@ -101,6 +101,42 @@ test("DateRangePicker supports month and year quick selection before picking a r
   });
 });
 
+test("DateRangePicker reports a null end date while selecting an incomplete range", async () => {
+  const mod = await importTsModule(path.join(path.resolve(import.meta.dirname, "../src/components"), "DatePicker.tsx"));
+  const DateRangePicker = mod.DateRangePicker;
+  const user = userEvent.setup({ document: window.document });
+  const changes = [];
+
+  function Harness() {
+    const [range, setRange] = React.useState({ start: undefined, end: undefined });
+
+    return React.createElement(DateRangePicker, {
+      startDate: range.start,
+      endDate: range.end,
+      onChange: (start, end) => {
+        changes.push({ start, end });
+        setRange({ start, end });
+      },
+      placeholder: "Select date range...",
+    });
+  }
+
+  await renderElement(React.createElement(Harness));
+  const body = within(window.document.body);
+  const trigger = body.getByRole("button", { name: /select date range/i });
+
+  await clickWithAct(user, trigger);
+  await clickWithAct(user, body.getByRole("button", { name: "10" }));
+
+  await waitFor(() => {
+    assert.equal(changes.length, 1);
+    assert.ok(changes[0].start instanceof Date);
+    assert.equal(changes[0].start.getDate(), 10);
+    assert.equal(changes[0].end, null);
+    assert.match(trigger.textContent || "", /\s-\s\.\.\./);
+  });
+});
+
 test("DateRangePicker footer supports Today and Clear actions", async () => {
   const mod = await importTsModule(path.join(path.resolve(import.meta.dirname, "../src/components"), "DatePicker.tsx"));
   const DateRangePicker = mod.DateRangePicker;
