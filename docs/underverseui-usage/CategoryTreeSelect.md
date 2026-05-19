@@ -185,6 +185,44 @@ For server-side search, use manual search mode. When `virtualized` is enabled, O
 />
 ```
 
+### Per-item hover actions
+
+Dùng `renderItemActions` để inject custom UI vào cuối mỗi dòng. Click vào vùng actions không trigger selection hay expand/collapse.
+
+```tsx
+<CategoryTreeSelect
+  categories={categories}
+  value={selected}
+  onChange={setSelected}
+  renderItemActions={(category) => (
+    <button
+      className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-accent"
+      onClick={() => handleEdit(category)}
+    >
+      <Pencil className="w-3.5 h-3.5" />
+    </button>
+  )}
+/>
+```
+
+Để chỉ hiện actions khi hover row, thêm class `group` lên container ngoài và `group-hover:opacity-100` trong `renderItemActions`.
+
+### Compact sidebar tree
+
+Dùng `baseIndent` và `indentSize` để kiểm soát khoảng cách lề của tree mà không cần CSS override.
+
+```tsx
+// Mặc định: baseIndent=0.75, indentSize=1 (rem)
+<CategoryTreeSelect
+  categories={categories}
+  inline
+  baseIndent={0.25}
+  indentSize={0.75}
+/>
+```
+
+`paddingLeft` của mỗi node được tính theo công thức: `level × indentSize + baseIndent` (rem).
+
 ### View Only (read-only tree)
 
 ```tsx
@@ -250,6 +288,9 @@ interface CategoryTreeSelectProps {
   searchDebounceMs?: number; // Default: 0
   minSearchLength?: number; // Default: 0
   showSearchPromptWhenEmptyQuery?: boolean; // Default: false
+  renderItemActions?: (category: Category) => React.ReactNode; // Custom actions at row trailing edge
+  baseIndent?: number; // Base left padding rem, default: 0.75
+  indentSize?: number; // Extra left padding rem per depth level, default: 1
 }
 
 interface Category {

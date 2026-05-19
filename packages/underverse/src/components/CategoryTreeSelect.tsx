@@ -127,6 +127,46 @@ export interface CategoryTreeSelectBaseProps {
   minSearchLength?: number;
   /** Show a prompt instead of options while the query is shorter than `minSearchLength`. Default: `false`. */
   showSearchPromptWhenEmptyQuery?: boolean;
+  /**
+   * Render custom actions at the trailing edge of each tree row.
+   *
+   * @remarks
+   * The returned node is placed inside the row flex container, after the label/content area.
+   * Click events on the returned node are stopped from propagating to the row, so action buttons
+   * do not accidentally trigger selection or expansion.
+   *
+   * @example
+   * <CategoryTreeSelect
+   *   renderItemActions={(category) => (
+   *     <button onClick={() => handleEdit(category)}>Edit</button>
+   *   )}
+   * />
+   */
+  renderItemActions?: (category: Category) => React.ReactNode;
+  /**
+   * Base left padding in rem applied to every node regardless of depth. Default: `0.75`.
+   *
+   * @remarks
+   * Combined with `indentSize`, the final padding of a node at a given depth is:
+   * `paddingLeft = level * indentSize + baseIndent` rem.
+   *
+   * @example
+   * // Compact sidebar tree
+   * <CategoryTreeSelect baseIndent={0.25} indentSize={0.75} />
+   */
+  baseIndent?: number;
+  /**
+   * Additional left padding in rem added per depth level. Default: `1`.
+   *
+   * @remarks
+   * Set to a smaller value (e.g. `0.75`) to reduce the visual gap between
+   * parent and child nodes without touching DOM styles.
+   *
+   * @example
+   * // Compact sidebar tree
+   * <CategoryTreeSelect baseIndent={0.25} indentSize={0.75} />
+   */
+  indentSize?: number;
 }
 
 /** Multi-select mode. This is the default when `singleSelect` is omitted. */
@@ -354,6 +394,9 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     searchDebounceMs = 0,
     minSearchLength = 0,
     showSearchPromptWhenEmptyQuery = false,
+    baseIndent = TREE_NODE_BASE_PADDING_REM,
+    indentSize = TREE_NODE_INDENT_REM,
+    renderItemActions,
     singleSelect = false,
   } = props;
 
@@ -727,7 +770,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
             // Selected state - đồng bộ cho tất cả
             !viewOnly && isSelected && "bg-accent/40",
           )}
-          style={{ paddingLeft: `${level * TREE_NODE_INDENT_REM + TREE_NODE_BASE_PADDING_REM}rem` }}
+          style={{ paddingLeft: `${level * indentSize + baseIndent}rem` }}
         >
           {/* Left indicator removed - using border instead */}
 
@@ -787,6 +830,11 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
                   {children.length}
                 </span>
               )}
+            </div>
+          )}
+          {renderItemActions && (
+            <div className="shrink-0 ml-auto" onClick={(e) => e.stopPropagation()}>
+              {renderItemActions(category)}
             </div>
           )}
         </div>
