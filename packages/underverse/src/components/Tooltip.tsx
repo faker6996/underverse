@@ -110,6 +110,7 @@ export const Tooltip = React.forwardRef<HTMLElement, TooltipProps>(({
   const panelRef = React.useRef<HTMLDivElement>(null);
   const timeoutRef = React.useRef<NodeJS.Timeout | undefined>(undefined);
   const lastAppliedRef = React.useRef<{ top: number; left: number; side: Side } | null>(null);
+  const openedByPointerRef = React.useRef(false);
   const triggerSelector = React.useId();
 
   const delayOpen = typeof delay === "object" ? delay.open || 700 : delay;
@@ -164,6 +165,7 @@ export const Tooltip = React.forwardRef<HTMLElement, TooltipProps>(({
 
   const handleMouseEnter = () => {
     if (disabled) return;
+    openedByPointerRef.current = true;
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       setIsOpen(true);
@@ -179,15 +181,18 @@ export const Tooltip = React.forwardRef<HTMLElement, TooltipProps>(({
 
   const closeNow = React.useCallback(() => {
     clearTimeout(timeoutRef.current);
+    openedByPointerRef.current = false;
     setIsOpen(false);
   }, []);
 
   const handleFocus = () => {
     if (disabled) return;
+    openedByPointerRef.current = false;
     setIsOpen(true);
   };
 
   const handleBlur = () => {
+    openedByPointerRef.current = false;
     setIsOpen(false);
   };
 
@@ -254,12 +259,34 @@ export const Tooltip = React.forwardRef<HTMLElement, TooltipProps>(({
       if (event.key === "Escape") closeNow();
     };
 
+    const handleDocumentPointerMove = (event: PointerEvent) => {
+      if (!openedByPointerRef.current) return;
+
+      const triggerEl = triggerRef.current;
+      if (!triggerEl) {
+        closeNow();
+        return;
+      }
+
+      const rect = triggerEl.getBoundingClientRect();
+      const tolerance = 2;
+      const insideTrigger =
+        event.clientX >= rect.left - tolerance &&
+        event.clientX <= rect.right + tolerance &&
+        event.clientY >= rect.top - tolerance &&
+        event.clientY <= rect.bottom + tolerance;
+
+      if (!insideTrigger) closeNow();
+    };
+
     document.addEventListener("pointerdown", closeNow, true);
     document.addEventListener("keydown", handleDocumentKeyDown);
+    document.addEventListener("pointermove", handleDocumentPointerMove, true);
 
     return () => {
       document.removeEventListener("pointerdown", closeNow, true);
       document.removeEventListener("keydown", handleDocumentKeyDown);
+      document.removeEventListener("pointermove", handleDocumentPointerMove, true);
     };
   }, [closeNow, isOpen]);
 

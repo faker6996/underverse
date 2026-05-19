@@ -15,7 +15,7 @@ Note: Usage snippets are minimal; fill required props from the props type below.
 - Uses `asChild` pattern by default: the child remains the real trigger element and `Tooltip` only augments props.
 - Does not add an extra wrapper by default, so event path stays safe for interactive triggers such as dropdown/menu buttons.
 - Forwards trigger props and `ref` when used as a child of higher-level trigger components such as `DropdownMenu` or `Popover`.
-- Closes immediately on trigger `pointerdown`/`click`, document `pointerdown`, or `Escape`.
+- Closes immediately on trigger `pointerdown`/`click`, document `pointerdown`, `Escape`, or document `pointermove` when the pointer is outside the trigger bounds.
 - This prevents portal tooltips from staying visible after the trigger opens a modal, popover, dropdown, or another overlay that covers the trigger before `mouseleave` can fire.
 
 ## Accessibility (Web Interface Guidelines Compliant)

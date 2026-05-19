@@ -136,6 +136,95 @@ test("Tooltip closes when its trigger is pressed to open a DropdownMenu", async 
   });
 });
 
+test("Tooltip closes on document pointer move outside the trigger", async () => {
+  const { Tooltip } = await loadComponents();
+
+  await renderElement(
+    React.createElement(
+      Tooltip,
+      {
+        content: "Avatar details",
+        asChild: true,
+        delay: 1,
+      },
+      React.createElement("button", { type: "button" }, "Avatar"),
+    ),
+  );
+
+  const body = within(window.document.body);
+  const trigger = body.getByRole("button", { name: "Avatar" });
+  trigger.getBoundingClientRect = () => ({
+    x: 10,
+    y: 10,
+    left: 10,
+    top: 10,
+    right: 60,
+    bottom: 60,
+    width: 50,
+    height: 50,
+    toJSON: () => {},
+  });
+
+  await act(async () => {
+    fireEvent.mouseEnter(trigger);
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  });
+
+  assert.ok(await body.findByRole("tooltip"));
+
+  await act(async () => {
+    fireEvent.pointerMove(window.document, { clientX: 120, clientY: 120 });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  await waitFor(() => {
+    assert.equal(body.queryByRole("tooltip"), null);
+  });
+});
+
+test("Tooltip opened by focus is not closed by document pointer move", async () => {
+  const { Tooltip } = await loadComponents();
+
+  await renderElement(
+    React.createElement(
+      Tooltip,
+      {
+        content: "Keyboard details",
+        asChild: true,
+      },
+      React.createElement("button", { type: "button" }, "Keyboard Avatar"),
+    ),
+  );
+
+  const body = within(window.document.body);
+  const trigger = body.getByRole("button", { name: "Keyboard Avatar" });
+  trigger.getBoundingClientRect = () => ({
+    x: 10,
+    y: 10,
+    left: 10,
+    top: 10,
+    right: 60,
+    bottom: 60,
+    width: 50,
+    height: 50,
+    toJSON: () => {},
+  });
+
+  await act(async () => {
+    trigger.focus();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  assert.ok(await body.findByRole("tooltip"));
+
+  await act(async () => {
+    fireEvent.pointerMove(window.document, { clientX: 120, clientY: 120 });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  assert.ok(body.getByRole("tooltip"));
+});
+
 test("DropdownMenu keyboard trigger works through Tooltip asChild", async () => {
   const { DropdownMenu, Tooltip } = await loadComponents();
 
