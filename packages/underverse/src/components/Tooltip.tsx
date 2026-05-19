@@ -177,6 +177,11 @@ export const Tooltip = React.forwardRef<HTMLElement, TooltipProps>(({
     }, delayClose);
   };
 
+  const closeNow = React.useCallback(() => {
+    clearTimeout(timeoutRef.current);
+    setIsOpen(false);
+  }, []);
+
   const handleFocus = () => {
     if (disabled) return;
     setIsOpen(true);
@@ -189,6 +194,11 @@ export const Tooltip = React.forwardRef<HTMLElement, TooltipProps>(({
   React.useEffect(() => {
     return () => clearTimeout(timeoutRef.current);
   }, []);
+
+  React.useEffect(() => {
+    if (isOpen) return;
+    clearTimeout(timeoutRef.current);
+  }, [isOpen]);
 
   // Compute a stable position right after opening (before paint), then re-check a couple frames later.
   React.useLayoutEffect(() => {
@@ -237,6 +247,22 @@ export const Tooltip = React.forwardRef<HTMLElement, TooltipProps>(({
     return () => ro.disconnect();
   }, [isOpen, updatePosition]);
 
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const handleDocumentKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeNow();
+    };
+
+    document.addEventListener("pointerdown", closeNow, true);
+    document.addEventListener("keydown", handleDocumentKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeNow, true);
+      document.removeEventListener("keydown", handleDocumentKeyDown);
+    };
+  }, [closeNow, isOpen]);
+
   const childProps = children.props as React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<HTMLElement> };
   const childRef = childProps.ref;
   const passthroughRef = mergeRefs<HTMLElement>(forwardedRef, childRef, (node) => {
@@ -259,31 +285,47 @@ export const Tooltip = React.forwardRef<HTMLElement, TooltipProps>(({
       triggerPassthroughProps.onMouseEnter,
       childProps.onMouseEnter,
       (e) => {
-      triggerRef.current = e.currentTarget as HTMLElement;
-      handleMouseEnter();
+        triggerRef.current = e.currentTarget as HTMLElement;
+        handleMouseEnter();
       },
     ),
     onMouseLeave: chainEventHandlers<React.MouseEvent<HTMLElement>>(
       triggerPassthroughProps.onMouseLeave,
       childProps.onMouseLeave,
       (e) => {
-      triggerRef.current = e.currentTarget as HTMLElement;
-      handleMouseLeave();
+        triggerRef.current = e.currentTarget as HTMLElement;
+        handleMouseLeave();
+      },
+    ),
+    onPointerDown: chainEventHandlers<React.PointerEvent<HTMLElement>>(
+      triggerPassthroughProps.onPointerDown,
+      childProps.onPointerDown,
+      (e) => {
+        triggerRef.current = e.currentTarget as HTMLElement;
+        closeNow();
+      },
+    ),
+    onClick: chainEventHandlers<React.MouseEvent<HTMLElement>>(
+      triggerPassthroughProps.onClick,
+      childProps.onClick,
+      (e) => {
+        triggerRef.current = e.currentTarget as HTMLElement;
+        closeNow();
       },
     ),
     onFocus: chainEventHandlers<React.FocusEvent<HTMLElement>>(
       triggerPassthroughProps.onFocus,
       childProps.onFocus,
       (e) => {
-      triggerRef.current = e.currentTarget as HTMLElement;
-      handleFocus();
+        triggerRef.current = e.currentTarget as HTMLElement;
+        handleFocus();
       },
     ),
     onBlur: chainEventHandlers<React.FocusEvent<HTMLElement>>(
       triggerPassthroughProps.onBlur,
       childProps.onBlur,
       (e) => {
-      handleBlur();
+        handleBlur();
       },
     ),
   } satisfies React.HTMLAttributes<HTMLElement> & {

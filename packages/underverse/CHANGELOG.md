@@ -2,6 +2,12 @@
 
 All notable changes to `@underverse-ui/underverse` are documented in this file.
 
+## Unreleased
+
+### Fixed
+
+- `Tooltip` now closes immediately when its trigger is pressed or when document-level pointer/Escape interactions indicate an overlay flow has taken over. This prevents portal tooltips from sticking on screen after opening dropdowns, popovers, or modals from a tooltip trigger, without overriding the normal hover close delay on pointer movement.
+
 ## [1.0.34] - 2026-02-24
 
 ### Changed

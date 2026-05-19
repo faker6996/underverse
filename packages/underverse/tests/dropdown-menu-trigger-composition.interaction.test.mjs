@@ -96,6 +96,46 @@ test("DropdownMenu opens from a Tooltip asChild trigger on click", async () => {
   });
 });
 
+test("Tooltip closes when its trigger is pressed to open a DropdownMenu", async () => {
+  const { DropdownMenu, Tooltip } = await loadComponents();
+
+  await renderElement(
+    React.createElement(DropdownMenu, {
+      trigger: React.createElement(
+        Tooltip,
+        {
+          content: "Open actions",
+          asChild: true,
+          delay: 1,
+        },
+        React.createElement("button", { type: "button" }, "Press Actions"),
+      ),
+      items: [{ label: "Archive", onClick: () => {} }],
+    }),
+  );
+
+  const body = within(window.document.body);
+  const trigger = body.getByRole("button", { name: "Press Actions" });
+
+  await act(async () => {
+    fireEvent.mouseEnter(trigger);
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  });
+
+  assert.ok(await body.findByRole("tooltip"));
+
+  await act(async () => {
+    fireEvent.pointerDown(trigger);
+    fireEvent.click(trigger);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  assert.ok(await body.findByRole("menu"));
+  await waitFor(() => {
+    assert.equal(body.queryByRole("tooltip"), null);
+  });
+});
+
 test("DropdownMenu keyboard trigger works through Tooltip asChild", async () => {
   const { DropdownMenu, Tooltip } = await loadComponents();
 
