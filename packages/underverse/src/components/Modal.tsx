@@ -195,7 +195,7 @@ const Modal: React.FC<ModalProps> = ({
       <div
         ref={modalContentRef}
         className={cn(
-          "relative w-full rounded-2xl md:rounded-3xl bg-card text-card-foreground shadow-xl",
+          "relative w-full rounded-2xl md:rounded-3xl border border-border/40 bg-card text-card-foreground shadow-xl",
           "transition-all duration-200 ease-out",
           maxWidthClass,
           fullWidth && "mx-0",
