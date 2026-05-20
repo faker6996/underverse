@@ -103,8 +103,8 @@ export default function DatePickerExample() {
           startDate={requiredRangeStart}
           endDate={requiredRangeEnd}
           onChange={(s, e) => {
-            setRequiredRangeStart(s);
-            setRequiredRangeEnd(e);
+            setRequiredRangeStart(s ?? undefined);
+            setRequiredRangeEnd(e ?? undefined);
           }}
         />
         <button type="submit" className="rounded-full border border-border px-3 py-1.5 text-xs font-medium">
@@ -122,8 +122,8 @@ export default function DatePickerExample() {
           startDate={rangeStart}
           endDate={rangeEnd}
           onChange={(s, e) => {
-            setRangeStart(s);
-            setRangeEnd(e);
+            setRangeStart(s ?? undefined);
+            setRangeEnd(e ?? undefined);
           }}
         />
         <div className="text-xs text-muted-foreground">Click the month or year in the header to jump quickly. Footer actions now support Today and Clear.</div>
@@ -141,8 +141,8 @@ export default function DatePickerExample() {
             startDate={futureRangeStart}
             endDate={futureRangeEnd}
             onChange={(s, e) => {
-              setFutureRangeStart(s);
-              setFutureRangeEnd(e);
+              setFutureRangeStart(s ?? undefined);
+              setFutureRangeEnd(e ?? undefined);
             }}
             disablePastDates
           />
@@ -170,8 +170,8 @@ export default function DatePickerExample() {
             startDate={advancedRangeStart as any}
             endDate={advancedRangeEnd as any}
             onChange={(s, e) => {
-              setAdvancedRangeStart(s);
-              setAdvancedRangeEnd(e);
+              setAdvancedRangeStart(s ?? undefined);
+              setAdvancedRangeEnd(e ?? undefined);
             }}
           />
         </div>
