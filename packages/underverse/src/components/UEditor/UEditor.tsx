@@ -127,7 +127,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
     tableColumnGuideRef,
     tableRowGuideRef,
     activeTableCellHighlightRef,
-  } = useUEditorTableInteractions(editor);
+  } = useUEditorTableInteractions(editor, editable);
 
   useImperativeHandle(
     ref,
@@ -180,11 +180,14 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   return (
     <div
       className={cn(
-        "group relative flex flex-col rounded-2xl md:rounded-3xl border border-border/50 bg-card text-card-foreground overflow-hidden",
-        "transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft",
-        "shadow-sm focus-within:shadow-md focus-within:border-primary/15",
-        "backdrop-blur-sm",
-        variant === "notion" && "hover:shadow-md",
+        "group relative flex flex-col text-card-foreground",
+        editable ? [
+          "rounded-2xl md:rounded-3xl border border-border/50 bg-card overflow-hidden",
+          "transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft",
+          "shadow-sm focus-within:shadow-md focus-within:border-primary/15",
+          "backdrop-blur-sm",
+          variant === "notion" && "hover:shadow-md",
+        ] : "rounded-none",
         className,
       )}
     >
@@ -215,7 +218,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         ref={editorContentRef}
         className="relative flex-1 overflow-y-auto"
         style={{
-          minHeight,
+          minHeight: editable ? minHeight : undefined,
           maxHeight,
         }}
       >

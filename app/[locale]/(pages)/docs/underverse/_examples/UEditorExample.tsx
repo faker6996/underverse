@@ -125,11 +125,10 @@ export default function UEditorExample() {
     `    { label: '0.05em', value: '0.05em' },\n` +
     `  ]}\n` +
     `/>\n\n` +
-    `// Read-only mode\n` +
+    `// Read-only mode — no border, no toolbar, no table resize\n` +
     `<UEditor\n` +
     `  content={content}\n` +
     `  editable={false}\n` +
-    `  showToolbar={false}\n` +
     `/>\n\n` +
     `// Custom height\n` +
     `<UEditor\n` +
@@ -197,16 +196,11 @@ export default function UEditorExample() {
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <span className="px-2 py-1 text-xs font-medium bg-gray-500/10 text-gray-500 rounded-full">Read Only</span>
-          <span className="text-sm text-muted-foreground">Content preview without editing</span>
+          <span className="text-sm text-muted-foreground">Content preview — no border, no resize, no toolbar</span>
         </div>
         <UEditor
           content={content}
           editable={false}
-          showToolbar={false}
-          showBubbleMenu={false}
-          showFloatingMenu={false}
-          minHeight={150}
-          className="bg-muted/20"
         />
       </div>
     </div>

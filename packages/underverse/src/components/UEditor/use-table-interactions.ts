@@ -16,7 +16,7 @@ import {
 } from "./table-dom-utils";
 import { useTableRowResize } from "./use-table-row-resize";
 
-export function useUEditorTableInteractions(editor: Editor | null) {
+export function useUEditorTableInteractions(editor: Editor | null, editable = true) {
   const editorContentRef = useRef<HTMLDivElement | null>(null);
   const tableColumnGuideRef = useRef<HTMLSpanElement | null>(null);
   const tableRowGuideRef = useRef<HTMLSpanElement | null>(null);
@@ -156,7 +156,7 @@ export function useUEditorTableInteractions(editor: Editor | null) {
   }, [editor, setActiveTableCell]);
 
   useEffect(() => {
-    if (!editor) return undefined;
+    if (!editor || !editable) return undefined;
 
     const proseMirror = editor.view.dom as HTMLElement;
     const surface = editorContentRef.current;
@@ -331,7 +331,7 @@ export function useUEditorTableInteractions(editor: Editor | null) {
       clearHoveredTableCell();
       clearAllTableResizeHover();
     };
-  }, [beginResize, cancelResize, cleanupRowResize, clearActiveTableCell, clearAllTableResizeHover, clearHoveredTableCell, editor, handleRowResizePointerMove, handleRowResizePointerUp, hideColumnGuide, hideRowGuide, isRowResizing, showColumnGuide, showRowGuide, syncActiveRowResizeGuide, syncActiveTableCellFromSelection, updateActiveCellHighlight]);
+  }, [beginResize, cancelResize, cleanupRowResize, clearActiveTableCell, clearAllTableResizeHover, clearHoveredTableCell, editable, editor, handleRowResizePointerMove, handleRowResizePointerUp, hideColumnGuide, hideRowGuide, isRowResizing, showColumnGuide, showRowGuide, syncActiveRowResizeGuide, syncActiveTableCellFromSelection, updateActiveCellHighlight]);
 
   return {
     editorContentRef,

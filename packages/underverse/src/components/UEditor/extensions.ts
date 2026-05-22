@@ -142,7 +142,7 @@ export function buildUEditorExtensions({
       types: ["heading", "paragraph", "image"],
     }),
     UEditorTable.configure({
-      resizable: true,
+      resizable: editable,
       handleWidth: 10,
       allowTableNodeSelection: true,
       HTMLAttributes: {
