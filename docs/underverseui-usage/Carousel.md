@@ -58,6 +58,7 @@ export function Example() {
         mainScale: 1.08,
         sideScale: 0.84,
         sideOffset: 24,
+        verticalOffset: 12,
         sideOpacity: 0.88,
         farOpacity: 0.52,
         blur: 1.2,
@@ -105,6 +106,7 @@ interface CarouselEffectOptions {
   sideOpacity?: number;
   farOpacity?: number;
   sideOffset?: number;
+  verticalOffset?: number;
   rotate?: number;
   depthStep?: number;
   blur?: number;
@@ -119,6 +121,7 @@ Notes:
 - Khi dùng `coverflow` hoặc `stack`, component sẽ tự hoạt động như single-slide carousel.
 - `coverflow` hỗ trợ `autoScroll` như carousel thường.
 - Có thể tắt 2 mũi tên bằng `showArrows={false}`.
+- Với `coverflow`, dùng `effectOptions.verticalOffset` để dịch toàn bộ deck theo trục Y, ví dụ `12` để nhô xuống hoặc `-12` để nhô lên.
 - `effectPreset="cinematic"`: đậm chiều sâu hơn, ảnh chính nổi hơn.
 - `effectPreset="gallery"`: nhẹ hơn, thiên về editorial/gallery.
 - `effectPreset="poster"`: tương phản mạnh hơn, hợp hero/showcase đậm.
@@ -136,6 +139,7 @@ Notes:
     mainScale: 1.08,
     sideScale: 0.84,
     sideOffset: 24,
+    verticalOffset: 12,
     sideOpacity: 0.88,
     farOpacity: 0.52,
     blur: 1.2,

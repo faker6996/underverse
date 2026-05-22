@@ -17,6 +17,7 @@ export interface CarouselEffectOptions {
   sideOpacity?: number;
   farOpacity?: number;
   sideOffset?: number;
+  verticalOffset?: number;
   rotate?: number;
   depthStep?: number;
   blur?: number;
@@ -207,6 +208,7 @@ export function Carousel({
       sideOpacity: effectiveAnimation === "stack" ? 0.8 : 0.86,
       farOpacity: effectiveAnimation === "stack" ? 0.5 : 0.48,
       sideOffset: effectiveAnimation === "stack" ? 20 : 28,
+      verticalOffset: 0,
       rotate: 24,
       depthStep: effectiveAnimation === "stack" ? 60 : 90,
       blur: 1.1,
@@ -425,13 +427,14 @@ export function Carousel({
       }
 
       const xOffset = distance * mergedEffectOptions.sideOffset!;
+      const yOffset = mergedEffectOptions.verticalOffset ?? 0;
       const rotateY = distance * -mergedEffectOptions.rotate!;
       const scale =
         distance === 0 ? mergedEffectOptions.mainScale! : distance === 1 || distance === -1 ? mergedEffectOptions.sideScale! : mergedEffectOptions.farScale!;
       return {
         opacity:
           distance === 0 ? 1 : distance === 1 || distance === -1 ? mergedEffectOptions.sideOpacity! : mergedEffectOptions.farOpacity!,
-        transform: `translate3d(${xOffset}%, 0, -${absDistance * mergedEffectOptions.depthStep!}px) rotateY(${rotateY}deg) scale(${scale})`,
+        transform: `translate3d(${xOffset}%, ${yOffset}px, -${absDistance * mergedEffectOptions.depthStep!}px) rotateY(${rotateY}deg) scale(${scale})`,
         filter: distance === 0 ? "blur(0px)" : `blur(${Math.min(absDistance, 2) * mergedEffectOptions.blur!}px)`,
         pointerEvents: "auto",
         zIndex: 30 - absDistance,
