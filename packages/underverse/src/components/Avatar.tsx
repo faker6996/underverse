@@ -17,6 +17,16 @@ interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Hide status dot on hover */
   hideStatusOnHover?: boolean;
   onClick?: () => void;
+  /**
+   * Image rendering strategy.
+   * - "img": native <img> (default) — stable in dense lists, no Next.js pipeline overhead.
+   * - "next-image": uses SmartImage/next/image for CDN optimization.
+   */
+  imageStrategy?: "img" | "next-image";
+  /** Native img `loading` attribute. Default "lazy". Use "eager" for above-the-fold avatars. */
+  imageLoading?: "lazy" | "eager";
+  /** Native img `fetchpriority` attribute. Useful for hero/header avatars. */
+  imageFetchPriority?: "high" | "low" | "auto";
 }
 
 const sizeClasses: Record<NonNullable<AvatarProps["size"]>, string> = {
@@ -41,7 +51,7 @@ const statusDotSizes: Record<NonNullable<AvatarProps["size"]>, string> = {
   xl: "w-5 h-5 border-[3px]",
 };
 
-export const Avatar = ({
+export const Avatar = React.memo(function Avatar({
   src,
   alt = "avatar",
   fallback = "?",
@@ -49,12 +59,15 @@ export const Avatar = ({
   showStatus = true,
   status = "online",
   hideStatusOnHover = true,
+  imageStrategy = "img",
+  imageLoading = "lazy",
+  imageFetchPriority,
   className,
   onClick,
   ...props
-}: AvatarProps) => {
-  // Check if src is valid (not empty string, null, or undefined)
+}: AvatarProps) {
   const hasValidSrc = !!(src && src.trim().length > 0);
+  const fallbackText = (fallback || "?").trim().charAt(0).toUpperCase() || "?";
 
   return (
     <div
@@ -69,7 +82,19 @@ export const Avatar = ({
     >
       {/* Avatar image container - needs overflow-hidden separately */}
       <div className="absolute inset-0 overflow-hidden rounded-full">
-        {hasValidSrc && (
+        {hasValidSrc && imageStrategy === "img" && (
+          <img
+            src={src}
+            alt={alt}
+            loading={imageLoading}
+            decoding="async"
+            draggable={false}
+            fetchPriority={imageFetchPriority}
+            className="h-full w-full object-cover"
+          />
+        )}
+
+        {hasValidSrc && imageStrategy === "next-image" && (
           <SmartImage
             src={src!}
             alt={alt}
@@ -80,6 +105,7 @@ export const Avatar = ({
             fit="cover"
             objectPosition="center"
             quality={80}
+            imageClassName="transition-none"
           />
         )}
 
@@ -92,7 +118,7 @@ export const Avatar = ({
                 "transition-all duration-200 animate-fade-in",
               )}
             >
-              {fallback}
+              {fallbackText}
             </span>
           </div>
         )}
@@ -112,6 +138,6 @@ export const Avatar = ({
       )}
     </div>
   );
-};
+});
 
 export default Avatar;

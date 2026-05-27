@@ -35,6 +35,10 @@ interface SmartImageProps {
   /** Optional fallback src if original fails. */
   fallbackSrc?: string;
   imageClassName?: string;
+  /** Enable fade-in transition on the image. Default false — avoids making reloads/repaints visible. */
+  transition?: boolean;
+  /** Pass through next/image `unoptimized`. Useful when CDN optimization is not needed. */
+  unoptimized?: boolean;
 }
 
 // SVG placeholder as data URL to avoid 404 errors
@@ -60,68 +64,68 @@ export default function SmartImage({
   fit = "cover",
   objectPosition,
   fallbackSrc = DEFAULT_FALLBACK,
+  transition = false,
+  unoptimized = false,
 }: SmartImageProps) {
-  const normalize = (input?: string | null) => {
-    if (!input || input.length === 0) return fallbackSrc;
-    const raw = input.trim();
-    // Proactively convert local product JPGs -> PNG to avoid 404s
-    if (raw.startsWith("/images/products/") && /\.(jpg|jpeg)($|\?)/i.test(raw)) {
-      return raw.replace(/\.(jpg|jpeg)(?=$|\?)/i, ".png");
-    }
-    // Hỗ trợ protocol-relative //host/path -> https://host/path
-    if (raw.startsWith("//")) {
-      return `https:${raw}`;
-    }
-    // Cho phép absolute http(s), data:, blob:
-    if (/^(https?:|data:|blob:)/i.test(raw)) {
-      return FAILED_SRCS.has(raw) ? fallbackSrc : raw;
-    }
-    // Cho phép path bắt đầu bằng /
-    if (raw.startsWith("/")) {
-      return FAILED_SRCS.has(raw) ? fallbackSrc : raw;
-    }
-    // Các đường dẫn tương đối (vd: "invalid-url.jpg") -> thêm leading slash để tránh lỗi Next Image
-    const normalized = `/${raw.replace(/^\.\/?/, "")}`;
-    return FAILED_SRCS.has(normalized) ? fallbackSrc : normalized;
-  };
+  const normalize = React.useCallback(
+    (input?: string | null) => {
+      if (!input || input.length === 0) return fallbackSrc;
+      const raw = input.trim();
+      // Proactively convert local product JPGs -> PNG to avoid 404s
+      if (raw.startsWith("/images/products/") && /\.(jpg|jpeg)($|\?)/i.test(raw)) {
+        return raw.replace(/\.(jpg|jpeg)(?=$|\?)/i, ".png");
+      }
+      // Hỗ trợ protocol-relative //host/path -> https://host/path
+      if (raw.startsWith("//")) {
+        return `https:${raw}`;
+      }
+      // Cho phép absolute http(s), data:, blob:
+      if (/^(https?:|data:|blob:)/i.test(raw)) {
+        return FAILED_SRCS.has(raw) ? fallbackSrc : raw;
+      }
+      // Cho phép path bắt đầu bằng /
+      if (raw.startsWith("/")) {
+        return FAILED_SRCS.has(raw) ? fallbackSrc : raw;
+      }
+      // Các đường dẫn tương đối (vd: "invalid-url.jpg") -> thêm leading slash để tránh lỗi Next Image
+      const normalized = `/${raw.replace(/^\.\/?/, "")}`;
+      return FAILED_SRCS.has(normalized) ? fallbackSrc : normalized;
+    },
+    [fallbackSrc],
+  );
 
   const [resolvedSrc, setResolvedSrc] = React.useState<string>(() => normalize(src));
 
   // Keep internal resolved source in sync when `src` prop changes
   React.useEffect(() => {
-    setResolvedSrc(normalize(src));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [src]);
+    const next = normalize(src);
+    setResolvedSrc((current) => (current === next ? current : next));
+  }, [normalize, src]);
 
   const handleError: NonNullable<ImageProps["onError"]> = () => {
     // Ghi nhớ URL lỗi để lần sau bỏ qua
     if (resolvedSrc && resolvedSrc !== fallbackSrc) FAILED_SRCS.add(resolvedSrc);
-    if (resolvedSrc.endsWith(".jpg")) {
-      const next = resolvedSrc.replace(/\.jpg($|\?)/, ".png$1");
+    if (/\.(jpg|jpeg)(\?.*)?$/i.test(resolvedSrc)) {
+      const next = resolvedSrc.replace(/\.(jpg|jpeg)(?=$|\?)/i, ".png");
       setResolvedSrc(next);
     } else if (resolvedSrc !== fallbackSrc) {
       setResolvedSrc(fallbackSrc);
     }
   };
 
-  const Wrapper = ({ children }: { children: React.ReactNode }) => (
-    <div
-      className={cn(
-        "relative overflow-hidden bg-muted/30",
-        // remove any default focus outline/ring for visual consistency with Card
-        "outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0",
-        ratioClass,
-        roundedClass,
-        className,
-      )}
-    >
-      {children}
-    </div>
+  const wrapperClass = cn(
+    "relative overflow-hidden bg-muted/30",
+    "outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0",
+    ratioClass,
+    roundedClass,
+    className,
   );
+
+  const imgClass = cn(transition ? "transition-opacity duration-300" : "transition-none", imageClassName);
 
   if (fill) {
     return (
-      <Wrapper>
+      <div className={wrapperClass}>
         <Image
           src={resolvedSrc}
           alt={alt}
@@ -130,10 +134,11 @@ export default function SmartImage({
           onError={handleError}
           priority={priority}
           quality={quality}
+          unoptimized={unoptimized}
           style={{ objectFit: fit, objectPosition }}
-          className={cn("transition-all duration-300", imageClassName)}
+          className={imgClass}
         />
-      </Wrapper>
+      </div>
     );
   }
 
@@ -155,8 +160,9 @@ export default function SmartImage({
         onError={handleError}
         priority={priority}
         quality={quality}
+        unoptimized={unoptimized}
         style={{ objectFit: fit, objectPosition, width: "100%", height: "100%" }}
-        className={cn("transition-all duration-300", imageClassName)}
+        className={imgClass}
       />
     </div>
   );

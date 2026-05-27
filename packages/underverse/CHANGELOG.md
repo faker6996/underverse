@@ -4,6 +4,18 @@ All notable changes to `@underverse-ui/underverse` are documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- `Avatar` now defaults to a native `<img>` element (`imageStrategy="img"`) instead of SmartImage/next/image. This eliminates `/_next/image` requests on remount and prevents avatar flicker in dense chat/message lists. Pass `imageStrategy="next-image"` to restore the previous behaviour for large avatars that need CDN optimization.
+- `Avatar` image element now has `draggable={false}` to prevent accidental drag in UI.
+- `Avatar` `fallback` prop now displays only the first character (uppercased). Any string is accepted; only the first character is rendered.
+- `Avatar` is now wrapped in `React.memo` to skip re-renders when props are stable.
+- `Avatar` exposes `imageLoading` (`"lazy" | "eager"`, default `"lazy"`) and `imageFetchPriority` (`"high" | "low" | "auto"`) props for above-the-fold or priority avatars.
+- `SmartImage` `transition` prop added (default `false`). Previous hardcoded `transition-all duration-300` made image reloads visually obvious; transition is now opt-in.
+- `SmartImage` `unoptimized` prop added (default `false`). Passes through to next/image to skip CDN optimization when not needed.
+- `SmartImage` `normalize` is now stable via `useCallback([fallbackSrc])` and the sync `useEffect` uses a functional update to skip redundant state writes.
+- `SmartImage` error handler now also catches `.jpeg` extensions (previously only `.jpg`) and converts them to `.png`.
+
 ### Fixed
 
 - `Tooltip` now closes immediately when its trigger is pressed, when `Escape` is pressed, or when document-level pointer interactions show the pointer is outside the trigger. This prevents portal tooltips from sticking on screen after opening dropdowns, popovers, modals, or when a modal/portal layout misses the trigger `mouseleave`.
