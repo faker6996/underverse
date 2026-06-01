@@ -1307,6 +1307,9 @@
       "accent": "アクセント",
       "textColor": "テキスト色",
       "highlight": "ハイライト",
+      "automatic": "自動",
+      "moreColors": "その他の色...",
+      "color": "色",
       "done": "完了"
     },
     "toolbar": {
@@ -1321,6 +1324,7 @@
       "subscript": "下付き",
       "superscript": "上付き",
       "link": "リンク",
+      "removeLink": "リンクを解除",
       "image": "画像",
       "table": "表",
       "alignment": "配置",

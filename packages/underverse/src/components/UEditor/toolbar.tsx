@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { Editor } from "@tiptap/core";
+import { useEditorState } from "@tiptap/react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import {
   AlignCenter,
@@ -19,14 +21,12 @@ import {
   Heading1 as Heading1Icon,
   Heading2 as Heading2Icon,
   Heading3 as Heading3Icon,
-  Highlighter,
   Image as ImageIcon,
   Italic as ItalicIcon,
   Link as LinkIcon,
   List as ListIcon,
   ListOrdered as ListOrderedIcon,
   ListTodo,
-  Palette,
   Quote as QuoteIcon,
   Redo as RedoIcon,
   RotateCcw,
@@ -44,20 +44,14 @@ import {
 import { cn } from "../../utils/cn";
 import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu";
 import { Tooltip } from "../Tooltip";
-import { EditorColorPalette, useEditorColors } from "./colors";
+import { EditorColorPalette, HighlightColorIcon, TextColorIcon, useEditorColors } from "./colors";
 import { DEFAULT_UEDITOR_IMAGE_MAX_FILE_SIZE, DEFAULT_UEDITOR_IMAGE_MIME_TYPES } from "./clipboard-images";
 import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
-import { ImageInput } from "./inputs";
+import { ImageInput, LinkInput } from "./inputs";
 import { EmojiPicker } from "./emoji-picker";
 import { sanitizeUEditorUrl } from "./url-safety";
 import { applyTableAlignment } from "./table-align-utils";
-import type {
-  UEditorFontFamilyOption,
-  UEditorFontSizeOption,
-  UEditorLetterSpacingOption,
-  UEditorLineHeightOption,
-  UEditorVariant,
-} from "./types";
+import type { UEditorFontFamilyOption, UEditorFontSizeOption, UEditorLetterSpacingOption, UEditorLineHeightOption, UEditorVariant } from "./types";
 import {
   getDefaultFontFamilies,
   getDefaultFontSizes,
@@ -105,10 +99,11 @@ export const ToolbarButton = React.forwardRef<
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200",
-        "hover:bg-accent hover:scale-105",
+        "flex items-center justify-center w-8 h-8 rounded-md transition-colors duration-150",
+        "gap-0.5 [&_svg+svg]:-ml-1",
+        "hover:bg-accent",
         "focus:outline-none focus:ring-2 focus:ring-primary/20",
-        "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100",
+        "disabled:opacity-40 disabled:cursor-not-allowed",
         active ? "bg-primary/10 text-primary shadow-sm" : "text-muted-foreground hover:text-foreground",
         className,
       )}
@@ -129,7 +124,7 @@ export const ToolbarButton = React.forwardRef<
 });
 ToolbarButton.displayName = "ToolbarButton";
 
-const ToolbarDivider = () => <div className="w-px h-6 bg-border/50 mx-1" />;
+const ToolbarDivider = () => <div className="mx-0.5 h-5 w-px bg-border/60" />;
 
 const TableInsertGrid = ({
   insertLabel,
@@ -146,13 +141,8 @@ const TableInsertGrid = ({
 
   return (
     <div className="mb-2 rounded-xl border border-border/60 bg-muted/20 p-2">
-      <div className="mb-2 text-sm font-medium text-foreground">
-        {formatTableInsertLabel(previewTemplate, selection.rows, selection.cols)}
-      </div>
-      <div
-        className="grid grid-cols-8 gap-1"
-        onMouseLeave={() => setSelection((prev) => prev)}
-      >
+      <div className="mb-2 text-sm font-medium text-foreground">{formatTableInsertLabel(previewTemplate, selection.rows, selection.cols)}</div>
+      <div className="grid grid-cols-8 gap-1" onMouseLeave={() => setSelection((prev) => prev)}>
         {Array.from({ length: maxRows }).map((_, rowIndex) =>
           Array.from({ length: maxCols }).map((__, colIndex) => {
             const rows = rowIndex + 1;
@@ -170,9 +160,7 @@ const TableInsertGrid = ({
                 onClick={() => onInsert(rows, cols)}
                 className={cn(
                   "h-5 w-5 rounded-sm border transition-colors",
-                  active
-                    ? "border-primary bg-primary/20"
-                    : "border-border/70 bg-background hover:border-primary/60 hover:bg-primary/10",
+                  active ? "border-primary bg-primary/20" : "border-border/70 bg-background hover:border-primary/60 hover:bg-primary/10",
                 )}
               />
             );
@@ -208,62 +196,66 @@ export const EditorToolbar = ({
   letterSpacings?: UEditorLetterSpacingOption[];
 }) => {
   const t = useSmartTranslations("UEditor");
+  useEditorState({
+    editor,
+    selector: ({ transactionNumber }) => transactionNumber,
+  });
   const { textColors, highlightColors } = useEditorColors();
   const [showImageInput, setShowImageInput] = useState(false);
+  const [showLinkInput, setShowLinkInput] = useState(false);
   const [isTableMenuOpen, setIsTableMenuOpen] = useState(false);
   const tableCommandAnchorPosRef = useRef<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
   const [fontSizeDraft, setFontSizeDraft] = useState("");
+  const [isFontSizeMenuOpen, setIsFontSizeMenuOpen] = useState(false);
+  const [fontSizeMenuPosition, setFontSizeMenuPosition] = useState({ top: 0, left: 0 });
+  const fontSizeControlRef = useRef<HTMLDivElement | null>(null);
+  const fontSizeMenuRef = useRef<HTMLDivElement | null>(null);
   const isImageSelected = editor.isActive("image");
   const imageAttrs = editor.getAttributes("image") as { imageLayout?: string; imageWidthPreset?: UEditorImageWidthPreset | null };
   const tableAttrs = editor.getAttributes("table") as { tableAlign?: "left" | "center" | "right" | null };
   const textStyleAttrs = editor.getAttributes("textStyle") as {
     fontFamily?: string;
     fontSize?: string;
+    color?: string;
     lineHeight?: string;
     letterSpacing?: string;
   };
   const imageLayout = imageAttrs.imageLayout === "left" || imageAttrs.imageLayout === "right" ? imageAttrs.imageLayout : "block";
-  const imageWidthPreset = imageAttrs.imageWidthPreset === "sm" || imageAttrs.imageWidthPreset === "md" || imageAttrs.imageWidthPreset === "lg"
-    ? imageAttrs.imageWidthPreset
-    : null;
+  const imageWidthPreset =
+    imageAttrs.imageWidthPreset === "sm" || imageAttrs.imageWidthPreset === "md" || imageAttrs.imageWidthPreset === "lg"
+      ? imageAttrs.imageWidthPreset
+      : null;
   const currentTableAlign = tableAttrs.tableAlign === "center" || tableAttrs.tableAlign === "right" ? tableAttrs.tableAlign : "left";
   const isTableSelected = editor.isActive("table");
   const hasTableContext = isTableSelected || tableCommandAnchorPosRef.current !== null;
   const currentFontFamily = normalizeStyleValue(textStyleAttrs.fontFamily);
   const currentFontSize = normalizeStyleValue(textStyleAttrs.fontSize);
+  const currentTextColor = normalizeStyleValue(textStyleAttrs.color) || "inherit";
+  const currentHighlightColor = normalizeStyleValue(editor.getAttributes("highlight").color) || "";
   const currentLineHeight = normalizeStyleValue(textStyleAttrs.lineHeight);
   const currentLetterSpacing = normalizeStyleValue(textStyleAttrs.letterSpacing);
-  const availableFontFamilies = React.useMemo<UEditorFontFamilyOption[]>(
-    () => fontFamilies ?? getDefaultFontFamilies(t),
-    [fontFamilies, t],
-  );
-  const availableFontSizes = React.useMemo<UEditorFontSizeOption[]>(
-    () => fontSizes ?? getDefaultFontSizes(),
-    [fontSizes],
-  );
-  const availableLineHeights = React.useMemo<UEditorLineHeightOption[]>(
-    () => lineHeights ?? getDefaultLineHeights(),
-    [lineHeights],
-  );
-  const availableLetterSpacings = React.useMemo<UEditorLetterSpacingOption[]>(
-    () => letterSpacings ?? getDefaultLetterSpacings(),
-    [letterSpacings],
-  );
+  const availableFontFamilies = React.useMemo<UEditorFontFamilyOption[]>(() => fontFamilies ?? getDefaultFontFamilies(t), [fontFamilies, t]);
+  const availableFontSizes = React.useMemo<UEditorFontSizeOption[]>(() => fontSizes ?? getDefaultFontSizes(), [fontSizes]);
+  const availableLineHeights = React.useMemo<UEditorLineHeightOption[]>(() => lineHeights ?? getDefaultLineHeights(), [lineHeights]);
+  const availableLetterSpacings = React.useMemo<UEditorLetterSpacingOption[]>(() => letterSpacings ?? getDefaultLetterSpacings(), [letterSpacings]);
+  const currentFontFamilyDisplayValue = currentFontFamily.split(",")[0]?.trim() ?? currentFontFamily;
   const currentFontFamilyLabel =
-    availableFontFamilies.find((option) => normalizeStyleValue(option.value) === currentFontFamily)?.label ?? t("toolbar.fontDefault");
+    availableFontFamilies.find((option) => normalizeStyleValue(option.value) === currentFontFamily)?.label ??
+    (currentFontFamilyDisplayValue || t("toolbar.fontDefault"));
   const currentFontSizeLabel =
     availableFontSizes.find((option) => normalizeStyleValue(option.value) === currentFontSize)?.label ?? t("toolbar.sizeDefault");
   const currentLineHeightLabel =
     availableLineHeights.find((option) => normalizeStyleValue(option.value) === currentLineHeight)?.label ?? t("toolbar.lineHeightDefault");
   const currentLetterSpacingLabel =
-    availableLetterSpacings.find((option) => normalizeStyleValue(option.value) === currentLetterSpacing)?.label ??
-    t("toolbar.letterSpacingDefault");
+    availableLetterSpacings.find((option) => normalizeStyleValue(option.value) === currentLetterSpacing)?.label ?? t("toolbar.letterSpacingDefault");
+  const displayedFontFamilyLabel = currentFontFamily ? currentFontFamilyLabel : (availableFontFamilies[0]?.label ?? t("toolbar.fontDefault"));
 
   React.useEffect(() => {
-    setFontSizeDraft(currentFontSize.replace(/px$/i, ""));
+    if (document.activeElement === fontSizeControlRef.current?.querySelector("input")) return;
+    setFontSizeDraft(currentFontSize.replace(/px$/i, "") || "16");
   }, [currentFontSize]);
 
   const applyFontSizeDraft = () => {
@@ -278,7 +270,46 @@ export const EditorToolbar = ({
 
     const clamped = Math.min(96, Math.max(8, parsed));
     editor.chain().focus().setFontSize(`${clamped}px`).run();
+    setFontSizeDraft(String(clamped));
   };
+
+  const updateFontSizeMenuPosition = React.useCallback(() => {
+    const rect = fontSizeControlRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setFontSizeMenuPosition({
+      top: Math.round(rect.bottom + 4),
+      left: Math.round(rect.left),
+    });
+  }, []);
+
+  const toggleFontSizeMenu = () => {
+    updateFontSizeMenuPosition();
+    setIsFontSizeMenuOpen((open) => !open);
+  };
+
+  React.useEffect(() => {
+    if (!isFontSizeMenuOpen) return;
+
+    updateFontSizeMenuPosition();
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (fontSizeControlRef.current?.contains(target)) return;
+      if (fontSizeMenuRef.current?.contains(target)) return;
+      setIsFontSizeMenuOpen(false);
+    };
+    const handleLayoutChange = () => updateFontSizeMenuPosition();
+
+    document.addEventListener("mousedown", handlePointerDown);
+    window.addEventListener("resize", handleLayoutChange);
+    window.addEventListener("scroll", handleLayoutChange, true);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      window.removeEventListener("resize", handleLayoutChange);
+      window.removeEventListener("scroll", handleLayoutChange, true);
+    };
+  }, [isFontSizeMenuOpen, updateFontSizeMenuPosition]);
 
   const insertImageFiles = async (files: File[]) => {
     if (files.length === 0) return;
@@ -306,7 +337,7 @@ export const EditorToolbar = ({
 
   if (variant === "minimal") {
     return (
-      <div className="flex items-center gap-1 p-2 border-b bg-muted/30">
+      <div className="flex items-center gap-1 border-b border-border/35 bg-muted/30 p-2">
         <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("toolbar.bold")}>
           <BoldIcon className="w-4 h-4" />
         </ToolbarButton>
@@ -325,11 +356,118 @@ export const EditorToolbar = ({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-linear-to-r from-muted/30 to-transparent">
+    <div className="flex flex-wrap items-center gap-0.5 border-b border-border/35 bg-linear-to-r from-muted/25 to-transparent p-1.5">
+      <DropdownMenu
+        trigger={
+          <button
+            type="button"
+            aria-label={t("toolbar.fontFamily")}
+            className={cn(
+              "flex h-8 min-w-34 max-w-42 items-center justify-between gap-2 rounded-full border border-border/60 bg-muted/30 px-2.5 text-xs text-foreground",
+              "transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary/20",
+            )}
+          >
+            <span className="truncate">{displayedFontFamilyLabel}</span>
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          </button>
+        }
+        contentClassName="max-h-80 overflow-y-auto min-w-56 p-2"
+      >
+        <DropdownMenuItem
+          icon={Type}
+          label={t("toolbar.fontDefault")}
+          onClick={() => editor.chain().focus().unsetFontFamily().run()}
+          active={!currentFontFamily}
+        />
+        {availableFontFamilies.map((option) => (
+          <DropdownMenuItem
+            key={option.value}
+            label={option.label}
+            onClick={() => editor.chain().focus().setFontFamily(option.value).run()}
+            active={normalizeStyleValue(option.value) === currentFontFamily}
+            className="font-medium "
+          />
+        ))}
+      </DropdownMenu>
+
+      <>
+        <div
+          ref={fontSizeControlRef}
+          aria-label={t("toolbar.fontSize")}
+          className={cn(
+            "flex h-8 min-w-16 items-center overflow-hidden rounded-full border border-border/60 bg-muted/30 text-xs font-semibold text-foreground",
+            "transition-colors focus-within:ring-2 focus-within:ring-primary/20",
+          )}
+        >
+          <input
+            type="number"
+            min={8}
+            max={96}
+            step={1}
+            value={fontSizeDraft}
+            onChange={(e) => setFontSizeDraft(e.target.value)}
+            onBlur={applyFontSizeDraft}
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.key === "Enter") {
+                e.preventDefault();
+                applyFontSizeDraft();
+              }
+            }}
+            aria-label={t("toolbar.fontSize")}
+            className="h-full w-10 bg-transparent px-1 text-center text-xs font-semibold outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          />
+          <button
+            type="button"
+            aria-label={t("toolbar.fontSize")}
+            aria-expanded={isFontSizeMenuOpen}
+            onClick={toggleFontSizeMenu}
+            className="flex h-full w-7 items-center justify-center border-l border-border/50 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <ChevronDown className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        {isFontSizeMenuOpen &&
+          typeof document !== "undefined" &&
+          createPortal(
+            <div
+              ref={fontSizeMenuRef}
+              className="fixed z-[10000] max-h-64 w-12 overflow-y-auto rounded-md border border-border/70 bg-popover p-0.5 text-popover-foreground shadow-md"
+              style={{ top: fontSizeMenuPosition.top, left: fontSizeMenuPosition.left }}
+            >
+              {availableFontSizes.map((option) => {
+                const active = normalizeStyleValue(option.value) === currentFontSize;
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      editor.chain().focus().setFontSize(option.value).run();
+                      setFontSizeDraft(option.label);
+                      setIsFontSizeMenuOpen(false);
+                    }}
+                    className={cn(
+                      "flex h-6 w-full items-center justify-center rounded text-xs leading-none transition-colors",
+                      active ? "bg-primary/15 text-primary" : "text-foreground hover:bg-accent hover:text-accent-foreground",
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>,
+            document.body,
+          )}
+      </>
+
       <DropdownMenu
         contentClassName="p-2"
         trigger={
-          <ToolbarButton onClick={() => { }} title={t("toolbar.textStyle")} className="px-2 w-auto gap-1">
+          <ToolbarButton onClick={() => {}} title={t("toolbar.textStyle")} className="px-2 w-auto gap-1">
             <Type className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
@@ -366,93 +504,7 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton
-            onClick={() => { }}
-            title={t("toolbar.fontFamily")}
-            className="relative"
-          >
-            <Type className="w-4 h-4" />
-          </ToolbarButton>
-        }
-        contentClassName="max-h-80 overflow-y-auto min-w-56 p-2"
-      >
-        <DropdownMenuItem
-          icon={Type}
-          label={t("toolbar.fontDefault")}
-          onClick={() => editor.chain().focus().unsetFontFamily().run()}
-          active={!currentFontFamily}
-        />
-        {availableFontFamilies.map((option) => (
-          <DropdownMenuItem
-            key={option.value}
-            label={option.label}
-            onClick={() => editor.chain().focus().setFontFamily(option.value).run()}
-            active={normalizeStyleValue(option.value) === currentFontFamily}
-            className="font-medium"
-          />
-        ))}
-      </DropdownMenu>
-
-      <DropdownMenu
-        closeOnSelect={false}
-        trigger={
-          <ToolbarButton
-            onClick={() => { }}
-            title={t("toolbar.fontSize")}
-            className="px-2 w-auto min-w-9"
-          >
-            <span className="text-[10px] font-semibold leading-none">{currentFontSize.replace(/px$/i, "") || "T"}</span>
-          </ToolbarButton>
-        }
-        contentClassName="max-h-80 overflow-y-auto min-w-44 p-2"
-      >
-        <div className="mb-2 rounded-lg border border-border/60 bg-muted/30 p-2">
-          <label className="flex items-center gap-2">
-            <input
-              type="number"
-              min={8}
-              max={96}
-              step={1}
-              value={fontSizeDraft}
-              onChange={(e) => setFontSizeDraft(e.target.value)}
-              onMouseDown={(e) => e.stopPropagation()}
-              onClick={(e) => e.stopPropagation()}
-              onKeyDown={(e) => {
-                e.stopPropagation();
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  applyFontSizeDraft();
-                }
-              }}
-              aria-label={t("toolbar.fontSize")}
-              className="h-8 w-full rounded-md border border-border bg-background px-2 text-sm outline-none focus:ring-2 focus:ring-primary/20"
-            />
-            <span className="text-xs text-muted-foreground">px</span>
-          </label>
-        </div>
-        <DropdownMenuItem
-          icon={Type}
-          label={t("toolbar.sizeDefault")}
-          onClick={() => editor.chain().focus().unsetFontSize().run()}
-          active={!currentFontSize}
-        />
-        {availableFontSizes.map((option) => (
-          <DropdownMenuItem
-            key={option.value}
-            label={option.label}
-            onClick={() => editor.chain().focus().setFontSize(option.value).run()}
-            active={normalizeStyleValue(option.value) === currentFontSize}
-          />
-        ))}
-      </DropdownMenu>
-
-      <DropdownMenu
-        trigger={
-          <ToolbarButton
-            onClick={() => { }}
-            title={t("toolbar.lineHeight")}
-            className="gap-0.5"
-          >
+          <ToolbarButton onClick={() => {}} title={t("toolbar.lineHeight")} className="gap-0.5">
             <ArrowUp className="w-3 h-3" />
             <ArrowDown className="w-3 h-3" />
           </ToolbarButton>
@@ -477,11 +529,7 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton
-            onClick={() => { }}
-            title={t("toolbar.letterSpacing")}
-            className="gap-0.5"
-          >
+          <ToolbarButton onClick={() => {}} title={t("toolbar.letterSpacing")} className="gap-0.5">
             <ArrowLeft className="w-3 h-3" />
             <ArrowRight className="w-3 h-3" />
           </ToolbarButton>
@@ -525,20 +573,65 @@ export const EditorToolbar = ({
       <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive("code")} title={t("toolbar.code")}>
         <CodeIcon className="w-4 h-4" />
       </ToolbarButton>
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleSubscript().run()}
+        active={editor.isActive("subscript")}
+        title={t("toolbar.subscript")}
+      >
+        <SubscriptIcon className="w-4 h-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleSuperscript().run()}
+        active={editor.isActive("superscript")}
+        title={t("toolbar.superscript")}
+      >
+        <SuperscriptIcon className="w-4 h-4" />
+      </ToolbarButton>
+
+      <DropdownMenu
+        contentClassName="min-w-72"
+        trigger={
+          <ToolbarButton onClick={() => setShowLinkInput(!editor.isActive("link"))} active={editor.isActive("link")} title={t("toolbar.link")}>
+            <LinkIcon className="w-4 h-4" />
+          </ToolbarButton>
+        }
+      >
+        {showLinkInput ? (
+          <LinkInput
+            initialUrl={String(editor.getAttributes("link").href ?? "")}
+            onSubmit={(url) => {
+              editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+              setShowLinkInput(false);
+            }}
+            onCancel={() => setShowLinkInput(false)}
+          />
+        ) : (
+          <>
+            <DropdownMenuItem icon={LinkIcon} label={t("toolbar.link")} onClick={() => setShowLinkInput(true)} active={editor.isActive("link")} />
+            <DropdownMenuItem
+              icon={Trash2}
+              label={t("toolbar.removeLink")}
+              onClick={() => editor.chain().focus().extendMarkRange("link").unsetLink().run()}
+              disabled={!editor.isActive("link")}
+              destructive
+            />
+          </>
+        )}
+      </DropdownMenu>
 
       <ToolbarDivider />
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => { }} title={t("colors.textColor")}>
-            <Palette className="w-4 h-4" />
+          <ToolbarButton onClick={() => {}} title={t("colors.textColor")}>
+            <TextColorIcon color={currentTextColor} />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
         }
       >
         <EditorColorPalette
           colors={textColors}
-          currentColor={editor.getAttributes("textStyle").color || "inherit"}
+          currentColor={currentTextColor}
           onSelect={(color) => {
             if (color === "inherit") {
               editor.chain().focus().unsetColor().run();
@@ -552,15 +645,15 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => { }} active={editor.isActive("highlight")} title={t("colors.highlight")}>
-            <Highlighter className="w-4 h-4" />
+          <ToolbarButton onClick={() => {}} active={editor.isActive("highlight")} title={t("colors.highlight")}>
+            <HighlightColorIcon color={currentHighlightColor} />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
         }
       >
         <EditorColorPalette
           colors={highlightColors}
-          currentColor={editor.getAttributes("highlight").color || ""}
+          currentColor={currentHighlightColor}
           onSelect={(color) => {
             if (color === "") {
               editor.chain().focus().unsetHighlight().run();
@@ -577,7 +670,7 @@ export const EditorToolbar = ({
       <DropdownMenu
         contentClassName="p-0 overflow-hidden"
         trigger={
-          <ToolbarButton onClick={() => { }} title={t("toolbar.emoji")}>
+          <ToolbarButton onClick={() => {}} title={t("toolbar.emoji")}>
             <Smile className="w-4 h-4" />
           </ToolbarButton>
         }
@@ -593,7 +686,7 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => { }} title={t("toolbar.alignment")}>
+          <ToolbarButton onClick={() => {}} title={t("toolbar.alignment")}>
             <AlignLeft className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
@@ -629,7 +722,7 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => { }} title={t("toolbar.bulletList")}>
+          <ToolbarButton onClick={() => {}} title={t("toolbar.bulletList")}>
             <ListIcon className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
@@ -660,7 +753,7 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => { }} title={t("toolbar.quote")}>
+          <ToolbarButton onClick={() => {}} title={t("toolbar.quote")}>
             <QuoteIcon className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
@@ -684,7 +777,7 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => { }} title={t("toolbar.image")}>
+          <ToolbarButton onClick={() => {}} title={t("toolbar.image")}>
             <ImageIcon className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
@@ -786,7 +879,7 @@ export const EditorToolbar = ({
           tableCommandAnchorPosRef.current = open && editor.isActive("table") ? editor.state.selection.$from.pos : null;
         }}
         trigger={
-          <ToolbarButton onClick={() => { }} title={t("toolbar.table")}>
+          <ToolbarButton onClick={() => {}} title={t("toolbar.table")}>
             <TableIcon className="w-4 h-4" />
             <ChevronDown className="w-3 h-3" />
           </ToolbarButton>
@@ -881,23 +974,6 @@ export const EditorToolbar = ({
           disabled={!hasTableContext || !editor.can().deleteTable()}
         />
       </DropdownMenu>
-
-      <ToolbarDivider />
-
-      <ToolbarButton
-        onClick={() => editor.chain().focus().toggleSubscript().run()}
-        active={editor.isActive("subscript")}
-        title={t("toolbar.subscript")}
-      >
-        <SubscriptIcon className="w-4 h-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => editor.chain().focus().toggleSuperscript().run()}
-        active={editor.isActive("superscript")}
-        title={t("toolbar.superscript")}
-      >
-        <SuperscriptIcon className="w-4 h-4" />
-      </ToolbarButton>
 
       <ToolbarDivider />
 

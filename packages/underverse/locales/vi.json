@@ -121,6 +121,9 @@
       "accent": "Nhấn",
       "textColor": "Màu chữ",
       "highlight": "Nổi bật",
+      "automatic": "Tự động",
+      "moreColors": "Thêm màu...",
+      "color": "Màu",
       "done": "Xong"
     },
     "toolbar": {
@@ -135,6 +138,7 @@
       "subscript": "Chỉ số dưới",
       "superscript": "Chỉ số trên",
       "link": "Liên kết",
+      "removeLink": "Gỡ liên kết",
       "image": "Chèn ảnh",
       "table": "Chèn bảng",
       "alignment": "Căn chỉnh",

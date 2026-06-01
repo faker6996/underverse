@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Editor } from "@tiptap/core";
+import { useEditorState } from "@tiptap/react";
 import { createPortal } from "react-dom";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import {
@@ -9,22 +10,23 @@ import {
   AlignLeft,
   AlignRight,
   Bold as BoldIcon,
+  ChevronDown,
   Code as CodeIcon,
   Italic as ItalicIcon,
   Link as LinkIcon,
-  Palette,
   Plus,
   RotateCcw,
   Subscript as SubscriptIcon,
   Superscript as SuperscriptIcon,
   Trash2,
+  Type,
   Underline as UnderlineIcon,
   Strikethrough as StrikethroughIcon,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { ToolbarButton } from "./toolbar";
 import { LinkInput } from "./inputs";
-import { EditorColorPalette, useEditorColors } from "./colors";
+import { EditorColorPalette, HighlightColorIcon, TextColorIcon, useEditorColors } from "./colors";
 import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
 import { buildSlashCommandItems, buildSlashCommandMessages, SlashCommandList, type SlashCommandListRef } from "./slash-command";
 import type { UEditorFontSizeOption, UEditorLineHeightOption } from "./types";
@@ -99,16 +101,25 @@ const BubbleMenuContent = ({
   lineHeights?: UEditorLineHeightOption[];
 }) => {
   const t = useSmartTranslations("UEditor");
+  useEditorState({
+    editor,
+    selector: ({ transactionNumber }) => transactionNumber,
+  });
   const { textColors, highlightColors } = useEditorColors();
   const [showLinkInput, setShowLinkInput] = useState(false);
-  const [showEditorColorPalette, setShowEditorColorPalette] = useState(false);
+  const [activeColorPalette, setActiveColorPalette] = useState<"text" | "highlight" | null>(null);
+  const [showTypographyPanel, setShowTypographyPanel] = useState(false);
+  const [showFontSizeOptions, setShowFontSizeOptions] = useState(false);
+  const [fontSizeDraft, setFontSizeDraft] = useState("");
   const isImageSelected = editor.isActive("image");
   const imageAttrs = editor.getAttributes("image") as { imageLayout?: string; imageWidthPreset?: UEditorImageWidthPreset | null };
   const imageLayout = imageAttrs.imageLayout === "left" || imageAttrs.imageLayout === "right" ? imageAttrs.imageLayout : "block";
   const imageWidthPreset = imageAttrs.imageWidthPreset === "sm" || imageAttrs.imageWidthPreset === "md" || imageAttrs.imageWidthPreset === "lg"
     ? imageAttrs.imageWidthPreset
     : null;
-  const textStyleAttrs = editor.getAttributes("textStyle") as { fontSize?: string; lineHeight?: string };
+  const textStyleAttrs = editor.getAttributes("textStyle") as { color?: string; fontSize?: string; lineHeight?: string };
+  const currentTextColor = normalizeStyleValue(textStyleAttrs.color) || "inherit";
+  const currentHighlightColor = normalizeStyleValue(editor.getAttributes("highlight").color) || "";
   const currentFontSize = normalizeStyleValue(textStyleAttrs.fontSize);
   const currentLineHeight = normalizeStyleValue(textStyleAttrs.lineHeight);
   const quickFontSizes = useMemo(
@@ -119,6 +130,25 @@ const BubbleMenuContent = ({
     () => (lineHeights ?? getDefaultLineHeights()).filter((option) => ["1.2", "1.5", "1.75"].includes(option.value)),
     [lineHeights],
   );
+
+  useEffect(() => {
+    setFontSizeDraft(currentFontSize.replace(/px$/i, ""));
+  }, [currentFontSize]);
+
+  const applyFontSizeDraft = () => {
+    const normalized = fontSizeDraft.trim();
+    if (!normalized) {
+      editor.chain().focus().unsetFontSize().run();
+      return;
+    }
+
+    const parsed = Number.parseFloat(normalized);
+    if (!Number.isFinite(parsed) || parsed <= 0) return;
+
+    const clamped = Math.min(96, Math.max(8, parsed));
+    editor.chain().focus().setFontSize(`${clamped}px`).run();
+    setFontSizeDraft(String(clamped));
+  };
 
   useEffect(() => {
     onKeepOpenChange?.(showLinkInput);
@@ -157,38 +187,35 @@ const BubbleMenuContent = ({
     );
   }
 
-  if (showEditorColorPalette) {
+  if (activeColorPalette) {
+    const isTextPalette = activeColorPalette === "text";
+
     return (
-      <div className="w-48">
+      <div className="w-56">
         <EditorColorPalette
-          colors={textColors}
-          currentColor={editor.getAttributes("textStyle").color || "inherit"}
+          colors={isTextPalette ? textColors : highlightColors}
+          currentColor={isTextPalette ? currentTextColor : currentHighlightColor}
           onSelect={(color) => {
-            if (color === "inherit") {
-              editor.chain().focus().unsetColor().run();
+            if (isTextPalette) {
+              if (color === "inherit") {
+                editor.chain().focus().unsetColor().run();
+              } else {
+                editor.chain().focus().setColor(color).run();
+              }
             } else {
-              editor.chain().focus().setColor(color).run();
+              if (color === "") {
+                editor.chain().focus().unsetHighlight().run();
+              } else {
+                editor.chain().focus().toggleHighlight({ color }).run();
+              }
             }
           }}
-          label={t("colors.textColor")}
-        />
-        <div className="border-t my-1" />
-        <EditorColorPalette
-          colors={highlightColors}
-          currentColor={editor.getAttributes("highlight").color || ""}
-          onSelect={(color) => {
-            if (color === "") {
-              editor.chain().focus().unsetHighlight().run();
-            } else {
-              editor.chain().focus().toggleHighlight({ color }).run();
-            }
-          }}
-          label={t("colors.highlight")}
+          label={isTextPalette ? t("colors.textColor") : t("colors.highlight")}
         />
         <div className="p-2 border-t">
           <button
             type="button"
-            onClick={() => setShowEditorColorPalette(false)}
+            onClick={() => setActiveColorPalette(null)}
             className="w-full py-1.5 text-sm rounded-lg hover:bg-muted transition-colors"
           >
             {t("colors.done")}
@@ -235,6 +262,151 @@ const BubbleMenuContent = ({
     );
   }
 
+  if (showTypographyPanel) {
+    return (
+      <div className="w-72 p-2">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <span className="px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t("toolbar.textStyle")}</span>
+          <button
+            type="button"
+            onClick={() => setShowTypographyPanel(false)}
+            className="rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            {t("colors.done")}
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          <div>
+            <div className="mb-1 px-1 text-[11px] font-medium text-muted-foreground">{t("toolbar.fontSize")}</div>
+            <div className="flex h-9 items-center overflow-hidden rounded-md border border-border/60 bg-muted/40">
+              <input
+                type="number"
+                min={8}
+                max={96}
+                step={1}
+                value={fontSizeDraft}
+                onChange={(event) => setFontSizeDraft(event.target.value)}
+                onBlur={applyFontSizeDraft}
+                onMouseDown={(event) => event.stopPropagation()}
+                onClick={(event) => event.stopPropagation()}
+                onKeyDown={(event) => {
+                  event.stopPropagation();
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    applyFontSizeDraft();
+                  }
+                }}
+                aria-label={t("toolbar.fontSize")}
+                placeholder="A"
+                className="h-full min-w-0 flex-1 bg-transparent px-2 text-center text-sm font-semibold text-foreground outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              />
+              <span className="border-l border-border/50 px-2 text-[11px] text-muted-foreground">px</span>
+              <button
+                type="button"
+                aria-label={t("toolbar.fontSize")}
+                onClick={() => setShowFontSizeOptions((open) => !open)}
+                className={cn(
+                  "flex h-full w-9 items-center justify-center border-l border-border/50 transition-colors hover:bg-muted",
+                  showFontSizeOptions && "bg-primary/10 text-primary",
+                )}
+              >
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            </div>
+            {showFontSizeOptions && (
+              <div className="mt-1 grid grid-cols-4 gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    editor.chain().focus().unsetFontSize().run();
+                    setShowFontSizeOptions(false);
+                  }}
+                  className={cn(
+                    "h-8 rounded-md text-xs font-semibold transition-colors hover:bg-muted",
+                    !currentFontSize ? "bg-primary/10 text-primary" : "bg-muted/40 text-foreground",
+                  )}
+                >
+                  A
+                </button>
+                {quickFontSizes.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    editor.chain().focus().setFontSize(option.value).run();
+                    setShowFontSizeOptions(false);
+                  }}
+                  className={cn(
+                    "h-8 rounded-md text-xs font-semibold transition-colors hover:bg-muted",
+                    normalizeStyleValue(option.value) === currentFontSize ? "bg-primary/10 text-primary" : "bg-muted/40 text-foreground",
+                  )}
+                >
+                  {option.label}
+                </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <div className="mb-1 px-1 text-[11px] font-medium text-muted-foreground">{t("toolbar.lineHeight")}</div>
+            <div className="grid grid-cols-4 gap-1">
+              <button
+                type="button"
+                onClick={() => editor.chain().focus().unsetLineHeight().run()}
+                className={cn(
+                  "h-8 rounded-md text-xs font-semibold transition-colors hover:bg-muted",
+                  !currentLineHeight ? "bg-primary/10 text-primary" : "bg-muted/40 text-foreground",
+                )}
+              >
+                LH
+              </button>
+              {quickLineHeights.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => editor.chain().focus().setLineHeight(option.value).run()}
+                  className={cn(
+                    "h-8 rounded-md text-xs font-semibold transition-colors hover:bg-muted",
+                    normalizeStyleValue(option.value) === currentLineHeight ? "bg-primary/10 text-primary" : "bg-muted/40 text-foreground",
+                  )}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-1 border-t border-border/40 pt-2">
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().toggleSubscript().run()}
+              className={cn(
+                "flex h-8 items-center justify-center gap-2 rounded-md text-xs font-semibold transition-colors hover:bg-muted",
+                editor.isActive("subscript") ? "bg-primary/10 text-primary" : "bg-muted/40 text-foreground",
+              )}
+            >
+              <SubscriptIcon className="h-4 w-4" />
+              {t("toolbar.subscript")}
+            </button>
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().toggleSuperscript().run()}
+              className={cn(
+                "flex h-8 items-center justify-center gap-2 rounded-md text-xs font-semibold transition-colors hover:bg-muted",
+                editor.isActive("superscript") ? "bg-primary/10 text-primary" : "bg-muted/40 text-foreground",
+              )}
+            >
+              <SuperscriptIcon className="h-4 w-4" />
+              {t("toolbar.superscript")}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center gap-0.5 p-1">
       <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("toolbar.bold")}>
@@ -273,69 +445,21 @@ const BubbleMenuContent = ({
         <LinkIcon className="w-4 h-4" />
       </ToolbarButton>
 
-      <ToolbarButton onClick={() => setShowEditorColorPalette(true)} title={t("colors.textColor")}>
-        <Palette className="w-4 h-4" />
+      <ToolbarButton onClick={() => setActiveColorPalette("text")} title={t("colors.textColor")}>
+        <TextColorIcon color={currentTextColor} />
+      </ToolbarButton>
+      <ToolbarButton onClick={() => setActiveColorPalette("highlight")} active={editor.isActive("highlight")} title={t("colors.highlight")}>
+        <HighlightColorIcon color={currentHighlightColor} />
       </ToolbarButton>
 
       <div className="w-px h-6 bg-border/50 mx-1" />
 
       <ToolbarButton
-        onClick={() => editor.chain().focus().unsetFontSize().run()}
-        active={!currentFontSize}
-        title={t("toolbar.sizeDefault")}
-        className="px-2 w-auto"
+        onClick={() => setShowTypographyPanel(true)}
+        active={Boolean(currentFontSize || currentLineHeight || editor.isActive("subscript") || editor.isActive("superscript"))}
+        title={t("toolbar.textStyle")}
       >
-        <span className="text-[10px] font-semibold">A</span>
-      </ToolbarButton>
-      {quickFontSizes.map((option) => (
-        <ToolbarButton
-          key={option.value}
-          onClick={() => editor.chain().focus().setFontSize(option.value).run()}
-          active={normalizeStyleValue(option.value) === currentFontSize}
-          title={`${t("toolbar.fontSize")} ${option.label}`}
-          className="px-2 w-auto"
-        >
-          <span className="text-[10px] font-semibold">{option.label}</span>
-        </ToolbarButton>
-      ))}
-
-      <div className="w-px h-6 bg-border/50 mx-1" />
-
-      <ToolbarButton
-        onClick={() => editor.chain().focus().unsetLineHeight().run()}
-        active={!currentLineHeight}
-        title={t("toolbar.lineHeightDefault")}
-        className="px-2 w-auto"
-      >
-        <span className="text-[10px] font-semibold leading-none">LH</span>
-      </ToolbarButton>
-      {quickLineHeights.map((option) => (
-        <ToolbarButton
-          key={option.value}
-          onClick={() => editor.chain().focus().setLineHeight(option.value).run()}
-          active={normalizeStyleValue(option.value) === currentLineHeight}
-          title={`${t("toolbar.lineHeight")} ${option.label}`}
-          className="px-2 w-auto"
-        >
-          <span className="text-[10px] font-semibold">{option.label}</span>
-        </ToolbarButton>
-      ))}
-
-      <div className="w-px h-6 bg-border/50 mx-1" />
-
-      <ToolbarButton
-        onClick={() => editor.chain().focus().toggleSubscript().run()}
-        active={editor.isActive("subscript")}
-        title={t("toolbar.subscript")}
-      >
-        <SubscriptIcon className="w-4 h-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => editor.chain().focus().toggleSuperscript().run()}
-        active={editor.isActive("superscript")}
-        title={t("toolbar.superscript")}
-      >
-        <SuperscriptIcon className="w-4 h-4" />
+        <Type className="w-4 h-4" />
       </ToolbarButton>
     </div>
   );
@@ -424,7 +548,7 @@ export const CustomBubbleMenu = ({
   return createPortal(
     <div
       ref={menuRef}
-      className="fixed z-50 flex rounded-2xl border border-border/50 bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 zoom-in-95"
+      className="fixed z-50 flex rounded-xl border border-border/40 bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 zoom-in-95"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,

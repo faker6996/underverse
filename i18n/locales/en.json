@@ -1351,6 +1351,9 @@
       "accent": "Accent",
       "textColor": "Text Color",
       "highlight": "Highlight",
+      "automatic": "Automatic",
+      "moreColors": "More Colors...",
+      "color": "Color",
       "done": "Done"
     },
     "toolbar": {
@@ -1365,6 +1368,7 @@
       "subscript": "Subscript",
       "superscript": "Superscript",
       "link": "Link",
+      "removeLink": "Remove Link",
       "image": "Insert Image",
       "table": "Insert Table",
       "alignment": "Alignment",
