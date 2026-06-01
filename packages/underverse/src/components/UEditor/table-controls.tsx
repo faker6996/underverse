@@ -853,8 +853,8 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
 
   const menuTop = Math.max(8, layout.tableTop - TABLE_MENU_TOP_OFFSET);
   const menuLeft = Math.max(8, layout.tableLeft);
-  const rowHandleLeft = Math.max(8, layout.tableLeft - ROW_HANDLE_GUTTER);
-  const columnHandleTop = Math.max(8, layout.tableTop - COLUMN_HANDLE_TOP_OFFSET);
+  const rowHandleLeft = layout.tableLeft - 12;
+  const columnHandleTop = layout.tableTop - 12;
   const visibleTableWidth = Math.min(layout.tableWidth, layout.viewportWidth);
   const visibleTableHeight = Math.min(layout.tableHeight, layout.viewportHeight);
   const columnRailTop = layout.tableTop;
