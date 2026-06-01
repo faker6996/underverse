@@ -227,18 +227,10 @@ const BubbleMenuContent = ({
             } else {
               applyTableCellBackground(editor, color);
             }
+            setActiveColorPalette(null);
           }}
           label={isTextPalette ? t("colors.textColor") : isHighlightPalette ? t("colors.highlight") : (t("tableMenu.cellBackground") || "Cell background")}
         />
-        <div className="p-2 border-t">
-          <button
-            type="button"
-            onClick={() => setActiveColorPalette(null)}
-            className="w-full py-1.5 text-sm rounded-lg hover:bg-muted transition-colors"
-          >
-            {t("colors.done")}
-          </button>
-        </div>
       </div>
     );
   }
