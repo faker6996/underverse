@@ -39,7 +39,7 @@ const ADD_ROW_RAIL_GAP = 4;
 const ADD_COLUMN_HOVER_WIDTH = 24;
 const ADD_ROW_HOVER_HEIGHT = 24;
 const HANDLE_HOVER_RADIUS = 14;
-const IDLE_HANDLE_OPACITY = "0.4";
+const IDLE_HANDLE_OPACITY = "0";
 const IDLE_HANDLE_SCALE = "0.78";
 
 /** Public props for the `TableControls` component. */
@@ -936,8 +936,9 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
                       "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
                     )}
                     style={{
-                      opacity: visible ? 1 : Number(IDLE_HANDLE_OPACITY),
+                      opacity: visible ? 1 : 0,
                       transform: visible ? "scale(1)" : `scale(${IDLE_HANDLE_SCALE})`,
+                      pointerEvents: visible ? "auto" : "none",
                     }}
                   >
                     <GripVertical className="h-3.5 w-3.5" />
@@ -1006,8 +1007,9 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
                       "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
                     )}
                     style={{
-                      opacity: visible ? 1 : Number(IDLE_HANDLE_OPACITY),
+                      opacity: visible ? 1 : 0,
                       transform: visible ? "scale(1)" : `scale(${IDLE_HANDLE_SCALE})`,
+                      pointerEvents: visible ? "auto" : "none",
                     }}
                   >
                     <GripHorizontal className="h-3.5 w-3.5" />
@@ -1052,8 +1054,9 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
                     "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
                   )}
                   style={{
-                    opacity: controlsVisible || hoverState.menuVisible || tableMenuOpen ? 1 : 0.5,
+                    opacity: controlsVisible || hoverState.menuVisible || tableMenuOpen ? 1 : 0,
                     transform: controlsVisible || hoverState.menuVisible || tableMenuOpen ? "scale(1)" : "scale(0.82)",
+                    pointerEvents: controlsVisible || hoverState.menuVisible || tableMenuOpen ? "auto" : "none",
                   }}
                 >
                   <MoreHorizontal className="h-4 w-4" />
@@ -1092,8 +1095,9 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
             left: columnRailLeft,
             width: controlsVisible || hoverState.addColumnVisible ? 18 : 12,
             height: controlsVisible || hoverState.addColumnVisible ? visibleTableHeight : 48,
-            opacity: controlsVisible || hoverState.addColumnVisible ? 1 : 0.45,
+            opacity: controlsVisible || hoverState.addColumnVisible ? 1 : 0,
             transform: controlsVisible || hoverState.addColumnVisible ? "scale(1)" : "scale(0.92)",
+            pointerEvents: controlsVisible || hoverState.addColumnVisible ? "auto" : "none",
           }}
         >
           <span className="text-sm font-medium leading-none">+</span>
@@ -1128,8 +1132,9 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
             left: controlsVisible || hoverState.addRowVisible ? rowRailLeft : rowRailLeft + Math.max(0, visibleTableWidth / 2 - 24),
             width: controlsVisible || hoverState.addRowVisible ? visibleTableWidth : 48,
             height: controlsVisible || hoverState.addRowVisible ? 16 : 12,
-            opacity: controlsVisible || hoverState.addRowVisible ? 1 : 0.45,
+            opacity: controlsVisible || hoverState.addRowVisible ? 1 : 0,
             transform: controlsVisible || hoverState.addRowVisible ? "scale(1)" : "scale(0.92)",
+            pointerEvents: controlsVisible || hoverState.addRowVisible ? "auto" : "none",
           }}
         >
           <span className="text-sm font-medium leading-none">+</span>
