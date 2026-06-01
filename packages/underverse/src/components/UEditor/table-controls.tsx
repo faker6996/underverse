@@ -397,6 +397,11 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     const visibleTableWidth = Math.min(activeLayout.tableWidth, activeLayout.viewportWidth);
     const visibleTableHeight = Math.min(activeLayout.tableHeight, activeLayout.viewportHeight);
 
+    const isMouseInTable = relativeX >= activeLayout.tableLeft
+      && relativeX <= activeLayout.tableLeft + activeLayout.tableWidth
+      && relativeY >= activeLayout.tableTop
+      && relativeY <= activeLayout.tableTop + activeLayout.tableHeight;
+
     const rowHandleIndex = Number.isFinite(directRowHandleIndex)
       ? directRowHandleIndex
       : activeLayout.rowHandles.find((rowHandle) => (
@@ -413,7 +418,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       && Math.abs(relativeX - columnHandle.center) <= HANDLE_HOVER_RADIUS
     ))?.index ?? null;
 
-    const menuVisible = Boolean(directTableMenu) || (
+    const menuVisible = Boolean(directTableMenu) || isMouseInTable || (
       relativeX >= activeLayout.tableLeft - MENU_HOVER_PADDING
       && relativeX <= activeLayout.tableLeft + 42
       && relativeY >= activeLayout.tableTop - COLUMN_HANDLE_HOVER_HEIGHT
