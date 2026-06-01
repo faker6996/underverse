@@ -260,7 +260,8 @@
       "dragColumn": "열 드래그",
       "alignLeft": "표 왼쪽 정렬",
       "alignCenter": "표 가운데 정렬",
-      "alignRight": "표 오른쪽 정렬"
+      "alignRight": "표 오른쪽 정렬",
+      "cellBackground": "셀 배경색"
     }
   }
 }

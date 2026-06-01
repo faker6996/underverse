@@ -261,7 +261,8 @@
       "dragColumn": "Drag Column",
       "alignLeft": "Align Table Left",
       "alignCenter": "Align Table Center",
-      "alignRight": "Align Table Right"
+      "alignRight": "Align Table Right",
+      "cellBackground": "Cell Background"
     }
   }
 }

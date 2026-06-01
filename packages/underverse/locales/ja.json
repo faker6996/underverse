@@ -260,7 +260,8 @@
       "dragColumn": "列をドラッグ",
       "alignLeft": "表を左寄せ",
       "alignCenter": "表を中央揃え",
-      "alignRight": "表を右寄せ"
+      "alignRight": "表を右寄せ",
+      "cellBackground": "セル背景色"
     }
   }
 }

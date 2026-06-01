@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
+import { isInTable as isSelectionInTable, setCellAttr } from "@tiptap/pm/tables";
 import { createPortal } from "react-dom";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import {
@@ -26,7 +27,7 @@ import {
 import { cn } from "../../utils/cn";
 import { ToolbarButton } from "./toolbar";
 import { LinkInput } from "./inputs";
-import { EditorColorPalette, HighlightColorIcon, TextColorIcon, useEditorColors } from "./colors";
+import { CellBgColorIcon, EditorColorPalette, HighlightColorIcon, TextColorIcon, useEditorColors } from "./colors";
 import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
 import { buildSlashCommandItems, buildSlashCommandMessages, SlashCommandList, type SlashCommandListRef } from "./slash-command";
 import type { UEditorFontSizeOption, UEditorLineHeightOption } from "./types";
@@ -89,6 +90,19 @@ const FloatingMenuContent = ({ editor }: { editor: Editor }) => {
   );
 };
 
+function applyTableCellBackground(editor: Editor, color: string) {
+  const value = color || null;
+  const { state, view } = editor;
+  const applied = setCellAttr("backgroundColor", value)(state, view.dispatch.bind(view));
+
+  if (applied) {
+    view.focus();
+    return;
+  }
+
+  editor.chain().focus().setCellAttribute("backgroundColor", value).run();
+}
+
 const BubbleMenuContent = ({
   editor,
   onKeepOpenChange,
@@ -107,7 +121,7 @@ const BubbleMenuContent = ({
   });
   const { textColors, highlightColors } = useEditorColors();
   const [showLinkInput, setShowLinkInput] = useState(false);
-  const [activeColorPalette, setActiveColorPalette] = useState<"text" | "highlight" | null>(null);
+  const [activeColorPalette, setActiveColorPalette] = useState<"text" | "highlight" | "cell-bg" | null>(null);
   const [showTypographyPanel, setShowTypographyPanel] = useState(false);
   const [showFontSizeOptions, setShowFontSizeOptions] = useState(false);
   const [fontSizeDraft, setFontSizeDraft] = useState("");
@@ -120,6 +134,8 @@ const BubbleMenuContent = ({
   const textStyleAttrs = editor.getAttributes("textStyle") as { color?: string; fontSize?: string; lineHeight?: string };
   const currentTextColor = normalizeStyleValue(textStyleAttrs.color) || "inherit";
   const currentHighlightColor = normalizeStyleValue(editor.getAttributes("highlight").color) || "";
+  const currentCellBgColor = normalizeStyleValue(editor.getAttributes("tableCell").backgroundColor || editor.getAttributes("tableHeader").backgroundColor) || "";
+  const isInTable = isSelectionInTable(editor.state);
   const currentFontSize = normalizeStyleValue(textStyleAttrs.fontSize);
   const currentLineHeight = normalizeStyleValue(textStyleAttrs.lineHeight);
   const quickFontSizes = useMemo(
@@ -186,15 +202,15 @@ const BubbleMenuContent = ({
       />
     );
   }
-
   if (activeColorPalette) {
     const isTextPalette = activeColorPalette === "text";
+    const isHighlightPalette = activeColorPalette === "highlight";
 
     return (
       <div className="w-56">
         <EditorColorPalette
           colors={isTextPalette ? textColors : highlightColors}
-          currentColor={isTextPalette ? currentTextColor : currentHighlightColor}
+          currentColor={isTextPalette ? currentTextColor : isHighlightPalette ? currentHighlightColor : currentCellBgColor}
           onSelect={(color) => {
             if (isTextPalette) {
               if (color === "inherit") {
@@ -202,15 +218,17 @@ const BubbleMenuContent = ({
               } else {
                 editor.chain().focus().setColor(color).run();
               }
-            } else {
+            } else if (isHighlightPalette) {
               if (color === "") {
                 editor.chain().focus().unsetHighlight().run();
               } else {
                 editor.chain().focus().toggleHighlight({ color }).run();
               }
+            } else {
+              applyTableCellBackground(editor, color);
             }
           }}
-          label={isTextPalette ? t("colors.textColor") : t("colors.highlight")}
+          label={isTextPalette ? t("colors.textColor") : isHighlightPalette ? t("colors.highlight") : (t("tableMenu.cellBackground") || "Cell background")}
         />
         <div className="p-2 border-t">
           <button
@@ -444,15 +462,17 @@ const BubbleMenuContent = ({
       >
         <LinkIcon className="w-4 h-4" />
       </ToolbarButton>
-
       <ToolbarButton onClick={() => setActiveColorPalette("text")} title={t("colors.textColor")}>
         <TextColorIcon color={currentTextColor} />
       </ToolbarButton>
       <ToolbarButton onClick={() => setActiveColorPalette("highlight")} active={editor.isActive("highlight")} title={t("colors.highlight")}>
         <HighlightColorIcon color={currentHighlightColor} />
       </ToolbarButton>
-
-      <div className="w-px h-6 bg-border/50 mx-1" />
+      {isInTable && (
+        <ToolbarButton onClick={() => setActiveColorPalette("cell-bg")} active={Boolean(currentCellBgColor)} title={t("tableMenu.cellBackground") || "Cell background"}>
+          <CellBgColorIcon color={currentCellBgColor} />
+        </ToolbarButton>
+      )}
 
       <ToolbarButton
         onClick={() => setShowTypographyPanel(true)}

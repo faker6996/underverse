@@ -1,3 +1,4 @@
+import { mergeAttributes } from "@tiptap/core";
 import Document from "@tiptap/extension-document";
 import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
@@ -40,6 +41,70 @@ import LineHeight from "./line-height";
 import LetterSpacing from "./letter-spacing";
 import UEditorTable from "./table-align";
 import { isSafeUEditorUrl } from "./url-safety";
+
+const CustomTableCell = TableCell.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      backgroundColor: {
+        default: null,
+        parseHTML: (element) => element.style.backgroundColor || element.getAttribute("data-background-color") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.backgroundColor) {
+            return {};
+          }
+          return {
+            "data-background-color": attributes.backgroundColor,
+          };
+        },
+      },
+    };
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    const style = HTMLAttributes.style || "";
+    const bg = HTMLAttributes["data-background-color"];
+    const mergedStyle = bg ? `${style}; background-color: ${bg}`.replace(/^;/, "") : style;
+
+    return [
+      "td",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, mergedStyle ? { style: mergedStyle } : {}),
+      0,
+    ];
+  },
+});
+
+const CustomTableHeader = TableHeader.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      backgroundColor: {
+        default: null,
+        parseHTML: (element) => element.style.backgroundColor || element.getAttribute("data-background-color") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.backgroundColor) {
+            return {};
+          }
+          return {
+            "data-background-color": attributes.backgroundColor,
+          };
+        },
+      },
+    };
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    const style = HTMLAttributes.style || "";
+    const bg = HTMLAttributes["data-background-color"];
+    const mergedStyle = bg ? `${style}; background-color: ${bg}`.replace(/^;/, "") : style;
+
+    return [
+      "th",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, mergedStyle ? { style: mergedStyle } : {}),
+      0,
+    ];
+  },
+});
 
 const lowlight = createLowlight(common);
 
@@ -150,12 +215,12 @@ export function buildUEditorExtensions({
       },
     }),
     UEditorTableRow,
-    TableCell.configure({
+    CustomTableCell.configure({
       HTMLAttributes: {
         class: "border border-border p-2 min-w-25",
       },
     }),
-    TableHeader.configure({
+    CustomTableHeader.configure({
       HTMLAttributes: {
         class: "border border-border p-2 bg-muted font-semibold min-w-25",
       },

@@ -261,7 +261,8 @@
       "dragColumn": "Kéo cột",
       "alignLeft": "Căn bảng trái",
       "alignCenter": "Căn bảng giữa",
-      "alignRight": "Căn bảng phải"
+      "alignRight": "Căn bảng phải",
+      "cellBackground": "Màu nền ô"
     }
   }
 }
