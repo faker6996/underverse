@@ -395,7 +395,7 @@ export const EditorToolbar = ({
           ref={fontSizeControlRef}
           aria-label={t("toolbar.fontSize")}
           className={cn(
-            "flex h-8 min-w-16 items-center overflow-hidden rounded-full border border-border/60 bg-muted/30 text-xs font-semibold text-foreground",
+            "flex h-8 min-w-14 items-center overflow-hidden rounded-full border border-border/60 bg-muted/30 text-xs font-semibold text-foreground",
             "transition-colors focus-within:ring-2 focus-within:ring-primary/20",
           )}
         >
@@ -417,14 +417,14 @@ export const EditorToolbar = ({
               }
             }}
             aria-label={t("toolbar.fontSize")}
-            className="h-full w-10 bg-transparent px-1 text-center text-xs font-semibold outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            className="h-full w-8 bg-transparent px-0.5 text-center text-xs font-semibold outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
           <button
             type="button"
             aria-label={t("toolbar.fontSize")}
             aria-expanded={isFontSizeMenuOpen}
             onClick={toggleFontSizeMenu}
-            className="flex h-full w-7 items-center justify-center border-l border-border/50 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="flex h-full w-5 items-center justify-center text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             <ChevronDown className="h-3.5 w-3.5" />
           </button>
