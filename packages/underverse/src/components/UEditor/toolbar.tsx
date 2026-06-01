@@ -14,8 +14,10 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
+  Baseline,
   Bold as BoldIcon,
   ChevronDown,
+  ChevronsUpDown,
   Code as CodeIcon,
   FileCode,
   Heading1 as Heading1Icon,
@@ -99,7 +101,7 @@ export const ToolbarButton = React.forwardRef<
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex items-center justify-center w-8 h-8 rounded-md transition-colors duration-150",
+        "flex items-center justify-center w-7 h-7 rounded-md transition-colors duration-150 cursor-pointer",
         "gap-0.5 [&_svg+svg]:-ml-1",
         "hover:bg-accent",
         "focus:outline-none focus:ring-2 focus:ring-primary/20",
@@ -208,11 +210,7 @@ export const EditorToolbar = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
-  const [fontSizeDraft, setFontSizeDraft] = useState("");
-  const [isFontSizeMenuOpen, setIsFontSizeMenuOpen] = useState(false);
-  const [fontSizeMenuPosition, setFontSizeMenuPosition] = useState({ top: 0, left: 0 });
-  const fontSizeControlRef = useRef<HTMLDivElement | null>(null);
-  const fontSizeMenuRef = useRef<HTMLDivElement | null>(null);
+
   const isImageSelected = editor.isActive("image");
   const imageAttrs = editor.getAttributes("image") as { imageLayout?: string; imageWidthPreset?: UEditorImageWidthPreset | null };
   const tableAttrs = editor.getAttributes("table") as { tableAlign?: "left" | "center" | "right" | null };
@@ -252,64 +250,6 @@ export const EditorToolbar = ({
   const currentLetterSpacingLabel =
     availableLetterSpacings.find((option) => normalizeStyleValue(option.value) === currentLetterSpacing)?.label ?? t("toolbar.letterSpacingDefault");
   const displayedFontFamilyLabel = currentFontFamily ? currentFontFamilyLabel : (availableFontFamilies[0]?.label ?? t("toolbar.fontDefault"));
-
-  React.useEffect(() => {
-    if (document.activeElement === fontSizeControlRef.current?.querySelector("input")) return;
-    setFontSizeDraft(currentFontSize.replace(/px$/i, "") || "16");
-  }, [currentFontSize]);
-
-  const applyFontSizeDraft = () => {
-    const normalized = fontSizeDraft.trim();
-    if (!normalized) {
-      editor.chain().focus().unsetFontSize().run();
-      return;
-    }
-
-    const parsed = Number.parseFloat(normalized);
-    if (!Number.isFinite(parsed) || parsed <= 0) return;
-
-    const clamped = Math.min(96, Math.max(8, parsed));
-    editor.chain().focus().setFontSize(`${clamped}px`).run();
-    setFontSizeDraft(String(clamped));
-  };
-
-  const updateFontSizeMenuPosition = React.useCallback(() => {
-    const rect = fontSizeControlRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    setFontSizeMenuPosition({
-      top: Math.round(rect.bottom + 4),
-      left: Math.round(rect.left),
-    });
-  }, []);
-
-  const toggleFontSizeMenu = () => {
-    updateFontSizeMenuPosition();
-    setIsFontSizeMenuOpen((open) => !open);
-  };
-
-  React.useEffect(() => {
-    if (!isFontSizeMenuOpen) return;
-
-    updateFontSizeMenuPosition();
-
-    const handlePointerDown = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (fontSizeControlRef.current?.contains(target)) return;
-      if (fontSizeMenuRef.current?.contains(target)) return;
-      setIsFontSizeMenuOpen(false);
-    };
-    const handleLayoutChange = () => updateFontSizeMenuPosition();
-
-    document.addEventListener("mousedown", handlePointerDown);
-    window.addEventListener("resize", handleLayoutChange);
-    window.addEventListener("scroll", handleLayoutChange, true);
-
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      window.removeEventListener("resize", handleLayoutChange);
-      window.removeEventListener("scroll", handleLayoutChange, true);
-    };
-  }, [isFontSizeMenuOpen, updateFontSizeMenuPosition]);
 
   const insertImageFiles = async (files: File[]) => {
     if (files.length === 0) return;
@@ -359,17 +299,10 @@ export const EditorToolbar = ({
     <div className="flex flex-wrap items-center gap-0.5 border-b border-border/35 bg-linear-to-r from-muted/25 to-transparent p-1.5">
       <DropdownMenu
         trigger={
-          <button
-            type="button"
-            aria-label={t("toolbar.fontFamily")}
-            className={cn(
-              "flex h-8 min-w-34 max-w-42 items-center justify-between gap-2 rounded-full border border-border/60 bg-muted/30 px-2.5 text-xs text-foreground",
-              "transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary/20",
-            )}
-          >
-            <span className="truncate">{displayedFontFamilyLabel}</span>
-            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-          </button>
+          <ToolbarButton onClick={() => {}} title={t("toolbar.fontFamily")} className="px-1.5 w-auto gap-0.5">
+            <Baseline className="w-4 h-4" />
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          </ToolbarButton>
         }
         contentClassName="max-h-80 overflow-y-auto min-w-56 p-2"
       >
@@ -385,91 +318,45 @@ export const EditorToolbar = ({
             label={option.label}
             onClick={() => editor.chain().focus().setFontFamily(option.value).run()}
             active={normalizeStyleValue(option.value) === currentFontFamily}
-            className="font-medium "
+            className="font-medium"
           />
         ))}
       </DropdownMenu>
 
-      <>
-        <div
-          ref={fontSizeControlRef}
-          aria-label={t("toolbar.fontSize")}
-          className={cn(
-            "flex h-8 min-w-14 items-center overflow-hidden rounded-full border border-border/60 bg-muted/30 text-xs font-semibold text-foreground",
-            "transition-colors focus-within:ring-2 focus-within:ring-primary/20",
-          )}
-        >
-          <input
-            type="number"
-            min={8}
-            max={96}
-            step={1}
-            value={fontSizeDraft}
-            onChange={(e) => setFontSizeDraft(e.target.value)}
-            onBlur={applyFontSizeDraft}
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => {
-              e.stopPropagation();
-              if (e.key === "Enter") {
-                e.preventDefault();
-                applyFontSizeDraft();
-              }
-            }}
-            aria-label={t("toolbar.fontSize")}
-            className="h-full w-8 bg-transparent px-0.5 text-center text-xs font-semibold outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+      <DropdownMenu
+        trigger={
+          <ToolbarButton onClick={() => {}} title={t("toolbar.fontSize")} className="px-1.5 w-auto gap-0.5">
+            <div className="flex items-center gap-0.5">
+              <ChevronsUpDown className="h-3 w-3 text-muted-foreground" strokeWidth={2.5} />
+              <span className="text-xs font-bold leading-none">A</span>
+            </div>
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          </ToolbarButton>
+        }
+        contentClassName="max-h-80 overflow-y-auto min-w-32 p-2"
+      >
+        <DropdownMenuItem
+          icon={Type}
+          label={t("toolbar.sizeDefault")}
+          onClick={() => editor.chain().focus().unsetFontSize().run()}
+          active={!currentFontSize}
+        />
+        {availableFontSizes.map((option) => (
+          <DropdownMenuItem
+            key={option.value}
+            label={option.label}
+            onClick={() => editor.chain().focus().setFontSize(option.value).run()}
+            active={normalizeStyleValue(option.value) === currentFontSize}
           />
-          <button
-            type="button"
-            aria-label={t("toolbar.fontSize")}
-            aria-expanded={isFontSizeMenuOpen}
-            onClick={toggleFontSizeMenu}
-            className="flex h-full w-5 items-center justify-center text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          >
-            <ChevronDown className="h-3.5 w-3.5" />
-          </button>
-        </div>
-        {isFontSizeMenuOpen &&
-          typeof document !== "undefined" &&
-          createPortal(
-            <div
-              ref={fontSizeMenuRef}
-              className="fixed z-[10000] max-h-64 w-12 overflow-y-auto rounded-md border border-border/70 bg-popover p-0.5 text-popover-foreground shadow-md"
-              style={{ top: fontSizeMenuPosition.top, left: fontSizeMenuPosition.left }}
-            >
-              {availableFontSizes.map((option) => {
-                const active = normalizeStyleValue(option.value) === currentFontSize;
-
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => {
-                      editor.chain().focus().setFontSize(option.value).run();
-                      setFontSizeDraft(option.label);
-                      setIsFontSizeMenuOpen(false);
-                    }}
-                    className={cn(
-                      "flex h-6 w-full items-center justify-center rounded text-xs leading-none transition-colors",
-                      active ? "bg-primary/15 text-primary" : "text-foreground hover:bg-accent hover:text-accent-foreground",
-                    )}
-                  >
-                    {option.label}
-                  </button>
-                );
-              })}
-            </div>,
-            document.body,
-          )}
-      </>
+        ))}
+      </DropdownMenu>
 
       <DropdownMenu
-        contentClassName="p-2"
+        contentClassName="p-1"
         trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.textStyle")} className="px-2 w-auto gap-1">
+          <ToolbarButton onClick={() => {}} title={t("toolbar.textStyle")} className="px-1.5 w-auto gap-0.5">
             <Type className="w-4 h-4" />
-            <ChevronDown className="w-3 h-3" />
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </ToolbarButton>
         }
       >
@@ -509,7 +396,7 @@ export const EditorToolbar = ({
             <ArrowDown className="w-3 h-3" />
           </ToolbarButton>
         }
-        contentClassName="max-h-72 overflow-y-auto p-2"
+        contentClassName="max-h-72 overflow-y-auto p-1"
       >
         <DropdownMenuItem
           icon={Type}
@@ -534,7 +421,7 @@ export const EditorToolbar = ({
             <ArrowRight className="w-3 h-3" />
           </ToolbarButton>
         }
-        contentClassName="max-h-72 overflow-y-auto p-2"
+        contentClassName="max-h-72 overflow-y-auto p-1"
       >
         <DropdownMenuItem
           icon={Type}
