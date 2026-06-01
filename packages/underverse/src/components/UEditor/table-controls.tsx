@@ -881,7 +881,10 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     <>
       {layout.rowHandles.map((rowHandle) => {
         const menuKey = getRowMenuKey(rowHandle.index);
+        const isActive = rowHandle.index === layout.activeRowIndex;
         const visible = controlsVisible || hoverState.rowHandleIndex === rowHandle.index || openMenuKey === menuKey;
+        const isShown = visible || isActive;
+
         return (
         <div
           key={`row-handle-${rowHandle.index}`}
@@ -894,7 +897,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
         >
           <Tooltip
             placement="right"
-            disabled={openMenuKey === menuKey}
+            disabled={openMenuKey === menuKey || (!visible && isActive)}
             content={<span className="text-xs font-medium">{`${t("tableMenu.dragRow")} ${rowHandle.index + 1}`}</span>}
           >
             <span className="inline-flex">
@@ -930,18 +933,22 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
                       document.body.style.cursor = "grabbing";
                     }}
                     className={cn(
-                      "inline-flex h-6 w-6 items-center justify-center rounded-full",
-                      "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
-                      "cursor-grab active:cursor-grabbing",
-                      "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
+                      "inline-flex h-6 w-6 items-center justify-center rounded-full transition-[opacity,transform,colors,border,background-color] duration-150",
+                      visible
+                        ? "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur hover:bg-accent hover:text-foreground cursor-grab active:cursor-grabbing"
+                        : "border-transparent bg-transparent cursor-pointer",
                     )}
                     style={{
-                      opacity: visible ? 1 : 0,
-                      transform: visible ? "scale(1)" : `scale(${IDLE_HANDLE_SCALE})`,
-                      pointerEvents: visible ? "auto" : "none",
+                      opacity: isShown ? 1 : 0,
+                      transform: isShown ? "scale(1)" : `scale(${IDLE_HANDLE_SCALE})`,
+                      pointerEvents: isShown ? "auto" : "none",
                     }}
                   >
-                    <GripVertical className="h-3.5 w-3.5" />
+                    {visible ? (
+                      <GripVertical className="h-3.5 w-3.5" />
+                    ) : (
+                      <div className="h-3 w-1 rounded-full bg-muted-foreground/50 hover:bg-muted-foreground" />
+                    )}
                   </button>
                 )}
               />
@@ -952,7 +959,10 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
 
       {layout.columnHandles.map((columnHandle) => {
         const menuKey = getColumnMenuKey(columnHandle.index);
-      const visible = controlsVisible || hoverState.columnHandleIndex === columnHandle.index || openMenuKey === menuKey;
+        const isActive = columnHandle.index === layout.activeColumnIndex;
+        const visible = controlsVisible || hoverState.columnHandleIndex === columnHandle.index || openMenuKey === menuKey;
+        const isShown = visible || isActive;
+
         return (
         <div
           key={`column-handle-${columnHandle.index}`}
@@ -965,7 +975,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
         >
           <Tooltip
             placement="top"
-            disabled={openMenuKey === menuKey}
+            disabled={openMenuKey === menuKey || (!visible && isActive)}
             content={<span className="text-xs font-medium">{`${t("tableMenu.dragColumn")} ${columnHandle.index + 1}`}</span>}
           >
             <span className="inline-flex">
@@ -1001,18 +1011,22 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
                       document.body.style.cursor = "grabbing";
                     }}
                     className={cn(
-                      "inline-flex h-6 w-6 items-center justify-center rounded-full",
-                      "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur",
-                      "cursor-grab active:cursor-grabbing",
-                      "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground",
+                      "inline-flex h-6 w-6 items-center justify-center rounded-full transition-[opacity,transform,colors,border,background-color] duration-150",
+                      visible
+                        ? "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur hover:bg-accent hover:text-foreground cursor-grab active:cursor-grabbing"
+                        : "border-transparent bg-transparent cursor-pointer",
                     )}
                     style={{
-                      opacity: visible ? 1 : 0,
-                      transform: visible ? "scale(1)" : `scale(${IDLE_HANDLE_SCALE})`,
-                      pointerEvents: visible ? "auto" : "none",
+                      opacity: isShown ? 1 : 0,
+                      transform: isShown ? "scale(1)" : `scale(${IDLE_HANDLE_SCALE})`,
+                      pointerEvents: isShown ? "auto" : "none",
                     }}
                   >
-                    <GripHorizontal className="h-3.5 w-3.5" />
+                    {visible ? (
+                      <GripHorizontal className="h-3.5 w-3.5" />
+                    ) : (
+                      <div className="h-1 w-3 rounded-full bg-muted-foreground/50 hover:bg-muted-foreground" />
+                    )}
                   </button>
                 )}
               />
