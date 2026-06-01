@@ -420,19 +420,36 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       && relativeY <= activeLayout.tableTop + MENU_HOVER_PADDING
     );
 
+    const lastRow = activeLayout.rowHandles[activeLayout.rowHandles.length - 1];
+    const lastCol = activeLayout.columnHandles[activeLayout.columnHandles.length - 1];
+
+    const isMouseInLastColumn = lastCol
+      ? relativeX >= lastCol.start
+        && relativeX <= lastCol.start + lastCol.size
+        && relativeY >= activeLayout.tableTop
+        && relativeY <= activeLayout.tableTop + visibleTableHeight
+      : false;
+
     const addColumnVisible = Boolean(directAddColumn) || (
       relativeX >= activeLayout.tableLeft + visibleTableWidth
       && relativeX <= activeLayout.tableLeft + visibleTableWidth + ADD_COLUMN_HOVER_WIDTH
       && relativeY >= activeLayout.tableTop
       && relativeY <= activeLayout.tableTop + visibleTableHeight
-    );
+    ) || isMouseInLastColumn;
+
+    const isMouseInLastRow = lastRow
+      ? relativeY >= lastRow.start
+        && relativeY <= lastRow.start + lastRow.size
+        && relativeX >= activeLayout.tableLeft
+        && relativeX <= activeLayout.tableLeft + visibleTableWidth
+      : false;
 
     const addRowVisible = Boolean(directAddRow) || (
       relativeY >= activeLayout.tableTop + visibleTableHeight
       && relativeY <= activeLayout.tableTop + visibleTableHeight + ADD_ROW_HOVER_HEIGHT
       && relativeX >= activeLayout.tableLeft
       && relativeX <= activeLayout.tableLeft + visibleTableWidth
-    );
+    ) || isMouseInLastRow;
 
     setHoverState((prev) => {
       if (
