@@ -128,13 +128,15 @@ const BubbleMenuContent = ({
   const isImageSelected = editor.isActive("image");
   const imageAttrs = editor.getAttributes("image") as { imageLayout?: string; imageWidthPreset?: UEditorImageWidthPreset | null };
   const imageLayout = imageAttrs.imageLayout === "left" || imageAttrs.imageLayout === "right" ? imageAttrs.imageLayout : "block";
-  const imageWidthPreset = imageAttrs.imageWidthPreset === "sm" || imageAttrs.imageWidthPreset === "md" || imageAttrs.imageWidthPreset === "lg"
-    ? imageAttrs.imageWidthPreset
-    : null;
+  const imageWidthPreset =
+    imageAttrs.imageWidthPreset === "sm" || imageAttrs.imageWidthPreset === "md" || imageAttrs.imageWidthPreset === "lg"
+      ? imageAttrs.imageWidthPreset
+      : null;
   const textStyleAttrs = editor.getAttributes("textStyle") as { color?: string; fontSize?: string; lineHeight?: string };
   const currentTextColor = normalizeStyleValue(textStyleAttrs.color) || "inherit";
   const currentHighlightColor = normalizeStyleValue(editor.getAttributes("highlight").color) || "";
-  const currentCellBgColor = normalizeStyleValue(editor.getAttributes("tableCell").backgroundColor || editor.getAttributes("tableHeader").backgroundColor) || "";
+  const currentCellBgColor =
+    normalizeStyleValue(editor.getAttributes("tableCell").backgroundColor || editor.getAttributes("tableHeader").backgroundColor) || "";
   const isInTable = isSelectionInTable(editor.state);
   const currentFontSize = normalizeStyleValue(textStyleAttrs.fontSize);
   const currentLineHeight = normalizeStyleValue(textStyleAttrs.lineHeight);
@@ -229,7 +231,9 @@ const BubbleMenuContent = ({
             }
             setActiveColorPalette(null);
           }}
-          label={isTextPalette ? t("colors.textColor") : isHighlightPalette ? t("colors.highlight") : (t("tableMenu.cellBackground") || "Cell background")}
+          label={
+            isTextPalette ? t("colors.textColor") : isHighlightPalette ? t("colors.highlight") : t("tableMenu.cellBackground") || "Cell background"
+          }
         />
       </div>
     );
@@ -265,7 +269,11 @@ const BubbleMenuContent = ({
         <ToolbarButton onClick={() => resetImageSize(editor)} title={t("toolbar.imageResetSize")}>
           <RotateCcw className="w-4 h-4" />
         </ToolbarButton>
-        <ToolbarButton onClick={() => deleteSelectedImage(editor)} title={t("toolbar.imageDelete")} className="text-destructive hover:text-destructive">
+        <ToolbarButton
+          onClick={() => deleteSelectedImage(editor)}
+          title={t("toolbar.imageDelete")}
+          className="text-destructive hover:text-destructive"
+        >
           <Trash2 className="w-4 h-4" />
         </ToolbarButton>
       </div>
@@ -340,20 +348,20 @@ const BubbleMenuContent = ({
                   A
                 </button>
                 {quickFontSizes.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => {
-                    editor.chain().focus().setFontSize(option.value).run();
-                    setShowFontSizeOptions(false);
-                  }}
-                  className={cn(
-                    "h-8 rounded-md text-xs font-semibold transition-colors hover:bg-muted",
-                    normalizeStyleValue(option.value) === currentFontSize ? "bg-primary/10 text-primary" : "bg-muted/40 text-foreground",
-                  )}
-                >
-                  {option.label}
-                </button>
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      editor.chain().focus().setFontSize(option.value).run();
+                      setShowFontSizeOptions(false);
+                    }}
+                    className={cn(
+                      "h-8 rounded-md text-xs font-semibold transition-colors hover:bg-muted",
+                      normalizeStyleValue(option.value) === currentFontSize ? "bg-primary/10 text-primary" : "bg-muted/40 text-foreground",
+                    )}
+                  >
+                    {option.label}
+                  </button>
                 ))}
               </div>
             )}
@@ -461,7 +469,11 @@ const BubbleMenuContent = ({
         <HighlightColorIcon color={currentHighlightColor} />
       </ToolbarButton>
       {isInTable && (
-        <ToolbarButton onClick={() => setActiveColorPalette("cell-bg")} active={Boolean(currentCellBgColor)} title={t("tableMenu.cellBackground") || "Cell background"}>
+        <ToolbarButton
+          onClick={() => setActiveColorPalette("cell-bg")}
+          active={Boolean(currentCellBgColor)}
+          title={t("tableMenu.cellBackground") || "Cell background"}
+        >
           <CellBgColorIcon color={currentCellBgColor} />
         </ToolbarButton>
       )}
@@ -560,7 +572,7 @@ export const CustomBubbleMenu = ({
   return createPortal(
     <div
       ref={menuRef}
-      className="fixed z-50 flex rounded-xl border border-border/40 bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 zoom-in-95"
+      className="fixed z-99999 flex rounded-xl border border-border/40 bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 zoom-in-95"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
@@ -568,12 +580,7 @@ export const CustomBubbleMenu = ({
       }}
       onMouseDown={(e) => e.preventDefault()}
     >
-      <BubbleMenuContent
-        editor={editor}
-        onKeepOpenChange={setKeepOpen}
-        fontSizes={fontSizes}
-        lineHeights={lineHeights}
-      />
+      <BubbleMenuContent editor={editor} onKeepOpenChange={setKeepOpen} fontSizes={fontSizes} lineHeights={lineHeights} />
     </div>,
     document.body,
   );
@@ -589,8 +596,7 @@ export const CustomFloatingMenu = ({ editor }: { editor: Editor }) => {
       const { state, view } = editor;
       const { $from, empty } = state.selection;
 
-      const isEmptyTextBlock =
-        $from.parent.isTextblock && $from.parent.type.name === "paragraph" && $from.parent.textContent === "" && empty;
+      const isEmptyTextBlock = $from.parent.isTextblock && $from.parent.type.name === "paragraph" && $from.parent.textContent === "" && empty;
 
       if (!isEmptyTextBlock || !view.hasFocus()) {
         setIsVisible(false);
@@ -621,7 +627,7 @@ export const CustomFloatingMenu = ({ editor }: { editor: Editor }) => {
 
   return createPortal(
     <div
-      className="fixed z-50 rounded-2xl border border-border/50 bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 slide-in-from-bottom-2"
+      className="fixed z-99999 rounded-2xl border border-border/50 bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 slide-in-from-bottom-2"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,

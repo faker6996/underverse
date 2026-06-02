@@ -172,6 +172,7 @@ export const EmojiSuggestion = Extension.create({
                                 interactive: true,
                                 trigger: "manual",
                                 placement: "bottom-start",
+                                zIndex: 99999,
                             });
                         },
                         onUpdate(props: SuggestionProps<EmojiItem>) {

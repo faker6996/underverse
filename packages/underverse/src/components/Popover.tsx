@@ -354,12 +354,12 @@ export const Popover: React.FC<PopoverProps> = ({
               top: 0,
               left: 0,
               transform: "translate3d(0, 0, 0)",
-              zIndex: 9999,
+              zIndex: 99999,
               visibility: "hidden",
               pointerEvents: "none",
               willChange: "transform",
             }}
-            className="z-9999"
+            className="z-[99999]"
           >
             <div
               ref={panelRef}
