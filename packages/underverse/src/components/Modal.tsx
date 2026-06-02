@@ -132,10 +132,13 @@ const Modal: React.FC<ModalProps> = ({
         current.hasAttribute?.("data-dropdown-menu") ||
         current.hasAttribute?.("data-radix-popper-content-wrapper") ||
         current.hasAttribute?.("data-radix-portal") ||
+        current.hasAttribute?.("data-tippy-root") ||
         current.getAttribute?.("role") === "listbox" ||
         current.getAttribute?.("role") === "dialog" ||
         current.classList?.contains("datepicker-portal") ||
-        current.classList?.contains("popover-portal")
+        current.classList?.contains("popover-portal") ||
+        current.classList?.contains("tippy-box") ||
+        current.classList?.contains("tippy-content")
       ) {
         return true;
       }

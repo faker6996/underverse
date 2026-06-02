@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import UEditor from "@/components/ui/UEditor";
+import Button from "@/components/ui/Button";
+import Modal from "@/components/ui/Modal";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
@@ -24,6 +26,16 @@ const wrappedImageDataUrl = `data:image/svg+xml;charset=UTF-8,${encodeURICompone
 
 export default function UEditorExample() {
   const t = useTranslations("DocsUnderverse");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState(`
+    <h2>UEditor Inside Modal Demo</h2>
+    <p>This editor lives inside a modal. Test suggestion popups and menus here:</p>
+    <ul>
+      <li>Type <code>/</code> to trigger slash command suggestions.</li>
+      <li>Double-click text to trigger the Bubble menu.</li>
+      <li>Add a table using <code>/table</code> and change cell background color.</li>
+    </ul>
+  `);
   const [content, setContent] = useState(`
     <h1>Welcome to UEditor</h1>
     <p>A powerful <strong>Notion-like</strong> editor built with TipTap. Try out the features below:</p>
@@ -202,6 +214,46 @@ export default function UEditorExample() {
           content={content}
           editable={false}
         />
+      </div>
+
+      {/* UEditor inside Modal */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="px-2 py-1 text-xs font-medium bg-purple-500/10 text-purple-500 rounded-full">Inside Modal</span>
+          <span className="text-sm text-muted-foreground">Editor embedded within a Modal component</span>
+        </div>
+        <div>
+          <Button variant="outline" onClick={() => setIsModalOpen(true)}>
+            Open UEditor Modal
+          </Button>
+        </div>
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title="UEditor inside Modal"
+          size="lg"
+        >
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Try using "/", the selection bubble menu, or table color formatting. Clicking inside suggestion dropdowns or palettes will not close the modal.
+            </p>
+            <UEditor
+              content={modalContent}
+              onChange={setModalContent}
+              placeholder="Type '/' for commands..."
+              variant="notion"
+              showCharacterCount
+              showBubbleMenu
+              showFloatingMenu={false}
+              minHeight={250}
+            />
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="primary" onClick={() => setIsModalOpen(false)}>
+                Done
+              </Button>
+            </div>
+          </div>
+        </Modal>
       </div>
     </div>
   );

@@ -572,6 +572,7 @@ export const CustomBubbleMenu = ({
   return createPortal(
     <div
       ref={menuRef}
+      data-popover
       className="fixed z-99999 flex rounded-xl border border-border/40 bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 zoom-in-95"
       style={{
         top: `${position.top}px`,
@@ -627,6 +628,7 @@ export const CustomFloatingMenu = ({ editor }: { editor: Editor }) => {
 
   return createPortal(
     <div
+      data-popover
       className="fixed z-99999 rounded-2xl border border-border/50 bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 slide-in-from-bottom-2"
       style={{
         top: `${position.top}px`,
