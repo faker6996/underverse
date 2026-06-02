@@ -219,3 +219,96 @@ test("DateRangePicker shows required error on submit and clears it after selecti
     assert.equal(body.queryByText("This field is required"), null);
   });
 });
+
+test("DatePicker supports manual text input typing", async () => {
+  const mod = await importTsModule(path.join(path.resolve(import.meta.dirname, "../src/components"), "DatePicker.tsx"));
+  const DatePicker = mod.DatePicker;
+  const user = userEvent.setup({ document: window.document });
+  let selectedDate = undefined;
+
+  function Harness() {
+    const [val, setVal] = React.useState(undefined);
+    return React.createElement(DatePicker, {
+      value: val,
+      onChange: (d) => {
+        selectedDate = d;
+        setVal(d);
+      },
+      placeholder: "Pick a date",
+    });
+  }
+
+  const { container } = await renderElement(React.createElement(Harness));
+  const textInput = container.querySelector('input[type="text"]');
+  assert.ok(textInput, "expected visible text input");
+
+  // Focus and type date in MM/DD/YYYY format since default is English locale
+  await act(async () => {
+    textInput.focus();
+  });
+  
+  await act(async () => {
+    await user.keyboard("12/25/2026");
+  });
+
+  await waitFor(() => {
+    assert.ok(selectedDate instanceof Date);
+    assert.equal(selectedDate.getFullYear(), 2026);
+    assert.equal(selectedDate.getMonth(), 11); // December is 11
+    assert.equal(selectedDate.getDate(), 25);
+  });
+
+  // Blur should format the text to local display
+  await act(async () => {
+    textInput.blur();
+  });
+
+  await waitFor(() => {
+    assert.equal(textInput.value, "December 25, 2026");
+  });
+});
+
+test("DateRangePicker supports manual text input typing for date range", async () => {
+  const mod = await importTsModule(path.join(path.resolve(import.meta.dirname, "../src/components"), "DatePicker.tsx"));
+  const DateRangePicker = mod.DateRangePicker;
+  const user = userEvent.setup({ document: window.document });
+  let rangeResult = { start: undefined, end: undefined };
+
+  function Harness() {
+    const [range, setRange] = React.useState({ start: undefined, end: undefined });
+    return React.createElement(DateRangePicker, {
+      startDate: range.start,
+      endDate: range.end,
+      onChange: (start, end) => {
+        rangeResult = { start, end };
+        setRange({ start, end });
+      },
+      placeholder: "Select date range...",
+    });
+  }
+
+  const { container } = await renderElement(React.createElement(Harness));
+  const textInput = container.querySelector('input[type="text"]');
+  assert.ok(textInput, "expected visible range text input");
+
+  await act(async () => {
+    textInput.focus();
+  });
+
+  await act(async () => {
+    await user.keyboard("12/25/2026 - 12/28/2026");
+  });
+
+  await waitFor(() => {
+    assert.ok(rangeResult.start instanceof Date);
+    assert.equal(rangeResult.start.getFullYear(), 2026);
+    assert.equal(rangeResult.start.getMonth(), 11);
+    assert.equal(rangeResult.start.getDate(), 25);
+
+    assert.ok(rangeResult.end instanceof Date);
+    assert.equal(rangeResult.end.getFullYear(), 2026);
+    assert.equal(rangeResult.end.getMonth(), 11);
+    assert.equal(rangeResult.end.getDate(), 28);
+  });
+});
+

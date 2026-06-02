@@ -2,7 +2,7 @@
 
 import { useSmartLocale, useSmartTranslations } from "../hooks/useSmartTranslations";
 import { cn } from "../utils/cn";
-import { formatDateShort } from "../utils/date";
+import { formatDateShort, parseDateString } from "../utils/date";
 import { useShadCNAnimations } from "../utils/animations";
 import { Calendar, ChevronLeft, ChevronRight, Sparkles, X as XIcon } from "lucide-react";
 import * as React from "react";
@@ -58,9 +58,90 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const [viewDate, setViewDate] = React.useState(value || new Date());
   const [viewMode, setViewMode] = React.useState<"calendar" | "month" | "year">("calendar");
   const [localRequiredError, setLocalRequiredError] = React.useState<string | undefined>();
-  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const triggerRef = React.useRef<HTMLDivElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const wheelContainerRef = React.useRef<HTMLDivElement>(null);
   const wheelDeltaRef = React.useRef(0);
+
+  // Focus and typing state
+  const [isFocused, setIsFocused] = React.useState(false);
+  const [inputValue, setInputValue] = React.useState<string>("");
+
+  React.useEffect(() => {
+    if (value) {
+      const parsed = parseDateString(inputValue, locale);
+      const isSame = parsed && parsed.getTime() === value.getTime();
+      if (!isSame) {
+        setInputValue(formatDateShort(value, locale));
+      }
+    } else if (!isFocused) {
+      setInputValue("");
+    }
+  }, [value, locale, isFocused]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const text = e.target.value;
+    setInputValue(text);
+    const parsedDate = parseDateString(text, locale);
+    if (parsedDate) {
+      if (!isDateDisabled(parsedDate)) {
+        onChange(parsedDate);
+        setViewDate(parsedDate);
+        setLocalRequiredError(undefined);
+      }
+    }
+  };
+
+  const handleInputBlur = () => {
+    setIsFocused(false);
+    if (!inputValue.trim()) {
+      if (required) {
+        setLocalRequiredError(tv("required"));
+      } else {
+        onChange(undefined);
+        setLocalRequiredError(undefined);
+      }
+    } else {
+      const parsedDate = parseDateString(inputValue, locale);
+      if (parsedDate && !isDateDisabled(parsedDate)) {
+        onChange(parsedDate);
+        setInputValue(formatDateShort(parsedDate, locale));
+        setLocalRequiredError(undefined);
+      } else {
+        if (value) {
+          setInputValue(formatDateShort(value, locale));
+          setLocalRequiredError(undefined);
+        } else {
+          setInputValue("");
+          if (required) {
+            setLocalRequiredError(tv("required"));
+          }
+        }
+      }
+    }
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const parsedDate = parseDateString(inputValue, locale);
+      if (parsedDate && !isDateDisabled(parsedDate)) {
+        onChange(parsedDate);
+        setInputValue(formatDateShort(parsedDate, locale));
+        setViewDate(parsedDate);
+        setIsOpen(false);
+        setLocalRequiredError(undefined);
+      } else if (!inputValue.trim() && !required) {
+        onChange(undefined);
+        setIsOpen(false);
+        setLocalRequiredError(undefined);
+      } else {
+        setIsOpen(false);
+      }
+    } else if (e.key === "Escape") {
+      setIsOpen(false);
+    }
+  };
 
   const normalizeToLocalDay = React.useCallback((date: Date | undefined): Date | null => {
     if (!date) return null;
@@ -520,7 +601,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           <label
             id={labelId}
             htmlFor={resolvedId}
-            onClick={() => triggerRef.current?.focus()}
+            onClick={() => inputRef.current?.focus()}
             className={cn(
               labelSize,
               "font-semibold transition-colors duration-300 cursor-pointer",
@@ -563,11 +644,11 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
         )}
         trigger={
-          <button
+          <div
             ref={triggerRef}
-            type="button"
-            disabled={disabled}
             id={resolvedId}
+            role="button"
+            aria-label={value ? formatDateDisplay(value) : (placeholder || t("placeholder"))}
             aria-labelledby={labelId}
             aria-required={required}
             aria-invalid={!!effectiveError}
@@ -575,17 +656,20 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
               "rounded-full",
               sizeStyles[size].trigger,
-              "border-border/60 hover:border-primary/40",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-              "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
+              disabled
+                ? "border-border/40 opacity-50 cursor-not-allowed"
+                : [
+                    "border-border/60 hover:border-primary/40",
+                    "focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 focus-within:ring-offset-background focus-within:border-transparent focus-within:hover:border-transparent",
+                    "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
+                  ],
               "transition-all duration-300 ease-out",
-              isOpen && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
-              effectiveError && "border-destructive/60 focus-visible:ring-destructive/50 bg-destructive/5",
+              isOpen && !isFocused && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
+              effectiveError && "border-destructive/60 focus-within:ring-destructive/50 bg-destructive/5",
               className,
             )}
           >
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 flex-1 min-w-0">
               <div
                 className={cn(
                   "flex items-center justify-center transition-colors duration-300",
@@ -594,13 +678,31 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               >
                 <Calendar className={cn(sizeStyles[size].calendarIcon, "transition-transform duration-300", isOpen && "scale-110")} />
               </div>
-              <span
-                className={cn("truncate font-medium transition-colors duration-200", !value && "text-muted-foreground", value && "text-foreground")}
-              >
+              <input
+                ref={inputRef}
+                type="text"
+                disabled={disabled}
+                placeholder={placeholder || t("placeholder")}
+                value={isFocused ? inputValue : (value ? formatDateDisplay(value) : "")}
+                onChange={handleInputChange}
+                onFocus={() => {
+                  setIsFocused(true);
+                  if (!disabled) setIsOpen(true);
+                }}
+                onBlur={handleInputBlur}
+                onKeyDown={handleInputKeyDown}
+                onClick={(e) => {
+                  if (isOpen) {
+                    e.stopPropagation();
+                  }
+                }}
+                className="w-full bg-transparent border-none outline-none focus:outline-none p-0 text-foreground font-medium placeholder-muted-foreground/60 min-w-0"
+              />
+              <span className="sr-only">
                 {value ? formatDateDisplay(value) : placeholder || t("placeholder")}
               </span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0">
               {value && (
                 <span
                   role="button"
@@ -638,7 +740,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 </svg>
               </span>
             </div>
-          </button>
+          </div>
         }
       >
         {datePickerContent}
@@ -667,6 +769,7 @@ export interface DateRangePickerProps {
   maxDate?: Date;
   /** Size variant */
   size?: "sm" | "md" | "lg";
+  disabled?: boolean;
 }
 
 export const DateRangePicker: React.FC<DateRangePickerProps> = ({
@@ -683,6 +786,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   minDate,
   maxDate,
   size = "md",
+  disabled = false,
 }) => {
   const locale = useSmartLocale();
   const t = useSmartTranslations("DatePicker");
@@ -692,6 +796,179 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   const [localRequiredError, setLocalRequiredError] = React.useState<string | undefined>();
   const wheelContainerRef = React.useRef<HTMLDivElement>(null);
   const wheelDeltaRef = React.useRef(0);
+
+  const triggerRef = React.useRef<HTMLDivElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  // Focus and typing state
+  const [isFocused, setIsFocused] = React.useState(false);
+  const [inputValue, setInputValue] = React.useState<string>("");
+
+  const todayDate = React.useMemo(() => {
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  }, []);
+
+  const getRangeString = React.useCallback((s: Date | null | undefined, e: Date | null | undefined) => {
+    if (!s) return "";
+    const startStr = formatDateShort(s, locale);
+    if (!e) return `${startStr} - `;
+    return `${startStr} - ${formatDateShort(e, locale)}`;
+  }, [locale]);
+
+  React.useEffect(() => {
+    if (startDate) {
+      const parts = inputValue.split(/\s*-\s*/);
+      const inputStart = parts[0] ? parseDateString(parts[0], locale) : null;
+      const inputEnd = parts[1] ? parseDateString(parts[1], locale) : null;
+      const startSame = inputStart && startDate && inputStart.getTime() === startDate.getTime();
+      const endSame = (!endDate && !inputEnd) || (endDate && inputEnd && endDate.getTime() === inputEnd.getTime());
+      
+      if (!(startSame && endSame)) {
+        setInputValue(getRangeString(startDate, endDate));
+      }
+    } else if (!isFocused) {
+      setInputValue("");
+    }
+  }, [startDate, endDate, locale, isFocused, getRangeString]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const text = e.target.value;
+    setInputValue(text);
+    
+    const parts = text.split(/\s*-\s*/);
+    if (parts.length === 2) {
+      const s = parseDateString(parts[0], locale);
+      const eVal = parseDateString(parts[1], locale);
+      if (s) {
+        const isStartDisabled = (disablePastDates && s < todayDate) || (!!minDay && s < minDay) || (!!maxDay && s > maxDay);
+        if (!isStartDisabled) {
+          setTempStart(s);
+          if (eVal) {
+            const isEndDisabled = (disablePastDates && eVal < todayDate) || (!!minDay && eVal < minDay) || (!!maxDay && eVal > maxDay);
+            if (!isEndDisabled && s <= eVal) {
+              setTempEnd(eVal);
+              onChange(s, eVal);
+              setViewDate(s);
+              setLocalRequiredError(undefined);
+            } else {
+              setTempEnd(null);
+              onChange(s, null);
+            }
+          } else {
+            setTempEnd(null);
+            onChange(s, null);
+          }
+        }
+      }
+    } else if (parts.length === 1 && parts[0].trim()) {
+      const s = parseDateString(parts[0], locale);
+      if (s) {
+        const isStartDisabled = (disablePastDates && s < todayDate) || (!!minDay && s < minDay) || (!!maxDay && s > maxDay);
+        if (!isStartDisabled) {
+          setTempStart(s);
+          setTempEnd(null);
+          onChange(s, null);
+        }
+      }
+    }
+  };
+
+  const handleInputBlur = () => {
+    setIsFocused(false);
+    if (!inputValue.trim()) {
+      if (required) {
+        setLocalRequiredError(tv("required"));
+      } else {
+        setTempStart(null);
+        setTempEnd(null);
+        onChange(undefined, undefined);
+        setLocalRequiredError(undefined);
+      }
+    } else {
+      const parts = inputValue.split(/\s*-\s*/);
+      const s = parts[0] ? parseDateString(parts[0], locale) : null;
+      const eVal = parts[1] ? parseDateString(parts[1], locale) : null;
+      
+      if (s) {
+        const isStartDisabled = (disablePastDates && s < todayDate) || (!!minDay && s < minDay) || (!!maxDay && s > maxDay);
+        if (!isStartDisabled) {
+          if (eVal) {
+            const isEndDisabled = (disablePastDates && eVal < todayDate) || (!!minDay && eVal < minDay) || (!!maxDay && eVal > maxDay);
+            if (!isEndDisabled && s <= eVal) {
+              setTempStart(s);
+              setTempEnd(eVal);
+              onChange(s, eVal);
+              setInputValue(getRangeString(s, eVal));
+              setLocalRequiredError(undefined);
+              return;
+            }
+          } else {
+            setTempStart(s);
+            setTempEnd(null);
+            onChange(s, null);
+            setInputValue(getRangeString(s, null));
+            setLocalRequiredError(undefined);
+            return;
+          }
+        }
+      }
+      
+      if (startDate) {
+        setTempStart(normalizeToLocal(startDate));
+        setTempEnd(normalizeToLocal(endDate));
+        setInputValue(getRangeString(startDate, endDate));
+        setLocalRequiredError(undefined);
+      } else {
+        setTempStart(null);
+        setTempEnd(null);
+        setInputValue("");
+        if (required) {
+          setLocalRequiredError(tv("required"));
+        }
+      }
+    }
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const parts = inputValue.split(/\s*-\s*/);
+      const s = parts[0] ? parseDateString(parts[0], locale) : null;
+      const eVal = parts[1] ? parseDateString(parts[1], locale) : null;
+      
+      if (s) {
+        const isStartDisabled = (disablePastDates && s < todayDate) || (!!minDay && s < minDay) || (!!maxDay && s > maxDay);
+        if (!isStartDisabled) {
+          if (eVal) {
+            const isEndDisabled = (disablePastDates && eVal < todayDate) || (!!minDay && eVal < minDay) || (!!maxDay && eVal > maxDay);
+            if (!isEndDisabled && s <= eVal) {
+              setTempStart(s);
+              setTempEnd(eVal);
+              onChange(s, eVal);
+              setInputValue(getRangeString(s, eVal));
+              setViewDate(s);
+              setIsOpen(false);
+              setLocalRequiredError(undefined);
+              return;
+            }
+          } else {
+            setTempStart(s);
+            setTempEnd(null);
+            onChange(s, null);
+            setInputValue(getRangeString(s, null));
+            setViewDate(s);
+            setIsOpen(false);
+            setLocalRequiredError(undefined);
+            return;
+          }
+        }
+      }
+      setIsOpen(false);
+    } else if (e.key === "Escape") {
+      setIsOpen(false);
+    }
+  };
 
   // Size styles for consistent sizing across all elements
   const sizeStyles = {
@@ -1029,10 +1306,6 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     );
   };
 
-  const todayDate = React.useMemo(() => {
-    const today = new Date();
-    return new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  }, []);
   const isTodayUnavailable = (!!minDay && todayDate < minDay) || (!!maxDay && todayDate > maxDay);
 
   const panel = (
@@ -1164,7 +1437,14 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
         <label
           id={labelId}
           htmlFor={resolvedId}
-          className={cn(size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm", "font-medium text-foreground", effectiveError && "text-destructive", labelClassName)}
+          onClick={() => inputRef.current?.focus()}
+          className={cn(
+            size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
+            "font-medium transition-colors duration-300",
+            disabled ? "text-muted-foreground cursor-not-allowed" : "text-foreground group-focus-within:text-primary hover:text-primary cursor-pointer",
+            effectiveError && "text-destructive",
+            labelClassName
+          )}
         >
           {label}
           {required && <span className="text-destructive ml-1">*</span>}
@@ -1176,6 +1456,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
         value={startDate && endDate ? "selected" : ""}
         onChange={() => {}}
         required={required}
+        disabled={disabled}
         onInvalid={(e) => {
           e.preventDefault();
           setLocalRequiredError(tv("required"));
@@ -1186,6 +1467,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
         open={isOpen}
         onOpenChange={setIsOpen}
         placement="bottom-start"
+        disabled={disabled}
         contentWidth={sizeStyles[size].contentWidth}
         contentClassName={cn(
           "p-0",
@@ -1196,24 +1478,30 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
           "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
         )}
         trigger={
-          <button
+          <div
+            ref={triggerRef}
             id={resolvedId}
-            type="button"
+            role="button"
+            aria-label={tempStart ? displayLabel : placeholder}
             aria-labelledby={labelId}
             aria-required={required}
             aria-invalid={!!effectiveError}
             className={cn(
               "group flex w-full items-center justify-between rounded-full border bg-background/80 backdrop-blur-sm",
               sizeStyles[size].trigger,
-              "border-border/60 hover:border-primary/40",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-              "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
+              disabled
+                ? "border-border/40 opacity-50 cursor-not-allowed"
+                : [
+                    "border-border/60 hover:border-primary/40",
+                    "focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 focus-within:ring-offset-background focus-within:border-transparent focus-within:hover:border-transparent",
+                    "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
+                  ],
               "transition-all duration-300 ease-out",
-              isOpen && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
-              effectiveError && "border-destructive/60 focus-visible:ring-destructive/50 bg-destructive/5",
+              isOpen && !isFocused && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
+              effectiveError && "border-destructive/60 focus-within:ring-destructive/50 bg-destructive/5",
             )}
           >
-            <div className={cn("flex items-center", size === "sm" ? "gap-1.5" : "gap-2.5")}>
+            <div className={cn("flex items-center flex-1 min-w-0", size === "sm" ? "gap-1.5" : "gap-2.5")}>
               <div
                 className={cn(
                   "flex items-center justify-center transition-colors duration-300",
@@ -1222,14 +1510,28 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
               >
                 <Calendar className={cn("transition-transform duration-300", sizeStyles[size].calendarIcon, isOpen && "scale-110")} />
               </div>
-              <span
-                className={cn(
-                  "truncate font-medium transition-colors duration-200",
-                  !tempStart && !tempEnd && "text-muted-foreground",
-                  (tempStart || tempEnd) && "text-foreground",
-                )}
-              >
-                {displayLabel}
+              <input
+                ref={inputRef}
+                type="text"
+                disabled={disabled}
+                placeholder={placeholder}
+                value={isFocused ? inputValue : (tempStart ? displayLabel : "")}
+                onChange={handleInputChange}
+                onFocus={() => {
+                  setIsFocused(true);
+                  if (!disabled) setIsOpen(true);
+                }}
+                onBlur={handleInputBlur}
+                onKeyDown={handleInputKeyDown}
+                onClick={(e) => {
+                  if (isOpen) {
+                    e.stopPropagation();
+                  }
+                }}
+                className="w-full bg-transparent border-none outline-none focus:outline-none p-0 text-foreground font-medium placeholder-muted-foreground/60 min-w-0"
+              />
+              <span className="sr-only">
+                {tempStart ? displayLabel : placeholder}
               </span>
             </div>
             <span className={cn("transition-all duration-300 text-muted-foreground group-hover:text-foreground", isOpen && "rotate-180 text-primary")}>
@@ -1237,7 +1539,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </span>
-          </button>
+          </div>
         }
       >
         {panel}

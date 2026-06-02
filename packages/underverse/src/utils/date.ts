@@ -322,3 +322,64 @@ export function formatDateSmart(date: string | Date | null | undefined, locale: 
   // Older - show full date with time
   return formatDateTime(date, locale);
 }
+
+/**
+ * Parse date string based on locale
+ */
+export function parseDateString(str: string, locale: SupportedLocale = "en"): Date | null {
+  if (!str) return null;
+  const cleaned = str.trim();
+  if (!cleaned) return null;
+
+  // Split by common delimiters: /, -, ., or spaces
+  const parts = cleaned.split(/[\/\-\.\s]+/).filter(Boolean);
+  if (parts.length !== 3) return null;
+
+  let day = 0;
+  let month = 0;
+  let year = 0;
+
+  if (locale === "vi") {
+    // DD/MM/YYYY
+    day = parseInt(parts[0], 10);
+    month = parseInt(parts[1], 10);
+    year = parseInt(parts[2], 10);
+  } else if (locale === "ja" || locale === "ko") {
+    // YYYY/MM/DD
+    year = parseInt(parts[0], 10);
+    month = parseInt(parts[1], 10);
+    day = parseInt(parts[2], 10);
+  } else {
+    // Default English format: MM/DD/YYYY or YYYY/MM/DD if year comes first
+    if (parts[0].length === 4) {
+      year = parseInt(parts[0], 10);
+      month = parseInt(parts[1], 10);
+      day = parseInt(parts[2], 10);
+    } else {
+      month = parseInt(parts[0], 10);
+      day = parseInt(parts[1], 10);
+      year = parseInt(parts[2], 10);
+    }
+  }
+
+  if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+
+  // Handle 2-digit years (e.g. 26 -> 2026)
+  if (year < 100) {
+    year += year >= 50 ? 1900 : 2000;
+  }
+
+  const parsedDate = new Date(year, month - 1, day);
+
+  // Validate if day of month is mathematically correct (e.g. rejects Feb 30)
+  if (
+    parsedDate.getFullYear() === year &&
+    parsedDate.getMonth() === month - 1 &&
+    parsedDate.getDate() === day
+  ) {
+    return parsedDate;
+  }
+
+  return null;
+}
+
