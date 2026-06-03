@@ -1041,10 +1041,10 @@ export default function TimePicker({
           className,
         )}
       >
-        <div className="flex items-center gap-2.5">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
           <div
             className={cn(
-              "flex items-center justify-center transition-colors duration-300",
+              "flex shrink-0 items-center justify-center transition-colors duration-300",
               effectiveError
                 ? "text-destructive"
                 : success
@@ -1058,7 +1058,7 @@ export default function TimePicker({
           </div>
           <span
             className={cn(
-              "truncate font-medium transition-colors duration-200",
+              "min-w-0 truncate font-medium transition-colors duration-200",
               !hasCommittedValue && "text-muted-foreground",
               hasCommittedValue ? "text-foreground" : "",
             )}
@@ -1066,7 +1066,7 @@ export default function TimePicker({
             {hasCommittedValue ? display : placeholder}
           </span>
         </div>
-        <span className={cn("ml-2 transition-all duration-300 text-muted-foreground group-hover:text-foreground", open && "rotate-180 text-primary")}>
+        <span className={cn("ml-2 shrink-0 transition-all duration-300 text-muted-foreground group-hover:text-foreground", open && "rotate-180 text-primary")}>
           <svg className={sz.icon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
           </svg>

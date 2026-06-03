@@ -52,6 +52,12 @@ function getRequiredInput(container) {
   return input;
 }
 
+function getVisibleTextInput(container) {
+  const input = container.querySelector('input[type="text"]');
+  assert.ok(input, "expected visible text input");
+  return input;
+}
+
 async function triggerRequiredValidation(form, input) {
   assert.ok(form, "expected form element");
   await act(async () => {
@@ -77,9 +83,10 @@ test("DateRangePicker supports month and year quick selection before picking a r
     });
   }
 
-  await renderElement(React.createElement(Harness));
+  const view = await renderElement(React.createElement(Harness));
   const body = within(window.document.body);
   const trigger = body.getByRole("button", { name: /select date range/i });
+  const textInput = getVisibleTextInput(view.container);
 
   await clickWithAct(user, trigger);
   await clickWithAct(user, body.getByRole("button", { name: String(new Date().getFullYear()) }));
@@ -95,9 +102,8 @@ test("DateRangePicker supports month and year quick selection before picking a r
   await clickWithAct(user, body.getByRole("button", { name: "15" }));
 
   await waitFor(() => {
-    const text = trigger.textContent || "";
-    assert.doesNotMatch(text, /Select date range/i);
-    assert.match(text, new RegExp(String(targetYear)));
+    assert.doesNotMatch(textInput.value, /Select date range/i);
+    assert.match(textInput.value, new RegExp(String(targetYear)));
   });
 });
 
@@ -121,9 +127,10 @@ test("DateRangePicker reports a null end date while selecting an incomplete rang
     });
   }
 
-  await renderElement(React.createElement(Harness));
+  const view = await renderElement(React.createElement(Harness));
   const body = within(window.document.body);
   const trigger = body.getByRole("button", { name: /select date range/i });
+  const textInput = getVisibleTextInput(view.container);
 
   await clickWithAct(user, trigger);
   await clickWithAct(user, body.getByRole("button", { name: "10" }));
@@ -133,7 +140,7 @@ test("DateRangePicker reports a null end date while selecting an incomplete rang
     assert.ok(changes[0].start instanceof Date);
     assert.equal(changes[0].start.getDate(), 10);
     assert.equal(changes[0].end, null);
-    assert.match(trigger.textContent || "", /\s-\s\.\.\./);
+    assert.match(textInput.value, /\s-\s\.\.\./);
   });
 });
 
@@ -153,24 +160,25 @@ test("DateRangePicker footer supports Today and Clear actions", async () => {
     });
   }
 
-  await renderElement(React.createElement(Harness));
+  const view = await renderElement(React.createElement(Harness));
   const body = within(window.document.body);
   const trigger = body.getByRole("button", { name: /select date range/i });
+  const textInput = getVisibleTextInput(view.container);
 
   await clickWithAct(user, trigger);
   await clickWithAct(user, await body.findByRole("button", { name: "Today" }));
 
   await waitFor(() => {
-    const text = trigger.textContent || "";
-    assert.doesNotMatch(text, /Select date range/i);
-    assert.match(text, /\s-\s/);
+    assert.doesNotMatch(textInput.value, /Select date range/i);
+    assert.match(textInput.value, /\s-\s/);
   });
 
   await clickWithAct(user, trigger);
   await clickWithAct(user, await body.findByRole("button", { name: "Clear" }));
 
   await waitFor(() => {
-    assert.match(trigger.textContent || "", /Select date range/i);
+    assert.equal(textInput.value, "");
+    assert.match(textInput.placeholder, /Select date range/i);
   });
 });
 
@@ -239,8 +247,7 @@ test("DatePicker supports manual text input typing", async () => {
   }
 
   const { container } = await renderElement(React.createElement(Harness));
-  const textInput = container.querySelector('input[type="text"]');
-  assert.ok(textInput, "expected visible text input");
+  const textInput = getVisibleTextInput(container);
 
   // Focus and type date in MM/DD/YYYY format since default is English locale
   await act(async () => {
@@ -288,8 +295,7 @@ test("DateRangePicker supports manual text input typing for date range", async (
   }
 
   const { container } = await renderElement(React.createElement(Harness));
-  const textInput = container.querySelector('input[type="text"]');
-  assert.ok(textInput, "expected visible range text input");
+  const textInput = getVisibleTextInput(container);
 
   await act(async () => {
     textInput.focus();
@@ -311,4 +317,3 @@ test("DateRangePicker supports manual text input typing for date range", async (
     assert.equal(rangeResult.end.getDate(), 28);
   });
 });
-

@@ -681,6 +681,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               <input
                 ref={inputRef}
                 type="text"
+                aria-label={value ? formatDateDisplay(value) : (placeholder || t("placeholder"))}
                 disabled={disabled}
                 placeholder={placeholder || t("placeholder")}
                 value={isFocused ? inputValue : (value ? formatDateDisplay(value) : "")}
@@ -698,9 +699,6 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 }}
                 className="w-full bg-transparent border-none outline-none focus:outline-none p-0 text-foreground font-medium placeholder-muted-foreground/60 min-w-0"
               />
-              <span className="sr-only">
-                {value ? formatDateDisplay(value) : placeholder || t("placeholder")}
-              </span>
             </div>
             <div className="flex items-center gap-1 shrink-0">
               {value && (
@@ -1513,6 +1511,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
               <input
                 ref={inputRef}
                 type="text"
+                aria-label={tempStart ? displayLabel : placeholder}
                 disabled={disabled}
                 placeholder={placeholder}
                 value={isFocused ? inputValue : (tempStart ? displayLabel : "")}
@@ -1530,9 +1529,6 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
                 }}
                 className="w-full bg-transparent border-none outline-none focus:outline-none p-0 text-foreground font-medium placeholder-muted-foreground/60 min-w-0"
               />
-              <span className="sr-only">
-                {tempStart ? displayLabel : placeholder}
-              </span>
             </div>
             <span className={cn("transition-all duration-300 text-muted-foreground group-hover:text-foreground", isOpen && "rotate-180 text-primary")}>
               <svg className={cn(sizeStyles[size].navIcon)} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

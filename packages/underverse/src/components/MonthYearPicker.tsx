@@ -796,22 +796,22 @@ export default function MonthYearPicker({
           className,
         )}
       >
-        <div className="flex items-center gap-2.5">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
           <div
             className={cn(
-              "flex items-center justify-center transition-colors duration-300",
+              "flex shrink-0 items-center justify-center transition-colors duration-300",
               effectiveError ? "text-destructive" : success ? "text-success" : open ? "text-primary" : "text-muted-foreground group-hover:text-primary",
             )}
           >
             <Calendar className={cn(sz.icon, "transition-transform duration-300", open && "rotate-12")} />
           </div>
           <span
-            className={cn("truncate font-medium transition-colors duration-200", !hasValue && "text-muted-foreground", hasValue && "text-foreground")}
+            className={cn("min-w-0 truncate font-medium transition-colors duration-200", !hasValue && "text-muted-foreground", hasValue && "text-foreground")}
           >
             {hasValue ? display : placeholder}
           </span>
         </div>
-        <span className={cn("ml-2 transition-all duration-300 text-muted-foreground group-hover:text-foreground", open && "rotate-180 text-primary")}>
+        <span className={cn("ml-2 shrink-0 transition-all duration-300 text-muted-foreground group-hover:text-foreground", open && "rotate-180 text-primary")}>
           <ChevronDown className={sz.icon} />
         </span>
       </button>

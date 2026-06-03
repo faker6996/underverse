@@ -266,8 +266,8 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
               effectiveError && "border-destructive/60 bg-destructive/5",
             )}
           >
-            <span className="truncate">{displayValue || placeholder || "Select date & time"}</span>
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <span className="min-w-0 flex-1 truncate text-left">{displayValue || placeholder || "Select date & time"}</span>
+            <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
               {value && (
                 <span
                   role="button"
