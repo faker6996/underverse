@@ -1,4 +1,5 @@
 import { Table } from "@tiptap/extension-table";
+import { Plugin } from "@tiptap/pm/state";
 import { findTableNodeInfoFromState } from "./table-align-utils";
 
 export type UEditorTableAlign = "left" | "center" | "right";
@@ -104,6 +105,29 @@ const UEditorTable = Table.extend({
           return true;
         },
     };
+  },
+
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        appendTransaction(_transactions, _oldState, newState) {
+          const { doc, schema } = newState;
+          const paragraphType = schema.nodes.paragraph;
+          if (!paragraphType) return null;
+
+          const needsLeading = doc.firstChild?.type.name === "table";
+          const needsTrailing = doc.lastChild?.type.name === "table";
+
+          if (!needsLeading && !needsTrailing) return null;
+
+          const tr = newState.tr;
+          if (needsTrailing) tr.insert(doc.content.size, paragraphType.create());
+          // Insert at 0 after trailing so positions don't shift
+          if (needsLeading) tr.insert(0, paragraphType.create());
+          return tr;
+        },
+      }),
+    ];
   },
 });
 
