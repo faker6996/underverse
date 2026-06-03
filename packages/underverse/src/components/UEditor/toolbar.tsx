@@ -52,7 +52,8 @@ import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImag
 import { ImageInput, LinkInput } from "./inputs";
 import { EmojiPicker } from "./emoji-picker";
 import { sanitizeUEditorUrl } from "./url-safety";
-import { applyTableAlignment } from "./table-align-utils";
+import { applyTableAlignment, findTableNodeInfoFromState } from "./table-align-utils";
+import { resolveEventElement } from "./table-dom-utils";
 import type { UEditorFontFamilyOption, UEditorFontSizeOption, UEditorLetterSpacingOption, UEditorLineHeightOption, UEditorVariant } from "./types";
 import {
   getDefaultFontFamilies,
@@ -63,6 +64,29 @@ import {
 } from "./typography-options";
 
 type UploadImageFn = (file: File) => Promise<string> | string;
+
+function getTableAnchorPos(editor: Editor) {
+  const tableInfo = findTableNodeInfoFromState(editor.state);
+  if (tableInfo) return editor.state.selection.from;
+
+  const selectionAnchor = resolveEventElement(window.getSelection()?.anchorNode ?? null);
+  const selectionCell = selectionAnchor?.closest?.("th,td");
+  if (selectionCell instanceof HTMLTableCellElement && editor.view.dom.contains(selectionCell)) {
+    return editor.view.posAtDOM(selectionCell, 0) + 1;
+  }
+
+  const activeElement = document.activeElement instanceof Element ? document.activeElement : null;
+  const activeCell = activeElement?.closest?.("th,td");
+  if (activeCell instanceof HTMLTableCellElement && editor.view.dom.contains(activeCell)) {
+    return editor.view.posAtDOM(activeCell, 0) + 1;
+  }
+
+  const tables = editor.view.dom.querySelectorAll("table");
+  if (tables.length !== 1) return null;
+
+  const firstCell = tables[0]?.querySelector("th,td");
+  return firstCell instanceof HTMLTableCellElement ? editor.view.posAtDOM(firstCell, 0) + 1 : null;
+}
 
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -213,7 +237,12 @@ export const EditorToolbar = ({
 
   const isImageSelected = editor.isActive("image");
   const imageAttrs = editor.getAttributes("image") as { imageLayout?: string; imageWidthPreset?: UEditorImageWidthPreset | null };
-  const tableAttrs = editor.getAttributes("table") as { tableAlign?: "left" | "center" | "right" | null };
+  const tableAnchorPos = getTableAnchorPos(editor);
+  const tableInfo = tableAnchorPos == null ? null : findTableNodeInfoFromState(editor.state, tableAnchorPos);
+  const tableAttrs = (tableInfo?.node.attrs ?? editor.getAttributes("table")) as {
+    tableAlign?: "left" | "center" | "right" | null;
+    textAlign?: "left" | "center" | "right" | null;
+  };
   const textStyleAttrs = editor.getAttributes("textStyle") as {
     fontFamily?: string;
     fontSize?: string;
@@ -226,8 +255,9 @@ export const EditorToolbar = ({
     imageAttrs.imageWidthPreset === "sm" || imageAttrs.imageWidthPreset === "md" || imageAttrs.imageWidthPreset === "lg"
       ? imageAttrs.imageWidthPreset
       : null;
-  const currentTableAlign = tableAttrs.tableAlign === "center" || tableAttrs.tableAlign === "right" ? tableAttrs.tableAlign : "left";
-  const isTableSelected = editor.isActive("table");
+  const tableAlignAttr = tableAttrs.tableAlign ?? tableAttrs.textAlign;
+  const currentTableAlign = tableAlignAttr === "center" || tableAlignAttr === "right" ? tableAlignAttr : "left";
+  const isTableSelected = tableInfo !== null;
   const hasTableContext = isTableSelected || tableCommandAnchorPosRef.current !== null;
   const currentFontFamily = normalizeStyleValue(textStyleAttrs.fontFamily);
   const currentFontSize = normalizeStyleValue(textStyleAttrs.fontSize);
@@ -250,6 +280,7 @@ export const EditorToolbar = ({
   const currentLetterSpacingLabel =
     availableLetterSpacings.find((option) => normalizeStyleValue(option.value) === currentLetterSpacing)?.label ?? t("toolbar.letterSpacingDefault");
   const displayedFontFamilyLabel = currentFontFamily ? currentFontFamilyLabel : (availableFontFamilies[0]?.label ?? t("toolbar.fontDefault"));
+  const tableCommandAnchorPos = tableCommandAnchorPosRef.current ?? tableAnchorPos ?? undefined;
 
   const insertImageFiles = async (files: File[]) => {
     if (files.length === 0) return;
@@ -763,7 +794,7 @@ export const EditorToolbar = ({
         isOpen={isTableMenuOpen}
         onOpenChange={(open) => {
           setIsTableMenuOpen(open);
-          tableCommandAnchorPosRef.current = open && editor.isActive("table") ? editor.state.selection.$from.pos : null;
+          tableCommandAnchorPosRef.current = open ? getTableAnchorPos(editor) : null;
         }}
         trigger={
           <ToolbarButton onClick={() => {}} title={t("toolbar.table")}>
@@ -785,21 +816,21 @@ export const EditorToolbar = ({
         <DropdownMenuItem
           icon={AlignLeft}
           label={t("tableMenu.alignLeft")}
-          onClick={() => applyTableAlignment(editor, "left", tableCommandAnchorPosRef.current ?? undefined)}
+          onClick={() => applyTableAlignment(editor, "left", tableCommandAnchorPos)}
           active={hasTableContext && currentTableAlign === "left"}
           disabled={!hasTableContext}
         />
         <DropdownMenuItem
           icon={AlignCenter}
           label={t("tableMenu.alignCenter")}
-          onClick={() => applyTableAlignment(editor, "center", tableCommandAnchorPosRef.current ?? undefined)}
+          onClick={() => applyTableAlignment(editor, "center", tableCommandAnchorPos)}
           active={hasTableContext && currentTableAlign === "center"}
           disabled={!hasTableContext}
         />
         <DropdownMenuItem
           icon={AlignRight}
           label={t("tableMenu.alignRight")}
-          onClick={() => applyTableAlignment(editor, "right", tableCommandAnchorPosRef.current ?? undefined)}
+          onClick={() => applyTableAlignment(editor, "right", tableCommandAnchorPos)}
           active={hasTableContext && currentTableAlign === "right"}
           disabled={!hasTableContext}
         />

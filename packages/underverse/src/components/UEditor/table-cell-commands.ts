@@ -1,4 +1,6 @@
 import type { Editor } from "@tiptap/core";
+import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
+import { TextSelection } from "@tiptap/pm/state";
 import { selectedRect, TableMap } from "@tiptap/pm/tables";
 import { UEDITOR_TABLE_LAYOUT_CHANGE_EVENT } from "./table-dom-utils";
 
@@ -22,12 +24,44 @@ function findTableInfoFromCellPos(editor: Editor, cellPos: number) {
     if (node.type.name === "table") {
       return {
         table: node,
+        tablePos: $pos.before(depth),
         tableStart: $pos.start(depth),
       };
     }
   }
 
   return null;
+}
+
+function getFocusableCellPos(editor: Editor, cellPos: number) {
+  const cellNode = editor.state.doc.nodeAt(cellPos);
+  if (!cellNode) return cellPos + 1;
+
+  let offset = cellPos + 1;
+  let node = cellNode.firstChild ?? null;
+
+  while (node && !node.isTextblock) {
+    offset += 1;
+    node = node.firstChild ?? null;
+  }
+
+  return node?.isTextblock ? offset + 1 : cellPos + 1;
+}
+
+function focusCell(editor: Editor, cellPos: number) {
+  const selection = TextSelection.near(editor.state.doc.resolve(getFocusableCellPos(editor, cellPos)));
+  editor.view.dispatch(editor.state.tr.setSelection(selection));
+  editor.view.focus();
+}
+
+function collectChildren(node: ProseMirrorNode) {
+  const children: ProseMirrorNode[] = [];
+  node.forEach((child) => children.push(child));
+  return children;
+}
+
+function createEmptyCellNode(cellNode: ProseMirrorNode) {
+  return cellNode.type.createAndFill(cellNode.attrs) ?? cellNode;
 }
 
 function getSelectedTableRect(editor: Editor): TableRectInfo {
@@ -146,5 +180,101 @@ export function mergeTableCellsPreservingColumnWidths(editor: Editor) {
   );
   dispatchTableLayoutChange(editor);
 
+  return true;
+}
+
+export function runTableCommandAtCellPos(editor: Editor, cellPos: number | null, command: (chain: any) => any) {
+  if (cellPos == null) return false;
+  focusCell(editor, cellPos);
+  return command(editor.chain().focus(null, { scrollIntoView: false })).run();
+}
+
+export function getTableCornerCellPos(editor: Editor, activePos: number) {
+  const tableInfo = findTableInfoFromCellPos(editor, activePos);
+  if (!tableInfo) return null;
+
+  const map = TableMap.get(tableInfo.table);
+  return tableInfo.tableStart + map.positionAt(map.height - 1, map.width - 1, tableInfo.table);
+}
+
+function replaceTableAtCellPos(editor: Editor, cellPos: number | null, updateTable: (tableNode: ProseMirrorNode) => ProseMirrorNode | null) {
+  if (cellPos == null) return false;
+  const tableInfo = findTableInfoFromCellPos(editor, cellPos);
+  if (!tableInfo) return false;
+
+  const nextTable = updateTable(tableInfo.table);
+  if (!nextTable) return false;
+
+  editor.view.dispatch(editor.state.tr.replaceWith(tableInfo.tablePos, tableInfo.tablePos + tableInfo.table.nodeSize, nextTable));
+  dispatchTableLayoutChange(editor);
+  return true;
+}
+
+export function duplicateTableRowAt(editor: Editor, rowIndex: number, cellPos: number | null) {
+  return replaceTableAtCellPos(editor, cellPos, (tableNode) => {
+    const rows = collectChildren(tableNode);
+    const rowNode = rows[rowIndex];
+    if (!rowNode) return null;
+    rows.splice(rowIndex + 1, 0, rowNode.copy(rowNode.content));
+    return tableNode.type.create(tableNode.attrs, rows);
+  });
+}
+
+export function clearTableRowAt(editor: Editor, rowIndex: number, cellPos: number | null) {
+  return replaceTableAtCellPos(editor, cellPos, (tableNode) => {
+    const rows = collectChildren(tableNode);
+    const rowNode = rows[rowIndex];
+    if (!rowNode) return null;
+    const cells = collectChildren(rowNode).map((cellNode) => createEmptyCellNode(cellNode));
+    rows[rowIndex] = rowNode.type.create(rowNode.attrs, cells);
+    return tableNode.type.create(tableNode.attrs, rows);
+  });
+}
+
+export function duplicateTableColumnAt(editor: Editor, columnIndex: number, cellPos: number | null) {
+  return replaceTableAtCellPos(editor, cellPos, (tableNode) => {
+    const rows = collectChildren(tableNode).map((rowNode) => {
+      const cells = collectChildren(rowNode);
+      const cellNode = cells[columnIndex];
+      if (!cellNode) return rowNode;
+      cells.splice(columnIndex + 1, 0, cellNode.copy(cellNode.content));
+      return rowNode.type.create(rowNode.attrs, cells);
+    });
+    return tableNode.type.create(tableNode.attrs, rows);
+  });
+}
+
+export function clearTableColumnAt(editor: Editor, columnIndex: number, cellPos: number | null) {
+  return replaceTableAtCellPos(editor, cellPos, (tableNode) => {
+    const rows = collectChildren(tableNode).map((rowNode) => {
+      const cells = collectChildren(rowNode);
+      const cellNode = cells[columnIndex];
+      if (!cellNode) return rowNode;
+      cells[columnIndex] = createEmptyCellNode(cellNode);
+      return rowNode.type.create(rowNode.attrs, cells);
+    });
+    return tableNode.type.create(tableNode.attrs, rows);
+  });
+}
+
+export function expandTableFromCell(editor: Editor, activeCellPos: number, rows: number, columns: number) {
+  let cornerCellPos = getTableCornerCellPos(editor, activeCellPos);
+  if (cornerCellPos == null) return false;
+
+  for (let index = 0; index < rows; index += 1) {
+    const ok = runTableCommandAtCellPos(editor, cornerCellPos, (chain) => chain.addRowAfter());
+    if (!ok) return false;
+    cornerCellPos = getTableCornerCellPos(editor, cornerCellPos);
+    if (cornerCellPos == null) return false;
+  }
+
+  for (let index = 0; index < columns; index += 1) {
+    const ok = runTableCommandAtCellPos(editor, cornerCellPos, (chain) => chain.addColumnAfter());
+    if (!ok) return false;
+    cornerCellPos = getTableCornerCellPos(editor, cornerCellPos);
+    if (cornerCellPos == null) return false;
+  }
+
+  dispatchTableLayoutChange(editor);
   return true;
 }

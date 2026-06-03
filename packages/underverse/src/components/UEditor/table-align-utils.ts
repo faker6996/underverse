@@ -2,6 +2,7 @@ import type { Editor } from "@tiptap/core";
 import type { EditorState } from "@tiptap/pm/state";
 import type { Node as ProseMirrorNode, ResolvedPos } from "@tiptap/pm/model";
 import type { UEditorTableAlign } from "./table-align";
+import { resolveEventElement } from "./table-dom-utils";
 
 type TableNodeInfo = {
   depth: number;
@@ -40,16 +41,19 @@ export function applyTableAlignment(editor: Editor, tableAlign: UEditorTableAlig
   editor.view.dispatch(
     editor.state.tr.setNodeMarkup(tableInfo.pos, tableInfo.node.type, {
       ...tableInfo.node.attrs,
-      tableAlign,
+      textAlign: tableAlign,
     }),
   );
-
+  const domAtTable = editor.view.domAtPos(Math.min(tableInfo.pos + 1, editor.state.doc.content.size)).node;
+  const domAtTableElement = resolveEventElement(domAtTable);
   const tableDom = editor.view.nodeDOM(tableInfo.pos);
-  const tableElement = tableDom instanceof HTMLTableElement
-    ? tableDom
-    : tableDom instanceof HTMLElement
-      ? tableDom.querySelector("table")
-      : null;
+  const tableElement = domAtTableElement?.closest?.("table")
+    ?? (tableDom instanceof HTMLTableElement
+      ? tableDom
+      : tableDom instanceof HTMLElement
+        ? tableDom.querySelector("table")
+        : null)
+    ?? (editor.view.dom.querySelectorAll("table").length === 1 ? editor.view.dom.querySelector("table") : null);
 
   if (tableElement instanceof HTMLTableElement) {
     if (tableAlign) {

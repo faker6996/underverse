@@ -49,26 +49,31 @@ declare module "@tiptap/core" {
 }
 
 const UEditorTable = Table.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      tableAlign: {
-        default: null,
-        parseHTML: (element) => {
-          if (!(element instanceof HTMLElement)) return null;
-          return parseTableAlign(element);
-        },
-        renderHTML: (attributes) => {
-          const tableAlign = normalizeTableAlign(attributes.tableAlign);
-          if (!tableAlign) return {};
+  addGlobalAttributes() {
+    return [
+      ...(this.parent?.() ?? []),
+      {
+        types: ["table"],
+        attributes: {
+          textAlign: {
+            default: null,
+            parseHTML: (element) => {
+              if (!(element instanceof HTMLElement)) return null;
+              return parseTableAlign(element);
+            },
+            renderHTML: (attributes) => {
+              const tableAlign = normalizeTableAlign(attributes.textAlign);
+              if (!tableAlign) return {};
 
-          return {
-            "data-table-align": tableAlign,
-            style: renderTableAlignStyle(tableAlign),
-          };
+              return {
+                "data-table-align": tableAlign,
+                style: renderTableAlignStyle(tableAlign),
+              };
+            },
+          },
         },
       },
-    };
+    ];
   },
 
   addCommands() {
@@ -83,7 +88,7 @@ const UEditorTable = Table.extend({
           dispatch?.(
             state.tr.setNodeMarkup(tableInfo.pos, tableInfo.node.type, {
               ...tableInfo.node.attrs,
-              tableAlign,
+              textAlign: tableAlign,
             }),
           );
 
@@ -98,7 +103,7 @@ const UEditorTable = Table.extend({
           dispatch?.(
             state.tr.setNodeMarkup(tableInfo.pos, tableInfo.node.type, {
               ...tableInfo.node.attrs,
-              tableAlign: null,
+              textAlign: null,
             }),
           );
 
