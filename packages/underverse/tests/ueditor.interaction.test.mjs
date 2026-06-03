@@ -266,9 +266,11 @@ test("UEditor bubble menu applies quick line-height controls to selected text", 
   const UEditor = mod.default;
   const user = userEvent.setup({ document: window.document });
   const htmlUpdates = [];
+  const ref = React.createRef();
 
   const view = render(
     React.createElement(UEditor, {
+      ref,
       content: "<p>Quick spacing sample</p>",
       showToolbar: false,
       showFloatingMenu: false,
@@ -277,19 +279,15 @@ test("UEditor bubble menu applies quick line-height controls to selected text", 
     }),
   );
 
-  const paragraph = await view.findByText("Quick spacing sample");
-  const editorElement = view.container.querySelector(".ProseMirror");
-  assert.ok(editorElement);
-  fireEvent.focus(editorElement);
-  const textNode = paragraph.firstChild;
-  assert.ok(textNode);
-  const range = window.document.createRange();
-  range.setStart(textNode, 0);
-  range.setEnd(textNode, paragraph.textContent?.length ?? 0);
-  const selection = window.getSelection();
-  selection?.removeAllRanges();
-  selection?.addRange(range);
-  await user.tripleClick(paragraph);
+  await view.findByText("Quick spacing sample");
+
+  await waitFor(() => {
+    assert.ok(ref.current?.editor);
+  });
+  const editor = ref.current.editor;
+
+  editor.commands.focus();
+  editor.commands.selectAll();
 
   const textStyleButton = await within(window.document.body).findByRole("button", { name: "Text Style" });
   await user.click(textStyleButton);
@@ -827,3 +825,64 @@ test("UEditor edge rails preview expands table by the previewed rows and columns
     assert.equal(firstRowCells.length, 4);
   });
 });
+
+test("UEditor split cell, drag preview, and layout updates after merged-cell edits", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const body = within(window.document.body);
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: [
+        "<table><tbody>",
+        '<tr><td colspan="2">Merged</td><td>C1</td></tr>',
+        "<tr><td>A2</td><td>B2</td><td>C2</td></tr>",
+        "</tbody></table>",
+      ].join(""),
+      showToolbar: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+
+  activateTableCell(firstCell);
+
+  const paragraph = firstCell.querySelector("p") ?? firstCell;
+  await user.tripleClick(paragraph);
+
+  const editorElement = view.container.querySelector(".ProseMirror");
+  assert.ok(editorElement);
+  fireEvent.focus(editorElement);
+
+  const splitCellButton = await body.findByRole("button", { name: "Split Cell" });
+  assert.ok(splitCellButton);
+  fireEvent.click(splitCellButton);
+
+  await waitFor(() => {
+    const firstRowCells = view.container.querySelectorAll("tr")[0]?.querySelectorAll("th,td") ?? [];
+    assert.equal(firstRowCells.length, 3);
+  });
+
+  activateTableCell(view.container.querySelector("td"));
+  hoverRowHandle(view, 0);
+
+  const dragRowButton = await body.findByRole("button", { name: "Drag Row 1" });
+  assert.ok(dragRowButton);
+
+  fireEvent.mouseDown(dragRowButton, { clientY: 22 });
+  fireEvent.mouseMove(window, { clientY: 110 });
+
+  await waitFor(() => {
+    assert.equal(body.getByRole("status").textContent?.trim(), "Drag Row 1 -> 2");
+  });
+
+  fireEvent.mouseUp(window, { clientY: 110 });
+});
+

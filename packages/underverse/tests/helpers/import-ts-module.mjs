@@ -111,10 +111,6 @@ const stableBareSpecifiers = [
 ];
 
 function resolveBareSpecifier(specifier) {
-  if (stableBareSpecifiers.includes(specifier)) {
-    return requireFromPackage.resolve(specifier);
-  }
-
   return requireFromWorkspace.resolve(specifier);
 }
 

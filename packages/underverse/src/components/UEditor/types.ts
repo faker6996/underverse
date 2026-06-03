@@ -24,6 +24,7 @@ export type UEditorPrepareContentForSaveOptions = {
 };
 
 export interface UEditorRef {
+  editor?: any;
   prepareContentForSave: (options?: UEditorPrepareContentForSaveOptions) => Promise<UEditorPrepareContentForSaveResult>;
 }
 

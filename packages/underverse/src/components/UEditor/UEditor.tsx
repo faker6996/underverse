@@ -132,6 +132,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   useImperativeHandle(
     ref,
     () => ({
+      editor,
       prepareContentForSave: async ({ throwOnError = false } = {}) => {
         if (!inFlightPrepareRef.current) {
           const htmlSnapshot = editor?.getHTML() ?? content ?? "";

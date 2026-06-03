@@ -59,12 +59,12 @@ The most fragile area is the table overlay. `table-controls.tsx` handles layout 
 - [x] Move table command helpers into a dedicated command layer.
 - [x] Add a local RAF scheduler for `TableControls` selection/layout refreshes.
 - [x] Move hover-state measurement out of `TableControls`.
-- [ ] Reduce direct DOM measurements outside the layout model.
-- [ ] Split `TableControls` into smaller render components.
+- [x] Reduce direct DOM measurements outside the layout model.
+- [x] Split `TableControls` into smaller render components.
   - [x] Extract drag/add preview rendering.
   - [x] Extract quick add rails rendering.
   - [x] Extract table menu trigger rendering.
   - [x] Extract row and column handle rendering.
-- [ ] Add regression tests for merge, split, resize, and overlay handle alignment.
+- [x] Add regression tests for merge, split, resize, and overlay handle alignment.
   - [x] Cover merged row/column spans so handles follow the visible merged cells.
-  - [ ] Cover split-cell, resize guides, and drag preview after merged-cell edits.
+  - [x] Cover split-cell, resize guides, and drag preview after merged-cell edits.
