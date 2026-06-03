@@ -109,6 +109,7 @@ const UEditorTable = Table.extend({
 
   addProseMirrorPlugins() {
     return [
+      ...(this.parent?.() ?? []),
       new Plugin({
         appendTransaction(_transactions, _oldState, newState) {
           const { doc, schema } = newState;

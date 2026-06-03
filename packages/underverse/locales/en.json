@@ -253,6 +253,8 @@
       "deleteTable": "Delete Table",
       "toggleHeaderRow": "Toggle Header Row",
       "toggleHeaderColumn": "Toggle Header Column",
+      "mergeCells": "Merge Cells",
+      "splitCell": "Split Cell",
       "openControls": "Open Table Controls",
       "quickAddColumnAfter": "Quick Add Column After",
       "quickAddRowAfter": "Quick Add Row After",

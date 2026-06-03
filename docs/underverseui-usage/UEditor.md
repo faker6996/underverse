@@ -110,6 +110,7 @@ export default function Example() {
 - Reorder drag shows a live target highlight and status badge while you move.
 - Drag the bottom rail or right rail to preview and add multiple rows or columns at once.
 - The table context menu supports add/remove row or column plus header row/column toggles.
+- The bubble menu supports merging selected cells and splitting a merged cell.
 - Toolbar and contextual table menus support aligning the whole table left, center, or right.
 - Columns use TipTap's native resize handles on the right edge of cells.
 - Rows support resize on the bottom edge. Hover near the row boundary to reveal the stronger guide line, then drag vertically.
@@ -329,7 +330,7 @@ UEditor includes a comprehensive emoji system with 740+ emojis:
 - Add/remove rows and columns
 - Toggle header row/column
 - Delete table
-- Merge/split cells (coming soon)
+- Merge selected cells and split merged cells from the bubble menu
 
 ### Links
 

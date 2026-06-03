@@ -1425,7 +1425,9 @@
       "alignLeft": "表を左寄せ",
       "alignCenter": "表を中央揃え",
       "alignRight": "表を右寄せ",
-      "cellBackground": "セル背景色"
+      "cellBackground": "セル背景色",
+      "mergeCells": "セルを結合",
+      "splitCell": "セルを分割"
     }
   },
   "CalendarTimeline": {

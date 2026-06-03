@@ -138,6 +138,12 @@ function metricOrFallback(value: number, fallback: number) {
   return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
+function parsePixelMetric(value: string | null | undefined) {
+  if (!value) return null;
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
 function getPrimaryCell(table: HTMLTableElement) {
   const cell = table.querySelector("th,td");
   return cell instanceof HTMLTableCellElement ? cell : null;
@@ -184,6 +190,162 @@ function findTableInfo(editor: Editor, pos: number) {
   return null;
 }
 
+function buildLogicalColumnMetrics({
+  editor,
+  surface,
+  surfaceRect,
+  tableElement,
+  tableInfo,
+  tableLeft,
+  tableWidth,
+}: {
+  editor: Editor;
+  surface: HTMLDivElement;
+  surfaceRect: DOMRect;
+  tableElement: HTMLTableElement;
+  tableInfo: NonNullable<ReturnType<typeof findTableInfo>>;
+  tableLeft: number;
+  tableWidth: number;
+}): TableAxisHandle[] {
+  const map = TableMap.get(tableInfo.node);
+  const fallbackWidth = metricOrFallback(tableWidth / map.width, FALLBACK_TABLE_COLUMN_WIDTH);
+  const firstRow = tableElement.rows.item(0);
+  const visualColumns: TableAxisHandle[] = [];
+
+  if (firstRow) {
+    for (const tableCell of Array.from(firstRow.cells)) {
+      if (!(tableCell instanceof HTMLTableCellElement)) continue;
+
+      const cellPos = editor.view.posAtDOM(tableCell, 0);
+      const relativeCellPos = getCellRelativePosFromDomPos(map, tableInfo.start, cellPos);
+      if (relativeCellPos == null) continue;
+
+      const cellMapRect = map.findCell(relativeCellPos);
+      const cellRect = tableCell.getBoundingClientRect();
+      const cellStart = cellRect.left - surfaceRect.left + surface.scrollLeft;
+      const size = metricOrFallback(cellRect.width, fallbackWidth * Math.max(1, cellMapRect.right - cellMapRect.left));
+
+      visualColumns.push({
+        index: cellMapRect.left,
+        cellPos: tableInfo.start + relativeCellPos,
+        start: cellStart,
+        size,
+        center: cellStart + size / 2,
+      });
+    }
+  }
+
+  if (visualColumns.length > 0) {
+    return visualColumns.sort((a, b) => a.index - b.index);
+  }
+
+  const cols = Array.from(tableElement.querySelectorAll<HTMLTableColElement>("colgroup > col"));
+  const parsedWidths = cols.slice(0, map.width).map((col) => parsePixelMetric(col.style.width) ?? parsePixelMetric(col.getAttribute("width")));
+  const hasCompleteColWidths = parsedWidths.length >= map.width && parsedWidths.every((width): width is number => typeof width === "number");
+
+  let cursor = tableLeft;
+
+  return Array.from({ length: map.width }, (_, index) => {
+    const size = hasCompleteColWidths ? parsedWidths[index] : fallbackWidth;
+    const start = hasCompleteColWidths ? cursor : tableLeft + index * fallbackWidth;
+    cursor += size;
+
+    return {
+      index,
+      cellPos: tableInfo.start + map.positionAt(0, index, tableInfo.node),
+      start,
+      size,
+      center: start + size / 2,
+    };
+  });
+}
+
+function buildLogicalRowMetrics({
+  editor,
+  surface,
+  surfaceRect,
+  tableInfo,
+  rows,
+  tableTop,
+  tableHeight,
+  cornerCell,
+}: {
+  editor: Editor;
+  surface: HTMLDivElement;
+  surfaceRect: DOMRect;
+  tableInfo: NonNullable<ReturnType<typeof findTableInfo>>;
+  rows: HTMLTableRowElement[];
+  tableTop: number;
+  tableHeight: number;
+  cornerCell: HTMLTableCellElement;
+}): TableAxisHandle[] {
+  const map = TableMap.get(tableInfo.node);
+  const fallbackHeight = metricOrFallback(tableHeight / map.height, FALLBACK_TABLE_ROW_HEIGHT);
+  const visualRows: TableAxisHandle[] = [];
+  const seenCellPositions = new Set<number>();
+
+  for (let rowIndex = 0; rowIndex < map.height; rowIndex += 1) {
+    const relativeCellPos = map.map[rowIndex * map.width];
+    if (seenCellPositions.has(relativeCellPos)) continue;
+    seenCellPositions.add(relativeCellPos);
+
+    const cellMapRect = map.findCell(relativeCellPos);
+    const cellDom = editor.view.nodeDOM(tableInfo.start + relativeCellPos);
+    const tableCell = cellDom instanceof HTMLTableCellElement ? cellDom : null;
+
+    if (tableCell) {
+      const cellRect = tableCell.getBoundingClientRect();
+      const start = cellRect.top - surfaceRect.top + surface.scrollTop;
+      const size = metricOrFallback(cellRect.height, fallbackHeight * Math.max(1, cellMapRect.bottom - cellMapRect.top));
+
+      visualRows.push({
+        index: cellMapRect.top,
+        cellPos: tableInfo.start + relativeCellPos,
+        start,
+        size,
+        center: start + size / 2,
+      });
+    }
+  }
+
+  if (visualRows.length > 0) {
+    return visualRows.sort((a, b) => a.index - b.index);
+  }
+
+  return rows.map((tableRow, index) => {
+    const rowRect = tableRow.getBoundingClientRect();
+    const anchorCell = tableRow.cells.item(0) ?? cornerCell;
+    const start = rowRect.height > 0
+      ? rowRect.top - surfaceRect.top + surface.scrollTop
+      : tableTop + index * fallbackHeight;
+    const size = metricOrFallback(rowRect.height, fallbackHeight);
+
+    return {
+      index,
+      cellPos: editor.view.posAtDOM(anchorCell, 0),
+      start,
+      size,
+      center: start + size / 2,
+    };
+  });
+}
+
+function getCellRelativePosFromDomPos(map: TableMap, tableStart: number, domPos: number) {
+  const relativeDomPos = domPos - tableStart;
+  const seen = new Set<number>();
+
+  for (const relativeCellPos of map.map) {
+    if (seen.has(relativeCellPos)) continue;
+    seen.add(relativeCellPos);
+
+    if (relativeDomPos === relativeCellPos || relativeDomPos === relativeCellPos + 1) {
+      return relativeCellPos;
+    }
+  }
+
+  return null;
+}
+
 function getLastCellPosFromState(editor: Editor, pos: number) {
   const tableInfo = findTableInfo(editor, pos);
   if (!tableInfo) return null;
@@ -200,13 +362,14 @@ function buildLayout(editor: Editor, surface: HTMLDivElement, cell: HTMLTableCel
   }
 
   const rows = Array.from(table.rows).filter((item): item is HTMLTableRowElement => item instanceof HTMLTableRowElement);
-  const referenceRow = rows[0];
-  const referenceCells = Array.from(referenceRow?.cells ?? []).filter((item): item is HTMLTableCellElement => item instanceof HTMLTableCellElement);
   const cornerCell = getLastCell(table);
-  if (rows.length === 0 || referenceCells.length === 0 || !(cornerCell instanceof HTMLTableCellElement)) {
+  const cellPos = editor.view.posAtDOM(cell, 0);
+  const tableInfo = findTableInfo(editor, cellPos);
+  if (rows.length === 0 || !tableInfo || !(cornerCell instanceof HTMLTableCellElement)) {
     return null;
   }
 
+  const map = TableMap.get(tableInfo.node);
   const surfaceRect = surface.getBoundingClientRect();
   const tableRect = table.getBoundingClientRect();
   const wrapperElement = table.closest(".tableWrapper");
@@ -215,8 +378,8 @@ function buildLayout(editor: Editor, surface: HTMLDivElement, cell: HTMLTableCel
   const tableLeft = tableRect.left - surfaceRect.left + surface.scrollLeft;
   const tableTop = tableRect.top - surfaceRect.top + surface.scrollTop;
   const avgRowHeight = metricOrFallback(tableRect.height / rows.length, FALLBACK_TABLE_ROW_HEIGHT);
-  const avgColumnWidth = metricOrFallback(tableRect.width / referenceCells.length, FALLBACK_TABLE_COLUMN_WIDTH);
-  const tableWidth = metricOrFallback(tableRect.width, avgColumnWidth * referenceCells.length);
+  const avgColumnWidth = metricOrFallback(tableRect.width / map.width, FALLBACK_TABLE_COLUMN_WIDTH);
+  const tableWidth = metricOrFallback(tableRect.width, avgColumnWidth * map.width);
   const tableHeight = metricOrFallback(tableRect.height, avgRowHeight * rows.length);
   const wrapperLeft = wrapperRect.left - surfaceRect.left + surface.scrollLeft;
   const wrapperTop = wrapperRect.top - surfaceRect.top + surface.scrollTop;
@@ -227,44 +390,35 @@ function buildLayout(editor: Editor, surface: HTMLDivElement, cell: HTMLTableCel
   const verticalScrollbarWidth = Math.max(0, Math.round(wrapperWidth - viewportWidth));
   const horizontalScrollbarHeight = Math.max(0, Math.round(wrapperHeight - viewportHeight));
 
-  const rowHandles = rows.map((tableRow, index) => {
-    const rowRect = tableRow.getBoundingClientRect();
-    const anchorCell = tableRow.cells.item(0) ?? cornerCell;
-    const start = rowRect.height > 0
-      ? rowRect.top - surfaceRect.top + surface.scrollTop
-      : tableTop + index * avgRowHeight;
-    const size = metricOrFallback(rowRect.height, avgRowHeight);
-
-    return {
-      index,
-      cellPos: editor.view.posAtDOM(anchorCell, 0),
-      start,
-      size,
-      center: start + size / 2,
-    };
+  const rowHandles = buildLogicalRowMetrics({
+    editor,
+    surface,
+    surfaceRect,
+    tableInfo,
+    rows,
+    tableTop,
+    tableHeight,
+    cornerCell,
   });
 
-  const columnHandles = referenceCells.map((tableCell, index) => {
-    const cellRect = tableCell.getBoundingClientRect();
-    const start = cellRect.width > 0
-      ? cellRect.left - surfaceRect.left + surface.scrollLeft
-      : tableLeft + index * avgColumnWidth;
-    const size = metricOrFallback(cellRect.width, avgColumnWidth);
-
-    return {
-      index,
-      cellPos: editor.view.posAtDOM(tableCell, 0),
-      start,
-      size,
-      center: start + size / 2,
-    };
+  const columnHandles = buildLogicalColumnMetrics({
+    editor,
+    surface,
+    surfaceRect,
+    tableElement: table,
+    tableInfo,
+    tableLeft,
+    tableWidth,
   });
+  const activeCellRelativePos = getCellRelativePosFromDomPos(map, tableInfo.start, cellPos);
+  const activeCellRect = activeCellRelativePos != null ? map.findCell(activeCellRelativePos) : { left: cell.cellIndex, top: row.rowIndex };
+  const normalizedCellPos = activeCellRelativePos != null ? tableInfo.start + activeCellRelativePos : cellPos;
 
   return {
-    cellPos: editor.view.posAtDOM(cell, 0),
-    cornerCellPos: editor.view.posAtDOM(cornerCell, 0),
-    activeRowIndex: row.rowIndex,
-    activeColumnIndex: cell.cellIndex,
+    cellPos: normalizedCellPos,
+    cornerCellPos: tableInfo.start + map.positionAt(map.height - 1, map.width - 1, tableInfo.node),
+    activeRowIndex: activeCellRect.top,
+    activeColumnIndex: activeCellRect.left,
     tableLeft,
     tableTop,
     tableWidth,
@@ -652,9 +806,10 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       const relativeY = event.clientY - surfaceRect.top + surface.scrollTop;
 
       if (dragState.kind === "row") {
-        const targetIndex = nearestIndex(activeLayout.rowHandles.map((item) => item.center), relativeY);
+        const targetHandleIndex = nearestIndex(activeLayout.rowHandles.map((item) => item.center), relativeY);
+        const targetRow = activeLayout.rowHandles[targetHandleIndex];
+        const targetIndex = targetRow.index;
         dragState.targetIndex = targetIndex;
-        const targetRow = activeLayout.rowHandles[targetIndex];
         setDragPreview({
           kind: "row",
           originIndex: dragState.originIndex,
@@ -667,9 +822,10 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       }
 
       if (dragState.kind === "column") {
-        const targetIndex = nearestIndex(activeLayout.columnHandles.map((item) => item.center), relativeX);
+        const targetHandleIndex = nearestIndex(activeLayout.columnHandles.map((item) => item.center), relativeX);
+        const targetColumn = activeLayout.columnHandles[targetHandleIndex];
+        const targetIndex = targetColumn.index;
         dragState.targetIndex = targetIndex;
-        const targetColumn = activeLayout.columnHandles[targetIndex];
         setDragPreview({
           kind: "column",
           originIndex: dragState.originIndex,

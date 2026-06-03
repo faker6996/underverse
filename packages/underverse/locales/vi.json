@@ -253,6 +253,8 @@
       "deleteTable": "Xóa bảng",
       "toggleHeaderRow": "Bật/tắt hàng tiêu đề",
       "toggleHeaderColumn": "Bật/tắt cột tiêu đề",
+      "mergeCells": "Gộp ô",
+      "splitCell": "Tách ô",
       "openControls": "Mở điều khiển bảng",
       "quickAddColumnAfter": "Thêm nhanh cột sau",
       "quickAddRowAfter": "Thêm nhanh hàng sau",

@@ -19,6 +19,7 @@ import {
   RotateCcw,
   Subscript as SubscriptIcon,
   Superscript as SuperscriptIcon,
+  TableCellsMerge,
   Trash2,
   Type,
   Underline as UnderlineIcon,
@@ -30,6 +31,7 @@ import { LinkInput } from "./inputs";
 import { CellBgColorIcon, EditorColorPalette, HighlightColorIcon, TextColorIcon, useEditorColors } from "./colors";
 import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
 import { buildSlashCommandItems, buildSlashCommandMessages, SlashCommandList, type SlashCommandListRef } from "./slash-command";
+import { mergeTableCellsPreservingColumnWidths } from "./table-cell-commands";
 import type { UEditorFontSizeOption, UEditorLineHeightOption } from "./types";
 import { getDefaultFontSizes, getDefaultLineHeights, normalizeStyleValue } from "./typography-options";
 
@@ -138,6 +140,8 @@ const BubbleMenuContent = ({
   const currentCellBgColor =
     normalizeStyleValue(editor.getAttributes("tableCell").backgroundColor || editor.getAttributes("tableHeader").backgroundColor) || "";
   const isInTable = isSelectionInTable(editor.state);
+  const canMergeCells = isInTable && editor.can().mergeCells();
+  const canSplitCell = isInTable && editor.can().splitCell();
   const currentFontSize = normalizeStyleValue(textStyleAttrs.fontSize);
   const currentLineHeight = normalizeStyleValue(textStyleAttrs.lineHeight);
   const quickFontSizes = useMemo(
@@ -469,13 +473,29 @@ const BubbleMenuContent = ({
         <HighlightColorIcon color={currentHighlightColor} />
       </ToolbarButton>
       {isInTable && (
-        <ToolbarButton
-          onClick={() => setActiveColorPalette("cell-bg")}
-          active={Boolean(currentCellBgColor)}
-          title={t("tableMenu.cellBackground") || "Cell background"}
-        >
-          <CellBgColorIcon color={currentCellBgColor} />
-        </ToolbarButton>
+        <>
+          <ToolbarButton
+            onClick={() => setActiveColorPalette("cell-bg")}
+            active={Boolean(currentCellBgColor)}
+            title={t("tableMenu.cellBackground") || "Cell background"}
+          >
+            <CellBgColorIcon color={currentCellBgColor} />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => {
+              if (canSplitCell) {
+                editor.chain().focus().splitCell().run();
+                return;
+              }
+              mergeTableCellsPreservingColumnWidths(editor);
+            }}
+            active={canSplitCell}
+            disabled={!canMergeCells && !canSplitCell}
+            title={canSplitCell ? t("tableMenu.splitCell") || "Split cell" : t("tableMenu.mergeCells") || "Merge cells"}
+          >
+            <TableCellsMerge className="w-4 h-4" />
+          </ToolbarButton>
+        </>
       )}
 
       <ToolbarButton

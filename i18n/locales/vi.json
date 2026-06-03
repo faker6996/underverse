@@ -1503,7 +1503,9 @@
       "alignLeft": "Căn bảng trái",
       "alignCenter": "Căn bảng giữa",
       "alignRight": "Căn bảng phải",
-      "cellBackground": "Màu nền ô"
+      "cellBackground": "Màu nền ô",
+      "mergeCells": "Gộp ô",
+      "splitCell": "Tách ô"
     }
   },
   "CalendarTimeline": {

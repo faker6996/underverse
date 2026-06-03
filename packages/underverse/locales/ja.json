@@ -252,6 +252,8 @@
       "deleteTable": "表を削除",
       "toggleHeaderRow": "ヘッダー行を切り替え",
       "toggleHeaderColumn": "ヘッダー列を切り替え",
+      "mergeCells": "セルを結合",
+      "splitCell": "セルを分割",
       "openControls": "表コントロールを開く",
       "quickAddColumnAfter": "右側に列をすばやく追加",
       "quickAddRowAfter": "下に行をすばやく追加",

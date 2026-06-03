@@ -1425,7 +1425,9 @@
       "alignLeft": "표 왼쪽 정렬",
       "alignCenter": "표 가운데 정렬",
       "alignRight": "표 오른쪽 정렬",
-      "cellBackground": "셀 배경색"
+      "cellBackground": "셀 배경색",
+      "mergeCells": "셀 병합",
+      "splitCell": "셀 분할"
     }
   },
   "CalendarTimeline": {
