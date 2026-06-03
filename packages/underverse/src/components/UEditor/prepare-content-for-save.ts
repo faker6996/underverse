@@ -59,6 +59,9 @@ function parseDataImageUrl(dataUrl: string): { mime: string; base64Data: string 
 
 function decodeBase64ToBytes(base64Data: string): Uint8Array {
   const normalized = base64Data.replace(/\s+/g, "");
+  if (typeof Buffer !== "undefined") {
+    return new Uint8Array(Buffer.from(normalized, "base64"));
+  }
   const binary = atob(normalized);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i += 1) {
@@ -258,21 +261,138 @@ export class UEditorPrepareContentForSaveError extends Error {
   }
 }
 
+function isDataUrl(value: string): boolean {
+  return /^data:[^/]+\/[^;]+;base64,/i.test(value.trim());
+}
+
+function parseDataUrl(dataUrl: string): { mime: string; base64Data: string } | null {
+  const value = dataUrl.trim();
+  if (!/^data:/i.test(value)) return null;
+
+  const commaIndex = value.indexOf(",");
+  if (commaIndex < 0) return null;
+
+  const header = value.slice(5, commaIndex);
+  const base64Data = value.slice(commaIndex + 1).trim();
+  if (!/;base64/i.test(header)) return null;
+
+  const mime = header.split(";")[0]?.trim().toLowerCase();
+  if (!mime || !base64Data) return null;
+
+  return { mime, base64Data };
+}
+
+function createFileFromDataUrl(dataUrl: string, name: string): File {
+  const parsed = parseDataUrl(dataUrl);
+  if (!parsed) {
+    throw new Error("Invalid data URL format.");
+  }
+
+  const bytes = decodeBase64ToBytes(parsed.base64Data);
+  return new File([bytes as unknown as BlobPart], name || "attachment.bin", { type: parsed.mime });
+}
+
+type FileTagMatch = {
+  start: number;
+  end: number;
+  tag: string;
+  hrefAttr: {
+    start: number;
+    end: number;
+    value: string;
+    quote: "\"" | "'" | "";
+  } | null;
+  dataSrcAttr: {
+    start: number;
+    end: number;
+    value: string;
+    quote: "\"" | "'" | "";
+  } | null;
+};
+
+function collectFileCardMatches(html: string): FileTagMatch[] {
+  const matches: FileTagMatch[] = [];
+  const tagRegex = /<(div|a)\b[^>]*data-type="file-card"[^>]*>/gi;
+  const hrefAttrRegex = /\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/i;
+  const dataSrcRegex = /\bdata-src\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/i;
+
+  let tagMatch: RegExpExecArray | null = tagRegex.exec(html);
+  while (tagMatch) {
+    const tag = tagMatch[0];
+    const start = tagMatch.index;
+    const end = start + tag.length;
+
+    const hrefMatch = hrefAttrRegex.exec(tag);
+    let hrefAttr = null;
+    if (hrefMatch) {
+      const value = hrefMatch[1] ?? hrefMatch[2] ?? hrefMatch[3] ?? "";
+      const quote = hrefMatch[1] !== undefined ? "\"" : hrefMatch[2] !== undefined ? "'" : "";
+      hrefAttr = {
+        start: hrefMatch.index,
+        end: hrefMatch.index + hrefMatch[0].length,
+        value,
+        quote: quote as "\"" | "'" | "",
+      };
+    }
+
+    const dataSrcMatch = dataSrcRegex.exec(tag);
+    let dataSrcAttr = null;
+    if (dataSrcMatch) {
+      const value = dataSrcMatch[1] ?? dataSrcMatch[2] ?? dataSrcMatch[3] ?? "";
+      const quote = dataSrcMatch[1] !== undefined ? "\"" : dataSrcMatch[2] !== undefined ? "'" : "";
+      dataSrcAttr = {
+        start: dataSrcMatch.index,
+        end: dataSrcMatch.index + dataSrcMatch[0].length,
+        value,
+        quote: quote as "\"" | "'" | "",
+      };
+    }
+
+    matches.push({ start, end, tag, hrefAttr, dataSrcAttr });
+    tagMatch = tagRegex.exec(html);
+  }
+
+  return matches;
+}
+
+function replaceFileCardAttrs(tag: string, nextUrl: string): string {
+  let result = tag;
+
+  const hrefRegex = /(\bhref\s*=\s*)(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+)/i;
+  const dataSrcRegex = /(\bdata-src\s*=\s*)(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+)/i;
+
+  if (hrefRegex.test(result)) {
+    result = result.replace(hrefRegex, `$1"${nextUrl}"`);
+  }
+  if (dataSrcRegex.test(result)) {
+    result = result.replace(dataSrcRegex, `$1"${nextUrl}"`);
+  }
+
+  return result;
+}
+
 export async function prepareUEditorContentForSave({
   html,
   uploadImageForSave,
+  uploadFileForSave,
   uploadConcurrency = 3,
 }: {
   html: string;
   uploadImageForSave?: UEditorUploadImageForSave;
+  uploadFileForSave?: (file: File) => Promise<string | ({ url: string } & Record<string, unknown>)>;
   uploadConcurrency?: number;
 }): Promise<UEditorPrepareContentForSaveResult> {
-  if (!html || !html.includes("<img")) {
+  const hasImages = html && html.includes("<img");
+  const hasFileCards = html && html.includes("data-type=\"file-card\"");
+
+  if (!hasImages && !hasFileCards) {
     return createResult({ html, uploaded: [], inlineUploaded: [], errors: [] });
   }
 
-  const imgMatches = collectImgTagMatches(html);
-  if (imgMatches.length === 0) {
+  const imgMatches = hasImages ? collectImgTagMatches(html) : [];
+  const fileCardMatches = hasFileCards ? collectFileCardMatches(html) : [];
+
+  if (imgMatches.length === 0 && fileCardMatches.length === 0) {
     return createResult({ html, uploaded: [], inlineUploaded: [], errors: [] });
   }
 
@@ -290,20 +410,26 @@ export async function prepareUEditorContentForSave({
     });
   }
 
-  if (base64Candidates.length === 0) {
-    return createResult({ html, uploaded: [], inlineUploaded: [], errors: [] });
+  const fileCandidates: { id: string; match: FileTagMatch; index: number; src: string; fileName: string }[] = [];
+  for (const match of fileCardMatches) {
+    const src = (match.dataSrcAttr?.value || match.hrefAttr?.value || "").trim();
+    if (!src || !isDataUrl(src)) continue;
+
+    const fileNameRegex = /\bdata-file-name\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/i;
+    const fileNameMatch = fileNameRegex.exec(match.tag);
+    const fileName = fileNameMatch ? (fileNameMatch[1] ?? fileNameMatch[2] ?? fileNameMatch[3] ?? "attachment.bin") : "attachment.bin";
+
+    fileCandidates.push({
+      id: `${match.start}:${match.end}`,
+      match,
+      index: fileCandidates.length,
+      src,
+      fileName,
+    });
   }
 
-  if (!uploadImageForSave) {
-    return createResult({
-      html,
-      uploaded: [],
-      inlineUploaded: [],
-      errors: base64Candidates.map((item) => ({
-        index: item.index,
-        reason: "`uploadImageForSave` is required to transform base64 images before save.",
-      })),
-    });
+  if (base64Candidates.length === 0 && fileCandidates.length === 0) {
+    return createResult({ html, uploaded: [], inlineUploaded: [], errors: [] });
   }
 
   const uploaded: UEditorPrepareContentForSaveResult["uploaded"] = [];
@@ -311,57 +437,128 @@ export async function prepareUEditorContentForSave({
   const errors: UEditorPrepareContentForSaveResult["errors"] = [];
   const replacements = new Map<string, string>();
 
-  const uploadResults = await runWithConcurrency(
-    base64Candidates,
-    uploadConcurrency,
-    async (candidate) => {
-      try {
-        const file = createFileFromDataImageUrl(candidate.src, candidate.index);
-        const uploadResult = await uploadImageForSave(file);
-        const normalized = normalizeUploadResult(uploadResult);
-        return { candidate, file, ...normalized };
-      } catch (error) {
-        return { candidate, error: getErrorReason(error) };
+  // Process Images
+  if (base64Candidates.length > 0) {
+    if (!uploadImageForSave) {
+      for (const item of base64Candidates) {
+        errors.push({
+          index: item.index,
+          reason: "`uploadImageForSave` is required to transform base64 images before save.",
+        });
       }
-    },
-  );
+    } else {
+      const uploadResults = await runWithConcurrency(
+        base64Candidates,
+        uploadConcurrency,
+        async (candidate) => {
+          try {
+            const file = createFileFromDataImageUrl(candidate.src, candidate.index);
+            const uploadResult = await uploadImageForSave(file);
+            const normalized = normalizeUploadResult(uploadResult);
+            return { candidate, file, ...normalized };
+          } catch (error) {
+            return { candidate, error: getErrorReason(error) };
+          }
+        },
+      );
 
-  for (const item of uploadResults) {
-    if ("error" in item) {
-      errors.push({
-        index: item.candidate.index,
-        reason: item.error ?? "Unknown upload error.",
-      });
-      continue;
+      for (const item of uploadResults) {
+        if ("error" in item) {
+          errors.push({
+            index: item.candidate.index,
+            reason: item.error ?? "Unknown upload error.",
+          });
+          continue;
+        }
+
+        replacements.set(item.candidate.id, item.url);
+        uploaded.push({
+          url: item.url,
+          file: item.file,
+          meta: item.meta,
+        });
+        inlineUploaded.push({
+          index: item.candidate.index,
+          url: item.url,
+          file: item.file,
+          meta: item.meta,
+        });
+      }
     }
-
-    replacements.set(item.candidate.id, item.url);
-    uploaded.push({
-      url: item.url,
-      file: item.file,
-      meta: item.meta,
-    });
-    inlineUploaded.push({
-      index: item.candidate.index,
-      url: item.url,
-      file: item.file,
-      meta: item.meta,
-    });
   }
 
-  if (replacements.size === 0) {
-    return createResult({ html, uploaded, inlineUploaded, errors });
+  // Process File Cards
+  if (fileCandidates.length > 0) {
+    const uploadFn = uploadFileForSave || uploadImageForSave;
+    if (!uploadFn) {
+      for (const item of fileCandidates) {
+        errors.push({
+          index: base64Candidates.length + item.index,
+          reason: "`uploadFileForSave` or `uploadImageForSave` is required to transform base64 files before save.",
+        });
+      }
+    } else {
+      const fileUploadResults = await runWithConcurrency(
+        fileCandidates,
+        uploadConcurrency,
+        async (candidate) => {
+          try {
+            const file = createFileFromDataUrl(candidate.src, candidate.fileName);
+            const uploadResult = await uploadFn(file);
+            const normalized = normalizeUploadResult(uploadResult);
+            return { candidate, file, ...normalized };
+          } catch (error) {
+            return { candidate, error: getErrorReason(error) };
+          }
+        },
+      );
+
+      for (const item of fileUploadResults) {
+        if ("error" in item) {
+          errors.push({
+            index: base64Candidates.length + item.candidate.index,
+            reason: item.error ?? "Unknown file upload error.",
+          });
+          continue;
+        }
+
+        replacements.set(item.candidate.id, item.url);
+        uploaded.push({
+          url: item.url,
+          file: item.file,
+          meta: item.meta,
+        });
+      }
+    }
   }
+
+  // Combine and sort replacements
+  const allMatches: ({ type: "img"; match: ImgTagMatch } | { type: "file"; match: FileTagMatch })[] = [];
+  for (const match of imgMatches) {
+    allMatches.push({ type: "img", match });
+  }
+  for (const match of fileCardMatches) {
+    allMatches.push({ type: "file", match });
+  }
+  allMatches.sort((a, b) => a.match.start - b.match.start);
 
   let transformed = "";
   let cursor = 0;
 
-  for (const match of imgMatches) {
+  for (const item of allMatches) {
+    const match = item.match;
     transformed += html.slice(cursor, match.start);
 
     const replacementKey = `${match.start}:${match.end}`;
     const replacementUrl = replacements.get(replacementKey);
-    transformed += replacementUrl ? replaceSrcInTag(match, replacementUrl) : match.tag;
+
+    if (item.type === "img") {
+      const imgMatch = match as ImgTagMatch;
+      transformed += replacementUrl ? replaceSrcInTag(imgMatch, replacementUrl) : imgMatch.tag;
+    } else {
+      const fileMatch = match as FileTagMatch;
+      transformed += replacementUrl ? replaceFileCardAttrs(fileMatch.tag, replacementUrl) : fileMatch.tag;
+    }
 
     cursor = match.end;
   }

@@ -203,7 +203,13 @@
       "dividerDesc": "Visual divider",
       "table": "Table",
       "tableDesc": "Add a table",
-      "noResults": "No matching blocks found"
+      "noResults": "No matching blocks found",
+      "callout": "Callout",
+      "calloutDesc": "Highlight key info with a callout block",
+      "bookmark": "Bookmark Card",
+      "bookmarkDesc": "Embed a link as a bookmark card",
+      "fileCard": "File Attachment",
+      "fileCardDesc": "Upload a file card attachment"
     },
     "floatingMenu": {
       "addBlock": "Add block"
@@ -265,6 +271,21 @@
       "alignCenter": "Align Table Center",
       "alignRight": "Align Table Right",
       "cellBackground": "Cell Background"
+    },
+    "callout": {
+      "selectEmoji": "Select Emoji",
+      "backgroundColor": "Background Color"
+    },
+    "bookmark": {
+      "clickToOpenNewTab": "Click to open this link in a new tab.",
+      "clickToOpenLink": "Click to open link.",
+      "noDescription": "No description available.",
+      "failedToLoad": "Failed to load link preview. Click to open link."
+    },
+    "fileCard": {
+      "unnamed": "Unnamed file",
+      "uploading": "(Uploading...)",
+      "uploadFailed": "Upload failed"
     }
   }
 }

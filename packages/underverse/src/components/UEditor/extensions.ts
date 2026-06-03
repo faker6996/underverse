@@ -14,6 +14,11 @@ import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import Blockquote from "@tiptap/extension-blockquote";
 import Code from "@tiptap/extension-code";
+import { wrappingInputRule } from "@tiptap/core";
+import { ReactNodeViewRenderer } from "@tiptap/react";
+import { Callout } from "./callout";
+import { Bookmark } from "./bookmark";
+import { FileCard } from "./file-card";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import History from "@tiptap/extension-history";
 import Link from "@tiptap/extension-link";
@@ -41,6 +46,7 @@ import LineHeight from "./line-height";
 import LetterSpacing from "./letter-spacing";
 import UEditorTable from "./table-align";
 import { isSafeUEditorUrl } from "./url-safety";
+import { CodeBlockView } from "./CodeBlockView";
 
 const CustomTableCell = TableCell.extend({
   addAttributes() {
@@ -106,28 +112,57 @@ const CustomTableHeader = TableHeader.extend({
   },
 });
 
+const CustomTaskList = TaskList.extend({
+  addInputRules() {
+    return [
+      wrappingInputRule({
+        find: /^\s*(\[ \]|\[\])\s$/,
+        type: this.type,
+      }),
+      wrappingInputRule({
+        find: /^\s*(-\s*\[ \]|-\s*\[\])\s$/,
+        type: this.type,
+      }),
+      wrappingInputRule({
+        find: /^\s*(\*\s*\[ \]|-\s*\[\])\s$/,
+        type: this.type,
+      }),
+    ];
+  },
+});
+
 const lowlight = createLowlight(common);
+
+const CustomCodeBlockLowlight = CodeBlockLowlight.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(CodeBlockView);
+  },
+});
 
 export function buildUEditorExtensions({
   placeholder,
   translate,
   maxCharacters,
   uploadImage,
+  uploadFile,
   imageInsertMode = "base64",
   maxImageFileSize,
   allowedImageMimeTypes,
   fallbackToDataUrl,
   editable = true,
+  fetchMetadata,
 }: {
   placeholder: string;
   translate: (key: string) => string;
   maxCharacters?: number;
   uploadImage?: (file: File) => Promise<string> | string;
+  uploadFile?: (file: File) => Promise<string> | string;
   imageInsertMode?: "base64" | "upload";
   maxImageFileSize?: number;
   allowedImageMimeTypes?: string[];
   fallbackToDataUrl?: boolean;
   editable?: boolean;
+  fetchMetadata?: (url: string) => Promise<{ title?: string; description?: string; image?: string; publisher?: string }>;
 }) {
   return [
     Document,
@@ -157,7 +192,7 @@ export function buildUEditorExtensions({
         class: "pl-1",
       },
     }),
-    TaskList,
+    CustomTaskList,
     TaskItem.configure({
       nested: true,
     }),
@@ -171,7 +206,7 @@ export function buildUEditorExtensions({
         class: "px-1.5 py-0.5 rounded bg-muted font-mono text-sm",
       },
     }),
-    CodeBlockLowlight.configure({
+    CustomCodeBlockLowlight.configure({
       lowlight,
       HTMLAttributes: {
         class: "rounded-lg border border-border/60 bg-muted/40 text-foreground p-4 font-mono text-sm overflow-x-auto",
@@ -252,5 +287,12 @@ export function buildUEditorExtensions({
       messages: buildSlashCommandMessages(translate),
     }),
     EmojiSuggestion,
+    Callout,
+    Bookmark.configure({
+      fetchMetadata,
+    }),
+    FileCard.configure({
+      upload: uploadFile,
+    }),
   ];
 }

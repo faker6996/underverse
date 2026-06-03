@@ -886,3 +886,184 @@ test("UEditor split cell, drag preview, and layout updates after merged-cell edi
   fireEvent.mouseUp(window, { clientY: 110 });
 });
 
+test("UEditor Callout extension rendering", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: '<div data-type="callout" data-emoji="💡" data-background-color="var(--muted)"><p>Hello callout</p></div>',
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await view.findByText("Hello callout");
+  await view.findByText("💡");
+});
+
+test("UEditor Bookmark Card rendering and auto-paste url on empty line", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: [
+        '<div data-type="bookmark" href="https://example.com" data-title="Example Site" data-description="My description" data-publisher="example.com"></div>',
+        '<p></p>',
+      ].join(""),
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await view.findByText("Example Site");
+  await view.findByText("My description");
+  await view.findByText("example.com");
+
+  await waitFor(() => {
+    assert.ok(ref.current);
+  });
+  ref.current.editor.commands.focus("end");
+
+  const editorElement = view.container.querySelector(".ProseMirror");
+  assert.ok(editorElement);
+
+  fireEvent.paste(editorElement, {
+    clipboardData: {
+      getData: (type) => (type === "text/plain" ? "https://newsite.com" : ""),
+    },
+  });
+
+  await view.findAllByText("https://newsite.com");
+});
+
+test("UEditor CodeBlock language selector and copy function", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+
+  let copiedText = "";
+  const originalClipboard = navigator.clipboard;
+  Object.defineProperty(navigator, "clipboard", {
+    value: {
+      writeText: async (text) => {
+        copiedText = text;
+      },
+    },
+    configurable: true,
+  });
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: '<pre><code class="language-javascript">console.log("test");</code></pre>',
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const dropdownButton = await view.findByText(/Plain Text|JavaScript/);
+  assert.ok(dropdownButton);
+
+  await waitFor(() => {
+    const codeEl = view.container.querySelector("code");
+    assert.ok(codeEl);
+    assert.match(codeEl.textContent, /console\.log/);
+  });
+
+  const copyButton = view.container.querySelector('button[title="Copy code"]');
+  assert.ok(copyButton);
+  fireEvent.click(copyButton);
+
+  await waitFor(() => {
+    assert.equal(copiedText.trim(), 'console.log("test");');
+  });
+
+  if (originalClipboard) {
+    Object.defineProperty(navigator, "clipboard", {
+      value: originalClipboard,
+      configurable: true,
+    });
+  } else {
+    delete navigator.clipboard;
+  }
+});
+
+test("UEditor FileCard rendering and save preparation", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const mockPdfBase64 = "JVBERi0xLjQKJcfsj6yepw==";
+  const dataUrl = `data:application/pdf;base64,${mockPdfBase64}`;
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: `<div data-type="file-card" data-src="${dataUrl}" data-file-name="test.pdf" data-file-size="15" data-file-type="application/pdf"></div>`,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+      uploadFileForSave: async (file) => {
+        return `https://storage.com/uploaded-${file.name}`;
+      },
+    }),
+  );
+
+  await view.findByText("test.pdf");
+  await view.findByText("15 Bytes");
+
+  await waitFor(() => {
+    assert.ok(ref.current);
+  });
+
+  const result = await ref.current.prepareContentForSave({ throwOnError: true });
+  assert.equal(result.errors.length, 0);
+  assert.match(result.html, /https:\/\/storage\.com\/uploaded-test\.pdf/);
+});
+
+test("UEditor FileCard immediate background upload on insertion", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const mockPdfBase64 = "JVBERi0xLjQKJcfsj6yepw==";
+  const dataUrl = `data:application/pdf;base64,${mockPdfBase64}`;
+
+  let uploadedFile = null;
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: `<div data-type="file-card" data-src="${dataUrl}" data-file-name="immediate-test.pdf" data-file-size="15" data-file-type="application/pdf"></div>`,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+      uploadFile: async (file) => {
+        uploadedFile = file;
+        return `https://storage.com/immediate-${file.name}`;
+      },
+    }),
+  );
+
+  await view.findByText("immediate-test.pdf");
+
+  await waitFor(() => {
+    assert.ok(uploadedFile);
+    assert.equal(uploadedFile.name, "immediate-test.pdf");
+  }, { timeout: 3000 });
+
+  await waitFor(() => {
+    const html = ref.current.editor.getHTML();
+    assert.match(html, /https:\/\/storage\.com\/immediate-immediate-test\.pdf/);
+  }, { timeout: 3000 });
+});
+

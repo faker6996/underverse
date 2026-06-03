@@ -18,6 +18,9 @@ import {
   Quote,
   Table,
   Type,
+  Info,
+  Bookmark as BookmarkIcon,
+  Paperclip,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { destroyTippyInstance, getFirstTippyInstance, hideTippyInstance, tippy, type TippyInstance } from "./tippy-interop";
@@ -47,6 +50,12 @@ export type SlashCommandMessages = {
   dividerDesc: string;
   table: string;
   tableDesc: string;
+  callout: string;
+  calloutDesc: string;
+  bookmark: string;
+  bookmarkDesc: string;
+  fileCard: string;
+  fileCardDesc: string;
 };
 
 const DEFAULT_MESSAGES: SlashCommandMessages = {
@@ -74,6 +83,12 @@ const DEFAULT_MESSAGES: SlashCommandMessages = {
   dividerDesc: "Visually divide blocks",
   table: "Table",
   tableDesc: "Insert a table",
+  callout: "Callout",
+  calloutDesc: "Highlight key info with a callout block",
+  bookmark: "Bookmark Card",
+  bookmarkDesc: "Embed a link as a bookmark card",
+  fileCard: "File Attachment",
+  fileCardDesc: "Upload a file card attachment",
 };
 
 export type SlashCommandExecutionContext = {
@@ -143,10 +158,16 @@ export function buildSlashCommandMessages(translate: (key: string) => string): S
     quoteDesc: translate("slashCommand.quoteDesc"),
     codeBlock: translate("slashCommand.codeBlock"),
     codeBlockDesc: translate("slashCommand.codeBlockDesc"),
-    divider: translate("slashCommand.divider"),
-    dividerDesc: translate("slashCommand.dividerDesc"),
-    table: translate("slashCommand.table"),
-    tableDesc: translate("slashCommand.tableDesc"),
+    divider: translate("slashCommand.divider") || "Divider",
+    dividerDesc: translate("slashCommand.dividerDesc") || "Visually divide blocks",
+    table: translate("slashCommand.table") || "Table",
+    tableDesc: translate("slashCommand.tableDesc") || "Insert a table",
+    callout: translate("slashCommand.callout") || "Callout",
+    calloutDesc: translate("slashCommand.calloutDesc") || "Highlight key info with a callout block",
+    bookmark: translate("slashCommand.bookmark") || "Bookmark Card",
+    bookmarkDesc: translate("slashCommand.bookmarkDesc") || "Embed a link as a bookmark card",
+    fileCard: translate("slashCommand.fileCard") || "File Attachment",
+    fileCardDesc: translate("slashCommand.fileCardDesc") || "Upload a file card attachment",
   };
 }
 
@@ -248,6 +269,50 @@ export function buildSlashCommandItems({
         getCommandChain(editor, range).insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
       }),
     },
+    {
+      icon: Info,
+      title: messages.callout || "Callout",
+      description: messages.calloutDesc || "Highlight key info with a callout block",
+      command: run(({ editor, range }) => {
+        getCommandChain(editor, range).setCallout().run();
+      }),
+    },
+    {
+      icon: BookmarkIcon,
+      title: messages.bookmark || "Bookmark Card",
+      description: messages.bookmarkDesc || "Embed a link as a bookmark card",
+      command: run(({ editor, range }) => {
+        const url = window.prompt("Enter URL for bookmark:");
+        if (url) {
+          getCommandChain(editor, range).setBookmark({ url }).run();
+        }
+      }),
+    },
+    {
+      icon: Paperclip,
+      title: messages.fileCard || "File Attachment",
+      description: messages.fileCardDesc || "Upload a file card attachment",
+      command: run(({ editor, range }) => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.onchange = async () => {
+          const file = input.files?.[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            const dataUrl = reader.result as string;
+            getCommandChain(editor, range).setFileCard({
+              src: dataUrl,
+              fileName: file.name,
+              fileSize: file.size,
+              fileType: file.type,
+            }).run();
+          };
+          reader.readAsDataURL(file);
+        };
+        input.click();
+      }),
+    },
   ].filter((item) => item.title.toLowerCase().includes(query.toLowerCase()));
 }
 
@@ -261,7 +326,9 @@ export const SlashCommandList = forwardRef<SlashCommandListRef, SlashCommandList
   }, [selectedIndex, props.items]);
 
   useImperativeHandle(ref, () => ({
-    onKeyDown: ({ event }: { event: KeyboardEvent }) => {
+    onKeyDown: (keyProps: { event: KeyboardEvent }) => {
+      if (!keyProps || !keyProps.event) return false;
+      const { event } = keyProps;
       if (props.items.length === 0) {
         return false;
       }
@@ -392,6 +459,7 @@ export const SlashCommand = Extension.create<{ messages: SlashCommandMessages }>
               });
             },
             onKeyDown(props: { event: KeyboardEvent }) {
+              if (!props || !props.event) return false;
               const popupInstance = getFirstTippyInstance(popup);
               if (props.event.key === "Escape") {
                 hideTippyInstance(popupInstance);

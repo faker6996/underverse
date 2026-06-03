@@ -11,12 +11,18 @@ export function normalizeStyleValue(value: unknown) {
 
 export function getDefaultFontFamilies(t: (key: string) => string): UEditorFontFamilyOption[] {
   return [
-    { label: "Inter", value: "Inter, ui-sans-serif, system-ui, sans-serif" },
-    { label: "System UI", value: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" },
-    { label: "Georgia", value: "Georgia, 'Times New Roman', serif" },
-    { label: "Palatino", value: "'Palatino Linotype', Palatino, Georgia, serif" },
-    { label: "Times", value: "'Times New Roman', Times, serif" },
-    { label: "JetBrains Mono", value: "'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, monospace" },
+    { label: "Inter", value: '"Inter", "Noto Sans", "Noto Sans CJK KR", "Noto Sans CJK JP", "Segoe UI", sans-serif' },
+    { label: "System UI", value: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' },
+    { label: "Roboto", value: '"Roboto", "Noto Sans", "Apple SD Gothic Neo", "Hiragino Kaku Gothic ProN", sans-serif' },
+    { label: "Lexend", value: '"Lexend", "Be Vietnam Pro", "Segoe UI", sans-serif' },
+    { label: "Montserrat", value: '"Montserrat", "Segoe UI", sans-serif' },
+    { label: "Lora", value: '"Lora", "Georgia", "Times New Roman", "Nanum Myeongjo", "BIZ UDPMincho", serif' },
+    { label: "Playfair Display", value: '"Playfair Display", "Times New Roman", "Nanum Myeongjo", serif' },
+    { label: "Georgia", value: 'Georgia, "Nanum Myeongjo", "Batang", "Times New Roman", serif' },
+    { label: "Times New Roman", value: '"Times New Roman", Times, "BIZ UDPMincho", serif' },
+    { label: "Meiryo (JA)", value: '"Meiryo", "Hiragino Sans", "Noto Sans JP", sans-serif' },
+    { label: "Apple SD Gothic Neo (KO)", value: '"Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif' },
+    { label: "JetBrains Mono", value: '"JetBrains Mono", "Fira Code", "SFMono-Regular", Consolas, "Noto Sans Mono CJK KR", "Noto Sans Mono CJK JP", monospace' },
   ];
 }
 

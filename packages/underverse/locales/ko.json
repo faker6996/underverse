@@ -202,7 +202,13 @@
       "divider": "구분선",
       "dividerDesc": "시각적 구분선",
       "table": "표",
-      "tableDesc": "표 추가"
+      "tableDesc": "표 추가",
+      "callout": "콜아웃",
+      "calloutDesc": "중요한 정보를 콜아웃 블록으로 강조합니다",
+      "bookmark": "북마크 카드",
+      "bookmarkDesc": "링크를 북마크 카드로 삽입합니다",
+      "fileCard": "파일 첨부",
+      "fileCardDesc": "파일 카드 첨부 파일을 업로드합니다"
     },
     "floatingMenu": {
       "addBlock": "블록 추가"
@@ -264,6 +270,21 @@
       "alignCenter": "표 가운데 정렬",
       "alignRight": "표 오른쪽 정렬",
       "cellBackground": "셀 배경색"
+    },
+    "callout": {
+      "selectEmoji": "이모지 선택",
+      "backgroundColor": "배경 색상"
+    },
+    "bookmark": {
+      "clickToOpenNewTab": "클릭하여 이 링크를 새 탭에서 엽니다.",
+      "clickToOpenLink": "클릭하여 링크를 엽니다.",
+      "noDescription": "설명이 없습니다.",
+      "failedToLoad": "링크 미리보기를 불러오지 못했습니다. 클릭하여 링크를 엽니다."
+    },
+    "fileCard": {
+      "unnamed": "이름 없는 파일",
+      "uploading": "(업로드 중...)",
+      "uploadFailed": "업로드 실패"
     }
   }
 }

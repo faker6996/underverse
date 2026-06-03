@@ -77,6 +77,11 @@ export interface UEditorProps {
   fontSizes?: UEditorFontSizeOption[];
   lineHeights?: UEditorLineHeightOption[];
   letterSpacings?: UEditorLetterSpacingOption[];
+  fetchMetadata?: (url: string) => Promise<{ title?: string; description?: string; image?: string; publisher?: string }>;
+  uploadFile?: (file: File) => Promise<string> | string;
+  uploadFileForSave?: (file: File) => Promise<string | ({ url: string } & Record<string, unknown>)>;
+  collaborationOptions?: any;
+  extraExtensions?: any[];
 }
 
 export type UEditorVariant = NonNullable<UEditorProps["variant"]>;

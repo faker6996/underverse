@@ -202,7 +202,13 @@
       "divider": "区切り線",
       "dividerDesc": "視覚的な区切り線",
       "table": "表",
-      "tableDesc": "表を追加"
+      "tableDesc": "表を追加",
+      "callout": "コールアウト",
+      "calloutDesc": "重要な情報をコールアウトブロックで強調します",
+      "bookmark": "ブックマークカード",
+      "bookmarkDesc": "リンクをブックマークカードとして埋め込みます",
+      "fileCard": "ファイル添付",
+      "fileCardDesc": "ファイルカードの添付ファイルをアップロードします"
     },
     "floatingMenu": {
       "addBlock": "ブロックを追加"
@@ -264,6 +270,21 @@
       "alignCenter": "表を中央揃え",
       "alignRight": "表を右寄せ",
       "cellBackground": "セル背景色"
+    },
+    "callout": {
+      "selectEmoji": "絵文字を選択",
+      "backgroundColor": "背景色"
+    },
+    "bookmark": {
+      "clickToOpenNewTab": "クリックしてこのリンクを新しいタブで開く。",
+      "clickToOpenLink": "クリックしてリンクを開く。",
+      "noDescription": "説明はありません。",
+      "failedToLoad": "プレビューの読み込みに失敗しました。クリックしてリンクを開く。"
+    },
+    "fileCard": {
+      "unnamed": "名前なしファイル",
+      "uploading": "(アップロード中...)",
+      "uploadFailed": "アップロード失敗"
     }
   }
 }

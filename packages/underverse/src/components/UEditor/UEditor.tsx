@@ -51,25 +51,46 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   fontSizes,
   lineHeights,
   letterSpacings,
+  fetchMetadata,
+  uploadFile,
+  uploadFileForSave,
+  collaborationOptions,
+  extraExtensions,
 }: UEditorProps, ref) => {
   const t = useSmartTranslations("UEditor");
   const effectivePlaceholder = placeholder ?? t("placeholder");
   const inFlightPrepareRef = useRef<Promise<UEditorPrepareContentForSaveResult> | null>(null);
   const lastAppliedContentRef = useRef(content ?? "");
 
+  const resolvedUploadFile = useMemo(() => {
+    if (uploadFile) return uploadFile;
+    if (uploadFileForSave) {
+      return async (file: File) => {
+        const res = await uploadFileForSave(file);
+        return typeof res === "string" ? res : res.url;
+      };
+    }
+    return uploadImage;
+  }, [uploadFile, uploadFileForSave, uploadImage]);
+
   const extensions = useMemo(
-    () => buildUEditorExtensions({
-      placeholder: effectivePlaceholder,
-      translate: t,
-      maxCharacters,
-      uploadImage,
-      imageInsertMode,
-      maxImageFileSize,
-      allowedImageMimeTypes,
-      fallbackToDataUrl,
-      editable,
-    }),
-    [effectivePlaceholder, t, maxCharacters, uploadImage, imageInsertMode, maxImageFileSize, allowedImageMimeTypes, fallbackToDataUrl, editable],
+    () => [
+      ...buildUEditorExtensions({
+        placeholder: effectivePlaceholder,
+        translate: t,
+        maxCharacters,
+        uploadImage,
+        uploadFile: resolvedUploadFile,
+        imageInsertMode,
+        maxImageFileSize,
+        allowedImageMimeTypes,
+        fallbackToDataUrl,
+        editable,
+        fetchMetadata,
+      }),
+      ...(extraExtensions ?? []),
+    ],
+    [effectivePlaceholder, t, maxCharacters, uploadImage, resolvedUploadFile, imageInsertMode, maxImageFileSize, allowedImageMimeTypes, fallbackToDataUrl, editable, fetchMetadata, extraExtensions],
   );
 
   const editor = useEditor({
@@ -100,6 +121,9 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
           const href = anchor?.getAttribute("href") ?? "";
           if (!href) return false;
+
+          // If editable, let the bubble menu/floating link preview handle it.
+          if (editable) return false;
 
           // Avoid opening while user is selecting text.
           if (!view.state.selection.empty) return false;
@@ -139,6 +163,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           inFlightPrepareRef.current = prepareUEditorContentForSave({
             html: htmlSnapshot,
             uploadImageForSave,
+            uploadFileForSave,
             uploadConcurrency: uploadImageConcurrency,
           }).finally(() => {
             inFlightPrepareRef.current = null;
@@ -152,7 +177,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         return result;
       },
     }),
-    [content, editor, uploadImageForSave, uploadImageConcurrency],
+    [content, editor, uploadImageForSave, uploadFileForSave, uploadImageConcurrency],
   );
 
   useEffect(() => {
@@ -163,7 +188,12 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
 
     lastAppliedContentRef.current = nextContent;
     if (editor.getHTML() !== nextContent) {
-      editor.commands.setContent(nextContent, { emitUpdate: false });
+      // Schedule content update in a microtask to avoid flushSync warning during React rendering/effects phase
+      Promise.resolve().then(() => {
+        if (!editor.isDestroyed) {
+          editor.commands.setContent(nextContent, { emitUpdate: false });
+        }
+      });
     }
   }, [content, editor]);
 

@@ -51,7 +51,9 @@ const EmojiList = forwardRef<EmojiListRef, EmojiListProps>((props, ref) => {
     const showingCountLabel = formatEmojiCountLabel(t("emojiSuggestion.showingCount"), 64, props.items.length);
 
     useImperativeHandle(ref, () => ({
-        onKeyDown: ({ event }: { event: KeyboardEvent }) => {
+        onKeyDown: (keyProps: { event: KeyboardEvent }) => {
+            if (!keyProps || !keyProps.event) return false;
+            const { event } = keyProps;
             if (event.key === "ArrowUp") {
                 setSelectedIndex((prev) => (prev + props.items.length - 1) % props.items.length);
                 return true;
@@ -187,6 +189,7 @@ export const EmojiSuggestion = Extension.create({
                             });
                         },
                         onKeyDown(props: { event: KeyboardEvent }) {
+                            if (!props || !props.event) return false;
                             const popupInstance = getFirstTippyInstance(popup);
                             if (props.event.key === "Escape") {
                                 hideTippyInstance(popupInstance);

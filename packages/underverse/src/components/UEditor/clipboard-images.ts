@@ -103,7 +103,7 @@ export const ClipboardImages = Extension.create<ClipboardImagesOptions>({
       new Plugin({
         props: {
           handlePaste: (_view, event) => {
-            if (!(event instanceof ClipboardEvent)) return false;
+            if (!event || !event.clipboardData) return false;
             const files = getImageFiles(event.clipboardData);
             if (files.length === 0) return false;
 

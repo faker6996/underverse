@@ -24,6 +24,9 @@ import {
   Type,
   Underline as UnderlineIcon,
   Strikethrough as StrikethroughIcon,
+  Edit2,
+  Unlink,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { ToolbarButton } from "./toolbar";
@@ -110,11 +113,13 @@ const BubbleMenuContent = ({
   onKeepOpenChange,
   fontSizes,
   lineHeights,
+  initialShowLinkInput = false,
 }: {
   editor: Editor;
   onKeepOpenChange?: (keepOpen: boolean) => void;
   fontSizes?: UEditorFontSizeOption[];
   lineHeights?: UEditorLineHeightOption[];
+  initialShowLinkInput?: boolean;
 }) => {
   const t = useSmartTranslations("UEditor");
   useEditorState({
@@ -122,8 +127,12 @@ const BubbleMenuContent = ({
     selector: ({ transactionNumber }) => transactionNumber,
   });
   const { textColors, highlightColors } = useEditorColors();
-  const [showLinkInput, setShowLinkInput] = useState(false);
+  const [showLinkInput, setShowLinkInput] = useState(initialShowLinkInput);
   const [activeColorPalette, setActiveColorPalette] = useState<"text" | "highlight" | "cell-bg" | null>(null);
+
+  useEffect(() => {
+    setShowLinkInput(initialShowLinkInput);
+  }, [initialShowLinkInput]);
   const [showTypographyPanel, setShowTypographyPanel] = useState(false);
   const [showFontSizeOptions, setShowFontSizeOptions] = useState(false);
   const [fontSizeDraft, setFontSizeDraft] = useState("");
@@ -509,6 +518,37 @@ const BubbleMenuContent = ({
   );
 };
 
+const LinkPreviewContent = ({ editor, onEdit }: { editor: Editor; onEdit: () => void }) => {
+  const url = editor.getAttributes("link").href || "";
+  const t = useSmartTranslations("UEditor");
+
+  const handleOpen = () => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleUnlink = () => {
+    editor.chain().focus().unsetLink().run();
+  };
+
+  return (
+    <div className="flex items-center gap-1 p-1 max-w-sm">
+      <span className="text-xs text-muted-foreground font-mono px-2 truncate max-w-[180px]">
+        {url}
+      </span>
+      <div className="w-px h-6 bg-border/50 mx-1" />
+      <ToolbarButton onClick={handleOpen} title={t("linkPreview.open") || "Open link"}>
+        <ExternalLink className="w-4 h-4" />
+      </ToolbarButton>
+      <ToolbarButton onClick={onEdit} title={t("linkPreview.edit") || "Edit link"}>
+        <Edit2 className="w-4 h-4" />
+      </ToolbarButton>
+      <ToolbarButton onClick={handleUnlink} title={t("linkPreview.unlink") || "Remove link"} className="text-destructive hover:text-destructive">
+        <Unlink className="w-4 h-4" />
+      </ToolbarButton>
+    </div>
+  );
+};
+
 export const CustomBubbleMenu = ({
   editor,
   fontSizes,
@@ -541,8 +581,9 @@ export const CustomBubbleMenu = ({
     const updatePosition = () => {
       const { state, view } = editor;
       const { from, to, empty } = state.selection;
+      const isLinkActive = editor.isActive("link");
 
-      if (!keepOpenRef.current && (empty || !view.hasFocus())) {
+      if (!keepOpenRef.current && ((empty && !isLinkActive) || !view.hasFocus())) {
         clearShowTimeout();
         setIsVisible(false);
         return;
@@ -601,7 +642,17 @@ export const CustomBubbleMenu = ({
       }}
       onMouseDown={(e) => e.preventDefault()}
     >
-      <BubbleMenuContent editor={editor} onKeepOpenChange={setKeepOpen} fontSizes={fontSizes} lineHeights={lineHeights} />
+      {editor.isActive("link") && !keepOpenRef.current ? (
+        <LinkPreviewContent editor={editor} onEdit={() => setKeepOpen(true)} />
+      ) : (
+        <BubbleMenuContent
+          editor={editor}
+          onKeepOpenChange={setKeepOpen}
+          fontSizes={fontSizes}
+          lineHeights={lineHeights}
+          initialShowLinkInput={keepOpenRef.current}
+        />
+      )}
     </div>,
     document.body,
   );

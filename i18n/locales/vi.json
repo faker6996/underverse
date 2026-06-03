@@ -1466,7 +1466,13 @@
       "dividerDesc": "Đường kẻ ngang",
       "table": "Bảng",
       "tableDesc": "Thêm bảng",
-      "noResults": "Không tìm thấy khối phù hợp"
+      "noResults": "Không tìm thấy khối phù hợp",
+      "callout": "Hộp thông tin",
+      "calloutDesc": "Làm nổi bật thông tin chính bằng hộp chú thích",
+      "bookmark": "Thẻ liên kết",
+      "bookmarkDesc": "Nhúng một liên kết dưới dạng thẻ xem trước",
+      "fileCard": "Tệp đính kèm",
+      "fileCardDesc": "Tải lên tệp tin đính kèm"
     },
     "floatingMenu": {
       "addBlock": "Thêm khối"
@@ -1506,6 +1512,21 @@
       "cellBackground": "Màu nền ô",
       "mergeCells": "Gộp ô",
       "splitCell": "Tách ô"
+    },
+    "callout": {
+      "selectEmoji": "Chọn Biểu tượng",
+      "backgroundColor": "Màu nền"
+    },
+    "bookmark": {
+      "clickToOpenNewTab": "Bấm để mở liên kết này trong tab mới.",
+      "clickToOpenLink": "Bấm để mở liên kết.",
+      "noDescription": "Không có mô tả.",
+      "failedToLoad": "Tải bản xem trước thất bại. Bấm để mở liên kết."
+    },
+    "fileCard": {
+      "unnamed": "Tệp không tên",
+      "uploading": "(Đang tải lên...)",
+      "uploadFailed": "Tải lên thất bại"
     }
   },
   "CalendarTimeline": {
