@@ -270,7 +270,13 @@
       "alignLeft": "Align Table Left",
       "alignCenter": "Align Table Center",
       "alignRight": "Align Table Right",
-      "cellBackground": "Cell Background"
+      "cellBackground": "Cell Background",
+      "cellBorder": "Cell Border",
+      "borderStyle": "Border Style",
+      "borderWidth": "Border Width",
+      "borderColor": "Border Color",
+      "clearBorder": "Clear Border",
+      "done": "Done"
     },
     "callout": {
       "selectEmoji": "Select Emoji",

@@ -1433,7 +1433,13 @@
       "alignRight": "표 오른쪽 정렬",
       "cellBackground": "셀 배경색",
       "mergeCells": "셀 병합",
-      "splitCell": "셀 분할"
+      "splitCell": "셀 분할",
+      "cellBorder": "셀 테두리",
+      "borderStyle": "테두리 스타일",
+      "borderWidth": "테두리 두께",
+      "borderColor": "테두리 색상",
+      "clearBorder": "테두리 지우기",
+      "done": "완료"
     },
     "callout": {
       "selectEmoji": "이모지 선택",

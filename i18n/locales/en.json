@@ -1478,7 +1478,13 @@
       "alignRight": "Align Table Right",
       "cellBackground": "Cell Background",
       "mergeCells": "Merge Cells",
-      "splitCell": "Split Cell"
+      "splitCell": "Split Cell",
+      "cellBorder": "Cell Border",
+      "borderStyle": "Border Style",
+      "borderWidth": "Border Width",
+      "borderColor": "Border Color",
+      "clearBorder": "Clear Border",
+      "done": "Done"
     },
     "callout": {
       "selectEmoji": "Select Emoji",

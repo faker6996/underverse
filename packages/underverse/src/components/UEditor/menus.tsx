@@ -27,11 +27,12 @@ import {
   Edit2,
   Unlink,
   ExternalLink,
+  Grid,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { ToolbarButton } from "./toolbar";
 import { LinkInput } from "./inputs";
-import { CellBgColorIcon, EditorColorPalette, HighlightColorIcon, TextColorIcon, useEditorColors } from "./colors";
+import { CellBgColorIcon, CellBorderIcon, EditorColorPalette, HighlightColorIcon, TextColorIcon, useEditorColors } from "./colors";
 import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
 import { buildSlashCommandItems, buildSlashCommandMessages, SlashCommandList, type SlashCommandListRef } from "./slash-command";
 import { mergeTableCellsPreservingColumnWidths } from "./table-cell-commands";
@@ -128,7 +129,7 @@ const BubbleMenuContent = ({
   });
   const { textColors, highlightColors } = useEditorColors();
   const [showLinkInput, setShowLinkInput] = useState(initialShowLinkInput);
-  const [activeColorPalette, setActiveColorPalette] = useState<"text" | "highlight" | "cell-bg" | null>(null);
+  const [activeColorPalette, setActiveColorPalette] = useState<"text" | "highlight" | "cell-bg" | "cell-border" | "cell-border-color" | null>(null);
 
   useEffect(() => {
     setShowLinkInput(initialShowLinkInput);
@@ -220,6 +221,115 @@ const BubbleMenuContent = ({
   if (activeColorPalette) {
     const isTextPalette = activeColorPalette === "text";
     const isHighlightPalette = activeColorPalette === "highlight";
+
+    if (activeColorPalette === "cell-border") {
+      const currentBorderStyle = editor.getAttributes("tableCell").borderStyle || editor.getAttributes("tableHeader").borderStyle || "solid";
+      const currentBorderWidth = editor.getAttributes("tableCell").borderWidth || editor.getAttributes("tableHeader").borderWidth || "1px";
+      const currentBorderColor = editor.getAttributes("tableCell").borderColor || editor.getAttributes("tableHeader").borderColor || "currentColor";
+
+      return (
+        <div className="flex flex-col gap-2 p-2 w-56 text-sm">
+          <div className="font-semibold text-xs text-muted-foreground uppercase tracking-wider mb-1">
+            {t("tableMenu.cellBorder") || "Cell Borders"}
+          </div>
+          
+          {/* Border Style Selector */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground">{t("tableMenu.borderStyle") || "Border Style"}</label>
+            <select
+              className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              value={currentBorderStyle}
+              onChange={(e) => {
+                const style = e.target.value;
+                editor.chain().focus().setCellAttribute("borderStyle", style).run();
+              }}
+            >
+              <option value="solid">Solid</option>
+              <option value="dashed">Dashed</option>
+              <option value="dotted">Dotted</option>
+              <option value="double">Double</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+
+          {/* Border Width Selector */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-muted-foreground">{t("tableMenu.borderWidth") || "Border Width"}</label>
+            <select
+              className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              value={currentBorderWidth}
+              onChange={(e) => {
+                const width = e.target.value;
+                editor.chain().focus().setCellAttribute("borderWidth", width).run();
+              }}
+            >
+              <option value="1px">1px</option>
+              <option value="2px">2px</option>
+              <option value="3px">3px</option>
+              <option value="4px">4px</option>
+            </select>
+          </div>
+
+          {/* Border Color Trigger */}
+          <button
+            type="button"
+            onClick={() => setActiveColorPalette("cell-border-color")}
+            className="flex items-center justify-between w-full h-8 px-2 rounded-md border border-input hover:bg-accent text-xs"
+          >
+            <span>{t("tableMenu.borderColor") || "Border Color"}</span>
+            <span
+              className="w-4 h-4 rounded-full border border-border"
+              style={{
+                backgroundColor: currentBorderColor,
+              }}
+            />
+          </button>
+
+          <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-border">
+            <button
+              type="button"
+              onClick={() => {
+                editor.chain().focus()
+                  .setCellAttribute("borderColor", null)
+                  .setCellAttribute("borderStyle", null)
+                  .setCellAttribute("borderWidth", null)
+                  .run();
+                setActiveColorPalette(null);
+              }}
+              className="text-xs text-destructive hover:underline"
+            >
+              {t("tableMenu.clearBorder") || "Clear Border"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveColorPalette(null)}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              {t("tableMenu.done") || "Done"}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeColorPalette === "cell-border-color") {
+      const currentBorderColor =
+        normalizeStyleValue(editor.getAttributes("tableCell").borderColor || editor.getAttributes("tableHeader").borderColor) || "";
+      return (
+        <div className="w-56">
+          <EditorColorPalette
+            colors={highlightColors}
+            currentColor={currentBorderColor}
+            onSelect={(color) => {
+              const value = color || null;
+              editor.chain().focus().setCellAttribute("borderColor", value).run();
+              setActiveColorPalette("cell-border");
+            }}
+            label={t("tableMenu.borderColor") || "Border Color"}
+          />
+        </div>
+      );
+    }
 
     return (
       <div className="w-56">
@@ -489,6 +599,25 @@ const BubbleMenuContent = ({
             title={t("tableMenu.cellBackground") || "Cell background"}
           >
             <CellBgColorIcon color={currentCellBgColor} />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => setActiveColorPalette("cell-border")}
+            active={Boolean(
+              editor.getAttributes("tableCell").borderColor ||
+                editor.getAttributes("tableHeader").borderColor ||
+                editor.getAttributes("tableCell").borderStyle ||
+                editor.getAttributes("tableHeader").borderStyle ||
+                editor.getAttributes("tableCell").borderWidth ||
+                editor.getAttributes("tableHeader").borderWidth
+            )}
+            title={t("tableMenu.cellBorder") || "Cell border"}
+          >
+            <CellBorderIcon
+              color={
+                editor.getAttributes("tableCell").borderColor ||
+                editor.getAttributes("tableHeader").borderColor
+              }
+            />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => {

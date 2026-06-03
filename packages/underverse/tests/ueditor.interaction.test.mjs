@@ -1067,3 +1067,41 @@ test("UEditor FileCard immediate background upload on insertion", async () => {
   }, { timeout: 3000 });
 });
 
+test("UEditor Table cell custom borders are preserved in HTML", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: `
+        <table>
+          <tbody>
+            <tr>
+              <td data-border-color="#ff0000" data-border-style="dashed" data-border-width="3px">Cell 1</td>
+              <td>Cell 2</td>
+            </tr>
+          </tbody>
+        </table>
+      `,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await view.findByText("Cell 1");
+
+  await waitFor(() => {
+    assert.ok(ref.current);
+  });
+
+  const html = ref.current.editor.getHTML();
+  assert.match(html, /data-border-color="#ff0000"/i);
+  assert.match(html, /border-color:\s*(?:#ff0000|rgb\(255,\s*0,\s*0\))/i);
+  assert.match(html, /border-style:\s*dashed/i);
+  assert.match(html, /border-width:\s*3px/i);
+});
+

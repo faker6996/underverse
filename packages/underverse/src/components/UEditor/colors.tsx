@@ -2,7 +2,7 @@
 
 import React, { useMemo, useRef } from "react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
-import { Check, Highlighter, Palette, Paintbrush } from "lucide-react";
+import { Check, Highlighter, Palette, Paintbrush, Grid } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { Tooltip } from "../Tooltip";
 
@@ -44,6 +44,21 @@ export const CellBgColorIcon = ({ color }: { color?: string }) => {
   return (
     <span className="relative flex h-5 w-5 items-center justify-center leading-none">
       <Paintbrush className="h-4 w-4" />
+      <span
+        aria-hidden="true"
+        className="absolute bottom-0 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full"
+        style={{ backgroundColor: underlineColor }}
+      />
+    </span>
+  );
+};
+
+export const CellBorderIcon = ({ color }: { color?: string }) => {
+  const underlineColor = color && color !== "inherit" ? color : "currentColor";
+
+  return (
+    <span className="relative flex h-5 w-5 items-center justify-center leading-none">
+      <Grid className="h-4 w-4" />
       <span
         aria-hidden="true"
         className="absolute bottom-0 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full"

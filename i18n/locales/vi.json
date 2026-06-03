@@ -1511,7 +1511,13 @@
       "alignRight": "Căn bảng phải",
       "cellBackground": "Màu nền ô",
       "mergeCells": "Gộp ô",
-      "splitCell": "Tách ô"
+      "splitCell": "Tách ô",
+      "cellBorder": "Viền ô",
+      "borderStyle": "Kiểu viền",
+      "borderWidth": "Độ dày viền",
+      "borderColor": "Màu viền",
+      "clearBorder": "Xóa viền",
+      "done": "Xong"
     },
     "callout": {
       "selectEmoji": "Chọn Biểu tượng",

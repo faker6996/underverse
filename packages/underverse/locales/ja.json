@@ -269,7 +269,13 @@
       "alignLeft": "表を左寄せ",
       "alignCenter": "表を中央揃え",
       "alignRight": "表を右寄せ",
-      "cellBackground": "セル背景色"
+      "cellBackground": "セル背景色",
+      "cellBorder": "セルの枠線",
+      "borderStyle": "枠線スタイル",
+      "borderWidth": "枠線の太さ",
+      "borderColor": "枠線の色",
+      "clearBorder": "枠線をクリア",
+      "done": "完了"
     },
     "callout": {
       "selectEmoji": "絵文字を選択",

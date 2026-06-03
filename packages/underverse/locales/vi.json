@@ -270,7 +270,13 @@
       "alignLeft": "Căn bảng trái",
       "alignCenter": "Căn bảng giữa",
       "alignRight": "Căn bảng phải",
-      "cellBackground": "Màu nền ô"
+      "cellBackground": "Màu nền ô",
+      "cellBorder": "Viền ô",
+      "borderStyle": "Kiểu viền",
+      "borderWidth": "Độ dày viền",
+      "borderColor": "Màu viền",
+      "clearBorder": "Xóa viền",
+      "done": "Xong"
     },
     "callout": {
       "selectEmoji": "Chọn Biểu tượng",

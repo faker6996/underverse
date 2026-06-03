@@ -64,13 +64,52 @@ const CustomTableCell = TableCell.extend({
           };
         },
       },
+      borderColor: {
+        default: null,
+        parseHTML: (element) => element.style.borderColor || element.getAttribute("data-border-color") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.borderColor) return {};
+          return {
+            "data-border-color": attributes.borderColor,
+          };
+        },
+      },
+      borderStyle: {
+        default: null,
+        parseHTML: (element) => element.style.borderStyle || element.getAttribute("data-border-style") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.borderStyle) return {};
+          return {
+            "data-border-style": attributes.borderStyle,
+          };
+        },
+      },
+      borderWidth: {
+        default: null,
+        parseHTML: (element) => element.style.borderWidth || element.getAttribute("data-border-width") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.borderWidth) return {};
+          return {
+            "data-border-width": attributes.borderWidth,
+          };
+        },
+      },
     };
   },
 
   renderHTML({ HTMLAttributes }) {
     const style = HTMLAttributes.style || "";
     const bg = HTMLAttributes["data-background-color"];
-    const mergedStyle = bg ? `${style}; background-color: ${bg}`.replace(/^;/, "") : style;
+    const borderColor = HTMLAttributes["data-border-color"];
+    const borderStyle = HTMLAttributes["data-border-style"];
+    const borderWidth = HTMLAttributes["data-border-width"];
+
+    let mergedStyle = style;
+    if (bg) mergedStyle += `; background-color: ${bg}`;
+    if (borderColor) mergedStyle += `; border-color: ${borderColor}`;
+    if (borderStyle) mergedStyle += `; border-style: ${borderStyle}`;
+    if (borderWidth) mergedStyle += `; border-width: ${borderWidth}`;
+    mergedStyle = mergedStyle.replace(/^;/, "").trim();
 
     return [
       "td",
@@ -96,13 +135,52 @@ const CustomTableHeader = TableHeader.extend({
           };
         },
       },
+      borderColor: {
+        default: null,
+        parseHTML: (element) => element.style.borderColor || element.getAttribute("data-border-color") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.borderColor) return {};
+          return {
+            "data-border-color": attributes.borderColor,
+          };
+        },
+      },
+      borderStyle: {
+        default: null,
+        parseHTML: (element) => element.style.borderStyle || element.getAttribute("data-border-style") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.borderStyle) return {};
+          return {
+            "data-border-style": attributes.borderStyle,
+          };
+        },
+      },
+      borderWidth: {
+        default: null,
+        parseHTML: (element) => element.style.borderWidth || element.getAttribute("data-border-width") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.borderWidth) return {};
+          return {
+            "data-border-width": attributes.borderWidth,
+          };
+        },
+      },
     };
   },
 
   renderHTML({ HTMLAttributes }) {
     const style = HTMLAttributes.style || "";
     const bg = HTMLAttributes["data-background-color"];
-    const mergedStyle = bg ? `${style}; background-color: ${bg}`.replace(/^;/, "") : style;
+    const borderColor = HTMLAttributes["data-border-color"];
+    const borderStyle = HTMLAttributes["data-border-style"];
+    const borderWidth = HTMLAttributes["data-border-width"];
+
+    let mergedStyle = style;
+    if (bg) mergedStyle += `; background-color: ${bg}`;
+    if (borderColor) mergedStyle += `; border-color: ${borderColor}`;
+    if (borderStyle) mergedStyle += `; border-style: ${borderStyle}`;
+    if (borderWidth) mergedStyle += `; border-width: ${borderWidth}`;
+    mergedStyle = mergedStyle.replace(/^;/, "").trim();
 
     return [
       "th",
