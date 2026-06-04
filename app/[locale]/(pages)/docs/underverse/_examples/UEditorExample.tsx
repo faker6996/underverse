@@ -152,6 +152,25 @@ export default function UEditorExample() {
 
   const demo = (
     <div className="space-y-8">
+      {/* Classic Menu Bar Editor */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="px-2 py-1 text-xs font-medium bg-violet-500/10 text-violet-500 rounded-full">Menu Bar</span>
+          <span className="text-sm text-muted-foreground">Classic editor with menu bar (showMenuBar)</span>
+        </div>
+        <UEditor
+          content="<p>Editor với menu bar kiểu classic — Tập tin, Sửa, Xem, Thêm, Định dạng, Công cụ, Bảng.</p>"
+          showMenuBar
+          showBubbleMenu={false}
+          showFloatingMenu={false}
+          showCharacterCount
+          minHeight={200}
+          onSave={() => alert("onSave callback!")}
+          onExport={() => alert("onExport callback!")}
+          onSourceCode={() => alert("onSourceCode callback!")}
+        />
+      </div>
+
       {/* Main Editor - Notion Style */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">

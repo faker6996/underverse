@@ -82,6 +82,11 @@ export interface UEditorProps {
   uploadFileForSave?: (file: File) => Promise<string | ({ url: string } & Record<string, unknown>)>;
   collaborationOptions?: any;
   extraExtensions?: any[];
+  showMenuBar?: boolean;
+  onSave?: () => void;
+  onExport?: () => void;
+  onSourceCode?: () => void;
+  onPreview?: () => void;
 }
 
 export type UEditorVariant = NonNullable<UEditorProps["variant"]>;

@@ -65,7 +65,7 @@ import {
 
 type UploadImageFn = (file: File) => Promise<string> | string;
 
-function getTableAnchorPos(editor: Editor) {
+export function getTableAnchorPos(editor: Editor) {
   const tableInfo = findTableNodeInfoFromState(editor.state);
   if (tableInfo) return editor.state.selection.from;
 
@@ -88,7 +88,7 @@ function getTableAnchorPos(editor: Editor) {
   return firstCell instanceof HTMLTableCellElement ? editor.view.posAtDOM(firstCell, 0) + 1 : null;
 }
 
-function fileToDataUrl(file: File): Promise<string> {
+export function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result ?? ""));
@@ -152,7 +152,7 @@ ToolbarButton.displayName = "ToolbarButton";
 
 const ToolbarDivider = () => <div className="mx-0.5 h-5 w-px bg-border/60" />;
 
-const TableInsertGrid = ({
+export const TableInsertGrid = ({
   insertLabel,
   previewTemplate,
   onInsert,

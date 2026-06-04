@@ -22,6 +22,7 @@ import { TableControls } from "./table-controls";
 import { UEDITOR_PROSEMIRROR_CLASS_NAME } from "./editor-styles";
 import { resolveEventElement } from "./table-dom-utils";
 import { useUEditorTableInteractions } from "./use-table-interactions";
+import { MenuBar } from "./menu-bar";
 
 const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   content = "",
@@ -56,6 +57,11 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   uploadFileForSave,
   collaborationOptions,
   extraExtensions,
+  showMenuBar = false,
+  onSave,
+  onExport,
+  onSourceCode,
+  onPreview,
 }: UEditorProps, ref) => {
   const t = useSmartTranslations("UEditor");
   const effectivePlaceholder = placeholder ?? t("placeholder");
@@ -222,6 +228,20 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         className,
       )}
     >
+      {editable && showMenuBar && (
+        <MenuBar
+          editor={editor}
+          containerRef={editorContentRef}
+          uploadImage={uploadImage}
+          imageInsertMode={imageInsertMode}
+          maxImageFileSize={maxImageFileSize}
+          allowedImageMimeTypes={allowedImageMimeTypes}
+          onSave={onSave}
+          onExport={onExport}
+          onSourceCode={onSourceCode}
+          onPreview={onPreview}
+        />
+      )}
       {editable && showToolbar && (
         <EditorToolbar
           editor={editor}

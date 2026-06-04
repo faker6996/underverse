@@ -5,6 +5,7 @@ import { useShadCNAnimations } from "../utils/animations";
 import React, { useState } from "react";
 import { chainEventHandlers, mergeRefs } from "../utils/react-compose";
 import { Popover } from "./Popover";
+import { ChevronRight } from "lucide-react";
 
 /** Public props for the `DropdownMenu` component. */
 interface DropdownMenuProps {
@@ -257,6 +258,36 @@ export const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({
 );
 
 export const DropdownMenuSeparator: React.FC<{ className?: string }> = ({ className }) => <div className={cn("h-px bg-border my-1", className)} />;
+
+export const DropdownMenuSub: React.FC<{
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  disabled?: boolean;
+  children: React.ReactNode;
+}> = ({ label, icon: Icon, disabled, children }) => (
+  <DropdownMenu
+    trigger={
+      <button
+        type="button"
+        disabled={disabled}
+        onMouseDown={(e) => e.preventDefault()}
+        className={cn(
+          "flex w-full items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer",
+          "hover:bg-accent hover:text-accent-foreground",
+          "focus:bg-accent focus:text-accent-foreground focus:outline-none",
+          "disabled:opacity-50 disabled:cursor-not-allowed",
+        )}
+      >
+        {Icon && <Icon className="w-4 h-4 shrink-0 opacity-60" />}
+        <span className="flex-1 text-left">{label}</span>
+        <ChevronRight className="w-3 h-3 opacity-50" />
+      </button>
+    }
+    placement="right"
+  >
+    {children}
+  </DropdownMenu>
+);
 
 export const SelectDropdown: React.FC<{
   options: string[];
