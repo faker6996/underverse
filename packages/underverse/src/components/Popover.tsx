@@ -317,6 +317,7 @@ export const Popover: React.FC<PopoverProps> = ({
       if (!triggerEl || !popoverEl) return;
       if (triggerEl.contains(target)) return;
       if (popoverEl.contains(target)) return;
+      if (target instanceof Element && target.closest("[data-popover]")) return;
       setIsOpen(false);
     };
 

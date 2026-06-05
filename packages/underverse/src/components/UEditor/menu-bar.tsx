@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { cn } from "../../utils/cn";
-import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub } from "../DropdownMenu";
+import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, useDropdownMenuClose } from "../DropdownMenu";
 import Modal from "../Modal";
 import { ImageInput, LinkInput } from "./inputs";
 import { TableInsertGrid, fileToDataUrl, getTableAnchorPos } from "./toolbar";
@@ -68,6 +68,29 @@ type MenuCustom = { type: "custom"; key: string; render: () => React.ReactNode }
 type MenuItemDef = MenuAction | MenuSeparator | MenuSub | MenuCustom;
 
 // ─── Render helper ──────────────────────────────────────────────────────────
+
+function MenuTableInsertGrid({
+  insertLabel,
+  previewTemplate,
+  onInsert,
+}: {
+  insertLabel: string;
+  previewTemplate: string;
+  onInsert: (rows: number, cols: number) => void;
+}) {
+  const closeMenu = useDropdownMenuClose();
+
+  return (
+    <TableInsertGrid
+      insertLabel={insertLabel}
+      previewTemplate={previewTemplate}
+      onInsert={(rows, cols) => {
+        onInsert(rows, cols);
+        closeMenu();
+      }}
+    />
+  );
+}
 
 function renderMenuItems(items: MenuItemDef[]): React.ReactNode {
   return items.map((item, i) => {
@@ -423,7 +446,7 @@ function buildTableMenuItems(t: (k: string) => string, editor: Editor, onInsertT
           type: "custom",
           key: "table-insert-grid",
           render: () => (
-            <TableInsertGrid
+            <MenuTableInsertGrid
               insertLabel={t("tableMenu.insertTable")}
               previewTemplate={t("tableMenu.gridPreview")}
               onInsert={onInsertTable}
@@ -650,7 +673,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
           <ImageInput onSubmit={handleImageUrl} onCancel={() => setShowImageInput(false)} />
         ) : (
           <>
-            <DropdownMenuItem label={t("menubar.image")} icon={ImageIcon} onClick={() => setShowImageInput(true)} />
+            <DropdownMenuItem label={t("menubar.image")} icon={ImageIcon} onClick={() => setShowImageInput(true)} closeOnSelect={false} />
             <DropdownMenuItem
               label={t("menubar.imageUpload")}
               icon={Upload}
@@ -672,6 +695,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
             icon={LinkIcon}
             shortcut={t("menubar.linkShortcut")}
             onClick={() => setShowLinkInput(true)}
+            closeOnSelect={false}
           />
         ),
     },
@@ -685,7 +709,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
           type: "custom",
           key: "table-grid",
           render: () => (
-            <TableInsertGrid
+            <MenuTableInsertGrid
               insertLabel={t("tableMenu.insertTable")}
               previewTemplate={t("tableMenu.gridPreview")}
               onInsert={handleInsertTable}

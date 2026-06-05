@@ -525,7 +525,13 @@ export const EditorToolbar = ({
           />
         ) : (
           <>
-            <DropdownMenuItem icon={LinkIcon} label={t("toolbar.link")} onClick={() => setShowLinkInput(true)} active={editor.isActive("link")} />
+            <DropdownMenuItem
+              icon={LinkIcon}
+              label={t("toolbar.link")}
+              onClick={() => setShowLinkInput(true)}
+              active={editor.isActive("link")}
+              closeOnSelect={false}
+            />
             <DropdownMenuItem
               icon={Trash2}
               label={t("toolbar.removeLink")}
@@ -711,7 +717,7 @@ export const EditorToolbar = ({
           />
         ) : (
           <>
-            <DropdownMenuItem icon={LinkIcon} label={t("imageInput.addFromUrl")} onClick={() => setShowImageInput(true)} />
+            <DropdownMenuItem icon={LinkIcon} label={t("imageInput.addFromUrl")} onClick={() => setShowImageInput(true)} closeOnSelect={false} />
             <DropdownMenuItem
               icon={Upload}
               label={isUploadingImage ? t("imageInput.uploading") : t("imageInput.uploadTab")}
