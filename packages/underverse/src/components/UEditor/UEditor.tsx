@@ -206,7 +206,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   if (!editor) {
     return (
       <div
-        className={cn("w-full rounded-lg border bg-background flex items-center justify-center text-muted-foreground", className)}
+        className={cn("w-full border bg-background flex items-center justify-center text-muted-foreground", className)}
         style={{ minHeight }}
       >
         {t("loading")}
@@ -219,7 +219,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
       className={cn(
         "group relative flex flex-col text-card-foreground",
         editable ? [
-          "rounded-2xl md:rounded-3xl border border-border/50 bg-card overflow-hidden",
+          "border border-border/50 bg-card overflow-hidden",
           "transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft",
           "shadow-sm focus-within:shadow-md focus-within:border-primary/15",
           "backdrop-blur-sm",

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
-import UEditor from "@/components/ui/UEditor";
+import UEditor, { type UEditorRef, type UEditorUploadImageForSave } from "@/components/ui/UEditor";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import CodeBlock from "../_components/CodeBlock";
@@ -24,9 +24,23 @@ const wrappedImageDataUrl = `data:image/svg+xml;charset=UTF-8,${encodeURICompone
   </svg>`,
 )}`;
 
+const UEDITOR_SAVE_DEMO_STORAGE_KEY = "underverse-ui:ueditor-save-demo-html";
+const UEDITOR_MENU_BAR_SAVE_DEMO_STORAGE_KEY = "underverse-ui:ueditor-menu-bar-save-demo-html";
+const LEGACY_UEDITOR_DEMO_IMAGE_URL = "https://picsum.photos/seed/ueditor-";
+const DEFAULT_MENU_BAR_CONTENT =
+  "<p>Editor với menu bar kiểu classic — Tập tin, Sửa, Xem, Thêm, Định dạng, Công cụ, Bảng.</p>";
+
 export default function UEditorExample() {
   const t = useTranslations("DocsUnderverse");
+  const editorRef = React.useRef<UEditorRef>(null);
+  const menuBarEditorRef = React.useRef<UEditorRef>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [menuBarContent, setMenuBarContent] = useState(DEFAULT_MENU_BAR_CONTENT);
+  const [menuBarSaveStatus, setMenuBarSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [menuBarSavedMessage, setMenuBarSavedMessage] = useState("");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [savedHtml, setSavedHtml] = useState("");
+  const [savedMessage, setSavedMessage] = useState("");
   const [modalContent, setModalContent] = useState(`
     <h2>UEditor Inside Modal Demo</h2>
     <p>This editor lives inside a modal. Test suggestion popups and menus here:</p>
@@ -73,9 +87,132 @@ export default function UEditorExample() {
     <blockquote><p>💡 <em>Tip: Select text to see the bubble menu for quick formatting.</em></p></blockquote>
   `);
 
+  const uploadImageForSave: UEditorUploadImageForSave = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("/api/ueditor-demo-upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error("Demo image upload failed.");
+    }
+
+    const result = (await response.json()) as {
+      url?: string;
+      originalName?: string;
+      size?: number;
+      demoUpload?: boolean;
+    };
+
+    return {
+      url: result.url ?? "",
+      originalName: result.originalName ?? file.name,
+      size: result.size ?? file.size,
+      demoUpload: result.demoUpload ?? true,
+    };
+  };
+
+  React.useEffect(() => {
+    try {
+      const storedMenuBarHtml = window.localStorage.getItem(UEDITOR_MENU_BAR_SAVE_DEMO_STORAGE_KEY);
+      const storedHtml = window.localStorage.getItem(UEDITOR_SAVE_DEMO_STORAGE_KEY);
+
+      if (storedMenuBarHtml?.includes(LEGACY_UEDITOR_DEMO_IMAGE_URL)) {
+        window.localStorage.removeItem(UEDITOR_MENU_BAR_SAVE_DEMO_STORAGE_KEY);
+        setMenuBarSavedMessage("Cleared old demo image URL. Save again to use the local demo upload.");
+      } else if (storedMenuBarHtml) {
+        setMenuBarContent(storedMenuBarHtml);
+        setMenuBarSavedMessage("Loaded menu bar demo HTML from localStorage.");
+        setMenuBarSaveStatus("saved");
+      }
+
+      if (storedHtml?.includes(LEGACY_UEDITOR_DEMO_IMAGE_URL)) {
+        window.localStorage.removeItem(UEDITOR_SAVE_DEMO_STORAGE_KEY);
+        setSavedMessage("Cleared old demo image URL. Save again to use the local demo upload.");
+      } else if (storedHtml) {
+        setContent(storedHtml);
+        setSavedHtml(storedHtml);
+        setSavedMessage("Loaded saved demo HTML from localStorage.");
+        setSaveStatus("saved");
+      }
+    } catch {
+      // localStorage can be unavailable in private or restricted contexts.
+    }
+  }, []);
+
+  const handleMenuBarSave = async () => {
+    setMenuBarSaveStatus("saving");
+    setMenuBarSavedMessage("");
+
+    try {
+      const prepared = await menuBarEditorRef.current?.prepareContentForSave({ throwOnError: true });
+      const html = prepared?.html ?? menuBarContent;
+
+      setMenuBarContent(html);
+      window.localStorage.setItem(UEDITOR_MENU_BAR_SAVE_DEMO_STORAGE_KEY, html);
+      setMenuBarSavedMessage(
+        `Saved ${prepared?.uploaded.length ?? 0} uploaded item(s). Inline image URL(s): ${prepared?.inlineImageUrls.length ?? 0}.`,
+      );
+      setMenuBarSaveStatus("saved");
+    } catch (error) {
+      setMenuBarSavedMessage(error instanceof Error ? error.message : "Failed to save menu bar editor content.");
+      setMenuBarSaveStatus("error");
+    }
+  };
+
+  const resetMenuBarSavedDemo = () => {
+    try {
+      window.localStorage.removeItem(UEDITOR_MENU_BAR_SAVE_DEMO_STORAGE_KEY);
+    } catch {
+      // Ignore storage cleanup failures in restricted contexts.
+    }
+
+    setMenuBarContent(DEFAULT_MENU_BAR_CONTENT);
+    setMenuBarSavedMessage("Menu bar saved demo HTML cleared.");
+    setMenuBarSaveStatus("idle");
+  };
+
+  const handlePrepareAndSave = async () => {
+    setSaveStatus("saving");
+    setSavedMessage("");
+
+    try {
+      const prepared = await editorRef.current?.prepareContentForSave({ throwOnError: true });
+      const html = prepared?.html ?? "";
+
+      setContent(html);
+      setSavedHtml(html);
+      window.localStorage.setItem(UEDITOR_SAVE_DEMO_STORAGE_KEY, html);
+      setSavedMessage(
+        `Saved ${prepared?.uploaded.length ?? 0} uploaded item(s). Inline image URL(s): ${prepared?.inlineImageUrls.length ?? 0}.`,
+      );
+      setSaveStatus("saved");
+    } catch (error) {
+      setSavedMessage(error instanceof Error ? error.message : "Failed to prepare editor content.");
+      setSaveStatus("error");
+    }
+  };
+
+  const resetSavedDemo = () => {
+    try {
+      window.localStorage.removeItem(UEDITOR_SAVE_DEMO_STORAGE_KEY);
+    } catch {
+      // Ignore storage cleanup failures in restricted contexts.
+    }
+
+    setSavedHtml("");
+    setSavedMessage("Saved demo HTML cleared. Reload to see the original sample content.");
+    setSaveStatus("idle");
+  };
+
   const basicCode =
     `import UEditor from '@/components/ui/UEditor'\n` +
-    `import { useState } from 'react'\n\n` +
+    `import { useRef, useState } from 'react'\n` +
+    `import type { UEditorRef } from '@/components/ui/UEditor'\n\n` +
+    `const editorRef = useRef<UEditorRef>(null)\n` +
     `const [content, setContent] = useState("<p>Hello!</p>")\n\n` +
     `// Images: paste/drop/file => base64 (data:) by default\n` +
     `// Basic Notion-style editor\n` +
@@ -84,6 +221,23 @@ export default function UEditorExample() {
     `  onChange={setContent}\n` +
     `  placeholder="Type '/' for commands..."\n` +
     `  variant="notion"\n` +
+    `/>\n\n` +
+    `// Recommended: keep images as base64 while editing, upload before save\n` +
+    `const handleSave = async () => {\n` +
+    `  const prepared = await editorRef.current?.prepareContentForSave({ throwOnError: true })\n` +
+    `  await api.savePost({ content: prepared?.html ?? "" })\n` +
+    `}\n\n` +
+    `<UEditor\n` +
+    `  ref={editorRef}\n` +
+    `  content={content}\n` +
+    `  onChange={setContent}\n` +
+    `  uploadImageForSave={async (file) => {\n` +
+    `    const fd = new FormData()\n` +
+    `    fd.append('file', file)\n` +
+    `    const res = await fetch('/api/upload', { method: 'POST', body: fd })\n` +
+    `    const data = await res.json()\n` +
+    `    return data.url\n` +
+    `  }}\n` +
     `/>\n\n` +
     `// Optional: upload images immediately (instead of base64)\n` +
     `<UEditor\n` +
@@ -159,16 +313,35 @@ export default function UEditorExample() {
           <span className="text-sm text-muted-foreground">Classic editor with menu bar (showMenuBar)</span>
         </div>
         <UEditor
-          content="<p>Editor với menu bar kiểu classic — Tập tin, Sửa, Xem, Thêm, Định dạng, Công cụ, Bảng.</p>"
+          ref={menuBarEditorRef}
+          content={menuBarContent}
+          onChange={setMenuBarContent}
+          uploadImageForSave={uploadImageForSave}
           showMenuBar
           showBubbleMenu={false}
           showFloatingMenu={false}
           showCharacterCount
           minHeight={200}
-          onSave={() => alert("onSave callback!")}
+          onSave={handleMenuBarSave}
           onExport={() => alert("onExport callback!")}
           onSourceCode={() => alert("onSourceCode callback!")}
         />
+        <div className="flex flex-wrap items-center justify-between gap-3 border border-border bg-muted/20 p-3 text-sm">
+          <p className={menuBarSaveStatus === "error" ? "text-destructive" : "text-muted-foreground"}>
+            {menuBarSavedMessage || "Use File > Save to upload inline base64 images and persist this demo."}
+          </p>
+          <div className="flex items-center gap-2">
+            {menuBarSaveStatus === "saving" && <span className="text-xs text-muted-foreground">Saving...</span>}
+            {menuBarContent !== DEFAULT_MENU_BAR_CONTENT && (
+              <Button
+                variant="outline"
+                onClick={resetMenuBarSavedDemo}
+              >
+                Reset saved demo
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Main Editor - Notion Style */}
@@ -181,8 +354,10 @@ export default function UEditorExample() {
           Resize demo: drag the right edge of a table cell for columns, drag the bottom edge of a row for row height, and use the right or bottom rail to add columns and rows like Notion.
         </div>
         <UEditor
+          ref={editorRef}
           content={content}
           onChange={setContent}
+          uploadImageForSave={uploadImageForSave}
           placeholder="Type '/' for commands, or just start writing..."
           variant="notion"
           showCharacterCount
@@ -190,6 +365,41 @@ export default function UEditorExample() {
           showFloatingMenu={false}
           minHeight={300}
         />
+        <div className="space-y-3 border border-border bg-muted/20 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="space-y-1">
+              <p className="text-sm font-medium">Base64 while editing, upload before save</p>
+              <p className="text-xs text-muted-foreground">
+                Insert or paste an image, then prepare the HTML to replace inline base64 images with uploaded URLs.
+              </p>
+            </div>
+            <Button
+              variant="primary"
+              onClick={handlePrepareAndSave}
+              loading={saveStatus === "saving"}
+            >
+              Prepare & Save
+            </Button>
+            {savedHtml && (
+              <Button
+                variant="outline"
+                onClick={resetSavedDemo}
+              >
+                Reset saved demo
+              </Button>
+            )}
+          </div>
+          {savedMessage && (
+            <p className={saveStatus === "error" ? "text-sm text-destructive" : "text-sm text-muted-foreground"}>
+              {savedMessage}
+            </p>
+          )}
+          {savedHtml && (
+            <pre className="max-h-52 overflow-auto border border-border bg-background p-3 text-xs">
+              <code>{savedHtml}</code>
+            </pre>
+          )}
+        </div>
       </div>
 
       {/* Minimal Editor */}

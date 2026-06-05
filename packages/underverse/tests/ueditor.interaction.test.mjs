@@ -231,6 +231,49 @@ test("UEditor toolbar applies font family, font size, line height, and letter sp
   });
 });
 
+test("UEditor toolbar upload inserts a selected image file", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const htmlUpdates = [];
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<p>Before image</p>",
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+      onHtmlChange: (html) => htmlUpdates.push(html),
+    }),
+  );
+
+  const editorElement = await waitFor(() => {
+    const element = view.container.querySelector(".ProseMirror");
+    assert.ok(element);
+    return element;
+  });
+
+  await user.click(editorElement);
+  await user.click(within(view.container).getByRole("button", { name: "Insert Image" }));
+  await user.click(await within(window.document.body).findByRole("button", { name: "Upload" }));
+
+  const fileInput = await waitFor(() => {
+    const input = window.document.body.querySelector('input[type="file"]');
+    assert.ok(input, "image file input should stay mounted after clicking Upload");
+    return input;
+  });
+
+  const file = new File([new Uint8Array([137, 80, 78, 71])], "tiny.png", { type: "image/png" });
+  fireEvent.change(fileInput, { target: { files: [file] } });
+
+  await waitFor(() => {
+    const img = view.container.querySelector('img[alt="tiny.png"]');
+    assert.ok(img);
+    assert.match(img.getAttribute("src") ?? "", /^data:image\/png;base64,/);
+    assert.match(htmlUpdates.at(-1) ?? "", /<img[^>]+tiny\.png/);
+  });
+});
+
 test("UEditor preserves wrapped image layout in editor DOM and saved HTML", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -1104,4 +1147,3 @@ test("UEditor Table cell custom borders are preserved in HTML", async () => {
   assert.match(html, /border-style:\s*dashed/i);
   assert.match(html, /border-width:\s*3px/i);
 });
-

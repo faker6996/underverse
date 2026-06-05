@@ -678,6 +678,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
               label={t("menubar.imageUpload")}
               icon={Upload}
               onClick={() => fileInputRef.current?.click()}
+              closeOnSelect={false}
             />
           </>
         ),

@@ -40,6 +40,7 @@ export function installJSDOM() {
   assign("localStorage", window.localStorage);
   assign("sessionStorage", window.sessionStorage);
   assign("File", window.File);
+  assign("FileReader", window.FileReader);
   assign("Blob", window.Blob);
   assign("Range", window.Range);
   assign("Selection", window.Selection);

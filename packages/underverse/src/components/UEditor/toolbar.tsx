@@ -723,6 +723,7 @@ export const EditorToolbar = ({
               label={isUploadingImage ? t("imageInput.uploading") : t("imageInput.uploadTab")}
               disabled={isUploadingImage}
               onClick={() => fileInputRef.current?.click()}
+              closeOnSelect={false}
             />
             {imageUploadError && <DropdownMenuItem label={imageUploadError} disabled destructive />}
             <input
