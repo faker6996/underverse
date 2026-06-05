@@ -30,8 +30,8 @@ export function TableAddRails({
   const visibleTableHeight = Math.min(layout.tableHeight, layout.viewportHeight);
   const columnRailTop = layout.tableTop;
   const columnRailLeft = layout.tableLeft + visibleTableWidth + ADD_COLUMN_RAIL_GAP;
-  const rowRailTop = layout.tableTop + visibleTableHeight + ADD_ROW_RAIL_GAP;
-  const rowRailLeft = layout.tableLeft;
+  const rowRailTop = layout.wrapperTop + layout.wrapperHeight + ADD_ROW_RAIL_GAP;
+  const rowRailLeft = Math.max(layout.tableLeft, layout.wrapperLeft);
   const showColumnRail = controlsVisible || addColumnVisible;
   const showRowRail = controlsVisible || addRowVisible;
 
@@ -107,4 +107,3 @@ export function TableAddRails({
     </>
   );
 }
-

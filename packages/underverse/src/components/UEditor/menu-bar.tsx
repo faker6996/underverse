@@ -10,6 +10,7 @@ import {
   AlignRight,
   Bold as BoldIcon,
   Code as CodeIcon,
+  Eye,
   FileCode,
   Heading1 as Heading1Icon,
   Heading2 as Heading2Icon,
@@ -617,6 +618,15 @@ export const MenuBar: React.FC<MenuBarProps> = ({
     setShowPreviewDialog(true);
   };
 
+  const handlePreview = () => {
+    if (onPreview) {
+      onPreview();
+      return;
+    }
+
+    openPreviewDialog();
+  };
+
   const applySourceHtml = () => {
     editor.chain().focus().setContent(sourceHtml).run();
     setShowSourceDialog(false);
@@ -738,7 +748,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
     { label: t("menubar.edit"), items: buildEditMenuItems(t, editor), open: undefined, onOpenChange: undefined },
     {
       label: t("menubar.view"),
-      items: buildViewMenuItems(t, { containerRef, onSourceCode, openSourceDialog, onPreview, openPreviewDialog }),
+      items: buildViewMenuItems(t, { containerRef, onSourceCode, openSourceDialog, onPreview: handlePreview, openPreviewDialog }),
       open: undefined,
       onOpenChange: undefined,
     },
@@ -787,6 +797,18 @@ export const MenuBar: React.FC<MenuBarProps> = ({
             {renderMenuItems(items)}
           </DropdownMenu>
         ))}
+        <button
+          type="button"
+          onClick={handlePreview}
+          aria-label={t("menubar.preview")}
+          title={t("menubar.preview")}
+          className={cn(
+            "ml-auto inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors",
+            "hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
+          )}
+        >
+          <Eye className="h-4 w-4" aria-hidden="true" />
+        </button>
       </div>
 
       {/* Built-in source code dialog */}
@@ -836,9 +858,13 @@ export const MenuBar: React.FC<MenuBarProps> = ({
         ) : (
           <div
             data-testid="preview-content"
-            className={UEDITOR_PROSEMIRROR_CLASS_NAME}
-            dangerouslySetInnerHTML={{ __html: editor.getHTML() }}
-          />
+            className="max-h-[70vh] overflow-y-auto overscroll-contain pr-2"
+          >
+            <div
+              className={UEDITOR_PROSEMIRROR_CLASS_NAME}
+              dangerouslySetInnerHTML={{ __html: editor.getHTML() }}
+            />
+          </div>
         )}
       </Modal>
     </>

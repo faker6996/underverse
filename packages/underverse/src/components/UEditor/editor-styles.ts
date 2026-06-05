@@ -81,7 +81,7 @@ export const UEDITOR_PROSEMIRROR_CLASS_NAME = cn(
   "[&_.column-resize-handle]:top-[-1px]",
   "[&_.column-resize-handle]:bottom-[-1px]",
   "[&_.column-resize-handle]:right-[-5px]",
-  "[&_.column-resize-handle]:z-10",
+  "[&_.column-resize-handle]:z-30",
   "[&_.column-resize-handle]:w-2.5",
   "[&_.column-resize-handle]:bg-transparent",
   "[&_.column-resize-handle]:rounded-none",

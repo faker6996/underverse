@@ -15,7 +15,7 @@ import type {
   UEditorRef,
 } from "./types";
 import { EditorToolbar } from "./toolbar";
-import { CustomBubbleMenu, CustomFloatingMenu } from "./menus";
+import { CustomBubbleMenu } from "./menus";
 import { CharacterCountDisplay } from "./CharacterCount";
 import { prepareUEditorContentForSave, UEditorPrepareContentForSaveError } from "./prepare-content-for-save";
 import { TableControls } from "./table-controls";
@@ -42,7 +42,6 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   autofocus = false,
   showToolbar = true,
   showBubbleMenu = true,
-  showFloatingMenu = false,
   showCharacterCount = true,
   maxCharacters,
   minHeight = "200px",
@@ -263,8 +262,6 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           lineHeights={lineHeights as UEditorLineHeightOption[] | undefined}
         />
       )}
-      {editable && showFloatingMenu && <CustomFloatingMenu editor={editor} />}
-
       <div
         ref={editorContentRef}
         className="relative flex-1 overflow-y-auto"
@@ -287,7 +284,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           ref={activeTableCellHighlightRef}
           aria-hidden="true"
           data-ueditor-active-cell-highlight=""
-          className="pointer-events-none hidden absolute z-20 rounded-[2px] border-2 border-primary bg-primary/10 transition-[left,top,width,height] duration-100"
+          className="pointer-events-none hidden absolute z-20 rounded-[2px] border-2 border-primary bg-primary/10"
         />
         {editable && <TableControls editor={editor} containerRef={editorContentRef} />}
         <EditorContent

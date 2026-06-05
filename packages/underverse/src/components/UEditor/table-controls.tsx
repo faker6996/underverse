@@ -177,6 +177,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     const proseMirror = editor.view.dom as HTMLElement;
     const surface = containerRef.current;
     if (!surface) return undefined;
+    const scrollListenerOptions = { passive: true, capture: true };
 
     const handleMouseOver = (event: MouseEvent) => {
       if (dragStateRef.current) return;
@@ -207,7 +208,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     proseMirror.addEventListener("focusin", handleFocusIn);
     surface.addEventListener("mouseover", handleSurfaceMouseMove);
     surface.addEventListener("mousemove", handleSurfaceMouseMove);
-    surface.addEventListener("scroll", refreshCurrentLayout, { passive: true });
+    surface.addEventListener("scroll", refreshCurrentLayout, scrollListenerOptions);
     surface.addEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, refreshCurrentLayout);
     window.addEventListener("resize", refreshCurrentLayout);
     editor.on("selectionUpdate", syncFromSelection);
@@ -223,7 +224,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       proseMirror.removeEventListener("focusin", handleFocusIn);
       surface.removeEventListener("mouseover", handleSurfaceMouseMove);
       surface.removeEventListener("mousemove", handleSurfaceMouseMove);
-      surface.removeEventListener("scroll", refreshCurrentLayout);
+      surface.removeEventListener("scroll", refreshCurrentLayout, scrollListenerOptions);
       surface.removeEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, refreshCurrentLayout);
       window.removeEventListener("resize", refreshCurrentLayout);
       editor.off("selectionUpdate", syncFromSelection);

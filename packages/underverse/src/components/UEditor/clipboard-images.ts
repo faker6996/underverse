@@ -40,6 +40,68 @@ function getImageFiles(dataTransfer: DataTransfer | null): File[] {
   return Array.from(byKey.values());
 }
 
+function getClipboardData(dataTransfer: DataTransfer, type: string) {
+  try {
+    return dataTransfer.getData(type) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function extractClipboardHtmlFragment(html: string) {
+  const startMarker = "<!--StartFragment-->";
+  const endMarker = "<!--EndFragment-->";
+  const start = html.indexOf(startMarker);
+  const end = html.indexOf(endMarker);
+
+  if (start >= 0 && end > start) {
+    return html.slice(start + startMarker.length, end);
+  }
+
+  return html;
+}
+
+function getClipboardTableHtml(dataTransfer: DataTransfer) {
+  const html = getClipboardData(dataTransfer, "text/html");
+  if (!/<table(?:\s|>)/i.test(html)) return "";
+
+  const fragment = extractClipboardHtmlFragment(html);
+
+  if (typeof DOMParser !== "undefined") {
+    const doc = new DOMParser().parseFromString(fragment, "text/html");
+    const table = doc.querySelector("table");
+    if (table) return table.outerHTML;
+  }
+
+  return fragment;
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function getClipboardTsvTableHtml(dataTransfer: DataTransfer) {
+  const text = getClipboardData(dataTransfer, "text/plain")
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .replace(/\n+$/, "");
+
+  if (!text.includes("\t")) return "";
+
+  const rows = text.split("\n").map((row) => row.split("\t"));
+  if (rows.length === 0 || rows.every((row) => row.length < 2)) return "";
+
+  const body = rows
+    .map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`)
+    .join("");
+
+  return `<table><tbody>${body}</tbody></table>`;
+}
+
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -104,6 +166,21 @@ export const ClipboardImages = Extension.create<ClipboardImagesOptions>({
         props: {
           handlePaste: (_view, event) => {
             if (!event || !event.clipboardData) return false;
+
+            const tableHtml = getClipboardTableHtml(event.clipboardData);
+            if (tableHtml) {
+              event.preventDefault();
+              editor.chain().focus().insertContent(tableHtml).run();
+              return true;
+            }
+
+            const tsvTableHtml = getClipboardTsvTableHtml(event.clipboardData);
+            if (tsvTableHtml) {
+              event.preventDefault();
+              editor.chain().focus().insertContent(tsvTableHtml).run();
+              return true;
+            }
+
             const files = getImageFiles(event.clipboardData);
             if (files.length === 0) return false;
 

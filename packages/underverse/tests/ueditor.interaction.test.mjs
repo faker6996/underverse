@@ -52,6 +52,26 @@ function activateTableCell(cell) {
   fireEvent.click(cell);
 }
 
+function clipboardWithImageAndData({ html = "", text = "" } = {}) {
+  const file = new File([new Uint8Array([137, 80, 78, 71])], "clipboard-preview.png", { type: "image/png" });
+
+  return {
+    files: [file],
+    items: [
+      {
+        kind: "file",
+        type: "image/png",
+        getAsFile: () => file,
+      },
+    ],
+    getData: (type) => {
+      if (type === "text/html") return html;
+      if (type === "text/plain") return text;
+      return "";
+    },
+  };
+}
+
 test("UEditor renders content and reuses the same in-flight prepareContentForSave promise", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -271,6 +291,83 @@ test("UEditor toolbar upload inserts a selected image file", async () => {
     assert.ok(img);
     assert.match(img.getAttribute("src") ?? "", /^data:image\/png;base64,/);
     assert.match(htmlUpdates.at(-1) ?? "", /<img[^>]+tiny\.png/);
+  });
+});
+
+test("UEditor pastes spreadsheet HTML as a table instead of the clipboard preview image", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<p>Paste target</p>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const editorElement = await waitFor(() => {
+    const element = view.container.querySelector(".ProseMirror");
+    assert.ok(element);
+    return element;
+  });
+
+  await user.click(editorElement);
+  fireEvent.paste(editorElement, {
+    clipboardData: clipboardWithImageAndData({
+      html: [
+        "<html><body>",
+        "<!--StartFragment-->",
+        "<table><tbody><tr><td>A1</td><td>B1</td></tr><tr><td>A2</td><td>B2</td></tr></tbody></table>",
+        "<!--EndFragment-->",
+        "</body></html>",
+      ].join(""),
+      text: "A1\tB1\nA2\tB2",
+    }),
+  });
+
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("table").length, 1);
+    assert.equal(view.container.querySelectorAll("td").length, 4);
+    assert.equal(view.container.querySelector("img"), null);
+  });
+});
+
+test("UEditor converts spreadsheet TSV clipboard data to a table before handling preview images", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<p>Paste target</p>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const editorElement = await waitFor(() => {
+    const element = view.container.querySelector(".ProseMirror");
+    assert.ok(element);
+    return element;
+  });
+
+  await user.click(editorElement);
+  fireEvent.paste(editorElement, {
+    clipboardData: clipboardWithImageAndData({
+      text: "A1\tB1\nA2\tB2",
+    }),
+  });
+
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("table").length, 1);
+    assert.equal(view.container.querySelectorAll("td").length, 4);
+    assert.equal(view.container.querySelector("img"), null);
   });
 });
 
@@ -527,15 +624,44 @@ test("UEditor menu bar preview uses editor table layout styles", async () => {
   );
 
   fireEvent.click(await body.findByRole("button", { name: "View" }));
-  fireEvent.click(await body.findByRole("button", { name: "Preview" }));
+  const menuPreviewButtons = await body.findAllByRole("button", { name: "Preview" });
+  const menuPreviewButton = menuPreviewButtons.find((button) => button.textContent?.trim() === "Preview");
+  assert.ok(menuPreviewButton);
+  fireEvent.click(menuPreviewButton);
 
   const previewContent = await body.findByTestId("preview-content");
-  assert.match(previewContent.className, /\[&_table\]:w-auto/);
-  assert.match(previewContent.className, /\[&_table\]:table-fixed/);
+  assert.match(previewContent.className, /overflow-y-auto/);
+
+  const previewEditorContent = previewContent.firstElementChild;
+  assert.ok(previewEditorContent);
+  assert.match(previewEditorContent.className, /\[&_table\]:w-auto/);
+  assert.match(previewEditorContent.className, /\[&_table\]:table-fixed/);
 
   const previewTable = previewContent.querySelector("table");
   assert.ok(previewTable);
   assert.doesNotMatch(previewTable.getAttribute("class") ?? "", /\bw-full\b/);
+});
+
+test("UEditor menu bar eye button opens preview directly", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+
+  render(
+    React.createElement(UEditor, {
+      content: "<p>Direct preview body</p>",
+      showMenuBar: true,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  fireEvent.click(await body.findByRole("button", { name: "Preview" }));
+
+  const previewContent = await body.findByTestId("preview-content");
+  assert.match(previewContent.textContent ?? "", /Direct preview body/);
 });
 
 test("UEditor table toolbar inserts a custom-sized table from the grid picker", async () => {

@@ -26,28 +26,34 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
   const suppressActiveCellHighlightRef = useRef(false);
   const tableLayoutSyncFrameRef = useRef<number | null>(null);
 
+  const getProseMirrorElement = React.useCallback(() => {
+    return editorContentRef.current?.querySelector(".ProseMirror") as HTMLElement | null;
+  }, []);
+
   const setEditorResizeCursor = React.useCallback((cursor: string) => {
-    const proseMirror = editorContentRef.current?.querySelector(".ProseMirror") as HTMLElement | null;
+    const proseMirror = getProseMirrorElement();
     if (proseMirror) {
       proseMirror.style.cursor = cursor;
     }
-  }, []);
+  }, [getProseMirrorElement]);
 
   const hideColumnGuide = React.useCallback(() => {
     editorContentRef.current?.classList.remove("resize-cursor");
+    getProseMirrorElement()?.classList.remove("resize-cursor");
     const guide = tableColumnGuideRef.current;
     if (guide) {
       guide.style.opacity = "0";
     }
-  }, []);
+  }, [getProseMirrorElement]);
 
   const hideRowGuide = React.useCallback(() => {
     editorContentRef.current?.classList.remove("resize-row-cursor");
+    getProseMirrorElement()?.classList.remove("resize-row-cursor");
     const guide = tableRowGuideRef.current;
     if (guide) {
       guide.style.opacity = "0";
     }
-  }, []);
+  }, [getProseMirrorElement]);
 
   const clearAllTableResizeHover = React.useCallback(() => {
     setEditorResizeCursor("");
@@ -84,7 +90,10 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
   }, [updateActiveCellHighlight]);
 
   const setActiveTableCell = React.useCallback((cell: HTMLElement | null) => {
-    if (activeTableCellRef.current === cell) return;
+    if (activeTableCellRef.current === cell) {
+      updateActiveCellHighlight(cell);
+      return;
+    }
 
     activeTableCellRef.current = cell;
     updateActiveCellHighlight(activeTableCellRef.current);
@@ -115,8 +124,9 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
     guide.style.height = `${metrics.height}px`;
     guide.style.opacity = "1";
     surface.classList.add("resize-cursor");
+    getProseMirrorElement()?.classList.add("resize-cursor");
     setEditorResizeCursor("col-resize");
-  }, [setEditorResizeCursor]);
+  }, [getProseMirrorElement, setEditorResizeCursor]);
 
   const showRowGuide = React.useCallback((table: HTMLTableElement, row: HTMLTableRowElement, cell: HTMLTableCellElement) => {
     const surface = editorContentRef.current;
@@ -130,8 +140,9 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
     guide.style.height = `${ROW_RESIZE_LINE_THICKNESS}px`;
     guide.style.opacity = "1";
     surface.classList.add("resize-row-cursor");
+    getProseMirrorElement()?.classList.add("resize-row-cursor");
     setEditorResizeCursor("row-resize");
-  }, [setEditorResizeCursor]);
+  }, [getProseMirrorElement, setEditorResizeCursor]);
 
   const {
     beginResize,
@@ -152,8 +163,12 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
 
   const syncActiveTableCellFromSelection = React.useCallback(() => {
     if (!editor) return;
+    if (!editor.isFocused) {
+      clearActiveTableCell();
+      return;
+    }
     setActiveTableCell(getSelectionTableCell(editor.view));
-  }, [editor, setActiveTableCell]);
+  }, [clearActiveTableCell, editor, setActiveTableCell]);
 
   useEffect(() => {
     if (!editor || !editable) return undefined;
@@ -161,14 +176,23 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
     const proseMirror = editor.view.dom as HTMLElement;
     const surface = editorContentRef.current;
     let selectionSyncTimeoutId = 0;
+    const scrollListenerOptions = { passive: true, capture: true };
 
     const scheduleActiveCellSync = (fallbackCell: HTMLElement | null = null) => {
       requestAnimationFrame(() => {
+        if (!editor.isFocused) {
+          clearActiveTableCell();
+          return;
+        }
         setActiveTableCell(getSelectionTableCell(editor.view) ?? fallbackCell);
       });
 
       window.clearTimeout(selectionSyncTimeoutId);
       selectionSyncTimeoutId = window.setTimeout(() => {
+        if (!editor.isFocused) {
+          clearActiveTableCell();
+          return;
+        }
         setActiveTableCell(getSelectionTableCell(editor.view) ?? fallbackCell);
       }, 0);
     };
@@ -294,13 +318,15 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
     proseMirror.addEventListener("keyup", handleSelectionChange);
     proseMirror.addEventListener("focusin", handleSelectionChange);
     document.addEventListener("selectionchange", handleSelectionChange);
-    surface?.addEventListener("scroll", handleActiveCellLayoutChange, { passive: true });
+    surface?.addEventListener("scroll", handleActiveCellLayoutChange, scrollListenerOptions);
     window.addEventListener("resize", handleActiveCellLayoutChange);
     document.addEventListener("pointermove", handlePointerMove as EventListener);
     document.addEventListener("pointerup", handlePointerUp as EventListener);
     window.addEventListener("blur", handleWindowBlur);
     editor.on("selectionUpdate", syncActiveTableCellFromSelection);
     editor.on("focus", syncActiveTableCellFromSelection);
+    editor.on("blur", clearActiveTableCell);
+    editor.on("update", scheduleTableLayoutSync);
     syncActiveTableCellFromSelection();
 
     return () => {
@@ -312,13 +338,15 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
       proseMirror.removeEventListener("keyup", handleSelectionChange);
       proseMirror.removeEventListener("focusin", handleSelectionChange);
       document.removeEventListener("selectionchange", handleSelectionChange);
-      surface?.removeEventListener("scroll", handleActiveCellLayoutChange);
+      surface?.removeEventListener("scroll", handleActiveCellLayoutChange, scrollListenerOptions);
       window.removeEventListener("resize", handleActiveCellLayoutChange);
       document.removeEventListener("pointermove", handlePointerMove as EventListener);
       document.removeEventListener("pointerup", handlePointerUp as EventListener);
       window.removeEventListener("blur", handleWindowBlur);
       editor.off("selectionUpdate", syncActiveTableCellFromSelection);
       editor.off("focus", syncActiveTableCellFromSelection);
+      editor.off("blur", clearActiveTableCell);
+      editor.off("update", scheduleTableLayoutSync);
       window.clearTimeout(selectionSyncTimeoutId);
       if (tableLayoutSyncFrameRef.current !== null) {
         window.cancelAnimationFrame(tableLayoutSyncFrameRef.current);
@@ -331,7 +359,7 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
       clearHoveredTableCell();
       clearAllTableResizeHover();
     };
-  }, [beginResize, cancelResize, cleanupRowResize, clearActiveTableCell, clearAllTableResizeHover, clearHoveredTableCell, editable, editor, handleRowResizePointerMove, handleRowResizePointerUp, hideColumnGuide, hideRowGuide, isRowResizing, showColumnGuide, showRowGuide, syncActiveRowResizeGuide, syncActiveTableCellFromSelection, updateActiveCellHighlight]);
+  }, [beginResize, cancelResize, cleanupRowResize, clearActiveTableCell, clearAllTableResizeHover, clearHoveredTableCell, editable, editor, handleRowResizePointerMove, handleRowResizePointerUp, hideColumnGuide, hideRowGuide, isRowResizing, scheduleTableLayoutSync, showColumnGuide, showRowGuide, syncActiveRowResizeGuide, syncActiveTableCellFromSelection, updateActiveCellHighlight]);
 
   return {
     editorContentRef,
