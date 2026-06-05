@@ -33,6 +33,7 @@ import Typography from "@tiptap/extension-typography";
 import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
+import Gapcursor from "@tiptap/extension-gapcursor";
 import { common, createLowlight } from "lowlight";
 import { buildSlashCommandMessages, SlashCommand } from "./slash-command";
 import { ClipboardImages } from "./clipboard-images";
@@ -291,6 +292,7 @@ export function buildUEditorExtensions({
       },
     }),
     HorizontalRule,
+    Gapcursor,
     Link.configure({
       openOnClick: false,
       protocols: ["http", "https", "mailto", "tel"],

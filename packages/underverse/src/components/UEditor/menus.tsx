@@ -718,11 +718,23 @@ export const CustomBubbleMenu = ({
         return;
       }
 
-      const start = view.coordsAtPos(from);
-      const end = view.coordsAtPos(to);
+      let start: { top: number; left: number; right: number; bottom: number };
+      let end: { top: number; left: number; right: number; bottom: number };
+      try {
+        start = view.coordsAtPos(from);
+        end = view.coordsAtPos(to);
+      } catch {
+        clearShowTimeout();
+        setIsVisible(false);
+        return;
+      }
 
-      const left = (start.left + end.left) / 2;
-      const top = start.top - BUBBLE_MENU_OFFSET;
+      const viewportPadding = 8;
+      const left = Math.min(
+        window.innerWidth - viewportPadding,
+        Math.max(viewportPadding, (start.left + end.left) / 2),
+      );
+      const top = Math.max(viewportPadding, start.top - BUBBLE_MENU_OFFSET);
 
       setPosition({ top, left });
       if (keepOpenRef.current) {
@@ -748,12 +760,18 @@ export const CustomBubbleMenu = ({
     editor.on("selectionUpdate", updatePosition);
     editor.on("focus", updatePosition);
     editor.on("blur", handleBlur);
+    editor.on("transaction", updatePosition);
+    editor.on("update", updatePosition);
+    const animationFrameId = requestAnimationFrame(updatePosition);
 
     return () => {
+      cancelAnimationFrame(animationFrameId);
       clearShowTimeout();
       editor.off("selectionUpdate", updatePosition);
       editor.off("focus", updatePosition);
       editor.off("blur", handleBlur);
+      editor.off("transaction", updatePosition);
+      editor.off("update", updatePosition);
     };
   }, [editor]);
 
@@ -763,7 +781,7 @@ export const CustomBubbleMenu = ({
     <div
       ref={menuRef}
       data-popover
-      className="fixed z-99999 flex rounded-xl border border-border/40 bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 zoom-in-95"
+      className="fixed z-[99999] flex rounded-xl border border-border/40 bg-card text-card-foreground shadow-lg backdrop-blur-sm overflow-hidden animate-in fade-in-0 zoom-in-95"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,

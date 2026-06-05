@@ -318,7 +318,7 @@ export default function UEditorExample() {
           onChange={setMenuBarContent}
           uploadImageForSave={uploadImageForSave}
           showMenuBar
-          showBubbleMenu={false}
+          showBubbleMenu
           showFloatingMenu={false}
           showCharacterCount
           minHeight={200}

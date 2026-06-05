@@ -4,7 +4,6 @@ import { mergeAttributes } from "@tiptap/core";
 import { NodeViewWrapper, ReactNodeViewRenderer, type NodeViewProps } from "@tiptap/react";
 
 const MIN_IMAGE_SIZE_PX = 40;
-const AXIS_LOCK_THRESHOLD_PX = 4;
 const IMAGE_LAYOUTS = new Set(["block", "left", "right"] as const);
 const IMAGE_WIDTH_PRESETS = new Set(["sm", "md", "lg"] as const);
 type ImageLayout = "block" | "left" | "right";
@@ -55,6 +54,55 @@ function getImageLayoutStyles(layout: ImageLayout) {
   return {};
 }
 
+function getAspectRatio({
+  img,
+  widthAttr,
+  heightAttr,
+  fallbackWidth,
+  fallbackHeight,
+}: {
+  img: HTMLImageElement;
+  widthAttr: number | null;
+  heightAttr: number | null;
+  fallbackWidth: number;
+  fallbackHeight: number;
+}) {
+  if (widthAttr && heightAttr) return widthAttr / heightAttr;
+  if (img.naturalWidth > 0 && img.naturalHeight > 0) return img.naturalWidth / img.naturalHeight;
+  if (fallbackWidth > 0 && fallbackHeight > 0) return fallbackWidth / fallbackHeight;
+  return 1;
+}
+
+function sizeFromWidth(width: number, aspect: number, maxWidth: number) {
+  let nextW = clamp(width, MIN_IMAGE_SIZE_PX, maxWidth);
+  let nextH = nextW / aspect;
+
+  if (nextH < MIN_IMAGE_SIZE_PX) {
+    nextH = MIN_IMAGE_SIZE_PX;
+    nextW = clamp(nextH * aspect, MIN_IMAGE_SIZE_PX, maxWidth);
+    nextH = nextW / aspect;
+  }
+
+  return { width: nextW, height: nextH };
+}
+
+function sizeFromHeight(height: number, aspect: number, maxWidth: number) {
+  let nextH = Math.max(MIN_IMAGE_SIZE_PX, height);
+  let nextW = nextH * aspect;
+
+  if (nextW > maxWidth) {
+    nextW = maxWidth;
+    nextH = nextW / aspect;
+  }
+
+  if (nextW < MIN_IMAGE_SIZE_PX) {
+    nextW = MIN_IMAGE_SIZE_PX;
+    nextH = nextW / aspect;
+  }
+
+  return { width: nextW, height: nextH };
+}
+
 function ResizableImageNodeView(props: NodeViewProps) {
   const { node, selected, updateAttributes, editor, getPos } = props;
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -66,7 +114,6 @@ function ResizableImageNodeView(props: NodeViewProps) {
   const heightAttr = toNullableNumber((node.attrs as Record<string, unknown>)["height"]);
   const textAlign = String((node.attrs as Record<string, unknown>)["textAlign"] ?? "");
   const imageLayout = parseImageLayout((node.attrs as Record<string, unknown>)["imageLayout"]);
-  const preserveAspectByDefault = imageLayout === "left" || imageLayout === "right";
 
   const dragStateRef = useRef<{
     pointerId: number;
@@ -76,7 +123,6 @@ function ResizableImageNodeView(props: NodeViewProps) {
     startH: number;
     lastW: number;
     lastH: number;
-    axis: "x" | "y" | null;
     aspect: number;
     maxW: number;
   } | null>(null);
@@ -109,7 +155,13 @@ function ResizableImageNodeView(props: NodeViewProps) {
 
     const startW = Math.max(MIN_IMAGE_SIZE_PX, rect.width);
     const startH = Math.max(MIN_IMAGE_SIZE_PX, rect.height);
-    const aspect = startH > 0 ? startW / startH : 1;
+    const aspect = getAspectRatio({
+      img,
+      widthAttr,
+      heightAttr,
+      fallbackWidth: startW,
+      fallbackHeight: startH,
+    });
 
     dragStateRef.current = {
       pointerId: event.pointerId,
@@ -119,7 +171,6 @@ function ResizableImageNodeView(props: NodeViewProps) {
       startH,
       lastW: startW,
       lastH: startH,
-      axis: null,
       aspect,
       maxW: Math.max(MIN_IMAGE_SIZE_PX, maxW),
     };
@@ -137,26 +188,11 @@ function ResizableImageNodeView(props: NodeViewProps) {
     const dx = event.clientX - drag.startX;
     const dy = event.clientY - drag.startY;
 
-    let nextW = drag.startW;
-    let nextH = drag.startH;
-
-    const shouldPreserveAspect = preserveAspectByDefault ? !event.ctrlKey : event.ctrlKey;
-
-    if (shouldPreserveAspect) {
-      if (Math.abs(dx) >= Math.abs(dy)) {
-        nextW = clamp(drag.startW + dx, MIN_IMAGE_SIZE_PX, drag.maxW);
-        nextH = clamp(nextW / drag.aspect, MIN_IMAGE_SIZE_PX, Number.POSITIVE_INFINITY);
-      } else {
-        nextH = clamp(drag.startH + dy, MIN_IMAGE_SIZE_PX, Number.POSITIVE_INFINITY);
-        nextW = clamp(nextH * drag.aspect, MIN_IMAGE_SIZE_PX, drag.maxW);
-      }
-    } else {
-      if (!drag.axis && (Math.abs(dx) > AXIS_LOCK_THRESHOLD_PX || Math.abs(dy) > AXIS_LOCK_THRESHOLD_PX)) {
-        drag.axis = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
-      }
-      if (drag.axis === "x") nextW = clamp(drag.startW + dx, MIN_IMAGE_SIZE_PX, drag.maxW);
-      if (drag.axis === "y") nextH = clamp(drag.startH + dy, MIN_IMAGE_SIZE_PX, Number.POSITIVE_INFINITY);
-    }
+    const nextSize = Math.abs(dx) >= Math.abs(dy)
+      ? sizeFromWidth(drag.startW + dx, drag.aspect, drag.maxW)
+      : sizeFromHeight(drag.startH + dy, drag.aspect, drag.maxW);
+    const nextW = nextSize.width;
+    const nextH = nextSize.height;
 
     drag.lastW = nextW;
     drag.lastH = nextH;

@@ -22,6 +22,52 @@ function isSelectedImage(editor: Editor) {
   return selection instanceof NodeSelection && selection.node.type.name === "image";
 }
 
+function toPositiveNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value) && value > 0) return value;
+  if (typeof value === "string") {
+    const parsed = Number.parseInt(value, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  }
+  return null;
+}
+
+function getImageElementAtSelection(editor: Editor, pos: number): HTMLImageElement | null {
+  const nodeDom = editor.view.nodeDOM(pos);
+  if (!(nodeDom instanceof HTMLElement)) return null;
+  if (nodeDom.tagName === "IMG") return nodeDom as HTMLImageElement;
+  return nodeDom.querySelector("img");
+}
+
+function getImageAspectRatio(editor: Editor, attrs: Record<string, unknown>, pos?: number): number | null {
+  const widthAttr = toPositiveNumber(attrs.width);
+  const heightAttr = toPositiveNumber(attrs.height);
+  if (widthAttr && heightAttr) return widthAttr / heightAttr;
+
+  const imageElement = typeof pos === "number" ? getImageElementAtSelection(editor, pos) : null;
+  if (!imageElement) return null;
+
+  if (imageElement.naturalWidth > 0 && imageElement.naturalHeight > 0) {
+    return imageElement.naturalWidth / imageElement.naturalHeight;
+  }
+
+  const rect = imageElement.getBoundingClientRect();
+  if (rect.width > 0 && rect.height > 0) return rect.width / rect.height;
+
+  const width = toPositiveNumber(imageElement.getAttribute("width")) ?? toPositiveNumber(imageElement.style.width);
+  const height = toPositiveNumber(imageElement.getAttribute("height")) ?? toPositiveNumber(imageElement.style.height);
+  return width && height ? width / height : null;
+}
+
+function getImagePresetAttributes(editor: Editor, width: number, preset: UEditorImageWidthPreset, attrs: Record<string, unknown>, pos?: number) {
+  const aspect = getImageAspectRatio(editor, attrs, pos);
+
+  return {
+    width,
+    height: aspect ? Math.round(width / aspect) : toPositiveNumber(attrs.height),
+    imageWidthPreset: preset,
+  };
+}
+
 export function applyImageLayout(editor: Editor, layout: UEditorImageLayout) {
   const { state, view } = editor;
   const { selection, schema } = state;
@@ -59,20 +105,20 @@ export function applyImageLayout(editor: Editor, layout: UEditorImageLayout) {
 }
 
 export function applyImageWidthPreset(editor: Editor, preset: UEditorImageWidthPreset) {
-  const attrs = editor.getAttributes("image") as { imageLayout?: string };
+  const attrs = editor.getAttributes("image") as { imageLayout?: string } & Record<string, unknown>;
   const mode = attrs.imageLayout === "left" || attrs.imageLayout === "right" ? "wrap" : "block";
   const width = IMAGE_WIDTHS_BY_LAYOUT[mode][preset];
   if (!isSelectedImage(editor)) {
-    editor.chain().focus().updateAttributes("image", { width, imageWidthPreset: preset }).run();
+    editor.chain().focus().updateAttributes("image", getImagePresetAttributes(editor, width, preset, attrs)).run();
     return;
   }
 
   const { state, view } = editor;
   const selection = state.selection as NodeSelection;
+  const nextAttrs = getImagePresetAttributes(editor, width, preset, selection.node.attrs, selection.from);
   const transaction = state.tr.setNodeMarkup(selection.from, undefined, {
     ...selection.node.attrs,
-    width,
-    imageWidthPreset: preset,
+    ...nextAttrs,
   });
   view.dispatch(transaction.scrollIntoView());
   view.focus();

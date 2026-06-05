@@ -304,6 +304,113 @@ test("UEditor preserves wrapped image layout in editor DOM and saved HTML", asyn
   assert.match(result.html, /float:\s*left/i);
 });
 
+test("UEditor image width presets preserve the image aspect ratio", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: `<p>Before</p><img src="data:image/png;base64,${ONE_PIXEL_PNG_BASE64}" alt="ratio" width="240" height="160" /><p>After</p>`,
+      showToolbar: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await view.findByAltText("ratio");
+  await waitFor(() => {
+    assert.ok(ref.current?.editor);
+  });
+
+  const editor = ref.current.editor;
+  let imagePos = null;
+  editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === "image") {
+      imagePos = pos;
+      return false;
+    }
+    return true;
+  });
+  assert.equal(typeof imagePos, "number");
+
+  editor.commands.focus();
+  editor.commands.setNodeSelection(imagePos);
+  await user.click(await within(window.document.body).findByRole("button", { name: "Image Width Large" }));
+
+  await waitFor(() => {
+    const attrs = editor.getAttributes("image");
+    assert.equal(attrs.width, 380);
+    assert.equal(attrs.height, 253);
+  });
+
+  const result = await ref.current.prepareContentForSave();
+  assert.match(result.html, /width="380"/);
+  assert.match(result.html, /height="253"/);
+});
+
+test("UEditor image resize handle preserves the image aspect ratio", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: `<p>Before</p><img src="data:image/png;base64,${ONE_PIXEL_PNG_BASE64}" alt="drag-ratio" width="200" height="100" /><p>After</p>`,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const image = await view.findByAltText("drag-ratio");
+  const editorElement = await waitFor(() => {
+    const element = view.container.querySelector(".ProseMirror");
+    assert.ok(element);
+    return element;
+  });
+  await waitFor(() => {
+    assert.ok(ref.current?.editor);
+  });
+
+  editorElement.getBoundingClientRect = () => ({ width: 500, height: 300, top: 0, left: 0, right: 500, bottom: 300, x: 0, y: 0, toJSON() {} });
+  image.getBoundingClientRect = () => ({ width: 200, height: 100, top: 0, left: 0, right: 200, bottom: 100, x: 0, y: 0, toJSON() {} });
+
+  const editor = ref.current.editor;
+  let imagePos = null;
+  editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === "image") {
+      imagePos = pos;
+      return false;
+    }
+    return true;
+  });
+  assert.equal(typeof imagePos, "number");
+
+  editor.commands.setNodeSelection(imagePos);
+  const wrapper = image.closest("[data-image-layout]");
+  assert.ok(wrapper);
+  const handle = await waitFor(() => {
+    const element = wrapper.querySelector('[aria-hidden="true"]');
+    assert.ok(element);
+    return element;
+  });
+
+  fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 });
+  fireEvent.pointerMove(handle, { pointerId: 1, clientX: 100, clientY: 0 });
+  fireEvent.pointerUp(handle, { pointerId: 1, clientX: 100, clientY: 0 });
+
+  await waitFor(() => {
+    const attrs = editor.getAttributes("image");
+    assert.equal(attrs.width, 300);
+    assert.equal(attrs.height, 150);
+  });
+});
+
 test("UEditor bubble menu applies quick line-height controls to selected text", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
