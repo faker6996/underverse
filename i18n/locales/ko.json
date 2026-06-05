@@ -1454,7 +1454,7 @@
     "fileCard": {
       "unnamed": "이름 없는 파일",
       "uploading": "(업로드 중...)",
-      "uploadFailed": "업로드 실패"
+      "uploadFailed": "업로드에 실패했습니다."
     }
   },
   "CalendarTimeline": {
@@ -1477,7 +1477,7 @@
     "expandGroup": "그룹 펼치기",
     "collapseGroup": "그룹 접기",
     "more": "+{n}개 더",
-    "deleteConfirm": "이 이벤트를 삭제할까요?"
+    "deleteConfirm": "이 이벤트를 삭제하시겠습니까?"
   },
   "FileUpload": {
     "dragDropText": "여기에 파일을 드래그 앤 드롭하세요",
@@ -1486,9 +1486,9 @@
     "supportedFormats": "모든 파일 형식 지원",
     "uploadedFiles": "업로드된 파일",
     "clearAll": "모두 지우기",
-    "fileTooLarge": "크기 제한 초과",
-    "maxFilesReached": "최대 파일 수 도달",
-    "uploadSuccess": "업로드 성공",
-    "uploadFailed": "업로드 실패"
+    "fileTooLarge": "파일 크기가 제한을 초과했습니다.",
+    "maxFilesReached": "최대 파일 수에 도달했습니다.",
+    "uploadSuccess": "업로드되었습니다.",
+    "uploadFailed": "업로드에 실패했습니다."
   }
 }

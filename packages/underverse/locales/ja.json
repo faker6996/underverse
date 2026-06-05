@@ -99,10 +99,10 @@
     "supportedFormats": "すべてのファイル形式に対応",
     "uploadedFiles": "アップロードされたファイル",
     "clearAll": "すべてクリア",
-    "fileTooLarge": "サイズ制限を超えています",
-    "maxFilesReached": "最大ファイル数に達しました",
-    "uploadSuccess": "アップロード成功",
-    "uploadFailed": "アップロード失敗"
+    "fileTooLarge": "サイズ制限を超えています。",
+    "maxFilesReached": "最大ファイル数に達しました。",
+    "uploadSuccess": "アップロードしました。",
+    "uploadFailed": "アップロードに失敗しました。"
   },
   "UEditor": {
     "placeholder": "コマンドを使用するには '/' を入力、または入力を開始...",
@@ -173,9 +173,9 @@
       "imageLayoutBlock": "画像ブロック",
       "imageLayoutLeft": "画像を左、文字を右に回り込み",
       "imageLayoutRight": "画像を右、文字を左に回り込み",
-      "imageWidthSm": "画像 小",
-      "imageWidthMd": "画像 中",
-      "imageWidthLg": "画像 大",
+      "imageWidthSm": "画像（小）",
+      "imageWidthMd": "画像（中）",
+      "imageWidthLg": "画像（大）",
       "imageResetSize": "画像サイズをリセット",
       "imageDelete": "画像を削除"
     },

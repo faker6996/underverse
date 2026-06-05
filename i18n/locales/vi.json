@@ -31,13 +31,13 @@
     "items": "mục"
   },
   "ValidationInput": {
-    "required": "Trường này là bắt buộc",
-    "typeMismatch": "Định dạng không hợp lệ",
+    "required": "Trường này là bắt buộc.",
+    "typeMismatch": "Định dạng không hợp lệ.",
     "pattern": "Sai mẫu",
     "tooShort": "Quá ngắn",
     "tooLong": "Quá dài",
-    "rangeUnderflow": "Nhỏ hơn giá trị tối thiểu",
-    "rangeOverflow": "Lớn hơn giá trị tối đa",
+    "rangeUnderflow": "Giá trị nhỏ hơn mức tối thiểu.",
+    "rangeOverflow": "Giá trị vượt quá mức tối đa.",
     "stepMismatch": "Sai bước",
     "badInput": "Giá trị không hợp lệ",
     "invalid": "Giá trị không hợp lệ"
@@ -1565,8 +1565,8 @@
     "uploadedFiles": "Tệp đã tải lên",
     "clearAll": "Xóa tất cả",
     "fileTooLarge": "vượt quá giới hạn kích thước",
-    "maxFilesReached": "Đã đạt giới hạn số tệp",
-    "uploadSuccess": "đã tải lên thành công",
-    "uploadFailed": "tải lên thất bại"
+    "maxFilesReached": "Đã đạt giới hạn số tệp.",
+    "uploadSuccess": "Đã tải lên thành công.",
+    "uploadFailed": "Tải lên thất bại."
   }
 }

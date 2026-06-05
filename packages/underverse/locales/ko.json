@@ -99,10 +99,10 @@
     "supportedFormats": "모든 파일 형식 지원",
     "uploadedFiles": "업로드된 파일",
     "clearAll": "모두 지우기",
-    "fileTooLarge": "크기 제한 초과",
-    "maxFilesReached": "최대 파일 수 도달",
-    "uploadSuccess": "업로드 성공",
-    "uploadFailed": "업로드 실패"
+    "fileTooLarge": "파일 크기가 제한을 초과했습니다.",
+    "maxFilesReached": "최대 파일 수에 도달했습니다.",
+    "uploadSuccess": "업로드되었습니다.",
+    "uploadFailed": "업로드에 실패했습니다."
   },
   "UEditor": {
     "placeholder": "명령어는 '/'를 입력하거나 입력을 시작하세요...",
@@ -290,7 +290,7 @@
     "fileCard": {
       "unnamed": "이름 없는 파일",
       "uploading": "(업로드 중...)",
-      "uploadFailed": "업로드 실패"
+      "uploadFailed": "업로드에 실패했습니다."
     },
     "menubar": {
       "file": "파일",
@@ -301,7 +301,7 @@
       "tools": "도구",
       "table": "표",
       "save": "저장",
-      "exportHtml": "HTML 내보내기",
+      "exportHtml": "HTML 추출",
       "undo": "실행 취소",
       "undoShortcut": "Ctrl+Z",
       "redo": "다시 실행",
@@ -365,7 +365,7 @@
       "applySource": "적용",
       "closeDialog": "닫기",
       "copyHtml": "HTML 복사",
-      "exportDefault": "HTML 내보내기",
+      "exportDefault": "HTML 추출",
       "previewEmpty": "미리볼 내용이 없습니다.",
       "sourceCodeHint": "HTML을 직접 편집하고 적용을 클릭하여 에디터를 업데이트하세요."
     }
