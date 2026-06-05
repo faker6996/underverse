@@ -510,6 +510,34 @@ test("UEditor preserves table row height from content HTML", async () => {
   assert.match(result.html, /height:\s*72px/i);
 });
 
+test("UEditor menu bar preview uses editor table layout styles", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+
+  render(
+    React.createElement(UEditor, {
+      content: "<p>Preview table</p><table><tbody><tr><td>A</td><td>B</td><td>C</td></tr></tbody></table>",
+      showMenuBar: true,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  fireEvent.click(await body.findByRole("button", { name: "View" }));
+  fireEvent.click(await body.findByRole("button", { name: "Preview" }));
+
+  const previewContent = await body.findByTestId("preview-content");
+  assert.match(previewContent.className, /\[&_table\]:w-auto/);
+  assert.match(previewContent.className, /\[&_table\]:table-fixed/);
+
+  const previewTable = previewContent.querySelector("table");
+  assert.ok(previewTable);
+  assert.doesNotMatch(previewTable.getAttribute("class") ?? "", /\bw-full\b/);
+});
+
 test("UEditor table toolbar inserts a custom-sized table from the grid picker", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -581,6 +609,54 @@ test("UEditor table toolbar applies table alignment and preserves it in HTML", a
     assert.match(table.getAttribute("style") ?? "", /margin-right:\s*auto/i);
     assert.match(table.getAttribute("style") ?? "", /width:\s*max-content/i);
     assert.match(htmlUpdates.at(-1) ?? "", /data-table-align="center"/);
+  });
+});
+
+test("UEditor toolbar shows table quick actions for empty table cells", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: [
+        "<table><tbody>",
+        '<tr><td colspan="2"></td><td>C1</td></tr>',
+        "<tr><td>A2</td><td>B2</td><td>C2</td></tr>",
+        "</tbody></table>",
+      ].join(""),
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const emptyMergedCell = await waitFor(() => {
+    const element = view.container.querySelector("td[colspan='2']");
+    assert.ok(element);
+    return element;
+  });
+
+  activateTableCell(emptyMergedCell);
+  fireEvent.focus(view.container.querySelector(".ProseMirror"));
+
+  const addColumnBeforeButton = await body.findByRole("button", { name: "Add Column Before" });
+  const addColumnAfterButton = await body.findByRole("button", { name: "Add Column After" });
+  const addRowBeforeButton = await body.findByRole("button", { name: "Add Row Before" });
+  const addRowAfterButton = await body.findByRole("button", { name: "Add Row After" });
+  const splitCellButton = await body.findByRole("button", { name: "Split Cell" });
+
+  assert.equal(addColumnBeforeButton.disabled, false);
+  assert.equal(addColumnAfterButton.disabled, false);
+  assert.equal(addRowBeforeButton.disabled, false);
+  assert.equal(addRowAfterButton.disabled, false);
+  assert.equal(splitCellButton.disabled, false);
+
+  fireEvent.click(splitCellButton);
+
+  await waitFor(() => {
+    const firstRowCells = view.container.querySelectorAll("tr")[0]?.querySelectorAll("th,td") ?? [];
+    assert.equal(firstRowCells.length, 3);
   });
 });
 

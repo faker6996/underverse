@@ -39,6 +39,7 @@ import { ImageInput, LinkInput } from "./inputs";
 import { TableInsertGrid, fileToDataUrl, getTableAnchorPos } from "./toolbar";
 import { sanitizeUEditorUrl } from "./url-safety";
 import { DEFAULT_UEDITOR_IMAGE_MAX_FILE_SIZE, DEFAULT_UEDITOR_IMAGE_MIME_TYPES } from "./clipboard-images";
+import { UEDITOR_PROSEMIRROR_CLASS_NAME } from "./editor-styles";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -835,7 +836,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
         ) : (
           <div
             data-testid="preview-content"
-            className="prose prose-sm sm:prose dark:prose-invert max-w-none p-2"
+            className={UEDITOR_PROSEMIRROR_CLASS_NAME}
             dangerouslySetInnerHTML={{ __html: editor.getHTML() }}
           />
         )}

@@ -37,6 +37,7 @@ import {
   Subscript as SubscriptIcon,
   Superscript as SuperscriptIcon,
   Table as TableIcon,
+  TableCellsMerge,
   Trash2,
   Type,
   Underline as UnderlineIcon,
@@ -54,6 +55,7 @@ import { EmojiPicker } from "./emoji-picker";
 import { sanitizeUEditorUrl } from "./url-safety";
 import { applyTableAlignment, findTableNodeInfoFromState } from "./table-align-utils";
 import { resolveEventElement } from "./table-dom-utils";
+import { mergeTableCellsPreservingColumnWidths } from "./table-cell-commands";
 import type { UEditorFontFamilyOption, UEditorFontSizeOption, UEditorLetterSpacingOption, UEditorLineHeightOption, UEditorVariant } from "./types";
 import {
   getDefaultFontFamilies,
@@ -259,6 +261,8 @@ export const EditorToolbar = ({
   const currentTableAlign = tableAlignAttr === "center" || tableAlignAttr === "right" ? tableAlignAttr : "left";
   const isTableSelected = tableInfo !== null;
   const hasTableContext = isTableSelected || tableCommandAnchorPosRef.current !== null;
+  const canMergeCells = hasTableContext && editor.can().mergeCells();
+  const canSplitCell = hasTableContext && editor.can().splitCell();
   const currentFontFamily = normalizeStyleValue(textStyleAttrs.fontFamily);
   const currentFontSize = normalizeStyleValue(textStyleAttrs.fontSize);
   const currentTextColor = normalizeStyleValue(textStyleAttrs.color) || "inherit";
@@ -908,6 +912,54 @@ export const EditorToolbar = ({
       <ToolbarButton onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title={t("toolbar.redo")}>
         <RedoIcon className="w-4 h-4" />
       </ToolbarButton>
+
+      {hasTableContext && (
+        <>
+          <ToolbarDivider />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().addColumnBefore().run()}
+            disabled={!editor.can().addColumnBefore()}
+            title={t("tableMenu.addColumnBefore")}
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().addColumnAfter().run()}
+            disabled={!editor.can().addColumnAfter()}
+            title={t("tableMenu.addColumnAfter")}
+          >
+            <ArrowRight className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().addRowBefore().run()}
+            disabled={!editor.can().addRowBefore()}
+            title={t("tableMenu.addRowBefore")}
+          >
+            <ArrowUp className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().addRowAfter().run()}
+            disabled={!editor.can().addRowAfter()}
+            title={t("tableMenu.addRowAfter")}
+          >
+            <ArrowDown className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => {
+              if (canSplitCell) {
+                editor.chain().focus().splitCell().run();
+                return;
+              }
+              mergeTableCellsPreservingColumnWidths(editor);
+            }}
+            active={canSplitCell}
+            disabled={!canMergeCells && !canSplitCell}
+            title={canSplitCell ? t("tableMenu.splitCell") : t("tableMenu.mergeCells")}
+          >
+            <TableCellsMerge className="w-4 h-4" />
+          </ToolbarButton>
+        </>
+      )}
     </div>
   );
 };

@@ -52,6 +52,7 @@ export const UEDITOR_PROSEMIRROR_CLASS_NAME = cn(
   "[&_.tableWrapper::-webkit-scrollbar-thumb]:border-transparent",
   "[&_.tableWrapper::-webkit-scrollbar-thumb]:bg-border/70",
   "[&_.tableWrapper::-webkit-scrollbar-thumb:hover]:bg-muted-foreground/45",
+  "[&_table]:w-auto",
   "[&_table]:table-fixed",
   "[&_table]:overflow-hidden",
   "[&_table]:select-text",

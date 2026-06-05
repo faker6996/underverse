@@ -326,7 +326,7 @@ export function buildUEditorExtensions({
       handleWidth: 10,
       allowTableNodeSelection: true,
       HTMLAttributes: {
-        class: "border-collapse w-full my-4",
+        class: "border-collapse my-4",
       },
     }),
     UEditorTableRow,
