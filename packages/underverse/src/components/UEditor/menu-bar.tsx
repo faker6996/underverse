@@ -31,7 +31,6 @@ import {
   Underline as UnderlineIcon,
   Undo as UndoIcon,
   Upload,
-  X,
 } from "lucide-react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { cn } from "../../utils/cn";
@@ -628,17 +627,6 @@ export const MenuBar: React.FC<MenuBarProps> = ({
     openPreviewDialog();
   };
 
-  React.useEffect(() => {
-    if (!showPreviewDialog) return undefined;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [showPreviewDialog]);
-
   const applySourceHtml = () => {
     editor.chain().focus().setContent(sourceHtml).run();
     setShowSourceDialog(false);
@@ -858,38 +846,30 @@ export const MenuBar: React.FC<MenuBarProps> = ({
         </div>
       </Modal>
 
-      {/* Built-in full-screen preview */}
-      {showPreviewDialog && (
-        <div className="fixed inset-0 z-9999 flex flex-col bg-background text-foreground">
-          <div className="flex shrink-0 items-center justify-between border-b border-border bg-card px-4 py-3">
-            <h2 className="text-base font-semibold">{t("menubar.preview")}</h2>
-            <button
-              type="button"
-              onClick={() => setShowPreviewDialog(false)}
-              aria-label={t("menubar.closeDialog")}
-              className={cn(
-                "inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors",
-                "hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
-              )}
-            >
-              <X className="h-4 w-4" aria-hidden="true" />
-            </button>
-          </div>
-          <div
-            data-testid="preview-content"
-            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 md:px-8"
-          >
-            {editor.isEmpty ? (
-              <p className="text-muted-foreground text-sm">{t("menubar.previewEmpty")}</p>
-            ) : (
-              <div
-                className={UEDITOR_PROSEMIRROR_CLASS_NAME}
-                dangerouslySetInnerHTML={{ __html: editor.getHTML() }}
-              />
-            )}
-          </div>
+      <Modal
+        isOpen={showPreviewDialog}
+        onClose={() => setShowPreviewDialog(false)}
+        title={t("menubar.preview")}
+        size="full"
+        width="min(1180px, calc(100vw - 2rem))"
+        height="min(860px, calc(100vh - 2rem))"
+        className="flex flex-col overflow-hidden rounded-xl md:rounded-2xl"
+        contentClassName="flex min-h-0 flex-1 overflow-hidden p-0"
+      >
+        <div
+          data-testid="preview-content"
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 md:px-8"
+        >
+          {editor.isEmpty ? (
+            <p className="text-muted-foreground text-sm">{t("menubar.previewEmpty")}</p>
+          ) : (
+            <div
+              className={UEDITOR_PROSEMIRROR_CLASS_NAME}
+              dangerouslySetInnerHTML={{ __html: editor.getHTML() }}
+            />
+          )}
         </div>
-      )}
+      </Modal>
     </>
   );
 };
