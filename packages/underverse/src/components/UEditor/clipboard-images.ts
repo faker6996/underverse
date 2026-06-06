@@ -1,4 +1,4 @@
-import { Extension } from "@tiptap/core";
+import { Extension, type JSONContent } from "@tiptap/core";
 import { Plugin } from "@tiptap/pm/state";
 import { sanitizeUEditorUrl } from "./url-safety";
 
@@ -61,55 +61,111 @@ function extractClipboardHtmlFragment(html: string) {
   return html;
 }
 
-const EMPTY_TABLE_CELL_HTML = "<p></p>";
-const TABLE_MEDIA_SELECTOR = "img,video,audio,iframe,svg,canvas,embed,object";
-const TABLE_BLOCK_SELECTOR = "p,ul,ol,blockquote,pre,h1,h2,h3,h4,h5,h6,hr,table";
+type ClipboardTableCell = {
+  text: string;
+  isHeader: boolean;
+};
 
-function hasMeaningfulTableCellText(value: string | null | undefined) {
-  return Boolean(value?.replace(/\u00a0/g, " ").trim());
+function normalizeClipboardCellText(value: string) {
+  return value
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .replace(/\u00a0/g, " ")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n[ \t]+/g, "\n")
+    .replace(/\n+$/g, "")
+    .replace(/^\n+/g, "")
+    .trim();
 }
 
-function normalizeClipboardTableCell(cell: HTMLTableCellElement) {
-  const hasText = hasMeaningfulTableCellText(cell.textContent);
-  const hasBlockContent = Boolean(cell.querySelector(TABLE_BLOCK_SELECTOR));
-  const hasMediaContent = Boolean(cell.querySelector(TABLE_MEDIA_SELECTOR));
-
-  if (!hasText && !hasBlockContent && !hasMediaContent) {
-    cell.innerHTML = EMPTY_TABLE_CELL_HTML;
+function getClipboardCellText(node: Node): string {
+  if (node.nodeType === Node.TEXT_NODE) {
+    return node.textContent ?? "";
   }
-}
 
-function normalizeClipboardTable(table: HTMLTableElement) {
-  for (const cell of Array.from(table.querySelectorAll("td,th"))) {
-    if (!(cell instanceof HTMLTableCellElement)) continue;
-    normalizeClipboardTableCell(cell);
+  if (!(node instanceof HTMLElement)) {
+    return "";
   }
+
+  if (node.tagName === "BR") {
+    return "\n";
+  }
+
+  const childText = Array.from(node.childNodes).map(getClipboardCellText).join("");
+
+  if ((node.tagName === "P" || node.tagName === "DIV" || node.tagName === "LI") && childText && !childText.endsWith("\n")) {
+    return `${childText}\n`;
+  }
+
+  return childText;
 }
 
-function getClipboardTableHtml(dataTransfer: DataTransfer) {
+function getHtmlTableRows(table: HTMLTableElement) {
+  const rows = Array.from(table.querySelectorAll("tr")).map((row) =>
+    Array.from(row.children)
+      .filter((cell): cell is HTMLTableCellElement => cell instanceof HTMLTableCellElement)
+      .map((cell) => ({
+        text: normalizeClipboardCellText(getClipboardCellText(cell)),
+        isHeader: cell.tagName === "TH",
+      })),
+  );
+
+  return rows.filter((row) => row.length > 0);
+}
+
+function createParagraphContent(text: string): JSONContent {
+  return text
+    ? {
+        type: "paragraph",
+        content: [{ type: "text", text }],
+      }
+    : { type: "paragraph" };
+}
+
+function createTableCellContent(cell: ClipboardTableCell): JSONContent {
+  const lines = cell.text.split("\n");
+  const paragraphs = (lines.length > 0 ? lines : [""]).map(createParagraphContent);
+
+  return {
+    type: cell.isHeader ? "tableHeader" : "tableCell",
+    content: paragraphs.length > 0 ? paragraphs : [{ type: "paragraph" }],
+  };
+}
+
+function createTableContent(rows: ClipboardTableCell[][], minColumnCount = 1): JSONContent | null {
+  const tableRows = rows.filter((row) => row.length > 0);
+  if (tableRows.length === 0) return null;
+
+  const columnCount = tableRows.reduce((max, row) => Math.max(max, row.length), 0);
+  if (columnCount < minColumnCount) return null;
+
+  return {
+    type: "table",
+    content: tableRows.map((row) => {
+      const normalizedRow = Array.from(
+        { length: columnCount },
+        (_, index): ClipboardTableCell => row[index] ?? { text: "", isHeader: false },
+      );
+
+      return {
+        type: "tableRow",
+        content: normalizedRow.map(createTableCellContent),
+      };
+    }),
+  };
+}
+
+function getClipboardTableContent(dataTransfer: DataTransfer) {
   const html = getClipboardData(dataTransfer, "text/html");
-  if (!/<table(?:\s|>)/i.test(html)) return "";
+  if (!/<table(?:\s|>)/i.test(html)) return null;
+  if (typeof DOMParser === "undefined") return null;
 
   const fragment = extractClipboardHtmlFragment(html);
+  const doc = new DOMParser().parseFromString(fragment, "text/html");
+  const table = doc.querySelector("table");
+  if (!(table instanceof HTMLTableElement)) return null;
 
-  if (typeof DOMParser !== "undefined") {
-    const doc = new DOMParser().parseFromString(fragment, "text/html");
-    const table = doc.querySelector("table");
-    if (table instanceof HTMLTableElement) {
-      normalizeClipboardTable(table);
-      return table.outerHTML;
-    }
-  }
-
-  return fragment;
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+  return createTableContent(getHtmlTableRows(table));
 }
 
 function parseClipboardTsvRows(text: string) {
@@ -176,31 +232,18 @@ function parseClipboardTsvRows(text: string) {
   return rows;
 }
 
-function renderClipboardTableCellHtml(value: string) {
-  const lines = value.split("\n");
-  const paragraphs = lines.length > 0 ? lines : [""];
-  return paragraphs.map((line) => `<p>${escapeHtml(line)}</p>`).join("");
-}
-
-function getClipboardTsvTableHtml(dataTransfer: DataTransfer) {
+function getClipboardTsvTableContent(dataTransfer: DataTransfer) {
   const text = getClipboardData(dataTransfer, "text/plain")
     .replace(/\r\n/g, "\n")
     .replace(/\r/g, "\n");
 
-  if (!text.includes("\t")) return "";
+  if (!text.includes("\t")) return null;
 
   const rows = parseClipboardTsvRows(text);
-  if (rows.length === 0 || rows.every((row) => row.length < 2)) return "";
-
-  const columnCount = rows.reduce((max, row) => Math.max(max, row.length), 0);
-  const body = rows
-    .map((row) => {
-      const normalizedRow = Array.from({ length: columnCount }, (_, index) => row[index] ?? "");
-      return `<tr>${normalizedRow.map((cell) => `<td>${renderClipboardTableCellHtml(cell)}</td>`).join("")}</tr>`;
-    })
-    .join("");
-
-  return `<table><tbody>${body}</tbody></table>`;
+  return createTableContent(
+    rows.map((row) => row.map((cell) => ({ text: normalizeClipboardCellText(cell), isHeader: false }))),
+    2,
+  );
 }
 
 function fileToDataUrl(file: File): Promise<string> {
@@ -268,17 +311,17 @@ export const ClipboardImages = Extension.create<ClipboardImagesOptions>({
           handlePaste: (_view, event) => {
             if (!event || !event.clipboardData) return false;
 
-            const tableHtml = getClipboardTableHtml(event.clipboardData);
-            if (tableHtml) {
+            const tableContent = getClipboardTableContent(event.clipboardData);
+            if (tableContent) {
               event.preventDefault();
-              editor.chain().focus().insertContent(tableHtml).run();
+              editor.chain().focus().insertContent(tableContent).run();
               return true;
             }
 
-            const tsvTableHtml = getClipboardTsvTableHtml(event.clipboardData);
-            if (tsvTableHtml) {
+            const tsvTableContent = getClipboardTsvTableContent(event.clipboardData);
+            if (tsvTableContent) {
               event.preventDefault();
-              editor.chain().focus().insertContent(tsvTableHtml).run();
+              editor.chain().focus().insertContent(tsvTableContent).run();
               return true;
             }
 

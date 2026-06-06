@@ -447,7 +447,7 @@ test("UEditor normalizes empty spreadsheet HTML table cells before inserting the
       html: [
         "<html><body>",
         "<!--StartFragment-->",
-        "<table><tbody><tr><td>Name</td><td>Value</td><td></td></tr><tr><td>USP</td><td></td><td></td></tr></tbody></table>",
+        "<table><tbody><tr><td>Name</td><td>Value</td><td><span></span></td></tr><tr><td>USP</td><td><br></td><td><p></p></td></tr></tbody></table>",
         "<!--EndFragment-->",
         "</body></html>",
       ].join(""),
@@ -512,6 +512,64 @@ test("UEditor pads sparse spreadsheet rows to the widest TSV column count", asyn
   assert.equal(secondRowCells[1].querySelectorAll("p")[2]?.textContent, "- Brain teasing");
   assert.equal(secondRowCells[2].textContent, "");
   assert.equal(secondRowCells[3].textContent, "");
+});
+
+test("UEditor pastes the provided sparse Vietnamese spreadsheet clipboard as a valid table", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<p>Paste target</p>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const editorElement = await waitFor(() => {
+    const element = view.container.querySelector(".ProseMirror");
+    assert.ok(element);
+    return element;
+  });
+
+  const emptyTail = "\t".repeat(32);
+  const spreadsheetText = [
+    `\tTên minigame\tPose to Hide: Tricky Puzzle${emptyTail}`,
+    `\tRef\thttps://play.google.com/store/apps/details?id=com.human.posing.hf&amp;hl=vi${emptyTail}`,
+    `\tFigma demo\thttps://www.figma.com/design/maL1GYd2GAGOzkEyDzlQk0/25---Pose-to-Hide--Tricky-Puzzle?node-id=0-1&amp;p=f&amp;t=Afa0lYt0sA4kpf3w-0${emptyTail}`,
+    `\tGiới thiệu\tPose to Hide: Tricky Puzzle là một trò chơi vui nhộn, trong đó bạn phải tránh sự chú ý của người canh giữ bằng cách thay đổi dáng pose của nhân vật và đặt vào vị trí thích hợp để hòa vào khung cảnh.${emptyTail}`,
+    `\tUSP\t"- Lối chơi vui nhộn và dễ chơi\n- Nhân vật hoạt hình đáng yêu\n- Thử thách trí não hấp dẫn\n- Ghi nhớ và bắt chước để hoàn thành nhiệm vụ"${emptyTail}`,
+  ].join("\n");
+
+  await user.click(editorElement);
+  fireEvent.paste(editorElement, {
+    clipboardData: clipboardWithImageAndData({
+      text: spreadsheetText,
+    }),
+  });
+
+  await waitFor(() => {
+    const table = view.container.querySelector("table");
+    assert.ok(table);
+    assert.equal(table.querySelectorAll("tr").length, 5);
+    assert.equal(view.container.querySelector("img"), null);
+  });
+
+  const rows = view.container.querySelectorAll("tr");
+  const firstRowCells = rows[0]?.querySelectorAll("td") ?? [];
+  const uspCells = rows[4]?.querySelectorAll("td") ?? [];
+
+  assert.ok(firstRowCells.length > 30);
+  assert.equal(firstRowCells[0]?.textContent, "");
+  assert.equal(firstRowCells[1]?.textContent, "Tên minigame");
+  assert.equal(firstRowCells[2]?.textContent, "Pose to Hide: Tricky Puzzle");
+  assert.equal(uspCells[1]?.textContent, "USP");
+  assert.equal(uspCells[2]?.querySelectorAll("p").length, 4);
+  assert.match(uspCells[2]?.textContent ?? "", /Ghi nhớ và bắt chước/);
+  assert.ok(Array.from(uspCells).slice(3).every((cell) => cell.querySelector("p")));
 });
 
 test("UEditor preserves wrapped image layout in editor DOM and saved HTML", async () => {
