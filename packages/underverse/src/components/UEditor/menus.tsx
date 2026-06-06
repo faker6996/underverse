@@ -37,7 +37,7 @@ import { CellBgColorIcon, CellBorderIcon, EditorColorPalette, HighlightColorIcon
 import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
 import { buildSlashCommandItems, buildSlashCommandMessages, SlashCommandList, type SlashCommandListRef } from "./slash-command";
 import { mergeTableCellsPreservingColumnWidths } from "./table-cell-commands";
-import { clearSelectedTableCellFormula, recalculateSelectedTable, setSelectedTableCellFormula } from "./table-formula-commands";
+import { clearSelectedTableCellFormula, recalculateSelectedTable, setSelectedTableCellFormula, setSelectedTableCellNumberFormat } from "./table-formula-commands";
 import type { UEditorFontSizeOption, UEditorLineHeightOption } from "./types";
 import { getDefaultFontSizes, getDefaultLineHeights, normalizeStyleValue } from "./typography-options";
 
@@ -155,6 +155,8 @@ const BubbleMenuContent = ({
     normalizeStyleValue(editor.getAttributes("tableCell").backgroundColor || editor.getAttributes("tableHeader").backgroundColor) || "";
   const currentCellFormula =
     normalizeStyleValue(editor.getAttributes("tableCell").formula || editor.getAttributes("tableHeader").formula) || "";
+  const currentCellNumberFormat =
+    normalizeStyleValue(editor.getAttributes("tableCell").numberFormat || editor.getAttributes("tableHeader").numberFormat) || "text";
   const isInTable = isSelectionInTable(editor.state);
   const canMergeCells = isInTable && editor.can().mergeCells();
   const canSplitCell = isInTable && editor.can().splitCell();
@@ -451,6 +453,35 @@ const BubbleMenuContent = ({
             placeholder="=SUM(A1:A3)"
             className="h-full min-w-0 flex-1 bg-transparent px-2 text-sm font-medium text-foreground outline-none"
           />
+        </div>
+
+        <div className="mt-2">
+          <div className="mb-1 px-1 text-[11px] font-medium text-muted-foreground">
+            {t("tableMenu.numberFormat") || "Number format"}
+          </div>
+          <div className="grid grid-cols-5 gap-1">
+            {[
+              ["text", "Text"],
+              ["number", "123"],
+              ["currency", "$"],
+              ["percent", "%"],
+              ["date", "Date"],
+            ].map(([format, label]) => (
+              <button
+                key={format}
+                type="button"
+                onClick={() => setSelectedTableCellNumberFormat(editor, format)}
+                className={cn(
+                  "h-8 rounded-md text-[11px] font-semibold transition-colors hover:bg-muted",
+                  currentCellNumberFormat === format || (format === "text" && !currentCellNumberFormat)
+                    ? "bg-primary/10 text-primary"
+                    : "bg-muted/40 text-foreground",
+                )}
+              >
+                {format === "text" ? t("tableMenu.formatText") || label : format === "date" ? t("tableMenu.formatDate") || label : label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="mt-2 grid grid-cols-3 gap-1">

@@ -70,7 +70,7 @@ Each `td` and `th` should be able to persist:
 - `data-cell-id`: stable address or generated id.
 - `data-number-format`: text, number, currency, percent, date.
 - `data-formula`: raw formula such as `=SUM(B2:B10)`.
-- `data-computed-value`: last calculated display value.
+- `data-computed-value`: last calculated raw value used by dependent formulas.
 
 This metadata allows future formula features without losing data during save/load, paste cleanup, or export.
 
@@ -83,6 +83,17 @@ Start small and deterministic:
 - supported functions: `SUM`, `AVG`, `MIN`, `MAX`, `COUNT`.
 - supported arithmetic: `+`, `-`, `*`, `/`, parentheses.
 - invalid formulas render a controlled error state, not a thrown runtime error.
+
+Current formula semantics:
+
+- References must resolve to numeric values for arithmetic and aggregate functions.
+- `SUM(A1:A2)` returns `#INVALID-REFERENCE` when any referenced cell is non-numeric text. This is intentionally stricter than Excel, which may ignore text in some aggregate contexts.
+- `COUNT(A1:A2)` returns `#INVALID-REFERENCE` when any referenced cell is non-numeric text. It does not currently implement Excel's "count numeric values and ignore text" behavior.
+- Circular detection marks cells that are directly in the cycle as `#CIRCULAR-REFERENCE`.
+- Formula cells that depend on a circular cell but are not part of the cycle currently evaluate that dependency as non-numeric and become `#INVALID-REFERENCE`.
+- Text that starts with `=` inside a table cell is promoted into `data-formula` before recalculation.
+- Computed display text is rendered inside the cell content. `data-computed-value` stays raw so dependent formulas can keep using numeric values even when the visible text is formatted as currency, percent, or date.
+- `recalculateAllTableFormulas()` recalculates all tables in one transaction and applies replacements from the end of the document backward so positions remain stable.
 
 Merged cells should follow spreadsheet-style ownership:
 
@@ -135,6 +146,8 @@ Clipboard/export should preserve metadata where possible:
 - [x] Add automatic formula recalculation after table edits.
 - [x] Promote typed `=...` cell text into formula metadata.
 - [x] Render formula computed values inside cell content.
+- [x] Format computed values with `number`, `currency`, `percent`, and `date` cell formats.
+- [x] Add bubble menu controls for formula number formats.
 - [x] Add formula formatting states for error/computed cells.
 - [x] Add clipboard/export tests for formula metadata.
 - [x] Add performance tests for large tables with formulas.

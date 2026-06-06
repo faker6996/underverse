@@ -30,6 +30,8 @@ export type TableFormulaDependencyGraph = {
   formulas: Map<string, string>;
 };
 
+export type TableNumberFormat = "text" | "number" | "currency" | "percent" | "date";
+
 type FormulaToken =
   | { type: "number"; value: number }
   | { type: "cell"; value: string }
@@ -127,6 +129,61 @@ export function normalizeTableFormula(formula: string) {
 
 export function formatFormulaError(error: NonNullable<FormulaEvaluationResult["error"]>) {
   return `#${error.toUpperCase()}`;
+}
+
+export function normalizeTableNumberFormat(format: unknown): TableNumberFormat {
+  return format === "text" || format === "number" || format === "currency" || format === "percent" || format === "date"
+    ? format
+    : "text";
+}
+
+export function formatTableFormulaDisplayValue(value: string | number, numberFormat: unknown) {
+  const stringValue = String(value);
+  if (stringValue.startsWith("#")) {
+    return stringValue;
+  }
+
+  const normalizedFormat = normalizeTableNumberFormat(numberFormat);
+  if (normalizedFormat === "text") {
+    return stringValue;
+  }
+
+  const numericValue = typeof value === "number" ? value : Number.parseFloat(stringValue.replace(/,/g, ""));
+  if (!Number.isFinite(numericValue)) {
+    return stringValue;
+  }
+
+  if (normalizedFormat === "number") {
+    return new Intl.NumberFormat("en-US", { maximumFractionDigits: 6 }).format(numericValue);
+  }
+
+  if (normalizedFormat === "currency") {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 2,
+    }).format(numericValue);
+  }
+
+  if (normalizedFormat === "percent") {
+    return new Intl.NumberFormat("en-US", {
+      style: "percent",
+      maximumFractionDigits: 2,
+    }).format(numericValue);
+  }
+
+  const excelEpochMs = Date.UTC(1899, 11, 30);
+  const date = new Date(excelEpochMs + numericValue * 24 * 60 * 60 * 1000);
+  if (Number.isNaN(date.getTime())) {
+    return stringValue;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: "UTC",
+  }).format(date);
 }
 
 export function getTableFormulaReferences(formula: string) {

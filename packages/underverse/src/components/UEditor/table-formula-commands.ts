@@ -6,12 +6,12 @@ import {
   buildTableFormulaDependencyGraph,
   evaluateBasicTableFormula,
   formatFormulaError,
+  formatTableFormulaDisplayValue,
   getTableFormulaRecalculationOrder,
   indexToColumnName,
 } from "./table-formula";
 
 export const UEDITOR_TABLE_FORMULA_RECALCULATE_META = "ueditorTableFormulaRecalculate";
-export const UEDITOR_TABLE_FORMULA_SYNC_META = "ueditorTableFormulaSync";
 
 type CellEntry = {
   index: number;
@@ -147,6 +147,18 @@ export function clearSelectedTableCellFormula(editor: Editor) {
   return setSelectedTableCellFormula(editor, "");
 }
 
+export function setSelectedTableCellNumberFormat(editor: Editor, numberFormat: string | null) {
+  const value = numberFormat && numberFormat !== "text" ? numberFormat : null;
+  const { state, view } = editor;
+  const applied = setCellAttr("numberFormat", value)(state, view.dispatch.bind(view));
+  if (!applied) return false;
+
+  recalculateSelectedTable(editor);
+  view.focus();
+  dispatchTableLayoutChange(editor);
+  return true;
+}
+
 function promoteFormulaTextInTableNode(tableNode: ProseMirrorNode) {
   let changed = false;
 
@@ -241,7 +253,8 @@ function recalculateTableNode(tableNode: ProseMirrorNode) {
       const computedValue = computedValues.get(label);
       if (computedValue == null) continue;
 
-      const contentMatchesComputedValue = getCellText(entry.node) === computedValue;
+      const displayValue = formatTableFormulaDisplayValue(computedValue, entry.node.attrs.numberFormat);
+      const contentMatchesComputedValue = getCellText(entry.node) === displayValue;
       if (entry.node.attrs.computedValue === computedValue && contentMatchesComputedValue) continue;
 
       cells[entry.index] = entry.node.type.create(
@@ -249,7 +262,7 @@ function recalculateTableNode(tableNode: ProseMirrorNode) {
           ...entry.node.attrs,
           computedValue,
         },
-        createCellDisplayContent(entry.node, computedValue),
+        createCellDisplayContent(entry.node, displayValue),
         entry.node.marks,
       );
       changed = true;

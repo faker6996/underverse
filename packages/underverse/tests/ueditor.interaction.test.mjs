@@ -706,6 +706,11 @@ test("UEditor bubble menu opens the table formula panel", async () => {
 
   const formulaInput = await body.findByRole("textbox", { name: "Formula" });
   assert.equal(formulaInput.getAttribute("placeholder"), "=SUM(A1:A3)");
+  await body.findByText("Number Format");
+  await body.findByRole("button", { name: "Text" });
+  await body.findByRole("button", { name: "$" });
+  await body.findByRole("button", { name: "%" });
+  await body.findByRole("button", { name: "Date" });
   await body.findByRole("button", { name: "Apply" });
   await body.findByRole("button", { name: "Clear" });
   await body.findByRole("button", { name: "Recalculate" });
@@ -754,8 +759,23 @@ test("UEditor table formula command writes formula metadata and computed value",
     assert.equal(updatedFormulaCell?.textContent?.trim(), "30");
   });
 
+  const computedTextNode = view.container.querySelectorAll("tr")[0]?.querySelectorAll("td")[1]?.querySelector("p")?.firstChild;
+  assert.ok(computedTextNode);
+  const computedTextPos = ref.current.editor.view.posAtDOM(computedTextNode, 0);
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection({ from: computedTextPos, to: computedTextPos + "30".length });
+  });
+
+  assert.equal(formulaCommands.setSelectedTableCellNumberFormat(ref.current.editor, "currency"), true);
+  await waitFor(() => {
+    const updatedFormulaCell = view.container.querySelectorAll("tr")[0]?.querySelectorAll("td")[1];
+    assert.equal(updatedFormulaCell?.getAttribute("data-number-format"), "currency");
+    assert.equal(updatedFormulaCell?.getAttribute("data-computed-value"), "30");
+    assert.equal(updatedFormulaCell?.textContent?.trim(), "$30.00");
+  });
+
   const result = await ref.current.prepareContentForSave({ throwOnError: true });
-  assert.match(result.html, /<td[^>]*data-formula="=SUM\(A1:A2\)"[^>]*data-computed-value="30"/);
+  assert.match(result.html, /<td[^>]*data-number-format="currency"[^>]*data-formula="=SUM\(A1:A2\)"[^>]*data-computed-value="30"/);
 });
 
 test("UEditor table formula recalculate follows dependencies and marks circular references", async () => {
@@ -866,6 +886,43 @@ test("UEditor automatically recalculates table formulas after cell edits", async
     const formulaCell = view.container.querySelectorAll("td")[1];
     assert.equal(formulaCell?.getAttribute("data-computed-value"), "30");
     assert.equal(formulaCell?.textContent?.trim(), "30");
+  });
+});
+
+test("UEditor formats formula display values without changing raw computed values", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: `
+        <table>
+          <tbody>
+            <tr>
+              <td>1234.5</td>
+              <td data-number-format="currency" data-formula="=A1" data-computed-value="0">0</td>
+              <td data-number-format="percent" data-formula="=A2" data-computed-value="0">0</td>
+              <td data-number-format="date" data-formula="=A3" data-computed-value="0">0</td>
+            </tr>
+            <tr><td>0.125</td><td></td><td></td><td></td></tr>
+            <tr><td>45658</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>`,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => {
+    const cells = view.container.querySelectorAll("td");
+    assert.equal(cells[1]?.getAttribute("data-computed-value"), "1234.5");
+    assert.equal(cells[1]?.textContent?.trim(), "$1,234.50");
+    assert.equal(cells[2]?.getAttribute("data-computed-value"), "0.125");
+    assert.equal(cells[2]?.textContent?.trim(), "12.5%");
+    assert.equal(cells[3]?.getAttribute("data-computed-value"), "45658");
+    assert.equal(cells[3]?.textContent?.trim(), "01/01/2025");
   });
 });
 

@@ -43,6 +43,16 @@ test("UEditor table formula utilities evaluate basic formulas", async () => {
   assert.deepEqual(formula.evaluateBasicTableFormula("=COUNT(A1:A3)", getCellValue), { value: 3, error: null });
 });
 
+test("UEditor table formula utilities format computed display values", async () => {
+  const formula = await importTsModule(path.join(componentsRoot, "UEditor/table-formula.ts"));
+
+  assert.equal(formula.formatTableFormulaDisplayValue("1234.5", "number"), "1,234.5");
+  assert.equal(formula.formatTableFormulaDisplayValue("1234.5", "currency"), "$1,234.50");
+  assert.equal(formula.formatTableFormulaDisplayValue("0.125", "percent"), "12.5%");
+  assert.equal(formula.formatTableFormulaDisplayValue("45658", "date"), "01/01/2025");
+  assert.equal(formula.formatTableFormulaDisplayValue("#INVALID-REFERENCE", "currency"), "#INVALID-REFERENCE");
+});
+
 test("UEditor table formula utilities return controlled errors", async () => {
   const formula = await importTsModule(path.join(componentsRoot, "UEditor/table-formula.ts"));
   const getCellValue = (label) => (label === "A1" ? 10 : null);
@@ -51,6 +61,18 @@ test("UEditor table formula utilities return controlled errors", async () => {
   assert.deepEqual(formula.evaluateBasicTableFormula("=A1 / 0", getCellValue), { value: null, error: "division-by-zero" });
   assert.deepEqual(formula.evaluateBasicTableFormula("=A2 + 1", getCellValue), { value: null, error: "invalid-reference" });
   assert.deepEqual(formula.evaluateBasicTableFormula("=UNKNOWN(A1)", getCellValue), { value: null, error: "invalid-formula" });
+});
+
+test("UEditor table formula utilities treat text references as invalid in aggregates", async () => {
+  const formula = await importTsModule(path.join(componentsRoot, "UEditor/table-formula.ts"));
+  const values = new Map([
+    ["A1", "hello"],
+    ["A2", "10"],
+  ]);
+  const getCellValue = (label) => values.get(label);
+
+  assert.deepEqual(formula.evaluateBasicTableFormula("=SUM(A1:A2)", getCellValue), { value: null, error: "invalid-reference" });
+  assert.deepEqual(formula.evaluateBasicTableFormula("=COUNT(A1:A2)", getCellValue), { value: null, error: "invalid-reference" });
 });
 
 test("UEditor table formula utilities build dependency order and detect cycles", async () => {
