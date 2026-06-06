@@ -95,6 +95,46 @@ const CustomTableCell = TableCell.extend({
           };
         },
       },
+      cellId: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-cell-id") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.cellId) return {};
+          return {
+            "data-cell-id": attributes.cellId,
+          };
+        },
+      },
+      numberFormat: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-number-format") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.numberFormat) return {};
+          return {
+            "data-number-format": attributes.numberFormat,
+          };
+        },
+      },
+      formula: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-formula") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.formula) return {};
+          return {
+            "data-formula": attributes.formula,
+          };
+        },
+      },
+      computedValue: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-computed-value") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.computedValue) return {};
+          return {
+            "data-computed-value": attributes.computedValue,
+          };
+        },
+      },
     };
   },
 
@@ -163,6 +203,46 @@ const CustomTableHeader = TableHeader.extend({
           if (!attributes.borderWidth) return {};
           return {
             "data-border-width": attributes.borderWidth,
+          };
+        },
+      },
+      cellId: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-cell-id") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.cellId) return {};
+          return {
+            "data-cell-id": attributes.cellId,
+          };
+        },
+      },
+      numberFormat: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-number-format") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.numberFormat) return {};
+          return {
+            "data-number-format": attributes.numberFormat,
+          };
+        },
+      },
+      formula: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-formula") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.formula) return {};
+          return {
+            "data-formula": attributes.formula,
+          };
+        },
+      },
+      computedValue: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-computed-value") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.computedValue) return {};
+          return {
+            "data-computed-value": attributes.computedValue,
           };
         },
       },

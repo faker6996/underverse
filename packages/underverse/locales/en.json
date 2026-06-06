@@ -276,6 +276,10 @@
       "borderWidth": "Border Width",
       "borderColor": "Border Color",
       "clearBorder": "Clear Border",
+      "formula": "Formula",
+      "apply": "Apply",
+      "clear": "Clear",
+      "recalculate": "Recalculate",
       "done": "Done"
     },
     "callout": {

@@ -52,6 +52,22 @@ function activateTableCell(cell) {
   fireEvent.click(cell);
 }
 
+function suppressTextSelectionEndpointWarning(run) {
+  const originalWarn = console.warn;
+  console.warn = (...args) => {
+    if (String(args[0] ?? "").includes("TextSelection endpoint not pointing into a node with inline content")) {
+      return;
+    }
+    originalWarn(...args);
+  };
+
+  try {
+    return run();
+  } finally {
+    console.warn = originalWarn;
+  }
+}
+
 function clipboardWithImageAndData({ html = "", text = "" } = {}) {
   const file = new File([new Uint8Array([137, 80, 78, 71])], "clipboard-preview.png", { type: "image/png" });
 
@@ -600,6 +616,140 @@ test("UEditor preserves wrapped image layout in editor DOM and saved HTML", asyn
   assert.match(result.html, /data-image-layout="left"/);
   assert.match(result.html, /data-image-size="md"/);
   assert.match(result.html, /float:\s*left/i);
+});
+
+test("UEditor preserves table formula metadata on cells and headers", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: `
+        <table>
+          <tbody>
+            <tr>
+              <th data-cell-id="A1" data-number-format="text">Name</th>
+              <th data-cell-id="B1" data-number-format="number" data-formula="=SUM(B2:B3)" data-computed-value="30">Total</th>
+            </tr>
+            <tr>
+              <td data-cell-id="A2" data-number-format="text">Alpha</td>
+              <td data-cell-id="B2" data-number-format="number" data-computed-value="10">10</td>
+            </tr>
+          </tbody>
+        </table>`,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await view.findByText("Total");
+  await waitFor(() => {
+    assert.ok(ref.current);
+  });
+
+  const totalHeader = view.container.querySelector("th[data-cell-id='B1']");
+  const valueCell = view.container.querySelector("td[data-cell-id='B2']");
+  assert.equal(totalHeader?.getAttribute("data-formula"), "=SUM(B2:B3)");
+  assert.equal(totalHeader?.getAttribute("data-computed-value"), "30");
+  assert.equal(valueCell?.getAttribute("data-number-format"), "number");
+
+  const result = await ref.current.prepareContentForSave({ throwOnError: true });
+  assert.match(result.html, /<th[^>]*data-cell-id="B1"[^>]*data-number-format="number"[^>]*data-formula="=SUM\(B2:B3\)"[^>]*data-computed-value="30"/);
+  assert.match(result.html, /<td[^>]*data-cell-id="B2"[^>]*data-number-format="number"[^>]*data-computed-value="10"/);
+});
+
+test("UEditor bubble menu opens the table formula panel", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const body = within(window.document.body);
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<table><tbody><tr><td>10</td><td>Total</td></tr><tr><td>20</td><td></td></tr></tbody></table>",
+      showToolbar: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const formulaCell = await waitFor(() => {
+    const element = view.container.querySelectorAll("tr")[0]?.querySelectorAll("td")[1];
+    assert.ok(element);
+    return element;
+  });
+  await waitFor(() => {
+    assert.ok(ref.current?.editor);
+  });
+
+  const totalTextNode = formulaCell.querySelector("p")?.firstChild;
+  assert.ok(totalTextNode);
+  const totalTextPos = ref.current.editor.view.posAtDOM(totalTextNode, 0);
+  ref.current.editor.commands.focus();
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection({ from: totalTextPos, to: totalTextPos + "Total".length });
+  });
+
+  const formulaButton = await body.findByRole("button", { name: "Formula" });
+  await user.click(formulaButton);
+
+  const formulaInput = await body.findByRole("textbox", { name: "Formula" });
+  assert.equal(formulaInput.getAttribute("placeholder"), "=SUM(A1:A3)");
+  await body.findByRole("button", { name: "Apply" });
+  await body.findByRole("button", { name: "Clear" });
+  await body.findByRole("button", { name: "Recalculate" });
+});
+
+test("UEditor table formula command writes formula metadata and computed value", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const formulaCommands = await importTsModule(path.join(componentsRoot, "UEditor/table-formula-commands.ts"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<table><tbody><tr><td>10</td><td>Total</td></tr><tr><td>20</td><td></td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const formulaCell = await waitFor(() => {
+    const element = view.container.querySelectorAll("tr")[0]?.querySelectorAll("td")[1];
+    assert.ok(element);
+    return element;
+  });
+  await waitFor(() => {
+    assert.ok(ref.current?.editor);
+  });
+
+  const totalTextNode = formulaCell.querySelector("p")?.firstChild;
+  assert.ok(totalTextNode);
+  const totalTextPos = ref.current.editor.view.posAtDOM(totalTextNode, 0);
+  ref.current.editor.commands.focus();
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection({ from: totalTextPos, to: totalTextPos + "Total".length });
+  });
+
+  assert.equal(formulaCommands.setSelectedTableCellFormula(ref.current.editor, "=SUM(A1:A2)"), true);
+
+  await waitFor(() => {
+    const updatedFormulaCell = view.container.querySelectorAll("tr")[0]?.querySelectorAll("td")[1];
+    assert.equal(updatedFormulaCell?.getAttribute("data-formula"), "=SUM(A1:A2)");
+    assert.equal(updatedFormulaCell?.getAttribute("data-computed-value"), "30");
+  });
+
+  const result = await ref.current.prepareContentForSave({ throwOnError: true });
+  assert.match(result.html, /<td[^>]*data-formula="=SUM\(A1:A2\)"[^>]*data-computed-value="30"/);
 });
 
 test("UEditor image width presets preserve the image aspect ratio", async () => {

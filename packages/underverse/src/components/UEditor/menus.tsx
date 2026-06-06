@@ -28,6 +28,7 @@ import {
   Unlink,
   ExternalLink,
   Grid,
+  Sigma,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { ToolbarButton } from "./toolbar";
@@ -36,6 +37,7 @@ import { CellBgColorIcon, CellBorderIcon, EditorColorPalette, HighlightColorIcon
 import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
 import { buildSlashCommandItems, buildSlashCommandMessages, SlashCommandList, type SlashCommandListRef } from "./slash-command";
 import { mergeTableCellsPreservingColumnWidths } from "./table-cell-commands";
+import { clearSelectedTableCellFormula, recalculateSelectedTable, setSelectedTableCellFormula } from "./table-formula-commands";
 import type { UEditorFontSizeOption, UEditorLineHeightOption } from "./types";
 import { getDefaultFontSizes, getDefaultLineHeights, normalizeStyleValue } from "./typography-options";
 
@@ -135,6 +137,8 @@ const BubbleMenuContent = ({
     setShowLinkInput(initialShowLinkInput);
   }, [initialShowLinkInput]);
   const [showTypographyPanel, setShowTypographyPanel] = useState(false);
+  const [showFormulaPanel, setShowFormulaPanel] = useState(false);
+  const [formulaDraft, setFormulaDraft] = useState("");
   const [showFontSizeOptions, setShowFontSizeOptions] = useState(false);
   const [fontSizeDraft, setFontSizeDraft] = useState("");
   const isImageSelected = editor.isActive("image");
@@ -149,6 +153,8 @@ const BubbleMenuContent = ({
   const currentHighlightColor = normalizeStyleValue(editor.getAttributes("highlight").color) || "";
   const currentCellBgColor =
     normalizeStyleValue(editor.getAttributes("tableCell").backgroundColor || editor.getAttributes("tableHeader").backgroundColor) || "";
+  const currentCellFormula =
+    normalizeStyleValue(editor.getAttributes("tableCell").formula || editor.getAttributes("tableHeader").formula) || "";
   const isInTable = isSelectionInTable(editor.state);
   const canMergeCells = isInTable && editor.can().mergeCells();
   const canSplitCell = isInTable && editor.can().splitCell();
@@ -166,6 +172,10 @@ const BubbleMenuContent = ({
   useEffect(() => {
     setFontSizeDraft(currentFontSize.replace(/px$/i, ""));
   }, [currentFontSize]);
+
+  useEffect(() => {
+    setFormulaDraft(currentCellFormula);
+  }, [currentCellFormula]);
 
   const applyFontSizeDraft = () => {
     const normalized = fontSizeDraft.trim();
@@ -403,6 +413,80 @@ const BubbleMenuContent = ({
     );
   }
 
+  if (showFormulaPanel && isInTable) {
+    return (
+      <div className="w-72 p-2">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <span className="px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {t("tableMenu.formula") || "Formula"}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setShowFormulaPanel(false);
+              onKeepOpenChange?.(false);
+            }}
+            className="rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            {t("colors.done")}
+          </button>
+        </div>
+
+        <div className="flex h-9 items-center overflow-hidden rounded-md border border-border/60 bg-muted/40">
+          <input
+            value={formulaDraft}
+            onChange={(event) => setFormulaDraft(event.target.value)}
+            onMouseDown={(event) => event.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => {
+              event.stopPropagation();
+              if (event.key === "Enter") {
+                event.preventDefault();
+                setSelectedTableCellFormula(editor, formulaDraft);
+                setShowFormulaPanel(false);
+                onKeepOpenChange?.(false);
+              }
+            }}
+            aria-label={t("tableMenu.formula") || "Formula"}
+            placeholder="=SUM(A1:A3)"
+            className="h-full min-w-0 flex-1 bg-transparent px-2 text-sm font-medium text-foreground outline-none"
+          />
+        </div>
+
+        <div className="mt-2 grid grid-cols-3 gap-1">
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedTableCellFormula(editor, formulaDraft);
+              setShowFormulaPanel(false);
+              onKeepOpenChange?.(false);
+            }}
+            className="h-8 rounded-md bg-primary/10 text-xs font-semibold text-primary transition-colors hover:bg-primary/15"
+          >
+            {t("tableMenu.apply") || "Apply"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              clearSelectedTableCellFormula(editor);
+              setFormulaDraft("");
+            }}
+            className="h-8 rounded-md bg-muted/40 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
+          >
+            {t("tableMenu.clear") || "Clear"}
+          </button>
+          <button
+            type="button"
+            onClick={() => recalculateSelectedTable(editor)}
+            className="h-8 rounded-md bg-muted/40 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
+          >
+            {t("tableMenu.recalculate") || "Recalc"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (showTypographyPanel) {
     return (
       <div className="w-72 p-2">
@@ -618,6 +702,19 @@ const BubbleMenuContent = ({
                 editor.getAttributes("tableHeader").borderColor
               }
             />
+          </ToolbarButton>
+          <ToolbarButton
+            onMouseDown={() => {
+              onKeepOpenChange?.(true);
+            }}
+            onClick={() => {
+              setFormulaDraft(currentCellFormula);
+              setShowFormulaPanel(true);
+            }}
+            active={Boolean(currentCellFormula)}
+            title={t("tableMenu.formula") || "Formula"}
+          >
+            <Sigma className="w-4 h-4" />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => {

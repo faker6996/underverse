@@ -189,7 +189,7 @@ function getSelectedColumnWidths(editor: Editor, rect: TableRectInfo) {
   return getDomColumnWidths(editor, rect) ?? getNodeColumnWidths(rect);
 }
 
-function dispatchTableLayoutChange(editor: Editor) {
+export function dispatchTableLayoutChange(editor: Editor) {
   editor.view.dom.dispatchEvent(new CustomEvent(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, { bubbles: true }));
 }
 

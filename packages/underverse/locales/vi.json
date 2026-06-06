@@ -276,6 +276,10 @@
       "borderWidth": "Độ dày viền",
       "borderColor": "Màu viền",
       "clearBorder": "Xóa viền",
+      "formula": "Công thức",
+      "apply": "Áp dụng",
+      "clear": "Xóa",
+      "recalculate": "Tính lại",
       "done": "Xong"
     },
     "callout": {
