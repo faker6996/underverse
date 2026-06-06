@@ -84,6 +84,75 @@ function escapeHtml(value: string) {
     .replace(/"/g, "&quot;");
 }
 
+function renderCellHtml(value: string) {
+  const lines = value.split("\n");
+  return lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("");
+}
+
+function parseTsvRows(text: string) {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let inQuotes = false;
+
+  const pushField = () => {
+    row.push(field);
+    field = "";
+  };
+
+  const pushRow = () => {
+    pushField();
+    rows.push(row);
+    row = [];
+  };
+
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    const next = text[index + 1];
+
+    if (inQuotes) {
+      if (char === '"' && next === '"') {
+        field += '"';
+        index += 1;
+        continue;
+      }
+
+      if (char === '"') {
+        inQuotes = false;
+        continue;
+      }
+
+      field += char;
+      continue;
+    }
+
+    if (char === '"' && field.length === 0) {
+      inQuotes = true;
+      continue;
+    }
+
+    if (char === "\t") {
+      pushField();
+      continue;
+    }
+
+    if (char === "\n") {
+      pushRow();
+      continue;
+    }
+
+    field += char;
+  }
+
+  pushRow();
+
+  while (rows.length > 0 && rows[rows.length - 1].every((cell) => cell === "")) {
+    rows.pop();
+  }
+
+  return rows;
+}
+
 function getClipboardTsvTableHtml(dataTransfer: DataTransfer) {
   const text = getClipboardData(dataTransfer, "text/plain")
     .replace(/\r\n/g, "\n")
@@ -92,11 +161,11 @@ function getClipboardTsvTableHtml(dataTransfer: DataTransfer) {
 
   if (!text.includes("\t")) return "";
 
-  const rows = text.split("\n").map((row) => row.split("\t"));
+  const rows = parseTsvRows(text);
   if (rows.length === 0 || rows.every((row) => row.length < 2)) return "";
 
   const body = rows
-    .map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`)
+    .map((row) => `<tr>${row.map((cell) => `<td>${renderCellHtml(cell)}</td>`).join("")}</tr>`)
     .join("");
 
   return `<table><tbody>${body}</tbody></table>`;

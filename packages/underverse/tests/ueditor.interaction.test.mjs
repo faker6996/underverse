@@ -371,6 +371,55 @@ test("UEditor converts spreadsheet TSV clipboard data to a table before handling
   });
 });
 
+test("UEditor keeps quoted multiline spreadsheet TSV cells inside a single table row", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<p>Paste target</p>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const editorElement = await waitFor(() => {
+    const element = view.container.querySelector(".ProseMirror");
+    assert.ok(element);
+    return element;
+  });
+
+  const spreadsheetText = [
+    "\tTên minigame\tPose to Hide: Tricky Puzzle\t\t",
+    "\tRef\thttps://play.google.com/store/apps/details?id=com.human.posing.hf&hl=vi\t\t",
+    "\tFigma demo\thttps://www.figma.com/design/maL1GYd2GAGOzkEyDzlQk0/25---Pose-to-Hide--Tricky-Puzzle\t\t",
+    "\tGiới thiệu\tPose to Hide: Tricky Puzzle là một trò chơi vui nhộn.\t\t",
+    "\tUSP\t\"- Lối chơi vui nhộn và dễ chơi\n- Nhân vật hoạt hình đáng yêu\n- Thử thách trí não hấp dẫn\n- Ghi nhớ và bắt chước để hoàn thành nhiệm vụ\"\t\t",
+  ].join("\n");
+
+  await user.click(editorElement);
+  fireEvent.paste(editorElement, {
+    clipboardData: clipboardWithImageAndData({
+      text: spreadsheetText,
+    }),
+  });
+
+  await waitFor(() => {
+    const table = view.container.querySelector("table");
+    assert.ok(table);
+    assert.equal(table.querySelectorAll("tr").length, 5);
+    assert.equal(view.container.querySelector("img"), null);
+
+    const uspCells = table.querySelectorAll("tr")[4]?.querySelectorAll("td") ?? [];
+    assert.equal(uspCells[1]?.textContent, "USP");
+    assert.equal(uspCells[2]?.querySelectorAll("p").length, 4);
+    assert.match(uspCells[2]?.textContent ?? "", /Ghi nhớ và bắt chước/);
+  });
+});
+
 test("UEditor preserves wrapped image layout in editor DOM and saved HTML", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
