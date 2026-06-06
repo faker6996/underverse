@@ -61,6 +61,31 @@ function extractClipboardHtmlFragment(html: string) {
   return html;
 }
 
+const EMPTY_TABLE_CELL_HTML = "<p></p>";
+const TABLE_MEDIA_SELECTOR = "img,video,audio,iframe,svg,canvas,embed,object";
+const TABLE_BLOCK_SELECTOR = "p,ul,ol,blockquote,pre,h1,h2,h3,h4,h5,h6,hr,table";
+
+function hasMeaningfulTableCellText(value: string | null | undefined) {
+  return Boolean(value?.replace(/\u00a0/g, " ").trim());
+}
+
+function normalizeClipboardTableCell(cell: HTMLTableCellElement) {
+  const hasText = hasMeaningfulTableCellText(cell.textContent);
+  const hasBlockContent = Boolean(cell.querySelector(TABLE_BLOCK_SELECTOR));
+  const hasMediaContent = Boolean(cell.querySelector(TABLE_MEDIA_SELECTOR));
+
+  if (!hasText && !hasBlockContent && !hasMediaContent) {
+    cell.innerHTML = EMPTY_TABLE_CELL_HTML;
+  }
+}
+
+function normalizeClipboardTable(table: HTMLTableElement) {
+  for (const cell of Array.from(table.querySelectorAll("td,th"))) {
+    if (!(cell instanceof HTMLTableCellElement)) continue;
+    normalizeClipboardTableCell(cell);
+  }
+}
+
 function getClipboardTableHtml(dataTransfer: DataTransfer) {
   const html = getClipboardData(dataTransfer, "text/html");
   if (!/<table(?:\s|>)/i.test(html)) return "";
@@ -70,7 +95,10 @@ function getClipboardTableHtml(dataTransfer: DataTransfer) {
   if (typeof DOMParser !== "undefined") {
     const doc = new DOMParser().parseFromString(fragment, "text/html");
     const table = doc.querySelector("table");
-    if (table) return table.outerHTML;
+    if (table instanceof HTMLTableElement) {
+      normalizeClipboardTable(table);
+      return table.outerHTML;
+    }
   }
 
   return fragment;
@@ -84,12 +112,7 @@ function escapeHtml(value: string) {
     .replace(/"/g, "&quot;");
 }
 
-function renderCellHtml(value: string) {
-  const lines = value.split("\n");
-  return lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("");
-}
-
-function parseTsvRows(text: string) {
+function parseClipboardTsvRows(text: string) {
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";
@@ -108,16 +131,16 @@ function parseTsvRows(text: string) {
 
   for (let index = 0; index < text.length; index += 1) {
     const char = text[index];
-    const next = text[index + 1];
+    const nextChar = text[index + 1];
 
     if (inQuotes) {
-      if (char === '"' && next === '"') {
-        field += '"';
+      if (char === "\"" && nextChar === "\"") {
+        field += "\"";
         index += 1;
         continue;
       }
 
-      if (char === '"') {
+      if (char === "\"") {
         inQuotes = false;
         continue;
       }
@@ -126,7 +149,7 @@ function parseTsvRows(text: string) {
       continue;
     }
 
-    if (char === '"' && field.length === 0) {
+    if (char === "\"" && field.length === 0) {
       inQuotes = true;
       continue;
     }
@@ -153,19 +176,28 @@ function parseTsvRows(text: string) {
   return rows;
 }
 
+function renderClipboardTableCellHtml(value: string) {
+  const lines = value.split("\n");
+  const paragraphs = lines.length > 0 ? lines : [""];
+  return paragraphs.map((line) => `<p>${escapeHtml(line)}</p>`).join("");
+}
+
 function getClipboardTsvTableHtml(dataTransfer: DataTransfer) {
   const text = getClipboardData(dataTransfer, "text/plain")
     .replace(/\r\n/g, "\n")
-    .replace(/\r/g, "\n")
-    .replace(/\n+$/, "");
+    .replace(/\r/g, "\n");
 
   if (!text.includes("\t")) return "";
 
-  const rows = parseTsvRows(text);
+  const rows = parseClipboardTsvRows(text);
   if (rows.length === 0 || rows.every((row) => row.length < 2)) return "";
 
+  const columnCount = rows.reduce((max, row) => Math.max(max, row.length), 0);
   const body = rows
-    .map((row) => `<tr>${row.map((cell) => `<td>${renderCellHtml(cell)}</td>`).join("")}</tr>`)
+    .map((row) => {
+      const normalizedRow = Array.from({ length: columnCount }, (_, index) => row[index] ?? "");
+      return `<tr>${normalizedRow.map((cell) => `<td>${renderClipboardTableCellHtml(cell)}</td>`).join("")}</tr>`;
+    })
     .join("");
 
   return `<table><tbody>${body}</tbody></table>`;

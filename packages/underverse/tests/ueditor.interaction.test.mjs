@@ -420,6 +420,100 @@ test("UEditor keeps quoted multiline spreadsheet TSV cells inside a single table
   });
 });
 
+test("UEditor normalizes empty spreadsheet HTML table cells before inserting the table", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<p>Paste target</p>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const editorElement = await waitFor(() => {
+    const element = view.container.querySelector(".ProseMirror");
+    assert.ok(element);
+    return element;
+  });
+
+  await user.click(editorElement);
+  fireEvent.paste(editorElement, {
+    clipboardData: clipboardWithImageAndData({
+      html: [
+        "<html><body>",
+        "<!--StartFragment-->",
+        "<table><tbody><tr><td>Name</td><td>Value</td><td></td></tr><tr><td>USP</td><td></td><td></td></tr></tbody></table>",
+        "<!--EndFragment-->",
+        "</body></html>",
+      ].join(""),
+      text: "Name\tValue\t\nUSP\t\t",
+    }),
+  });
+
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("table").length, 1);
+    assert.equal(view.container.querySelectorAll("td").length, 6);
+    assert.equal(view.container.querySelector("img"), null);
+  });
+
+  const emptyCells = Array.from(view.container.querySelectorAll("td")).filter((cell) => cell.textContent === "");
+  assert.ok(emptyCells.length >= 3);
+  for (const cell of emptyCells) {
+    assert.ok(cell.querySelector("p"));
+  }
+});
+
+test("UEditor pads sparse spreadsheet rows to the widest TSV column count", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<p>Paste target</p>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const editorElement = await waitFor(() => {
+    const element = view.container.querySelector(".ProseMirror");
+    assert.ok(element);
+    return element;
+  });
+
+  await user.click(editorElement);
+  fireEvent.paste(editorElement, {
+    clipboardData: clipboardWithImageAndData({
+      text: 'Header\tBody\tMeta\tStatus\nUSP\t"- Easy to learn\n- Cute characters\n- Brain teasing"',
+    }),
+  });
+
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("table").length, 1);
+    assert.equal(view.container.querySelectorAll("tr").length, 2);
+    assert.equal(view.container.querySelectorAll("td").length, 8);
+    assert.equal(view.container.querySelector("img"), null);
+  });
+
+  const secondRowCells = view.container.querySelectorAll("tr")[1]?.querySelectorAll("td");
+  assert.ok(secondRowCells);
+  assert.equal(secondRowCells.length, 4);
+  assert.equal(secondRowCells[1].querySelectorAll("p").length, 3);
+  assert.equal(secondRowCells[1].querySelectorAll("p")[0]?.textContent, "- Easy to learn");
+  assert.equal(secondRowCells[1].querySelectorAll("p")[1]?.textContent, "- Cute characters");
+  assert.equal(secondRowCells[1].querySelectorAll("p")[2]?.textContent, "- Brain teasing");
+  assert.equal(secondRowCells[2].textContent, "");
+  assert.equal(secondRowCells[3].textContent, "");
+});
+
 test("UEditor preserves wrapped image layout in editor DOM and saved HTML", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
