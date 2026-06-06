@@ -49,6 +49,18 @@ import UEditorTable from "./table-align";
 import { isSafeUEditorUrl } from "./url-safety";
 import { CodeBlockView } from "./CodeBlockView";
 
+function getFormulaStateAttributes(attributes: Record<string, any>) {
+  const formula = attributes["data-formula"];
+  if (!formula) {
+    return {};
+  }
+
+  const computedValue = String(attributes["data-computed-value"] ?? "");
+  return {
+    "data-formula-state": computedValue.startsWith("#") ? "error" : "computed",
+  };
+}
+
 const CustomTableCell = TableCell.extend({
   addAttributes() {
     return {
@@ -154,7 +166,7 @@ const CustomTableCell = TableCell.extend({
 
     return [
       "td",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, mergedStyle ? { style: mergedStyle } : {}),
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, getFormulaStateAttributes(HTMLAttributes), mergedStyle ? { style: mergedStyle } : {}),
       0,
     ];
   },
@@ -265,7 +277,7 @@ const CustomTableHeader = TableHeader.extend({
 
     return [
       "th",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, mergedStyle ? { style: mergedStyle } : {}),
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, getFormulaStateAttributes(HTMLAttributes), mergedStyle ? { style: mergedStyle } : {}),
       0,
     ];
   },

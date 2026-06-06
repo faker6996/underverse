@@ -16,8 +16,19 @@ export type FormulaEvaluationResult =
     }
   | {
       value: null;
-      error: "empty" | "invalid-reference" | "invalid-formula" | "division-by-zero";
+      error: "empty" | "invalid-reference" | "invalid-formula" | "division-by-zero" | "circular-reference";
     };
+
+export type TableFormulaCell = {
+  label: string;
+  formula: string;
+};
+
+export type TableFormulaDependencyGraph = {
+  dependencies: Map<string, Set<string>>;
+  dependents: Map<string, Set<string>>;
+  formulas: Map<string, string>;
+};
 
 type FormulaToken =
   | { type: "number"; value: number }
@@ -112,6 +123,121 @@ export function getTableCellRangeLabels(range: TableCellRange) {
 
 export function normalizeTableFormula(formula: string) {
   return formula.trim().replace(/^=/, "").trim();
+}
+
+export function formatFormulaError(error: NonNullable<FormulaEvaluationResult["error"]>) {
+  return `#${error.toUpperCase()}`;
+}
+
+export function getTableFormulaReferences(formula: string) {
+  const normalized = normalizeTableFormula(formula);
+  if (!normalized) return [];
+
+  const tokens = tokenizeFormula(normalized);
+  if (!tokens) return [];
+
+  const references = new Set<string>();
+  for (const token of tokens) {
+    if (token.type === "cell") {
+      references.add(token.value);
+    } else if (token.type === "range") {
+      const range = parseTableCellRange(token.value);
+      if (!range) continue;
+      for (const label of getTableCellRangeLabels(range)) {
+        references.add(label);
+      }
+    }
+  }
+
+  return Array.from(references);
+}
+
+export function buildTableFormulaDependencyGraph(cells: TableFormulaCell[]): TableFormulaDependencyGraph {
+  const dependencies = new Map<string, Set<string>>();
+  const dependents = new Map<string, Set<string>>();
+  const formulas = new Map<string, string>();
+
+  for (const cell of cells) {
+    const label = cell.label.toUpperCase();
+    formulas.set(label, cell.formula);
+    dependencies.set(label, new Set(getTableFormulaReferences(cell.formula)));
+    if (!dependents.has(label)) {
+      dependents.set(label, new Set());
+    }
+  }
+
+  for (const [label, refs] of dependencies) {
+    for (const ref of refs) {
+      if (!dependents.has(ref)) {
+        dependents.set(ref, new Set());
+      }
+      dependents.get(ref)?.add(label);
+    }
+  }
+
+  return { dependencies, dependents, formulas };
+}
+
+export function getTableFormulaCircularReferences(graph: TableFormulaDependencyGraph) {
+  const visiting = new Set<string>();
+  const visited = new Set<string>();
+  const circular = new Set<string>();
+  const stack: string[] = [];
+
+  const visit = (label: string) => {
+    if (visiting.has(label)) {
+      const start = stack.indexOf(label);
+      for (const cycleLabel of start >= 0 ? stack.slice(start) : [label]) {
+        circular.add(cycleLabel);
+      }
+      return;
+    }
+    if (visited.has(label)) return;
+
+    visiting.add(label);
+    stack.push(label);
+
+    for (const ref of graph.dependencies.get(label) ?? []) {
+      if (graph.formulas.has(ref)) {
+        visit(ref);
+      }
+    }
+
+    stack.pop();
+    visiting.delete(label);
+    visited.add(label);
+  };
+
+  for (const label of graph.formulas.keys()) {
+    visit(label);
+  }
+
+  return circular;
+}
+
+export function getTableFormulaRecalculationOrder(graph: TableFormulaDependencyGraph) {
+  const circular = getTableFormulaCircularReferences(graph);
+  const visited = new Set<string>();
+  const order: string[] = [];
+
+  const visit = (label: string) => {
+    if (visited.has(label) || circular.has(label)) return;
+    visited.add(label);
+
+    for (const ref of graph.dependencies.get(label) ?? []) {
+      if (graph.formulas.has(ref)) {
+        visit(ref);
+      }
+    }
+
+    order.push(label);
+  };
+
+  for (const label of graph.formulas.keys()) {
+    visit(label);
+  }
+
+  return { order, circular };
 }
 
 export function evaluateBasicTableFormula(

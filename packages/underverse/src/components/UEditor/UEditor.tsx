@@ -23,6 +23,7 @@ import { UEDITOR_PROSEMIRROR_CLASS_NAME } from "./editor-styles";
 import { resolveEventElement } from "./table-dom-utils";
 import { useUEditorTableInteractions } from "./use-table-interactions";
 import { MenuBar } from "./menu-bar";
+import { recalculateAllTableFormulas, UEDITOR_TABLE_FORMULA_RECALCULATE_META } from "./table-formula-commands";
 
 const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   content = "",
@@ -66,6 +67,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   const effectivePlaceholder = placeholder ?? t("placeholder");
   const inFlightPrepareRef = useRef<Promise<UEditorPrepareContentForSaveResult> | null>(null);
   const lastAppliedContentRef = useRef(content ?? "");
+  const scheduledFormulaRecalculateRef = useRef(false);
 
   const resolvedUploadFile = useMemo(() => {
     if (uploadFile) return uploadFile;
@@ -143,7 +145,17 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         class: UEDITOR_PROSEMIRROR_CLASS_NAME,
       },
     },
-    onUpdate: ({ editor }) => {
+    onUpdate: ({ editor, transaction }) => {
+      if (!transaction.getMeta(UEDITOR_TABLE_FORMULA_RECALCULATE_META) && !scheduledFormulaRecalculateRef.current) {
+        scheduledFormulaRecalculateRef.current = true;
+        queueMicrotask(() => {
+          scheduledFormulaRecalculateRef.current = false;
+          if (!editor.isDestroyed) {
+            recalculateAllTableFormulas(editor);
+          }
+        });
+      }
+
       const html = editor.getHTML();
       onChange?.(html);
       onHtmlChange?.(html);
@@ -188,6 +200,16 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   useEffect(() => {
     if (!editor) return;
 
+    queueMicrotask(() => {
+      if (!editor.isDestroyed) {
+        recalculateAllTableFormulas(editor);
+      }
+    });
+  }, [editor]);
+
+  useEffect(() => {
+    if (!editor) return;
+
     const nextContent = content ?? "";
     if (lastAppliedContentRef.current === nextContent) return;
 
@@ -197,6 +219,11 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
       Promise.resolve().then(() => {
         if (!editor.isDestroyed) {
           editor.commands.setContent(nextContent, { emitUpdate: false });
+          queueMicrotask(() => {
+            if (!editor.isDestroyed) {
+              recalculateAllTableFormulas(editor);
+            }
+          });
         }
       });
     }

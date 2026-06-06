@@ -12,6 +12,10 @@ type ClipboardTableCellAttrs = {
   borderColor?: string;
   borderStyle?: string;
   borderWidth?: string;
+  cellId?: string;
+  numberFormat?: string;
+  formula?: string;
+  computedValue?: string;
   colspan?: number;
   rowspan?: number;
   colwidth?: number[];
@@ -445,6 +449,10 @@ function getTableCellAttrs(
   if (borderAttrs.borderColor) attrs.borderColor = borderAttrs.borderColor;
   if (borderAttrs.borderStyle) attrs.borderStyle = borderAttrs.borderStyle;
   if (borderAttrs.borderWidth) attrs.borderWidth = borderAttrs.borderWidth;
+  if (cell.getAttribute("data-cell-id")) attrs.cellId = cell.getAttribute("data-cell-id") ?? undefined;
+  if (cell.getAttribute("data-number-format")) attrs.numberFormat = cell.getAttribute("data-number-format") ?? undefined;
+  if (cell.getAttribute("data-formula")) attrs.formula = cell.getAttribute("data-formula") ?? undefined;
+  if (cell.getAttribute("data-computed-value")) attrs.computedValue = cell.getAttribute("data-computed-value") ?? undefined;
   if (colspan > 1) attrs.colspan = colspan;
   if (rowspan > 1) attrs.rowspan = rowspan;
   if (colwidth) attrs.colwidth = colwidth;

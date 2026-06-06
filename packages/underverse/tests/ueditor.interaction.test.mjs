@@ -637,6 +637,10 @@ test("UEditor preserves table formula metadata on cells and headers", async () =
               <td data-cell-id="A2" data-number-format="text">Alpha</td>
               <td data-cell-id="B2" data-number-format="number" data-computed-value="10">10</td>
             </tr>
+            <tr>
+              <td data-cell-id="A3" data-number-format="text">Beta</td>
+              <td data-cell-id="B3" data-number-format="number" data-computed-value="20">20</td>
+            </tr>
           </tbody>
         </table>`,
       showToolbar: false,
@@ -655,10 +659,11 @@ test("UEditor preserves table formula metadata on cells and headers", async () =
   const valueCell = view.container.querySelector("td[data-cell-id='B2']");
   assert.equal(totalHeader?.getAttribute("data-formula"), "=SUM(B2:B3)");
   assert.equal(totalHeader?.getAttribute("data-computed-value"), "30");
+  assert.equal(totalHeader?.getAttribute("data-formula-state"), "computed");
   assert.equal(valueCell?.getAttribute("data-number-format"), "number");
 
   const result = await ref.current.prepareContentForSave({ throwOnError: true });
-  assert.match(result.html, /<th[^>]*data-cell-id="B1"[^>]*data-number-format="number"[^>]*data-formula="=SUM\(B2:B3\)"[^>]*data-computed-value="30"/);
+  assert.match(result.html, /<th[^>]*data-cell-id="B1"[^>]*data-number-format="number"[^>]*data-formula="=SUM\(B2:B3\)"[^>]*data-computed-value="30"[^>]*data-formula-state="computed"/);
   assert.match(result.html, /<td[^>]*data-cell-id="B2"[^>]*data-number-format="number"[^>]*data-computed-value="10"/);
 });
 
@@ -746,10 +751,152 @@ test("UEditor table formula command writes formula metadata and computed value",
     const updatedFormulaCell = view.container.querySelectorAll("tr")[0]?.querySelectorAll("td")[1];
     assert.equal(updatedFormulaCell?.getAttribute("data-formula"), "=SUM(A1:A2)");
     assert.equal(updatedFormulaCell?.getAttribute("data-computed-value"), "30");
+    assert.equal(updatedFormulaCell?.textContent?.trim(), "30");
   });
 
   const result = await ref.current.prepareContentForSave({ throwOnError: true });
   assert.match(result.html, /<td[^>]*data-formula="=SUM\(A1:A2\)"[^>]*data-computed-value="30"/);
+});
+
+test("UEditor table formula recalculate follows dependencies and marks circular references", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const formulaCommands = await importTsModule(path.join(componentsRoot, "UEditor/table-formula-commands.ts"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: `
+        <table>
+          <tbody>
+            <tr>
+              <td>10</td>
+              <td data-formula="=A1*2" data-computed-value="0">0</td>
+              <td data-formula="=B1+5" data-computed-value="0">0</td>
+            </tr>
+            <tr>
+              <td data-formula="=B2" data-computed-value="0">0</td>
+              <td data-formula="=A2" data-computed-value="0">0</td>
+              <td>tail</td>
+            </tr>
+          </tbody>
+        </table>`,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+  await waitFor(() => {
+    assert.ok(ref.current?.editor);
+  });
+
+  const firstTextNode = firstCell.querySelector("p")?.firstChild;
+  assert.ok(firstTextNode);
+  const firstTextPos = ref.current.editor.view.posAtDOM(firstTextNode, 0);
+  ref.current.editor.commands.focus();
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection({ from: firstTextPos, to: firstTextPos + "10".length });
+  });
+
+  formulaCommands.recalculateSelectedTable(ref.current.editor);
+
+  await waitFor(() => {
+    const cells = view.container.querySelectorAll("td");
+    assert.equal(cells[1]?.getAttribute("data-computed-value"), "20");
+    assert.equal(cells[1]?.getAttribute("data-formula-state"), "computed");
+    assert.equal(cells[1]?.textContent?.trim(), "20");
+    assert.equal(cells[2]?.getAttribute("data-computed-value"), "25");
+    assert.equal(cells[2]?.textContent?.trim(), "25");
+    assert.equal(cells[3]?.getAttribute("data-computed-value"), "#CIRCULAR-REFERENCE");
+    assert.equal(cells[3]?.getAttribute("data-formula-state"), "error");
+    assert.equal(cells[3]?.textContent?.trim(), "#CIRCULAR-REFERENCE");
+    assert.equal(cells[4]?.getAttribute("data-computed-value"), "#CIRCULAR-REFERENCE");
+  });
+});
+
+test("UEditor automatically recalculates table formulas after cell edits", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: '<table><tbody><tr><td>10</td><td data-formula="=A1*2" data-computed-value="0">0</td></tr></tbody></table>',
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const sourceCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+  await waitFor(() => {
+    assert.ok(ref.current?.editor);
+  });
+
+  await waitFor(() => {
+    const formulaCell = view.container.querySelectorAll("td")[1];
+    assert.equal(formulaCell?.getAttribute("data-computed-value"), "20");
+    assert.equal(formulaCell?.textContent?.trim(), "20");
+  });
+
+  const sourceTextNode = sourceCell.querySelector("p")?.firstChild;
+  assert.ok(sourceTextNode);
+  const sourceTextPos = ref.current.editor.view.posAtDOM(sourceTextNode, 0);
+  ref.current.editor.commands.focus();
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection({ from: sourceTextPos, to: sourceTextPos + "10".length });
+  });
+  ref.current.editor.commands.insertContent("15");
+
+  await waitFor(() => {
+    const formulaCell = view.container.querySelectorAll("td")[1];
+    assert.equal(formulaCell?.getAttribute("data-computed-value"), "30");
+    assert.equal(formulaCell?.textContent?.trim(), "30");
+  });
+});
+
+test("UEditor promotes typed table formula text into computed formula cells", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<table><tbody><tr><td>10</td><td>=SUM(A1:A2)</td></tr><tr><td>20</td><td></td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const formulaCell = await waitFor(() => {
+    const element = view.container.querySelectorAll("tr")[0]?.querySelectorAll("td")[1];
+    assert.ok(element);
+    return element;
+  });
+  assert.equal(formulaCell.textContent?.trim(), "=SUM(A1:A2)");
+
+  await waitFor(() => {
+    const updatedFormulaCell = view.container.querySelectorAll("tr")[0]?.querySelectorAll("td")[1];
+    assert.equal(updatedFormulaCell?.getAttribute("data-formula"), "=SUM(A1:A2)");
+    assert.equal(updatedFormulaCell?.getAttribute("data-computed-value"), "30");
+    assert.equal(updatedFormulaCell?.getAttribute("data-formula-state"), "computed");
+    assert.equal(updatedFormulaCell?.textContent?.trim(), "30");
+  });
 });
 
 test("UEditor image width presets preserve the image aspect ratio", async () => {

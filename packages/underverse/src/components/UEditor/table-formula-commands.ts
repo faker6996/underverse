@@ -2,7 +2,16 @@ import type { Editor } from "@tiptap/core";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { selectedRect, setCellAttr, TableMap } from "@tiptap/pm/tables";
 import { dispatchTableLayoutChange } from "./table-cell-commands";
-import { evaluateBasicTableFormula, indexToColumnName } from "./table-formula";
+import {
+  buildTableFormulaDependencyGraph,
+  evaluateBasicTableFormula,
+  formatFormulaError,
+  getTableFormulaRecalculationOrder,
+  indexToColumnName,
+} from "./table-formula";
+
+export const UEDITOR_TABLE_FORMULA_RECALCULATE_META = "ueditorTableFormulaRecalculate";
+export const UEDITOR_TABLE_FORMULA_SYNC_META = "ueditorTableFormulaSync";
 
 type CellEntry = {
   index: number;
@@ -48,6 +57,16 @@ function getCellText(cellNode: ProseMirrorNode) {
   return cellNode.textBetween(0, cellNode.content.size, "\n").trim();
 }
 
+function createCellDisplayContent(cellNode: ProseMirrorNode, displayValue: string) {
+  const paragraphType = cellNode.type.schema.nodes.paragraph;
+
+  if (!paragraphType || !displayValue) {
+    return paragraphType ? [paragraphType.create()] : cellNode.content;
+  }
+
+  return [paragraphType.create(null, cellNode.type.schema.text(displayValue))];
+}
+
 function buildTableValueGetter(tableNode: ProseMirrorNode) {
   const map = TableMap.get(tableNode);
   const values = new Map<string, string | number>();
@@ -64,6 +83,24 @@ function buildTableValueGetter(tableNode: ProseMirrorNode) {
   }
 
   return (label: string) => values.get(label.toUpperCase());
+}
+
+function buildTableValueMap(tableNode: ProseMirrorNode) {
+  const map = TableMap.get(tableNode);
+  const values = new Map<string, string | number>();
+
+  for (const rowInfo of getTableRows(tableNode)) {
+    for (const entry of rowInfo.cells) {
+      const rect = safeFindCell(map, entry.relativePos);
+      if (!rect) continue;
+
+      const label = `${indexToColumnName(rect.left)}${rect.top + 1}`;
+      const computedValue = entry.node.attrs.computedValue;
+      values.set(label, typeof computedValue === "string" && computedValue.trim() ? computedValue : getCellText(entry.node));
+    }
+  }
+
+  return values;
 }
 
 function getFormulaComputedValue(formula: string, tableNode: ProseMirrorNode) {
@@ -110,31 +147,22 @@ export function clearSelectedTableCellFormula(editor: Editor) {
   return setSelectedTableCellFormula(editor, "");
 }
 
-export function recalculateSelectedTable(editor: Editor) {
-  const rect = selectedRect(editor.state);
-  const tableNode = rect.table;
-  const map = TableMap.get(tableNode);
-  const getCellValue = buildTableValueGetter(tableNode);
+function promoteFormulaTextInTableNode(tableNode: ProseMirrorNode) {
   let changed = false;
 
   const rows = getTableRows(tableNode).map((rowInfo) => {
     const cells = collectChildren(rowInfo.node);
 
     for (const entry of rowInfo.cells) {
-      const formula = typeof entry.node.attrs.formula === "string" ? entry.node.attrs.formula.trim() : "";
-      if (!formula) continue;
-
-      const rectForCell = safeFindCell(map, entry.relativePos);
-      if (!rectForCell) continue;
-
-      const result = evaluateBasicTableFormula(formula, getCellValue);
-      const computedValue = result.error ? `#${result.error.toUpperCase()}` : String(result.value);
-      if (entry.node.attrs.computedValue === computedValue) continue;
+      const text = getCellText(entry.node);
+      const formula = text.startsWith("=") ? normalizeFormulaInput(text) : "";
+      if (!formula || entry.node.attrs.formula === formula) continue;
 
       cells[entry.index] = entry.node.type.create(
         {
           ...entry.node.attrs,
-          computedValue,
+          formula,
+          computedValue: null,
         },
         entry.node.content,
         entry.node.marks,
@@ -145,10 +173,138 @@ export function recalculateSelectedTable(editor: Editor) {
     return rowInfo.node.type.create(rowInfo.node.attrs, cells);
   });
 
-  if (!changed) return false;
+  return {
+    tableNode: changed ? tableNode.type.create(tableNode.attrs, rows) : tableNode,
+    changed,
+  };
+}
 
-  const nextTable = tableNode.type.create(tableNode.attrs, rows);
-  editor.view.dispatch(editor.state.tr.replaceWith(rect.tableStart - 1, rect.tableStart - 1 + tableNode.nodeSize, nextTable));
+function recalculateTableNode(tableNode: ProseMirrorNode) {
+  const promoted = promoteFormulaTextInTableNode(tableNode);
+  tableNode = promoted.tableNode;
+  const map = TableMap.get(tableNode);
+  const values = buildTableValueMap(tableNode);
+  const formulaEntries = new Map<string, { rowIndex: number; cellIndex: number; node: ProseMirrorNode; formula: string }>();
+  let changed = false;
+
+  const rowInfos = getTableRows(tableNode);
+  for (const [rowIndex, rowInfo] of rowInfos.entries()) {
+    for (const entry of rowInfo.cells) {
+      const formula = typeof entry.node.attrs.formula === "string" ? entry.node.attrs.formula.trim() : "";
+      if (!formula) continue;
+
+      const rectForCell = safeFindCell(map, entry.relativePos);
+      if (!rectForCell) continue;
+
+      const label = `${indexToColumnName(rectForCell.left)}${rectForCell.top + 1}`;
+      formulaEntries.set(label, {
+        rowIndex,
+        cellIndex: entry.index,
+        node: entry.node,
+        formula,
+      });
+    }
+  }
+
+  const graph = buildTableFormulaDependencyGraph(
+    Array.from(formulaEntries, ([label, entry]) => ({
+      label,
+      formula: entry.formula,
+    })),
+  );
+  const { order, circular } = getTableFormulaRecalculationOrder(graph);
+  const computedValues = new Map<string, string>();
+  const getCellValue = (label: string) => values.get(label.toUpperCase());
+
+  for (const label of circular) {
+    computedValues.set(label, formatFormulaError("circular-reference"));
+    values.set(label, formatFormulaError("circular-reference"));
+  }
+
+  for (const label of order) {
+    const entry = formulaEntries.get(label);
+    if (!entry) continue;
+    const result = evaluateBasicTableFormula(entry.formula, getCellValue);
+    const computedValue = result.error ? formatFormulaError(result.error) : String(result.value);
+    computedValues.set(label, computedValue);
+    values.set(label, computedValue);
+  }
+
+  const rows = rowInfos.map((rowInfo) => {
+    const cells = collectChildren(rowInfo.node);
+
+    for (const entry of rowInfo.cells) {
+      const rectForCell = safeFindCell(map, entry.relativePos);
+      if (!rectForCell) continue;
+
+      const label = `${indexToColumnName(rectForCell.left)}${rectForCell.top + 1}`;
+      const computedValue = computedValues.get(label);
+      if (computedValue == null) continue;
+
+      const contentMatchesComputedValue = getCellText(entry.node) === computedValue;
+      if (entry.node.attrs.computedValue === computedValue && contentMatchesComputedValue) continue;
+
+      cells[entry.index] = entry.node.type.create(
+        {
+          ...entry.node.attrs,
+          computedValue,
+        },
+        createCellDisplayContent(entry.node, computedValue),
+        entry.node.marks,
+      );
+      changed = true;
+    }
+
+    return rowInfo.node.type.create(rowInfo.node.attrs, cells);
+  });
+
+  if (!changed) return promoted.changed ? tableNode : null;
+
+  return tableNode.type.create(tableNode.attrs, rows);
+}
+
+export function recalculateSelectedTable(editor: Editor) {
+  const rect = selectedRect(editor.state);
+  const tableNode = rect.table;
+  const nextTable = recalculateTableNode(tableNode);
+
+  if (!nextTable) return false;
+
+  editor.view.dispatch(
+    editor.state.tr
+      .replaceWith(rect.tableStart - 1, rect.tableStart - 1 + tableNode.nodeSize, nextTable)
+      .setMeta(UEDITOR_TABLE_FORMULA_RECALCULATE_META, true),
+  );
+  dispatchTableLayoutChange(editor);
+  return true;
+}
+
+export function recalculateAllTableFormulas(editor: Editor) {
+  const replacements: Array<{ from: number; to: number; node: ProseMirrorNode }> = [];
+
+  editor.state.doc.descendants((node, pos) => {
+    if (node.type.name !== "table") return true;
+
+    const nextTable = recalculateTableNode(node);
+    if (nextTable) {
+      replacements.push({
+        from: pos,
+        to: pos + node.nodeSize,
+        node: nextTable,
+      });
+    }
+
+    return false;
+  });
+
+  if (replacements.length === 0) return false;
+
+  let tr = editor.state.tr;
+  for (const replacement of replacements.reverse()) {
+    tr = tr.replaceWith(replacement.from, replacement.to, replacement.node);
+  }
+
+  editor.view.dispatch(tr.setMeta(UEDITOR_TABLE_FORMULA_RECALCULATE_META, true));
   dispatchTableLayoutChange(editor);
   return true;
 }

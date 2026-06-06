@@ -52,3 +52,45 @@ test("UEditor table formula utilities return controlled errors", async () => {
   assert.deepEqual(formula.evaluateBasicTableFormula("=A2 + 1", getCellValue), { value: null, error: "invalid-reference" });
   assert.deepEqual(formula.evaluateBasicTableFormula("=UNKNOWN(A1)", getCellValue), { value: null, error: "invalid-formula" });
 });
+
+test("UEditor table formula utilities build dependency order and detect cycles", async () => {
+  const formula = await importTsModule(path.join(componentsRoot, "UEditor/table-formula.ts"));
+
+  assert.deepEqual(formula.getTableFormulaReferences("=SUM(A1:A2) + B1"), ["A1", "A2", "B1"]);
+
+  const graph = formula.buildTableFormulaDependencyGraph([
+    { label: "B1", formula: "=A1 * 2" },
+    { label: "C1", formula: "=B1 + 5" },
+  ]);
+  assert.deepEqual(formula.getTableFormulaRecalculationOrder(graph), {
+    order: ["B1", "C1"],
+    circular: new Set(),
+  });
+
+  const circularGraph = formula.buildTableFormulaDependencyGraph([
+    { label: "A1", formula: "=B1" },
+    { label: "B1", formula: "=A1" },
+    { label: "C1", formula: "=A1 + 1" },
+  ]);
+  const circularOrder = formula.getTableFormulaRecalculationOrder(circularGraph);
+  assert.deepEqual(circularOrder.order, ["C1"]);
+  assert.deepEqual(circularOrder.circular, new Set(["A1", "B1"]));
+});
+
+test("UEditor table formula dependency graph handles large linear chains", async () => {
+  const formula = await importTsModule(path.join(componentsRoot, "UEditor/table-formula.ts"));
+  const cells = Array.from({ length: 500 }, (_, index) => ({
+    label: `A${index + 2}`,
+    formula: index === 0 ? "=A1+1" : `=A${index + 1}+1`,
+  }));
+  const startedAt = performance.now();
+  const graph = formula.buildTableFormulaDependencyGraph(cells);
+  const order = formula.getTableFormulaRecalculationOrder(graph);
+  const durationMs = performance.now() - startedAt;
+
+  assert.equal(order.order.length, 500);
+  assert.equal(order.order[0], "A2");
+  assert.equal(order.order.at(-1), "A501");
+  assert.equal(order.circular.size, 0);
+  assert.ok(durationMs < 1000, `expected formula dependency graph to finish under 1000ms, got ${durationMs}ms`);
+});

@@ -129,12 +129,15 @@ Clipboard/export should preserve metadata where possible:
 - [x] Add save/load regression test for formula metadata.
 - [x] Add pure formula address/range parser.
 - [x] Add pure formula evaluator MVP.
-- [ ] Add table-local dependency graph and circular reference handling.
+- [x] Add table-local dependency graph and circular reference handling.
 - [x] Add command helpers: set formula, clear formula, recalculate table.
 - [x] Add formula input UI in the bubble menu.
-- [ ] Add formula formatting states for error/computed cells.
-- [ ] Add clipboard/export tests for formula metadata.
-- [ ] Add performance tests for large tables with formulas.
+- [x] Add automatic formula recalculation after table edits.
+- [x] Promote typed `=...` cell text into formula metadata.
+- [x] Render formula computed values inside cell content.
+- [x] Add formula formatting states for error/computed cells.
+- [x] Add clipboard/export tests for formula metadata.
+- [x] Add performance tests for large tables with formulas.
 
 ## Near-Term Work Order
 

@@ -128,6 +128,31 @@ test("clipboard HTML table parser preserves Excel class and inline cell styles",
   assert.equal(bodyCells[2]?.attrs?.borderWidth, "1px");
 });
 
+test("clipboard HTML table parser preserves UEditor formula metadata", () => {
+  const table = getClipboardTableContent(
+    clipboardData({
+      html: [
+        "<table><tbody>",
+        '<tr><th data-cell-id="A1" data-number-format="text">Name</th><th data-cell-id="B1" data-number-format="number" data-formula="=SUM(B2:B3)" data-computed-value="30">Total</th></tr>',
+        '<tr><td data-cell-id="A2">Alpha</td><td data-cell-id="B2" data-number-format="number" data-computed-value="10">10</td></tr>',
+        "</tbody></table>",
+      ].join(""),
+    }),
+  );
+
+  assert.equal(table?.type, "table");
+  const headerCells = table.content?.[0]?.content ?? [];
+  const bodyCells = table.content?.[1]?.content ?? [];
+  assert.equal(headerCells[0]?.attrs?.cellId, "A1");
+  assert.equal(headerCells[0]?.attrs?.numberFormat, "text");
+  assert.equal(headerCells[1]?.attrs?.cellId, "B1");
+  assert.equal(headerCells[1]?.attrs?.numberFormat, "number");
+  assert.equal(headerCells[1]?.attrs?.formula, "=SUM(B2:B3)");
+  assert.equal(headerCells[1]?.attrs?.computedValue, "30");
+  assert.equal(bodyCells[1]?.attrs?.cellId, "B2");
+  assert.equal(bodyCells[1]?.attrs?.computedValue, "10");
+});
+
 test("clipboard HTML table parser preserves rowspans without adding cells inside covered columns", () => {
   const table = getClipboardTableContent(
     clipboardData({
