@@ -49,6 +49,7 @@
     "test:calendar-timeline": "node --test --experimental-strip-types ./tests/calendar-timeline-model.test.mjs",
     "test:calendar-timeline-deep": "node --test --experimental-strip-types ./tests/calendar-timeline-date-layout.test.mjs",
     "test:calendar-timeline-ui": "node --test ./tests/calendar-timeline.interaction.test.mjs",
+    "test:ueditor-clipboard": "node --test --experimental-strip-types ./tests/ueditor-clipboard-tables.test.mjs",
     "test:ueditor-deep": "node --test --experimental-strip-types ./tests/ueditor-prepare-content.test.mjs",
     "test:ueditor-ui": "node --test ./tests/ueditor.interaction.test.mjs",
     "test:public-api": "node --test ./tests/public-api-smoke.test.mjs",
