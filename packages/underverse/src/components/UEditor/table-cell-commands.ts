@@ -64,6 +64,44 @@ function createEmptyCellNode(cellNode: ProseMirrorNode) {
   return cellNode.type.createAndFill(cellNode.attrs) ?? cellNode;
 }
 
+function createCellCopyForColumnDuplicate(cellNode: ProseMirrorNode) {
+  return cellNode.type.create(cellNode.attrs, cellNode.content);
+}
+
+function getTableRows(tableNode: ProseMirrorNode) {
+  const rows: Array<{
+    node: ProseMirrorNode;
+    cells: Array<{ index: number; node: ProseMirrorNode; relativePos: number }>;
+  }> = [];
+
+  tableNode.forEach((rowNode, rowOffset) => {
+    const cells: Array<{ index: number; node: ProseMirrorNode; relativePos: number }> = [];
+
+    rowNode.forEach((cellNode, cellOffset, index) => {
+      cells.push({
+        index,
+        node: cellNode,
+        relativePos: rowOffset + 1 + cellOffset,
+      });
+    });
+
+    rows.push({
+      node: rowNode,
+      cells,
+    });
+  });
+
+  return rows;
+}
+
+function safeFindCell(map: TableMap, relativePos: number) {
+  try {
+    return map.findCell(relativePos);
+  } catch {
+    return null;
+  }
+}
+
 function getSelectedTableRect(editor: Editor): TableRectInfo {
   const cellSelection = getCellSelectionPositions(editor.state.selection);
   if (cellSelection) {
@@ -222,37 +260,67 @@ export function duplicateTableRowAt(editor: Editor, rowIndex: number, cellPos: n
 
 export function clearTableRowAt(editor: Editor, rowIndex: number, cellPos: number | null) {
   return replaceTableAtCellPos(editor, cellPos, (tableNode) => {
-    const rows = collectChildren(tableNode);
-    const rowNode = rows[rowIndex];
-    if (!rowNode) return null;
-    const cells = collectChildren(rowNode).map((cellNode) => createEmptyCellNode(cellNode));
-    rows[rowIndex] = rowNode.type.create(rowNode.attrs, cells);
+    const map = TableMap.get(tableNode);
+    if (rowIndex < 0 || rowIndex >= map.height) return null;
+
+    const rows = getTableRows(tableNode).map((rowInfo) => {
+      const cells = collectChildren(rowInfo.node);
+
+      for (const entry of rowInfo.cells) {
+        const rect = safeFindCell(map, entry.relativePos);
+        if (!rect || rect.top > rowIndex || rowIndex >= rect.bottom) continue;
+        cells[entry.index] = createEmptyCellNode(entry.node);
+      }
+
+      return rowInfo.node.type.create(rowInfo.node.attrs, cells);
+    });
+
     return tableNode.type.create(tableNode.attrs, rows);
   });
 }
 
 export function duplicateTableColumnAt(editor: Editor, columnIndex: number, cellPos: number | null) {
   return replaceTableAtCellPos(editor, cellPos, (tableNode) => {
-    const rows = collectChildren(tableNode).map((rowNode) => {
-      const cells = collectChildren(rowNode);
-      const cellNode = cells[columnIndex];
-      if (!cellNode) return rowNode;
-      cells.splice(columnIndex + 1, 0, cellNode.copy(cellNode.content));
-      return rowNode.type.create(rowNode.attrs, cells);
+    const map = TableMap.get(tableNode);
+    if (columnIndex < 0 || columnIndex >= map.width) return null;
+
+    const rows = getTableRows(tableNode).map((rowInfo, rowIndex) => {
+      const cells = collectChildren(rowInfo.node);
+      const sourceCell = rowInfo.cells.find((entry) => {
+        const rect = safeFindCell(map, entry.relativePos);
+        return rect
+          && rect.top === rowIndex
+          && rect.left <= columnIndex
+          && columnIndex < rect.right;
+      });
+
+      if (!sourceCell) return rowInfo.node;
+
+      cells.splice(sourceCell.index + 1, 0, createCellCopyForColumnDuplicate(sourceCell.node));
+      return rowInfo.node.type.create(rowInfo.node.attrs, cells);
     });
+
     return tableNode.type.create(tableNode.attrs, rows);
   });
 }
 
 export function clearTableColumnAt(editor: Editor, columnIndex: number, cellPos: number | null) {
   return replaceTableAtCellPos(editor, cellPos, (tableNode) => {
-    const rows = collectChildren(tableNode).map((rowNode) => {
-      const cells = collectChildren(rowNode);
-      const cellNode = cells[columnIndex];
-      if (!cellNode) return rowNode;
-      cells[columnIndex] = createEmptyCellNode(cellNode);
-      return rowNode.type.create(rowNode.attrs, cells);
+    const map = TableMap.get(tableNode);
+    if (columnIndex < 0 || columnIndex >= map.width) return null;
+
+    const rows = getTableRows(tableNode).map((rowInfo) => {
+      const cells = collectChildren(rowInfo.node);
+
+      for (const entry of rowInfo.cells) {
+        const rect = safeFindCell(map, entry.relativePos);
+        if (!rect || rect.left > columnIndex || columnIndex >= rect.right) continue;
+        cells[entry.index] = createEmptyCellNode(entry.node);
+      }
+
+      return rowInfo.node.type.create(rowInfo.node.attrs, cells);
     });
+
     return tableNode.type.create(tableNode.attrs, rows);
   });
 }

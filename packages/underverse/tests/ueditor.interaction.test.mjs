@@ -1198,6 +1198,98 @@ test("UEditor row and column handle menus expose notion-like structural actions"
   });
 });
 
+test("UEditor column handle clear uses logical columns across rowspans", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: [
+        "<table><tbody>",
+        '<tr><td rowspan="2">A merged</td><td>B1</td><td>C1</td></tr>',
+        "<tr><td>B2</td><td>C2</td></tr>",
+        "</tbody></table>",
+      ].join(""),
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+
+  activateTableCell(firstCell);
+  hoverColumnHandle(view, 1);
+  fireEvent.click(await body.findByRole("button", { name: "Drag Column 2" }));
+  fireEvent.click(await body.findByRole("menuitem", { name: "Clear Column Contents" }));
+
+  await waitFor(() => {
+    const rows = view.container.querySelectorAll("tr");
+    const firstRowCells = rows[0]?.querySelectorAll("th,td") ?? [];
+    const secondRowCells = rows[1]?.querySelectorAll("th,td") ?? [];
+
+    assert.equal(firstRowCells[0]?.textContent?.trim(), "A merged");
+    assert.equal(firstRowCells[1]?.textContent?.trim(), "");
+    assert.equal(firstRowCells[2]?.textContent?.trim(), "C1");
+    assert.equal(secondRowCells[0]?.textContent?.trim(), "");
+    assert.equal(secondRowCells[1]?.textContent?.trim(), "C2");
+  });
+});
+
+test("UEditor column handle duplicate uses logical columns across rowspans", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: [
+        "<table><tbody>",
+        '<tr><td rowspan="2">A merged</td><td>B1</td><td>C1</td></tr>',
+        "<tr><td>B2</td><td>C2</td></tr>",
+        "</tbody></table>",
+      ].join(""),
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+
+  activateTableCell(firstCell);
+  hoverColumnHandle(view, 1);
+  fireEvent.click(await body.findByRole("button", { name: "Drag Column 2" }));
+  fireEvent.click(await body.findByRole("menuitem", { name: "Duplicate Column" }));
+
+  await waitFor(() => {
+    const rows = view.container.querySelectorAll("tr");
+    const firstRowCells = rows[0]?.querySelectorAll("th,td") ?? [];
+    const secondRowCells = rows[1]?.querySelectorAll("th,td") ?? [];
+
+    assert.equal(firstRowCells[0]?.textContent?.trim(), "A merged");
+    assert.deepEqual(
+      Array.from(firstRowCells).map((cell) => cell.textContent?.trim() ?? ""),
+      ["A merged", "B1", "B1", "C1"],
+    );
+    assert.deepEqual(
+      Array.from(secondRowCells).map((cell) => cell.textContent?.trim() ?? ""),
+      ["B2", "B2", "C2"],
+    );
+  });
+});
+
 test("UEditor table handles follow merged row and column spans", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;

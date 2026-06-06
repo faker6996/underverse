@@ -1,6 +1,6 @@
 import { cn } from "../../utils/cn";
 import { Tooltip } from "../Tooltip";
-import type { TableControlLayout } from "./table-layout-model";
+import { getVisibleTableBounds, type TableControlLayout } from "./table-layout-model";
 
 const ADD_COLUMN_RAIL_GAP = 4;
 const ADD_ROW_RAIL_GAP = 4;
@@ -26,12 +26,11 @@ export function TableAddRails({
   quickAddColumnLabel: string;
   quickAddRowLabel: string;
 }) {
-  const visibleTableWidth = Math.min(layout.tableWidth, layout.viewportWidth);
-  const visibleTableHeight = Math.min(layout.tableHeight, layout.viewportHeight);
-  const columnRailTop = layout.tableTop;
-  const columnRailLeft = layout.tableLeft + visibleTableWidth + ADD_COLUMN_RAIL_GAP;
+  const visibleBounds = getVisibleTableBounds(layout);
+  const columnRailTop = visibleBounds.top;
+  const columnRailLeft = visibleBounds.right + ADD_COLUMN_RAIL_GAP;
   const rowRailTop = layout.wrapperTop + layout.wrapperHeight + ADD_ROW_RAIL_GAP;
-  const rowRailLeft = Math.max(layout.tableLeft, layout.wrapperLeft);
+  const rowRailLeft = visibleBounds.left;
   const showColumnRail = controlsVisible || addColumnVisible;
   const showRowRail = controlsVisible || addRowVisible;
 
@@ -58,10 +57,10 @@ export function TableAddRails({
             "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed",
           )}
           style={{
-            top: showColumnRail ? columnRailTop : columnRailTop + Math.max(0, visibleTableHeight / 2 - 24),
+            top: showColumnRail ? columnRailTop : columnRailTop + Math.max(0, visibleBounds.height / 2 - 24),
             left: columnRailLeft,
             width: showColumnRail ? 18 : 12,
-            height: showColumnRail ? visibleTableHeight : 48,
+            height: showColumnRail ? visibleBounds.height : 48,
             opacity: showColumnRail ? 1 : 0,
             transform: showColumnRail ? "scale(1)" : "scale(0.92)",
             pointerEvents: showColumnRail ? "auto" : "none",
@@ -93,8 +92,8 @@ export function TableAddRails({
           )}
           style={{
             top: rowRailTop,
-            left: showRowRail ? rowRailLeft : rowRailLeft + Math.max(0, visibleTableWidth / 2 - 24),
-            width: showRowRail ? visibleTableWidth : 48,
+            left: showRowRail ? rowRailLeft : rowRailLeft + Math.max(0, visibleBounds.width / 2 - 24),
+            width: showRowRail ? visibleBounds.width : 48,
             height: showRowRail ? 16 : 12,
             opacity: showRowRail ? 1 : 0,
             transform: showRowRail ? "scale(1)" : "scale(0.92)",

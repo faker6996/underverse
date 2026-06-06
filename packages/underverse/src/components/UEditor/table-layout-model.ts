@@ -43,6 +43,25 @@ export type TableInfo = {
   start: number;
 };
 
+export function getVisibleTableBounds(layout: Pick<
+  TableControlLayout,
+  "tableLeft" | "tableTop" | "tableWidth" | "tableHeight" | "wrapperLeft" | "wrapperTop" | "viewportWidth" | "viewportHeight"
+>) {
+  const left = Math.max(layout.tableLeft, layout.wrapperLeft);
+  const top = Math.max(layout.tableTop, layout.wrapperTop);
+  const right = Math.min(layout.tableLeft + layout.tableWidth, layout.wrapperLeft + layout.viewportWidth);
+  const bottom = Math.min(layout.tableTop + layout.tableHeight, layout.wrapperTop + layout.viewportHeight);
+
+  return {
+    left,
+    top,
+    right,
+    bottom,
+    width: Math.max(0, right - left),
+    height: Math.max(0, bottom - top),
+  };
+}
+
 function metricOrFallback(value: number, fallback: number) {
   return Number.isFinite(value) && value > 0 ? value : fallback;
 }

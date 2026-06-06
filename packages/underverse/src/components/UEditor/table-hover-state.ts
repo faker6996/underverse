@@ -1,5 +1,5 @@
 import { resolveEventElement } from "./table-dom-utils";
-import type { TableControlLayout } from "./table-layout-model";
+import { getVisibleTableBounds, type TableControlLayout } from "./table-layout-model";
 
 const MENU_HOVER_PADDING = 18;
 const ROW_HANDLE_HOVER_WIDTH = 28;
@@ -58,8 +58,8 @@ export function buildTableHoverState({
   const directColumnHandleIndex = directColumnHandle instanceof HTMLElement
     ? Number.parseInt(directColumnHandle.dataset.columnHandleIndex ?? "", 10)
     : Number.NaN;
-  const visibleTableWidth = Math.min(layout.tableWidth, layout.viewportWidth);
-  const visibleTableHeight = Math.min(layout.tableHeight, layout.viewportHeight);
+  const visibleBounds = getVisibleTableBounds(layout);
+  const rowRailTop = layout.wrapperTop + layout.wrapperHeight;
 
   const isMouseInTable = relativeX >= layout.tableLeft
     && relativeX <= layout.tableLeft + layout.tableWidth
@@ -95,29 +95,29 @@ export function buildTableHoverState({
   const isMouseInLastColumn = lastCol
     ? relativeX >= lastCol.start
       && relativeX <= lastCol.start + lastCol.size
-      && relativeY >= layout.tableTop
-      && relativeY <= layout.tableTop + visibleTableHeight
+      && relativeY >= visibleBounds.top
+      && relativeY <= visibleBounds.bottom
     : false;
 
   const addColumnVisible = Boolean(directAddColumn) || (
-    relativeX >= layout.tableLeft + visibleTableWidth
-    && relativeX <= layout.tableLeft + visibleTableWidth + ADD_COLUMN_HOVER_WIDTH
-    && relativeY >= layout.tableTop
-    && relativeY <= layout.tableTop + visibleTableHeight
+    relativeX >= visibleBounds.right
+    && relativeX <= visibleBounds.right + ADD_COLUMN_HOVER_WIDTH
+    && relativeY >= visibleBounds.top
+    && relativeY <= visibleBounds.bottom
   ) || isMouseInLastColumn;
 
   const isMouseInLastRow = lastRow
     ? relativeY >= lastRow.start
       && relativeY <= lastRow.start + lastRow.size
-      && relativeX >= layout.tableLeft
-      && relativeX <= layout.tableLeft + visibleTableWidth
+      && relativeX >= visibleBounds.left
+      && relativeX <= visibleBounds.right
     : false;
 
   const addRowVisible = Boolean(directAddRow) || (
-    relativeY >= layout.tableTop + visibleTableHeight
-    && relativeY <= layout.tableTop + visibleTableHeight + ADD_ROW_HOVER_HEIGHT
-    && relativeX >= layout.tableLeft
-    && relativeX <= layout.tableLeft + visibleTableWidth
+    relativeY >= rowRailTop
+    && relativeY <= rowRailTop + ADD_ROW_HOVER_HEIGHT
+    && relativeX >= visibleBounds.left
+    && relativeX <= visibleBounds.right
   ) || isMouseInLastRow;
 
   return {
@@ -128,4 +128,3 @@ export function buildTableHoverState({
     columnHandleIndex,
   };
 }
-
