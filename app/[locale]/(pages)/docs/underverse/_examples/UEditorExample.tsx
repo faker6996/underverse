@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { Extension } from "@tiptap/core";
 import { useTranslations } from "next-intl";
 import UEditor, { type UEditorRef, type UEditorUploadImageForSave } from "@/components/ui/UEditor";
 import Button from "@/components/ui/Button";
@@ -8,6 +9,25 @@ import Modal from "@/components/ui/Modal";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+
+const DemoCustomExtension = Extension.create({
+  name: "demoCustomExtension",
+  addKeyboardShortcuts() {
+    return {
+      "Mod-Shift-K": () => {
+        alert("extraExtensions: custom keyboard shortcut Mod+Shift+K triggered!");
+        return true;
+      },
+    };
+  },
+});
+
+const CUSTOM_FONT_FAMILIES = [
+  { label: "Inter", value: "Inter, ui-sans-serif, system-ui, sans-serif" },
+  { label: "Georgia", value: "Georgia, 'Times New Roman', serif" },
+  { label: "JetBrains Mono", value: "'JetBrains Mono', 'Fira Code', monospace" },
+  { label: "Playfair Display", value: "'Playfair Display', Georgia, serif" },
+];
 
 const wrappedImageDataUrl = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="220" viewBox="0 0 320 220">
@@ -35,6 +55,7 @@ export default function UEditorExample() {
   const editorRef = React.useRef<UEditorRef>(null);
   const menuBarEditorRef = React.useRef<UEditorRef>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState("");
   const [menuBarContent, setMenuBarContent] = useState(DEFAULT_MENU_BAR_CONTENT);
   const [menuBarSaveStatus, setMenuBarSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [menuBarSavedMessage, setMenuBarSavedMessage] = useState("");
@@ -86,6 +107,10 @@ export default function UEditorExample() {
     </ul>
     <blockquote><p>💡 <em>Tip: Select text to see the bubble menu for quick formatting.</em></p></blockquote>
   `);
+
+  const uploadFile = async (file: File): Promise<string> => {
+    return URL.createObjectURL(file);
+  };
 
   const uploadImageForSave: UEditorUploadImageForSave = async (file) => {
     const formData = new FormData();
@@ -325,6 +350,7 @@ export default function UEditorExample() {
           onSave={handleMenuBarSave}
           onExport={() => alert("onExport callback!")}
           onSourceCode={() => alert("onSourceCode callback!")}
+          onPreview={() => setPreviewHtml(menuBarContent)}
         />
         <div className="flex flex-wrap items-center justify-between gap-3 border border-border bg-muted/20 p-3 text-sm">
           <p className={menuBarSaveStatus === "error" ? "text-destructive" : "text-muted-foreground"}>
@@ -342,6 +368,15 @@ export default function UEditorExample() {
             )}
           </div>
         </div>
+        {previewHtml && (
+          <div className="border border-border rounded p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium">Preview (View &gt; Preview)</p>
+              <Button variant="outline" onClick={() => setPreviewHtml("")}>Close</Button>
+            </div>
+            <UEditor content={previewHtml} editable={false} />
+          </div>
+        )}
       </div>
 
       {/* Main Editor - Notion Style */}
@@ -358,6 +393,10 @@ export default function UEditorExample() {
           content={content}
           onChange={setContent}
           uploadImageForSave={uploadImageForSave}
+          uploadFile={uploadFile}
+          fontFamilies={CUSTOM_FONT_FAMILIES}
+          maxImageFileSize={2 * 1024 * 1024}
+          allowedImageMimeTypes={["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"]}
           placeholder="Type '/' for commands, or just start writing..."
           variant="notion"
           showCharacterCount
@@ -428,6 +467,24 @@ export default function UEditorExample() {
           variant="default"
           showCharacterCount
           maxCharacters={200}
+          showFloatingMenu={false}
+          minHeight={100}
+        />
+      </div>
+
+      {/* Extra Extensions */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="px-2 py-1 text-xs font-medium bg-green-500/10 text-green-500 rounded-full">Extra Extensions</span>
+          <span className="text-sm text-muted-foreground">Custom Tiptap extension via extraExtensions prop</span>
+        </div>
+        <div className="rounded-xl border border-green-500/20 bg-green-500/5 px-3 py-2 text-sm text-muted-foreground">
+          Press <strong>Cmd+Shift+K</strong> (Mac) / <strong>Ctrl+Shift+K</strong> (Windows) to trigger the injected custom extension.
+        </div>
+        <UEditor
+          content="<p>This editor has a custom Tiptap extension injected via <code>extraExtensions</code>. Focus here and press <strong>Cmd+Shift+K</strong> to trigger it.</p>"
+          variant="default"
+          extraExtensions={[DemoCustomExtension]}
           showFloatingMenu={false}
           minHeight={100}
         />
@@ -530,6 +587,12 @@ export default function UEditorExample() {
     { property: "fontSizes", description: "Override font size options shown in the toolbar dropdown", type: "{ label: string; value: string }[]", default: "built-in presets" },
     { property: "lineHeights", description: "Override line-height options shown in the toolbar dropdown", type: "{ label: string; value: string }[]", default: "built-in presets" },
     { property: "letterSpacings", description: "Override letter-spacing options shown in the toolbar dropdown", type: "{ label: string; value: string }[]", default: "built-in presets" },
+    { property: "uploadFile", description: "Upload handler for file attachments inserted via slash command (/file).", type: "(file: File) => Promise<string> | string", default: "—" },
+    { property: "onPreview", description: "Callback for View > Preview in the menu bar. Fires when the user clicks the preview menu item.", type: "() => void", default: "—" },
+    { property: "onExport", description: "Callback for File > Export in the menu bar.", type: "() => void", default: "—" },
+    { property: "onSourceCode", description: "Callback for View > Source Code in the menu bar.", type: "() => void", default: "—" },
+    { property: "showMenuBar", description: "Show the classic menu bar (File, Edit, View, Insert, Format, Tools, Table) above the editor.", type: "boolean", default: "false" },
+    { property: "extraExtensions", description: "Additional Tiptap extensions to inject into the editor alongside the built-in set.", type: "any[]", default: "[]" },
   ];
 
   const order = [
@@ -560,6 +623,12 @@ export default function UEditorExample() {
     "fontSizes",
     "lineHeights",
     "letterSpacings",
+    "uploadFile",
+    "onPreview",
+    "onExport",
+    "onSourceCode",
+    "showMenuBar",
+    "extraExtensions",
   ];
 
   const featuresDoc = (
