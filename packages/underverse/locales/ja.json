@@ -302,12 +302,15 @@
       "clickToOpenNewTab": "クリックしてこのリンクを新しいタブで開く。",
       "clickToOpenLink": "クリックしてリンクを開く。",
       "noDescription": "説明はありません。",
-      "failedToLoad": "プレビューの読み込みに失敗しました。クリックしてリンクを開く。"
+      "failedToLoad": "プレビューの読み込みに失敗しました。クリックしてリンクを開く。",
+      "previewFailed": "プレビューを読み込めませんでした",
+      "retryPreview": "再試行"
     },
     "fileCard": {
       "unnamed": "名前なしファイル",
       "uploading": "(アップロード中...)",
-      "uploadFailed": "アップロード失敗"
+      "uploadFailed": "アップロード失敗",
+      "retryUpload": "再アップロード"
     },
     "menubar": {
       "file": "ファイル",

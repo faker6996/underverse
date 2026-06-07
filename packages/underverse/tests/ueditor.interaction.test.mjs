@@ -2085,6 +2085,42 @@ test("UEditor Bookmark Card rendering and auto-paste url on empty line", async (
   await view.findAllByText("https://newsite.com");
 });
 
+test("UEditor Bookmark Card exposes retry after metadata fetch fails", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  let attempts = 0;
+
+  render(
+    React.createElement(UEditor, {
+      content: '<div data-type="bookmark" href="https://retry.example.com"></div>',
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+      fetchMetadata: async () => {
+        attempts += 1;
+        if (attempts === 1) {
+          throw new Error("network");
+        }
+        return {
+          title: "Retry Example",
+          description: "Loaded after retry",
+          publisher: "retry.example.com",
+        };
+      },
+    }),
+  );
+
+  const body = within(window.document.body);
+  await body.findByText("Preview failed to load");
+  await user.click(await body.findByRole("button", { name: "Retry preview" }));
+
+  await body.findByText("Retry Example");
+  await body.findByText("Loaded after retry");
+  assert.equal(attempts, 2);
+});
+
 test("UEditor CodeBlock language selector and copy function", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -2206,6 +2242,54 @@ test("UEditor FileCard immediate background upload on insertion", async () => {
     const html = ref.current.editor.getHTML();
     assert.match(html, /https:\/\/storage\.com\/immediate-immediate-test\.pdf/);
   }, { timeout: 3000 });
+});
+
+test("UEditor FileCard upload error can be retried from the card", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const ref = React.createRef();
+  const mockPdfBase64 = "JVBERi0xLjQKJcfsj6yepw==";
+  const dataUrl = `data:application/pdf;base64,${mockPdfBase64}`;
+  let attempts = 0;
+  const originalError = console.error;
+  console.error = (...args) => {
+    if (String(args[0] ?? "").includes("File upload failed")) {
+      return;
+    }
+    originalError(...args);
+  };
+
+  try {
+    render(
+      React.createElement(UEditor, {
+        ref,
+        content: `<div data-type="file-card" data-src="${dataUrl}" data-file-name="retry-test.pdf" data-file-size="15" data-file-type="application/pdf"></div>`,
+        showToolbar: false,
+        showBubbleMenu: false,
+        showFloatingMenu: false,
+        showCharacterCount: false,
+        uploadFile: async (file) => {
+          attempts += 1;
+          if (attempts === 1) {
+            throw new Error("temporary failure");
+          }
+          return `https://storage.com/retry-${file.name}`;
+        },
+      }),
+    );
+
+    const body = within(window.document.body);
+    await body.findByText(/Upload failed: temporary failure/);
+    await user.click(await body.findByRole("button", { name: "Retry upload" }));
+
+    await waitFor(() => {
+      assert.equal(attempts, 2);
+      assert.match(ref.current.editor.getHTML(), /https:\/\/storage\.com\/retry-retry-test\.pdf/);
+    }, { timeout: 3000 });
+  } finally {
+    console.error = originalError;
+  }
 });
 
 test("UEditor Table cell custom borders are preserved in HTML", async () => {

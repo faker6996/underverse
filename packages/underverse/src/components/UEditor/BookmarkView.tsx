@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { NodeViewWrapper } from "@tiptap/react";
 import type { NodeViewProps } from "@tiptap/react";
-import { ExternalLink, Globe } from "lucide-react";
+import { AlertCircle, ExternalLink, Globe, RefreshCw } from "lucide-react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { cn } from "../../utils/cn";
 
@@ -12,16 +12,22 @@ export const BookmarkView: React.FC<NodeViewProps> = ({ node, updateAttributes, 
   const { url, title, description, image, publisher } = node.attrs;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [retryToken, setRetryToken] = useState(0);
+  const fetchedRetryTokenRef = React.useRef(-1);
+  const fetchRequestIdRef = React.useRef(0);
 
   useEffect(() => {
-    // If we already have a title, we don't need to fetch metadata again.
-    if (title) return;
+    // If we already have a title, we don't need to fetch metadata again unless the user explicitly retries.
+    if (title && retryToken === 0) return;
+    if (fetchedRetryTokenRef.current === retryToken) return;
+    fetchedRetryTokenRef.current = retryToken;
 
-    let active = true;
+    const requestId = fetchRequestIdRef.current + 1;
+    fetchRequestIdRef.current = requestId;
 
     const safeUpdateAttributes = (attrs: Record<string, any>) => {
       Promise.resolve().then(() => {
-        if (active && editor && !editor.isDestroyed) {
+        if (fetchRequestIdRef.current === requestId && editor && !editor.isDestroyed) {
           updateAttributes(attrs);
         }
       });
@@ -55,7 +61,7 @@ export const BookmarkView: React.FC<NodeViewProps> = ({ node, updateAttributes, 
 
     fetchMetadata(url)
       .then((meta: any) => {
-        if (!active) return;
+        if (fetchRequestIdRef.current !== requestId) return;
         safeUpdateAttributes({
           title: meta.title || new URL(url).hostname || url,
           description: meta.description || t("bookmark.noDescription"),
@@ -65,35 +71,24 @@ export const BookmarkView: React.FC<NodeViewProps> = ({ node, updateAttributes, 
         setLoading(false);
       })
       .catch(() => {
-        if (!active) return;
+        if (fetchRequestIdRef.current !== requestId) return;
         setError(true);
         setLoading(false);
-        // Fallback title / publisher on error
-        try {
-          const hostname = new URL(url).hostname;
-          safeUpdateAttributes({
-            title: hostname || url,
-            description: t("bookmark.failedToLoad"),
-            publisher: hostname,
-          });
-        } catch {
-          safeUpdateAttributes({
-            title: url,
-            description: t("bookmark.clickToOpenLink"),
-            publisher: "",
-          });
-        }
       });
 
-    return () => {
-      active = false;
-    };
-  }, [url, title, editor, updateAttributes, t]);
+    return undefined;
+  }, [url, title, editor, updateAttributes, t, retryToken]);
 
   const handleOpenLink = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleRetryPreview = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setRetryToken((value) => value + 1);
   };
 
   const displayPublisher = publisher || (() => {
@@ -140,6 +135,22 @@ export const BookmarkView: React.FC<NodeViewProps> = ({ node, updateAttributes, 
               {url}
               <ExternalLink className="h-3 w-3 flex-shrink-0" />
             </span>
+            {error && (
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-destructive">
+                <span className="inline-flex items-center gap-1">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  {t("bookmark.previewFailed")}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleRetryPreview}
+                  className="inline-flex items-center gap-1 rounded-md border border-destructive/30 px-2 py-0.5 font-medium hover:bg-destructive/10"
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  {t("bookmark.retryPreview")}
+                </button>
+              </div>
+            )}
           </div>
 
           {image && (

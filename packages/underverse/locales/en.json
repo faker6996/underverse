@@ -302,12 +302,15 @@
       "clickToOpenNewTab": "Click to open this link in a new tab.",
       "clickToOpenLink": "Click to open link.",
       "noDescription": "No description available.",
-      "failedToLoad": "Failed to load link preview. Click to open link."
+      "failedToLoad": "Failed to load link preview. Click to open link.",
+      "previewFailed": "Preview failed to load",
+      "retryPreview": "Retry preview"
     },
     "fileCard": {
       "unnamed": "Unnamed file",
       "uploading": "(Uploading...)",
-      "uploadFailed": "Upload failed"
+      "uploadFailed": "Upload failed",
+      "retryUpload": "Retry upload"
     },
     "menubar": {
       "file": "File",

@@ -302,12 +302,15 @@
       "clickToOpenNewTab": "Bấm để mở liên kết này trong tab mới.",
       "clickToOpenLink": "Bấm để mở liên kết.",
       "noDescription": "Không có mô tả.",
-      "failedToLoad": "Tải bản xem trước thất bại. Bấm để mở liên kết."
+      "failedToLoad": "Tải bản xem trước thất bại. Bấm để mở liên kết.",
+      "previewFailed": "Không tải được bản xem trước",
+      "retryPreview": "Thử lại"
     },
     "fileCard": {
       "unnamed": "Tệp không tên",
       "uploading": "(Đang tải lên...)",
-      "uploadFailed": "Tải lên thất bại"
+      "uploadFailed": "Tải lên thất bại",
+      "retryUpload": "Tải lại"
     },
     "menubar": {
       "file": "Tập tin",

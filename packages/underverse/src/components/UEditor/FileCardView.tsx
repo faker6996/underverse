@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { NodeViewWrapper } from "@tiptap/react";
 import type { NodeViewProps } from "@tiptap/react";
-import { Download, File as LucideFile, FileText, Image, Music, Video } from "lucide-react";
+import { Download, File as LucideFile, FileText, Image, Music, RefreshCw, Video } from "lucide-react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { cn } from "../../utils/cn";
 
@@ -56,6 +56,7 @@ export const FileCardView: React.FC<NodeViewProps> = ({ node, selected, editor, 
   const { src, fileName, fileSize, fileType } = node.attrs;
   const FileIcon = getFileIcon(fileType);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [retryToken, setRetryToken] = useState(0);
   const uploadAttemptedRef = useRef(false);
 
   useEffect(() => {
@@ -95,7 +96,7 @@ export const FileCardView: React.FC<NodeViewProps> = ({ node, selected, editor, 
     };
 
     void runUpload();
-  }, [src, fileName, fileType, editor, updateAttributes]);
+  }, [src, fileName, fileType, editor, updateAttributes, retryToken]);
 
   const handleDownload = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -111,6 +112,13 @@ export const FileCardView: React.FC<NodeViewProps> = ({ node, selected, editor, 
   };
 
   const isUploading = (src || "").startsWith("data:");
+  const handleRetryUpload = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    uploadAttemptedRef.current = false;
+    setUploadError(null);
+    setRetryToken((value) => value + 1);
+  };
 
   return (
     <NodeViewWrapper
@@ -137,6 +145,16 @@ export const FileCardView: React.FC<NodeViewProps> = ({ node, selected, editor, 
               )}>
                 {uploadError ? `${t("fileCard.uploadFailed") || "Tải lên thất bại"}: ${uploadError}` : t("fileCard.uploading")}
               </span>
+            )}
+            {isUploading && uploadError && (
+              <button
+                type="button"
+                onClick={handleRetryUpload}
+                className="inline-flex items-center gap-1 rounded-md border border-destructive/30 px-1.5 py-0.5 text-[11px] font-medium text-destructive hover:bg-destructive/10"
+              >
+                <RefreshCw className="h-3 w-3" />
+                {t("fileCard.retryUpload")}
+              </button>
             )}
           </div>
         </div>

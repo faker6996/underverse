@@ -302,12 +302,15 @@
       "clickToOpenNewTab": "클릭하여 이 링크를 새 탭에서 엽니다.",
       "clickToOpenLink": "클릭하여 링크를 엽니다.",
       "noDescription": "설명이 없습니다.",
-      "failedToLoad": "링크 미리보기를 불러오지 못했습니다. 클릭하여 링크를 엽니다."
+      "failedToLoad": "링크 미리보기를 불러오지 못했습니다. 클릭하여 링크를 엽니다.",
+      "previewFailed": "미리보기를 불러오지 못했습니다",
+      "retryPreview": "다시 시도"
     },
     "fileCard": {
       "unnamed": "이름 없는 파일",
       "uploading": "(업로드 중...)",
-      "uploadFailed": "업로드에 실패했습니다."
+      "uploadFailed": "업로드에 실패했습니다.",
+      "retryUpload": "다시 업로드"
     },
     "menubar": {
       "file": "파일",

@@ -55,7 +55,6 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   fetchMetadata,
   uploadFile,
   uploadFileForSave,
-  collaborationOptions,
   extraExtensions,
   showMenuBar = false,
   onSave,
