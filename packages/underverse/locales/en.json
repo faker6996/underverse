@@ -242,6 +242,15 @@
       "noResults": "No emoji found",
       "showingCount": "Showing first {shown} of {total} emojis"
     },
+    "formulaSuggestion": {
+      "title": "Functions",
+      "noResults": "No function found",
+      "sum": "Add values in a range",
+      "avg": "Average values in a range",
+      "min": "Smallest value in a range",
+      "max": "Largest value in a range",
+      "count": "Count numeric cells in a range"
+    },
     "tableMenu": {
       "insert3x3": "Insert 3×3 Table",
       "insertTable": "Insert Table",

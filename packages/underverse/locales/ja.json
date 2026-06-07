@@ -203,6 +203,7 @@
       "dividerDesc": "視覚的な区切り線",
       "table": "表",
       "tableDesc": "表を追加",
+      "noResults": "一致するブロックが見つかりません",
       "callout": "コールアウト",
       "calloutDesc": "重要な情報をコールアウトブロックで強調します",
       "bookmark": "ブックマークカード",
@@ -241,6 +242,15 @@
       "noResults": "絵文字が見つかりません",
       "showingCount": "{total} 件中 {shown} 件の絵文字を表示中"
     },
+    "formulaSuggestion": {
+      "title": "関数",
+      "noResults": "関数が見つかりません",
+      "sum": "範囲内の値を合計",
+      "avg": "範囲内の値の平均",
+      "min": "範囲内の最小値",
+      "max": "範囲内の最大値",
+      "count": "範囲内の数値セルをカウント"
+    },
     "tableMenu": {
       "insert3x3": "3x3 表を挿入",
       "insertTable": "表を挿入",
@@ -275,6 +285,13 @@
       "borderWidth": "枠線の太さ",
       "borderColor": "枠線の色",
       "clearBorder": "枠線をクリア",
+      "formula": "数式",
+      "numberFormat": "表示形式",
+      "formatText": "テキスト",
+      "formatDate": "日付",
+      "apply": "適用",
+      "clear": "クリア",
+      "recalculate": "再計算",
       "done": "完了"
     },
     "callout": {

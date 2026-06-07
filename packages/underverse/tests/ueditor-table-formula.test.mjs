@@ -43,6 +43,35 @@ test("UEditor table formula utilities evaluate basic formulas", async () => {
   assert.deepEqual(formula.evaluateBasicTableFormula("=COUNT(A1:A3)", getCellValue), { value: 3, error: null });
 });
 
+test("UEditor table formula suggestions filter spreadsheet functions", async () => {
+  const suggestion = await importTsModule(path.join(componentsRoot, "UEditor/formula-suggestion.tsx"));
+
+  assert.deepEqual(
+    suggestion.buildFormulaSuggestionItems({ query: "" }).map((item) => item.name),
+    ["SUM", "AVG", "MIN", "MAX", "COUNT"],
+  );
+  assert.deepEqual(
+    suggestion.buildFormulaSuggestionItems({ query: "m" }).map((item) => item.name),
+    ["MIN", "MAX"],
+  );
+  assert.deepEqual(
+    suggestion.buildFormulaSuggestionItems({ query: "co" }).map((item) => item.name),
+    ["COUNT"],
+  );
+  assert.deepEqual(suggestion.buildFormulaSuggestionItems({ query: "unknown" }), []);
+});
+
+test("UEditor table formula utilities detect draft formulas while users are typing", async () => {
+  const formula = await importTsModule(path.join(componentsRoot, "UEditor/table-formula.ts"));
+
+  assert.equal(formula.isDraftTableFormula("="), true);
+  assert.equal(formula.isDraftTableFormula("=SUM()"), true);
+  assert.equal(formula.isDraftTableFormula("=SUM("), true);
+  assert.equal(formula.isDraftTableFormula("=A1+"), true);
+  assert.equal(formula.isDraftTableFormula("=SUM(A1:A2)"), false);
+  assert.equal(formula.isDraftTableFormula("=A1+B1"), false);
+});
+
 test("UEditor table formula utilities format computed display values", async () => {
   const formula = await importTsModule(path.join(componentsRoot, "UEditor/table-formula.ts"));
 

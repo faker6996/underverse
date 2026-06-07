@@ -9,6 +9,8 @@ import {
   formatTableFormulaDisplayValue,
   getTableFormulaRecalculationOrder,
   indexToColumnName,
+  isDraftTableFormula,
+  normalizeTableFormula,
 } from "./table-formula";
 
 export const UEDITOR_TABLE_FORMULA_RECALCULATE_META = "ueditorTableFormulaRecalculate";
@@ -167,19 +169,61 @@ function promoteFormulaTextInTableNode(tableNode: ProseMirrorNode) {
 
     for (const entry of rowInfo.cells) {
       const text = getCellText(entry.node);
-      const formula = text.startsWith("=") ? normalizeFormulaInput(text) : "";
-      if (!formula || entry.node.attrs.formula === formula) continue;
+      const existingFormula = typeof entry.node.attrs.formula === "string" ? entry.node.attrs.formula.trim() : "";
+      const existingComputedValue = typeof entry.node.attrs.computedValue === "string" ? entry.node.attrs.computedValue.trim() : "";
 
-      cells[entry.index] = entry.node.type.create(
-        {
-          ...entry.node.attrs,
-          formula,
-          computedValue: null,
-        },
-        entry.node.content,
-        entry.node.marks,
-      );
-      changed = true;
+      if (text.startsWith("=")) {
+        if (!normalizeTableFormula(text)) {
+          if (!existingFormula && !existingComputedValue) continue;
+
+          cells[entry.index] = entry.node.type.create(
+            {
+              ...entry.node.attrs,
+              formula: null,
+              computedValue: null,
+            },
+            text === formatFormulaError("empty") ? createCellDisplayContent(entry.node, "") : entry.node.content,
+            entry.node.marks,
+          );
+          changed = true;
+          continue;
+        }
+
+        if (isDraftTableFormula(text)) {
+          continue;
+        }
+
+        const formula = normalizeFormulaInput(text);
+        if (entry.node.attrs.formula === formula) continue;
+
+        cells[entry.index] = entry.node.type.create(
+          {
+            ...entry.node.attrs,
+            formula,
+            computedValue: null,
+          },
+          entry.node.content,
+          entry.node.marks,
+        );
+        changed = true;
+        continue;
+      }
+
+      if (existingFormula) {
+        const isExistingEmptyFormula = !normalizeTableFormula(existingFormula);
+        if (!isExistingEmptyFormula) continue;
+
+        cells[entry.index] = entry.node.type.create(
+          {
+            ...entry.node.attrs,
+            formula: null,
+            computedValue: null,
+          },
+          isExistingEmptyFormula && text === formatFormulaError("empty") ? createCellDisplayContent(entry.node, "") : entry.node.content,
+          entry.node.marks,
+        );
+        changed = true;
+      }
     }
 
     return rowInfo.node.type.create(rowInfo.node.attrs, cells);

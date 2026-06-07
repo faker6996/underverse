@@ -127,6 +127,24 @@ export function normalizeTableFormula(formula: string) {
   return formula.trim().replace(/^=/, "").trim();
 }
 
+export function isDraftTableFormula(formula: string) {
+  const normalized = normalizeTableFormula(formula);
+  if (!normalized) return true;
+
+  let depth = 0;
+  for (const char of normalized) {
+    if (char === "(") depth += 1;
+    if (char === ")") depth -= 1;
+    if (depth < 0) return false;
+  }
+
+  if (depth > 0) return true;
+  if (/^[A-Z]+\(\s*\)$/i.test(normalized)) return true;
+  if (/[+\-*/,(]\s*$/.test(normalized)) return true;
+
+  return false;
+}
+
 export function formatFormulaError(error: NonNullable<FormulaEvaluationResult["error"]>) {
   return `#${error.toUpperCase()}`;
 }

@@ -92,6 +92,7 @@ Current formula semantics:
 - Circular detection marks cells that are directly in the cycle as `#CIRCULAR-REFERENCE`.
 - Formula cells that depend on a circular cell but are not part of the cycle currently evaluate that dependency as non-numeric and become `#INVALID-REFERENCE`.
 - Text that starts with `=` inside a table cell is promoted into `data-formula` before recalculation.
+- A bare `=` is treated as editable text, not as an empty formula. Legacy cells with `data-formula="="` and `#EMPTY` are cleared so users can edit or delete them normally.
 - Computed display text is rendered inside the cell content. `data-computed-value` stays raw so dependent formulas can keep using numeric values even when the visible text is formatted as currency, percent, or date.
 - `recalculateAllTableFormulas()` recalculates all tables in one transaction and applies replacements from the end of the document backward so positions remain stable.
 
@@ -119,7 +120,7 @@ Formula UI should be incremental:
 2. Cell inspector state shows formula when active cell has `data-formula`.
 3. Entering `=...` in a cell can promote the value into `data-formula`.
 4. A table-level recalculate command appears in the table menu.
-5. Optional formula suggestions for common functions.
+5. Typing `=` inside a table cell opens a compact function suggestion menu for `SUM`, `AVG`, `MIN`, `MAX`, and `COUNT`; selecting a function inserts `=FUNCTION()` and places the cursor inside the parentheses.
 
 ### 7. Clipboard And Export
 
@@ -149,6 +150,7 @@ Clipboard/export should preserve metadata where possible:
 - [x] Format computed values with `number`, `currency`, `percent`, and `date` cell formats.
 - [x] Add bubble menu controls for formula number formats.
 - [x] Add formula formatting states for error/computed cells.
+- [x] Add `=` formula function suggestions inside table cells.
 - [x] Add clipboard/export tests for formula metadata.
 - [x] Add performance tests for large tables with formulas.
 

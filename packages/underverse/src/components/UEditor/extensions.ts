@@ -38,6 +38,7 @@ import { common, createLowlight } from "lowlight";
 import { buildSlashCommandMessages, SlashCommand } from "./slash-command";
 import { ClipboardImages } from "./clipboard-images";
 import { EmojiSuggestion } from "./emoji-suggestion";
+import { FormulaSuggestion } from "./formula-suggestion";
 import { UEditorPlaceholder } from "./placeholder";
 import ResizableImage from "./resizable-image";
 import UEditorTableRow from "./table-row";
@@ -458,6 +459,7 @@ export function buildUEditorExtensions({
     SlashCommand.configure({
       messages: buildSlashCommandMessages(translate),
     }),
+    FormulaSuggestion,
     EmojiSuggestion,
     Callout,
     Bookmark.configure({

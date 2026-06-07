@@ -956,6 +956,75 @@ test("UEditor promotes typed table formula text into computed formula cells", as
   });
 });
 
+test("UEditor does not promote a bare equals sign into an empty formula", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<table><tbody><tr><td>10</td><td>=</td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => {
+    const formulaCell = view.container.querySelectorAll("td")[1];
+    assert.equal(formulaCell?.textContent?.trim(), "=");
+    assert.equal(formulaCell?.getAttribute("data-formula"), null);
+    assert.equal(formulaCell?.getAttribute("data-computed-value"), null);
+    assert.equal(formulaCell?.getAttribute("data-formula-state"), null);
+  });
+});
+
+test("UEditor keeps function suggestion output editable until the formula is complete", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<table><tbody><tr><td>10</td><td>=SUM()</td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => {
+    const formulaCell = view.container.querySelectorAll("td")[1];
+    assert.equal(formulaCell?.textContent?.trim(), "=SUM()");
+    assert.equal(formulaCell?.getAttribute("data-formula"), null);
+    assert.equal(formulaCell?.getAttribute("data-computed-value"), null);
+    assert.equal(formulaCell?.getAttribute("data-formula-state"), null);
+  });
+});
+
+test("UEditor clears legacy empty formula metadata so the cell can be edited", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: '<table><tbody><tr><td data-formula="=" data-computed-value="#EMPTY">#EMPTY</td></tr></tbody></table>',
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => {
+    const formulaCell = view.container.querySelector("td");
+    assert.equal(formulaCell?.textContent?.trim(), "");
+    assert.equal(formulaCell?.getAttribute("data-formula"), null);
+    assert.equal(formulaCell?.getAttribute("data-computed-value"), null);
+    assert.equal(formulaCell?.getAttribute("data-formula-state"), null);
+  });
+});
+
 test("UEditor image width presets preserve the image aspect ratio", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;

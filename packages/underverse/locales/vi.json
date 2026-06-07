@@ -242,6 +242,15 @@
       "noResults": "Không tìm thấy emoji",
       "showingCount": "Hiển thị {shown} trong tổng số {total} emoji"
     },
+    "formulaSuggestion": {
+      "title": "Hàm",
+      "noResults": "Không tìm thấy hàm",
+      "sum": "Cộng các giá trị trong vùng",
+      "avg": "Tính trung bình các giá trị trong vùng",
+      "min": "Giá trị nhỏ nhất trong vùng",
+      "max": "Giá trị lớn nhất trong vùng",
+      "count": "Đếm các ô dạng số trong vùng"
+    },
     "tableMenu": {
       "insert3x3": "Chèn bảng 3×3",
       "insertTable": "Chèn bảng",

@@ -203,6 +203,7 @@
       "dividerDesc": "시각적 구분선",
       "table": "표",
       "tableDesc": "표 추가",
+      "noResults": "일치하는 블록이 없습니다",
       "callout": "콜아웃",
       "calloutDesc": "중요한 정보를 콜아웃 블록으로 강조합니다",
       "bookmark": "북마크 카드",
@@ -241,6 +242,15 @@
       "noResults": "이모지를 찾을 수 없습니다",
       "showingCount": "총 {total}개 중 처음 {shown}개의 이모지를 표시 중"
     },
+    "formulaSuggestion": {
+      "title": "함수",
+      "noResults": "함수를 찾을 수 없습니다",
+      "sum": "범위의 값을 합산",
+      "avg": "범위의 값 평균",
+      "min": "범위의 최솟값",
+      "max": "범위의 최댓값",
+      "count": "범위의 숫자 셀 개수"
+    },
     "tableMenu": {
       "insert3x3": "3x3 표 삽입",
       "insertTable": "표 삽입",
@@ -275,6 +285,13 @@
       "borderWidth": "테두리 두께",
       "borderColor": "테두리 색상",
       "clearBorder": "테두리 지우기",
+      "formula": "수식",
+      "numberFormat": "표시 형식",
+      "formatText": "텍스트",
+      "formatDate": "날짜",
+      "apply": "적용",
+      "clear": "지우기",
+      "recalculate": "다시 계산",
       "done": "완료"
     },
     "callout": {
