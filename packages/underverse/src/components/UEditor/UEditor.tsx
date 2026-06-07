@@ -23,7 +23,19 @@ import { UEDITOR_PROSEMIRROR_CLASS_NAME } from "./editor-styles";
 import { resolveEventElement } from "./table-dom-utils";
 import { useUEditorTableInteractions } from "./use-table-interactions";
 import { MenuBar } from "./menu-bar";
-import { isEditingTableFormulaText, recalculateAllTableFormulas, UEDITOR_TABLE_FORMULA_RECALCULATE_META } from "./table-formula-commands";
+import {
+  isEditingTableFormulaText,
+  recalculateActiveTableFormulas,
+  recalculateAllTableFormulas,
+  UEDITOR_TABLE_FORMULA_RECALCULATE_META,
+} from "./table-formula-commands";
+import {
+  beginFormulaRangePick,
+  getFormulaRangePickHighlight,
+  updateFormulaRangePick,
+  type FormulaRangePickHighlight,
+  type FormulaRangePickState,
+} from "./table-formula-range-picker";
 
 const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   content = "",
@@ -67,6 +79,9 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   const inFlightPrepareRef = useRef<Promise<UEditorPrepareContentForSaveResult> | null>(null);
   const lastAppliedContentRef = useRef(content ?? "");
   const scheduledFormulaRecalculateRef = useRef(false);
+  const formulaRangePickRef = useRef<FormulaRangePickState | null>(null);
+  const formulaRangeSurfaceRef = useRef<HTMLDivElement | null>(null);
+  const [formulaRangeHighlight, setFormulaRangeHighlight] = React.useState<FormulaRangePickHighlight | null>(null);
   const scheduleFormulaRecalculate = React.useCallback((editor: NonNullable<ReturnType<typeof useEditor>>, options?: { force?: boolean }) => {
     if (editor.isDestroyed || scheduledFormulaRecalculateRef.current) return;
     if (!options?.force && isEditingTableFormulaText(editor)) return;
@@ -75,7 +90,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
     queueMicrotask(() => {
       scheduledFormulaRecalculateRef.current = false;
       if (!editor.isDestroyed && (options?.force || !isEditingTableFormulaText(editor))) {
-        recalculateAllTableFormulas(editor);
+        recalculateActiveTableFormulas(editor);
       }
     });
   }, []);
@@ -111,6 +126,11 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
     [effectivePlaceholder, t, maxCharacters, uploadImage, resolvedUploadFile, imageInsertMode, maxImageFileSize, allowedImageMimeTypes, fallbackToDataUrl, editable, fetchMetadata, extraExtensions],
   );
 
+  const syncFormulaRangeHighlight = React.useCallback((pickState: FormulaRangePickState | null) => {
+    const container = formulaRangeSurfaceRef.current;
+    setFormulaRangeHighlight(container && pickState ? getFormulaRangePickHighlight(container, pickState) : null);
+  }, []);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions,
@@ -119,6 +139,37 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
     autofocus,
     editorProps: {
       handleDOMEvents: {
+        mousedown: (view, event) => {
+          if (!(event instanceof MouseEvent)) return false;
+          const pickState = beginFormulaRangePick(view, event);
+          if (!pickState) return false;
+          formulaRangePickRef.current = pickState;
+          syncFormulaRangeHighlight(pickState);
+          return true;
+        },
+        mousemove: (view, event) => {
+          if (!(event instanceof MouseEvent)) return false;
+          const pickState = formulaRangePickRef.current;
+          if (!pickState) return false;
+          if (event.buttons === 0) {
+            formulaRangePickRef.current = null;
+            syncFormulaRangeHighlight(null);
+            return false;
+          }
+          const nextPickState = updateFormulaRangePick(view, pickState, event);
+          formulaRangePickRef.current = nextPickState;
+          syncFormulaRangeHighlight(nextPickState);
+          return true;
+        },
+        mouseup: (_view, event) => {
+          if (!(event instanceof MouseEvent)) return false;
+          if (!formulaRangePickRef.current) return false;
+          formulaRangePickRef.current = null;
+          syncFormulaRangeHighlight(null);
+          event.preventDefault();
+          event.stopPropagation();
+          return true;
+        },
         keydown: (_view, event) => {
           if (!(event instanceof KeyboardEvent)) return false;
           if (
@@ -301,7 +352,10 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         />
       )}
       <div
-        ref={editorContentRef}
+        ref={(node) => {
+          editorContentRef.current = node;
+          formulaRangeSurfaceRef.current = node;
+        }}
         className="relative flex-1 overflow-y-auto"
         style={{
           minHeight: editable ? minHeight : undefined,
@@ -324,6 +378,19 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           data-ueditor-active-cell-highlight=""
           className="pointer-events-none hidden absolute z-20 rounded-[2px] border-2 border-primary bg-primary/10"
         />
+        {formulaRangeHighlight && (
+          <span
+            aria-hidden="true"
+            data-ueditor-formula-range-highlight=""
+            className="pointer-events-none absolute z-20 rounded-[2px] border-2 border-primary bg-primary/10"
+            style={{
+              left: formulaRangeHighlight.left,
+              top: formulaRangeHighlight.top,
+              width: formulaRangeHighlight.width,
+              height: formulaRangeHighlight.height,
+            }}
+          />
+        )}
         {editable && <TableControls editor={editor} containerRef={editorContentRef} />}
         <EditorContent
           editor={editor}

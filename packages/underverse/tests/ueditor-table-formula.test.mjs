@@ -92,16 +92,18 @@ test("UEditor table formula utilities return controlled errors", async () => {
   assert.deepEqual(formula.evaluateBasicTableFormula("=UNKNOWN(A1)", getCellValue), { value: null, error: "invalid-formula" });
 });
 
-test("UEditor table formula utilities treat text references as invalid in aggregates", async () => {
+test("UEditor table formula utilities handle text references in aggregates", async () => {
   const formula = await importTsModule(path.join(componentsRoot, "UEditor/table-formula.ts"));
   const values = new Map([
     ["A1", "hello"],
     ["A2", "10"],
+    ["A3", ""],
   ]);
   const getCellValue = (label) => values.get(label);
 
   assert.deepEqual(formula.evaluateBasicTableFormula("=SUM(A1:A2)", getCellValue), { value: null, error: "invalid-reference" });
-  assert.deepEqual(formula.evaluateBasicTableFormula("=COUNT(A1:A2)", getCellValue), { value: null, error: "invalid-reference" });
+  assert.deepEqual(formula.evaluateBasicTableFormula("=COUNT(A1:A3)", getCellValue), { value: 1, error: null });
+  assert.deepEqual(formula.evaluateBasicTableFormula("=COUNT(A1)", getCellValue), { value: 0, error: null });
 });
 
 test("UEditor table formula utilities build dependency order and detect cycles", async () => {
@@ -112,11 +114,14 @@ test("UEditor table formula utilities build dependency order and detect cycles",
   const graph = formula.buildTableFormulaDependencyGraph([
     { label: "B1", formula: "=A1 * 2" },
     { label: "C1", formula: "=B1 + 5" },
+    { label: "D1", formula: "=Z1 + 1" },
   ]);
   assert.deepEqual(formula.getTableFormulaRecalculationOrder(graph), {
-    order: ["B1", "C1"],
+    order: ["B1", "C1", "D1"],
     circular: new Set(),
   });
+  assert.deepEqual(formula.getAffectedTableFormulaLabels(graph, ["A1"]), new Set(["B1", "C1"]));
+  assert.deepEqual(formula.getAffectedTableFormulaLabels(graph, ["C1"]), new Set(["C1"]));
 
   const circularGraph = formula.buildTableFormulaDependencyGraph([
     { label: "A1", formula: "=B1" },

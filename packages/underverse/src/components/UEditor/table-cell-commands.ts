@@ -68,6 +68,23 @@ function createCellCopyForColumnDuplicate(cellNode: ProseMirrorNode) {
   return cellNode.type.create(cellNode.attrs, cellNode.content);
 }
 
+function createCellWithDuplicatedLogicalColumn(cellNode: ProseMirrorNode, widthIndex: number) {
+  const colspan = Math.max(1, Number(cellNode.attrs.colspan) || 1);
+  let nextColwidth: number[] | null = null;
+
+  if (Array.isArray(cellNode.attrs.colwidth)) {
+    nextColwidth = [...cellNode.attrs.colwidth];
+    const duplicateWidth = nextColwidth[widthIndex];
+    nextColwidth.splice(widthIndex + 1, 0, typeof duplicateWidth === "number" ? duplicateWidth : 0);
+  }
+
+  return cellNode.type.create({
+    ...cellNode.attrs,
+    colspan: colspan + 1,
+    ...(nextColwidth ? { colwidth: nextColwidth } : null),
+  }, cellNode.content);
+}
+
 function getTableRows(tableNode: ProseMirrorNode) {
   const rows: Array<{
     node: ProseMirrorNode;
@@ -295,6 +312,12 @@ export function duplicateTableColumnAt(editor: Editor, columnIndex: number, cell
       });
 
       if (!sourceCell) return rowInfo.node;
+
+      const sourceRect = safeFindCell(map, sourceCell.relativePos);
+      if (sourceRect && (sourceRect.left < columnIndex || sourceRect.right > columnIndex + 1)) {
+        cells[sourceCell.index] = createCellWithDuplicatedLogicalColumn(sourceCell.node, columnIndex - sourceRect.left);
+        return rowInfo.node.type.create(rowInfo.node.attrs, cells);
+      }
 
       cells.splice(sourceCell.index + 1, 0, createCellCopyForColumnDuplicate(sourceCell.node));
       return rowInfo.node.type.create(rowInfo.node.attrs, cells);

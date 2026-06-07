@@ -88,13 +88,18 @@ Current formula semantics:
 
 - References must resolve to numeric values for arithmetic and aggregate functions.
 - `SUM(A1:A2)` returns `#INVALID-REFERENCE` when any referenced cell is non-numeric text. This is intentionally stricter than Excel, which may ignore text in some aggregate contexts.
-- `COUNT(A1:A2)` returns `#INVALID-REFERENCE` when any referenced cell is non-numeric text. It does not currently implement Excel's "count numeric values and ignore text" behavior.
+- `COUNT(A1:A2)` follows spreadsheet-style numeric counting: text and empty cells are ignored, numeric cells are counted.
 - Circular detection marks cells that are directly in the cycle as `#CIRCULAR-REFERENCE`.
 - Formula cells that depend on a circular cell but are not part of the cycle currently evaluate that dependency as non-numeric and become `#INVALID-REFERENCE`.
 - Text that starts with `=` inside a table cell is promoted into `data-formula` before recalculation.
 - A bare `=` is treated as editable text, not as an empty formula. Legacy cells with `data-formula="="` and `#EMPTY` are cleared so users can edit or delete them normally.
+- While the cursor is inside a formula cell, clicking another cell in the same table inserts that cell reference at the formula caret. Dragging from one cell to another inserts a range such as `A1:A3`.
+- Formula range picking shows a lightweight overlay highlight while the mouse drag is active, then clears it after mouseup.
 - Computed display text is rendered inside the cell content. `data-computed-value` stays raw so dependent formulas can keep using numeric values even when the visible text is formatted as currency, percent, or date.
 - `recalculateAllTableFormulas()` recalculates all tables in one transaction and applies replacements from the end of the document backward so positions remain stable.
+- Editor auto-recalculation is table-local first: when the selection is inside a table, only that active table is recalculated. It falls back to all-table recalculation only when no active table can be resolved.
+- Within the active table, automatic recalculation uses the dependency graph to recalculate only the edited cell when it is a formula plus formulas that depend on the edited cell.
+- Explicit formula commands (`setSelectedTableCellFormula`, `clearSelectedTableCellFormula`) also use active-table affected recalculation so dependent formula cells update after command-driven changes.
 
 Merged cells should follow spreadsheet-style ownership:
 
@@ -121,6 +126,7 @@ Formula UI should be incremental:
 3. Entering `=...` in a cell can promote the value into `data-formula`.
 4. A table-level recalculate command appears in the table menu.
 5. Typing `=` inside a table cell opens a compact function suggestion menu for `SUM`, `AVG`, `MIN`, `MAX`, and `COUNT`; selecting a function inserts `=FUNCTION()` and places the cursor inside the parentheses.
+6. While editing a formula, selecting table cells inserts references directly into the formula text. Dragging across cells inserts a range and shows a temporary range highlight.
 
 ### 7. Clipboard And Export
 
@@ -137,6 +143,7 @@ Clipboard/export should preserve metadata where possible:
 - [x] Make visible add/hover rails respect wrapper clipping.
 - [x] Make clear column and duplicate column use `TableMap` logical columns.
 - [x] Add regression tests for column clear/duplicate with `rowspan`.
+- [x] Make duplicate column expand an existing `colspan` when duplicating inside a merged cell.
 - [x] Add cell/header schema attrs for formula metadata.
 - [x] Add save/load regression test for formula metadata.
 - [x] Add pure formula address/range parser.
@@ -151,6 +158,12 @@ Clipboard/export should preserve metadata where possible:
 - [x] Add bubble menu controls for formula number formats.
 - [x] Add formula formatting states for error/computed cells.
 - [x] Add `=` formula function suggestions inside table cells.
+- [x] Add formula range picking by clicking or dragging table cells while editing a formula.
+- [x] Add visual range highlight while formula range picking is active.
+- [x] Make automatic formula recalculation table-local for the active table before falling back to all-document recalculation.
+- [x] Add affected formula label discovery from the dependency graph for active-table recalculation.
+- [x] Make explicit set/clear formula commands recalculate dependent cells through the same affected-cell path.
+- [x] Align `COUNT` aggregate behavior with spreadsheet-style numeric counting for text/empty references.
 - [x] Add clipboard/export tests for formula metadata.
 - [x] Add performance tests for large tables with formulas.
 
@@ -158,11 +171,10 @@ Clipboard/export should preserve metadata where possible:
 
 1. Finish command hardening for all row/column operations with `TableMap`.
 2. Make every overlay visual consume `TableLayoutModel` output directly.
-3. Add formula parser/evaluator as pure utilities with unit tests.
-4. Add formula metadata commands.
-5. Add bubble menu formula input.
-6. Add recalculation on document updates.
-7. Add export and clipboard behavior.
+3. Extend affected-cell recalculation to structural edits and paste where the changed labels are broader than the current selection cell.
+4. Decide whether `SUM`, `AVG`, `MIN`, and `MAX` should stay strict on text cells or move closer to spreadsheet-style text ignoring.
+5. Add browser/manual visual cases for merge + scroll + resize + formula picker interactions.
+6. Upgrade formula range highlight from one bounding box to per-cell segments when merged cells or clipped scroll containers need more exact rendering.
 
 ## Non-Goals For The First Version
 

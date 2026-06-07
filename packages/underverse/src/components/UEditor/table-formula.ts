@@ -315,6 +315,30 @@ export function getTableFormulaRecalculationOrder(graph: TableFormulaDependencyG
   return { order, circular };
 }
 
+export function getAffectedTableFormulaLabels(graph: TableFormulaDependencyGraph, changedLabels: Iterable<string>) {
+  const affected = new Set<string>();
+  const queue = Array.from(changedLabels, (label) => label.toUpperCase());
+
+  for (const label of queue) {
+    if (graph.formulas.has(label)) {
+      affected.add(label);
+    }
+  }
+
+  for (let index = 0; index < queue.length; index += 1) {
+    const label = queue[index];
+    if (!label) continue;
+
+    for (const dependent of graph.dependents.get(label) ?? []) {
+      if (affected.has(dependent)) continue;
+      affected.add(dependent);
+      queue.push(dependent);
+    }
+  }
+
+  return affected;
+}
+
 export function evaluateBasicTableFormula(
   formula: string,
   getCellValue: (label: string) => string | number | null | undefined,
@@ -496,10 +520,20 @@ class FormulaParser {
         const range = parseTableCellRange(token.value);
         if (!range) return { value: null, error: "invalid-reference" };
         for (const label of getTableCellRangeLabels(range)) {
+          if (name === "COUNT") {
+            const cellValue = this.readOptionalCellNumber(label);
+            if (cellValue != null) values.push(cellValue);
+            continue;
+          }
+
           const cellValue = this.readCellNumber(label);
           if (cellValue.error) return cellValue;
           values.push(cellValue.value);
         }
+      } else if (name === "COUNT" && token.type === "cell") {
+        this.index += 1;
+        const cellValue = this.readOptionalCellNumber(token.value);
+        if (cellValue != null) values.push(cellValue);
       } else {
         const value = this.parseExpression();
         if (value.error) return value;
@@ -515,7 +549,7 @@ class FormulaParser {
       return { value: null, error: "invalid-formula" };
     }
 
-    if (values.length === 0) {
+    if (values.length === 0 && name !== "COUNT") {
       return { value: null, error: "invalid-formula" };
     }
 
@@ -535,6 +569,12 @@ class FormulaParser {
       return { value: null, error: "invalid-reference" };
     }
     return { value: parsed, error: null };
+  }
+
+  private readOptionalCellNumber(label: string) {
+    const value = this.getCellValue(label);
+    const parsed = typeof value === "number" ? value : Number.parseFloat(String(value ?? "").trim());
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
   private peekOperator(operators: Array<"+" | "-" | "*" | "/">) {
