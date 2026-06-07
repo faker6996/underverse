@@ -68,6 +68,26 @@ function suppressTextSelectionEndpointWarning(run) {
   }
 }
 
+function findTextPosition(editor, text) {
+  let found = null;
+
+  editor.state.doc.descendants((node, pos) => {
+    if (found != null) return false;
+    if (!node.isText) return true;
+
+    const index = node.text?.indexOf(text) ?? -1;
+    if (index >= 0) {
+      found = pos + index;
+      return false;
+    }
+
+    return true;
+  });
+
+  assert.notEqual(found, null);
+  return found;
+}
+
 function clipboardWithImageAndData({ html = "", text = "" } = {}) {
   const file = new File([new Uint8Array([137, 80, 78, 71])], "clipboard-preview.png", { type: "image/png" });
 
@@ -953,6 +973,59 @@ test("UEditor promotes typed table formula text into computed formula cells", as
     assert.equal(updatedFormulaCell?.getAttribute("data-computed-value"), "30");
     assert.equal(updatedFormulaCell?.getAttribute("data-formula-state"), "computed");
     assert.equal(updatedFormulaCell?.textContent?.trim(), "30");
+  });
+});
+
+test("UEditor keeps a typed complete formula editable until the user leaves the cell", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<table><tbody><tr><td>10</td><td>draft</td></tr><tr><td>20</td><td></td></tr><tr><td>30</td><td></td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => {
+    assert.ok(ref.current?.editor);
+  });
+
+  const formulaCell = await waitFor(() => {
+    const element = view.container.querySelectorAll("tr")[0]?.querySelectorAll("td")[1];
+    assert.ok(element);
+    return element;
+  });
+  const formulaTextPos = findTextPosition(ref.current.editor, "draft");
+
+  ref.current.editor.commands.focus();
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection({ from: formulaTextPos, to: formulaTextPos + "draft".length + 2 });
+  });
+  ref.current.editor.commands.insertContent("=SUM(A1:A3)");
+
+  await waitFor(() => {
+    const activeFormulaCell = view.container.querySelectorAll("tr")[0]?.querySelectorAll("td")[1];
+    assert.equal(activeFormulaCell?.textContent?.trim(), "=SUM(A1:A3)");
+    assert.equal(activeFormulaCell?.getAttribute("data-formula"), null);
+    assert.equal(activeFormulaCell?.getAttribute("data-computed-value"), null);
+  });
+
+  const nextTextPos = findTextPosition(ref.current.editor, "20");
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection(nextTextPos);
+  });
+
+  await waitFor(() => {
+    const updatedFormulaCell = view.container.querySelectorAll("tr")[0]?.querySelectorAll("td")[1];
+    assert.equal(updatedFormulaCell?.getAttribute("data-formula"), "=SUM(A1:A3)");
+    assert.equal(updatedFormulaCell?.getAttribute("data-computed-value"), "60");
+    assert.equal(updatedFormulaCell?.textContent?.trim(), "60");
   });
 });
 

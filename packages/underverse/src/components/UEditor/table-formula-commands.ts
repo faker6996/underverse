@@ -59,6 +59,24 @@ function getCellText(cellNode: ProseMirrorNode) {
   return cellNode.textBetween(0, cellNode.content.size, "\n").trim();
 }
 
+function getSelectionTableCellNode(editor: Editor) {
+  const { $from } = editor.state.selection;
+
+  for (let depth = $from.depth; depth > 0; depth -= 1) {
+    const node = $from.node(depth);
+    if (node.type.name === "tableCell" || node.type.name === "tableHeader") {
+      return node;
+    }
+  }
+
+  return null;
+}
+
+export function isEditingTableFormulaText(editor: Editor) {
+  const cellNode = getSelectionTableCellNode(editor);
+  return Boolean(cellNode && getCellText(cellNode).startsWith("="));
+}
+
 function createCellDisplayContent(cellNode: ProseMirrorNode, displayValue: string) {
   const paragraphType = cellNode.type.schema.nodes.paragraph;
 

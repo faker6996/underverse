@@ -23,7 +23,7 @@ import { UEDITOR_PROSEMIRROR_CLASS_NAME } from "./editor-styles";
 import { resolveEventElement } from "./table-dom-utils";
 import { useUEditorTableInteractions } from "./use-table-interactions";
 import { MenuBar } from "./menu-bar";
-import { recalculateAllTableFormulas, UEDITOR_TABLE_FORMULA_RECALCULATE_META } from "./table-formula-commands";
+import { isEditingTableFormulaText, recalculateAllTableFormulas, UEDITOR_TABLE_FORMULA_RECALCULATE_META } from "./table-formula-commands";
 
 const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   content = "",
@@ -68,6 +68,18 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   const inFlightPrepareRef = useRef<Promise<UEditorPrepareContentForSaveResult> | null>(null);
   const lastAppliedContentRef = useRef(content ?? "");
   const scheduledFormulaRecalculateRef = useRef(false);
+  const scheduleFormulaRecalculate = React.useCallback((editor: NonNullable<ReturnType<typeof useEditor>>, options?: { force?: boolean }) => {
+    if (editor.isDestroyed || scheduledFormulaRecalculateRef.current) return;
+    if (!options?.force && isEditingTableFormulaText(editor)) return;
+
+    scheduledFormulaRecalculateRef.current = true;
+    queueMicrotask(() => {
+      scheduledFormulaRecalculateRef.current = false;
+      if (!editor.isDestroyed && (options?.force || !isEditingTableFormulaText(editor))) {
+        recalculateAllTableFormulas(editor);
+      }
+    });
+  }, []);
 
   const resolvedUploadFile = useMemo(() => {
     if (uploadFile) return uploadFile;
@@ -146,20 +158,20 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
       },
     },
     onUpdate: ({ editor, transaction }) => {
-      if (!transaction.getMeta(UEDITOR_TABLE_FORMULA_RECALCULATE_META) && !scheduledFormulaRecalculateRef.current) {
-        scheduledFormulaRecalculateRef.current = true;
-        queueMicrotask(() => {
-          scheduledFormulaRecalculateRef.current = false;
-          if (!editor.isDestroyed) {
-            recalculateAllTableFormulas(editor);
-          }
-        });
+      if (!transaction.getMeta(UEDITOR_TABLE_FORMULA_RECALCULATE_META)) {
+        scheduleFormulaRecalculate(editor);
       }
 
       const html = editor.getHTML();
       onChange?.(html);
       onHtmlChange?.(html);
       onJsonChange?.(editor.getJSON());
+    },
+    onSelectionUpdate: ({ editor }) => {
+      scheduleFormulaRecalculate(editor);
+    },
+    onBlur: ({ editor }) => {
+      scheduleFormulaRecalculate(editor, { force: true });
     },
   });
 
