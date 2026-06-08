@@ -1864,11 +1864,11 @@ test("UEditor preview table HTML keeps empty rows and columns at editor size", a
 
   const rows = Array.from(container.querySelectorAll("tr"));
   assert.equal(rows.length, 2);
-  assert.deepEqual(rows.map((row) => row.style.height), ["36px", "36px"]);
+  assert.deepEqual(rows.map((row) => row.style.height), ["", ""]);
 
   const cells = Array.from(container.querySelectorAll("td"));
   assert.deepEqual(cells.map((cell) => cell.style.width), ["100px", "100px", "100px", "100px", "100px", "100px"]);
-  assert.deepEqual(cells.map((cell) => cell.style.height), ["36px", "36px", "36px", "36px", "36px", "36px"]);
+  assert.deepEqual(cells.map((cell) => cell.style.height), ["", "", "", "", "", ""]);
 });
 
 test("UEditor menu bar eye button opens preview directly", async () => {

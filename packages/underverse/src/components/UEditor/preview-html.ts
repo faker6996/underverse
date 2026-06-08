@@ -88,7 +88,7 @@ function setStyleProperty(element: HTMLElement, property: string, value: string)
   element.style.setProperty(property, value);
 }
 
-function resolveRowHeight(row: HTMLTableRowElement) {
+function resolveExplicitRowHeight(row: HTMLTableRowElement) {
   const explicitRowHeight = parsePixelWidth(row.getAttribute("data-row-height")) ?? parseStyleHeight(row.style);
   if (explicitRowHeight) return Math.max(MIN_TABLE_ROW_HEIGHT, explicitRowHeight);
 
@@ -97,11 +97,13 @@ function resolveRowHeight(row: HTMLTableRowElement) {
     return height ? Math.max(maxHeight, height) : maxHeight;
   }, 0);
 
-  return Math.max(MIN_TABLE_ROW_HEIGHT, cellHeight);
+  return cellHeight ? Math.max(MIN_TABLE_ROW_HEIGHT, cellHeight) : null;
 }
 
 function normalizePreviewRowHeight(row: HTMLTableRowElement) {
-  const rowHeight = resolveRowHeight(row);
+  const rowHeight = resolveExplicitRowHeight(row);
+  if (!rowHeight) return;
+
   row.style.height = `${rowHeight}px`;
   row.style.minHeight = `${rowHeight}px`;
 

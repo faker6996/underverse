@@ -425,12 +425,12 @@ export function buildUEditorExtensions({
     UEditorTableRow,
     CustomTableCell.configure({
       HTMLAttributes: {
-        class: "border border-border p-2 min-w-25",
+        class: "border border-border px-2 py-0 min-w-25",
       },
     }),
     CustomTableHeader.configure({
       HTMLAttributes: {
-        class: "border border-border p-2 bg-muted font-semibold min-w-25",
+        class: "border border-border px-2 py-0 bg-muted font-semibold min-w-25",
       },
     }),
     CharacterCount.configure({
