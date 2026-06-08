@@ -318,6 +318,7 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
     proseMirror.addEventListener("keyup", handleSelectionChange);
     proseMirror.addEventListener("focusin", handleSelectionChange);
     document.addEventListener("selectionchange", handleSelectionChange);
+    surface?.addEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, handleActiveCellLayoutChange);
     surface?.addEventListener("scroll", handleActiveCellLayoutChange, scrollListenerOptions);
     window.addEventListener("resize", handleActiveCellLayoutChange);
     document.addEventListener("pointermove", handlePointerMove as EventListener);
@@ -338,6 +339,7 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
       proseMirror.removeEventListener("keyup", handleSelectionChange);
       proseMirror.removeEventListener("focusin", handleSelectionChange);
       document.removeEventListener("selectionchange", handleSelectionChange);
+      surface?.removeEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, handleActiveCellLayoutChange);
       surface?.removeEventListener("scroll", handleActiveCellLayoutChange, scrollListenerOptions);
       window.removeEventListener("resize", handleActiveCellLayoutChange);
       document.removeEventListener("pointermove", handlePointerMove as EventListener);

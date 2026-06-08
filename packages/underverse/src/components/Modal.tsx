@@ -181,7 +181,7 @@ const Modal: React.FC<ModalProps> = ({
 
   const modalContent = (
     <div
-      className={cn("fixed inset-0 z-9999 flex items-center justify-center p-4 md:p-6", overlayClassName)}
+      className={cn("fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-6", overlayClassName)}
       style={{ overscrollBehavior: "contain" }}
       onMouseDown={handleOverlayMouseDown}
       onMouseUp={handleOverlayMouseUp}

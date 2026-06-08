@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import type { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
 import {
@@ -41,6 +41,7 @@ import { TableInsertGrid, fileToDataUrl, getTableAnchorPos } from "./toolbar";
 import { sanitizeUEditorUrl } from "./url-safety";
 import { DEFAULT_UEDITOR_IMAGE_MAX_FILE_SIZE, DEFAULT_UEDITOR_IMAGE_MIME_TYPES } from "./clipboard-images";
 import { UEDITOR_PROSEMIRROR_CLASS_NAME } from "./editor-styles";
+import { prepareUEditorPreviewHtml } from "./preview-html";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -576,7 +577,7 @@ export interface MenuBarProps {
   onSave?: () => void;
   onExport?: () => void;
   onSourceCode?: () => void;
-  onPreview?: () => void;
+  onPreview?: (html: string) => void | false;
 }
 
 export const MenuBar: React.FC<MenuBarProps> = ({
@@ -608,6 +609,10 @@ export const MenuBar: React.FC<MenuBarProps> = ({
 
   // Built-in preview dialog state
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
+  const previewHtml = useMemo(
+    () => (showPreviewDialog ? prepareUEditorPreviewHtml(editor.getHTML()) : ""),
+    [editor, showPreviewDialog],
+  );
 
   const openSourceDialog = () => {
     setSourceHtml(editor.getHTML());
@@ -619,11 +624,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   };
 
   const handlePreview = () => {
-    if (onPreview) {
-      onPreview();
-      return;
-    }
-
+    if (onPreview?.(editor.getHTML()) === false) return;
     openPreviewDialog();
   };
 
@@ -858,14 +859,14 @@ export const MenuBar: React.FC<MenuBarProps> = ({
       >
         <div
           data-testid="preview-content"
-          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 md:px-8"
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
         >
           {editor.isEmpty ? (
             <p className="text-muted-foreground text-sm">{t("menubar.previewEmpty")}</p>
           ) : (
             <div
               className={UEDITOR_PROSEMIRROR_CLASS_NAME}
-              dangerouslySetInnerHTML={{ __html: editor.getHTML() }}
+              dangerouslySetInnerHTML={{ __html: previewHtml }}
             />
           )}
         </div>

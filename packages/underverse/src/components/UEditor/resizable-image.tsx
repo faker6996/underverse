@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "@tiptap/extension-image";
 import { mergeAttributes } from "@tiptap/core";
 import { NodeViewWrapper, ReactNodeViewRenderer, type NodeViewProps } from "@tiptap/react";
+import { UEDITOR_TABLE_LAYOUT_CHANGE_EVENT } from "./table-dom-utils";
 
 const MIN_IMAGE_SIZE_PX = 40;
 const IMAGE_LAYOUTS = new Set(["block", "left", "right"] as const);
@@ -107,6 +108,7 @@ function ResizableImageNodeView(props: NodeViewProps) {
   const { node, selected, updateAttributes, editor, getPos } = props;
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
+  const resizePreviewRef = useRef<HTMLDivElement | null>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
 
@@ -121,17 +123,79 @@ function ResizableImageNodeView(props: NodeViewProps) {
     startY: number;
     startW: number;
     startH: number;
-    lastW: number;
-    lastH: number;
     aspect: number;
     maxW: number;
+    previewBaseW: number;
+    previewBaseH: number;
+    pendingW: number;
+    pendingH: number;
+    frameId: number | null;
   } | null>(null);
+
+  const dispatchTableLayoutChange = () => {
+    editor.view.dom.dispatchEvent(new CustomEvent(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, { bubbles: true }));
+  };
+
+  const getImageDisplayStyle = (width: number | null, height: number | null): React.CSSProperties => ({
+    width: width ? `${width}px` : undefined,
+    height: width && height ? "auto" : height ? `${height}px` : undefined,
+    aspectRatio: width && height ? `${width} / ${height}` : undefined,
+  });
+
+  const setResizePreviewStyle = (width: number, height: number, visible: boolean, resetBase = false) => {
+    const preview = resizePreviewRef.current;
+    if (!preview) return;
+
+    const drag = dragStateRef.current;
+    const baseW = resetBase || !drag ? Math.max(MIN_IMAGE_SIZE_PX, Math.round(width)) : drag.previewBaseW;
+    const baseH = resetBase || !drag ? Math.max(MIN_IMAGE_SIZE_PX, Math.round(height)) : drag.previewBaseH;
+    const scaleX = width / baseW;
+    const scaleY = height / baseH;
+
+    if (resetBase) {
+      preview.style.width = `${baseW}px`;
+      preview.style.height = `${baseH}px`;
+    }
+
+    preview.style.maxWidth = "none";
+    preview.style.maxHeight = "none";
+    preview.style.transform = visible ? `translateZ(0) scale(${scaleX}, ${scaleY})` : "translateZ(0) scale(1)";
+    preview.style.display = visible ? "block" : "none";
+  };
+
+  const applyPendingResizeFrame = () => {
+    const drag = dragStateRef.current;
+    if (!drag) return;
+
+    drag.frameId = null;
+    setResizePreviewStyle(drag.pendingW, drag.pendingH, true);
+  };
+
+  const scheduleResizeFrame = () => {
+    const drag = dragStateRef.current;
+    if (!drag || drag.frameId !== null) return;
+
+    drag.frameId = window.requestAnimationFrame(applyPendingResizeFrame);
+  };
+
+  useEffect(() => {
+    return () => {
+      const drag = dragStateRef.current;
+      if (drag && drag.frameId !== null) {
+        window.cancelAnimationFrame(drag.frameId);
+      }
+      dragStateRef.current = null;
+      document.body.style.cursor = "";
+    };
+  }, []);
 
   useEffect(() => {
     const img = imgRef.current;
     if (!img) return;
-    img.style.width = widthAttr ? `${widthAttr}px` : "";
-    img.style.height = heightAttr ? `${heightAttr}px` : "";
+    const displayStyle = getImageDisplayStyle(widthAttr, heightAttr);
+    img.style.width = typeof displayStyle.width === "string" ? displayStyle.width : "";
+    img.style.height = typeof displayStyle.height === "string" ? displayStyle.height : "";
+    img.style.aspectRatio = typeof displayStyle.aspectRatio === "string" ? displayStyle.aspectRatio : "";
   }, [widthAttr, heightAttr]);
 
   const selectNode = () => {
@@ -169,13 +233,18 @@ function ResizableImageNodeView(props: NodeViewProps) {
       startY: event.clientY,
       startW,
       startH,
-      lastW: startW,
-      lastH: startH,
       aspect,
       maxW: Math.max(MIN_IMAGE_SIZE_PX, maxW),
+      previewBaseW: Math.max(MIN_IMAGE_SIZE_PX, Math.round(startW)),
+      previewBaseH: Math.max(MIN_IMAGE_SIZE_PX, Math.round(startH)),
+      pendingW: startW,
+      pendingH: startH,
+      frameId: null,
     };
 
     setIsResizing(true);
+    setResizePreviewStyle(startW, startH, true, true);
+    document.body.style.cursor = "nwse-resize";
     (event.currentTarget as HTMLDivElement).setPointerCapture(event.pointerId);
   };
 
@@ -194,21 +263,37 @@ function ResizableImageNodeView(props: NodeViewProps) {
     const nextW = nextSize.width;
     const nextH = nextSize.height;
 
-    drag.lastW = nextW;
-    drag.lastH = nextH;
-    img.style.width = `${Math.round(nextW)}px`;
-    img.style.height = `${Math.round(nextH)}px`;
+    drag.pendingW = nextW;
+    drag.pendingH = nextH;
+    scheduleResizeFrame();
   };
 
   const finishResize = () => {
     const drag = dragStateRef.current;
     dragStateRef.current = null;
     setIsResizing(false);
+    document.body.style.cursor = "";
     if (!drag) return;
 
+    if (drag.frameId !== null) {
+      window.cancelAnimationFrame(drag.frameId);
+      drag.frameId = null;
+    }
+
+    const img = imgRef.current;
+    const nextW = Math.round(drag.pendingW);
+    const nextH = Math.round(drag.pendingH);
+    setResizePreviewStyle(nextW, nextH, false);
+    if (img) {
+      img.style.width = `${nextW}px`;
+      img.style.height = "auto";
+      img.style.aspectRatio = `${nextW} / ${nextH}`;
+    }
+    dispatchTableLayoutChange();
+
     updateAttributes({
-      width: Math.round(drag.lastW),
-      height: Math.round(drag.lastH),
+      width: nextW,
+      height: nextH,
       imageWidthPreset: null,
     });
   };
@@ -272,15 +357,35 @@ function ResizableImageNodeView(props: NodeViewProps) {
           selected ? "ring-2 ring-primary/60 ring-offset-2 ring-offset-background" : "",
           isResizing ? "select-none" : "",
         ].join(" ")}
+        style={getImageDisplayStyle(widthAttr, heightAttr)}
+      />
+
+      <div
+        ref={resizePreviewRef}
+        aria-hidden="true"
+        data-ueditor-image-resize-preview=""
+        className={[
+          "pointer-events-none absolute left-0 top-0 z-20 hidden rounded-lg",
+          "border border-primary/70 bg-background/30 bg-center bg-no-repeat bg-[length:100%_100%]",
+          "opacity-45 shadow-md ring-2 ring-primary/25 will-change-transform",
+          "select-none",
+        ].join(" ")}
         style={{
           width: widthAttr ? `${widthAttr}px` : undefined,
           height: heightAttr ? `${heightAttr}px` : undefined,
+          maxWidth: "none",
+          maxHeight: "none",
+          backgroundImage: `url("${String((node.attrs as Record<string, unknown>)["src"] ?? "").replace(/"/g, "%22")}")`,
+          transform: "translateZ(0) scale(1)",
+          transformOrigin: "top left",
+          display: isResizing ? "block" : "none",
         }}
       />
 
       {showHandle && (
         <div
           aria-hidden="true"
+          data-ueditor-image-resize-handle=""
           onPointerDown={onResizePointerDown}
           onPointerMove={onResizePointerMove}
           onPointerUp={onResizePointerUp}

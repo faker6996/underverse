@@ -350,7 +350,7 @@ export default function UEditorExample() {
           onSave={handleMenuBarSave}
           onExport={() => alert("onExport callback!")}
           onSourceCode={() => alert("onSourceCode callback!")}
-          onPreview={() => setPreviewHtml(menuBarContent)}
+          onPreview={(html) => setPreviewHtml(html)}
         />
         <div className="flex flex-wrap items-center justify-between gap-3 border border-border bg-muted/20 p-3 text-sm">
           <p className={menuBarSaveStatus === "error" ? "text-destructive" : "text-muted-foreground"}>
@@ -588,7 +588,7 @@ export default function UEditorExample() {
     { property: "lineHeights", description: "Override line-height options shown in the toolbar dropdown", type: "{ label: string; value: string }[]", default: "built-in presets" },
     { property: "letterSpacings", description: "Override letter-spacing options shown in the toolbar dropdown", type: "{ label: string; value: string }[]", default: "built-in presets" },
     { property: "uploadFile", description: "Upload handler for file attachments inserted via slash command (/file).", type: "(file: File) => Promise<string> | string", default: "—" },
-    { property: "onPreview", description: "Callback for View > Preview in the menu bar. Fires when the user clicks the preview menu item.", type: "() => void", default: "—" },
+    { property: "onPreview", description: "Callback for View > Preview in the menu bar. Return false to skip the built-in preview dialog.", type: "(html: string) => void | false", default: "—" },
     { property: "onExport", description: "Callback for File > Export in the menu bar.", type: "() => void", default: "—" },
     { property: "onSourceCode", description: "Callback for View > Source Code in the menu bar.", type: "() => void", default: "—" },
     { property: "showMenuBar", description: "Show the classic menu bar (File, Edit, View, Insert, Format, Tools, Table) above the editor.", type: "boolean", default: "false" },

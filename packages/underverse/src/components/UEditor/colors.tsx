@@ -142,6 +142,10 @@ function buildColorOptions(colors: string[], prefix: string): UEditorColorOption
   return colors.map((color, index) => ({ name: `${prefix} ${index + 1}`, color }));
 }
 
+function getSwatchCheckClass(color: string) {
+  return /^#(?:fff|ffffff)$/i.test(color) ? "text-foreground" : "text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]";
+}
+
 export const useEditorColors = () => {
   const t = useSmartTranslations("UEditor");
 
@@ -230,7 +234,7 @@ export const EditorColorPalette = ({
             >
               {currentColor === c.color && (
                 <span className="absolute inset-0 flex items-center justify-center">
-                  <Check className="h-3.5 w-3.5 text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]" />
+                  <Check className={cn("h-3.5 w-3.5", getSwatchCheckClass(c.color))} />
                 </span>
               )}
             </button>

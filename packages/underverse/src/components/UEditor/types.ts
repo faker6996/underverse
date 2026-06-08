@@ -98,7 +98,11 @@ export interface UEditorProps {
   onSave?: () => void;
   onExport?: () => void;
   onSourceCode?: () => void;
-  onPreview?: () => void;
+  /**
+   * Fires when View > Preview or the eye button is clicked.
+   * Return false to prevent the built-in preview dialog.
+   */
+  onPreview?: (html: string) => void | false;
 }
 
 export type UEditorVariant = NonNullable<UEditorProps["variant"]>;

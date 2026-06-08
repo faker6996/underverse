@@ -736,6 +736,104 @@ test("UEditor bubble menu opens the table formula panel", async () => {
   await body.findByRole("button", { name: "Recalculate" });
 });
 
+test("UEditor bubble menu applies table cell border style and width controls", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const body = within(window.document.body);
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<table><tbody><tr><td>Border target</td><td>Other</td></tr></tbody></table>",
+      showToolbar: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+  await waitFor(() => {
+    assert.ok(ref.current?.editor);
+  });
+
+  const selectFirstTableCell = () => {
+    let cellPos = null;
+    ref.current.editor.state.doc.descendants((node, pos) => {
+      if (cellPos != null) return false;
+      if (node.type.name === "tableCell" || node.type.name === "tableHeader") {
+        cellPos = pos;
+        return false;
+      }
+      return true;
+    });
+    assert.notEqual(cellPos, null);
+    assert.equal(ref.current.editor.commands.setCellSelection({ anchorCell: cellPos, headCell: cellPos }), true);
+    ref.current.editor.view.focus();
+  };
+
+  selectFirstTableCell();
+
+  await user.click(await body.findByRole("button", { name: "Cell Border" }));
+  assert.equal(body.queryByRole("button", { name: "Done" }), null);
+
+  await user.click(await body.findByRole("button", { name: "Dashed" }));
+  assert.equal(body.queryByPlaceholderText("Paste or type a link..."), null);
+  await waitFor(() => {
+    const updatedCell = view.container.querySelector("td");
+    assert.ok(updatedCell);
+    assert.equal(updatedCell.getAttribute("data-border-style"), "dashed");
+    assert.equal(body.queryByRole("button", { name: "3px" }), null);
+  });
+  await new Promise((resolve) => setTimeout(resolve, 1050));
+  assert.equal(body.queryByRole("button", { name: "Dashed" }), null);
+  assert.equal(body.queryByPlaceholderText("Paste or type a link..."), null);
+
+  selectFirstTableCell();
+  await user.click(await body.findByRole("button", { name: "Cell Border" }));
+  await user.click(await body.findByRole("button", { name: "3px" }));
+  assert.equal(body.queryByPlaceholderText("Paste or type a link..."), null);
+  await waitFor(() => {
+    const updatedCell = view.container.querySelector("td");
+    assert.ok(updatedCell);
+    assert.equal(updatedCell.getAttribute("data-border-width"), "3px");
+    assert.equal(body.queryByRole("button", { name: "Dashed" }), null);
+  });
+  await new Promise((resolve) => setTimeout(resolve, 1050));
+  assert.equal(body.queryByRole("button", { name: "3px" }), null);
+  assert.equal(body.queryByPlaceholderText("Paste or type a link..."), null);
+
+  selectFirstTableCell();
+  await user.click(await body.findByRole("button", { name: "Cell Border" }));
+  await user.click(await body.findByRole("button", { name: "Border Color" }));
+  await user.click(await body.findByRole("button", { name: "Black" }));
+  await waitFor(() => {
+    const updatedCell = view.container.querySelector("td");
+    assert.ok(updatedCell);
+    assert.equal(updatedCell.getAttribute("data-border-color"), "#000000");
+    assert.equal(body.queryByRole("button", { name: "White" }), null);
+  });
+  await new Promise((resolve) => setTimeout(resolve, 1050));
+  assert.equal(body.queryByRole("button", { name: "White" }), null);
+  assert.equal(body.queryByPlaceholderText("Paste or type a link..."), null);
+
+  await waitFor(() => {
+    const updatedCell = view.container.querySelector("td");
+    assert.ok(updatedCell);
+    assert.equal(updatedCell.getAttribute("data-border-color"), "#000000");
+    assert.equal(updatedCell.getAttribute("data-border-style"), "dashed");
+    assert.equal(updatedCell.getAttribute("data-border-width"), "3px");
+    assert.match(updatedCell.getAttribute("style") ?? "", /border-color:\s*(?:#000000|rgb\(0,\s*0,\s*0\))/i);
+    assert.match(updatedCell.getAttribute("style") ?? "", /border-style:\s*dashed/i);
+    assert.match(updatedCell.getAttribute("style") ?? "", /border-width:\s*3px/i);
+  });
+});
+
 test("UEditor table formula command writes formula metadata and computed value", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const formulaCommands = await importTsModule(path.join(componentsRoot, "UEditor/table-formula-commands.ts"));
@@ -1407,19 +1505,167 @@ test("UEditor image resize handle preserves the image aspect ratio", async () =>
   const wrapper = image.closest("[data-image-layout]");
   assert.ok(wrapper);
   const handle = await waitFor(() => {
-    const element = wrapper.querySelector('[aria-hidden="true"]');
+    const element = wrapper.querySelector("[data-ueditor-image-resize-handle]");
     assert.ok(element);
     return element;
   });
+  const preview = wrapper.querySelector("[data-ueditor-image-resize-preview]");
+  assert.ok(preview);
 
   fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 });
   fireEvent.pointerMove(handle, { pointerId: 1, clientX: 100, clientY: 0 });
+
+  await waitFor(() => {
+    assert.equal(image.style.width, "200px");
+    assert.equal(image.style.height, "auto");
+    assert.equal(image.style.aspectRatio, "200 / 100");
+    assert.equal(preview.style.width, "200px");
+    assert.equal(preview.style.height, "100px");
+    assert.equal(preview.style.maxWidth, "none");
+    assert.equal(preview.style.maxHeight, "none");
+    assert.match(preview.style.transform, /scale\(1\.5,\s*1\.5\)/);
+    assert.equal(preview.style.display, "block");
+  });
+
   fireEvent.pointerUp(handle, { pointerId: 1, clientX: 100, clientY: 0 });
 
   await waitFor(() => {
     const attrs = editor.getAttributes("image");
     assert.equal(attrs.width, 300);
     assert.equal(attrs.height, 150);
+    assert.equal(image.style.width, "300px");
+    assert.equal(image.style.height, "auto");
+    assert.equal(image.style.aspectRatio, "300 / 150");
+    assert.equal(preview.style.display, "none");
+  });
+});
+
+test("UEditor image resize uses a ghost preview and updates table highlight on drag end", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const domUtils = await importTsModule(path.join(componentsRoot, "UEditor/table-dom-utils.ts"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: [
+        "<table><tbody><tr><td>",
+        `<img src="data:image/png;base64,${ONE_PIXEL_PNG_BASE64}" alt="table-drag-image" width="200" height="100" />`,
+        "</td></tr></tbody></table>",
+      ].join(""),
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const image = await view.findByAltText("table-drag-image");
+  const editorElement = await waitFor(() => {
+    const element = view.container.querySelector(".ProseMirror");
+    assert.ok(element);
+    return element;
+  });
+  const surface = getEditorSurface(view);
+  const cell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+  const highlight = await waitFor(() => {
+    const element = view.container.querySelector("[data-ueditor-active-cell-highlight]");
+    assert.ok(element);
+    return element;
+  });
+  await waitFor(() => {
+    assert.ok(ref.current?.editor);
+  });
+
+  const rect = (width, height, left = 0, top = 0) => ({
+    width,
+    height,
+    top,
+    left,
+    right: left + width,
+    bottom: top + height,
+    x: left,
+    y: top,
+    toJSON() {},
+  });
+  editorElement.getBoundingClientRect = () => rect(500, 400);
+  surface.getBoundingClientRect = () => rect(500, 400);
+  image.getBoundingClientRect = () => rect(200, 100);
+  cell.getBoundingClientRect = () => {
+    const width = Number.parseInt(image.style.width || "200", 10);
+    const parsedHeight = Number.parseInt(image.style.height || "", 10);
+    const height = Number.isFinite(parsedHeight) ? parsedHeight : Math.round(width / 2);
+    return rect(width, height);
+  };
+
+  const editor = ref.current.editor;
+  editor.commands.focus();
+  fireEvent.mouseDown(cell);
+  fireEvent.mouseUp(cell);
+  fireEvent.click(cell);
+
+  await waitFor(() => {
+    assert.equal(highlight.style.display, "block");
+    assert.equal(highlight.style.height, "100px");
+  });
+
+  let imagePos = null;
+  editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === "image") {
+      imagePos = pos;
+      return false;
+    }
+    return true;
+  });
+  assert.equal(typeof imagePos, "number");
+
+  editor.commands.setNodeSelection(imagePos);
+  const wrapper = image.closest("[data-image-layout]");
+  assert.ok(wrapper);
+  const handle = await waitFor(() => {
+    const element = wrapper.querySelector("[data-ueditor-image-resize-handle]");
+    assert.ok(element);
+    return element;
+  });
+  const preview = wrapper.querySelector("[data-ueditor-image-resize-preview]");
+  assert.ok(preview);
+
+  let layoutEvents = 0;
+  surface.addEventListener(domUtils.UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, () => {
+    layoutEvents += 1;
+  });
+
+  fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 });
+  fireEvent.pointerMove(handle, { pointerId: 1, clientX: 100, clientY: 0 });
+
+  await waitFor(() => {
+    assert.equal(preview.style.width, "200px");
+    assert.equal(preview.style.height, "100px");
+    assert.equal(preview.style.maxWidth, "none");
+    assert.equal(preview.style.maxHeight, "none");
+    assert.match(preview.style.transform, /scale\(1\.5,\s*1\.5\)/);
+    assert.equal(preview.style.display, "block");
+    assert.equal(image.style.width, "200px");
+    assert.equal(image.style.height, "auto");
+    assert.equal(image.style.aspectRatio, "200 / 100");
+    assert.equal(highlight.style.height, "100px");
+    assert.equal(layoutEvents, 0);
+  });
+
+  fireEvent.pointerUp(handle, { pointerId: 1, clientX: 100, clientY: 0 });
+
+  await waitFor(() => {
+    assert.equal(image.style.width, "300px");
+    assert.equal(image.style.height, "auto");
+    assert.equal(image.style.aspectRatio, "300 / 150");
+    assert.equal(preview.style.display, "none");
+    assert.equal(highlight.style.height, "150px");
+    assert.ok(layoutEvents > 0);
   });
 });
 
@@ -1529,7 +1775,7 @@ test("UEditor menu bar preview uses editor table layout styles", async () => {
 
   render(
     React.createElement(UEditor, {
-      content: "<p>Preview table</p><table><tbody><tr><td>A</td><td>B</td><td>C</td></tr></tbody></table>",
+      content: '<p>Preview table</p><table><tbody><tr data-row-height="72"><td>A</td><td>B</td><td>C</td></tr></tbody></table>',
       showMenuBar: true,
       showToolbar: false,
       showBubbleMenu: false,
@@ -1546,6 +1792,7 @@ test("UEditor menu bar preview uses editor table layout styles", async () => {
 
   const previewContent = await body.findByTestId("preview-content");
   assert.match(previewContent.className, /overflow-y-auto/);
+  assert.doesNotMatch(previewContent.className, /px-/);
 
   const previewEditorContent = previewContent.firstElementChild;
   assert.ok(previewEditorContent);
@@ -1555,6 +1802,73 @@ test("UEditor menu bar preview uses editor table layout styles", async () => {
   const previewTable = previewContent.querySelector("table");
   assert.ok(previewTable);
   assert.doesNotMatch(previewTable.getAttribute("class") ?? "", /\bw-full\b/);
+  assert.match(previewTable.getAttribute("style") ?? "", /width:\s*300px/i);
+  assert.match(previewTable.getAttribute("style") ?? "", /table-layout:\s*fixed/i);
+
+  const previewRow = previewTable.querySelector("tr");
+  assert.ok(previewRow);
+  assert.equal(previewRow.getAttribute("data-row-height"), "72");
+  assert.match(previewRow.getAttribute("style") ?? "", /height:\s*72px/i);
+
+  const previewColumns = previewContent.querySelectorAll("colgroup > col");
+  assert.equal(previewColumns.length, 3);
+  assert.deepEqual(
+    Array.from(previewColumns).map((col) => col.getAttribute("width")),
+    ["100", "100", "100"],
+  );
+});
+
+test("UEditor preview table HTML keeps explicit column width ratios", async () => {
+  const previewMod = await importTsModule(path.join(componentsRoot, "UEditor/preview-html.ts"));
+  const html = previewMod.prepareUEditorPreviewHtml(
+    '<table><colgroup><col style="width: 180px"><col style="width: 220px"></colgroup><tbody><tr><td>A</td><td>B</td></tr></tbody></table>',
+  );
+
+  const container = window.document.createElement("div");
+  container.innerHTML = html;
+
+  const table = container.querySelector("table");
+  assert.ok(table);
+  assert.match(table.getAttribute("style") ?? "", /width:\s*400px/i);
+
+  const columns = Array.from(container.querySelectorAll("col"));
+  assert.deepEqual(columns.map((col) => col.getAttribute("width")), ["180", "220"]);
+  assert.deepEqual(
+    Array.from(container.querySelectorAll("td")).map((cell) => cell.style.width),
+    ["180px", "220px"],
+  );
+});
+
+test("UEditor preview table HTML keeps empty rows and columns at editor size", async () => {
+  const previewMod = await importTsModule(path.join(componentsRoot, "UEditor/preview-html.ts"));
+  const html = previewMod.prepareUEditorPreviewHtml(
+    [
+      "<table><tbody>",
+      "<tr><td><p></p></td><td><p></p></td><td><p></p></td></tr>",
+      "<tr><td><p></p></td><td><p></p></td><td><p></p></td></tr>",
+      "</tbody></table>",
+    ].join(""),
+  );
+
+  const container = window.document.createElement("div");
+  container.innerHTML = html;
+
+  const table = container.querySelector("table");
+  assert.ok(table);
+  assert.match(table.getAttribute("style") ?? "", /width:\s*300px/i);
+  assert.match(table.getAttribute("style") ?? "", /min-width:\s*300px/i);
+
+  const columns = Array.from(container.querySelectorAll("col"));
+  assert.equal(columns.length, 3);
+  assert.deepEqual(columns.map((col) => col.getAttribute("width")), ["100", "100", "100"]);
+
+  const rows = Array.from(container.querySelectorAll("tr"));
+  assert.equal(rows.length, 2);
+  assert.deepEqual(rows.map((row) => row.style.height), ["36px", "36px"]);
+
+  const cells = Array.from(container.querySelectorAll("td"));
+  assert.deepEqual(cells.map((cell) => cell.style.width), ["100px", "100px", "100px", "100px", "100px", "100px"]);
+  assert.deepEqual(cells.map((cell) => cell.style.height), ["36px", "36px", "36px", "36px", "36px", "36px"]);
 });
 
 test("UEditor menu bar eye button opens preview directly", async () => {
@@ -1577,6 +1891,33 @@ test("UEditor menu bar eye button opens preview directly", async () => {
 
   const previewContent = await body.findByTestId("preview-content");
   assert.match(previewContent.textContent ?? "", /Direct preview body/);
+});
+
+test("UEditor menu bar preview callback keeps the built-in preview fallback", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+  let callbackHtml = "";
+
+  render(
+    React.createElement(UEditor, {
+      content: "<p>Callback preview body</p>",
+      showMenuBar: true,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+      onPreview: (html) => {
+        callbackHtml = html;
+      },
+    }),
+  );
+
+  fireEvent.click(await body.findByRole("button", { name: "Preview" }));
+
+  assert.match(callbackHtml, /Callback preview body/);
+  const previewContent = await body.findByTestId("preview-content");
+  assert.match(previewContent.textContent ?? "", /Callback preview body/);
 });
 
 test("UEditor table toolbar inserts a custom-sized table from the grid picker", async () => {
