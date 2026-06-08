@@ -252,6 +252,17 @@ tr:nth-child(even) td { background: #fbfcff; }
 }
 .menu-panel .row { display: flex; justify-content: space-between; padding: 7px 10px; border-bottom: 1px solid #eef1f7; }
 .menu-panel .row:last-child { border-bottom: 0; }
+.nodict {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: #fdecec;
+  color: #b42318;
+  font-size: 11px;
+  font-weight: 700;
+}
+.glossary th:nth-child(1), .glossary td:nth-child(1) { width: 22%; }
+.glossary th:nth-child(2), .glossary td:nth-child(2) { width: 16%; }
 @media print {
   body { padding: 0; }
   h2 { break-before: page; }
@@ -266,88 +277,117 @@ tr:nth-child(even) td { background: #fbfcff; }
   <h1>Hướng Dẫn Sử Dụng</h1>
   <div class="product">UEditor</div>
   <p class="subtitle">Trình soạn thảo văn bản phong phú trong Underverse UI</p>
-  <p class="version">Tài liệu cập nhật theo implementation hiện tại của component UEditor</p>
+  <p class="version">Tài liệu hướng dẫn dành cho người dùng UEditor</p>
 </div>
 
 <div class="toc">
   <h2>Mục lục</h2>
+  <p style="margin:0 0 6px 2px">Thuật ngữ và quy ước dịch</p>
   <ol>
     <li>UEditor là gì</li>
     <li>Giao diện tổng quan</li>
-    <li>Toolbar và định dạng văn bản</li>
-    <li>Slash command và emoji autocomplete</li>
-    <li>Bubble menu khi chọn nội dung</li>
-    <li>Liên kết, ảnh, bookmark và tệp đính kèm</li>
-    <li>Bảng: tạo, chỉnh sửa, resize, reorder và menu điều khiển</li>
+    <li>Thanh công cụ và định dạng văn bản</li>
+    <li>Lệnh gạch chéo và gợi ý emoji</li>
+    <li>Menu nổi khi chọn nội dung</li>
+    <li>Liên kết, ảnh, thẻ liên kết và tệp đính kèm</li>
+    <li>Bảng: tạo, chỉnh sửa, đổi kích thước, sắp xếp và menu điều khiển</li>
     <li>Công thức trong bảng</li>
-    <li>Menu bar cổ điển</li>
-    <li>Lưu, xuất và chế độ đọc</li>
+    <li>Thanh menu cổ điển</li>
+    <li>Lưu, xuất và chế độ xem</li>
     <li>Phím tắt và mẹo xử lý lỗi</li>
-    <li>Ghi chú cấu hình cho đội triển khai</li>
   </ol>
 </div>
 
+<h2>Thuật ngữ và quy ước dịch</h2>
+<p>Phần này giúp người đọc và biên dịch viên hiểu nhanh các từ chuyên môn dùng trong tài liệu. Cột "Cách hiểu" mô tả ý nghĩa cho người dùng thường.</p>
+<table class="glossary">
+  <tr><th>Thuật ngữ</th><th>Dịch / cách gọi</th><th>Cách hiểu</th></tr>
+  <tr><td>UEditor</td><td>Giữ nguyên</td><td>Tên trình soạn thảo trong tài liệu này.</td></tr>
+  <tr><td>Thanh công cụ</td><td>toolbar</td><td>Hàng nút định dạng phía trên vùng soạn thảo.</td></tr>
+  <tr><td>Thanh menu</td><td>menu bar</td><td>Hàng menu kiểu cổ điển (Tập tin, Sửa, Xem...) giống Word.</td></tr>
+  <tr><td>Menu nổi</td><td>bubble menu</td><td>Menu nhỏ tự nổi lên khi bạn bôi đen chữ hoặc chọn ảnh/ô bảng.</td></tr>
+  <tr><td>Lệnh gạch chéo</td><td>slash command</td><td>Danh sách khối hiện ra khi gõ phím <code>/</code> trên một dòng trống.</td></tr>
+  <tr><td>Khối</td><td>block</td><td>Một đơn vị nội dung: đoạn văn, tiêu đề, danh sách, bảng, ảnh...</td></tr>
+  <tr><td>Hộp thông tin</td><td>callout</td><td>Hộp chú thích có màu nền và emoji để làm nổi thông tin.</td></tr>
+  <tr><td>Thẻ liên kết</td><td>bookmark</td><td>Liên kết hiển thị dưới dạng thẻ xem trước (có tiêu đề, mô tả, ảnh).</td></tr>
+  <tr><td>Tệp đính kèm</td><td>file attachment</td><td>Thẻ tệp tải lên (PDF, ảnh, âm thanh...) kèm nút tải xuống.</td></tr>
+  <tr><td>Khối mã</td><td>code block</td><td>Khối hiển thị mã lập trình, tự tô màu cú pháp.</td></tr>
+  <tr><td>Làm nổi</td><td>highlight</td><td>Tô màu nền cho chữ (như bút dạ quang).</td></tr>
+  <tr><td>Chế độ chỉ đọc</td><td>read-only</td><td>Chỉ xem nội dung, không cho chỉnh sửa.</td></tr>
+  <tr><td>Emoji</td><td>Giữ nguyên</td><td>Biểu tượng cảm xúc 😊.</td></tr>
+</table>
+<div class="warn"><strong>Lưu ý cho biên dịch viên — KHÔNG dịch những chuỗi sau</strong> vì người dùng phải thấy/gõ đúng nguyên văn:
+  <ul>
+    <li><strong>Tên hàm công thức</strong>: <span class="nodict">SUM</span> <span class="nodict">AVG</span> <span class="nodict">MIN</span> <span class="nodict">MAX</span> <span class="nodict">COUNT</span></li>
+    <li><strong>Mã lỗi công thức</strong>: <span class="nodict">#EMPTY</span> <span class="nodict">#INVALID-REFERENCE</span> <span class="nodict">#INVALID-FORMULA</span> <span class="nodict">#DIVISION-BY-ZERO</span> <span class="nodict">#CIRCULAR-REFERENCE</span></li>
+    <li><strong>Địa chỉ ô và công thức mẫu</strong>: <code>A1</code>, <code>B2</code>, <code>A1:B3</code>, <code>=SUM(A1:B3)</code></li>
+    <li><strong>Phím tắt</strong>: <span class="kbd">Ctrl</span>, <span class="kbd">Cmd</span>, <span class="kbd">Enter</span>, <span class="kbd">Esc</span>, <span class="kbd">Tab</span> và phím <code>/</code>, <code>:</code></li>
+    <li><strong>Nhãn cỡ ảnh trên nút</strong>: <strong>S / M / L</strong> (trong câu chữ có thể giải thích là Nhỏ / Vừa / Lớn).</li>
+  </ul>
+  Các nhãn menu/lệnh (Tập tin, Sửa, Bảng, Hộp thông tin...) phải dịch <strong>khớp đúng</strong> với chuỗi trong giao diện ứng dụng, không dịch tự do.
+</div>
+
 <h2><span class="sn">1</span> UEditor là gì</h2>
-<p><strong>UEditor</strong> là rich-text editor dựa trên TipTap/ProseMirror. Người dùng có thể viết nội dung, định dạng chữ, chèn bảng, ảnh, liên kết, emoji, code block, callout, bookmark và tệp đính kèm ngay trong ứng dụng web.</p>
-<p>UEditor phù hợp cho các màn hình cần soạn thảo nội dung dài như bài viết, mô tả sản phẩm, ghi chú nội bộ, tài liệu hướng dẫn, biên bản họp hoặc nội dung có bảng tính nhẹ. Người dùng không cần biết HTML; mọi thao tác chính đều có thể làm bằng toolbar, menu nổi hoặc slash command.</p>
-<p>Component có ba kiểu hiển thị chính:</p>
+<p><strong>UEditor</strong> là trình soạn thảo văn bản phong phú. Bạn có thể viết nội dung, định dạng chữ, chèn bảng, ảnh, liên kết, emoji, khối mã, hộp thông tin, thẻ liên kết và tệp đính kèm ngay trong ứng dụng.</p>
+<p>UEditor phù hợp cho các màn hình cần soạn nội dung dài như bài viết, mô tả sản phẩm, ghi chú nội bộ, tài liệu hướng dẫn, biên bản họp hoặc nội dung có bảng tính nhẹ. Bạn không cần biết kỹ thuật; mọi thao tác chính đều có thể làm bằng thanh công cụ, menu nổi hoặc lệnh gạch chéo <code>/</code>.</p>
+<p>UEditor có thể xuất hiện ở vài kiểu giao diện khác nhau tùy màn hình bạn đang dùng:</p>
 <ul>
-  <li><strong>default</strong>: có toolbar đầy đủ phía trên editor.</li>
-  <li><strong>minimal</strong>: toolbar rất gọn, hiện chỉ có Bold, Italic và Bullet list.</li>
-  <li><strong>notion</strong>: biến thể hiển thị nhẹ hơn cho trải nghiệm giống Notion; toolbar, menu bar và bubble menu vẫn do các prop riêng quyết định.</li>
+  <li><strong>Đầy đủ</strong>: có thanh công cụ đầy đủ phía trên vùng soạn thảo, thấy ngay các nút định dạng.</li>
+  <li><strong>Gọn</strong>: thanh công cụ rút gọn, chỉ có vài nút cơ bản như In đậm, In nghiêng và Danh sách dấu chấm.</li>
+  <li><strong>Tối giản</strong>: giao diện nhẹ giống Notion, tập trung vào gõ nội dung, lệnh <code>/</code> và menu nổi khi chọn chữ.</li>
 </ul>
 <table>
-  <tr><th>Tình huống</th><th>Nên dùng</th><th>Lý do</th></tr>
-  <tr><td>Biểu mẫu nhập mô tả ngắn</td><td><code>variant="minimal"</code></td><td>Giao diện gọn, ít gây nhiễu.</td></tr>
-  <tr><td>Trang soạn thảo nội dung đầy đủ</td><td><code>variant="default"</code></td><td>Người dùng thấy ngay các nút định dạng chính.</td></tr>
-  <tr><td>Soạn tài liệu có bảng, ảnh, block linh hoạt</td><td><code>variant="notion"</code> kết hợp cấu hình toolbar/menu phù hợp</td><td>Giữ cảm giác soạn thảo gọn hơn, còn slash command và bubble menu vẫn đến từ extension/prop tương ứng.</td></tr>
-  <tr><td>Xem trước nội dung đã lưu</td><td><code>editable=false</code></td><td>Hiển thị nội dung nhưng không cho chỉnh sửa.</td></tr>
+  <tr><th>Tình huống</th><th>Trải nghiệm</th></tr>
+  <tr><td>Biểu mẫu nhập mô tả ngắn</td><td>Giao diện gọn, ít gây nhiễu.</td></tr>
+  <tr><td>Trang soạn nội dung đầy đủ</td><td>Thấy ngay các nút định dạng chính trên thanh công cụ.</td></tr>
+  <tr><td>Soạn tài liệu có bảng, ảnh, nhiều loại khối</td><td>Giao diện tối giản, dùng lệnh <code>/</code> và menu nổi để chèn và chỉnh nhanh.</td></tr>
+  <tr><td>Xem lại nội dung đã lưu</td><td>Hiển thị nội dung ở chế độ chỉ đọc, không cho chỉnh sửa.</td></tr>
 </table>
-<div class="note">Tài liệu này mô tả hành vi thực tế trong code hiện tại: <code>UEditor.tsx</code>, <code>toolbar.tsx</code>, <code>menus.tsx</code>, <code>menu-bar.tsx</code>, <code>slash-command.tsx</code> và nhóm file bảng/công thức.</div>
+<div class="tip">Một số nút và tính năng có thể hiện hoặc ẩn tùy cách màn hình được thiết lập. Nếu bạn không thấy một nút nào đó, có thể màn hình đó được cấu hình ở dạng gọn hơn.</div>
 
 <h2><span class="sn">2</span> Giao diện tổng quan</h2>
-<p>Một editor thông thường gồm toolbar hoặc menu bar, vùng soạn thảo, bubble menu khi chọn nội dung, slash command khi gõ <code>/</code>, và footer đếm từ/ký tự nếu được bật.</p>
+<p>Giao diện thông thường gồm thanh công cụ hoặc thanh menu, vùng soạn thảo, menu nổi khi chọn nội dung, lệnh gạch chéo khi gõ <code>/</code>, và phần đếm từ/ký tự ở dưới nếu được bật.</p>
 <div class="figure">
   <img class="shot" src="img-guide/current/01-menu-bar-editor.png" alt="Ảnh chụp UEditor với menu bar, toolbar, vùng soạn thảo và bộ đếm ký tự">
   <div class="editor">
     <div class="menubar">
-      <span class="menuitem">File</span><span class="menuitem">Edit</span><span class="menuitem">View</span><span class="menuitem">Insert</span><span class="menuitem">Format</span><span class="menuitem">Tools</span><span class="menuitem">Table</span>
+      <span class="menuitem">Tập tin</span><span class="menuitem">Sửa</span><span class="menuitem">Xem</span><span class="menuitem">Thêm</span><span class="menuitem">Định dạng</span><span class="menuitem">Công cụ</span><span class="menuitem">Bảng</span>
     </div>
     <div class="toolbar">
       <span class="pill">Sans</span><span class="pill">16</span><span class="pill">H2</span><span class="pill active">B</span><span class="pill">I</span><span class="pill">U</span><span class="pill">A</span><span class="pill">🔗</span><span class="pill">😊</span><span class="pill">☷</span><span class="pill">▦</span><span class="pill">↶</span><span class="pill">↷</span>
     </div>
     <div class="canvas">
-      <h3>Welcome to UEditor</h3>
-      <p>A powerful <strong>Notion-like</strong> editor built with TipTap. Chọn text để mở bubble menu hoặc gõ <code>/</code> trên dòng trống để thêm block.</p>
-      <p class="small">42 words · 281 characters</p>
+      <h3>Chào mừng đến với UEditor</h3>
+      <p>Trình soạn thảo mạnh mẽ, gọn nhẹ. Chọn chữ để mở menu nổi hoặc gõ <code>/</code> trên dòng trống để thêm khối.</p>
+      <p class="small">42 từ · 281 ký tự</p>
     </div>
   </div>
-  <div class="figcap">Minh họa đúng bố cục hiện tại: menu bar tùy chọn, toolbar, vùng editor và bộ đếm ký tự.</div>
+  <div class="figcap">Minh họa bố cục: thanh menu (tùy chọn), thanh công cụ, vùng soạn thảo và bộ đếm ký tự.</div>
 </div>
-<h3>Các vùng người dùng cần biết</h3>
+<h3>Các vùng bạn cần biết</h3>
 <table>
   <tr><th>Vùng</th><th>Xuất hiện khi nào</th><th>Dùng để làm gì</th></tr>
-  <tr><td>Menu bar</td><td>Khi bật <code>showMenuBar</code></td><td>Thao tác theo nhóm File, Edit, View, Insert, Format, Tools, Table.</td></tr>
-  <tr><td>Toolbar</td><td>Khi <code>showToolbar=true</code> và editor editable</td><td>Định dạng nhanh text, block, ảnh, bảng, undo/redo.</td></tr>
-  <tr><td>Vùng soạn thảo</td><td>Luôn có trong editor</td><td>Nhập nội dung, chọn text, paste ảnh/bảng, kéo thả ảnh.</td></tr>
-  <tr><td>Bubble menu</td><td>Khi chọn text, link, ảnh hoặc ô bảng</td><td>Sửa nhanh đúng nội dung đang chọn.</td></tr>
-  <tr><td>Slash command</td><td>Khi gõ <code>/</code></td><td>Chèn nhanh block như heading, list, table, callout, bookmark, file card.</td></tr>
-  <tr><td>Character count</td><td>Khi bật <code>showCharacterCount</code></td><td>Theo dõi số từ/ký tự và giới hạn <code>maxCharacters</code>.</td></tr>
+  <tr><td>Thanh menu</td><td>Khi màn hình bật menu kiểu cổ điển</td><td>Thao tác theo nhóm Tập tin, Sửa, Xem, Thêm, Định dạng, Công cụ, Bảng.</td></tr>
+  <tr><td>Thanh công cụ</td><td>Khi đang ở chế độ chỉnh sửa và có thanh công cụ</td><td>Định dạng nhanh chữ, khối, ảnh, bảng, hoàn tác/làm lại.</td></tr>
+  <tr><td>Vùng soạn thảo</td><td>Luôn có</td><td>Nhập nội dung, chọn chữ, dán ảnh/bảng, kéo thả ảnh.</td></tr>
+  <tr><td>Menu nổi</td><td>Khi chọn chữ, liên kết, ảnh hoặc ô bảng</td><td>Sửa nhanh đúng nội dung đang chọn.</td></tr>
+  <tr><td>Lệnh gạch chéo</td><td>Khi gõ <code>/</code></td><td>Chèn nhanh khối như tiêu đề, danh sách, bảng, hộp thông tin, thẻ liên kết, tệp đính kèm.</td></tr>
+  <tr><td>Bộ đếm ký tự</td><td>Khi màn hình bật bộ đếm</td><td>Theo dõi số từ/ký tự và giới hạn nếu có.</td></tr>
 </table>
-<div class="tip">Nếu người dùng mới chưa quen, hãy hướng dẫn ba thao tác cốt lõi trước: gõ nội dung bình thường, chọn text để mở bubble menu, gõ <code>/</code> để thêm block.</div>
+<div class="tip">Nếu bạn mới làm quen, hãy nhớ ba thao tác cốt lõi: gõ nội dung bình thường, chọn chữ để mở menu nổi, gõ <code>/</code> để thêm khối.</div>
 
-<h2><span class="sn">3</span> Toolbar và định dạng văn bản</h2>
-<p>Toolbar là nơi dùng nhanh các lệnh định dạng phổ biến. Một số nút là nút bấm trực tiếp, một số nút mở dropdown hoặc palette.</p>
-<div class="note">Trong <code>variant="minimal"</code>, toolbar không phải bản rút gọn của toàn bộ toolbar đầy đủ; code hiện chỉ render ba nút <strong>Bold</strong>, <strong>Italic</strong> và <strong>Bullet list</strong>. Nếu tài liệu end-user cần nhắc đến font, ảnh hoặc bảng thì nên dùng <code>default</code>/<code>notion</code> với <code>showToolbar</code> phù hợp.</div>
+<h2><span class="sn">3</span> Thanh công cụ và định dạng văn bản</h2>
+<p>Thanh công cụ là nơi dùng nhanh các lệnh định dạng phổ biến. Một số nút bấm là áp dụng ngay, một số nút mở danh sách hoặc bảng màu để chọn.</p>
+<div class="note">Ở chế độ giao diện gọn, thanh công cụ chỉ có vài nút cơ bản như In đậm, In nghiêng và Danh sách dấu chấm. Nếu bạn cần dùng phông chữ, ảnh hoặc bảng mà không thấy nút, hãy dùng màn hình ở giao diện đầy đủ hơn.</div>
 <table>
   <tr><th>Nhóm lệnh</th><th>Chức năng</th><th>Ghi chú thao tác</th></tr>
-  <tr><td>Typography</td><td>Phông chữ, cỡ chữ, kiểu đoạn, giãn dòng, giãn chữ</td><td>Hỗ trợ preset và có thể cấu hình bằng props <code>fontFamilies</code>, <code>fontSizes</code>, <code>lineHeights</code>, <code>letterSpacings</code>.</td></tr>
-  <tr><td>Inline style</td><td>Bold, italic, underline, strike, inline code, subscript, superscript</td><td>Áp dụng cho đoạn text đang chọn hoặc text nhập tiếp theo.</td></tr>
-  <tr><td>Màu sắc</td><td>Màu chữ và highlight</td><td>Chọn màu preset hoặc đưa về automatic/default.</td></tr>
-  <tr><td>Đoạn văn</td><td>Heading 1, Heading 2, Heading 3, paragraph, alignment</td><td>Alignment gồm left, center, right, justify.</td></tr>
-  <tr><td>Block</td><td>Bullet list, ordered list, task list, quote, code block</td><td>Task list có checkbox tương tác trong editor.</td></tr>
-  <tr><td>Insert</td><td>Link, emoji, image, table</td><td>Image có URL/upload; table có grid chọn kích thước.</td></tr>
-  <tr><td>History</td><td>Undo, redo</td><td>Nút bị disable khi không có lịch sử thao tác phù hợp.</td></tr>
+  <tr><td>Kiểu chữ</td><td>Phông chữ, cỡ chữ, kiểu đoạn, giãn dòng, giãn chữ</td><td>Chọn từ danh sách dựng sẵn; áp dụng ngay cho chữ đang chọn.</td></tr>
+  <tr><td>Định dạng chữ</td><td>In đậm, in nghiêng, gạch chân, gạch ngang, chữ mã, chỉ số dưới, chỉ số trên</td><td>Áp dụng cho đoạn chữ đang chọn hoặc chữ nhập tiếp theo.</td></tr>
+  <tr><td>Màu sắc</td><td>Màu chữ và màu làm nổi</td><td>Chọn màu có sẵn hoặc đưa về mặc định.</td></tr>
+  <tr><td>Đoạn văn</td><td>Tiêu đề 1, Tiêu đề 2, Tiêu đề 3, đoạn thường, căn lề</td><td>Căn lề gồm trái, giữa, phải, đều hai bên.</td></tr>
+  <tr><td>Khối</td><td>Danh sách dấu chấm, danh sách số, danh sách việc cần làm, trích dẫn, khối mã</td><td>Danh sách việc cần làm có ô tick được ngay trong nội dung.</td></tr>
+  <tr><td>Chèn</td><td>Liên kết, emoji, ảnh, bảng</td><td>Ảnh chèn từ địa chỉ web hoặc tải lên; bảng chọn kích thước bằng lưới.</td></tr>
+  <tr><td>Lịch sử</td><td>Hoàn tác, làm lại</td><td>Nút bị mờ khi không có thao tác nào để hoàn tác/làm lại.</td></tr>
 </table>
 <div class="figure">
   <img class="shot" src="img-guide/current/02-toolbar-font-family-crop.png" alt="Ảnh chụp dropdown Font Family trên toolbar UEditor">
@@ -356,69 +396,67 @@ tr:nth-child(even) td { background: #fbfcff; }
     <span class="pill active">B</span><span class="pill">I</span><span class="pill">U</span><span class="pill">S</span><span class="pill">x₂</span><span class="pill">x²</span>
     <span class="pill">A</span><span class="pill">▣</span><span class="pill">☰</span><span class="pill">▤</span><span class="pill">▦</span>
   </div>
-  <div class="figcap">Toolbar hiện tại có thêm typography nâng cao, subscript/superscript, màu chữ, highlight, danh sách và bảng.</div>
+  <div class="figcap">Thanh công cụ có kiểu chữ nâng cao, chỉ số trên/dưới, màu chữ, làm nổi, danh sách và bảng.</div>
 </div>
-<h3>Cách định dạng một đoạn text</h3>
+<h3>Cách định dạng một đoạn chữ</h3>
 <ol class="steps">
-  <li>Bôi đen đoạn text cần chỉnh hoặc đặt con trỏ tại vị trí muốn nhập tiếp.</li>
-  <li>Chọn nhóm định dạng trên toolbar: bold, italic, underline, màu chữ, highlight hoặc typography.</li>
-  <li>Nếu chọn dropdown, bấm vào lựa chọn mong muốn. Editor áp dụng ngay cho vùng chọn.</li>
-  <li>Nếu muốn bỏ định dạng, chọn lại nút đang active hoặc dùng <strong>Clear Formatting</strong> trong menu bar.</li>
+  <li>Bôi đen đoạn chữ cần chỉnh hoặc đặt con trỏ tại vị trí muốn nhập tiếp.</li>
+  <li>Chọn nhóm định dạng trên thanh công cụ: in đậm, in nghiêng, gạch chân, màu chữ, làm nổi hoặc kiểu chữ.</li>
+  <li>Nếu là danh sách thả xuống, bấm vào lựa chọn mong muốn. Định dạng áp dụng ngay cho vùng chọn.</li>
+  <li>Nếu muốn bỏ định dạng, bấm lại nút đang bật hoặc dùng lệnh <strong>Xóa định dạng</strong>.</li>
 </ol>
-<h3>Chi tiết nhóm typography</h3>
+<h3>Chi tiết nhóm kiểu chữ</h3>
 <table>
-  <tr><th>Control</th><th>Ví dụ</th><th>Tác động</th></tr>
-  <tr><td>Font Family</td><td>Default Font, Inter, System UI, Roboto, Georgia...</td><td>Đổi phông chữ của text đang chọn thông qua mark <code>textStyle</code>.</td></tr>
-  <tr><td>Font Size</td><td>14px, 16px, 24px hoặc nhập số trong panel bubble</td><td>Đổi cỡ chữ. Bubble menu giới hạn nhập trực tiếp khoảng 8-96px.</td></tr>
-  <tr><td>Text Style</td><td>Normal, Heading 1, Heading 2, Heading 3</td><td>Đổi node đoạn hiện tại, không chỉ đổi kích thước chữ.</td></tr>
-  <tr><td>Line Height</td><td>1.2, 1.5, 1.75</td><td>Đổi độ giãn dòng của text.</td></tr>
-  <tr><td>Letter Spacing</td><td>0, 0.05em...</td><td>Đổi khoảng cách chữ, hữu ích cho tiêu đề hoặc nhãn ngắn.</td></tr>
+  <tr><th>Tùy chọn</th><th>Ví dụ</th><th>Tác động</th></tr>
+  <tr><td>Phông chữ</td><td>Phông mặc định, Inter, System UI, Roboto, Georgia...</td><td>Đổi phông chữ của đoạn chữ đang chọn.</td></tr>
+  <tr><td>Cỡ chữ</td><td>14px, 16px, 24px hoặc nhập số trong menu nổi</td><td>Đổi cỡ chữ. Khi nhập trực tiếp, cỡ chữ nằm trong khoảng 8–96px.</td></tr>
+  <tr><td>Kiểu đoạn</td><td>Thường, Tiêu đề 1, Tiêu đề 2, Tiêu đề 3</td><td>Đổi cả kiểu đoạn, không chỉ đổi cỡ chữ.</td></tr>
+  <tr><td>Giãn dòng</td><td>1.2, 1.5, 1.75</td><td>Đổi độ giãn dòng của chữ.</td></tr>
+  <tr><td>Giãn chữ</td><td>Hẹp, vừa, rộng...</td><td>Đổi khoảng cách giữa các chữ, hữu ích cho tiêu đề hoặc nhãn ngắn.</td></tr>
 </table>
-<div class="warn">Heading chỉ hỗ trợ cấp 1, 2, 3 trong extension hiện tại. Task list có input rule cho <code>[]</code>, <code>[ ]</code>, <code>- []</code>, <code>- [ ]</code> và <code>* [ ]</code>. Nếu người dùng cần Heading 4-6 hoặc markdown shortcut khác thì phải mở rộng cấu hình code trước, không phải lỗi của tài liệu.</div>
+<div class="note">Tiêu đề chỉ có ba cấp 1, 2, 3. Với danh sách việc cần làm, bạn có thể gõ nhanh <code>[]</code> hoặc <code>[ ]</code> ở đầu dòng để tự tạo ô tick.</div>
 
-<h2><span class="sn">4</span> Slash command và emoji autocomplete</h2>
-<p>Gõ <code>/</code> trong editor để mở danh sách khối. Có thể tiếp tục gõ để lọc, dùng mũi tên lên/xuống để chọn và nhấn <span class="kbd">Enter</span> để chèn.</p>
+<h2><span class="sn">4</span> Lệnh gạch chéo và gợi ý emoji</h2>
+<p>Gõ <code>/</code> trong vùng soạn thảo để mở danh sách khối. Bạn có thể gõ tiếp để lọc, dùng mũi tên lên/xuống để chọn và nhấn <span class="kbd">Enter</span> để chèn.</p>
 <div class="figure">
   <img class="shot" src="img-guide/current/03-slash-command-crop.png" alt="Ảnh chụp slash command UEditor đang mở danh sách Basic Blocks">
   <div class="slash">
-    <div class="slash-title">Basic Blocks</div>
-    <div class="slash-row active"><span class="ico">T</span><div><strong>Text</strong><br><span class="small">Plain text block</span></div></div>
-    <div class="slash-row"><span class="ico">H1</span><div><strong>Heading 1</strong><br><span class="small">Large section heading</span></div></div>
-    <div class="slash-row"><span class="ico">☑</span><div><strong>To-do List</strong><br><span class="small">Checkboxes for tasks</span></div></div>
-    <div class="slash-row"><span class="ico">▦</span><div><strong>Table</strong><br><span class="small">Add a table</span></div></div>
-    <div class="slash-row"><span class="ico">i</span><div><strong>Callout</strong><br><span class="small">Highlight key info with a callout block</span></div></div>
-    <div class="slash-row"><span class="ico">📎</span><div><strong>File Attachment</strong><br><span class="small">Upload a file card attachment</span></div></div>
+    <div class="slash-title">Khối cơ bản</div>
+    <div class="slash-row active"><span class="ico">T</span><div><strong>Văn bản</strong><br><span class="small">Khối văn bản thuần</span></div></div>
+    <div class="slash-row"><span class="ico">H1</span><div><strong>Tiêu đề 1</strong><br><span class="small">Tiêu đề phần lớn</span></div></div>
+    <div class="slash-row"><span class="ico">☑</span><div><strong>Danh sách công việc</strong><br><span class="small">Checkbox công việc</span></div></div>
+    <div class="slash-row"><span class="ico">▦</span><div><strong>Bảng</strong><br><span class="small">Thêm bảng</span></div></div>
+    <div class="slash-row"><span class="ico">i</span><div><strong>Hộp thông tin</strong><br><span class="small">Làm nổi bật thông tin chính</span></div></div>
+    <div class="slash-row"><span class="ico">📎</span><div><strong>Tệp đính kèm</strong><br><span class="small">Tải lên tệp đính kèm</span></div></div>
   </div>
-  <div class="figcap">Slash command hiện hỗ trợ text, heading 1-3, bullet/number/task list, quote, code block, divider, table, callout, bookmark và file card.</div>
+  <div class="figcap">Lệnh gạch chéo hỗ trợ văn bản, tiêu đề 1–3, danh sách dấu chấm/số/công việc, trích dẫn, khối mã, đường phân cách, bảng, hộp thông tin, thẻ liên kết và tệp đính kèm.</div>
 </div>
-<div class="warn"><code>showFloatingMenu</code> đang có trong type và <code>CustomFloatingMenu</code> đã được định nghĩa trong code, nhưng <code>UEditor.tsx</code> hiện chưa render component này. Trong bản hiện tại, hãy hướng dẫn người dùng dùng slash command bằng phím <code>/</code>; chỉ mô tả nút floating add-block nếu đội triển khai nối lại prop này.</div>
-<h3>Cách dùng slash command</h3>
+<h3>Cách dùng lệnh gạch chéo</h3>
 <ol class="steps">
-  <li>Đặt con trỏ ở dòng trống hoặc vị trí muốn chèn block.</li>
-  <li>Gõ <code>/</code>. Danh sách <strong>Basic Blocks</strong> sẽ mở ngay dưới con trỏ.</li>
-  <li>Gõ tiếp từ khóa như <code>table</code>, <code>quote</code>, <code>file</code> để lọc danh sách.</li>
-  <li>Dùng chuột để chọn item, hoặc dùng <span class="kbd">↑</span>/<span class="kbd">↓</span> rồi nhấn <span class="kbd">Enter</span>.</li>
-  <li>Nhấn <span class="kbd">Esc</span> hoặc click ra ngoài để đóng menu.</li>
+  <li>Đặt con trỏ ở dòng trống hoặc vị trí muốn chèn khối.</li>
+  <li>Gõ <code>/</code>. Danh sách <strong>khối cơ bản</strong> sẽ mở ngay dưới con trỏ.</li>
+  <li>Gõ tiếp một phần tên khối như <code>bảng</code>, <code>trích dẫn</code>, <code>tệp</code> để lọc danh sách.</li>
+  <li>Dùng chuột để chọn, hoặc dùng <span class="kbd">↑</span>/<span class="kbd">↓</span> rồi nhấn <span class="kbd">Enter</span>.</li>
+  <li>Nhấn <span class="kbd">Esc</span> hoặc bấm ra ngoài để đóng danh sách.</li>
 </ol>
-<div class="tip">Bộ lọc slash command hiện lọc theo <strong>title</strong> của command, không lọc theo phần mô tả. Ví dụ gõ <code>file</code> ra File Attachment, nhưng gõ theo một từ chỉ nằm trong description có thể không ra kết quả.</div>
+<div class="tip">Danh sách lọc theo <strong>tên khối</strong>, không lọc theo phần mô tả. Hãy gõ một từ trong tên khối (ví dụ <code>tệp</code> để ra Tệp đính kèm) để tìm nhanh hơn.</div>
 <table>
   <tr><th>Lệnh</th><th>Kết quả</th><th>Lưu ý</th></tr>
-  <tr><td>Text</td><td>Đoạn văn thường</td><td>Dùng để quay về paragraph sau heading/list.</td></tr>
-  <tr><td>Heading 1/2/3</td><td>Tiêu đề cấp tương ứng</td><td>Phù hợp chia section nội dung.</td></tr>
-  <tr><td>Bullet / Numbered / To-do List</td><td>Danh sách dấu chấm, số hoặc checkbox</td><td>Task list checkbox có thể tick trực tiếp.</td></tr>
-  <tr><td>Quote / Code Block</td><td>Khối trích dẫn hoặc khối mã</td><td>Code block dùng lowlight để tô cú pháp.</td></tr>
-  <tr><td>Divider</td><td>Đường phân cách ngang</td><td>Dùng tách các phần nội dung dài.</td></tr>
-  <tr><td>Table</td><td>Bảng 3×3 có header row</td><td>Có thể chỉnh tiếp bằng table controls.</td></tr>
-  <tr><td>Callout</td><td>Hộp chú thích nổi bật</td><td>Node view có nút đổi emoji và swatch màu nền Gray, Blue, Green, Yellow, Red.</td></tr>
-  <tr><td>Bookmark Card</td><td>Thẻ preview link</td><td>Lệnh hiện dùng prompt nhập URL; có thể lấy metadata nếu app truyền <code>fetchMetadata</code>.</td></tr>
-  <tr><td>File Attachment</td><td>Thẻ tệp đính kèm</td><td>Lệnh mở file picker, chèn data URL trước; <code>FileCardView</code> sẽ upload nếu có <code>uploadFile</code>.</td></tr>
+  <tr><td>Văn bản</td><td>Đoạn văn thường</td><td>Dùng để quay về đoạn thường sau tiêu đề/danh sách.</td></tr>
+  <tr><td>Tiêu đề 1/2/3</td><td>Tiêu đề cấp tương ứng</td><td>Phù hợp chia phần nội dung.</td></tr>
+  <tr><td>Danh sách dấu chấm / số / công việc</td><td>Danh sách dấu chấm, đánh số hoặc có ô tick</td><td>Danh sách công việc tick được trực tiếp.</td></tr>
+  <tr><td>Trích dẫn / Khối mã</td><td>Khối trích dẫn hoặc khối mã</td><td>Khối mã tự tô màu cú pháp theo ngôn ngữ.</td></tr>
+  <tr><td>Phân cách</td><td>Đường kẻ ngang</td><td>Dùng tách các phần nội dung dài.</td></tr>
+  <tr><td>Bảng</td><td>Bảng 3×3 có hàng tiêu đề</td><td>Chỉnh tiếp bằng các nút điều khiển bảng.</td></tr>
+  <tr><td>Hộp thông tin</td><td>Hộp chú thích nổi bật</td><td>Có nút đổi emoji và chọn màu nền: Xám, Xanh dương, Xanh lá, Vàng, Đỏ.</td></tr>
+  <tr><td>Thẻ liên kết</td><td>Thẻ xem trước liên kết</td><td>Nhập địa chỉ web; thẻ có thể hiển thị tiêu đề, mô tả, ảnh của trang.</td></tr>
+  <tr><td>Tệp đính kèm</td><td>Thẻ tệp đính kèm</td><td>Mở hộp chọn tệp; thẻ hiển thị tên, dung lượng và nút tải xuống.</td></tr>
 </table>
-<h3>Emoji autocomplete</h3>
-<p>Ngoài emoji picker trên toolbar, UEditor hiện bật <code>EmojiSuggestion</code>. Khi gõ <code>:</code>, editor mở lưới emoji gợi ý; người dùng có thể gõ tiếp tên emoji để lọc, dùng phím mũi tên để di chuyển và nhấn <span class="kbd">Enter</span> để chèn.</p>
-<div class="tip">Emoji suggestion hiển thị tối đa 64 emoji trong popup. Khi không có query, danh sách dùng các emoji đầu trong bộ <code>EMOJI_LIST</code>.</div>
+<h3>Gợi ý emoji</h3>
+<p>Ngoài nút emoji trên thanh công cụ, bạn có thể gõ <code>:</code> để mở lưới emoji gợi ý. Gõ tiếp tên emoji để lọc, dùng phím mũi tên để di chuyển và nhấn <span class="kbd">Enter</span> để chèn.</p>
 
-<h2><span class="sn">5</span> Bubble menu khi chọn nội dung</h2>
-<p>Khi bôi đen text hoặc chọn một node đặc biệt, bubble menu nổi phía trên vùng chọn. Menu này giúp chỉnh nhanh mà không cần di chuyển lên toolbar.</p>
+<h2><span class="sn">5</span> Menu nổi khi chọn nội dung</h2>
+<p>Khi bôi đen chữ hoặc chọn một đối tượng đặc biệt, một menu nhỏ sẽ nổi lên phía trên vùng chọn. Menu này giúp chỉnh nhanh mà không cần di chuyển lên thanh công cụ.</p>
 <div class="figure">
   <img class="shot" src="img-guide/current/04-bubble-menu-crop.png" alt="Ảnh chụp bubble menu khi chọn nội dung trong UEditor">
   <div style="text-align:center">
@@ -427,158 +465,158 @@ tr:nth-child(even) td { background: #fbfcff; }
     </div>
   </div>
   <div class="canvas" style="min-height:auto;border:1px dashed #cfd6e8;border-radius:8px">
-    <p>Ví dụ: <mark style="background:#dfe5ff">đoạn text đang được chọn</mark> có thể đổi màu, tạo link, bật bold/italic hoặc mở panel typography.</p>
+    <p>Ví dụ: <mark style="background:#dfe5ff">đoạn chữ đang được chọn</mark> có thể đổi màu, tạo liên kết, in đậm/in nghiêng hoặc mở bảng kiểu chữ.</p>
   </div>
-  <div class="figcap">Bubble menu có thêm nút công thức và màu nền/border khi selection nằm trong bảng.</div>
+  <div class="figcap">Menu nổi có thêm nút công thức và màu nền/viền khi bạn đang ở trong bảng.</div>
 </div>
-<p>Với link, bubble menu chuyển sang chế độ preview: hiển thị URL, nút mở tab mới, sửa link và gỡ link. Với ảnh, bubble menu hiển thị layout block/left/right, kích thước S/M/L, reset size và xóa ảnh.</p>
-<h3>Các trạng thái của bubble menu</h3>
+<p>Với liên kết, menu nổi chuyển sang chế độ xem trước: hiển thị địa chỉ, nút mở ở tab mới, sửa liên kết và gỡ liên kết. Với ảnh, menu nổi hiển thị kiểu bố cục (đứng riêng / cho chữ chảy trái-phải), ba cỡ Nhỏ / Vừa / Lớn, đặt lại kích thước và xóa ảnh.</p>
+<h3>Các trạng thái của menu nổi</h3>
 <table>
   <tr><th>Đang chọn</th><th>Menu hiển thị</th><th>Thao tác chính</th></tr>
-  <tr><td>Text thường</td><td>Bold, italic, underline, strike, code, link, màu chữ, highlight, typography</td><td>Định dạng nhanh nội dung đang chọn.</td></tr>
-  <tr><td>Link</td><td>URL preview, open, edit, unlink</td><td>Mở link, sửa URL hoặc gỡ link khỏi text.</td></tr>
-  <tr><td>Ảnh</td><td>Block/left/right layout, S/M/L, reset, delete</td><td>Chỉnh vị trí ảnh, kích thước preset hoặc xóa ảnh.</td></tr>
-  <tr><td>Ô bảng</td><td>Cell background, cell border, formula, merge/split, typography</td><td>Định dạng bảng và nhập công thức theo ô. Border có style, width, color và clear border.</td></tr>
+  <tr><td>Chữ thường</td><td>In đậm, in nghiêng, gạch chân, gạch ngang, chữ mã, liên kết, màu chữ, làm nổi, kiểu chữ</td><td>Định dạng nhanh nội dung đang chọn.</td></tr>
+  <tr><td>Liên kết</td><td>Xem địa chỉ, mở ở tab mới, sửa, gỡ liên kết</td><td>Mở liên kết, sửa địa chỉ hoặc gỡ liên kết khỏi chữ.</td></tr>
+  <tr><td>Ảnh</td><td>Bố cục đứng riêng / chảy trái / chảy phải, cỡ Nhỏ / Vừa / Lớn, đặt lại, xóa</td><td>Chỉnh vị trí ảnh, chọn kích thước hoặc xóa ảnh.</td></tr>
+  <tr><td>Ô bảng</td><td>Màu nền ô, viền ô, công thức, gộp/tách ô, kiểu chữ</td><td>Định dạng bảng và nhập công thức theo ô. Viền có kiểu nét, độ dày, màu và nút xóa viền.</td></tr>
 </table>
-<p>Panel typography trong bubble menu cho phép nhập font size trực tiếp trong khoảng 8-96px, chọn nhanh 14/16/24px, chọn line-height nhanh 1.2/1.5/1.75 và bật subscript/superscript. Khi selection nằm trong bảng, panel border hỗ trợ Solid, Dashed, Dotted, Double, None; width 1-4px; palette màu và nút xóa border.</p>
-<div class="tip">Bubble menu có độ trễ hiển thị ngắn để tránh nhấp nháy khi selection thay đổi. Khi người dùng mở input link hoặc formula, menu được giữ mở để không mất focus giữa chừng.</div>
+<p>Bảng kiểu chữ trong menu nổi cho phép nhập cỡ chữ trực tiếp trong khoảng 8–96px, chọn nhanh 14/16/24px, chọn giãn dòng nhanh 1.2/1.5/1.75 và bật chỉ số dưới/chỉ số trên. Khi bạn đang ở trong bảng, phần viền hỗ trợ kiểu nét Liền, Gạch, Chấm, Đôi, Không viền; độ dày 1–4px; bảng màu và nút xóa viền.</p>
+<div class="tip">Khi bạn mở ô nhập liên kết hoặc công thức, menu nổi được giữ nguyên để bạn không bị mất chỗ đang nhập.</div>
 
-<h2><span class="sn">6</span> Liên kết, ảnh, bookmark và tệp đính kèm</h2>
+<h2><span class="sn">6</span> Liên kết, ảnh, thẻ liên kết và tệp đính kèm</h2>
 <h3>Liên kết</h3>
-<p>Chọn text rồi bấm nút link để nhập URL. UEditor chỉ cho phép protocol an toàn như <code>http</code>, <code>https</code>, <code>mailto</code>, <code>tel</code> hoặc relative URL; URL nguy hiểm như <code>javascript:</code> và protocol-relative URL dạng <code>//example.com</code> bị từ chối.</p>
+<p>Chọn chữ rồi bấm nút liên kết để nhập địa chỉ. UEditor chỉ cho phép các địa chỉ an toàn (trang web, email, số điện thoại); các địa chỉ không an toàn sẽ bị từ chối.</p>
 <ol class="steps">
-  <li>Bôi đen text muốn gắn link.</li>
-  <li>Bấm biểu tượng link trên toolbar hoặc bubble menu.</li>
-  <li>Dán URL vào input. Nếu URL không có protocol nhưng hợp lệ, editor cố gắng chuẩn hóa thành <code>https://...</code>.</li>
-  <li>Bấm xác nhận. Text sẽ có style link và có thể preview lại khi đặt con trỏ/chọn link.</li>
+  <li>Bôi đen đoạn chữ muốn gắn liên kết.</li>
+  <li>Bấm biểu tượng liên kết trên thanh công cụ hoặc menu nổi.</li>
+  <li>Dán địa chỉ vào ô nhập. Nếu địa chỉ thiếu phần đầu nhưng hợp lệ, hệ thống sẽ tự thêm <code>https://</code>.</li>
+  <li>Bấm xác nhận. Chữ sẽ hiển thị dạng liên kết và xem lại được khi đặt con trỏ vào.</li>
 </ol>
 <h3>Ảnh</h3>
-<p>Ảnh có thể chèn từ URL, upload từ máy, paste hoặc kéo thả. Mặc định ảnh được giữ dạng base64 khi đang soạn thảo; khi lưu có thể gọi <code>prepareContentForSave()</code> để upload base64 thành URL thật.</p>
+<p>Ảnh có thể chèn từ địa chỉ web, tải lên từ máy, dán hoặc kéo thả vào. Khi đang soạn, ảnh được lưu tạm trong nội dung; khi bấm lưu, hệ thống có thể tự tải ảnh lên máy chủ và thay bằng địa chỉ chính thức.</p>
 <div class="figure">
   <img class="shot" src="img-guide/current/05-image-bubble-menu-crop.png" alt="Ảnh chụp menu ảnh với layout block, wrap left/right, kích thước S/M/L">
   <div class="canvas" style="min-height:128px">
-    <div class="image-demo">Image</div>
-    <p><strong>Wrapped image</strong>: chọn ảnh rồi dùng menu ảnh để chuyển giữa Image Block, Wrap Text Right và Wrap Text Left. Có thể chọn width Small, Medium, Large, reset size hoặc xóa ảnh.</p>
-    <p class="small">Trên mobile, ảnh wrap được đưa về block để tránh text bị bó hẹp.</p>
+    <div class="image-demo">Ảnh</div>
+    <p><strong>Ảnh cho chữ chảy quanh</strong>: chọn ảnh rồi dùng menu ảnh để chuyển giữa Ảnh đứng riêng, Cho chữ chảy bên phải và Cho chữ chảy bên trái. Có thể chọn cỡ Nhỏ, Vừa, Lớn, đặt lại kích thước hoặc xóa ảnh.</p>
+    <p class="small">Trên điện thoại, ảnh chảy quanh được đưa về dạng đứng riêng để chữ không bị bó hẹp.</p>
   </div>
-  <div class="figcap">Ảnh hiện có layout block/trái/phải và preset kích thước S/M/L, không chỉ là chèn ảnh đơn giản.</div>
+  <div class="figcap">Ảnh có thể đứng riêng hoặc cho chữ chảy quanh, kèm ba cỡ Nhỏ / Vừa / Lớn, không chỉ là chèn ảnh đơn giản.</div>
 </div>
 <table>
-  <tr><th>Cách chèn ảnh</th><th>Luồng xử lý</th><th>Khi nào dùng</th></tr>
-  <tr><td>Thêm từ URL</td><td>Editor kiểm tra URL ảnh an toàn rồi chèn <code>&lt;img&gt;</code>. Hỗ trợ <code>http</code>, <code>https</code>, relative URL và data image; chặn protocol-relative URL.</td><td>Khi ảnh đã có URL công khai hoặc CDN.</td></tr>
-  <tr><td>Upload từ máy</td><td>Nếu <code>imageInsertMode="upload"</code> và có <code>uploadImage</code>, upload ngay; nếu không, giữ data URL.</td><td>Khi app muốn ảnh xuất hiện ngay trong editor.</td></tr>
-  <tr><td>Paste / drag-drop</td><td>Extension ClipboardImages xử lý file ảnh, kiểm tra size/MIME và insert theo mode. Mặc định giới hạn 10MB và MIME <code>png</code>, <code>jpeg</code>, <code>webp</code>, <code>gif</code>, <code>svg+xml</code>.</td><td>Khi người dùng copy ảnh từ clipboard hoặc kéo file vào editor.</td></tr>
-  <tr><td>Upload khi lưu</td><td><code>prepareContentForSave()</code> tìm ảnh base64, chuyển thành <code>File</code>, gọi <code>uploadImageForSave</code>.</td><td>Khuyến nghị cho editor dài để tránh upload rác khi người dùng chưa lưu.</td></tr>
+  <tr><th>Cách chèn ảnh</th><th>Mô tả</th><th>Khi nào dùng</th></tr>
+  <tr><td>Thêm từ địa chỉ web</td><td>Dán địa chỉ ảnh; hệ thống kiểm tra an toàn rồi chèn vào.</td><td>Khi ảnh đã có sẵn trên mạng.</td></tr>
+  <tr><td>Tải lên từ máy</td><td>Chọn ảnh từ máy của bạn để chèn vào nội dung.</td><td>Khi muốn dùng ảnh trên máy.</td></tr>
+  <tr><td>Dán / kéo thả</td><td>Sao chép ảnh rồi dán, hoặc kéo tệp ảnh thả vào vùng soạn thảo.</td><td>Khi sao chép ảnh hoặc kéo tệp vào nhanh.</td></tr>
+  <tr><td>Khi lưu</td><td>Lúc bấm lưu, ảnh được tải lên máy chủ và thay bằng địa chỉ chính thức.</td><td>Tự động xảy ra, bạn không cần thao tác thêm.</td></tr>
 </table>
+<div class="note">Có thể có giới hạn về dung lượng và định dạng ảnh tùy hệ thống. Nếu ảnh quá lớn hoặc sai định dạng, ảnh sẽ không chèn được.</div>
 <h3>Chỉnh ảnh sau khi chèn</h3>
 <ol class="steps">
-  <li>Click vào ảnh để chọn node ảnh. Ảnh sẽ có viền/ring chọn.</li>
-  <li>Dùng bubble menu hoặc dropdown Image trên toolbar.</li>
-  <li>Chọn <strong>Image Block</strong> để ảnh đứng riêng một dòng, <strong>Wrap Text Right</strong> để ảnh nằm trái và chữ chảy bên phải, hoặc <strong>Wrap Text Left</strong> để ảnh nằm phải và chữ chảy bên trái.</li>
-  <li>Chọn S/M/L để đổi preset width. Dùng reset để bỏ kích thước custom, hoặc delete để xóa ảnh.</li>
+  <li>Bấm vào ảnh để chọn. Ảnh sẽ có viền chọn.</li>
+  <li>Dùng menu nổi hoặc nút ảnh trên thanh công cụ.</li>
+  <li>Chọn <strong>Ảnh đứng riêng</strong> để ảnh nằm một dòng riêng, <strong>Cho chữ chảy bên phải</strong> để ảnh nằm trái và chữ chảy bên phải, hoặc <strong>Cho chữ chảy bên trái</strong> để ảnh nằm phải và chữ chảy bên trái.</li>
+  <li>Chọn cỡ Nhỏ / Vừa / Lớn (nút hiển thị là S / M / L) để đổi cỡ. Dùng đặt lại để bỏ cỡ tùy chỉnh, hoặc xóa để bỏ ảnh.</li>
 </ol>
-<p>Ảnh còn có handle resize ở góc dưới phải. Khi kéo, editor giữ tỷ lệ ảnh, giới hạn tối thiểu khoảng 40px và không cho vượt quá vùng editor. Width/height được lưu vào node; reset size sẽ xóa kích thước custom và preset size. Preset hiện tại: ảnh block S/M/L khoảng 180/280/380px; ảnh wrap trái/phải S/M/L khoảng 140/200/260px.</p>
-<h3>Bookmark và file card</h3>
-<p>Slash command có <strong>Bookmark Card</strong> để nhúng link dạng thẻ preview. Lệnh bookmark hiện dùng prompt nhập URL đơn giản; sau khi chèn, nếu truyền <code>fetchMetadata</code>, bookmark có thể hiển thị title, description, image hoặc publisher. Nếu paste một URL <code>http/https</code> thuần vào đoạn paragraph đang trống, extension bookmark có thể tự chuyển đoạn đó thành bookmark card.</p>
-<p><strong>File Attachment</strong> mở file picker, tạo thẻ tệp bằng data URL. File card hiển thị icon theo MIME phổ biến như PDF, image, audio, video hoặc generic, hiển thị tên file/kích thước, có nút download và trạng thái upload/retry. Upload ngay sau khi chèn dùng thứ tự handler trong code: <code>uploadFile</code> trước, sau đó có thể fallback qua upload save-time wrapper hoặc <code>uploadImage</code> tùy cấu hình hiện có.</p>
-<div class="tip">Bookmark có fallback title theo hostname/URL nếu không lấy được metadata. Nếu fetch metadata lỗi, card có trạng thái lỗi và nút retry trong preview.</div>
-<div class="note">Bookmark và file card là node riêng, không phải link/ảnh thường. Khi render lại HTML đã lưu, cần giữ nguyên các thuộc tính data cần thiết để UEditor đọc lại đúng node.</div>
+<p>Ảnh còn có tay kéo ở góc dưới bên phải. Khi kéo, ảnh giữ nguyên tỷ lệ, không nhỏ hơn khoảng 40px và không vượt quá vùng soạn thảo.</p>
+<h3>Thẻ liên kết và tệp đính kèm</h3>
+<p>Lệnh gạch chéo có <strong>Thẻ liên kết</strong> để nhúng liên kết dưới dạng thẻ xem trước. Khi chèn, bạn nhập địa chỉ trang; thẻ có thể hiển thị tiêu đề, mô tả và ảnh của trang. Nếu bạn dán một địa chỉ trang web vào một dòng trống, nội dung đó có thể tự chuyển thành thẻ liên kết.</p>
+<p><strong>Tệp đính kèm</strong> mở hộp chọn tệp và tạo một thẻ tệp. Thẻ hiển thị biểu tượng theo loại tệp (PDF, ảnh, âm thanh, video hoặc tệp thường), tên và dung lượng tệp, nút tải xuống và trạng thái tải lên.</p>
+<div class="tip">Nếu không lấy được thông tin trang, thẻ liên kết vẫn hiển thị tên theo địa chỉ. Nếu tải thông tin bị lỗi, thẻ có nút thử lại.</div>
 
-<h2><span class="sn">7</span> Bảng: tạo, chỉnh sửa, resize, reorder và menu điều khiển</h2>
+<h2><span class="sn">7</span> Bảng: tạo, chỉnh sửa, đổi kích thước, sắp xếp và menu điều khiển</h2>
 <p>Có ba cách tạo bảng:</p>
 <ol>
-  <li>Bấm nút Table trên toolbar và rê chuột trên grid 8×8 để chọn số hàng/cột.</li>
-  <li>Gõ <code>/table</code> để chèn nhanh bảng 3×3 có header row.</li>
-  <li>Dùng menu bar: <strong>Insert &gt; Table</strong> hoặc <strong>Table &gt; Insert Table</strong>.</li>
+  <li>Bấm nút Bảng trên thanh công cụ và rê chuột trên lưới 8×8 để chọn số hàng/cột.</li>
+  <li>Gõ <code>/</code> rồi chọn <strong>Bảng</strong> để chèn nhanh bảng 3×3 có hàng tiêu đề.</li>
+  <li>Dùng thanh menu: <strong>Thêm &gt; Bảng</strong> hoặc <strong>Bảng &gt; Chèn bảng</strong>.</li>
 </ol>
 <div class="figure">
-  <img class="shot" src="img-guide/current/06-table-controls-crop.png" alt="Ảnh chụp bảng UEditor với rail thêm cột, handle bảng và ảnh đang được chọn">
+  <img class="shot" src="img-guide/current/06-table-controls-crop.png" alt="Ảnh chụp bảng UEditor với thanh thêm cột, tay nắm bảng và ảnh đang được chọn">
   <div class="two-col">
     <div>
-      <p><strong>Grid chèn bảng</strong></p>
+      <p><strong>Lưới chèn bảng</strong></p>
       <div class="grid grid-8">
         <span class="cell on"></span><span class="cell on"></span><span class="cell on"></span><span class="cell on"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span>
         <span class="cell on"></span><span class="cell on"></span><span class="cell on"></span><span class="cell on"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span>
         <span class="cell on"></span><span class="cell on"></span><span class="cell on"></span><span class="cell on"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span>
         <span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span>
       </div>
-      <p class="small">Preview: Insert 3×4 Table</p>
+      <p class="small">Xem trước: chèn bảng 3×4</p>
     </div>
     <div>
-      <p><strong>Điều khiển bảng kiểu Notion</strong></p>
-      <span class="side-rail">+ column</span>
-      <span class="side-rail">+ row</span>
-      <span class="side-rail">⋯ table</span>
-      <span class="side-rail">⋮ row</span>
-      <span class="side-rail">⋯ column</span>
-      <p class="small">Hover vào bảng để mở rail thêm hàng/cột, handle kéo row/column để đổi thứ tự và menu điều khiển.</p>
+      <p><strong>Điều khiển bảng kiểu kéo-thả</strong></p>
+      <span class="side-rail">+ cột</span>
+      <span class="side-rail">+ hàng</span>
+      <span class="side-rail">⋯ bảng</span>
+      <span class="side-rail">⋮ hàng</span>
+      <span class="side-rail">⋯ cột</span>
+      <p class="small">Đưa chuột vào bảng để hiện thanh thêm hàng/cột, tay nắm để kéo đổi thứ tự và menu điều khiển.</p>
     </div>
   </div>
-  <div class="figcap">Bảng không còn là table cơ bản: có resize cột/hàng, quick add, kéo để thêm nhiều hàng/cột, drag handle để reorder và menu theo bảng/hàng/cột.</div>
+  <div class="figcap">Bảng có đầy đủ: đổi kích thước cột/hàng, thêm nhanh, kéo để thêm nhiều hàng/cột, kéo đổi thứ tự và menu theo bảng/hàng/cột.</div>
 </div>
 <h3>Các lệnh bảng chính</h3>
 <table>
   <tr><th>Vị trí</th><th>Lệnh</th></tr>
-  <tr><td>Toolbar / table controls</td><td>Align table left/center/right, add column before/after, add row before/after, toggle header row/column, delete row/column/table.</td></tr>
-  <tr><td>Menu bar Table</td><td>Insert table, delete table, add/delete row, add/delete column, merge/split cell. <strong>Table Properties</strong> có trong menu nhưng đang disabled.</td></tr>
-  <tr><td>Bubble menu trong bảng</td><td>Màu nền ô, border ô, border style/width/color, công thức, merge/split cells và typography.</td></tr>
-  <tr><td>Menu hàng/cột</td><td>Add before/after, duplicate row/column, clear contents, delete row/column.</td></tr>
-  <tr><td>Resize</td><td>Kéo cạnh phải của cột để đổi width, kéo cạnh dưới của hàng để đổi row height. Khi <code>editable=false</code>, resize bị tắt.</td></tr>
-  <tr><td>Reorder</td><td>Kéo handle hàng hoặc cột để đổi thứ tự hàng/cột trong cùng bảng.</td></tr>
+  <tr><td>Thanh công cụ / nút điều khiển bảng</td><td>Căn bảng trái/giữa/phải, thêm cột trước/sau, thêm hàng trên/dưới, bật/tắt hàng và cột tiêu đề, xóa hàng/cột/bảng.</td></tr>
+  <tr><td>Thanh menu Bảng</td><td>Chèn bảng, xóa bảng, thêm/xóa hàng, thêm/xóa cột, gộp/tách ô.</td></tr>
+  <tr><td>Menu nổi trong bảng</td><td>Màu nền ô, viền ô (kiểu nét/độ dày/màu), công thức, gộp/tách ô và kiểu chữ.</td></tr>
+  <tr><td>Menu hàng/cột</td><td>Thêm trước/sau, nhân đôi hàng/cột, xóa nội dung, xóa hàng/cột.</td></tr>
+  <tr><td>Đổi kích thước</td><td>Kéo cạnh phải của cột để đổi chiều rộng, kéo cạnh dưới của hàng để đổi chiều cao. Ở chế độ chỉ đọc, không đổi kích thước được.</td></tr>
+  <tr><td>Sắp xếp lại</td><td>Kéo tay nắm của hàng hoặc cột để đổi thứ tự trong cùng bảng.</td></tr>
 </table>
 <h3>Quy trình làm việc với bảng</h3>
 <ol class="steps">
-  <li>Chèn bảng bằng toolbar, menu bar hoặc slash command.</li>
-  <li>Click vào ô để nhập nội dung. Dùng <span class="kbd">Tab</span> để đi sang ô kế tiếp nếu trình duyệt/editor cho phép.</li>
-  <li>Hover cạnh phải cột để hiện resize handle, kéo ngang để đổi chiều rộng cột.</li>
-  <li>Hover cạnh dưới hàng để hiện row resize, kéo dọc để đổi chiều cao hàng.</li>
-  <li>Hover bên phải hoặc phía dưới bảng để dùng rail <strong>+</strong> thêm nhanh cột/hàng; kéo rail ra xa hơn để thêm nhiều cột/hàng trong một lần.</li>
-  <li>Kéo handle hàng/cột để đổi thứ tự nếu cần sắp xếp lại bảng.</li>
-  <li>Chọn nhiều ô để merge; chọn ô đã merge để split.</li>
-  <li>Dùng bubble menu để đổi màu nền, border hoặc nhập công thức cho ô.</li>
+  <li>Chèn bảng bằng thanh công cụ, thanh menu hoặc lệnh gạch chéo.</li>
+  <li>Bấm vào ô để nhập nội dung. Dùng <span class="kbd">Tab</span> để đi sang ô kế tiếp.</li>
+  <li>Đưa chuột tới cạnh phải của cột để hiện tay kéo, kéo ngang để đổi chiều rộng cột.</li>
+  <li>Đưa chuột tới cạnh dưới của hàng, kéo dọc để đổi chiều cao hàng.</li>
+  <li>Đưa chuột ra cạnh phải hoặc phía dưới bảng để dùng thanh <strong>+</strong> thêm nhanh cột/hàng; kéo thanh ra xa hơn để thêm nhiều cột/hàng cùng lúc.</li>
+  <li>Kéo tay nắm của hàng/cột để đổi thứ tự khi cần sắp xếp lại.</li>
+  <li>Chọn nhiều ô để gộp; chọn ô đã gộp để tách.</li>
+  <li>Dùng menu nổi để đổi màu nền, viền hoặc nhập công thức cho ô.</li>
 </ol>
 <table>
-  <tr><th>Hành động</th><th>Chi tiết hành vi</th></tr>
-  <tr><td>Align table</td><td>Đặt thuộc tính căn bảng trái/giữa/phải. Bảng có <code>data-table-align</code> sẽ dùng width vừa nội dung và căn theo thuộc tính.</td></tr>
-  <tr><td>Header row/column</td><td>Chuyển hàng/cột thành header hoặc bỏ header bằng lệnh toggle.</td></tr>
-  <tr><td>Duplicate row/column</td><td>Menu handle hàng/cột có thể nhân đôi cấu trúc và nội dung vùng tương ứng.</td></tr>
-  <tr><td>Clear row/column contents</td><td>Xóa nội dung bên trong nhưng giữ cấu trúc hàng/cột.</td></tr>
-  <tr><td>Reorder row/column</td><td>Kéo handle hàng/cột; editor dùng logic <code>moveTableRow</code>/<code>moveTableColumn</code> để chuyển vị trí.</td></tr>
-  <tr><td>Delete table</td><td>Xóa toàn bộ table node khỏi document.</td></tr>
+  <tr><th>Hành động</th><th>Mô tả</th></tr>
+  <tr><td>Căn bảng</td><td>Căn bảng sang trái, giữa hoặc phải; bảng thu gọn vừa nội dung và căn theo lựa chọn.</td></tr>
+  <tr><td>Hàng/cột tiêu đề</td><td>Bật hoặc tắt hàng/cột tiêu đề.</td></tr>
+  <tr><td>Nhân đôi hàng/cột</td><td>Tạo bản sao cả cấu trúc lẫn nội dung của hàng/cột đang chọn.</td></tr>
+  <tr><td>Xóa nội dung hàng/cột</td><td>Xóa nội dung bên trong nhưng giữ nguyên hàng/cột.</td></tr>
+  <tr><td>Sắp xếp lại hàng/cột</td><td>Kéo tay nắm của hàng/cột để chuyển sang vị trí khác.</td></tr>
+  <tr><td>Xóa bảng</td><td>Xóa toàn bộ bảng khỏi nội dung.</td></tr>
 </table>
-<div class="warn">Nếu người dùng paste bảng từ nguồn ngoài, UEditor có logic clipboard table riêng cho HTML table và TSV. Code cố gắng giữ background, border, colspan/rowspan, width cột, height hàng, formula/computed value, number format và một số inline mark như bold/italic/underline/color/highlight; tuy vậy sau khi paste vẫn nên kiểm tra lại layout, header và công thức vì dữ liệu ngoài có thể không có đầy đủ thuộc tính nội bộ của UEditor.</div>
+<div class="warn">Khi bạn dán bảng từ nơi khác (ví dụ Excel hoặc trang web), UEditor cố giữ lại màu nền, viền, ô đã gộp, chiều rộng cột, chiều cao hàng và công thức. Tuy vậy sau khi dán nên kiểm tra lại bố cục, hàng tiêu đề và công thức vì nguồn bên ngoài không phải lúc nào cũng đầy đủ.</div>
 <div class="figure">
-  <img class="shot" src="img-guide/current/07-table-cell-bubble-crop.png" alt="Ảnh chụp bubble menu khi chọn nhiều ô trong bảng UEditor">
-  <div class="figcap">Bubble menu trong bảng có thêm màu nền ô, border ô, công thức và merge/split cell.</div>
+  <img class="shot" src="img-guide/current/07-table-cell-bubble-crop.png" alt="Ảnh chụp menu nổi khi chọn nhiều ô trong bảng UEditor">
+  <div class="figcap">Menu nổi trong bảng có thêm màu nền ô, viền ô, công thức và gộp/tách ô.</div>
 </div>
 
 <h2><span class="sn">8</span> Công thức trong bảng</h2>
-<p>UEditor hỗ trợ công thức bảng ở mức lightweight spreadsheet. Có thể nhập công thức trực tiếp trong ô hoặc dùng nút <strong>Σ Formula</strong> trong bubble menu khi con trỏ ở trong bảng.</p>
+<p>UEditor hỗ trợ công thức bảng ở mức bảng tính nhẹ. Bạn có thể nhập công thức trực tiếp trong ô hoặc dùng nút <strong>Công thức</strong> (biểu tượng <strong>Σ</strong>) trong menu nổi khi con trỏ đang ở trong bảng.</p>
 <div class="figure">
   <img class="shot" src="img-guide/current/08-formula-panel-crop.png" alt="Ảnh chụp Formula panel trong bảng UEditor">
   <table class="mock-table">
     <tr><th>A</th><th>B</th><th>C</th></tr>
     <tr><td>10</td><td>20</td><td class="formula-cell">=SUM(A1:B1)</td></tr>
     <tr><td>5</td><td>15</td><td>20</td></tr>
-    <tr><td colspan="3"><strong>Formula panel:</strong> <code>=SUM(A1:B2)</code> · Format: Text / 123 / $ / % / Date · Apply · Clear · Recalculate</td></tr>
+    <tr><td colspan="3"><strong>Bảng công thức:</strong> <code>=SUM(A1:B2)</code> · Hiển thị: Văn bản / Số / Tiền tệ / Phần trăm / Ngày · Áp dụng · Xóa · Tính lại</td></tr>
   </table>
-  <div class="figcap">Công thức dùng địa chỉ kiểu spreadsheet: A1, B2, vùng A1:B3 và các hàm SUM/AVG/MIN/MAX/COUNT.</div>
+  <div class="figcap">Công thức dùng địa chỉ kiểu bảng tính: A1, B2, vùng A1:B3 và các hàm SUM/AVG/MIN/MAX/COUNT.</div>
 </div>
-<h3>Cách nhập công thức bằng ô bảng</h3>
+<h3>Cách nhập công thức trực tiếp trong ô</h3>
 <ol class="steps">
-  <li>Click vào ô muốn hiển thị kết quả.</li>
+  <li>Bấm vào ô muốn hiển thị kết quả.</li>
   <li>Gõ dấu <code>=</code> rồi nhập công thức, ví dụ <code>=SUM(A1:B3)</code>.</li>
-  <li>Khi đang nhập hàm, có thể dùng gợi ý formula nếu dropdown xuất hiện.</li>
-  <li>Rời ô, đổi selection hoặc blur editor để công thức được promote và tính lại.</li>
-  <li>Nếu muốn ép tính lại, mở Formula panel và bấm <strong>Recalculate</strong>.</li>
+  <li>Khi đang nhập hàm, có thể dùng gợi ý công thức nếu danh sách hiện ra.</li>
+  <li>Rời khỏi ô hoặc bấm sang chỗ khác để công thức được tính.</li>
+  <li>Nếu muốn tính lại, mở bảng công thức và bấm <strong>Tính lại</strong>.</li>
 </ol>
-<h3>Cách nhập công thức bằng Formula panel</h3>
+<h3>Cách nhập công thức bằng bảng công thức</h3>
 <ol class="steps">
-  <li>Click vào ô bảng cần đặt công thức.</li>
-  <li>Chọn nút <strong>Σ</strong> trên bubble menu.</li>
-  <li>Nhập công thức trong input. Có thể nhập có hoặc không có dấu <code>=</code>; editor sẽ tự chuẩn hóa thành công thức có <code>=</code>.</li>
-  <li>Chọn định dạng hiển thị: Text, Number, Currency, Percent hoặc Date.</li>
-  <li>Bấm Apply để áp dụng, Clear để xóa công thức, Recalculate để tính lại bảng đang chọn.</li>
+  <li>Bấm vào ô bảng cần đặt công thức.</li>
+  <li>Chọn nút <strong>Công thức</strong> (biểu tượng <strong>Σ</strong>) trên menu nổi.</li>
+  <li>Nhập công thức vào ô. Có thể nhập có hoặc không có dấu <code>=</code>; hệ thống tự thêm dấu <code>=</code> giúp bạn.</li>
+  <li>Chọn cách hiển thị: Văn bản, Số, Tiền tệ, Phần trăm hoặc Ngày.</li>
+  <li>Bấm Áp dụng để dùng, Xóa để bỏ công thức, Tính lại để tính lại bảng đang chọn.</li>
 </ol>
 <h3>Cú pháp hỗ trợ</h3>
 <table>
@@ -587,9 +625,9 @@ tr:nth-child(even) td { background: #fbfcff; }
   <tr><td>Vùng ô</td><td><code>=SUM(A1:B3)</code></td><td>Tính trên toàn bộ vùng từ A1 đến B3.</td></tr>
   <tr><td>Hàm</td><td><code>SUM</code>, <code>AVG</code>, <code>MIN</code>, <code>MAX</code>, <code>COUNT</code></td><td>COUNT đếm ô có thể đọc thành số.</td></tr>
   <tr><td>Toán tử</td><td><code>+</code>, <code>-</code>, <code>*</code>, <code>/</code></td><td>Có hỗ trợ ngoặc đơn.</td></tr>
-  <tr><td>Định dạng số</td><td>Number, Currency, Percent, Date</td><td>Giá trị tính được được hiển thị theo format đã chọn.</td></tr>
+  <tr><td>Cách hiển thị</td><td>Số, Tiền tệ, Phần trăm, Ngày</td><td>Kết quả tính được hiển thị theo cách bạn chọn.</td></tr>
 </table>
-<p>Công thức hiện chỉ xử lý biểu thức số nhẹ: số nguyên/thập phân, toán tử, ngoặc, tham chiếu ô/vùng và các hàm đã liệt kê. Format <strong>Currency</strong> dùng USD, <strong>Percent</strong> nhân giá trị theo định dạng phần trăm, còn <strong>Date</strong> đọc số serial theo mốc tương tự Excel là 1899-12-30. Editor chưa phải spreadsheet đầy đủ nên không nên hứa các hàm text/date nâng cao.</p>
+<p>Công thức hiện chỉ xử lý các phép tính số đơn giản: số nguyên/thập phân, các phép toán, ngoặc, tham chiếu ô/vùng và các hàm đã liệt kê. <strong>Tiền tệ</strong> hiển thị theo đơn vị USD, <strong>Phần trăm</strong> hiển thị giá trị dạng phần trăm, còn <strong>Ngày</strong> hiển thị giá trị dạng ngày. Đây không phải bảng tính đầy đủ nên chưa có các hàm xử lý văn bản hay ngày nâng cao.</p>
 <h3>Nguyên tắc đọc địa chỉ ô</h3>
 <p>Địa chỉ ô dùng quy ước giống spreadsheet: cột là chữ cái bắt đầu từ A, hàng là số bắt đầu từ 1. Ví dụ ô đầu tiên là <code>A1</code>, ô bên phải là <code>B1</code>, ô ở hàng thứ hai cột A là <code>A2</code>. Vùng <code>A1:C3</code> bao gồm tất cả ô từ cột A đến C và hàng 1 đến 3.</p>
 <table>
@@ -601,8 +639,8 @@ tr:nth-child(even) td { background: #fbfcff; }
   <tr><td><code>=COUNT(A1:A5)</code></td><td>3 số, 2 ô text</td><td>3</td></tr>
   <tr><td><code>=(A1+B1)/C1</code></td><td>A1=10, B1=20, C1=5</td><td>6</td></tr>
 </table>
-<div class="tip">Có thể gõ <code>=SUM(</code> rồi kéo chọn vùng ô trong bảng; editor sẽ highlight vùng đang chọn để điền range. Công thức nháp chưa đủ cú pháp sẽ chưa được promote thành formula chính thức. Công thức được tự tính lại khi nội dung bảng thay đổi, khi selection đổi, khi editor blur và khi content controlled được set lại.</div>
-<div class="warn">Các lỗi hiển thị dạng <code>#INVALID-REFERENCE</code>, <code>#INVALID-FORMULA</code>, <code>#DIVISION-BY-ZERO</code>, <code>#CIRCULAR-REFERENCE</code>. Nếu thấy lỗi vòng lặp, kiểm tra ô đang tham chiếu lại chính nó hoặc tham chiếu thành chuỗi vòng.</div>
+<div class="tip">Bạn có thể gõ <code>=SUM(</code> rồi kéo chọn vùng ô trong bảng; vùng đang chọn sẽ được tô sáng để tự điền vào công thức. Công thức được tính lại khi nội dung bảng thay đổi, khi bạn chuyển sang ô khác hoặc rời khỏi vùng soạn thảo.</div>
+<div class="warn">Các lỗi hiển thị dạng <code>#INVALID-REFERENCE</code>, <code>#INVALID-FORMULA</code>, <code>#DIVISION-BY-ZERO</code>, <code>#CIRCULAR-REFERENCE</code>. Nếu thấy lỗi vòng lặp, hãy kiểm tra xem ô có đang tham chiếu lại chính nó hoặc tạo thành chuỗi tham chiếu vòng không.</div>
 <table>
   <tr><th>Lỗi</th><th>Nguyên nhân thường gặp</th><th>Cách xử lý</th></tr>
   <tr><td><code>#EMPTY</code></td><td>Công thức rỗng hoặc chưa đủ dữ liệu để tính</td><td>Nhập công thức đầy đủ hoặc clear công thức khỏi ô.</td></tr>
@@ -612,69 +650,55 @@ tr:nth-child(even) td { background: #fbfcff; }
   <tr><td><code>#CIRCULAR-REFERENCE</code></td><td>Ô A tham chiếu ô B và ô B tham chiếu ngược lại ô A</td><td>Gỡ một trong các tham chiếu tạo vòng.</td></tr>
 </table>
 
-<h2><span class="sn">9</span> Menu bar cổ điển</h2>
-<p>Khi bật <code>showMenuBar</code>, editor có menu giống ứng dụng soạn thảo truyền thống.</p>
+<h2><span class="sn">9</span> Thanh menu cổ điển</h2>
+<p>Ở những màn hình bật thanh menu, UEditor có hệ thống menu giống các ứng dụng soạn thảo quen thuộc (Word, Google Docs).</p>
 <div class="figure">
   <div class="menubar">
-    <span class="menuitem">File</span><span class="menuitem">Edit</span><span class="menuitem">View</span><span class="menuitem">Insert</span><span class="menuitem">Format</span><span class="menuitem">Tools</span><span class="menuitem">Table</span>
+    <span class="menuitem">Tập tin</span><span class="menuitem">Sửa</span><span class="menuitem">Xem</span><span class="menuitem">Thêm</span><span class="menuitem">Định dạng</span><span class="menuitem">Công cụ</span><span class="menuitem">Bảng</span>
   </div>
   <div class="two-col" style="margin-top:12px">
     <div class="menu-panel">
-      <div class="row"><strong>File</strong><span>Save, Export HTML</span></div>
-      <div class="row"><strong>Edit</strong><span>Undo, Redo, Cut, Copy, Paste, Select all</span></div>
-      <div class="row"><strong>View</strong><span>Source Code, Preview, Fullscreen</span></div>
+      <div class="row"><strong>Tập tin</strong><span>Lưu, Xuất HTML</span></div>
+      <div class="row"><strong>Sửa</strong><span>Hoàn tác, Làm lại, Cắt, Sao chép, Dán, Chọn tất cả</span></div>
+      <div class="row"><strong>Xem</strong><span>Mã nguồn, Xem trước, Toàn màn hình</span></div>
     </div>
     <div class="menu-panel">
-      <div class="row"><strong>Insert</strong><span>Image, upload image, link, table, divider</span></div>
-      <div class="row"><strong>Format</strong><span>Inline style, wrap, align, clear formatting</span></div>
-      <div class="row"><strong>Table</strong><span>Insert, delete, row, column, cell merge/split</span></div>
+      <div class="row"><strong>Thêm</strong><span>Ảnh, tải ảnh, liên kết, bảng, đường kẻ</span></div>
+      <div class="row"><strong>Định dạng</strong><span>Định dạng chữ, đổi kiểu khối, căn lề, xóa định dạng</span></div>
+      <div class="row"><strong>Bảng</strong><span>Chèn, xóa, hàng, cột, gộp/tách ô</span></div>
     </div>
   </div>
-  <div class="figcap">Menu bar hiện có File, Edit, View, Insert, Format, Tools và Table; một số action gọi callback nếu app truyền vào.</div>
+  <div class="figcap">Thanh menu gồm Tập tin, Sửa, Xem, Thêm, Định dạng, Công cụ và Bảng.</div>
 </div>
-<p><strong>File &gt; Save</strong> chỉ hoạt động khi app truyền <code>onSave</code>. Menu item hiển thị shortcut <code>Ctrl+S</code>, nhưng UEditor hiện chưa tự bind phím này; app cần bắt keyboard event nếu muốn lưu bằng bàn phím. <strong>File &gt; Export HTML</strong> gọi <code>onExport</code> nếu có; nếu không, editor tự tải file <code>document.html</code>. <strong>View &gt; Source Code</strong> dùng callback nếu có, nếu không mở dialog built-in cho sửa HTML rồi Apply.</p>
-<p><strong>View &gt; Preview</strong> và nút biểu tượng mắt gọi <code>onPreview(editor.getHTML())</code>. Nếu callback trả về <code>false</code>, dialog preview built-in sẽ không mở; nếu không trả về <code>false</code>, editor mở dialog preview. Preview built-in chạy qua <code>prepareUEditorPreviewHtml()</code> để chuẩn hóa lại width/height bảng trong HTML preview.</p>
+<p><strong>Tập tin &gt; Lưu</strong> lưu nội dung nếu hệ thống đã bật tính năng lưu. Mục này hiển thị phím tắt <code>Ctrl+S</code> để gợi nhớ. <strong>Tập tin &gt; Xuất HTML</strong> xuất nội dung ra một tệp; nếu hệ thống không xử lý riêng, trình soạn thảo sẽ tải về một tệp HTML cho bạn. <strong>Xem &gt; Mã nguồn</strong> mở hộp thoại cho phép xem và sửa mã HTML rồi áp dụng.</p>
+<p><strong>Xem &gt; Xem trước</strong> (và nút biểu tượng con mắt) mở chế độ xem trước nội dung. Tùy hệ thống, xem trước có thể mở trong một cửa sổ riêng của ứng dụng hoặc trong hộp thoại sẵn có.</p>
 <table>
   <tr><th>Menu</th><th>Lệnh chi tiết</th><th>Ghi chú</th></tr>
-  <tr><td>File</td><td>Save, Export HTML</td><td>Save phụ thuộc <code>onSave</code>; Export có fallback tải file HTML.</td></tr>
-  <tr><td>Edit</td><td>Undo, Redo, Cut, Copy, Paste, Paste as Text, Select All</td><td>Một số lệnh clipboard phụ thuộc quyền của trình duyệt.</td></tr>
-  <tr><td>View</td><td>Source Code, Preview, Fullscreen</td><td>Source/Preview có dialog built-in nếu không truyền callback; source dialog cho phép sửa HTML rồi Apply.</td></tr>
-  <tr><td>Insert</td><td>Image URL, Image Upload, Link, Table, Horizontal Rule</td><td>Image upload tuân theo size/MIME và insert mode.</td></tr>
-  <tr><td>Format</td><td>Bold, Italic, Underline, Strike, Superscript, Subscript, Code, Wrap, Align, Clear Formatting</td><td>Wrap gồm paragraph, heading, blockquote, code block, task list.</td></tr>
-  <tr><td>Tools</td><td>Source Code</td><td>Shortcut menu cho thao tác xem/sửa HTML.</td></tr>
-  <tr><td>Table</td><td>Insert Table, Table Properties, Delete Table, Row, Column, Cell merge/split</td><td>Các lệnh row/column/cell chỉ bật khi selection nằm trong bảng; Table Properties đang disabled.</td></tr>
+  <tr><td>Tập tin</td><td>Lưu, Xuất HTML</td><td>Lưu hoạt động khi hệ thống bật tính năng lưu; Xuất HTML có thể tải về tệp.</td></tr>
+  <tr><td>Sửa</td><td>Hoàn tác, Làm lại, Cắt, Sao chép, Dán, Dán dạng văn bản thuần, Chọn tất cả</td><td>Một số lệnh sao chép/dán phụ thuộc quyền của trình duyệt.</td></tr>
+  <tr><td>Xem</td><td>Mã nguồn, Xem trước, Toàn màn hình</td><td>Hộp thoại mã nguồn cho phép sửa HTML rồi áp dụng.</td></tr>
+  <tr><td>Thêm</td><td>Ảnh từ địa chỉ, Tải ảnh lên, Liên kết, Bảng, Đường kẻ ngang</td><td>Tải ảnh tuân theo giới hạn dung lượng và định dạng.</td></tr>
+  <tr><td>Định dạng</td><td>In đậm, in nghiêng, gạch chân, gạch ngang, chỉ số trên, chỉ số dưới, chữ mã, đổi kiểu khối, căn lề, xóa định dạng</td><td>Đổi kiểu khối gồm đoạn thường, tiêu đề, trích dẫn, khối mã, danh sách việc cần làm.</td></tr>
+  <tr><td>Công cụ</td><td>Mã nguồn</td><td>Lối tắt để xem/sửa HTML.</td></tr>
+  <tr><td>Bảng</td><td>Chèn bảng, Xóa bảng, Hàng, Cột, Gộp/Tách ô</td><td>Các lệnh hàng/cột/ô chỉ bật khi con trỏ đang ở trong bảng.</td></tr>
 </table>
-<div class="note">Menu bar phù hợp với người dùng quen Microsoft Word/Google Docs. Với trải nghiệm hiện đại, có thể dùng toolbar + slash command mà không bật menu bar.</div>
+<div class="note">Thanh menu phù hợp với người dùng quen Microsoft Word hoặc Google Docs. Nếu thích trải nghiệm hiện đại hơn, bạn có thể dùng thanh công cụ và lệnh gạch chéo mà không cần thanh menu.</div>
 
-<h2><span class="sn">10</span> Lưu, xuất và chế độ đọc</h2>
+<h2><span class="sn">10</span> Lưu, xuất và chế độ xem</h2>
 <h3>Lưu nội dung</h3>
-<p>Thông thường app lấy HTML qua <code>onChange</code>/<code>onHtmlChange</code>. Nếu nội dung có ảnh base64 hoặc file card inline, nên gọi <code>prepareContentForSave()</code> qua ref trước khi lưu.</p>
-<pre><code>const prepared = await editorRef.current?.prepareContentForSave({ throwOnError: true })
-await api.savePost({ content: prepared?.html ?? "" })</code></pre>
-<p>Kết quả trả về gồm HTML đã chuẩn hóa, danh sách item đã upload, inline image URLs và lỗi upload nếu có. <code>uploadImageConcurrency</code> mặc định là 3 và được dùng để giới hạn upload song song khi chuẩn bị lưu.</p>
-<h3>Luồng lưu khuyến nghị</h3>
+<p>Bạn cứ soạn nội dung bình thường rồi bấm <strong>Lưu</strong> (qua thanh menu hoặc nút lưu của màn hình đang dùng). Hệ thống tự lo phần còn lại.</p>
 <ol class="steps">
-  <li>Người dùng soạn nội dung bình thường; ảnh paste/upload có thể đang là base64.</li>
-  <li>Khi bấm Save, gọi <code>prepareContentForSave({ throwOnError: true })</code>.</li>
-  <li>Hàm tìm ảnh base64 và file card data URL cần upload rồi chạy upload với giới hạn concurrency.</li>
-  <li>Nếu upload thành công, HTML trả về đã thay data URL bằng URL thật.</li>
-  <li>Lưu HTML đã chuẩn hóa vào database hoặc API backend.</li>
-  <li>Nếu có lỗi và <code>throwOnError=true</code>, bắt exception để báo người dùng lưu thất bại hoặc yêu cầu thử lại.</li>
+  <li>Soạn nội dung như bình thường; ảnh bạn dán hoặc tải lên được giữ tạm trong nội dung.</li>
+  <li>Khi bấm Lưu, các ảnh và tệp đính kèm còn ở dạng tạm sẽ được tải lên máy chủ.</li>
+  <li>Sau khi tải xong, nội dung được lưu lại với các địa chỉ ảnh/tệp chính thức.</li>
+  <li>Nếu có ảnh hoặc tệp tải lên thất bại, hệ thống sẽ báo để bạn lưu lại hoặc thử lại.</li>
 </ol>
-<table>
-  <tr><th>Field trong kết quả</th><th>Ý nghĩa</th></tr>
-  <tr><td><code>html</code></td><td>HTML cuối cùng nên dùng để lưu.</td></tr>
-  <tr><td><code>uploaded</code></td><td>Danh sách ảnh/file card đã upload thành công cùng URL/meta.</td></tr>
-  <tr><td><code>inlineImageUrls</code></td><td>URL ảnh inline đã được phát hiện trong nội dung.</td></tr>
-  <tr><td><code>inlineUploaded</code></td><td>Danh sách ảnh inline base64 đã upload, kèm index và thông tin file nếu có.</td></tr>
-  <tr><td><code>errors</code></td><td>Lỗi upload theo index. Nếu không bật throw, app tự xử lý danh sách này.</td></tr>
-</table>
-<p>Handler upload khi lưu có thể trả về URL string hoặc object có dạng <code>{ url, ...meta }</code>. Ảnh base64 cần <code>uploadImageForSave</code>. File card data URL dùng <code>uploadFileForSave</code> nếu có, nếu không fallback sang <code>uploadImageForSave</code>.</p>
+<div class="tip">Việc tải ảnh lên khi lưu giúp tránh giữ ảnh tạm quá lâu. Bạn không cần thao tác gì thêm — chỉ cần bấm Lưu.</div>
 <h3>Xuất HTML</h3>
-<p>Khi dùng menu bar, <strong>File &gt; Export HTML</strong> sẽ gọi <code>onExport</code> nếu app truyền callback. Nếu không có callback, editor tạo một Blob HTML đơn giản và tải về file <code>document.html</code>. Đây là export nhanh cho người dùng, không thay thế logic lưu chính thức của app.</p>
-<h3>Chế độ đọc</h3>
-<p>Khi <code>editable=false</code>, người dùng không sửa được nội dung; toolbar và resize table không còn tác dụng. Link trong read-only có thể mở tab mới khi click nếu selection đang rỗng.</p>
-<div class="tip">Read-only vẫn dùng UEditor để render HTML nên các node như table, image layout, bookmark, file card có cơ hội hiển thị nhất quán với editor. Nếu render HTML bằng component khác, cần tự đảm bảo CSS và sanitize phù hợp.</div>
+<p>Trên thanh menu, <strong>Tập tin &gt; Xuất HTML</strong> giúp bạn lấy nhanh nội dung ra một tệp. Tùy hệ thống, nội dung có thể được xử lý riêng hoặc tải về máy bạn dưới dạng một tệp HTML. Đây là cách lấy nhanh nội dung, không thay cho việc lưu chính thức.</p>
+<h3>Chế độ xem (chỉ đọc)</h3>
+<p>Ở chế độ chỉ đọc, bạn không sửa được nội dung; thanh công cụ và đổi kích thước bảng không còn tác dụng. Bấm vào một liên kết sẽ mở trang đó ở tab mới.</p>
+<div class="tip">Chế độ chỉ đọc vẫn dùng chính UEditor để hiển thị, nên bảng, ảnh, thẻ liên kết và tệp đính kèm hiện đúng như lúc soạn.</div>
 
 <h2><span class="sn">11</span> Phím tắt và mẹo xử lý lỗi</h2>
 <table>
@@ -684,95 +708,32 @@ await api.savePost({ content: prepared?.html ?? "" })</code></pre>
   <tr><td><span class="kbd">Ctrl/Cmd+U</span></td><td>Gạch chân</td></tr>
   <tr><td><span class="kbd">Ctrl/Cmd+Z</span></td><td>Hoàn tác</td></tr>
   <tr><td><span class="kbd">Ctrl/Cmd+Y</span> hoặc <span class="kbd">Cmd+Shift+Z</span></td><td>Làm lại, tùy nền tảng/browser</td></tr>
-  <tr><td><span class="kbd">Ctrl/Cmd+S</span></td><td>UEditor chỉ hiển thị shortcut trên menu Save; app cần tự bắt phím để gọi <code>onSave</code>.</td></tr>
-  <tr><td><span class="kbd">/</span></td><td>Mở slash command</td></tr>
-  <tr><td><span class="kbd">↑</span>/<span class="kbd">↓</span> + <span class="kbd">Enter</span></td><td>Di chuyển và chọn item trong slash command</td></tr>
-  <tr><td><span class="kbd">:</span></td><td>Mở emoji autocomplete.</td></tr>
+  <tr><td><span class="kbd">Ctrl/Cmd+S</span></td><td>Phím tắt gợi nhớ cho lệnh Lưu (hiển thị trên menu).</td></tr>
+  <tr><td><span class="kbd">/</span></td><td>Mở lệnh gạch chéo</td></tr>
+  <tr><td><span class="kbd">↑</span>/<span class="kbd">↓</span> + <span class="kbd">Enter</span></td><td>Di chuyển và chọn mục trong lệnh gạch chéo</td></tr>
+  <tr><td><span class="kbd">:</span></td><td>Mở gợi ý emoji</td></tr>
 </table>
 <ul>
-  <li>Nếu không thấy toolbar, kiểm tra <code>showToolbar</code>, <code>editable</code> và variant đang dùng.</li>
-  <li>Nếu không upload được ảnh, kiểm tra <code>maxImageFileSize</code>, <code>allowedImageMimeTypes</code>, <code>fallbackToDataUrl</code>, <code>uploadImage</code> và <code>uploadImageForSave</code>.</li>
-  <li>Nếu link không tạo được, kiểm tra URL có protocol an toàn hay không; <code>//example.com</code> không được chấp nhận.</li>
-  <li>Nếu bảng không resize được, kiểm tra editor có đang ở <code>editable=false</code> không.</li>
-  <li>Nếu công thức chưa hiện kết quả, rời ô, đổi selection hoặc bấm Recalculate trong Formula panel.</li>
-  <li>Nếu bộ đếm ký tự chuyển đỏ, nội dung đang vượt hoặc gần vượt giới hạn: trên 90% giới hạn sẽ cảnh báo màu đỏ, trên 100% sẽ hiển thị đậm hơn.</li>
+  <li>Nếu không thấy thanh công cụ, có thể màn hình đang ở chế độ chỉ đọc hoặc giao diện gọn.</li>
+  <li>Nếu không chèn được ảnh, có thể ảnh quá lớn hoặc sai định dạng — thử ảnh nhỏ hơn hoặc đúng định dạng.</li>
+  <li>Nếu không tạo được liên kết, hãy kiểm tra địa chỉ có hợp lệ và an toàn không.</li>
+  <li>Nếu bảng không đổi kích thước được, có thể màn hình đang ở chế độ chỉ đọc.</li>
+  <li>Nếu công thức chưa hiện kết quả, hãy rời khỏi ô, chuyển sang ô khác hoặc bấm Tính lại trong bảng công thức.</li>
+  <li>Nếu bộ đếm ký tự chuyển đỏ, nghĩa là nội dung đang gần vượt hoặc đã vượt giới hạn cho phép.</li>
 </ul>
 <h3>Bảng xử lý sự cố nhanh</h3>
 <table>
-  <tr><th>Hiện tượng</th><th>Nguyên nhân có thể</th><th>Cách kiểm tra</th></tr>
-  <tr><td>Không thấy slash command khi gõ <code>/</code></td><td>Editor không focus, đang read-only, hoặc extension bị override</td><td>Click lại vào vùng editor, kiểm tra <code>editable</code> và <code>extraExtensions</code>.</td></tr>
-  <tr><td>Không thấy floating add-block dù truyền <code>showFloatingMenu</code></td><td>Prop hiện được khai báo nhưng chưa được render trong <code>UEditor.tsx</code></td><td>Dùng slash command, hoặc nối <code>CustomFloatingMenu</code> vào component trước khi bật tài liệu tính năng này cho end-user.</td></tr>
-  <tr><td>Bubble menu biến mất khi nhập link/formula</td><td>Focus bị chuyển ra ngoài hoặc custom wrapper chặn event</td><td>Kiểm tra popover/modal parent có đóng khi click bên trong không.</td></tr>
-  <tr><td>Ảnh không chèn được</td><td>Sai MIME, file quá lớn, URL không an toàn, upload handler lỗi</td><td>Kiểm tra console/API response và props image.</td></tr>
-  <tr><td>Kéo thả file thường không tạo file card</td><td>ClipboardImages chỉ xử lý image file cho paste/drag-drop</td><td>Dùng slash command <strong>File Attachment</strong> để chèn file card.</td></tr>
-  <tr><td>Bookmark không tự tạo khi paste URL</td><td>URL không phải <code>http/https</code>, paragraph không trống, hoặc paste chứa nhiều nội dung</td><td>Thử paste một URL thuần vào dòng trống hoặc dùng slash command Bookmark Card.</td></tr>
-  <tr><td>File card upload lỗi</td><td>Thiếu handler upload, API trả lỗi hoặc data URL không upload được</td><td>Kiểm tra trạng thái lỗi trên card, bấm retry hoặc gọi prepare save-time với handler phù hợp.</td></tr>
-  <tr><td>Paste bảng bị lệch</td><td>Nguồn clipboard có HTML table phức tạp</td><td>Dán lại dưới dạng plain text hoặc chỉnh lại bằng table controls.</td></tr>
-  <tr><td>Code block không tô màu như mong đợi</td><td>Ngôn ngữ không nằm trong lowlight common hoặc không nhận diện</td><td>Kiểm tra nội dung code block và extension lowlight.</td></tr>
-  <tr><td>Bộ đếm ký tự không giới hạn nhập</td><td><code>maxCharacters</code> chưa truyền hoặc chỉ dùng count hiển thị</td><td>Kiểm tra prop <code>maxCharacters</code> và behavior CharacterCount.</td></tr>
-  <tr><td>Preview bảng khác nội dung thô</td><td>Built-in preview chuẩn hóa lại width/height bảng</td><td>Đây là behavior của <code>prepareUEditorPreviewHtml()</code>; export fallback vẫn là HTML đơn giản từ editor.</td></tr>
+  <tr><th>Hiện tượng</th><th>Nguyên nhân có thể</th><th>Cách xử lý</th></tr>
+  <tr><td>Không thấy lệnh gạch chéo khi gõ <code>/</code></td><td>Con trỏ chưa nằm trong vùng soạn thảo, hoặc đang ở chế độ chỉ đọc</td><td>Bấm lại vào vùng soạn thảo rồi gõ <code>/</code>.</td></tr>
+  <tr><td>Menu nổi biến mất khi nhập liên kết/công thức</td><td>Con trỏ bị chuyển ra ngoài vùng soạn thảo</td><td>Bấm lại vào ô đang nhập và thử lại.</td></tr>
+  <tr><td>Ảnh không chèn được</td><td>Ảnh quá lớn, sai định dạng hoặc địa chỉ không an toàn</td><td>Thử ảnh nhỏ hơn, đúng định dạng hoặc dùng ảnh khác.</td></tr>
+  <tr><td>Kéo thả tệp thường không tạo thẻ tệp</td><td>Kéo thả chỉ nhận tệp ảnh</td><td>Dùng lệnh gạch chéo <strong>Tệp đính kèm</strong> để chèn thẻ tệp.</td></tr>
+  <tr><td>Thẻ liên kết không tự tạo khi dán địa chỉ</td><td>Địa chỉ không phải trang web, dòng không trống, hoặc dán kèm nhiều nội dung</td><td>Dán một địa chỉ trang web vào dòng trống, hoặc dùng lệnh gạch chéo Thẻ liên kết.</td></tr>
+  <tr><td>Thẻ tệp báo lỗi tải lên</td><td>Tải lên gặp trục trặc</td><td>Bấm nút thử lại trên thẻ tệp.</td></tr>
+  <tr><td>Dán bảng bị lệch</td><td>Bảng nguồn có cấu trúc phức tạp</td><td>Dán lại dưới dạng văn bản thuần hoặc chỉnh lại bằng nút điều khiển bảng.</td></tr>
+  <tr><td>Khối mã không tô màu như mong đợi</td><td>Ngôn ngữ chưa được nhận diện</td><td>Kiểm tra lại nội dung trong khối mã.</td></tr>
+  <tr><td>Xem trước bảng khác nội dung gốc</td><td>Chế độ xem trước chuẩn hóa lại chiều rộng/cao của bảng</td><td>Đây là hành vi bình thường của chế độ xem trước.</td></tr>
 </table>
-
-<h2><span class="sn">12</span> Ghi chú cấu hình cho đội triển khai</h2>
-<p>Các props thường dùng nhất:</p>
-<table>
-  <tr><th>Prop</th><th>Mục đích</th><th>Mặc định</th></tr>
-  <tr><td><code>content</code></td><td>HTML ban đầu hoặc HTML controlled</td><td><code>""</code></td></tr>
-  <tr><td><code>onChange</code>, <code>onHtmlChange</code>, <code>onJsonChange</code></td><td>Lấy nội dung HTML/JSON khi editor update</td><td>-</td></tr>
-  <tr><td><code>placeholder</code></td><td>Text gợi ý khi editor trống</td><td>Theo translation hoặc fallback mặc định</td></tr>
-  <tr><td><code>variant</code></td><td><code>default</code>, <code>minimal</code>, <code>notion</code>. Lưu ý <code>notion</code> hiện chủ yếu là biến thể style, không tự tắt toolbar/menu.</td><td><code>default</code></td></tr>
-  <tr><td><code>showMenuBar</code></td><td>Bật menu bar File/Edit/View/Insert/Format/Tools/Table</td><td><code>false</code></td></tr>
-  <tr><td><code>showToolbar</code></td><td>Bật toolbar khi editable; minimal toolbar chỉ có Bold/Italic/Bullet list</td><td><code>true</code></td></tr>
-  <tr><td><code>showBubbleMenu</code></td><td>Bật menu nổi khi chọn text/link/ảnh/ô bảng</td><td><code>true</code></td></tr>
-  <tr><td><code>showFloatingMenu</code></td><td>Prop đã khai báo nhưng UEditor hiện chưa render <code>CustomFloatingMenu</code></td><td>Chưa có tác dụng trong component chính</td></tr>
-  <tr><td><code>editable</code></td><td>Cho phép sửa nội dung</td><td><code>true</code></td></tr>
-  <tr><td><code>autofocus</code></td><td>Tự focus editor khi mount</td><td><code>false</code></td></tr>
-  <tr><td><code>minHeight</code>, <code>maxHeight</code></td><td>Giới hạn chiều cao vùng editor</td><td><code>200px</code>, <code>auto</code></td></tr>
-  <tr><td><code>showCharacterCount</code>, <code>maxCharacters</code></td><td>Hiển thị word/character count và giới hạn ký tự nếu truyền max</td><td><code>false</code>, không giới hạn</td></tr>
-  <tr><td><code>uploadImage</code>, <code>imageInsertMode</code></td><td>Upload ảnh ngay khi chèn nếu dùng mode upload</td><td><code>base64</code></td></tr>
-  <tr><td><code>maxImageFileSize</code>, <code>allowedImageMimeTypes</code>, <code>fallbackToDataUrl</code></td><td>Giới hạn paste/upload ảnh và quyết định có fallback data URL khi upload lỗi không</td><td>10MB, MIME ảnh phổ biến, <code>true</code></td></tr>
-  <tr><td><code>uploadImageForSave</code>, <code>uploadFileForSave</code>, <code>uploadImageConcurrency</code></td><td>Upload ảnh/tệp inline khi chuẩn bị lưu và giới hạn upload song song</td><td>Concurrency <code>3</code></td></tr>
-  <tr><td><code>uploadFile</code></td><td>Upload file card ngay sau khi chèn nếu có handler</td><td>-</td></tr>
-  <tr><td><code>fetchMetadata</code></td><td>Lấy metadata cho bookmark card</td><td>-</td></tr>
-  <tr><td><code>onSave</code>, <code>onExport</code>, <code>onSourceCode</code>, <code>onPreview</code></td><td>Callback cho menu bar; <code>onPreview</code> nhận HTML hiện tại và có thể trả <code>false</code> để chặn preview dialog built-in</td><td>-</td></tr>
-  <tr><td><code>extraExtensions</code></td><td>Gắn thêm TipTap extensions tùy biến</td><td><code>[]</code></td></tr>
-</table>
-<h3>Checklist trước khi đưa vào production</h3>
-<div class="checklist">
-  <div>Có chiến lược upload ảnh: upload ngay hoặc upload khi lưu.</div>
-  <div>Có giới hạn file size và MIME type phù hợp sản phẩm.</div>
-  <div>Backend sanitize HTML hoặc có policy render HTML an toàn.</div>
-  <div>Đã test editor trong modal/popover nếu sản phẩm dùng modal.</div>
-  <div>Đã test bảng lớn, resize row/column, reorder row/column và paste table từ nguồn ngoài.</div>
-  <div>Đã test công thức với dữ liệu thật nếu bật use case bảng tính.</div>
-  <div>Đã kiểm tra read-only render giống nội dung khi soạn.</div>
-  <div>Đã cấu hình locale/translation nếu app chạy đa ngôn ngữ.</div>
-</div>
-<h3>Ví dụ cấu hình đầy đủ</h3>
-<pre><code>&lt;UEditor
-  ref={editorRef}
-  content={content}
-  onChange={setContent}
-  variant="notion"
-  showToolbar={false}
-  showBubbleMenu
-  showCharacterCount
-  maxCharacters={5000}
-  imageInsertMode="base64"
-  uploadImageForSave={uploadImageForSave}
-  uploadFileForSave={uploadFileForSave}
-  uploadFile={uploadFile}
-  fetchMetadata={fetchBookmarkMetadata}
-  onPreview={(html) => {
-    openPreview(html)
-    return false
-  }}
-  fontFamilies={customFontFamilies}
-  fontSizes={customFontSizes}
-  lineHeights={customLineHeights}
-  letterSpacings={customLetterSpacings}
-/&gt;</code></pre>
-<div class="note">Để tài liệu người dùng nhất quán với sản phẩm, khi UI đổi lệnh hoặc thêm extension mới, cập nhật file HTML nguồn này rồi chạy <code>node docs/underverseui-usage/generate-pdf.mjs</code> để xuất lại PDF.</div>
 
 </body>
 </html>
