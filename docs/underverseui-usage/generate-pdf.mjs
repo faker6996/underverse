@@ -2,17 +2,20 @@
  * Generates UEditor-HuongDanSuDung.pdf from the HTML guide template.
  * Run: node generate-pdf.mjs
  */
-import { chromium } from "/Users/tran_van_bach/Desktop/project/nextJs/underverse/node_modules/@playwright/test/index.mjs";
-import { readFileSync } from "fs";
+import { chromium } from "@playwright/test";
 import { fileURLToPath } from "url";
 import path from "path";
 
-const CHROME = "/Users/tran_van_bach/Library/Caches/ms-playwright/chromium-1208/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing";
 const __dir = path.dirname(fileURLToPath(import.meta.url));
 const htmlPath = path.join(__dir, "UEditor-HuongDanSuDung.html");
 const pdfPath = path.join(__dir, "UEditor-HuongDanSuDung.pdf");
 
-const browser = await chromium.launch({ executablePath: CHROME, headless: true });
+const launchOptions = { headless: true };
+if (process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH) {
+  launchOptions.executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+}
+
+const browser = await chromium.launch(launchOptions);
 const page = await browser.newPage();
 await page.goto(`file://${htmlPath}`, { waitUntil: "networkidle", timeout: 30000 });
 await page.waitForTimeout(1500); // let images render

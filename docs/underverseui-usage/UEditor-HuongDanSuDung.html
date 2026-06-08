@@ -275,10 +275,10 @@ tr:nth-child(even) td { background: #fbfcff; }
     <li>UEditor là gì</li>
     <li>Giao diện tổng quan</li>
     <li>Toolbar và định dạng văn bản</li>
-    <li>Slash command và floating menu</li>
+    <li>Slash command và emoji autocomplete</li>
     <li>Bubble menu khi chọn nội dung</li>
     <li>Liên kết, ảnh, bookmark và tệp đính kèm</li>
-    <li>Bảng: tạo, chỉnh sửa, resize và menu điều khiển</li>
+    <li>Bảng: tạo, chỉnh sửa, resize, reorder và menu điều khiển</li>
     <li>Công thức trong bảng</li>
     <li>Menu bar cổ điển</li>
     <li>Lưu, xuất và chế độ đọc</li>
@@ -293,14 +293,14 @@ tr:nth-child(even) td { background: #fbfcff; }
 <p>Component có ba kiểu hiển thị chính:</p>
 <ul>
   <li><strong>default</strong>: có toolbar đầy đủ phía trên editor.</li>
-  <li><strong>minimal</strong>: toolbar gọn, phù hợp nội dung ngắn.</li>
-  <li><strong>notion</strong>: trải nghiệm giống Notion, tập trung vào slash command, bubble menu và điều khiển bảng.</li>
+  <li><strong>minimal</strong>: toolbar rất gọn, hiện chỉ có Bold, Italic và Bullet list.</li>
+  <li><strong>notion</strong>: biến thể hiển thị nhẹ hơn cho trải nghiệm giống Notion; toolbar, menu bar và bubble menu vẫn do các prop riêng quyết định.</li>
 </ul>
 <table>
   <tr><th>Tình huống</th><th>Nên dùng</th><th>Lý do</th></tr>
   <tr><td>Biểu mẫu nhập mô tả ngắn</td><td><code>variant="minimal"</code></td><td>Giao diện gọn, ít gây nhiễu.</td></tr>
   <tr><td>Trang soạn thảo nội dung đầy đủ</td><td><code>variant="default"</code></td><td>Người dùng thấy ngay các nút định dạng chính.</td></tr>
-  <tr><td>Soạn tài liệu có bảng, ảnh, block linh hoạt</td><td><code>variant="notion"</code></td><td>Slash command, bubble menu và điều khiển bảng thuận tiện hơn.</td></tr>
+  <tr><td>Soạn tài liệu có bảng, ảnh, block linh hoạt</td><td><code>variant="notion"</code> kết hợp cấu hình toolbar/menu phù hợp</td><td>Giữ cảm giác soạn thảo gọn hơn, còn slash command và bubble menu vẫn đến từ extension/prop tương ứng.</td></tr>
   <tr><td>Xem trước nội dung đã lưu</td><td><code>editable=false</code></td><td>Hiển thị nội dung nhưng không cho chỉnh sửa.</td></tr>
 </table>
 <div class="note">Tài liệu này mô tả hành vi thực tế trong code hiện tại: <code>UEditor.tsx</code>, <code>toolbar.tsx</code>, <code>menus.tsx</code>, <code>menu-bar.tsx</code>, <code>slash-command.tsx</code> và nhóm file bảng/công thức.</div>
@@ -329,7 +329,7 @@ tr:nth-child(even) td { background: #fbfcff; }
   <tr><th>Vùng</th><th>Xuất hiện khi nào</th><th>Dùng để làm gì</th></tr>
   <tr><td>Menu bar</td><td>Khi bật <code>showMenuBar</code></td><td>Thao tác theo nhóm File, Edit, View, Insert, Format, Tools, Table.</td></tr>
   <tr><td>Toolbar</td><td>Khi <code>showToolbar=true</code> và editor editable</td><td>Định dạng nhanh text, block, ảnh, bảng, undo/redo.</td></tr>
-  <tr><td>Vùng soạn thảo</td><td>Luôn có trong editor</td><td>Nhập nội dung, chọn text, paste ảnh/bảng, kéo thả file hoặc ảnh.</td></tr>
+  <tr><td>Vùng soạn thảo</td><td>Luôn có trong editor</td><td>Nhập nội dung, chọn text, paste ảnh/bảng, kéo thả ảnh.</td></tr>
   <tr><td>Bubble menu</td><td>Khi chọn text, link, ảnh hoặc ô bảng</td><td>Sửa nhanh đúng nội dung đang chọn.</td></tr>
   <tr><td>Slash command</td><td>Khi gõ <code>/</code></td><td>Chèn nhanh block như heading, list, table, callout, bookmark, file card.</td></tr>
   <tr><td>Character count</td><td>Khi bật <code>showCharacterCount</code></td><td>Theo dõi số từ/ký tự và giới hạn <code>maxCharacters</code>.</td></tr>
@@ -338,6 +338,7 @@ tr:nth-child(even) td { background: #fbfcff; }
 
 <h2><span class="sn">3</span> Toolbar và định dạng văn bản</h2>
 <p>Toolbar là nơi dùng nhanh các lệnh định dạng phổ biến. Một số nút là nút bấm trực tiếp, một số nút mở dropdown hoặc palette.</p>
+<div class="note">Trong <code>variant="minimal"</code>, toolbar không phải bản rút gọn của toàn bộ toolbar đầy đủ; code hiện chỉ render ba nút <strong>Bold</strong>, <strong>Italic</strong> và <strong>Bullet list</strong>. Nếu tài liệu end-user cần nhắc đến font, ảnh hoặc bảng thì nên dùng <code>default</code>/<code>notion</code> với <code>showToolbar</code> phù hợp.</div>
 <table>
   <tr><th>Nhóm lệnh</th><th>Chức năng</th><th>Ghi chú thao tác</th></tr>
   <tr><td>Typography</td><td>Phông chữ, cỡ chữ, kiểu đoạn, giãn dòng, giãn chữ</td><td>Hỗ trợ preset và có thể cấu hình bằng props <code>fontFamilies</code>, <code>fontSizes</code>, <code>lineHeights</code>, <code>letterSpacings</code>.</td></tr>
@@ -373,9 +374,9 @@ tr:nth-child(even) td { background: #fbfcff; }
   <tr><td>Line Height</td><td>1.2, 1.5, 1.75</td><td>Đổi độ giãn dòng của text.</td></tr>
   <tr><td>Letter Spacing</td><td>0, 0.05em...</td><td>Đổi khoảng cách chữ, hữu ích cho tiêu đề hoặc nhãn ngắn.</td></tr>
 </table>
-<div class="warn">Heading chỉ hỗ trợ cấp 1, 2, 3 trong extension hiện tại. Nếu người dùng cần Heading 4-6 thì phải mở rộng cấu hình code trước, không phải lỗi của tài liệu.</div>
+<div class="warn">Heading chỉ hỗ trợ cấp 1, 2, 3 trong extension hiện tại. Task list có input rule cho <code>[]</code>, <code>[ ]</code>, <code>- []</code>, <code>- [ ]</code> và <code>* [ ]</code>. Nếu người dùng cần Heading 4-6 hoặc markdown shortcut khác thì phải mở rộng cấu hình code trước, không phải lỗi của tài liệu.</div>
 
-<h2><span class="sn">4</span> Slash command và floating menu</h2>
+<h2><span class="sn">4</span> Slash command và emoji autocomplete</h2>
 <p>Gõ <code>/</code> trong editor để mở danh sách khối. Có thể tiếp tục gõ để lọc, dùng mũi tên lên/xuống để chọn và nhấn <span class="kbd">Enter</span> để chèn.</p>
 <div class="figure">
   <img class="shot" src="img-guide/current/03-slash-command-crop.png" alt="Ảnh chụp slash command UEditor đang mở danh sách Basic Blocks">
@@ -390,7 +391,7 @@ tr:nth-child(even) td { background: #fbfcff; }
   </div>
   <div class="figcap">Slash command hiện hỗ trợ text, heading 1-3, bullet/number/task list, quote, code block, divider, table, callout, bookmark và file card.</div>
 </div>
-<p>Nếu <code>showFloatingMenu</code> được bật, khi con trỏ nằm ở một dòng trống editor có thể hiện nút thêm block. Nút này mở cùng danh sách lệnh như slash command.</p>
+<div class="warn"><code>showFloatingMenu</code> đang có trong type và <code>CustomFloatingMenu</code> đã được định nghĩa trong code, nhưng <code>UEditor.tsx</code> hiện chưa render component này. Trong bản hiện tại, hãy hướng dẫn người dùng dùng slash command bằng phím <code>/</code>; chỉ mô tả nút floating add-block nếu đội triển khai nối lại prop này.</div>
 <h3>Cách dùng slash command</h3>
 <ol class="steps">
   <li>Đặt con trỏ ở dòng trống hoặc vị trí muốn chèn block.</li>
@@ -399,6 +400,7 @@ tr:nth-child(even) td { background: #fbfcff; }
   <li>Dùng chuột để chọn item, hoặc dùng <span class="kbd">↑</span>/<span class="kbd">↓</span> rồi nhấn <span class="kbd">Enter</span>.</li>
   <li>Nhấn <span class="kbd">Esc</span> hoặc click ra ngoài để đóng menu.</li>
 </ol>
+<div class="tip">Bộ lọc slash command hiện lọc theo <strong>title</strong> của command, không lọc theo phần mô tả. Ví dụ gõ <code>file</code> ra File Attachment, nhưng gõ theo một từ chỉ nằm trong description có thể không ra kết quả.</div>
 <table>
   <tr><th>Lệnh</th><th>Kết quả</th><th>Lưu ý</th></tr>
   <tr><td>Text</td><td>Đoạn văn thường</td><td>Dùng để quay về paragraph sau heading/list.</td></tr>
@@ -407,10 +409,13 @@ tr:nth-child(even) td { background: #fbfcff; }
   <tr><td>Quote / Code Block</td><td>Khối trích dẫn hoặc khối mã</td><td>Code block dùng lowlight để tô cú pháp.</td></tr>
   <tr><td>Divider</td><td>Đường phân cách ngang</td><td>Dùng tách các phần nội dung dài.</td></tr>
   <tr><td>Table</td><td>Bảng 3×3 có header row</td><td>Có thể chỉnh tiếp bằng table controls.</td></tr>
-  <tr><td>Callout</td><td>Hộp chú thích nổi bật</td><td>Có emoji và màu nền riêng trong node view.</td></tr>
-  <tr><td>Bookmark Card</td><td>Thẻ preview link</td><td>Có thể lấy metadata nếu app truyền <code>fetchMetadata</code>.</td></tr>
-  <tr><td>File Attachment</td><td>Thẻ tệp đính kèm</td><td>Dùng <code>uploadFile</code> nếu muốn upload thật ngay.</td></tr>
+  <tr><td>Callout</td><td>Hộp chú thích nổi bật</td><td>Node view có nút đổi emoji và swatch màu nền Gray, Blue, Green, Yellow, Red.</td></tr>
+  <tr><td>Bookmark Card</td><td>Thẻ preview link</td><td>Lệnh hiện dùng prompt nhập URL; có thể lấy metadata nếu app truyền <code>fetchMetadata</code>.</td></tr>
+  <tr><td>File Attachment</td><td>Thẻ tệp đính kèm</td><td>Lệnh mở file picker, chèn data URL trước; <code>FileCardView</code> sẽ upload nếu có <code>uploadFile</code>.</td></tr>
 </table>
+<h3>Emoji autocomplete</h3>
+<p>Ngoài emoji picker trên toolbar, UEditor hiện bật <code>EmojiSuggestion</code>. Khi gõ <code>:</code>, editor mở lưới emoji gợi ý; người dùng có thể gõ tiếp tên emoji để lọc, dùng phím mũi tên để di chuyển và nhấn <span class="kbd">Enter</span> để chèn.</p>
+<div class="tip">Emoji suggestion hiển thị tối đa 64 emoji trong popup. Khi không có query, danh sách dùng các emoji đầu trong bộ <code>EMOJI_LIST</code>.</div>
 
 <h2><span class="sn">5</span> Bubble menu khi chọn nội dung</h2>
 <p>Khi bôi đen text hoặc chọn một node đặc biệt, bubble menu nổi phía trên vùng chọn. Menu này giúp chỉnh nhanh mà không cần di chuyển lên toolbar.</p>
@@ -433,17 +438,18 @@ tr:nth-child(even) td { background: #fbfcff; }
   <tr><td>Text thường</td><td>Bold, italic, underline, strike, code, link, màu chữ, highlight, typography</td><td>Định dạng nhanh nội dung đang chọn.</td></tr>
   <tr><td>Link</td><td>URL preview, open, edit, unlink</td><td>Mở link, sửa URL hoặc gỡ link khỏi text.</td></tr>
   <tr><td>Ảnh</td><td>Block/left/right layout, S/M/L, reset, delete</td><td>Chỉnh vị trí ảnh, kích thước preset hoặc xóa ảnh.</td></tr>
-  <tr><td>Ô bảng</td><td>Cell background, cell border, formula, merge/split, typography</td><td>Định dạng bảng và nhập công thức theo ô.</td></tr>
+  <tr><td>Ô bảng</td><td>Cell background, cell border, formula, merge/split, typography</td><td>Định dạng bảng và nhập công thức theo ô. Border có style, width, color và clear border.</td></tr>
 </table>
+<p>Panel typography trong bubble menu cho phép nhập font size trực tiếp trong khoảng 8-96px, chọn nhanh 14/16/24px, chọn line-height nhanh 1.2/1.5/1.75 và bật subscript/superscript. Khi selection nằm trong bảng, panel border hỗ trợ Solid, Dashed, Dotted, Double, None; width 1-4px; palette màu và nút xóa border.</p>
 <div class="tip">Bubble menu có độ trễ hiển thị ngắn để tránh nhấp nháy khi selection thay đổi. Khi người dùng mở input link hoặc formula, menu được giữ mở để không mất focus giữa chừng.</div>
 
 <h2><span class="sn">6</span> Liên kết, ảnh, bookmark và tệp đính kèm</h2>
 <h3>Liên kết</h3>
-<p>Chọn text rồi bấm nút link để nhập URL. UEditor chỉ cho phép protocol an toàn như <code>http</code>, <code>https</code>, <code>mailto</code>, <code>tel</code>; URL nguy hiểm như <code>javascript:</code> bị từ chối.</p>
+<p>Chọn text rồi bấm nút link để nhập URL. UEditor chỉ cho phép protocol an toàn như <code>http</code>, <code>https</code>, <code>mailto</code>, <code>tel</code> hoặc relative URL; URL nguy hiểm như <code>javascript:</code> và protocol-relative URL dạng <code>//example.com</code> bị từ chối.</p>
 <ol class="steps">
   <li>Bôi đen text muốn gắn link.</li>
   <li>Bấm biểu tượng link trên toolbar hoặc bubble menu.</li>
-  <li>Dán URL vào input. Nếu URL không có protocol nhưng hợp lệ, editor cố gắng chuẩn hóa thành URL an toàn.</li>
+  <li>Dán URL vào input. Nếu URL không có protocol nhưng hợp lệ, editor cố gắng chuẩn hóa thành <code>https://...</code>.</li>
   <li>Bấm xác nhận. Text sẽ có style link và có thể preview lại khi đặt con trỏ/chọn link.</li>
 </ol>
 <h3>Ảnh</h3>
@@ -459,9 +465,9 @@ tr:nth-child(even) td { background: #fbfcff; }
 </div>
 <table>
   <tr><th>Cách chèn ảnh</th><th>Luồng xử lý</th><th>Khi nào dùng</th></tr>
-  <tr><td>Thêm từ URL</td><td>Editor kiểm tra URL ảnh an toàn rồi chèn <code>&lt;img&gt;</code></td><td>Khi ảnh đã có URL công khai hoặc CDN.</td></tr>
+  <tr><td>Thêm từ URL</td><td>Editor kiểm tra URL ảnh an toàn rồi chèn <code>&lt;img&gt;</code>. Hỗ trợ <code>http</code>, <code>https</code>, relative URL và data image; chặn protocol-relative URL.</td><td>Khi ảnh đã có URL công khai hoặc CDN.</td></tr>
   <tr><td>Upload từ máy</td><td>Nếu <code>imageInsertMode="upload"</code> và có <code>uploadImage</code>, upload ngay; nếu không, giữ data URL.</td><td>Khi app muốn ảnh xuất hiện ngay trong editor.</td></tr>
-  <tr><td>Paste / drag-drop</td><td>Extension ClipboardImages xử lý file ảnh, kiểm tra size/MIME và insert theo mode.</td><td>Khi người dùng copy ảnh từ clipboard hoặc kéo file vào editor.</td></tr>
+  <tr><td>Paste / drag-drop</td><td>Extension ClipboardImages xử lý file ảnh, kiểm tra size/MIME và insert theo mode. Mặc định giới hạn 10MB và MIME <code>png</code>, <code>jpeg</code>, <code>webp</code>, <code>gif</code>, <code>svg+xml</code>.</td><td>Khi người dùng copy ảnh từ clipboard hoặc kéo file vào editor.</td></tr>
   <tr><td>Upload khi lưu</td><td><code>prepareContentForSave()</code> tìm ảnh base64, chuyển thành <code>File</code>, gọi <code>uploadImageForSave</code>.</td><td>Khuyến nghị cho editor dài để tránh upload rác khi người dùng chưa lưu.</td></tr>
 </table>
 <h3>Chỉnh ảnh sau khi chèn</h3>
@@ -471,11 +477,14 @@ tr:nth-child(even) td { background: #fbfcff; }
   <li>Chọn <strong>Image Block</strong> để ảnh đứng riêng một dòng, <strong>Wrap Text Right</strong> để ảnh nằm trái và chữ chảy bên phải, hoặc <strong>Wrap Text Left</strong> để ảnh nằm phải và chữ chảy bên trái.</li>
   <li>Chọn S/M/L để đổi preset width. Dùng reset để bỏ kích thước custom, hoặc delete để xóa ảnh.</li>
 </ol>
+<p>Ảnh còn có handle resize ở góc dưới phải. Khi kéo, editor giữ tỷ lệ ảnh, giới hạn tối thiểu khoảng 40px và không cho vượt quá vùng editor. Width/height được lưu vào node; reset size sẽ xóa kích thước custom và preset size. Preset hiện tại: ảnh block S/M/L khoảng 180/280/380px; ảnh wrap trái/phải S/M/L khoảng 140/200/260px.</p>
 <h3>Bookmark và file card</h3>
-<p>Slash command có <strong>Bookmark Card</strong> để nhúng link dạng thẻ preview. Nếu truyền <code>fetchMetadata</code>, bookmark có thể hiển thị title, description, image hoặc publisher. <strong>File Attachment</strong> tạo thẻ tệp; nếu có <code>uploadFile</code>, file được upload ngay, nếu không editor có thể giữ data URL trong nội dung.</p>
+<p>Slash command có <strong>Bookmark Card</strong> để nhúng link dạng thẻ preview. Lệnh bookmark hiện dùng prompt nhập URL đơn giản; sau khi chèn, nếu truyền <code>fetchMetadata</code>, bookmark có thể hiển thị title, description, image hoặc publisher. Nếu paste một URL <code>http/https</code> thuần vào đoạn paragraph đang trống, extension bookmark có thể tự chuyển đoạn đó thành bookmark card.</p>
+<p><strong>File Attachment</strong> mở file picker, tạo thẻ tệp bằng data URL. File card hiển thị icon theo MIME phổ biến như PDF, image, audio, video hoặc generic, hiển thị tên file/kích thước, có nút download và trạng thái upload/retry. Upload ngay sau khi chèn dùng thứ tự handler trong code: <code>uploadFile</code> trước, sau đó có thể fallback qua upload save-time wrapper hoặc <code>uploadImage</code> tùy cấu hình hiện có.</p>
+<div class="tip">Bookmark có fallback title theo hostname/URL nếu không lấy được metadata. Nếu fetch metadata lỗi, card có trạng thái lỗi và nút retry trong preview.</div>
 <div class="note">Bookmark và file card là node riêng, không phải link/ảnh thường. Khi render lại HTML đã lưu, cần giữ nguyên các thuộc tính data cần thiết để UEditor đọc lại đúng node.</div>
 
-<h2><span class="sn">7</span> Bảng: tạo, chỉnh sửa, resize và menu điều khiển</h2>
+<h2><span class="sn">7</span> Bảng: tạo, chỉnh sửa, resize, reorder và menu điều khiển</h2>
 <p>Có ba cách tạo bảng:</p>
 <ol>
   <li>Bấm nút Table trên toolbar và rê chuột trên grid 8×8 để chọn số hàng/cột.</li>
@@ -502,18 +511,20 @@ tr:nth-child(even) td { background: #fbfcff; }
       <span class="side-rail">⋯ table</span>
       <span class="side-rail">⋮ row</span>
       <span class="side-rail">⋯ column</span>
-      <p class="small">Hover vào bảng để mở rail thêm hàng/cột, handle kéo row/column và menu điều khiển.</p>
+      <p class="small">Hover vào bảng để mở rail thêm hàng/cột, handle kéo row/column để đổi thứ tự và menu điều khiển.</p>
     </div>
   </div>
-  <div class="figcap">Bảng không còn là table cơ bản: có resize cột/hàng, quick add, drag handle và menu theo bảng/hàng/cột.</div>
+  <div class="figcap">Bảng không còn là table cơ bản: có resize cột/hàng, quick add, kéo để thêm nhiều hàng/cột, drag handle để reorder và menu theo bảng/hàng/cột.</div>
 </div>
 <h3>Các lệnh bảng chính</h3>
 <table>
   <tr><th>Vị trí</th><th>Lệnh</th></tr>
-  <tr><td>Toolbar/menu bar</td><td>Align table left/center/right, add column before/after, add row before/after, toggle header row/column, delete row/column/table.</td></tr>
-  <tr><td>Bubble menu trong bảng</td><td>Màu nền ô, border ô, công thức, merge/split cells.</td></tr>
+  <tr><td>Toolbar / table controls</td><td>Align table left/center/right, add column before/after, add row before/after, toggle header row/column, delete row/column/table.</td></tr>
+  <tr><td>Menu bar Table</td><td>Insert table, delete table, add/delete row, add/delete column, merge/split cell. <strong>Table Properties</strong> có trong menu nhưng đang disabled.</td></tr>
+  <tr><td>Bubble menu trong bảng</td><td>Màu nền ô, border ô, border style/width/color, công thức, merge/split cells và typography.</td></tr>
   <tr><td>Menu hàng/cột</td><td>Add before/after, duplicate row/column, clear contents, delete row/column.</td></tr>
   <tr><td>Resize</td><td>Kéo cạnh phải của cột để đổi width, kéo cạnh dưới của hàng để đổi row height. Khi <code>editable=false</code>, resize bị tắt.</td></tr>
+  <tr><td>Reorder</td><td>Kéo handle hàng hoặc cột để đổi thứ tự hàng/cột trong cùng bảng.</td></tr>
 </table>
 <h3>Quy trình làm việc với bảng</h3>
 <ol class="steps">
@@ -521,7 +532,8 @@ tr:nth-child(even) td { background: #fbfcff; }
   <li>Click vào ô để nhập nội dung. Dùng <span class="kbd">Tab</span> để đi sang ô kế tiếp nếu trình duyệt/editor cho phép.</li>
   <li>Hover cạnh phải cột để hiện resize handle, kéo ngang để đổi chiều rộng cột.</li>
   <li>Hover cạnh dưới hàng để hiện row resize, kéo dọc để đổi chiều cao hàng.</li>
-  <li>Hover bên phải hoặc phía dưới bảng để dùng rail <strong>+</strong> thêm nhanh cột/hàng.</li>
+  <li>Hover bên phải hoặc phía dưới bảng để dùng rail <strong>+</strong> thêm nhanh cột/hàng; kéo rail ra xa hơn để thêm nhiều cột/hàng trong một lần.</li>
+  <li>Kéo handle hàng/cột để đổi thứ tự nếu cần sắp xếp lại bảng.</li>
   <li>Chọn nhiều ô để merge; chọn ô đã merge để split.</li>
   <li>Dùng bubble menu để đổi màu nền, border hoặc nhập công thức cho ô.</li>
 </ol>
@@ -531,9 +543,10 @@ tr:nth-child(even) td { background: #fbfcff; }
   <tr><td>Header row/column</td><td>Chuyển hàng/cột thành header hoặc bỏ header bằng lệnh toggle.</td></tr>
   <tr><td>Duplicate row/column</td><td>Menu handle hàng/cột có thể nhân đôi cấu trúc và nội dung vùng tương ứng.</td></tr>
   <tr><td>Clear row/column contents</td><td>Xóa nội dung bên trong nhưng giữ cấu trúc hàng/cột.</td></tr>
+  <tr><td>Reorder row/column</td><td>Kéo handle hàng/cột; editor dùng logic <code>moveTableRow</code>/<code>moveTableColumn</code> để chuyển vị trí.</td></tr>
   <tr><td>Delete table</td><td>Xóa toàn bộ table node khỏi document.</td></tr>
 </table>
-<div class="warn">Nếu người dùng paste bảng từ nguồn ngoài, UEditor có logic clipboard table riêng. Sau khi paste nên kiểm tra lại width, header và công thức vì dữ liệu ngoài có thể không có đầy đủ thuộc tính nội bộ của UEditor.</div>
+<div class="warn">Nếu người dùng paste bảng từ nguồn ngoài, UEditor có logic clipboard table riêng cho HTML table và TSV. Code cố gắng giữ background, border, colspan/rowspan, width cột, height hàng, formula/computed value, number format và một số inline mark như bold/italic/underline/color/highlight; tuy vậy sau khi paste vẫn nên kiểm tra lại layout, header và công thức vì dữ liệu ngoài có thể không có đầy đủ thuộc tính nội bộ của UEditor.</div>
 <div class="figure">
   <img class="shot" src="img-guide/current/07-table-cell-bubble-crop.png" alt="Ảnh chụp bubble menu khi chọn nhiều ô trong bảng UEditor">
   <div class="figcap">Bubble menu trong bảng có thêm màu nền ô, border ô, công thức và merge/split cell.</div>
@@ -576,6 +589,7 @@ tr:nth-child(even) td { background: #fbfcff; }
   <tr><td>Toán tử</td><td><code>+</code>, <code>-</code>, <code>*</code>, <code>/</code></td><td>Có hỗ trợ ngoặc đơn.</td></tr>
   <tr><td>Định dạng số</td><td>Number, Currency, Percent, Date</td><td>Giá trị tính được được hiển thị theo format đã chọn.</td></tr>
 </table>
+<p>Công thức hiện chỉ xử lý biểu thức số nhẹ: số nguyên/thập phân, toán tử, ngoặc, tham chiếu ô/vùng và các hàm đã liệt kê. Format <strong>Currency</strong> dùng USD, <strong>Percent</strong> nhân giá trị theo định dạng phần trăm, còn <strong>Date</strong> đọc số serial theo mốc tương tự Excel là 1899-12-30. Editor chưa phải spreadsheet đầy đủ nên không nên hứa các hàm text/date nâng cao.</p>
 <h3>Nguyên tắc đọc địa chỉ ô</h3>
 <p>Địa chỉ ô dùng quy ước giống spreadsheet: cột là chữ cái bắt đầu từ A, hàng là số bắt đầu từ 1. Ví dụ ô đầu tiên là <code>A1</code>, ô bên phải là <code>B1</code>, ô ở hàng thứ hai cột A là <code>A2</code>. Vùng <code>A1:C3</code> bao gồm tất cả ô từ cột A đến C và hàng 1 đến 3.</p>
 <table>
@@ -587,7 +601,7 @@ tr:nth-child(even) td { background: #fbfcff; }
   <tr><td><code>=COUNT(A1:A5)</code></td><td>3 số, 2 ô text</td><td>3</td></tr>
   <tr><td><code>=(A1+B1)/C1</code></td><td>A1=10, B1=20, C1=5</td><td>6</td></tr>
 </table>
-<div class="tip">Có thể gõ <code>=SUM(</code> rồi kéo chọn vùng ô trong bảng; editor sẽ highlight vùng đang chọn để điền range. Công thức được tự tính lại khi nội dung bảng thay đổi, khi selection đổi hoặc khi editor blur.</div>
+<div class="tip">Có thể gõ <code>=SUM(</code> rồi kéo chọn vùng ô trong bảng; editor sẽ highlight vùng đang chọn để điền range. Công thức nháp chưa đủ cú pháp sẽ chưa được promote thành formula chính thức. Công thức được tự tính lại khi nội dung bảng thay đổi, khi selection đổi, khi editor blur và khi content controlled được set lại.</div>
 <div class="warn">Các lỗi hiển thị dạng <code>#INVALID-REFERENCE</code>, <code>#INVALID-FORMULA</code>, <code>#DIVISION-BY-ZERO</code>, <code>#CIRCULAR-REFERENCE</code>. Nếu thấy lỗi vòng lặp, kiểm tra ô đang tham chiếu lại chính nó hoặc tham chiếu thành chuỗi vòng.</div>
 <table>
   <tr><th>Lỗi</th><th>Nguyên nhân thường gặp</th><th>Cách xử lý</th></tr>
@@ -618,16 +632,17 @@ tr:nth-child(even) td { background: #fbfcff; }
   </div>
   <div class="figcap">Menu bar hiện có File, Edit, View, Insert, Format, Tools và Table; một số action gọi callback nếu app truyền vào.</div>
 </div>
-<p><strong>File &gt; Save</strong> chỉ hoạt động khi app truyền <code>onSave</code>. <strong>File &gt; Export HTML</strong> gọi <code>onExport</code> nếu có; nếu không, editor tự tải file <code>document.html</code>. <strong>View &gt; Source Code</strong> và <strong>View &gt; Preview</strong> cũng dùng callback nếu được cung cấp, nếu không dùng dialog built-in.</p>
+<p><strong>File &gt; Save</strong> chỉ hoạt động khi app truyền <code>onSave</code>. Menu item hiển thị shortcut <code>Ctrl+S</code>, nhưng UEditor hiện chưa tự bind phím này; app cần bắt keyboard event nếu muốn lưu bằng bàn phím. <strong>File &gt; Export HTML</strong> gọi <code>onExport</code> nếu có; nếu không, editor tự tải file <code>document.html</code>. <strong>View &gt; Source Code</strong> dùng callback nếu có, nếu không mở dialog built-in cho sửa HTML rồi Apply.</p>
+<p><strong>View &gt; Preview</strong> và nút biểu tượng mắt gọi <code>onPreview(editor.getHTML())</code>. Nếu callback trả về <code>false</code>, dialog preview built-in sẽ không mở; nếu không trả về <code>false</code>, editor mở dialog preview. Preview built-in chạy qua <code>prepareUEditorPreviewHtml()</code> để chuẩn hóa lại width/height bảng trong HTML preview.</p>
 <table>
   <tr><th>Menu</th><th>Lệnh chi tiết</th><th>Ghi chú</th></tr>
   <tr><td>File</td><td>Save, Export HTML</td><td>Save phụ thuộc <code>onSave</code>; Export có fallback tải file HTML.</td></tr>
   <tr><td>Edit</td><td>Undo, Redo, Cut, Copy, Paste, Paste as Text, Select All</td><td>Một số lệnh clipboard phụ thuộc quyền của trình duyệt.</td></tr>
-  <tr><td>View</td><td>Source Code, Preview, Fullscreen</td><td>Source/Preview có dialog built-in nếu không truyền callback.</td></tr>
+  <tr><td>View</td><td>Source Code, Preview, Fullscreen</td><td>Source/Preview có dialog built-in nếu không truyền callback; source dialog cho phép sửa HTML rồi Apply.</td></tr>
   <tr><td>Insert</td><td>Image URL, Image Upload, Link, Table, Horizontal Rule</td><td>Image upload tuân theo size/MIME và insert mode.</td></tr>
   <tr><td>Format</td><td>Bold, Italic, Underline, Strike, Superscript, Subscript, Code, Wrap, Align, Clear Formatting</td><td>Wrap gồm paragraph, heading, blockquote, code block, task list.</td></tr>
   <tr><td>Tools</td><td>Source Code</td><td>Shortcut menu cho thao tác xem/sửa HTML.</td></tr>
-  <tr><td>Table</td><td>Insert Table, Delete Table, Row, Column, Cell merge/split</td><td>Các lệnh row/column/cell chỉ bật khi selection nằm trong bảng.</td></tr>
+  <tr><td>Table</td><td>Insert Table, Table Properties, Delete Table, Row, Column, Cell merge/split</td><td>Các lệnh row/column/cell chỉ bật khi selection nằm trong bảng; Table Properties đang disabled.</td></tr>
 </table>
 <div class="note">Menu bar phù hợp với người dùng quen Microsoft Word/Google Docs. Với trải nghiệm hiện đại, có thể dùng toolbar + slash command mà không bật menu bar.</div>
 
@@ -636,12 +651,12 @@ tr:nth-child(even) td { background: #fbfcff; }
 <p>Thông thường app lấy HTML qua <code>onChange</code>/<code>onHtmlChange</code>. Nếu nội dung có ảnh base64 hoặc file card inline, nên gọi <code>prepareContentForSave()</code> qua ref trước khi lưu.</p>
 <pre><code>const prepared = await editorRef.current?.prepareContentForSave({ throwOnError: true })
 await api.savePost({ content: prepared?.html ?? "" })</code></pre>
-<p>Kết quả trả về gồm HTML đã chuẩn hóa, danh sách item đã upload, inline image URLs và lỗi upload nếu có. <code>uploadImageConcurrency</code> mặc định là 3.</p>
+<p>Kết quả trả về gồm HTML đã chuẩn hóa, danh sách item đã upload, inline image URLs và lỗi upload nếu có. <code>uploadImageConcurrency</code> mặc định là 3 và được dùng để giới hạn upload song song khi chuẩn bị lưu.</p>
 <h3>Luồng lưu khuyến nghị</h3>
 <ol class="steps">
   <li>Người dùng soạn nội dung bình thường; ảnh paste/upload có thể đang là base64.</li>
   <li>Khi bấm Save, gọi <code>prepareContentForSave({ throwOnError: true })</code>.</li>
-  <li>Hàm tìm các ảnh/file inline cần upload và chạy upload với giới hạn concurrency.</li>
+  <li>Hàm tìm ảnh base64 và file card data URL cần upload rồi chạy upload với giới hạn concurrency.</li>
   <li>Nếu upload thành công, HTML trả về đã thay data URL bằng URL thật.</li>
   <li>Lưu HTML đã chuẩn hóa vào database hoặc API backend.</li>
   <li>Nếu có lỗi và <code>throwOnError=true</code>, bắt exception để báo người dùng lưu thất bại hoặc yêu cầu thử lại.</li>
@@ -649,11 +664,12 @@ await api.savePost({ content: prepared?.html ?? "" })</code></pre>
 <table>
   <tr><th>Field trong kết quả</th><th>Ý nghĩa</th></tr>
   <tr><td><code>html</code></td><td>HTML cuối cùng nên dùng để lưu.</td></tr>
-  <tr><td><code>uploaded</code></td><td>Danh sách file đã upload thành công cùng URL/meta.</td></tr>
+  <tr><td><code>uploaded</code></td><td>Danh sách ảnh/file card đã upload thành công cùng URL/meta.</td></tr>
   <tr><td><code>inlineImageUrls</code></td><td>URL ảnh inline đã được phát hiện trong nội dung.</td></tr>
-  <tr><td><code>inlineUploaded</code></td><td>Danh sách item inline được upload, kèm index và thông tin file nếu có.</td></tr>
+  <tr><td><code>inlineUploaded</code></td><td>Danh sách ảnh inline base64 đã upload, kèm index và thông tin file nếu có.</td></tr>
   <tr><td><code>errors</code></td><td>Lỗi upload theo index. Nếu không bật throw, app tự xử lý danh sách này.</td></tr>
 </table>
+<p>Handler upload khi lưu có thể trả về URL string hoặc object có dạng <code>{ url, ...meta }</code>. Ảnh base64 cần <code>uploadImageForSave</code>. File card data URL dùng <code>uploadFileForSave</code> nếu có, nếu không fallback sang <code>uploadImageForSave</code>.</p>
 <h3>Xuất HTML</h3>
 <p>Khi dùng menu bar, <strong>File &gt; Export HTML</strong> sẽ gọi <code>onExport</code> nếu app truyền callback. Nếu không có callback, editor tạo một Blob HTML đơn giản và tải về file <code>document.html</code>. Đây là export nhanh cho người dùng, không thay thế logic lưu chính thức của app.</p>
 <h3>Chế độ đọc</h3>
@@ -668,26 +684,33 @@ await api.savePost({ content: prepared?.html ?? "" })</code></pre>
   <tr><td><span class="kbd">Ctrl/Cmd+U</span></td><td>Gạch chân</td></tr>
   <tr><td><span class="kbd">Ctrl/Cmd+Z</span></td><td>Hoàn tác</td></tr>
   <tr><td><span class="kbd">Ctrl/Cmd+Y</span> hoặc <span class="kbd">Cmd+Shift+Z</span></td><td>Làm lại, tùy nền tảng/browser</td></tr>
-  <tr><td><span class="kbd">Ctrl/Cmd+S</span></td><td>Save trong menu bar nếu app bắt sự kiện/callback</td></tr>
+  <tr><td><span class="kbd">Ctrl/Cmd+S</span></td><td>UEditor chỉ hiển thị shortcut trên menu Save; app cần tự bắt phím để gọi <code>onSave</code>.</td></tr>
   <tr><td><span class="kbd">/</span></td><td>Mở slash command</td></tr>
   <tr><td><span class="kbd">↑</span>/<span class="kbd">↓</span> + <span class="kbd">Enter</span></td><td>Di chuyển và chọn item trong slash command</td></tr>
+  <tr><td><span class="kbd">:</span></td><td>Mở emoji autocomplete.</td></tr>
 </table>
 <ul>
   <li>Nếu không thấy toolbar, kiểm tra <code>showToolbar</code>, <code>editable</code> và variant đang dùng.</li>
-  <li>Nếu không upload được ảnh, kiểm tra <code>maxImageFileSize</code>, <code>allowedImageMimeTypes</code>, <code>uploadImage</code> và <code>uploadImageForSave</code>.</li>
-  <li>Nếu link không tạo được, kiểm tra URL có protocol an toàn hay không.</li>
+  <li>Nếu không upload được ảnh, kiểm tra <code>maxImageFileSize</code>, <code>allowedImageMimeTypes</code>, <code>fallbackToDataUrl</code>, <code>uploadImage</code> và <code>uploadImageForSave</code>.</li>
+  <li>Nếu link không tạo được, kiểm tra URL có protocol an toàn hay không; <code>//example.com</code> không được chấp nhận.</li>
   <li>Nếu bảng không resize được, kiểm tra editor có đang ở <code>editable=false</code> không.</li>
   <li>Nếu công thức chưa hiện kết quả, rời ô, đổi selection hoặc bấm Recalculate trong Formula panel.</li>
+  <li>Nếu bộ đếm ký tự chuyển đỏ, nội dung đang vượt hoặc gần vượt giới hạn: trên 90% giới hạn sẽ cảnh báo màu đỏ, trên 100% sẽ hiển thị đậm hơn.</li>
 </ul>
 <h3>Bảng xử lý sự cố nhanh</h3>
 <table>
   <tr><th>Hiện tượng</th><th>Nguyên nhân có thể</th><th>Cách kiểm tra</th></tr>
   <tr><td>Không thấy slash command khi gõ <code>/</code></td><td>Editor không focus, đang read-only, hoặc extension bị override</td><td>Click lại vào vùng editor, kiểm tra <code>editable</code> và <code>extraExtensions</code>.</td></tr>
+  <tr><td>Không thấy floating add-block dù truyền <code>showFloatingMenu</code></td><td>Prop hiện được khai báo nhưng chưa được render trong <code>UEditor.tsx</code></td><td>Dùng slash command, hoặc nối <code>CustomFloatingMenu</code> vào component trước khi bật tài liệu tính năng này cho end-user.</td></tr>
   <tr><td>Bubble menu biến mất khi nhập link/formula</td><td>Focus bị chuyển ra ngoài hoặc custom wrapper chặn event</td><td>Kiểm tra popover/modal parent có đóng khi click bên trong không.</td></tr>
   <tr><td>Ảnh không chèn được</td><td>Sai MIME, file quá lớn, URL không an toàn, upload handler lỗi</td><td>Kiểm tra console/API response và props image.</td></tr>
+  <tr><td>Kéo thả file thường không tạo file card</td><td>ClipboardImages chỉ xử lý image file cho paste/drag-drop</td><td>Dùng slash command <strong>File Attachment</strong> để chèn file card.</td></tr>
+  <tr><td>Bookmark không tự tạo khi paste URL</td><td>URL không phải <code>http/https</code>, paragraph không trống, hoặc paste chứa nhiều nội dung</td><td>Thử paste một URL thuần vào dòng trống hoặc dùng slash command Bookmark Card.</td></tr>
+  <tr><td>File card upload lỗi</td><td>Thiếu handler upload, API trả lỗi hoặc data URL không upload được</td><td>Kiểm tra trạng thái lỗi trên card, bấm retry hoặc gọi prepare save-time với handler phù hợp.</td></tr>
   <tr><td>Paste bảng bị lệch</td><td>Nguồn clipboard có HTML table phức tạp</td><td>Dán lại dưới dạng plain text hoặc chỉnh lại bằng table controls.</td></tr>
   <tr><td>Code block không tô màu như mong đợi</td><td>Ngôn ngữ không nằm trong lowlight common hoặc không nhận diện</td><td>Kiểm tra nội dung code block và extension lowlight.</td></tr>
   <tr><td>Bộ đếm ký tự không giới hạn nhập</td><td><code>maxCharacters</code> chưa truyền hoặc chỉ dùng count hiển thị</td><td>Kiểm tra prop <code>maxCharacters</code> và behavior CharacterCount.</td></tr>
+  <tr><td>Preview bảng khác nội dung thô</td><td>Built-in preview chuẩn hóa lại width/height bảng</td><td>Đây là behavior của <code>prepareUEditorPreviewHtml()</code>; export fallback vẫn là HTML đơn giản từ editor.</td></tr>
 </table>
 
 <h2><span class="sn">12</span> Ghi chú cấu hình cho đội triển khai</h2>
@@ -696,13 +719,22 @@ await api.savePost({ content: prepared?.html ?? "" })</code></pre>
   <tr><th>Prop</th><th>Mục đích</th><th>Mặc định</th></tr>
   <tr><td><code>content</code></td><td>HTML ban đầu hoặc HTML controlled</td><td><code>""</code></td></tr>
   <tr><td><code>onChange</code>, <code>onHtmlChange</code>, <code>onJsonChange</code></td><td>Lấy nội dung HTML/JSON khi editor update</td><td>-</td></tr>
-  <tr><td><code>variant</code></td><td><code>default</code>, <code>minimal</code>, <code>notion</code></td><td><code>default</code></td></tr>
+  <tr><td><code>placeholder</code></td><td>Text gợi ý khi editor trống</td><td>Theo translation hoặc fallback mặc định</td></tr>
+  <tr><td><code>variant</code></td><td><code>default</code>, <code>minimal</code>, <code>notion</code>. Lưu ý <code>notion</code> hiện chủ yếu là biến thể style, không tự tắt toolbar/menu.</td><td><code>default</code></td></tr>
   <tr><td><code>showMenuBar</code></td><td>Bật menu bar File/Edit/View/Insert/Format/Tools/Table</td><td><code>false</code></td></tr>
-  <tr><td><code>showBubbleMenu</code>, <code>showFloatingMenu</code></td><td>Bật menu nổi khi chọn text/dòng trống</td><td>Bubble menu bật; floating menu tùy demo</td></tr>
+  <tr><td><code>showToolbar</code></td><td>Bật toolbar khi editable; minimal toolbar chỉ có Bold/Italic/Bullet list</td><td><code>true</code></td></tr>
+  <tr><td><code>showBubbleMenu</code></td><td>Bật menu nổi khi chọn text/link/ảnh/ô bảng</td><td><code>true</code></td></tr>
+  <tr><td><code>showFloatingMenu</code></td><td>Prop đã khai báo nhưng UEditor hiện chưa render <code>CustomFloatingMenu</code></td><td>Chưa có tác dụng trong component chính</td></tr>
   <tr><td><code>editable</code></td><td>Cho phép sửa nội dung</td><td><code>true</code></td></tr>
+  <tr><td><code>autofocus</code></td><td>Tự focus editor khi mount</td><td><code>false</code></td></tr>
+  <tr><td><code>minHeight</code>, <code>maxHeight</code></td><td>Giới hạn chiều cao vùng editor</td><td><code>200px</code>, <code>auto</code></td></tr>
+  <tr><td><code>showCharacterCount</code>, <code>maxCharacters</code></td><td>Hiển thị word/character count và giới hạn ký tự nếu truyền max</td><td><code>false</code>, không giới hạn</td></tr>
   <tr><td><code>uploadImage</code>, <code>imageInsertMode</code></td><td>Upload ảnh ngay khi chèn nếu dùng mode upload</td><td><code>base64</code></td></tr>
-  <tr><td><code>uploadImageForSave</code>, <code>uploadFileForSave</code></td><td>Upload ảnh/tệp inline khi chuẩn bị lưu</td><td>-</td></tr>
+  <tr><td><code>maxImageFileSize</code>, <code>allowedImageMimeTypes</code>, <code>fallbackToDataUrl</code></td><td>Giới hạn paste/upload ảnh và quyết định có fallback data URL khi upload lỗi không</td><td>10MB, MIME ảnh phổ biến, <code>true</code></td></tr>
+  <tr><td><code>uploadImageForSave</code>, <code>uploadFileForSave</code>, <code>uploadImageConcurrency</code></td><td>Upload ảnh/tệp inline khi chuẩn bị lưu và giới hạn upload song song</td><td>Concurrency <code>3</code></td></tr>
+  <tr><td><code>uploadFile</code></td><td>Upload file card ngay sau khi chèn nếu có handler</td><td>-</td></tr>
   <tr><td><code>fetchMetadata</code></td><td>Lấy metadata cho bookmark card</td><td>-</td></tr>
+  <tr><td><code>onSave</code>, <code>onExport</code>, <code>onSourceCode</code>, <code>onPreview</code></td><td>Callback cho menu bar; <code>onPreview</code> nhận HTML hiện tại và có thể trả <code>false</code> để chặn preview dialog built-in</td><td>-</td></tr>
   <tr><td><code>extraExtensions</code></td><td>Gắn thêm TipTap extensions tùy biến</td><td><code>[]</code></td></tr>
 </table>
 <h3>Checklist trước khi đưa vào production</h3>
@@ -711,7 +743,7 @@ await api.savePost({ content: prepared?.html ?? "" })</code></pre>
   <div>Có giới hạn file size và MIME type phù hợp sản phẩm.</div>
   <div>Backend sanitize HTML hoặc có policy render HTML an toàn.</div>
   <div>Đã test editor trong modal/popover nếu sản phẩm dùng modal.</div>
-  <div>Đã test bảng lớn, resize row/column và paste table từ nguồn ngoài.</div>
+  <div>Đã test bảng lớn, resize row/column, reorder row/column và paste table từ nguồn ngoài.</div>
   <div>Đã test công thức với dữ liệu thật nếu bật use case bảng tính.</div>
   <div>Đã kiểm tra read-only render giống nội dung khi soạn.</div>
   <div>Đã cấu hình locale/translation nếu app chạy đa ngôn ngữ.</div>
@@ -722,13 +754,19 @@ await api.savePost({ content: prepared?.html ?? "" })</code></pre>
   content={content}
   onChange={setContent}
   variant="notion"
+  showToolbar={false}
   showBubbleMenu
   showCharacterCount
   maxCharacters={5000}
   imageInsertMode="base64"
   uploadImageForSave={uploadImageForSave}
+  uploadFileForSave={uploadFileForSave}
   uploadFile={uploadFile}
   fetchMetadata={fetchBookmarkMetadata}
+  onPreview={(html) => {
+    openPreview(html)
+    return false
+  }}
   fontFamilies={customFontFamilies}
   fontSizes={customFontSizes}
   lineHeights={customLineHeights}
