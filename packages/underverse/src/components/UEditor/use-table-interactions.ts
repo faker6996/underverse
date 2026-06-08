@@ -128,14 +128,18 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
     setEditorResizeCursor("col-resize");
   }, [getProseMirrorElement, setEditorResizeCursor]);
 
-  const showRowGuide = React.useCallback((table: HTMLTableElement, row: HTMLTableRowElement, cell: HTMLTableCellElement) => {
+  const showRowGuide = React.useCallback((table: HTMLTableElement, row: HTMLTableRowElement, cell: HTMLTableCellElement, previewHeight?: number) => {
     const surface = editorContentRef.current;
     const guide = tableRowGuideRef.current;
     if (!surface || !guide) return;
 
     const metrics = getRelativeBoundaryMetrics(surface, table, row, cell);
+    const rowRect = row.getBoundingClientRect();
+    const previewBottom = typeof previewHeight === "number"
+      ? metrics.rowBottom - rowRect.height + previewHeight
+      : metrics.rowBottom;
     guide.style.left = `${metrics.left}px`;
-    guide.style.top = `${metrics.rowBottom - ROW_RESIZE_LINE_THICKNESS / 2}px`;
+    guide.style.top = `${previewBottom - ROW_RESIZE_LINE_THICKNESS / 2}px`;
     guide.style.width = `${metrics.width}px`;
     guide.style.height = `${ROW_RESIZE_LINE_THICKNESS}px`;
     guide.style.opacity = "1";

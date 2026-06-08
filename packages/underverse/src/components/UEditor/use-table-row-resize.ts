@@ -13,6 +13,7 @@ type RowGuideHandler = (
   table: HTMLTableElement,
   row: HTMLTableRowElement,
   cell: HTMLTableCellElement,
+  previewHeight?: number,
 ) => void;
 
 type UseTableRowResizeOptions = {
@@ -45,64 +46,14 @@ export function useTableRowResize({
   clearAllTableResizeHover,
   scheduleTableLayoutSync,
 }: UseTableRowResizeOptions) {
-  const commitFrameRef = useRef<number | null>(null);
   const stateRef = useRef<RowResizeState | null>(null);
-
-  const commitPreview = React.useCallback(() => {
-    if (!editor) return;
-    const state = stateRef.current;
-    if (!state) return;
-
-    const nextHeight = state.pendingHeight;
-    if (nextHeight === state.previewHeight) {
-      document.body.style.cursor = "row-resize";
-      showRowGuide(state.tableElement, state.rowElement, state.cellElement);
-      scheduleTableLayoutSync();
-      return;
-    }
-
-    state.previewHeight = nextHeight;
-    const tr = editor.view.state.tr;
-    tr.setNodeMarkup(state.rowPos, undefined, {
-      ...state.rowNode.attrs,
-      rowHeight: nextHeight,
-    });
-    tr.setMeta("addToHistory", false);
-    editor.view.dispatch(tr);
-    state.rowNode = editor.view.state.doc.nodeAt(state.rowPos) ?? state.rowNode;
-
-    const rowIndex = state.rowElement.rowIndex;
-    if (rowIndex >= 0) {
-      const refreshedRow = state.tableElement.rows.item(rowIndex);
-      if (refreshedRow instanceof HTMLTableRowElement) {
-        state.rowElement = refreshedRow;
-        const refreshedCell = refreshedRow.cells.item(state.cellIndex);
-        if (refreshedCell instanceof HTMLTableCellElement) {
-          state.cellElement = refreshedCell;
-        }
-      }
-    }
-
-    document.body.style.cursor = "row-resize";
-    showRowGuide(state.tableElement, state.rowElement, state.cellElement);
-    scheduleTableLayoutSync();
-  }, [editor, scheduleTableLayoutSync, showRowGuide]);
-
-  const scheduleCommit = React.useCallback(() => {
-    if (commitFrameRef.current !== null) return;
-
-    commitFrameRef.current = window.requestAnimationFrame(() => {
-      commitFrameRef.current = null;
-      commitPreview();
-    });
-  }, [commitPreview]);
 
   const syncActiveGuide = React.useCallback(() => {
     const state = stateRef.current;
     if (!state) return false;
 
     setHoveredTableCell(state.cellElement);
-    showRowGuide(state.tableElement, state.rowElement, state.cellElement);
+    showRowGuide(state.tableElement, state.rowElement, state.cellElement, state.pendingHeight);
     return true;
   }, [setHoveredTableCell, showRowGuide]);
 
@@ -136,7 +87,7 @@ export function useTableRowResize({
       pendingHeight: startHeight,
     };
 
-    showRowGuide(table, row, cell);
+    showRowGuide(table, row, cell, startHeight);
     document.body.style.cursor = "row-resize";
     event.preventDefault();
     event.stopPropagation();
@@ -154,14 +105,15 @@ export function useTableRowResize({
 
     if (nextHeight === state.pendingHeight) {
       document.body.style.cursor = "row-resize";
-      showRowGuide(state.tableElement, state.rowElement, state.cellElement);
+      showRowGuide(state.tableElement, state.rowElement, state.cellElement, state.pendingHeight);
       return;
     }
 
     state.pendingHeight = nextHeight;
+    state.previewHeight = nextHeight;
     document.body.style.cursor = "row-resize";
-    scheduleCommit();
-  }, [scheduleCommit, showRowGuide]);
+    showRowGuide(state.tableElement, state.rowElement, state.cellElement, nextHeight);
+  }, [showRowGuide]);
 
   const handlePointerUp = React.useCallback((event: MouseEvent | PointerEvent) => {
     if (!editor) return;
@@ -174,18 +126,11 @@ export function useTableRowResize({
     );
 
     state.pendingHeight = nextHeight;
-    if (commitFrameRef.current !== null) {
-      window.cancelAnimationFrame(commitFrameRef.current);
-      commitFrameRef.current = null;
-    }
 
-    commitPreview();
-
-    const latestState = stateRef.current ?? state;
-    const rowNode = editor.view.state.doc.nodeAt(latestState.rowPos) ?? latestState.rowNode;
+    const rowNode = editor.view.state.doc.nodeAt(state.rowPos) ?? state.rowNode;
     if (rowNode.attrs.rowHeight !== nextHeight) {
       const tr = editor.view.state.tr;
-      tr.setNodeMarkup(latestState.rowPos, undefined, {
+      tr.setNodeMarkup(state.rowPos, undefined, {
         ...rowNode.attrs,
         rowHeight: nextHeight,
       });
@@ -197,15 +142,10 @@ export function useTableRowResize({
     clearHoveredTableCell();
     clearAllTableResizeHover();
     scheduleTableLayoutSync();
-  }, [clearAllTableResizeHover, clearHoveredTableCell, commitPreview, editor, scheduleTableLayoutSync]);
+  }, [clearAllTableResizeHover, clearHoveredTableCell, editor, scheduleTableLayoutSync]);
 
   const cancelResize = React.useCallback(() => {
     if (!stateRef.current) return;
-
-    if (commitFrameRef.current !== null) {
-      window.cancelAnimationFrame(commitFrameRef.current);
-      commitFrameRef.current = null;
-    }
 
     stateRef.current = null;
     document.body.style.cursor = "";
@@ -215,10 +155,6 @@ export function useTableRowResize({
   }, [clearAllTableResizeHover, clearHoveredTableCell, scheduleTableLayoutSync]);
 
   const cleanup = React.useCallback(() => {
-    if (commitFrameRef.current !== null) {
-      window.cancelAnimationFrame(commitFrameRef.current);
-      commitFrameRef.current = null;
-    }
     stateRef.current = null;
     document.body.style.cursor = "";
   }, []);

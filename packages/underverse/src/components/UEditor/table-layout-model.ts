@@ -1,9 +1,9 @@
 import type { Editor } from "@tiptap/core";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { TableMap } from "prosemirror-tables";
-import { resolveEventElement } from "./table-dom-utils";
+import { DEFAULT_TABLE_ROW_HEIGHT, resolveEventElement } from "./table-dom-utils";
 
-const FALLBACK_TABLE_ROW_HEIGHT = 44;
+const FALLBACK_TABLE_ROW_HEIGHT = DEFAULT_TABLE_ROW_HEIGHT;
 const FALLBACK_TABLE_COLUMN_WIDTH = 160;
 
 export type TableAxisHandle = {

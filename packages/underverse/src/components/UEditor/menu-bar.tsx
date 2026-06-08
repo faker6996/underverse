@@ -480,17 +480,6 @@ function buildTableMenuItems(t: (k: string) => string, editor: Editor, onInsertT
       items: [
         {
           type: "action",
-          label: t("menubar.addRowBefore"),
-          onClick: () => editor.chain().focus().addRowBefore().run(),
-        },
-        {
-          type: "action",
-          label: t("menubar.addRowAfter"),
-          onClick: () => editor.chain().focus().addRowAfter().run(),
-        },
-        { type: "separator" },
-        {
-          type: "action",
           label: t("menubar.deleteRow"),
           destructive: true,
           onClick: () => editor.chain().focus().deleteRow().run(),
@@ -502,17 +491,6 @@ function buildTableMenuItems(t: (k: string) => string, editor: Editor, onInsertT
       label: t("menubar.column"),
       disabled: !inTable,
       items: [
-        {
-          type: "action",
-          label: t("menubar.addColumnBefore"),
-          onClick: () => editor.chain().focus().addColumnBefore().run(),
-        },
-        {
-          type: "action",
-          label: t("menubar.addColumnAfter"),
-          onClick: () => editor.chain().focus().addColumnAfter().run(),
-        },
-        { type: "separator" },
         {
           type: "action",
           label: t("menubar.deleteColumn"),

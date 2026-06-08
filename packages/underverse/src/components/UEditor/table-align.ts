@@ -1,5 +1,7 @@
 import { Table } from "@tiptap/extension-table";
 import { Plugin } from "@tiptap/pm/state";
+import { tableEditing } from "@tiptap/pm/tables";
+import { DEFAULT_TABLE_COLUMN_WIDTH, dynamicColumnResizing } from "./table-column-resize";
 import { findTableNodeInfoFromState } from "./table-align-utils";
 
 export type UEditorTableAlign = "left" | "center" | "right";
@@ -113,8 +115,22 @@ const UEditorTable = Table.extend({
   },
 
   addProseMirrorPlugins() {
+    const isResizable = this.options.resizable && this.editor.isEditable;
+
     return [
-      ...(this.parent?.() ?? []),
+      ...(isResizable
+        ? [
+            dynamicColumnResizing({
+              handleWidth: this.options.handleWidth,
+              cellMinWidth: this.options.cellMinWidth,
+              defaultCellMinWidth: DEFAULT_TABLE_COLUMN_WIDTH,
+              lastColumnResizable: this.options.lastColumnResizable,
+            }),
+          ]
+        : []),
+      tableEditing({
+        allowTableNodeSelection: this.options.allowTableNodeSelection,
+      }),
       new Plugin({
         appendTransaction(_transactions, _oldState, newState) {
           const { doc, schema } = newState;

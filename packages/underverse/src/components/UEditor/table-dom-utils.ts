@@ -1,7 +1,8 @@
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import type { EditorView } from "@tiptap/pm/view";
 
-export const MIN_TABLE_ROW_HEIGHT = 36;
+export const DEFAULT_TABLE_ROW_HEIGHT = 25;
+export const MIN_TABLE_ROW_HEIGHT = DEFAULT_TABLE_ROW_HEIGHT;
 export const COLUMN_RESIZE_LINE_THICKNESS = 2;
 export const ROW_RESIZE_LINE_THICKNESS = 2;
 export const UEDITOR_TABLE_LAYOUT_CHANGE_EVENT = "ueditor-table-layout-change";

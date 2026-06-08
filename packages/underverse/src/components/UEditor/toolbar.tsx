@@ -14,7 +14,6 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
-  Baseline,
   Bold as BoldIcon,
   ChevronDown,
   ChevronsUpDown,
@@ -278,12 +277,17 @@ export const EditorToolbar = ({
     availableFontFamilies.find((option) => normalizeStyleValue(option.value) === currentFontFamily)?.label ??
     (currentFontFamilyDisplayValue || t("toolbar.fontDefault"));
   const currentFontSizeLabel =
-    availableFontSizes.find((option) => normalizeStyleValue(option.value) === currentFontSize)?.label ?? t("toolbar.sizeDefault");
+    availableFontSizes.find((option) => normalizeStyleValue(option.value) === currentFontSize)?.label ?? "13";
   const currentLineHeightLabel =
     availableLineHeights.find((option) => normalizeStyleValue(option.value) === currentLineHeight)?.label ?? t("toolbar.lineHeightDefault");
   const currentLetterSpacingLabel =
     availableLetterSpacings.find((option) => normalizeStyleValue(option.value) === currentLetterSpacing)?.label ?? t("toolbar.letterSpacingDefault");
-  const displayedFontFamilyLabel = currentFontFamily ? currentFontFamilyLabel : (availableFontFamilies[0]?.label ?? t("toolbar.fontDefault"));
+  const defaultFontFamily = availableFontFamilies[0];
+  const defaultFontFamilyValue = defaultFontFamily?.value ?? "";
+  const displayedFontFamilyLabel = currentFontFamily ? currentFontFamilyLabel : (defaultFontFamily?.label ?? t("toolbar.fontDefault"));
+  const displayedFontFamilyValue = currentFontFamily || defaultFontFamilyValue;
+  const displayedFontSizeLabel = currentFontSize ? currentFontSizeLabel : "13";
+  const activeFontSize = currentFontSize || "13px";
   const tableCommandAnchorPos = tableCommandAnchorPosRef.current ?? tableAnchorPos ?? undefined;
 
   const insertImageFiles = async (files: File[]) => {
@@ -334,25 +338,21 @@ export const EditorToolbar = ({
     <div className="flex flex-wrap items-center gap-0.5 border-b border-border/35 bg-linear-to-r from-muted/25 to-transparent p-1.5">
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.fontFamily")} className="px-1.5 w-auto gap-0.5">
-            <Baseline className="w-4 h-4" />
+          <ToolbarButton onClick={() => {}} title={t("toolbar.fontFamily")} className="min-w-0 max-w-40 px-1.5 w-auto gap-1">
+            <span className="max-w-28 truncate text-xs font-medium" style={{ fontFamily: displayedFontFamilyValue || undefined }}>
+              {displayedFontFamilyLabel}
+            </span>
             <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </ToolbarButton>
         }
         contentClassName="max-h-80 overflow-y-auto min-w-56 p-2"
       >
-        <DropdownMenuItem
-          icon={Type}
-          label={t("toolbar.fontDefault")}
-          onClick={() => editor.chain().focus().unsetFontFamily().run()}
-          active={!currentFontFamily}
-        />
         {availableFontFamilies.map((option) => (
           <DropdownMenuItem
             key={option.value}
             label={option.label}
             onClick={() => editor.chain().focus().setFontFamily(option.value).run()}
-            active={normalizeStyleValue(option.value) === currentFontFamily}
+            active={normalizeStyleValue(option.value) === (currentFontFamily || normalizeStyleValue(defaultFontFamilyValue))}
             className="font-medium"
           />
         ))}
@@ -360,28 +360,22 @@ export const EditorToolbar = ({
 
       <DropdownMenu
         trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.fontSize")} className="px-1.5 w-auto gap-0.5">
+          <ToolbarButton onClick={() => {}} title={t("toolbar.fontSize")} className="px-1.5 w-auto gap-1">
             <div className="flex items-center gap-0.5">
               <ChevronsUpDown className="h-3 w-3 text-muted-foreground" strokeWidth={2.5} />
-              <span className="text-xs font-bold leading-none">A</span>
+              <span className="min-w-4 text-center text-xs font-semibold leading-none">{displayedFontSizeLabel}</span>
             </div>
             <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </ToolbarButton>
         }
         contentClassName="max-h-80 overflow-y-auto min-w-32 p-2"
       >
-        <DropdownMenuItem
-          icon={Type}
-          label={t("toolbar.sizeDefault")}
-          onClick={() => editor.chain().focus().unsetFontSize().run()}
-          active={!currentFontSize}
-        />
         {availableFontSizes.map((option) => (
           <DropdownMenuItem
             key={option.value}
             label={option.label}
             onClick={() => editor.chain().focus().setFontSize(option.value).run()}
-            active={normalizeStyleValue(option.value) === currentFontSize}
+            active={normalizeStyleValue(option.value) === activeFontSize}
           />
         ))}
       </DropdownMenu>

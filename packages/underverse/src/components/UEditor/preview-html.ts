@@ -1,4 +1,4 @@
-import { MIN_TABLE_ROW_HEIGHT } from "./table-dom-utils";
+import { DEFAULT_TABLE_ROW_HEIGHT, MIN_TABLE_ROW_HEIGHT } from "./table-dom-utils";
 
 const DEFAULT_TABLE_COLUMN_WIDTH = 100;
 const TIPTAP_TABLE_MIN_COLUMN_WIDTH = 25;
@@ -97,12 +97,11 @@ function resolveExplicitRowHeight(row: HTMLTableRowElement) {
     return height ? Math.max(maxHeight, height) : maxHeight;
   }, 0);
 
-  return cellHeight ? Math.max(MIN_TABLE_ROW_HEIGHT, cellHeight) : null;
+  return cellHeight ? Math.max(MIN_TABLE_ROW_HEIGHT, cellHeight) : DEFAULT_TABLE_ROW_HEIGHT;
 }
 
 function normalizePreviewRowHeight(row: HTMLTableRowElement) {
   const rowHeight = resolveExplicitRowHeight(row);
-  if (!rowHeight) return;
 
   row.style.height = `${rowHeight}px`;
   row.style.minHeight = `${rowHeight}px`;

@@ -1864,11 +1864,11 @@ test("UEditor preview table HTML keeps empty rows and columns at editor size", a
 
   const rows = Array.from(container.querySelectorAll("tr"));
   assert.equal(rows.length, 2);
-  assert.deepEqual(rows.map((row) => row.style.height), ["", ""]);
+  assert.deepEqual(rows.map((row) => row.style.height), ["25px", "25px"]);
 
   const cells = Array.from(container.querySelectorAll("td"));
   assert.deepEqual(cells.map((cell) => cell.style.width), ["100px", "100px", "100px", "100px", "100px", "100px"]);
-  assert.deepEqual(cells.map((cell) => cell.style.height), ["", "", "", "", "", ""]);
+  assert.deepEqual(cells.map((cell) => cell.style.height), ["25px", "25px", "25px", "25px", "25px", "25px"]);
 });
 
 test("UEditor menu bar eye button opens preview directly", async () => {
@@ -2544,13 +2544,13 @@ test("UEditor edge rails preview expands table by the previewed rows and columns
   fireEvent.mouseMove(window, { clientY: 140 });
 
   await waitFor(() => {
-    assert.equal(body.getByRole("status").textContent?.trim(), "+2R");
+    assert.equal(body.getByRole("status").textContent?.trim(), "+4R");
   });
 
   fireEvent.mouseUp(window, { clientY: 140 });
 
   await waitFor(() => {
-    assert.equal(view.container.querySelectorAll("tr").length, 4);
+    assert.equal(view.container.querySelectorAll("tr").length, 6);
   });
 
   hoverAddColumnRail(view);
