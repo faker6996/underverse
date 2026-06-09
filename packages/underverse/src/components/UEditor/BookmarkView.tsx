@@ -117,7 +117,7 @@ export const BookmarkView: React.FC<NodeViewProps> = ({ node, updateAttributes, 
           <div className="h-20 w-32 bg-muted-foreground/20 rounded-lg flex-shrink-0" />
         </div>
       ) : (
-        <div className="flex flex-col sm:flex-row items-stretch justify-between min-h-[100px]">
+        <div className="flex flex-col sm:flex-row items-stretch justify-between min-h-25">
           <div className="flex-1 p-4 flex flex-col justify-between gap-1 min-w-0">
             <div className="flex flex-col gap-1 min-w-0">
               <span className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 truncate">

@@ -65,6 +65,200 @@ test("DataTable supports client-side sort, filter, and pagination interactions",
   });
 });
 
+test("DataTable keeps page size selector visible when the current page size fits all items", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
+  const DataTable = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  render(
+    React.createElement(DataTable, {
+      columns: [
+        { key: "name", title: "Name", dataIndex: "name" },
+      ],
+      data: Array.from({ length: 20 }, (_, index) => ({
+        id: String(index + 1),
+        name: `Row ${index + 1}`,
+      })),
+      rowKey: "id",
+      pageSize: 20,
+      pageSizeOptions: [10, 20],
+      size: "md",
+      stickyHeader: false,
+    }),
+  );
+
+  const body = within(window.document.body);
+
+  assert.ok(body.getByRole("combobox"));
+  assert.equal(body.queryByRole("button", { name: "2" }), null);
+
+  await user.click(body.getByRole("combobox"));
+  await user.click(await body.findByRole("option", { name: "10" }));
+
+  await waitFor(() => {
+    assert.equal(getBodyTexts(body).length, 10);
+    assert.ok(body.getByRole("button", { name: "2" }));
+  });
+});
+
+test("DataTable applies colorTag background to fixed leaf headers", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
+  const DataTable = mod.default;
+
+  const view = render(
+    React.createElement(DataTable, {
+      columns: [
+        { key: "name", title: "Name", dataIndex: "name", fixed: "left", colorTag: "#19386e" },
+        { key: "status", title: "Status", dataIndex: "status" },
+      ],
+      data: [{ id: "1", name: "Alpha", status: "active" }],
+      rowKey: "id",
+      pageSize: 10,
+      stickyHeader: false,
+    }),
+  );
+
+  const headerCell = await waitFor(() => {
+    const element = view.container.querySelector('th[data-underverse-column-key="name"]');
+    assert.ok(element);
+    return element;
+  });
+
+  assert.match(headerCell.style.backgroundColor, /25,\s*56,\s*110/);
+});
+
+test("DataTable groups column visibility items by colorTag", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
+  const DataTable = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  render(
+    React.createElement(DataTable, {
+      columns: [
+        { key: "name", title: "Name", dataIndex: "name", colorTag: "#19386e" },
+        { key: "email", title: "Email", dataIndex: "email", colorTag: "#19386e" },
+        { key: "status", title: "Status", dataIndex: "status" },
+      ],
+      data: [{ id: "1", name: "Alpha", email: "alpha@example.com", status: "active" }],
+      rowKey: "id",
+      pageSize: 10,
+      stickyHeader: false,
+      columnColorGroups: {
+        "#19386e": { label: "Personal" },
+      },
+      labels: {
+        columns: "Columns",
+      },
+    }),
+  );
+
+  const body = within(window.document.body);
+  await user.click(body.getByRole("button", { name: "Columns" }));
+  const menu = body.getByRole("menu");
+  const menuScope = within(menu);
+
+  assert.ok(await body.findByText("Personal"));
+  assert.ok(body.getByText("Other"));
+  assert.ok(menuScope.getByRole("button", { name: "Name" }));
+  assert.ok(menuScope.getByRole("button", { name: "Email" }));
+  assert.ok(menuScope.getByRole("button", { name: "Status" }));
+});
+
+test("DataTable updates header alignment from the toolbar toggle", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
+  const DataTable = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  const view = render(
+    React.createElement(DataTable, {
+      columns: [
+        { key: "name", title: "Name", dataIndex: "name" },
+      ],
+      data: [{ id: "1", name: "Alpha" }],
+      rowKey: "id",
+      pageSize: 10,
+      stickyHeader: false,
+      enableHeaderAlignToggle: true,
+      labels: {
+        headerAlign: "Header Align",
+        alignCenter: "Center",
+      },
+    }),
+  );
+
+  const body = within(window.document.body);
+  const getHeaderCell = () => {
+    const element = view.container.querySelector('th[data-underverse-column-key="name"]');
+    assert.ok(element);
+    return element;
+  };
+
+  assert.equal(getHeaderCell().className.includes("text-center"), false);
+
+  await user.click(body.getByRole("button", { name: "Header Align" }));
+  await user.click(body.getByRole("menuitem", { name: "Center" }));
+
+  await waitFor(() => {
+    assert.ok(getHeaderCell().className.includes("text-center"));
+  });
+});
+
+test("DataTable persists page size with storageKey across remounts", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
+  const DataTable = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const rows = Array.from({ length: 25 }, (_, index) => ({
+    id: String(index + 1),
+    name: `Row ${index + 1}`,
+  }));
+
+  window.localStorage.clear();
+
+  const firstView = render(
+    React.createElement(DataTable, {
+      columns: [
+        { key: "name", title: "Name", dataIndex: "name" },
+      ],
+      data: rows,
+      rowKey: "id",
+      pageSize: 10,
+      pageSizeOptions: [10, 20],
+      stickyHeader: false,
+      storageKey: "datatable-page-size-persist",
+    }),
+  );
+
+  let body = within(window.document.body);
+  await user.click(body.getByRole("combobox"));
+  await user.click(await body.findByRole("option", { name: "20" }));
+
+  await waitFor(() => {
+    assert.equal(window.localStorage.getItem("datatable_datatable-page-size-persist_pageSize"), "20");
+    assert.equal(getBodyTexts(body).length, 20);
+  });
+
+  firstView.unmount();
+
+  render(
+    React.createElement(DataTable, {
+      columns: [
+        { key: "name", title: "Name", dataIndex: "name" },
+      ],
+      data: rows,
+      rowKey: "id",
+      pageSize: 10,
+      pageSizeOptions: [10, 20],
+      stickyHeader: false,
+      storageKey: "datatable-page-size-persist",
+    }),
+  );
+
+  body = within(window.document.body);
+  await waitFor(() => {
+    assert.equal(getBodyTexts(body).length, 20);
+  });
+});
+
 test("DataTable derives accessible labels from JSX column titles", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
   const DataTable = mod.default;

@@ -140,7 +140,7 @@ export const FileCardView: React.FC<NodeViewProps> = ({ node, selected, editor, 
             {fileSize ? <span>{formatBytes(fileSize)}</span> : null}
             {isUploading && (
               <span className={cn(
-                "font-medium truncate max-w-[200px]",
+                "font-medium truncate max-w-50",
                 uploadError ? "text-destructive" : "text-primary animate-pulse"
               )}>
                 {uploadError ? `${t("fileCard.uploadFailed") || "Tải lên thất bại"}: ${uploadError}` : t("fileCard.uploading")}

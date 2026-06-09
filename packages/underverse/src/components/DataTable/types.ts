@@ -31,7 +31,22 @@ export type DataTableColumn<T> = {
   /** Advanced: Override auto-calculated colspan (defaults to number of leaf descendants) */
   colSpan?: number;
   /** Advanced: Override auto-calculated rowspan (defaults based on depth) */
+  /** Advanced: Override auto-calculated rowspan (defaults based on depth) */
   rowSpan?: number;
+
+  /**
+   * Color tag for this column (hex or rgb string, e.g. "#3b82f6").
+   * - Header cell gets a darker tinted background
+   * - Body cells get a lighter tinted background
+   * - Columns with the same colorTag are grouped together in the visibility dropdown
+   */
+  colorTag?: string;
+};
+
+/** Configuration for a column color group in the visibility dropdown */
+export type ColumnColorGroup = {
+  /** Display label for this group (e.g. "Bắt buộc", "Tùy chọn") */
+  label: string;
 };
 
 export type Sorter = { key: string; order: "asc" | "desc" } | null;
@@ -55,6 +70,8 @@ export type DataTableLabels = {
   alignRight?: string;
   noData?: string;
   sortBy?: string;
+  selectAll?: string;
+  default?: string;
 };
 
 /** Internal type for header cell in multi-row headers */
@@ -83,6 +100,12 @@ export interface DataTableProps<T> {
   onQueryChange?: (q: DataTableQuery) => void; // server-side
   caption?: React.ReactNode;
   toolbar?: React.ReactNode;
+  /** 
+   * Define color groups for the column visibility dropdown legend.
+   * Key = color value used in column's `colorTag` (e.g. "#1e40af").
+   * If not provided, columns with colorTag still get colored but won't be grouped in dropdown.
+   */
+  columnColorGroups?: Record<string, ColumnColorGroup>;
   /** Visual size preset. Maps to component scales in the table UI. */
   size?: DataTableSize;
   enableColumnVisibilityToggle?: boolean;

@@ -3,8 +3,9 @@
 import React from "react";
 import Button from "../../Button";
 import DropdownMenu, { DropdownMenuItem } from "../../DropdownMenu";
-import type { DataTableColumn, DataTableDensity, DataTableLabels, DataTableSize } from "../types";
+import type { ColumnColorGroup, DataTableColumn, DataTableDensity, DataTableLabels, DataTableSize } from "../types";
 import { getLeafColumns } from "../utils/headers";
+import { groupColumnsByColorTag } from "../utils/colorTag";
 
 export function DataTableToolbar<T>({
   caption,
@@ -21,6 +22,8 @@ export function DataTableToolbar<T>({
   setHeaderAlign,
   labels,
   t,
+  columnColorGroups,
+  defaultVisibleKeys,
 }: {
   caption?: React.ReactNode;
   toolbar?: React.ReactNode;
@@ -36,12 +39,19 @@ export function DataTableToolbar<T>({
   setHeaderAlign: React.Dispatch<React.SetStateAction<"left" | "center" | "right">>;
   labels?: DataTableLabels;
   t: (key: string) => string;
+  columnColorGroups?: Record<string, ColumnColorGroup>;
+  defaultVisibleKeys: string[];
 }) {
   const controlButtonSize = size === "lg" ? "md" : "sm";
   const controlButtonClass = size === "sm" ? "h-7 px-2 text-xs" : size === "lg" ? "h-9 px-3 text-sm" : "h-8 px-2";
   const iconClass = size === "sm" ? "w-3.5 h-3.5 mr-1" : "w-4 h-4 mr-1";
   const captionClass = size === "sm" ? "text-xs" : size === "lg" ? "text-sm" : "text-sm";
+
   const leafCols = React.useMemo(() => getLeafColumns(columns), [columns]);
+  const { groups, ungrouped } = React.useMemo(() => groupColumnsByColorTag(leafCols, columnColorGroups), [leafCols, columnColorGroups]);
+
+  const handleSelectAll = () => setVisibleCols(leafCols.map(c => c.key));
+  const handleDefault = () => setVisibleCols(defaultVisibleKeys);
 
   return (
     <div className="flex items-center justify-between gap-4 mb-1">
@@ -81,17 +91,56 @@ export function DataTableToolbar<T>({
               </Button>
             }
           >
-            {leafCols.map((c) => (
-              <DropdownMenuItem
-                key={c.key}
-                onClick={() => {
-                  setVisibleCols((prev) => (prev.includes(c.key) ? prev.filter((k) => k !== c.key) : [...prev, c.key]));
-                }}
-              >
-                <input type="checkbox" className="mr-2 rounded-md border-border/50" readOnly checked={visibleCols.includes(c.key)} />
-                <span className="truncate">{c.title as any}</span>
-              </DropdownMenuItem>
-            ))}
+            <div className="flex items-center gap-2 px-2 py-1.5 mb-1">
+              <Button variant="outline" size="sm" className="h-7 text-xs flex-1" onClick={handleSelectAll}>
+                {labels?.selectAll || t("selectAll") || "Select All"}
+              </Button>
+              <Button variant="outline" size="sm" className="h-7 text-xs flex-1" onClick={handleDefault}>
+                {labels?.default || t("default") || "Default"}
+              </Button>
+            </div>
+
+            <div className="max-h-80 overflow-y-auto min-w-50">
+              {groups.length > 0 && groups.map((group) => (
+                <React.Fragment key={group.colorTag}>
+                  <div className="px-3 py-1.5 text-[11px] font-semibold uppercase text-muted-foreground flex items-center gap-2 mt-1 bg-accent/30 sticky top-0 z-10 backdrop-blur-sm">
+                    <span className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: group.colorTag }} />
+                    {group.label}
+                  </div>
+                  {group.columns.map((c) => (
+                    <DropdownMenuItem
+                      key={c.key}
+                      onClick={() => {
+                        setVisibleCols((prev) => (prev.includes(c.key) ? prev.filter((k) => k !== c.key) : [...prev, c.key]));
+                      }}
+                      closeOnSelect={false}
+                    >
+                      <input type="checkbox" className="mr-2 rounded-md border-border/50" readOnly checked={visibleCols.includes(c.key)} />
+                      <span className="truncate">{c.title as any}</span>
+                    </DropdownMenuItem>
+                  ))}
+                </React.Fragment>
+              ))}
+
+              {groups.length > 0 && ungrouped.length > 0 && (
+                <div className="px-3 py-1.5 text-[11px] font-semibold uppercase text-muted-foreground mt-1 bg-accent/30 sticky top-0 z-10 backdrop-blur-sm">
+                  {t("other") || "Other"}
+                </div>
+              )}
+
+              {ungrouped.map((c) => (
+                <DropdownMenuItem
+                  key={c.key}
+                  onClick={() => {
+                    setVisibleCols((prev) => (prev.includes(c.key) ? prev.filter((k) => k !== c.key) : [...prev, c.key]));
+                  }}
+                  closeOnSelect={false}
+                >
+                  <input type="checkbox" className="mr-2 rounded-md border-border/50" readOnly checked={visibleCols.includes(c.key)} />
+                  <span className="truncate">{c.title as any}</span>
+                </DropdownMenuItem>
+              ))}
+            </div>
           </DropdownMenu>
         )}
 

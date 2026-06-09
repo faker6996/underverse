@@ -881,7 +881,7 @@ const LinkPreviewContent = ({ editor, onEdit }: { editor: Editor; onEdit: () => 
 
   return (
     <div className="flex items-center gap-1 p-1 max-w-sm">
-      <span className="text-xs text-muted-foreground font-mono px-2 truncate max-w-[180px]">
+      <span className="text-xs text-muted-foreground font-mono px-2 truncate max-w-45">
         {url}
       </span>
       <div className="w-px h-6 bg-border/50 mx-1" />

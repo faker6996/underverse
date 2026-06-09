@@ -15,6 +15,7 @@ import { useDataTableModel } from "./hooks/useDataTableModel";
 import { useDataTableState } from "./hooks/useDataTableState";
 import { useStickyColumns } from "./hooks/useStickyColumns";
 import { validateColumns } from "./utils/validation";
+import { getLeafColumns } from "./utils/headers";
 import type { DataTableColumn, DataTableProps } from "./types";
 
 function applyColumnWidthOverrides<T>(
@@ -126,6 +127,7 @@ export function DataTable<T extends Record<string, any>>({
   overscan = 8,
   enableHeaderAutoFit = true,
   labels,
+  columnColorGroups,
 }: DataTableProps<T>) {
   const t = useSmartTranslations("Common");
   const [columnWidthOverrides, setColumnWidthOverrides] = React.useState<Record<string, number>>({});
@@ -133,6 +135,13 @@ export function DataTable<T extends Record<string, any>>({
     () => applyColumnWidthOverrides(columns, columnWidthOverrides),
     [columnWidthOverrides, columns],
   );
+  
+  const defaultVisibleKeys = React.useMemo(() => {
+    return getLeafColumns(columnsWithWidthOverrides)
+      .filter((col) => col.visible !== false)
+      .map((col) => col.key);
+  }, [columnsWithWidthOverrides]);
+
   const {
     headerAlign,
     setHeaderAlign,
@@ -294,6 +303,8 @@ export function DataTable<T extends Record<string, any>>({
         setHeaderAlign={setHeaderAlign}
         labels={labels}
         t={t}
+        columnColorGroups={columnColorGroups}
+        defaultVisibleKeys={defaultVisibleKeys}
       />
 
       <div

@@ -36,7 +36,7 @@ export function useStickyColumns<T>(visibleColumns: DataTableColumn<T>[]) {
   const getStickyHeaderClass = React.useCallback(
     (col: DataTableColumn<T>) => {
       if (!col.fixed) return "";
-      return cn("sticky", col.fixed === "left" && "left-0", col.fixed === "right" && "right-0", getBoundaryShadowClass(col), "z-50 !bg-muted");
+      return cn("sticky", col.fixed === "left" && "left-0", col.fixed === "right" && "right-0", getBoundaryShadowClass(col), "z-50");
     },
     [getBoundaryShadowClass],
   );

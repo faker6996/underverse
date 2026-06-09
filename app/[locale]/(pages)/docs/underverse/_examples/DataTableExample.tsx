@@ -52,6 +52,7 @@ export default function DataTableExample() {
       ),
       width: 48,
       fixed: "left",
+      colorTag: "#19386e",
       render: (_value: unknown, record: Row) => (
         <Checkbox
           checked={selected.has(record.id)}
@@ -64,19 +65,20 @@ export default function DataTableExample() {
         />
       ),
     },
-    { key: "name", title: "Name", dataIndex: "name", sortable: true, filter: { type: "text" }, width: 150 },
+    { key: "name", title: "Name", dataIndex: "name", sortable: true, filter: { type: "text" }, width: 150, colorTag: "#19386e" },
     { key: "email", title: "Email", dataIndex: "email", width: 160 },
-    { key: "role", title: "Role", dataIndex: "role", filter: { type: "select", options: ["Admin", "Editor", "User"] }, width: 100 },
+    { key: "role", title: "Role", dataIndex: "role", filter: { type: "select", options: ["Admin", "Editor", "User"] }, width: 100, colorTag: "#254a7aff" },
     {
       key: "department",
       title: "Department",
       dataIndex: "department",
       filter: { type: "select", options: ["Engineering", "Marketing", "Sales", "HR", "Finance"] },
       width: 130,
+      colorTag: "#254a7aff"
     },
     { key: "amount", title: "Amount", dataIndex: "amount", sortable: true, width: 100 },
     { key: "status", title: "Status", dataIndex: "status", width: 100 },
-    { key: "created_at", title: "Created", dataIndex: "created_at", filter: { type: "date" }, width: 120 },
+    { key: "created_at", title: "Created", dataIndex: "created_at", filter: { type: "date" }, width: 120, visible: false },
     {
       key: "actions",
       title: "Actions",
@@ -164,6 +166,10 @@ export default function DataTableExample() {
   storageKey="example-table"  // Lưu pageSize vào localStorage
   useOverlayScrollbar // bật OverlayScrollbars cho viewport bảng
   labels={{ density: '...', columns: '...', headerAlign: '...' }}
+  columnColorGroups={{
+    "#19386e": { label: "Personal" },
+    "#254a7aff": { label: "Work" }
+  }}
 />`;
 
   // Example with multi-row headers (grouped columns)
@@ -281,6 +287,10 @@ export default function DataTableExample() {
         alignLeft: t("alignLeft"),
         alignCenter: t("alignCenter"),
         alignRight: t("alignRight"),
+      }}
+      columnColorGroups={{
+        "#19386e": { label: "Personal" },
+        "#254a7aff": { label: "Work" }
       }}
     />
   );
@@ -467,6 +477,12 @@ const groupedColumns: DataTableColumn<User>[] = [
                       property: "storageKey",
                       description: "Key để lưu pageSize vào localStorage. Nếu không cung cấp, pageSize sẽ không được persist",
                       type: "string",
+                      default: "-",
+                    },
+                    {
+                      property: "columnColorGroups",
+                      description: "Định nghĩa nhóm màu (color group legend) cho menu chọn cột. Key là hex color.",
+                      type: "Record<string, { label: string }>",
                       default: "-",
                     },
                     { property: "labels", description: td("props.dataTable.labels"), type: "{ density; columns; headerAlign; ... }", default: "-" },

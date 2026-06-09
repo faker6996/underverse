@@ -41,7 +41,7 @@ export const CalloutView: React.FC<NodeViewProps> = ({ node, updateAttributes, s
             </button>
           }
         >
-          <div className="flex flex-col gap-3 w-64 max-h-[360px] overflow-y-auto p-1">
+          <div className="flex flex-col gap-3 w-64 max-h-90 overflow-y-auto p-1">
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
               {t("callout.selectEmoji")}
             </div>

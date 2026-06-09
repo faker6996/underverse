@@ -44,7 +44,7 @@ export function DataTablePagination({
 
     return result;
   }, [curPage, totalPages]);
-  if (!(totalItems > 0 && totalPages > 1)) return null;
+  //if (!(totalItems > 0 && totalPages > 1)) return null;
 
   const controlButtonSize = size === "lg" ? "md" : "sm";
   const navBtnClass = size === "sm" ? "h-6 w-6 p-0 rounded-full" : size === "lg" ? "h-8 w-8 p-0 rounded-full" : "h-7 w-7 p-0 rounded-full";

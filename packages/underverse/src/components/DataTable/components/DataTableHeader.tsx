@@ -10,6 +10,7 @@ import { Popover } from "../../Popover";
 import { TableHead, TableRow } from "../../Table";
 import { Tooltip } from "../../Tooltip";
 import { cn } from "../../../utils/cn";
+import { getHeaderBgColor } from "../utils/colorTag";
 import type { DataTableColumn, HeaderRow, Sorter, DataTableSize } from "../types";
 
 function getColumnLabel(title: React.ReactNode): string {
@@ -296,6 +297,9 @@ export function DataTableHeader<T extends Record<string, any>>({
             const isAfterFixedLeft = prevCol?.fixed === "left";
             const showBorderLeft = columnDividers && cellIndex > 0 && !isAfterFixedLeft && !col.fixed;
             const isLastCell = cellIndex === row.length - 1;
+            const headerBackgroundColor = isLeaf && col.colorTag
+              ? getHeaderBgColor(col.colorTag)
+              : "var(--muted)";
 
             return (
               <TableHead
@@ -305,6 +309,7 @@ export function DataTableHeader<T extends Record<string, any>>({
                 data-underverse-column-key={isLeaf ? col.key : undefined}
                 style={{
                   width: col.width,
+                  backgroundColor: headerBackgroundColor,
                   ...getStickyHeaderCellStyle(headerCell),
                 }}
                 className={cn(
