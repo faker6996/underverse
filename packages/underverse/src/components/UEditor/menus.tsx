@@ -909,9 +909,14 @@ export const CustomBubbleMenu = ({
 }) => {
   const SHOW_DELAY_MS = 180;
   const BUBBLE_MENU_OFFSET = 16;
+  const BUBBLE_MENU_ESTIMATED_HEIGHT = 44;
   const [isVisible, setIsVisible] = useState(false);
   const [linkInputOpen, setLinkInputOpen] = useState(false);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [position, setPosition] = useState<{ top: number; left: number; placement: "top" | "bottom" }>({
+    top: 0,
+    left: 0,
+    placement: "top",
+  });
   const menuRef = useRef<HTMLDivElement>(null);
   const keepOpenRef = useRef(false);
   const showTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -974,13 +979,22 @@ export const CustomBubbleMenu = ({
       }
 
       const viewportPadding = 8;
+      const menuHeight = menuRef.current?.getBoundingClientRect().height || BUBBLE_MENU_ESTIMATED_HEIGHT;
+      const editorTop = view.dom.getBoundingClientRect().top;
+      const selectionTop = Math.min(start.top, end.top);
+      const selectionBottom = Math.max(start.bottom, end.bottom);
+      const hasRoomAboveEditor = selectionTop - BUBBLE_MENU_OFFSET - menuHeight >= editorTop + viewportPadding;
+      const placement = hasRoomAboveEditor ? "top" : "bottom";
       const left = Math.min(
         window.innerWidth - viewportPadding,
         Math.max(viewportPadding, (start.left + end.left) / 2),
       );
-      const top = Math.max(viewportPadding, start.top - BUBBLE_MENU_OFFSET);
+      const top =
+        placement === "top"
+          ? Math.max(viewportPadding, selectionTop - BUBBLE_MENU_OFFSET)
+          : Math.min(window.innerHeight - viewportPadding, selectionBottom + BUBBLE_MENU_OFFSET);
 
-      setPosition({ top, left });
+      setPosition({ top, left, placement });
       if (keepOpenRef.current) {
         clearShowTimeout();
         setIsVisible(true);
@@ -1029,7 +1043,7 @@ export const CustomBubbleMenu = ({
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
-        transform: "translate(-50%, -100%)",
+        transform: position.placement === "top" ? "translate(-50%, -100%)" : "translate(-50%, 0)",
       }}
       onMouseDown={(e) => {
         const target = e.target as HTMLElement | null;

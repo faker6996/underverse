@@ -26,12 +26,13 @@ afterEach(async () => {
 const componentsRoot = path.resolve(import.meta.dirname, "../src/components");
 
 async function loadComponents() {
-  const [{ default: DropdownMenu }, { Tooltip }] = await Promise.all([
+  const [dropdownModule, { Tooltip }] = await Promise.all([
     importTsModule(path.join(componentsRoot, "DropdownMenu.tsx")),
     importTsModule(path.join(componentsRoot, "Tooltip.tsx")),
   ]);
+  const { default: DropdownMenu, DropdownMenuItem } = dropdownModule;
 
-  return { DropdownMenu, Tooltip };
+  return { DropdownMenu, DropdownMenuItem, Tooltip };
 }
 
 async function renderElement(element) {
@@ -260,5 +261,106 @@ test("DropdownMenu keyboard trigger works through Tooltip asChild", async () => 
   });
 
   const firstItem = await body.findByRole("menuitem", { name: "First action" });
+  assert.equal(window.document.activeElement, firstItem);
+});
+
+test("DropdownMenu keyboard navigation works with child menu items", async () => {
+  const { DropdownMenu, DropdownMenuItem } = await loadComponents();
+
+  await renderElement(
+    React.createElement(
+      DropdownMenu,
+      {
+        trigger: React.createElement("button", { type: "button" }, "Font size"),
+      },
+      React.createElement(DropdownMenuItem, { label: "12", onClick: () => {} }),
+      React.createElement(DropdownMenuItem, { label: "13", onClick: () => {}, active: true }),
+      React.createElement(DropdownMenuItem, { label: "14", onClick: () => {} }),
+    ),
+  );
+
+  const body = within(window.document.body);
+  const trigger = body.getByRole("button", { name: "Font size" });
+
+  await act(async () => {
+    trigger.focus();
+    fireEvent.keyDown(trigger, { key: "ArrowDown" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  const firstItem = await body.findByRole("button", { name: "12" });
+  const secondItem = body.getByRole("button", { name: "13" });
+  const thirdItem = body.getByRole("button", { name: "14" });
+  assert.equal(window.document.activeElement, firstItem);
+
+  await act(async () => {
+    fireEvent.keyDown(window.document, { key: "ArrowDown" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  assert.equal(window.document.activeElement, secondItem);
+
+  await act(async () => {
+    fireEvent.keyDown(window.document, { key: "ArrowDown" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  assert.equal(window.document.activeElement, thirdItem);
+
+  await act(async () => {
+    fireEvent.keyDown(window.document, { key: "ArrowUp" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  assert.equal(window.document.activeElement, secondItem);
+});
+
+test("DropdownMenu arrow navigation works when focus stays in an editor-like element", async () => {
+  const { DropdownMenu, DropdownMenuItem } = await loadComponents();
+
+  await renderElement(
+    React.createElement(
+      "div",
+      null,
+      React.createElement("div", {
+        contentEditable: true,
+        "data-testid": "editor",
+        tabIndex: 0,
+        onKeyDown: (event) => {
+          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            event.stopPropagation();
+          }
+        },
+      }),
+      React.createElement(
+        DropdownMenu,
+        {
+          trigger: React.createElement("button", { type: "button" }, "Font size"),
+        },
+        React.createElement(DropdownMenuItem, { label: "12", onClick: () => {} }),
+        React.createElement(DropdownMenuItem, { label: "13", onClick: () => {} }),
+        React.createElement(DropdownMenuItem, { label: "14", onClick: () => {} }),
+      ),
+    ),
+  );
+
+  const body = within(window.document.body);
+  const editor = body.getByTestId("editor");
+  const trigger = body.getByRole("button", { name: "Font size" });
+
+  await act(async () => {
+    editor.focus();
+    fireEvent.click(trigger);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  assert.equal(window.document.activeElement, editor);
+
+  await act(async () => {
+    fireEvent.keyDown(editor, { key: "ArrowDown" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  const firstItem = await body.findByRole("button", { name: "12" });
   assert.equal(window.document.activeElement, firstItem);
 });

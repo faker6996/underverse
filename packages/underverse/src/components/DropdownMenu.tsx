@@ -77,6 +77,27 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   const [activeIndex, setActiveIndex] = useResettingIndex(open);
   const parentMenu = React.useContext(DropdownMenuContext);
 
+  const closeMenu = React.useCallback(() => {
+    setOpen(false);
+    parentMenu?.closeMenu();
+  }, [parentMenu, setOpen]);
+
+  const getEnabledMenuItems = React.useCallback(() => {
+    const menuEl = menuRef.current;
+    if (!menuEl) return [];
+
+    return Array.from(menuEl.querySelectorAll<HTMLButtonElement>("[data-dropdown-menu-item]")).filter((el) => !el.disabled);
+  }, []);
+
+  const focusMenuItem = React.useCallback((index: number) => {
+    const enabled = getEnabledMenuItems();
+    const item = enabled[index];
+    if (!item) return;
+    setActiveIndex(index);
+    item.focus();
+    item.scrollIntoView({ block: "nearest" });
+  }, [getEnabledMenuItems, setActiveIndex]);
+
   // Inject ShadCN animations
   useShadCNAnimations();
 
@@ -91,42 +112,37 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       if (!active || !triggerEl || !menuEl) return;
       const isInMenu = menuEl.contains(active);
       const isOnTrigger = triggerEl.contains(active);
-      if (!isInMenu && !isOnTrigger) return;
 
-      const enabled = itemsRef.current.filter((el) => el && !el.disabled);
+      const enabled = getEnabledMenuItems();
       if (enabled.length === 0) return;
+      const currentIndex = enabled.findIndex((el) => el === active);
+      const baseIndex = currentIndex >= 0 ? currentIndex : activeIndex;
 
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        const next = (activeIndex + 1 + enabled.length) % enabled.length;
-        setActiveIndex(next);
-        enabled[next]?.focus();
+        const next = (baseIndex + 1 + enabled.length) % enabled.length;
+        focusMenuItem(next);
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        const prev = (activeIndex - 1 + enabled.length) % enabled.length;
-        setActiveIndex(prev);
-        enabled[prev]?.focus();
+        const prev = (baseIndex - 1 + enabled.length) % enabled.length;
+        focusMenuItem(prev);
       } else if (e.key === "Home") {
         e.preventDefault();
-        setActiveIndex(0);
-        enabled[0]?.focus();
+        focusMenuItem(0);
       } else if (e.key === "End") {
         e.preventDefault();
-        setActiveIndex(enabled.length - 1);
-        enabled[enabled.length - 1]?.focus();
+        focusMenuItem(enabled.length - 1);
+      } else if (e.key === "Escape" && (isInMenu || isOnTrigger)) {
+        e.preventDefault();
+        closeMenu();
       }
     };
 
-    document.addEventListener("keydown", handleKeyNav);
+    document.addEventListener("keydown", handleKeyNav, true);
     return () => {
-      document.removeEventListener("keydown", handleKeyNav);
+      document.removeEventListener("keydown", handleKeyNav, true);
     };
-  }, [open, activeIndex, setActiveIndex]);
-
-  const closeMenu = React.useCallback(() => {
-    setOpen(false);
-    parentMenu?.closeMenu();
-  }, [parentMenu, setOpen]);
+  }, [open, activeIndex, closeMenu, focusMenuItem, getEnabledMenuItems]);
 
   const menuContext = React.useMemo<DropdownMenuContextValue>(
     () => ({
@@ -158,6 +174,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
                   onClick={() => handleItemClick(item.onClick)}
                   disabled={item.disabled}
                   role="menuitem"
+                  data-dropdown-menu-item=""
                   tabIndex={-1}
                   style={{
                     animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms",
@@ -196,13 +213,13 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
         if (e.key === "ArrowDown") {
           e.preventDefault();
           setOpen(true);
-          requestAnimationFrame(() => itemsRef.current.find((el) => el && !el.disabled)?.focus());
+          requestAnimationFrame(() => focusMenuItem(0));
         } else if (e.key === "ArrowUp") {
           e.preventDefault();
           setOpen(true);
           requestAnimationFrame(() => {
-            const enabled = itemsRef.current.filter((el) => el && !el.disabled);
-            enabled[enabled.length - 1]?.focus();
+            const enabled = getEnabledMenuItems();
+            focusMenuItem(enabled.length - 1);
           });
         } else if (e.key === "Escape") {
           e.preventDefault();
@@ -270,6 +287,8 @@ export const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({
       }}
       disabled={disabled}
       onMouseDown={(e) => e.preventDefault()}
+      data-dropdown-menu-item=""
+      tabIndex={-1}
       className={cn(
         "flex w-full items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors group cursor-pointer",
         "hover:bg-accent hover:text-accent-foreground",
