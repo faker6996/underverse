@@ -47,6 +47,18 @@ export type DataTableColumn<T> = {
 export type ColumnColorGroup = {
   /** Display label for this group (e.g. "Bắt buộc", "Tùy chọn") */
   label: string;
+  /**
+   * Optional override for the header cell text color of columns in this group.
+   * Accepts any valid CSS color (hex, rgb, rgba, color-mix, var(--token), ...).
+   * When omitted, the table picks a readable foreground (black or white) based
+   * on the perceived luminance of the column's `colorTag` via WCAG formula.
+   *
+   * Useful when:
+   * - the auto-picker doesn't match your brand palette
+   * - you want a fixed color that survives light/dark theme swaps
+   *   (e.g., a CSS var like `var(--foreground)`)
+   */
+  headerTextColor?: string;
 };
 
 export type Sorter = { key: string; order: "asc" | "desc" } | null;

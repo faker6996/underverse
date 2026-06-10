@@ -10,8 +10,8 @@ import { Popover } from "../../Popover";
 import { TableHead, TableRow } from "../../Table";
 import { Tooltip } from "../../Tooltip";
 import { cn } from "../../../utils/cn";
-import { getHeaderBgColor } from "../utils/colorTag";
-import type { DataTableColumn, HeaderRow, Sorter, DataTableSize } from "../types";
+import { getHeaderBgColor, getReadableForeground } from "../utils/colorTag";
+import type { ColumnColorGroup, DataTableColumn, HeaderRow, Sorter, DataTableSize } from "../types";
 
 function getColumnLabel(title: React.ReactNode): string {
   if (typeof title === "string" || typeof title === "number") {
@@ -53,6 +53,7 @@ export function DataTableHeader<T extends Record<string, any>>({
   getStickyHeaderCellStyle,
   sortByLabel,
   t,
+  columnColorGroups,
 }: {
   headerRows: HeaderRow<T>[];
   headerAlign: "left" | "center" | "right";
@@ -72,6 +73,7 @@ export function DataTableHeader<T extends Record<string, any>>({
   getStickyHeaderCellStyle: (headerCell: HeaderRow<T>[number]) => React.CSSProperties;
   sortByLabel?: string;
   t: (key: string) => string;
+  columnColorGroups?: Record<string, ColumnColorGroup>;
 }) {
   const gi18n = useGlobalI18n();
   const renderFilterControl = React.useCallback(
@@ -217,7 +219,7 @@ export function DataTableHeader<T extends Record<string, any>>({
                   title={gi18n.filterByColumn ? gi18n.filterByColumn(columnLabel) : `Filter by ${columnLabel}`}
                   className={cn(
                     "p-1.5 rounded-lg transition-all duration-200 hover:bg-accent",
-                    filters[col.key] ? "bg-accent text-primary" : "text-muted-foreground",
+                    filters[col.key] ? "bg-accent opacity-100" : "opacity-60 hover:opacity-100",
                   )}
                   aria-label={gi18n.filterByColumn ? gi18n.filterByColumn(columnLabel) : `Filter by ${columnLabel}`}
                 >
@@ -300,6 +302,9 @@ export function DataTableHeader<T extends Record<string, any>>({
             const headerBackgroundColor = isLeaf && col.colorTag
               ? getHeaderBgColor(col.colorTag)
               : "var(--muted)";
+            const headerColor = isLeaf && col.colorTag
+              ? columnColorGroups?.[col.colorTag]?.headerTextColor ?? getReadableForeground(col.colorTag)
+              : undefined;
 
             return (
               <TableHead
@@ -310,6 +315,7 @@ export function DataTableHeader<T extends Record<string, any>>({
                 style={{
                   width: col.width,
                   backgroundColor: headerBackgroundColor,
+                  color: headerColor,
                   ...getStickyHeaderCellStyle(headerCell),
                 }}
                 className={cn(

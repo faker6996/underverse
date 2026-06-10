@@ -66,17 +66,17 @@ export default function DataTableExample() {
       ),
     },
     { key: "name", title: "Name", dataIndex: "name", sortable: true, filter: { type: "text" }, width: 150, colorTag: "#19386e" },
-    { key: "email", title: "Email", dataIndex: "email", width: 160 },
-    { key: "role", title: "Role", dataIndex: "role", filter: { type: "select", options: ["Admin", "Editor", "User"] }, width: 100, colorTag: "#254a7aff" },
+    { key: "email", title: "Email", dataIndex: "email", width: 160, colorTag: "#0f766e" },
+    { key: "role", title: "Role", dataIndex: "role", filter: { type: "select", options: ["Admin", "Editor", "User"] }, width: 100, colorTag: "#315a8fff" },
     {
       key: "department",
       title: "Department",
       dataIndex: "department",
       filter: { type: "select", options: ["Engineering", "Marketing", "Sales", "HR", "Finance"] },
       width: 130,
-      colorTag: "#254a7aff"
+      colorTag: "#315a8fff"
     },
-    { key: "amount", title: "Amount", dataIndex: "amount", sortable: true, width: 100 },
+    { key: "amount", title: "Amount", dataIndex: "amount", sortable: true, width: 100, colorTag: "#a16207" },
     { key: "status", title: "Status", dataIndex: "status", width: 100 },
     { key: "created_at", title: "Created", dataIndex: "created_at", filter: { type: "date" }, width: 120, visible: false },
     {
@@ -167,8 +167,10 @@ export default function DataTableExample() {
   useOverlayScrollbar // bật OverlayScrollbars cho viewport bảng
   labels={{ density: '...', columns: '...', headerAlign: '...' }}
   columnColorGroups={{
-    "#19386e": { label: "Personal" },
-    "#254a7aff": { label: "Work" }
+    "#19386e": { label: "Personal", headerTextColor: "white" },
+    "#315a8fff": { label: "Work", headerTextColor: "white" },
+    "#0f766e": { label: "Contact", headerTextColor: "white" },
+    "#a16207": { label: "Finance", headerTextColor: "white" }
   }}
 />`;
 
@@ -289,8 +291,10 @@ export default function DataTableExample() {
         alignRight: t("alignRight"),
       }}
       columnColorGroups={{
-        "#19386e": { label: "Personal" },
-        "#254a7aff": { label: "Work" }
+        "#19386e": { label: "Personal", headerTextColor: "white" },
+        "#315a8fff": { label: "Work", headerTextColor: "white" },
+        "#0f766e": { label: "Contact", headerTextColor: "white" },
+        "#a16207": { label: "Finance", headerTextColor: "white" }
       }}
     />
   );
@@ -481,8 +485,16 @@ const groupedColumns: DataTableColumn<User>[] = [
                     },
                     {
                       property: "columnColorGroups",
-                      description: "Định nghĩa nhóm màu (color group legend) cho menu chọn cột. Key là hex color.",
-                      type: "Record<string, { label: string }>",
+                      description:
+                        "Định nghĩa nhóm màu (color group legend) cho menu chọn cột. " +
+                        "Key là hex color (phải khớp với `colorTag` ở column). " +
+                        "Mỗi group có `label` (hiển thị trong dropdown) và `headerTextColor` tuỳ chọn " +
+                        "(override màu chữ ở header cell — text + icon đều inherit theo CSS cascade, " +
+                        "nhận mọi CSS color: hex, rgb, var(--token), color-mix, ...). " +
+                        "Nếu bỏ trống, lib tự pick black/white theo luminance của `colorTag` (WCAG). " +
+                        "Set `headerTextColor` khi: bg saturated (navy/blue-700) cần text trắng cố định ở cả 2 mode, " +
+                        "hoặc muốn text follow theme token như `var(--foreground)`.",
+                      type: "Record<string, { label: string; headerTextColor?: string }>",
                       default: "-",
                     },
                     { property: "labels", description: td("props.dataTable.labels"), type: "{ density; columns; headerAlign; ... }", default: "-" },

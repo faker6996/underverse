@@ -349,6 +349,7 @@ export function DataTable<T extends Record<string, any>>({
                 getStickyHeaderCellStyle={getStickyHeaderCellStyle}
                 sortByLabel={labels?.sortBy}
                 t={t}
+                columnColorGroups={columnColorGroups}
               />
             </TableHeader>
             <DataTableBodyRows
