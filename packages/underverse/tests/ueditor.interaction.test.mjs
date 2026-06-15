@@ -223,18 +223,21 @@ test("UEditor minimal toolbar applies bold and italic formatting while typing", 
   });
   const toolbarButtons = view.container.querySelectorAll("button[type='button']");
 
-  assert.ok(toolbarButtons.length >= 2);
+  // Since Undo and Redo were added to the minimal toolbar, Bold is at index 2 and Italic is at index 3
+  const boldButton = toolbarButtons[2];
+  const italicButton = toolbarButtons[3];
+  assert.ok(boldButton && italicButton);
 
   await user.click(editorElement);
-  await user.click(toolbarButtons[0]);
+  await user.click(boldButton);
   await user.type(editorElement, "Bold");
 
   await waitFor(() => {
     assert.match(htmlUpdates.at(-1) ?? "", /<strong>Bold<\/strong>/);
   });
 
-  await user.click(toolbarButtons[0]);
-  await user.click(toolbarButtons[1]);
+  await user.click(boldButton);
+  await user.click(italicButton);
   await user.type(editorElement, "Italic");
 
   await waitFor(() => {
