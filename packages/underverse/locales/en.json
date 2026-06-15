@@ -397,6 +397,8 @@
       "mergeCells": "Merge cells",
       "splitCell": "Split cell",
       "imageUpload": "Upload Image",
+      "formCheckbox": "Form Checkbox",
+      "formRadio": "Form Radio Button",
       "applySource": "Apply",
       "closeDialog": "Close",
       "copyHtml": "Copy HTML",

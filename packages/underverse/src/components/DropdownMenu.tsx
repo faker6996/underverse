@@ -70,7 +70,15 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
 }) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = isOpen !== undefined ? isOpen : internalOpen;
-  const setOpen = onOpenChange || setInternalOpen;
+  const setOpen = React.useCallback(
+    (nextOpen: boolean) => {
+      if (isOpen === undefined) {
+        setInternalOpen(nextOpen);
+      }
+      onOpenChange?.(nextOpen);
+    },
+    [isOpen, onOpenChange]
+  );
   const triggerRef = React.useRef<HTMLElement>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
   const itemsRef = React.useRef<HTMLButtonElement[]>([]);
