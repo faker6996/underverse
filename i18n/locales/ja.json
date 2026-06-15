@@ -1394,7 +1394,11 @@
       "bookmark": "ブックマークカード",
       "bookmarkDesc": "リンクをブックマークカードとして埋め込みます",
       "fileCard": "ファイル添付",
-      "fileCardDesc": "ファイルカードの添付ファイルをアップロードします"
+      "fileCardDesc": "ファイルカードの添付ファイルをアップロードします",
+      "formCheckbox": "フォームチェックボックス",
+      "formCheckboxDesc": "インタラクティブなチェックボックスを挿入します",
+      "formRadio": "フォームラジオボタン",
+      "formRadioDesc": "インタラクティブなラジオボタンを挿入します"
     },
     "floatingMenu": {
       "addBlock": "ブロックを追加"
@@ -1444,6 +1448,10 @@
     "callout": {
       "selectEmoji": "絵文字を選択",
       "backgroundColor": "背景色"
+    },
+    "radio": {
+      "groupName": "グループ名",
+      "editGroup": "グループ名編集"
     },
     "bookmark": {
       "clickToOpenNewTab": "クリックしてこのリンクを新しいタブで開く。",

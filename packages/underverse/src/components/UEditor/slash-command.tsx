@@ -21,6 +21,8 @@ import {
   Info,
   Bookmark as BookmarkIcon,
   Paperclip,
+  CheckSquare,
+  CircleDot,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { destroyTippyInstance, getFirstTippyInstance, hideTippyInstance, tippy, type TippyInstance } from "./tippy-interop";
@@ -56,6 +58,10 @@ export type SlashCommandMessages = {
   bookmarkDesc: string;
   fileCard: string;
   fileCardDesc: string;
+  formCheckbox: string;
+  formCheckboxDesc: string;
+  formRadio: string;
+  formRadioDesc: string;
 };
 
 const DEFAULT_MESSAGES: SlashCommandMessages = {
@@ -89,6 +95,10 @@ const DEFAULT_MESSAGES: SlashCommandMessages = {
   bookmarkDesc: "Embed a link as a bookmark card",
   fileCard: "File Attachment",
   fileCardDesc: "Upload a file card attachment",
+  formCheckbox: "Form Checkbox",
+  formCheckboxDesc: "Insert an interactive checkbox field",
+  formRadio: "Form Radio Button",
+  formRadioDesc: "Insert an interactive radio button field",
 };
 
 export type SlashCommandExecutionContext = {
@@ -168,6 +178,10 @@ export function buildSlashCommandMessages(translate: (key: string) => string): S
     bookmarkDesc: translate("slashCommand.bookmarkDesc") || "Embed a link as a bookmark card",
     fileCard: translate("slashCommand.fileCard") || "File Attachment",
     fileCardDesc: translate("slashCommand.fileCardDesc") || "Upload a file card attachment",
+    formCheckbox: translate("slashCommand.formCheckbox") || "Form Checkbox",
+    formCheckboxDesc: translate("slashCommand.formCheckboxDesc") || "Insert an interactive checkbox field",
+    formRadio: translate("slashCommand.formRadio") || "Form Radio Button",
+    formRadioDesc: translate("slashCommand.formRadioDesc") || "Insert an interactive radio button field",
   };
 }
 
@@ -311,6 +325,22 @@ export function buildSlashCommandItems({
           reader.readAsDataURL(file);
         };
         input.click();
+      }),
+    },
+    {
+      icon: CheckSquare,
+      title: messages.formCheckbox,
+      description: messages.formCheckboxDesc,
+      command: run(({ editor, range }) => {
+        getCommandChain(editor, range).setFormCheckbox().run();
+      }),
+    },
+    {
+      icon: CircleDot,
+      title: messages.formRadio,
+      description: messages.formRadioDesc,
+      command: run(({ editor, range }) => {
+        getCommandChain(editor, range).setFormRadio({ name: `radio-group-${Math.random().toString(36).substring(2, 6)}` }).run();
       }),
     },
   ].filter((item) => item.title.toLowerCase().includes(query.toLowerCase()));

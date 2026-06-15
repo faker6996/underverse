@@ -1472,7 +1472,11 @@
       "bookmark": "Thẻ liên kết",
       "bookmarkDesc": "Nhúng một liên kết dưới dạng thẻ xem trước",
       "fileCard": "Tệp đính kèm",
-      "fileCardDesc": "Tải lên tệp tin đính kèm"
+      "fileCardDesc": "Tải lên tệp tin đính kèm",
+      "formCheckbox": "Checkbox biểu mẫu",
+      "formCheckboxDesc": "Thêm ô checkbox biểu mẫu",
+      "formRadio": "Radio biểu mẫu",
+      "formRadioDesc": "Thêm nút chọn một (Radio) biểu mẫu"
     },
     "floatingMenu": {
       "addBlock": "Thêm khối"
@@ -1522,6 +1526,10 @@
     "callout": {
       "selectEmoji": "Chọn Biểu tượng",
       "backgroundColor": "Màu nền"
+    },
+    "radio": {
+      "groupName": "Tên nhóm",
+      "editGroup": "Sửa tên nhóm"
     },
     "bookmark": {
       "clickToOpenNewTab": "Bấm để mở liên kết này trong tab mới.",

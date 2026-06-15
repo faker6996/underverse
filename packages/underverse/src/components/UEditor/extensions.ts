@@ -19,6 +19,8 @@ import { ReactNodeViewRenderer } from "@tiptap/react";
 import { Callout } from "./callout";
 import { Bookmark } from "./bookmark";
 import { FileCard } from "./file-card";
+import { FormCheckbox } from "./form-checkbox";
+import { FormRadio } from "./form-radio";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import History from "@tiptap/extension-history";
 import Link from "@tiptap/extension-link";
@@ -468,5 +470,7 @@ export function buildUEditorExtensions({
     FileCard.configure({
       upload: uploadFile,
     }),
+    FormCheckbox,
+    FormRadio,
   ];
 }

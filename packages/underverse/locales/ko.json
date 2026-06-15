@@ -212,7 +212,11 @@
       "bookmark": "북마크 카드",
       "bookmarkDesc": "링크를 북마크 카드로 삽입합니다",
       "fileCard": "파일 첨부",
-      "fileCardDesc": "파일 카드 첨부 파일을 업로드합니다"
+      "fileCardDesc": "파일 카드 첨부 파일을 업로드합니다",
+      "formCheckbox": "양식 체크박스",
+      "formCheckboxDesc": "대화형 체크박스 필드 삽입",
+      "formRadio": "양식 라디오 버튼",
+      "formRadioDesc": "대화형 라디오 버튼 필드 삽입"
     },
     "floatingMenu": {
       "addBlock": "블록 추가"
@@ -300,6 +304,10 @@
     "callout": {
       "selectEmoji": "이모지 선택",
       "backgroundColor": "배경 색상"
+    },
+    "radio": {
+      "groupName": "그룹 이름",
+      "editGroup": "그룹 이름 편집"
     },
     "bookmark": {
       "clickToOpenNewTab": "클릭하여 이 링크를 새 탭에서 엽니다.",

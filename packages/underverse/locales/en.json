@@ -212,7 +212,11 @@
       "bookmark": "Bookmark Card",
       "bookmarkDesc": "Embed a link as a bookmark card",
       "fileCard": "File Attachment",
-      "fileCardDesc": "Upload a file card attachment"
+      "fileCardDesc": "Upload a file card attachment",
+      "formCheckbox": "Form Checkbox",
+      "formCheckboxDesc": "Insert an interactive checkbox field",
+      "formRadio": "Form Radio Button",
+      "formRadioDesc": "Insert an interactive radio button field"
     },
     "floatingMenu": {
       "addBlock": "Add block"
@@ -300,6 +304,10 @@
     "callout": {
       "selectEmoji": "Select Emoji",
       "backgroundColor": "Background Color"
+    },
+    "radio": {
+      "groupName": "Group Name",
+      "editGroup": "Edit Group Name"
     },
     "bookmark": {
       "clickToOpenNewTab": "Click to open this link in a new tab.",

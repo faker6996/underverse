@@ -106,6 +106,13 @@ export default function UEditorExample() {
       <li data-type="taskItem" data-checked="false"><label><input type="checkbox"></label><div>Code blocks with syntax highlighting</div></li>
     </ul>
     <blockquote><p>💡 <em>Tip: Select text to see the bubble menu for quick formatting.</em></p></blockquote>
+    <h2>📝 Form Interactive Fields</h2>
+    <p>Try clicking the checkboxes and radio buttons below directly inside the document. In the editor, when a radio button is selected, click the settings gear icon to edit its group name.</p>
+    <p><input type="checkbox" data-type="form-checkbox" data-checked="true"> Option A (Form Checkbox)</p>
+    <p><input type="checkbox" data-type="form-checkbox"> Option B (Form Checkbox)</p>
+    <p>Select your favorite flavor:</p>
+    <p><input type="radio" data-type="form-radio" data-checked="true" name="flavor-group" id="rad-choc" value="chocolate"> Chocolate (Form Radio)</p>
+    <p><input type="radio" data-type="form-radio" name="flavor-group" id="rad-vanilla" value="vanilla"> Vanilla (Form Radio)</p>
   `);
 
   const uploadFile = async (file: File): Promise<string> => {
