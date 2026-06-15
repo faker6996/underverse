@@ -30,6 +30,8 @@ import {
   Trash2,
   Underline as UnderlineIcon,
   Undo as UndoIcon,
+  Square,
+  CircleDot,
   Upload,
 } from "lucide-react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
@@ -706,6 +708,26 @@ export const MenuBar: React.FC<MenuBarProps> = ({
               onInsert={handleInsertTable}
             />
           ),
+        },
+      ],
+    },
+    { type: "separator" },
+    {
+      type: "sub",
+      label: t("menubar.formFields") || "Form Fields",
+      icon: ListTodo,
+      items: [
+        {
+          type: "action",
+          label: t("menubar.formCheckbox") || "Form Checkbox",
+          icon: Square,
+          onClick: () => editor.chain().focus().setFormCheckbox().run(),
+        },
+        {
+          type: "action",
+          label: t("menubar.formRadio") || "Form Radio Button",
+          icon: CircleDot,
+          onClick: () => editor.chain().focus().setFormRadio().run(),
         },
       ],
     },

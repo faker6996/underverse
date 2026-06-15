@@ -56,10 +56,12 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   showToolbar = true,
   showBubbleMenu = true,
   showCharacterCount = true,
+  showFooter = true,
   maxCharacters,
   minHeight = "200px",
   maxHeight = "auto",
   variant = "default",
+  rounded = true,
   fontFamilies,
   fontSizes,
   lineHeights,
@@ -312,6 +314,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           "shadow-sm focus-within:shadow-md focus-within:border-primary/15",
           "backdrop-blur-sm",
           variant === "notion" && "hover:shadow-md",
+          rounded ? "rounded-2xl md:rounded-3xl max-md:rounded-xl" : "rounded-none",
         ] : "rounded-none",
         className,
       )}
@@ -398,7 +401,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         />
       </div>
 
-      {showCharacterCount && <CharacterCountDisplay editor={editor} maxCharacters={maxCharacters} />}
+      {showFooter && showCharacterCount && <CharacterCountDisplay editor={editor} maxCharacters={maxCharacters} />}
     </div>
   );
 });

@@ -79,10 +79,14 @@ export interface UEditorProps {
   showBubbleMenu?: boolean;
   showFloatingMenu?: boolean;
   showCharacterCount?: boolean;
+  /** Whether to show the editor footer. Defaults to `true`. */
+  showFooter?: boolean;
   maxCharacters?: number;
   minHeight?: number | string;
   maxHeight?: number | string;
-  variant?: "default" | "minimal" | "notion";
+  variant?: "default" | "minimal" | "medium" | "medium-full" | "full" | "notion";
+  /** Whether the editor has rounded corners. Defaults to `true`. */
+  rounded?: boolean;
   fontFamilies?: UEditorFontFamilyOption[];
   fontSizes?: UEditorFontSizeOption[];
   lineHeights?: UEditorLineHeightOption[];

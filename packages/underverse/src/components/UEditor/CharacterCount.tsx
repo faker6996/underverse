@@ -17,7 +17,7 @@ export const CharacterCountDisplay = ({ editor, maxCharacters }: { editor: Edito
   const percentage = maxCharacters ? Math.round((characterCount / maxCharacters) * 100) : 0;
 
   return (
-    <div className="flex items-center gap-3 px-3 py-2 text-xs text-muted-foreground border-t bg-muted/20">
+    <div className="flex items-center gap-3 px-3 py-2 text-xs text-muted-foreground border-t border-border/30 bg-muted/20">
       <span>
         {wordCount} {t("words")}
       </span>

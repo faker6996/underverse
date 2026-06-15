@@ -307,6 +307,9 @@ export const EditorToolbar = ({
   const displayedFontSizeLabel = currentFontSize ? currentFontSizeLabel : "13";
   const activeFontSize = currentFontSize || "13px";
   const tableCommandAnchorPos = tableCommandAnchorPosRef.current ?? tableAnchorPos ?? undefined;
+  const isMedium = variant === "medium";
+  const isMediumFull = variant === "medium-full";
+  const isFull = variant === "default" || variant === "full" || variant === "notion" || !variant;
 
   const insertImageFiles = async (files: File[]) => {
     if (files.length === 0) return;
@@ -334,7 +337,14 @@ export const EditorToolbar = ({
 
   if (variant === "minimal") {
     return (
-      <div className="flex items-center gap-1 border-b border-border/35 bg-muted/30 p-2">
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-border/35 bg-muted/30 p-1.5">
+        <ToolbarButton onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title={t("toolbar.undo")}>
+          <UndoIcon className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarButton onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title={t("toolbar.redo")}>
+          <RedoIcon className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarDivider />
         <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("toolbar.bold")}>
           <BoldIcon className="w-4 h-4" />
         </ToolbarButton>
@@ -348,6 +358,42 @@ export const EditorToolbar = ({
         >
           <ListIcon className="w-4 h-4" />
         </ToolbarButton>
+        <DropdownMenu
+          contentClassName="min-w-72"
+          trigger={
+            <ToolbarButton onClick={() => setShowLinkInput(!editor.isActive("link"))} active={editor.isActive("link")} title={t("toolbar.link")}>
+              <LinkIcon className="w-4 h-4" />
+            </ToolbarButton>
+          }
+        >
+          {showLinkInput ? (
+            <LinkInput
+              initialUrl={String(editor.getAttributes("link").href ?? "")}
+              onSubmit={(url) => {
+                editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+                setShowLinkInput(false);
+              }}
+              onCancel={() => setShowLinkInput(false)}
+            />
+          ) : (
+            <>
+              <DropdownMenuItem
+                icon={LinkIcon}
+                label={t("toolbar.link")}
+                onClick={() => setShowLinkInput(true)}
+                active={editor.isActive("link")}
+                closeOnSelect={false}
+              />
+              <DropdownMenuItem
+                icon={Trash2}
+                label={t("toolbar.removeLink")}
+                onClick={() => editor.chain().focus().extendMarkRange("link").unsetLink().run()}
+                disabled={!editor.isActive("link")}
+                destructive
+              />
+            </>
+          )}
+        </DropdownMenu>
       </div>
     );
   }
@@ -361,49 +407,53 @@ export const EditorToolbar = ({
 
   return (
     <div className="flex flex-wrap items-center gap-0.5 border-b border-border/35 bg-linear-to-r from-muted/25 to-transparent p-1.5">
-      <DropdownMenu
-        trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.fontFamily")} className="min-w-0 max-w-40 px-1.5 w-auto gap-1">
-            <span className="max-w-28 truncate text-xs font-medium" style={{ fontFamily: displayedFontFamilyValue || undefined }}>
-              {displayedFontFamilyLabel}
-            </span>
-            <ChevronDown className="h-3 w-3 text-muted-foreground" />
-          </ToolbarButton>
-        }
-        contentClassName="max-h-80 overflow-y-auto min-w-56 p-2"
-      >
-        {availableFontFamilies.map((option) => (
-          <DropdownMenuItem
-            key={option.value}
-            label={option.label}
-            onClick={() => editor.chain().focus().setFontFamily(option.value).run()}
-            active={normalizeStyleValue(option.value) === (currentFontFamily || normalizeStyleValue(defaultFontFamilyValue))}
-            className="font-medium"
-          />
-        ))}
-      </DropdownMenu>
+      {isFull && (
+        <DropdownMenu
+          trigger={
+            <ToolbarButton onClick={() => {}} title={t("toolbar.fontFamily")} className="min-w-0 max-w-40 px-1.5 w-auto gap-1">
+              <span className="max-w-28 truncate text-xs font-medium" style={{ fontFamily: displayedFontFamilyValue || undefined }}>
+                {displayedFontFamilyLabel}
+              </span>
+              <ChevronDown className="h-3 w-3 text-muted-foreground" />
+            </ToolbarButton>
+          }
+          contentClassName="max-h-80 overflow-y-auto min-w-56 p-2"
+        >
+          {availableFontFamilies.map((option) => (
+            <DropdownMenuItem
+              key={option.value}
+              label={option.label}
+              onClick={() => editor.chain().focus().setFontFamily(option.value).run()}
+              active={normalizeStyleValue(option.value) === (currentFontFamily || normalizeStyleValue(defaultFontFamilyValue))}
+              className="font-medium"
+            />
+          ))}
+        </DropdownMenu>
+      )}
 
-      <DropdownMenu
-        trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.fontSize")} className="px-1.5 w-auto gap-1">
-            <div className="flex items-center gap-0.5">
-              <ChevronsUpDown className="h-3 w-3 text-muted-foreground" strokeWidth={2.5} />
-              <span className="min-w-4 text-center text-xs font-semibold leading-none">{displayedFontSizeLabel}</span>
-            </div>
-            <ChevronDown className="h-3 w-3 text-muted-foreground" />
-          </ToolbarButton>
-        }
-        contentClassName="max-h-80 overflow-y-auto min-w-32 p-2"
-      >
-        {availableFontSizes.map((option) => (
-          <DropdownMenuItem
-            key={option.value}
-            label={option.label}
-            onClick={() => editor.chain().focus().setFontSize(option.value).run()}
-            active={normalizeStyleValue(option.value) === activeFontSize}
-          />
-        ))}
-      </DropdownMenu>
+      {(isMediumFull || isFull) && (
+        <DropdownMenu
+          trigger={
+            <ToolbarButton onClick={() => {}} title={t("toolbar.fontSize")} className="px-1.5 w-auto gap-1">
+              <div className="flex items-center gap-0.5">
+                <ChevronsUpDown className="h-3 w-3 text-muted-foreground" strokeWidth={2.5} />
+                <span className="min-w-4 text-center text-xs font-semibold leading-none">{displayedFontSizeLabel}</span>
+              </div>
+              <ChevronDown className="h-3 w-3 text-muted-foreground" />
+            </ToolbarButton>
+          }
+          contentClassName="max-h-80 overflow-y-auto min-w-32 p-2"
+        >
+          {availableFontSizes.map((option) => (
+            <DropdownMenuItem
+              key={option.value}
+              label={option.label}
+              onClick={() => editor.chain().focus().setFontSize(option.value).run()}
+              active={normalizeStyleValue(option.value) === activeFontSize}
+            />
+          ))}
+        </DropdownMenu>
+      )}
 
       <DropdownMenu
         contentClassName="p-1"
@@ -443,55 +493,59 @@ export const EditorToolbar = ({
         />
       </DropdownMenu>
 
-      <DropdownMenu
-        trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.lineHeight")} className="gap-0.5">
-            <ArrowUp className="w-3 h-3" />
-            <ArrowDown className="w-3 h-3" />
-          </ToolbarButton>
-        }
-        contentClassName="max-h-72 overflow-y-auto p-1"
-      >
-        <DropdownMenuItem
-          icon={Type}
-          label={t("toolbar.lineHeightDefault")}
-          onClick={() => editor.chain().focus().unsetLineHeight().run()}
-          active={!currentLineHeight}
-        />
-        {availableLineHeights.map((option) => (
-          <DropdownMenuItem
-            key={option.value}
-            label={option.label}
-            onClick={() => editor.chain().focus().setLineHeight(option.value).run()}
-            active={normalizeStyleValue(option.value) === currentLineHeight}
-          />
-        ))}
-      </DropdownMenu>
+      {isFull && (
+        <>
+          <DropdownMenu
+            trigger={
+              <ToolbarButton onClick={() => {}} title={t("toolbar.lineHeight")} className="gap-0.5">
+                <ArrowUp className="w-3 h-3" />
+                <ArrowDown className="w-3 h-3" />
+              </ToolbarButton>
+            }
+            contentClassName="max-h-72 overflow-y-auto p-1"
+          >
+            <DropdownMenuItem
+              icon={Type}
+              label={t("toolbar.lineHeightDefault")}
+              onClick={() => editor.chain().focus().unsetLineHeight().run()}
+              active={!currentLineHeight}
+            />
+            {availableLineHeights.map((option) => (
+              <DropdownMenuItem
+                key={option.value}
+                label={option.label}
+                onClick={() => editor.chain().focus().setLineHeight(option.value).run()}
+                active={normalizeStyleValue(option.value) === currentLineHeight}
+              />
+            ))}
+          </DropdownMenu>
 
-      <DropdownMenu
-        trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.letterSpacing")} className="gap-0.5">
-            <ArrowLeft className="w-3 h-3" />
-            <ArrowRight className="w-3 h-3" />
-          </ToolbarButton>
-        }
-        contentClassName="max-h-72 overflow-y-auto p-1"
-      >
-        <DropdownMenuItem
-          icon={Type}
-          label={t("toolbar.letterSpacingDefault")}
-          onClick={() => editor.chain().focus().unsetLetterSpacing().run()}
-          active={!currentLetterSpacing}
-        />
-        {availableLetterSpacings.map((option) => (
-          <DropdownMenuItem
-            key={option.value}
-            label={option.label}
-            onClick={() => editor.chain().focus().setLetterSpacing(option.value).run()}
-            active={normalizeStyleValue(option.value) === currentLetterSpacing}
-          />
-        ))}
-      </DropdownMenu>
+          <DropdownMenu
+            trigger={
+              <ToolbarButton onClick={() => {}} title={t("toolbar.letterSpacing")} className="gap-0.5">
+                <ArrowLeft className="w-3 h-3" />
+                <ArrowRight className="w-3 h-3" />
+              </ToolbarButton>
+            }
+            contentClassName="max-h-72 overflow-y-auto p-1"
+          >
+            <DropdownMenuItem
+              icon={Type}
+              label={t("toolbar.letterSpacingDefault")}
+              onClick={() => editor.chain().focus().unsetLetterSpacing().run()}
+              active={!currentLetterSpacing}
+            />
+            {availableLetterSpacings.map((option) => (
+              <DropdownMenuItem
+                key={option.value}
+                label={option.label}
+                onClick={() => editor.chain().focus().setLetterSpacing(option.value).run()}
+                active={normalizeStyleValue(option.value) === currentLetterSpacing}
+              />
+            ))}
+          </DropdownMenu>
+        </>
+      )}
 
       <ToolbarDivider />
 
@@ -511,23 +565,29 @@ export const EditorToolbar = ({
       <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")} title={t("toolbar.strike")}>
         <StrikethroughIcon className="w-4 h-4" />
       </ToolbarButton>
-      <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive("code")} title={t("toolbar.code")}>
-        <CodeIcon className="w-4 h-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => editor.chain().focus().toggleSubscript().run()}
-        active={editor.isActive("subscript")}
-        title={t("toolbar.subscript")}
-      >
-        <SubscriptIcon className="w-4 h-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => editor.chain().focus().toggleSuperscript().run()}
-        active={editor.isActive("superscript")}
-        title={t("toolbar.superscript")}
-      >
-        <SuperscriptIcon className="w-4 h-4" />
-      </ToolbarButton>
+      {(isMediumFull || isFull) && (
+        <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive("code")} title={t("toolbar.code")}>
+          <CodeIcon className="w-4 h-4" />
+        </ToolbarButton>
+      )}
+      {isFull && (
+        <>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleSubscript().run()}
+            active={editor.isActive("subscript")}
+            title={t("toolbar.subscript")}
+          >
+            <SubscriptIcon className="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleSuperscript().run()}
+            active={editor.isActive("superscript")}
+            title={t("toolbar.superscript")}
+          >
+            <SuperscriptIcon className="w-4 h-4" />
+          </ToolbarButton>
+        </>
+      )}
 
       <DropdownMenu
         contentClassName="min-w-72"
@@ -612,81 +672,87 @@ export const EditorToolbar = ({
         />
       </DropdownMenu>
 
-      <ToolbarDivider />
+      {(isMediumFull || isFull) && (
+        <>
+          <ToolbarDivider />
+          <DropdownMenu
+            contentClassName="p-0 overflow-hidden"
+            trigger={
+              <ToolbarButton onClick={() => {}} title={t("toolbar.emoji")}>
+                <Smile className="w-4 h-4" />
+              </ToolbarButton>
+            }
+          >
+            <EmojiPicker
+              onSelect={(emoji) => {
+                editor.chain().focus().insertContent(emoji).run();
+              }}
+            />
+          </DropdownMenu>
+        </>
+      )}
 
-      <DropdownMenu
-        contentClassName="p-0 overflow-hidden"
-        trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.emoji")}>
-            <Smile className="w-4 h-4" />
-          </ToolbarButton>
-        }
-      >
-        <EmojiPicker
-          onSelect={(emoji) => {
-            editor.chain().focus().insertContent(emoji).run();
-          }}
-        />
-      </DropdownMenu>
-
-      <ToolbarDivider />
-
-      <DropdownMenu
-        trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.alignment")}>
-            <AlignLeft className="w-4 h-4" />
-            <ChevronDown className="w-3 h-3" />
-          </ToolbarButton>
-        }
-      >
-        <DropdownMenuItem
-          icon={AlignLeft}
-          label={t("toolbar.alignLeft")}
-          onClick={() => editor.chain().focus().setTextAlign("left").run()}
-          active={editor.isActive({ textAlign: "left" })}
-        />
-        <DropdownMenuItem
-          icon={AlignCenter}
-          label={t("toolbar.alignCenter")}
-          onClick={() => editor.chain().focus().setTextAlign("center").run()}
-          active={editor.isActive({ textAlign: "center" })}
-        />
-        <DropdownMenuItem
-          icon={AlignRight}
-          label={t("toolbar.alignRight")}
-          onClick={() => editor.chain().focus().setTextAlign("right").run()}
-          active={editor.isActive({ textAlign: "right" })}
-        />
-        <DropdownMenuItem
-          icon={AlignJustify}
-          label={t("toolbar.justify")}
-          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-          active={editor.isActive({ textAlign: "justify" })}
-        />
-        {hasTableContext && (
-          <>
-            <div className="my-1 border-t" />
+      {(isMediumFull || isFull) && (
+        <>
+          <ToolbarDivider />
+          <DropdownMenu
+            trigger={
+              <ToolbarButton onClick={() => {}} title={t("toolbar.alignment")}>
+                <AlignLeft className="w-4 h-4" />
+                <ChevronDown className="w-3 h-3" />
+              </ToolbarButton>
+            }
+          >
             <DropdownMenuItem
-              icon={AlignStartVertical}
-              label={t("tableMenu.alignVerticalTop") || "Align top"}
-              onClick={() => applyTableCellAttribute(editor, "verticalAlign", "top")}
-              active={currentCellVerticalAlign === "top"}
+              icon={AlignLeft}
+              label={t("toolbar.alignLeft")}
+              onClick={() => editor.chain().focus().setTextAlign("left").run()}
+              active={editor.isActive({ textAlign: "left" })}
             />
             <DropdownMenuItem
-              icon={AlignCenterVertical}
-              label={t("tableMenu.alignVerticalMiddle") || "Align middle"}
-              onClick={() => applyTableCellAttribute(editor, "verticalAlign", "middle")}
-              active={currentCellVerticalAlign === "middle"}
+              icon={AlignCenter}
+              label={t("toolbar.alignCenter")}
+              onClick={() => editor.chain().focus().setTextAlign("center").run()}
+              active={editor.isActive({ textAlign: "center" })}
             />
             <DropdownMenuItem
-              icon={AlignEndVertical}
-              label={t("tableMenu.alignVerticalBottom") || "Align bottom"}
-              onClick={() => applyTableCellAttribute(editor, "verticalAlign", "bottom")}
-              active={currentCellVerticalAlign === "bottom"}
+              icon={AlignRight}
+              label={t("toolbar.alignRight")}
+              onClick={() => editor.chain().focus().setTextAlign("right").run()}
+              active={editor.isActive({ textAlign: "right" })}
             />
-          </>
-        )}
-      </DropdownMenu>
+            <DropdownMenuItem
+              icon={AlignJustify}
+              label={t("toolbar.justify")}
+              onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+              active={editor.isActive({ textAlign: "justify" })}
+            />
+            {hasTableContext && (
+              <>
+                <div className="my-1 border-t" />
+                <DropdownMenuItem
+                  icon={AlignStartVertical}
+                  label={t("tableMenu.alignVerticalTop") || "Align top"}
+                  onClick={() => applyTableCellAttribute(editor, "verticalAlign", "top")}
+                  active={currentCellVerticalAlign === "top"}
+                />
+                <DropdownMenuItem
+                  icon={AlignCenterVertical}
+                  label={t("tableMenu.alignVerticalMiddle") || "Align middle"}
+                  onClick={() => applyTableCellAttribute(editor, "verticalAlign", "middle")}
+                  active={currentCellVerticalAlign === "middle"}
+                />
+                <DropdownMenuItem
+                  icon={AlignEndVertical}
+                  label={t("tableMenu.alignVerticalBottom") || "Align bottom"}
+                  onClick={() => applyTableCellAttribute(editor, "verticalAlign", "bottom")}
+                  active={currentCellVerticalAlign === "bottom"}
+                />
+              </>
+            )}
+          </DropdownMenu>
+        </>
+      )}
 
       <ToolbarDivider />
 
@@ -721,230 +787,242 @@ export const EditorToolbar = ({
         />
       </DropdownMenu>
 
-      <DropdownMenu
-        trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.quote")}>
-            <QuoteIcon className="w-4 h-4" />
-            <ChevronDown className="w-3 h-3" />
-          </ToolbarButton>
-        }
-      >
-        <DropdownMenuItem
-          icon={QuoteIcon}
-          label={t("toolbar.quote")}
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          active={editor.isActive("blockquote")}
-          shortcut="Ctrl+Shift+B"
-        />
-        <DropdownMenuItem
-          icon={FileCode}
-          label={t("toolbar.codeBlock")}
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          active={editor.isActive("codeBlock")}
-          shortcut="Ctrl+Alt+C"
-        />
-      </DropdownMenu>
+      {isMediumFull && (
+        <ToolbarButton onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive("blockquote")} title={t("toolbar.quote")}>
+          <QuoteIcon className="w-4 h-4" />
+        </ToolbarButton>
+      )}
 
-      <DropdownMenu
-        trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.image")}>
-            <ImageIcon className="w-4 h-4" />
-            <ChevronDown className="w-3 h-3" />
-          </ToolbarButton>
-        }
-      >
-        {showImageInput ? (
-          <ImageInput
-            onSubmit={(url, alt) => {
-              editor.chain().focus().setImage({ src: url, alt }).run();
-              setShowImageInput(false);
-            }}
-            onCancel={() => setShowImageInput(false)}
+      {isFull && (
+        <DropdownMenu
+          trigger={
+            <ToolbarButton onClick={() => {}} title={t("toolbar.quote")}>
+              <QuoteIcon className="w-4 h-4" />
+              <ChevronDown className="w-3 h-3" />
+            </ToolbarButton>
+          }
+        >
+          <DropdownMenuItem
+            icon={QuoteIcon}
+            label={t("toolbar.quote")}
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            active={editor.isActive("blockquote")}
+            shortcut="Ctrl+Shift+B"
           />
-        ) : (
-          <>
-            <DropdownMenuItem icon={LinkIcon} label={t("imageInput.addFromUrl")} onClick={() => setShowImageInput(true)} closeOnSelect={false} />
-            <DropdownMenuItem
-              icon={Upload}
-              label={isUploadingImage ? t("imageInput.uploading") : t("imageInput.uploadTab")}
-              disabled={isUploadingImage}
-              onClick={() => fileInputRef.current?.click()}
-              closeOnSelect={false}
-            />
-            {imageUploadError && <DropdownMenuItem label={imageUploadError} disabled destructive />}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={(e) => {
-                const files = Array.from(e.target.files ?? []);
-                e.target.value = "";
-                void insertImageFiles(files);
-              }}
-            />
-            <div className="my-1 border-t" />
-            <DropdownMenuItem
-              icon={AlignCenter}
-              label={t("toolbar.imageLayoutBlock")}
-              onClick={() => applyImageLayout(editor, "block")}
-              active={isImageSelected && imageLayout === "block"}
-              disabled={!isImageSelected}
-            />
-            <DropdownMenuItem
-              icon={AlignLeft}
-              label={t("toolbar.imageLayoutLeft")}
-              onClick={() => applyImageLayout(editor, "left")}
-              active={isImageSelected && imageLayout === "left"}
-              disabled={!isImageSelected}
-            />
-            <DropdownMenuItem
-              icon={AlignRight}
-              label={t("toolbar.imageLayoutRight")}
-              onClick={() => applyImageLayout(editor, "right")}
-              active={isImageSelected && imageLayout === "right"}
-              disabled={!isImageSelected}
-            />
-            <div className="my-1 border-t" />
-            <DropdownMenuItem
-              label={t("toolbar.imageWidthSm")}
-              onClick={() => applyImageWidthPreset(editor, "sm")}
-              active={isImageSelected && imageWidthPreset === "sm"}
-              disabled={!isImageSelected}
-            />
-            <DropdownMenuItem
-              label={t("toolbar.imageWidthMd")}
-              onClick={() => applyImageWidthPreset(editor, "md")}
-              active={isImageSelected && imageWidthPreset === "md"}
-              disabled={!isImageSelected}
-            />
-            <DropdownMenuItem
-              label={t("toolbar.imageWidthLg")}
-              onClick={() => applyImageWidthPreset(editor, "lg")}
-              active={isImageSelected && imageWidthPreset === "lg"}
-              disabled={!isImageSelected}
-            />
-            <div className="my-1 border-t" />
-            <DropdownMenuItem
-              icon={RotateCcw}
-              label={t("toolbar.imageResetSize")}
-              onClick={() => resetImageSize(editor)}
-              disabled={!isImageSelected}
-            />
-            <DropdownMenuItem
-              icon={Trash2}
-              label={t("toolbar.imageDelete")}
-              onClick={() => deleteSelectedImage(editor)}
-              disabled={!isImageSelected}
-              destructive
-            />
-          </>
-        )}
-      </DropdownMenu>
+          <DropdownMenuItem
+            icon={FileCode}
+            label={t("toolbar.codeBlock")}
+            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            active={editor.isActive("codeBlock")}
+            shortcut="Ctrl+Alt+C"
+          />
+        </DropdownMenu>
+      )}
 
-      <DropdownMenu
-        isOpen={isTableMenuOpen}
-        onOpenChange={(open) => {
-          setIsTableMenuOpen(open);
-          tableCommandAnchorPosRef.current = open ? getTableAnchorPos(editor) : null;
-        }}
-        trigger={
-          <ToolbarButton onClick={() => {}} title={t("toolbar.table")}>
-            <TableIcon className="w-4 h-4" />
-            <ChevronDown className="w-3 h-3" />
-          </ToolbarButton>
-        }
-        contentClassName="p-2 min-w-56"
-      >
-        <TableInsertGrid
-          insertLabel={t("tableMenu.insertTable")}
-          previewTemplate={t("tableMenu.gridPreview")}
-          onInsert={(rows, cols) => {
-            editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
-            setIsTableMenuOpen(false);
+      {(isMediumFull || isFull) && (
+        <DropdownMenu
+          trigger={
+            <ToolbarButton onClick={() => {}} title={t("toolbar.image")}>
+              <ImageIcon className="w-4 h-4" />
+              <ChevronDown className="w-3 h-3" />
+            </ToolbarButton>
+          }
+        >
+          {showImageInput ? (
+            <ImageInput
+              onSubmit={(url, alt) => {
+                editor.chain().focus().setImage({ src: url, alt }).run();
+                setShowImageInput(false);
+              }}
+              onCancel={() => setShowImageInput(false)}
+            />
+          ) : (
+            <>
+              <DropdownMenuItem icon={LinkIcon} label={t("imageInput.addFromUrl")} onClick={() => setShowImageInput(true)} closeOnSelect={false} />
+              <DropdownMenuItem
+                icon={Upload}
+                label={isUploadingImage ? t("imageInput.uploading") : t("imageInput.uploadTab")}
+                disabled={isUploadingImage}
+                onClick={() => fileInputRef.current?.click()}
+                closeOnSelect={false}
+              />
+              {imageUploadError && <DropdownMenuItem label={imageUploadError} disabled destructive />}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  const files = Array.from(e.target.files ?? []);
+                  e.target.value = "";
+                  void insertImageFiles(files);
+                }}
+              />
+              <div className="my-1 border-t" />
+              <DropdownMenuItem
+                icon={AlignCenter}
+                label={t("toolbar.imageLayoutBlock")}
+                onClick={() => applyImageLayout(editor, "block")}
+                active={isImageSelected && imageLayout === "block"}
+                disabled={!isImageSelected}
+              />
+              <DropdownMenuItem
+                icon={AlignLeft}
+                label={t("toolbar.imageLayoutLeft")}
+                onClick={() => applyImageLayout(editor, "left")}
+                active={isImageSelected && imageLayout === "left"}
+                disabled={!isImageSelected}
+              />
+              <DropdownMenuItem
+                icon={AlignRight}
+                label={t("toolbar.imageLayoutRight")}
+                onClick={() => applyImageLayout(editor, "right")}
+                active={isImageSelected && imageLayout === "right"}
+                disabled={!isImageSelected}
+              />
+              <div className="my-1 border-t" />
+              <DropdownMenuItem
+                label={t("toolbar.imageWidthSm")}
+                onClick={() => applyImageWidthPreset(editor, "sm")}
+                active={isImageSelected && imageWidthPreset === "sm"}
+                disabled={!isImageSelected}
+              />
+              <DropdownMenuItem
+                label={t("toolbar.imageWidthMd")}
+                onClick={() => applyImageWidthPreset(editor, "md")}
+                active={isImageSelected && imageWidthPreset === "md"}
+                disabled={!isImageSelected}
+              />
+              <DropdownMenuItem
+                label={t("toolbar.imageWidthLg")}
+                onClick={() => applyImageWidthPreset(editor, "lg")}
+                active={isImageSelected && imageWidthPreset === "lg"}
+                disabled={!isImageSelected}
+              />
+              <div className="my-1 border-t" />
+              <DropdownMenuItem
+                icon={RotateCcw}
+                label={t("toolbar.imageResetSize")}
+                onClick={() => resetImageSize(editor)}
+                disabled={!isImageSelected}
+              />
+              <DropdownMenuItem
+                icon={Trash2}
+                label={t("toolbar.imageDelete")}
+                onClick={() => deleteSelectedImage(editor)}
+                disabled={!isImageSelected}
+                destructive
+              />
+            </>
+          )}
+        </DropdownMenu>
+      )}
+
+      {(isMediumFull || isFull) && (
+        <DropdownMenu
+          isOpen={isTableMenuOpen}
+          onOpenChange={(open) => {
+            setIsTableMenuOpen(open);
+            tableCommandAnchorPosRef.current = open ? getTableAnchorPos(editor) : null;
           }}
-        />
-        <div className="my-1 border-t" />
-        <DropdownMenuItem
-          icon={AlignLeft}
-          label={t("tableMenu.alignLeft")}
-          onClick={() => applyTableAlignment(editor, "left", tableCommandAnchorPos)}
-          active={hasTableContext && currentTableAlign === "left"}
-          disabled={!hasTableContext}
-        />
-        <DropdownMenuItem
-          icon={AlignCenter}
-          label={t("tableMenu.alignCenter")}
-          onClick={() => applyTableAlignment(editor, "center", tableCommandAnchorPos)}
-          active={hasTableContext && currentTableAlign === "center"}
-          disabled={!hasTableContext}
-        />
-        <DropdownMenuItem
-          icon={AlignRight}
-          label={t("tableMenu.alignRight")}
-          onClick={() => applyTableAlignment(editor, "right", tableCommandAnchorPos)}
-          active={hasTableContext && currentTableAlign === "right"}
-          disabled={!hasTableContext}
-        />
-        <div className="my-1 border-t" />
-        <DropdownMenuItem
-          icon={ArrowLeft}
-          label={t("tableMenu.addColumnBefore")}
-          onClick={() => editor.chain().focus().addColumnBefore().run()}
-          disabled={!hasTableContext || !editor.can().addColumnBefore()}
-        />
-        <DropdownMenuItem
-          icon={ArrowDown}
-          label={t("tableMenu.addColumnAfter")}
-          onClick={() => editor.chain().focus().addColumnAfter().run()}
-          disabled={!hasTableContext || !editor.can().addColumnAfter()}
-        />
-        <DropdownMenuItem
-          icon={ArrowUp}
-          label={t("tableMenu.addRowBefore")}
-          onClick={() => editor.chain().focus().addRowBefore().run()}
-          disabled={!hasTableContext || !editor.can().addRowBefore()}
-        />
-        <DropdownMenuItem
-          icon={ArrowRight}
-          label={t("tableMenu.addRowAfter")}
-          onClick={() => editor.chain().focus().addRowAfter().run()}
-          disabled={!hasTableContext || !editor.can().addRowAfter()}
-        />
-        <div className="my-1 border-t" />
-        <DropdownMenuItem
-          icon={TableIcon}
-          label={t("tableMenu.toggleHeaderRow")}
-          onClick={() => editor.chain().focus().toggleHeaderRow().run()}
-          disabled={!hasTableContext || !editor.can().toggleHeaderRow()}
-        />
-        <DropdownMenuItem
-          icon={TableIcon}
-          label={t("tableMenu.toggleHeaderColumn")}
-          onClick={() => editor.chain().focus().toggleHeaderColumn().run()}
-          disabled={!hasTableContext || !editor.can().toggleHeaderColumn()}
-        />
-        <div className="my-1 border-t" />
-        <DropdownMenuItem
-          icon={Trash2}
-          label={t("tableMenu.deleteColumn")}
-          onClick={() => editor.chain().focus().deleteColumn().run()}
-          disabled={!hasTableContext || !editor.can().deleteColumn()}
-        />
-        <DropdownMenuItem
-          icon={Trash2}
-          label={t("tableMenu.deleteRow")}
-          onClick={() => editor.chain().focus().deleteRow().run()}
-          disabled={!hasTableContext || !editor.can().deleteRow()}
-        />
-        <DropdownMenuItem
-          icon={Trash2}
-          label={t("tableMenu.deleteTable")}
-          onClick={() => editor.chain().focus().deleteTable().run()}
-          disabled={!hasTableContext || !editor.can().deleteTable()}
-        />
-      </DropdownMenu>
+          trigger={
+            <ToolbarButton onClick={() => {}} title={t("toolbar.table")}>
+              <TableIcon className="w-4 h-4" />
+              <ChevronDown className="w-3 h-3" />
+            </ToolbarButton>
+          }
+          contentClassName="p-2 min-w-56"
+        >
+          <TableInsertGrid
+            insertLabel={t("tableMenu.insertTable")}
+            previewTemplate={t("tableMenu.gridPreview")}
+            onInsert={(rows, cols) => {
+              editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+              setIsTableMenuOpen(false);
+            }}
+          />
+          <div className="my-1 border-t" />
+          <DropdownMenuItem
+            icon={AlignLeft}
+            label={t("tableMenu.alignLeft")}
+            onClick={() => applyTableAlignment(editor, "left", tableCommandAnchorPos)}
+            active={hasTableContext && currentTableAlign === "left"}
+            disabled={!hasTableContext}
+          />
+          <DropdownMenuItem
+            icon={AlignCenter}
+            label={t("tableMenu.alignCenter")}
+            onClick={() => applyTableAlignment(editor, "center", tableCommandAnchorPos)}
+            active={hasTableContext && currentTableAlign === "center"}
+            disabled={!hasTableContext}
+          />
+          <DropdownMenuItem
+            icon={AlignRight}
+            label={t("tableMenu.alignRight")}
+            onClick={() => applyTableAlignment(editor, "right", tableCommandAnchorPos)}
+            active={hasTableContext && currentTableAlign === "right"}
+            disabled={!hasTableContext}
+          />
+          <div className="my-1 border-t" />
+          <DropdownMenuItem
+            icon={ArrowLeft}
+            label={t("tableMenu.addColumnBefore")}
+            onClick={() => editor.chain().focus().addColumnBefore().run()}
+            disabled={!hasTableContext || !editor.can().addColumnBefore()}
+          />
+          <DropdownMenuItem
+            icon={ArrowDown}
+            label={t("tableMenu.addColumnAfter")}
+            onClick={() => editor.chain().focus().addColumnAfter().run()}
+            disabled={!hasTableContext || !editor.can().addColumnAfter()}
+          />
+          <DropdownMenuItem
+            icon={ArrowUp}
+            label={t("tableMenu.addRowBefore")}
+            onClick={() => editor.chain().focus().addRowBefore().run()}
+            disabled={!hasTableContext || !editor.can().addRowBefore()}
+          />
+          <DropdownMenuItem
+            icon={ArrowRight}
+            label={t("tableMenu.addRowAfter")}
+            onClick={() => editor.chain().focus().addRowAfter().run()}
+            disabled={!hasTableContext || !editor.can().addRowAfter()}
+          />
+          <div className="my-1 border-t" />
+          <DropdownMenuItem
+            icon={TableIcon}
+            label={t("tableMenu.toggleHeaderRow")}
+            onClick={() => editor.chain().focus().toggleHeaderRow().run()}
+            disabled={!hasTableContext || !editor.can().toggleHeaderRow()}
+          />
+          <DropdownMenuItem
+            icon={TableIcon}
+            label={t("tableMenu.toggleHeaderColumn")}
+            onClick={() => editor.chain().focus().toggleHeaderColumn().run()}
+            disabled={!hasTableContext || !editor.can().toggleHeaderColumn()}
+          />
+          <div className="my-1 border-t" />
+          <DropdownMenuItem
+            icon={Trash2}
+            label={t("tableMenu.deleteColumn")}
+            onClick={() => editor.chain().focus().deleteColumn().run()}
+            disabled={!hasTableContext || !editor.can().deleteColumn()}
+          />
+          <DropdownMenuItem
+            icon={Trash2}
+            label={t("tableMenu.deleteRow")}
+            onClick={() => editor.chain().focus().deleteRow().run()}
+            disabled={!hasTableContext || !editor.can().deleteRow()}
+          />
+          <DropdownMenuItem
+            icon={Trash2}
+            label={t("tableMenu.deleteTable")}
+            onClick={() => editor.chain().focus().deleteTable().run()}
+            disabled={!hasTableContext || !editor.can().deleteTable()}
+          />
+        </DropdownMenu>
+      )}
 
       <ToolbarDivider />
 

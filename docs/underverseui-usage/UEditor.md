@@ -110,7 +110,7 @@ export default function Example() {
 - Reorder drag shows a live target highlight and status badge while you move.
 - Drag the bottom rail or right rail to preview and add multiple rows or columns at once.
 - The table context menu supports add/remove row or column plus header row/column toggles.
-- The bubble menu supports merging selected cells and splitting a merged cell.
+- The bubble menu supports merging selected cells, splitting a merged cell, and setting cell vertical alignment (Top Align, Middle Align, Bottom Align).
 - Toolbar and contextual table menus support aligning the whole table left, center, or right.
 - Columns use TipTap's native resize handles on the right edge of cells.
 - Rows support resize on the bottom edge. Hover near the row boundary to reveal the stronger guide line, then drag vertically.
@@ -162,17 +162,53 @@ await editorRef.current?.prepareContentForSave({ throwOnError: true });
 
 ## Variants
 
-### Notion Style (Default)
+UEditor supports multiple toolbar and layout variants to match different editing requirements:
 
-Full-featured editor with all formatting options:
+### Full / Default / Notion Style (`default` | `full` | `notion`)
+
+The default rich-featured editor variant offering complete formatting controls, including:
+- Font Family, Font Size, Line Height, Letter Spacing
+- Subscript, Superscript, Code Block
+- Tables (with advanced column/row resizing and alignments)
+- Image and Link insertion, emojis, text alignment.
 
 ```tsx
-<UEditor content={content} onChange={setContent} variant="notion" showBubbleMenu />
+<UEditor content={content} onChange={setContent} variant="default" showBubbleMenu />
 ```
 
-### Minimal
+### Medium Full (`medium-full`)
 
-Simple toolbar with essential formatting:
+A balanced variant for blog posts and article creation. Excludes advanced spacing options:
+- Font Size (no Font Family selector)
+- Bold, Italic, Underline, Strike, Inline Code
+- Text/Highlight Colors, Alignment (Left, Center, Right, Justify)
+- Link, Emoji, Blockquote
+- Tables & Images
+
+```tsx
+<UEditor content={content} onChange={setContent} variant="medium-full" />
+```
+
+### Medium (`medium`)
+
+A lightweight variant suitable for emails or basic descriptions:
+- Paragraph / Headings (H1-H3) dropdown
+- Bold, Italic, Underline, Strike
+- Text/Highlight Colors
+- Bullet, Ordered, and Task lists
+- Link
+
+```tsx
+<UEditor content={content} onChange={setContent} variant="medium" />
+```
+
+### Minimal (`minimal`)
+
+A highly compact variant suitable for comment boxes or quick notes:
+- Undo, Redo
+- Bold, Italic
+- Bullet list
+- Link
 
 ```tsx
 <UEditor content={content} onChange={setContent} variant="minimal" />
@@ -209,14 +245,25 @@ Display content without editing capabilities:
 | `showBubbleMenu`     | `boolean`                            | `true`                       | Show bubble menu on text selection.           |
 | `showFloatingMenu`   | `boolean`                            | `false`                      | Show the empty-line floating block menu.      |
 | `showCharacterCount` | `boolean`                            | `true`                       | Show character & word count footer.           |
+| `showFooter`         | `boolean`                            | `true`                       | Show the editor footer.                       |
 | `maxCharacters`      | `number`                             | `undefined`                  | Maximum character limit.                      |
 | `minHeight`          | `number \| string`                   | `"200px"`                    | Minimum height of editor area.                |
 | `maxHeight`          | `number \| string`                   | `"auto"`                     | Maximum height with scroll.                   |
-| `variant`            | `"default" \| "minimal" \| "notion"` | `"default"`                  | UI style variant.                             |
+| `variant`            | `"default" \| "minimal" \| "medium" \| "medium-full" \| "full" \| "notion"` | `"default"` | UI style variant. |
+| `rounded`            | `boolean`                            | `true`                       | Whether the editor has rounded corners.       |
 | `fontFamilies`       | `{ label: string; value: string }[]` | built-in presets             | Override font family options shown in the toolbar. |
 | `fontSizes`          | `{ label: string; value: string }[]` | built-in presets             | Override font size options shown in the toolbar. |
 | `lineHeights`        | `{ label: string; value: string }[]` | built-in presets             | Override line-height options shown in the toolbar. |
 | `letterSpacings`     | `{ label: string; value: string }[]` | built-in presets             | Override letter-spacing options shown in the toolbar. |
+| `showMenuBar`        | `boolean`                            | `false`                      | Show the top menu bar (File, Edit, Insert, etc.). |
+| `onSave`             | `() => void`                         | `undefined`                  | Callback triggered when File > Save or Ctrl+S/Cmd+S is pressed. |
+| `onExport`           | `() => void`                         | `undefined`                  | Callback triggered when File > Export is clicked. |
+| `onSourceCode`       | `() => void`                         | `undefined`                  | Callback triggered when View > Source Code is clicked. |
+| `onPreview`          | `(html: string) => void \| false`    | `undefined`                  | Fires when View > Preview or the eye button is clicked. Return false to prevent default dialog. |
+| `fetchMetadata`      | `(url: string) => Promise<{ title?: string; description?: string; image?: string; publisher?: string }>` | `undefined` | Async fetcher to retrieve bookmark card metadata for links. |
+| `uploadFile`         | `(file: File) => Promise<string> \| string` | `undefined`           | Uploads files immediately for File Cards. |
+| `uploadFileForSave`  | `(file: File) => Promise<string \| ({ url: string } & Record<string, unknown>)>` | `undefined` | Async upload for File Cards during `prepareContentForSave()`. |
+| `extraExtensions`    | `Extension[]`                        | `[]`                         | Additional Tiptap extensions to register. |
 
 ## Ref API
 
@@ -283,6 +330,7 @@ Helper exports for URL matching:
 - **Wrapped Images** (image left/right with text flowing beside it)
 - **Horizontal Divider**
 - **Emojis** (Messenger-style picker + colon autocomplete)
+- **Form Fields** (Checkbox and Radio Button, insertable from the Menu Bar "Insert" > "Form Fields")
 
 ### Emoji Features
 
@@ -331,6 +379,15 @@ UEditor includes a comprehensive emoji system with 740+ emojis:
 - Toggle header row/column
 - Delete table
 - Merge selected cells and split merged cells from the bubble menu
+- Cell vertical alignment (Top, Middle, Bottom align) from the cell bubble menu
+
+### Form Fields (Checkbox / Radio Button)
+
+UEditor supports inserting interactive Form Fields into the document, useful for surveys, templates, and interactive forms:
+- **Checkbox**: A standard boolean toggle element.
+- **Radio Button**: A single-selection group element.
+
+These can be inserted via the Menu Bar: **Insert > Form Fields > Checkbox / Radio Button**.
 
 ### Links
 
