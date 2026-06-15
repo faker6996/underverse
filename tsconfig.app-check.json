@@ -1,12 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "paths": {
-      "@/*": ["./*"],
-      "@underverse-ui/underverse": ["packages/underverse/src/index.ts"],
-      "@tiptap/*": ["./node_modules/@tiptap/*"]
-    }
-  },
   "exclude": [
     "node_modules",
     "app/api/**",

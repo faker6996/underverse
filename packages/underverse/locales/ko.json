@@ -299,7 +299,11 @@
       "apply": "적용",
       "clear": "지우기",
       "recalculate": "다시 계산",
-      "done": "완료"
+      "done": "완료",
+      "alignVertical": "세로 맞춤",
+      "alignVerticalTop": "위쪽 맞춤",
+      "alignVerticalMiddle": "가운데 맞춤",
+      "alignVerticalBottom": "아래쪽 맞춤"
     },
     "callout": {
       "selectEmoji": "이모지 선택",

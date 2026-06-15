@@ -299,7 +299,11 @@
       "apply": "Apply",
       "clear": "Clear",
       "recalculate": "Recalculate",
-      "done": "Done"
+      "done": "Done",
+      "alignVertical": "Vertical Alignment",
+      "alignVerticalTop": "Top Align",
+      "alignVerticalMiddle": "Middle Align",
+      "alignVerticalBottom": "Bottom Align"
     },
     "callout": {
       "selectEmoji": "Select Emoji",

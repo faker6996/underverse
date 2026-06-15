@@ -64,7 +64,7 @@ function getFormulaStateAttributes(attributes: Record<string, any>) {
   };
 }
 
-const CustomTableCell = TableCell.extend({
+export const CustomTableCell = TableCell.extend({
   addAttributes() {
     return {
       ...this.parent?.(),
@@ -150,6 +150,16 @@ const CustomTableCell = TableCell.extend({
           };
         },
       },
+      verticalAlign: {
+        default: null,
+        parseHTML: (element) => element.style.verticalAlign || element.getAttribute("data-vertical-align") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.verticalAlign) return {};
+          return {
+            "data-vertical-align": attributes.verticalAlign,
+          };
+        },
+      },
     };
   },
 
@@ -159,12 +169,14 @@ const CustomTableCell = TableCell.extend({
     const borderColor = HTMLAttributes["data-border-color"];
     const borderStyle = HTMLAttributes["data-border-style"];
     const borderWidth = HTMLAttributes["data-border-width"];
+    const verticalAlign = HTMLAttributes["data-vertical-align"];
 
     let mergedStyle = style;
     if (bg) mergedStyle += `; background-color: ${bg}`;
     if (borderColor) mergedStyle += `; border-color: ${borderColor}`;
     if (borderStyle) mergedStyle += `; border-style: ${borderStyle}`;
     if (borderWidth) mergedStyle += `; border-width: ${borderWidth}`;
+    if (verticalAlign) mergedStyle += `; vertical-align: ${verticalAlign}`;
     mergedStyle = mergedStyle.replace(/^;/, "").trim();
 
     return [
@@ -175,7 +187,7 @@ const CustomTableCell = TableCell.extend({
   },
 });
 
-const CustomTableHeader = TableHeader.extend({
+export const CustomTableHeader = TableHeader.extend({
   addAttributes() {
     return {
       ...this.parent?.(),
@@ -261,6 +273,16 @@ const CustomTableHeader = TableHeader.extend({
           };
         },
       },
+      verticalAlign: {
+        default: null,
+        parseHTML: (element) => element.style.verticalAlign || element.getAttribute("data-vertical-align") || null,
+        renderHTML: (attributes) => {
+          if (!attributes.verticalAlign) return {};
+          return {
+            "data-vertical-align": attributes.verticalAlign,
+          };
+        },
+      },
     };
   },
 
@@ -270,12 +292,14 @@ const CustomTableHeader = TableHeader.extend({
     const borderColor = HTMLAttributes["data-border-color"];
     const borderStyle = HTMLAttributes["data-border-style"];
     const borderWidth = HTMLAttributes["data-border-width"];
+    const verticalAlign = HTMLAttributes["data-vertical-align"];
 
     let mergedStyle = style;
     if (bg) mergedStyle += `; background-color: ${bg}`;
     if (borderColor) mergedStyle += `; border-color: ${borderColor}`;
     if (borderStyle) mergedStyle += `; border-style: ${borderStyle}`;
     if (borderWidth) mergedStyle += `; border-width: ${borderWidth}`;
+    if (verticalAlign) mergedStyle += `; vertical-align: ${verticalAlign}`;
     mergedStyle = mergedStyle.replace(/^;/, "").trim();
 
     return [

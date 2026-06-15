@@ -29,10 +29,14 @@ import {
   ExternalLink,
   Grid,
   Sigma,
+  AlignStartVertical,
+  AlignCenterVertical,
+  AlignEndVertical,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { ToolbarButton } from "./toolbar";
 import { LinkInput } from "./inputs";
+import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu";
 import { CellBgColorIcon, CellBorderIcon, EditorColorPalette, HighlightColorIcon, TextColorIcon, useEditorColors } from "./colors";
 import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
 import { buildSlashCommandItems, buildSlashCommandMessages, SlashCommandList, type SlashCommandListRef } from "./slash-command";
@@ -204,6 +208,8 @@ const BubbleMenuContent = ({
     normalizeStyleValue(editor.getAttributes("tableCell").numberFormat || editor.getAttributes("tableHeader").numberFormat) || "text";
   const currentCellBorderStyle = editor.getAttributes("tableCell").borderStyle || editor.getAttributes("tableHeader").borderStyle || "solid";
   const currentCellBorderWidth = editor.getAttributes("tableCell").borderWidth || editor.getAttributes("tableHeader").borderWidth || "1px";
+  const currentCellVerticalAlign =
+    normalizeStyleValue(editor.getAttributes("tableCell").verticalAlign || editor.getAttributes("tableHeader").verticalAlign) || "";
   const isInTable = isSelectionInTable(editor.state);
   const canMergeCells = isInTable && editor.can().mergeCells();
   const canSplitCell = isInTable && editor.can().splitCell();
@@ -752,6 +758,13 @@ const BubbleMenuContent = ({
     );
   }
 
+  const VerticalAlignActiveIcon =
+    currentCellVerticalAlign === "middle"
+      ? AlignCenterVertical
+      : currentCellVerticalAlign === "bottom"
+      ? AlignEndVertical
+      : AlignStartVertical;
+
   return (
     <div className="flex items-center gap-0.5 p-1">
       <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("toolbar.bold")}>
@@ -853,6 +866,42 @@ const BubbleMenuContent = ({
           >
             <TableCellsMerge className="w-4 h-4" />
           </ToolbarButton>
+          <DropdownMenu
+            onOpenChange={(open) => {
+              onKeepOpenChange?.(open);
+            }}
+            trigger={
+              <ToolbarButton
+                onMouseDown={() => {
+                  onKeepOpenChange?.(true);
+                }}
+                onClick={() => {}}
+                title={t("tableMenu.alignVertical") || "Vertical alignment"}
+              >
+                <VerticalAlignActiveIcon className="w-4 h-4" />
+                <ChevronDown className="w-3 h-3" />
+              </ToolbarButton>
+            }
+          >
+            <DropdownMenuItem
+              icon={AlignStartVertical}
+              label={t("tableMenu.alignVerticalTop") || "Align top"}
+              onClick={() => applyTableCellAttribute(editor, "verticalAlign", "top", { focus: false })}
+              active={currentCellVerticalAlign === "top"}
+            />
+            <DropdownMenuItem
+              icon={AlignCenterVertical}
+              label={t("tableMenu.alignVerticalMiddle") || "Align middle"}
+              onClick={() => applyTableCellAttribute(editor, "verticalAlign", "middle", { focus: false })}
+              active={currentCellVerticalAlign === "middle"}
+            />
+            <DropdownMenuItem
+              icon={AlignEndVertical}
+              label={t("tableMenu.alignVerticalBottom") || "Align bottom"}
+              onClick={() => applyTableCellAttribute(editor, "verticalAlign", "bottom", { focus: false })}
+              active={currentCellVerticalAlign === "bottom"}
+            />
+          </DropdownMenu>
         </>
       )}
 

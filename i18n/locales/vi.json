@@ -1521,7 +1521,11 @@
       "borderWidth": "Độ dày viền",
       "borderColor": "Màu viền",
       "clearBorder": "Xóa viền",
-      "done": "Xong"
+      "done": "Xong",
+      "alignVertical": "Căn lề dọc",
+      "alignVerticalTop": "Căn trên",
+      "alignVerticalMiddle": "Căn giữa",
+      "alignVerticalBottom": "Căn dưới"
     },
     "callout": {
       "selectEmoji": "Chọn Biểu tượng",

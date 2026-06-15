@@ -42,7 +42,11 @@ import {
   Underline as UnderlineIcon,
   Undo as UndoIcon,
   Upload,
+  AlignStartVertical,
+  AlignCenterVertical,
+  AlignEndVertical,
 } from "lucide-react";
+import { setCellAttr } from "@tiptap/pm/tables";
 import { cn } from "../../utils/cn";
 import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu";
 import { Tooltip } from "../Tooltip";
@@ -199,6 +203,18 @@ export const TableInsertGrid = ({
   );
 };
 
+function applyTableCellAttribute(editor: Editor, name: string, value: string | null) {
+  const { state, view } = editor;
+  const applied = setCellAttr(name, value)(state, view.dispatch.bind(view));
+
+  if (applied) {
+    view.focus();
+    return;
+  }
+
+  editor.chain().focus().setCellAttribute(name, value).run();
+}
+
 export const EditorToolbar = ({
   editor,
   variant,
@@ -262,6 +278,8 @@ export const EditorToolbar = ({
   const hasTableContext = isTableSelected || tableCommandAnchorPosRef.current !== null;
   const canMergeCells = hasTableContext && editor.can().mergeCells();
   const canSplitCell = hasTableContext && editor.can().splitCell();
+  const currentCellVerticalAlign =
+    normalizeStyleValue(editor.getAttributes("tableCell").verticalAlign || editor.getAttributes("tableHeader").verticalAlign) || "";
   const currentFontFamily = normalizeStyleValue(textStyleAttrs.fontFamily);
   const currentFontSize = normalizeStyleValue(textStyleAttrs.fontSize);
   const currentTextColor = normalizeStyleValue(textStyleAttrs.color) || "inherit";
@@ -333,6 +351,13 @@ export const EditorToolbar = ({
       </div>
     );
   }
+
+  const VerticalAlignActiveIcon =
+    currentCellVerticalAlign === "middle"
+      ? AlignCenterVertical
+      : currentCellVerticalAlign === "bottom"
+      ? AlignEndVertical
+      : AlignStartVertical;
 
   return (
     <div className="flex flex-wrap items-center gap-0.5 border-b border-border/35 bg-linear-to-r from-muted/25 to-transparent p-1.5">
@@ -638,6 +663,29 @@ export const EditorToolbar = ({
           onClick={() => editor.chain().focus().setTextAlign("justify").run()}
           active={editor.isActive({ textAlign: "justify" })}
         />
+        {hasTableContext && (
+          <>
+            <div className="my-1 border-t" />
+            <DropdownMenuItem
+              icon={AlignStartVertical}
+              label={t("tableMenu.alignVerticalTop") || "Align top"}
+              onClick={() => applyTableCellAttribute(editor, "verticalAlign", "top")}
+              active={currentCellVerticalAlign === "top"}
+            />
+            <DropdownMenuItem
+              icon={AlignCenterVertical}
+              label={t("tableMenu.alignVerticalMiddle") || "Align middle"}
+              onClick={() => applyTableCellAttribute(editor, "verticalAlign", "middle")}
+              active={currentCellVerticalAlign === "middle"}
+            />
+            <DropdownMenuItem
+              icon={AlignEndVertical}
+              label={t("tableMenu.alignVerticalBottom") || "Align bottom"}
+              onClick={() => applyTableCellAttribute(editor, "verticalAlign", "bottom")}
+              active={currentCellVerticalAlign === "bottom"}
+            />
+          </>
+        )}
       </DropdownMenu>
 
       <ToolbarDivider />

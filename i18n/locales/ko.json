@@ -1443,7 +1443,11 @@
       "borderWidth": "테두리 두께",
       "borderColor": "테두리 색상",
       "clearBorder": "테두리 지우기",
-      "done": "완료"
+      "done": "완료",
+      "alignVertical": "세로 맞춤",
+      "alignVerticalTop": "위쪽 맞춤",
+      "alignVerticalMiddle": "가운데 맞춤",
+      "alignVerticalBottom": "아래쪽 맞춤"
     },
     "callout": {
       "selectEmoji": "이모지 선택",

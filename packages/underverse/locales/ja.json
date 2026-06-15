@@ -299,7 +299,11 @@
       "apply": "適用",
       "clear": "クリア",
       "recalculate": "再計算",
-      "done": "完了"
+      "done": "完了",
+      "alignVertical": "垂直揃え",
+      "alignVerticalTop": "上揃え",
+      "alignVerticalMiddle": "上下中央揃え",
+      "alignVerticalBottom": "下揃え"
     },
     "callout": {
       "selectEmoji": "絵文字を選択",
