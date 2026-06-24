@@ -2,14 +2,15 @@
 
 Source: `packages/underverse/src/components/EmojiPicker.tsx`
 
-A standalone Messenger-style emoji picker component with 740+ emojis, search functionality, localized defaults, and auto-highlighting category navigation.
+A premium, highly-polished standalone emoji picker component featuring 740+ high-fidelity Apple Glossy emojis, advanced search functionality, localized defaults, and auto-highlighting category navigation.
 
 ## Features
 
-- 🎨 **Messenger-Style Design** - All categories in a single scrollable list
-- 🔍 **Real-time Search** - Search emojis by name
+- 🍎 **Apple Glossy Emojis** - CDN-powered rendering ensuring gorgeous, identical 3D emojis on every device and operating system
+- 🧪 **Glassmorphism Container** - Ultra-modern, premium look with `backdrop-blur-2xl`, smooth border opacity, and soft shadow casting
+- 🔍 **Real-time Search** - High-speed filter with smooth hover scaling micro-interactions
 - 🌐 **Locale-Aware Defaults** - Uses the active Underverse locale via `TranslationProvider`, `NextIntlAdapter`, or document language fallback
-- 📱 **Responsive Grid** - Customizable column layout
+- 📱 **Responsive Grid** - Customizable column layout with fluid flex layout
 - 🎯 **Auto-Highlighting** - Category icons highlight based on scroll position
 - ⚡ **Smooth Scrolling** - Click category icon to scroll to section
 - 🌍 **740+ Emojis** - Organized in 7 categories
@@ -301,8 +302,10 @@ Works in all modern browsers with emoji support:
 
 ## Notes
 
-- Emojis are rendered using native system fonts
-- Appearance may vary across different operating systems
+- Emojis are rendered using high-quality Apple Glossy images hosted on jsDelivr CDN
+- Unified visual experience across all operating systems and browsers (Windows, Linux, macOS, iOS, Android)
+- Built-in fallback to native system unicode characters in case of CDN fetch issues
+- Fully integrated with custom Rich Input fields (contenteditable) to display glossy emojis inline
 - Search is case-insensitive and matches emoji names
 - Category icons use Lucide React icons
 

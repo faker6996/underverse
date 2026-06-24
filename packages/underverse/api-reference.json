@@ -2,7 +2,7 @@
   "package": "@underverse-ui/underverse",
   "version": "1.0.165",
   "sourceEntry": "src/index.ts",
-  "totalExports": 232,
+  "totalExports": 235,
   "exports": [
     {
       "name": "*",
@@ -639,6 +639,20 @@
       "local": false
     },
     {
+      "name": "getEmojiImageUrl",
+      "kind": "value",
+      "source": "./components/emoji-ui",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "getEmojiUnifiedCode",
+      "kind": "value",
+      "source": "./components/emoji-ui",
+      "reexport": true,
+      "local": false
+    },
+    {
       "name": "getUnderverseMessages",
       "kind": "value",
       "source": null,
@@ -1105,6 +1119,13 @@
       "name": "SelectDropdown",
       "kind": "value",
       "source": "./components/DropdownMenu",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "setEmojiBaseUrl",
+      "kind": "value",
+      "source": "./components/emoji-ui",
       "reexport": true,
       "local": false
     },

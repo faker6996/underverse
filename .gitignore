@@ -43,3 +43,6 @@ output/
 *.local
 *.log
 *.tgz
+
+# Emojis local asset assets
+public/emojis/
