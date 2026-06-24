@@ -300,12 +300,38 @@ Works in all modern browsers with emoji support:
 - Safari 14+
 - Mobile browsers (iOS Safari, Chrome Mobile)
 
+## Assets Hosting & Offline Support
+
+By default, the package retrieves emoji images from the internal Underverse CDN:
+`https://underverse.infiniq.com.vn/emojis/`
+
+To use a custom CDN, or run completely offline with local self-hosted assets in other projects:
+
+### 1. Copy Emojis to Public Folder
+Add a `postinstall` script to your project's `package.json` to automatically copy the bundled emojis from the package to your public directory after installation:
+
+```json
+"scripts": {
+  "postinstall": "cp -r node_modules/@underverse-ui/underverse/emojis public/emojis"
+}
+```
+
+### 2. Configure Base URL
+In your application entry point (e.g. `layout.tsx` or `index.js`), call `setEmojiBaseUrl`:
+
+```typescript
+import { setEmojiBaseUrl } from "@underverse-ui/underverse";
+
+// Point to your local public path or custom CDN
+setEmojiBaseUrl("/emojis");
+```
+
 ## Notes
 
-- Emojis are rendered using high-quality Apple Glossy images hosted on jsDelivr CDN
+- Emojis are rendered using high-quality Apple Glossy images hosted on your CDN / static server
 - Unified visual experience across all operating systems and browsers (Windows, Linux, macOS, iOS, Android)
-- Built-in fallback to native system unicode characters in case of CDN fetch issues
-- Fully integrated with custom Rich Input fields (contenteditable) to display glossy emojis inline
+- Built-in fallback to native system unicode characters in case of network issues
+- Fully integrated with custom Rich Input fields (`contenteditable`) to display glossy emojis inline
 - Search is case-insensitive and matches emoji names
 - Category icons use Lucide React icons
 

@@ -32,7 +32,8 @@
     "AGENTS.md",
     "api-reference.json",
     "llms.txt",
-    "agent-recipes.json"
+    "agent-recipes.json",
+    "emojis"
   ],
   "sideEffects": false,
   "scripts": {
