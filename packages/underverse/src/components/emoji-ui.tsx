@@ -33,7 +33,7 @@ export function getEmojiUnifiedCode(emoji: string): string {
   return codePoints.join("-");
 }
 
-let globalEmojiBaseUrl = "https://underverse.infiniq.com.vn/emojis";
+let globalEmojiBaseUrl = "/emojis";
 
 /**
  * Configure a custom base URL for loading emoji image assets (e.g. `/emojis` for local offline storage).

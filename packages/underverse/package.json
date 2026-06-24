@@ -33,10 +33,12 @@
     "api-reference.json",
     "llms.txt",
     "agent-recipes.json",
-    "emojis"
+    "emojis",
+    "scripts/copy-emojis.mjs"
   ],
   "sideEffects": false,
   "scripts": {
+    "postinstall": "node ./scripts/copy-emojis.mjs",
     "dev": "tsup --config tsup.config.ts --watch",
     "typecheck": "tsc -p tsconfig.tsup.json --noEmit --incremental false",
     "generate:api": "node ./scripts/generate-api-reference.mjs",

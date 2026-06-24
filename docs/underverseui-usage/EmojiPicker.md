@@ -302,28 +302,22 @@ Works in all modern browsers with emoji support:
 
 ## Assets Hosting & Offline Support
 
-By default, the package retrieves emoji images from the internal Underverse CDN:
-`https://underverse.infiniq.com.vn/emojis/`
+The `@underverse-ui/underverse` package is built to be **fully offline-first and zero-configuration**:
 
-To use a custom CDN, or run completely offline with local self-hosted assets in other projects:
+### 1. Automatic Copy Setup
+When you install `@underverse-ui/underverse` via npm, the package automatically runs a `postinstall` script to copy all Apple Glossy emoji assets into your project's `/public/emojis/` directory.
 
-### 1. Copy Emojis to Public Folder
-Add a `postinstall` script to your project's `package.json` to automatically copy the bundled emojis from the package to your public directory after installation:
+### 2. Default Resolution
+By default, the components resolve emojis from the `/emojis/` path. Since the assets are copied automatically to your public folder, the picker works offline out of the box without any setup.
 
-```json
-"scripts": {
-  "postinstall": "cp -r node_modules/@underverse-ui/underverse/emojis public/emojis"
-}
-```
-
-### 2. Configure Base URL
-In your application entry point (e.g. `layout.tsx` or `index.js`), call `setEmojiBaseUrl`:
+### 3. Custom Base URL (Optional)
+If your project hosts these static assets on a custom CDN or a different path, you can customize the base URL in your application entry point (e.g. `layout.tsx` or `index.js`):
 
 ```typescript
 import { setEmojiBaseUrl } from "@underverse-ui/underverse";
 
-// Point to your local public path or custom CDN
-setEmojiBaseUrl("/emojis");
+// Override to a custom CDN or path
+setEmojiBaseUrl("https://my-cdn.com/emojis");
 ```
 
 ## Notes
