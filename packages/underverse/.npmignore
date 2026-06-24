@@ -1,0 +1,12 @@
+# Ignore local build settings and source files in package tarball
+node_modules/
+tests/
+tsconfig.tsup.json
+.test-build/
+*.tsbuildinfo
+*.log
+.DS_Store
+src/
+scripts/release.mjs
+scripts/verify-agent-metadata.mjs
+scripts/generate-api-reference.mjs
