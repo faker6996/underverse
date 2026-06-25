@@ -34,11 +34,13 @@
     "llms.txt",
     "agent-recipes.json",
     "emojis",
-    "scripts/copy-emojis.mjs"
+    "scripts/copy-emojis.mjs",
+    "stickers",
+    "scripts/copy-stickers.mjs"
   ],
   "sideEffects": false,
   "scripts": {
-    "postinstall": "node ./scripts/copy-emojis.mjs",
+    "postinstall": "node ./scripts/copy-emojis.mjs && node ./scripts/copy-stickers.mjs",
     "dev": "tsup --config tsup.config.ts --watch",
     "typecheck": "tsc -p tsconfig.tsup.json --noEmit --incremental false",
     "generate:api": "node ./scripts/generate-api-reference.mjs",
@@ -57,6 +59,7 @@
     "test:ueditor-ui": "node --test ./tests/ueditor.interaction.test.mjs",
     "test:public-api": "node --test ./tests/public-api-smoke.test.mjs",
     "test:components-smoke": "node --test ./tests/components-smoke.test.mjs",
+    "test:sticker-ui": "node --test ./tests/sticker.interaction.test.mjs",
     "test:smoke": "npm run test:public-api && npm run test:components-smoke",
     "build": "npm run typecheck && npm run check:boundaries && npm run generate:api && tsup --config tsup.config.ts",
     "clean": "rimraf dist",

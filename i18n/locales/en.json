@@ -295,6 +295,9 @@
       "emojiPicker": {
         "title": "EmojiPicker"
       },
+      "stickerPicker": {
+        "title": "StickerPicker"
+      },
       "pagination": {
         "title": "Pagination (with i18n)"
       },
@@ -1465,6 +1468,21 @@
       "addBtn": "Add Image",
       "cancelBtn": "Cancel",
       "addFromUrl": "Add from URL"
+    },
+    "emojiPicker": {
+      "searchPlaceholder": "Search emoji",
+      "noResults": "No emoji found",
+      "tryDifferentSearch": "Try a different keyword"
+    },
+    "stickerPicker": {
+      "searchPlaceholder": "Search stickers",
+      "noResults": "No stickers found",
+      "tryDifferentSearch": "Try a different keyword"
+    },
+    "emojiSuggestion": {
+      "title": "Emoji",
+      "noResults": "No emoji found",
+      "showingCount": "Showing first {shown} of {total} emojis"
     },
     "tableMenu": {
       "insert3x3": "Insert 3×3 Table",

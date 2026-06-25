@@ -285,6 +285,9 @@
       "emojiPicker": {
         "title": "EmojiPicker"
       },
+      "stickerPicker": {
+        "title": "StickerPicker"
+      },
       "pagination": {
         "title": "Pagination (with i18n)"
       },
@@ -1420,6 +1423,21 @@
       "addBtn": "이미지 추가",
       "cancelBtn": "취소",
       "addFromUrl": "URL에서 추가"
+    },
+    "emojiPicker": {
+      "searchPlaceholder": "이모지 검색",
+      "noResults": "이모지를 찾을 수 없습니다",
+      "tryDifferentSearch": "다른 검색어를 시도해 보세요"
+    },
+    "stickerPicker": {
+      "searchPlaceholder": "스티커 검색",
+      "noResults": "검색된 스티커가 없습니다.",
+      "tryDifferentSearch": "다른 검색어를 시도해 보세요"
+    },
+    "emojiSuggestion": {
+      "title": "이모지",
+      "noResults": "이모지를 찾을 수 없습니다",
+      "showingCount": "총 {total}개 중 처음 {shown}개의 이모지를 표시 중"
     },
     "tableMenu": {
       "insert3x3": "3x3 표 삽입",

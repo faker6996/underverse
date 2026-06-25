@@ -244,6 +244,11 @@
       "noResults": "絵文字が見つかりません",
       "tryDifferentSearch": "別のキーワードでお試しください"
     },
+    "stickerPicker": {
+      "searchPlaceholder": "ステッカーを検索",
+      "noResults": "ステッカーが見つかりません",
+      "tryDifferentSearch": "別のキーワードでお試しください"
+    },
     "emojiSuggestion": {
       "title": "絵文字",
       "noResults": "絵文字が見つかりません",

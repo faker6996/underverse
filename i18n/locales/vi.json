@@ -288,6 +288,9 @@
       "emojiPicker": {
         "title": "EmojiPicker"
       },
+      "stickerPicker": {
+        "title": "StickerPicker"
+      },
       "pagination": {
         "title": "Pagination (with i18n)"
       },
@@ -1498,6 +1501,21 @@
       "addBtn": "Thêm ảnh",
       "cancelBtn": "Hủy",
       "addFromUrl": "Thêm từ URL"
+    },
+    "emojiPicker": {
+      "searchPlaceholder": "Tìm kiếm biểu tượng cảm xúc",
+      "noResults": "Không tìm thấy emoji",
+      "tryDifferentSearch": "Thử từ khóa khác"
+    },
+    "stickerPicker": {
+      "searchPlaceholder": "Tìm kiếm nhãn dán",
+      "noResults": "Không tìm thấy nhãn dán nào",
+      "tryDifferentSearch": "Thử từ khóa khác"
+    },
+    "emojiSuggestion": {
+      "title": "Emoji",
+      "noResults": "Không tìm thấy emoji",
+      "showingCount": "Hiển thị {shown} trong tổng số {total} emoji"
     },
     "tableMenu": {
       "insert3x3": "Chèn bảng 3×3",

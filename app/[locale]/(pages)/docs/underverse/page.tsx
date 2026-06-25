@@ -79,6 +79,7 @@ const DocGroupSection = dynamicImport(() => import("./_components/DocGroupSectio
 const DonationCard = dynamicImport(() => import("./_components/DonationCard"), { ssr: false });
 const UEditorExample = dynamicImport(() => import("./_examples/UEditorExample"), { ssr: false });
 const EmojiPickerExample = dynamicImport(() => import("./_examples/EmojiPickerExample"), { ssr: false });
+const StickerPickerExample = dynamicImport(() => import("./_examples/StickerPickerExample"), { ssr: false });
 
 export default function UnderverseGuidePage() {
   return <DocsContent />;
@@ -279,6 +280,10 @@ function DocsInner() {
 
               <DocSection id="emoji-picker" title={t("sections.emojiPicker.title")}>
                 <EmojiPickerExample />
+              </DocSection>
+
+              <DocSection id="sticker-picker" title={t("sections.stickerPicker.title")}>
+                <StickerPickerExample />
               </DocSection>
 
               <DocSection id="combobox" title={t("sections.combobox.title")}>

@@ -37,6 +37,12 @@ export { default as EmojiPicker } from "./components/EmojiPicker";
 export type { EmojiPickerProps } from "./components/EmojiPicker";
 /** Emoji image resolution helpers and path config functions. */
 export { getEmojiImageUrl, setEmojiBaseUrl, getEmojiUnifiedCode } from "./components/emoji-ui";
+/** Sticker picker with search and pack navigation. */
+export { default as StickerPicker } from "./components/StickerPicker";
+/** Public props for the `StickerPicker` component. */
+export type { StickerPickerProps } from "./components/StickerPicker";
+/** Sticker image resolution helpers and path config functions. */
+export { getStickerImageUrl, setStickerBaseUrl } from "./components/sticker-ui";
 /** Tag input for editable token lists with keyboard-friendly entry and removal. */
 export { default as TagInput, TagInput as TagInputBase } from "./components/TagInput";
 /** Public props for the `TagInput` component. */

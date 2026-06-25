@@ -285,6 +285,9 @@
       "emojiPicker": {
         "title": "EmojiPicker"
       },
+      "stickerPicker": {
+        "title": "StickerPicker"
+      },
       "pagination": {
         "title": "Pagination (with i18n)"
       },
@@ -1420,6 +1423,21 @@
       "addBtn": "画像を追加",
       "cancelBtn": "キャンセル",
       "addFromUrl": "URLから追加"
+    },
+    "emojiPicker": {
+      "searchPlaceholder": "絵文字を検索",
+      "noResults": "絵文字が見つかりません",
+      "tryDifferentSearch": "別のキーワードでお試しください"
+    },
+    "stickerPicker": {
+      "searchPlaceholder": "ステッカーを検索",
+      "noResults": "ステッカーが見つかりません",
+      "tryDifferentSearch": "別のキーワードでお試しください"
+    },
+    "emojiSuggestion": {
+      "title": "絵文字",
+      "noResults": "絵文字が見つかりません",
+      "showingCount": "{total} 件中 {shown} 件の絵文字を表示中"
     },
     "tableMenu": {
       "insert3x3": "3x3 表を挿入",

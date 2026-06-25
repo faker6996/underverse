@@ -2,7 +2,7 @@
   "package": "@underverse-ui/underverse",
   "version": "1.0.170",
   "sourceEntry": "src/index.ts",
-  "totalExports": 235,
+  "totalExports": 239,
   "exports": [
     {
       "name": "*",
@@ -653,6 +653,13 @@
       "local": false
     },
     {
+      "name": "getStickerImageUrl",
+      "kind": "value",
+      "source": "./components/sticker-ui",
+      "reexport": true,
+      "local": false
+    },
+    {
       "name": "getUnderverseMessages",
       "kind": "value",
       "source": null,
@@ -1130,6 +1137,13 @@
       "local": false
     },
     {
+      "name": "setStickerBaseUrl",
+      "kind": "value",
+      "source": "./components/sticker-ui",
+      "reexport": true,
+      "local": false
+    },
+    {
       "name": "shadcnAnimationStyles",
       "kind": "value",
       "source": "./utils/animations",
@@ -1254,6 +1268,21 @@
       "name": "StatusBadge",
       "kind": "value",
       "source": "./components/Badge",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "StickerPicker",
+      "kind": "value",
+      "source": "./components/StickerPicker",
+      "reexport": true,
+      "local": false,
+      "aliasOf": "default"
+    },
+    {
+      "name": "StickerPickerProps",
+      "kind": "type",
+      "source": "./components/StickerPicker",
       "reexport": true,
       "local": false
     },

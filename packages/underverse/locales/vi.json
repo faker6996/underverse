@@ -244,6 +244,11 @@
       "noResults": "Không tìm thấy emoji",
       "tryDifferentSearch": "Thử từ khóa khác"
     },
+    "stickerPicker": {
+      "searchPlaceholder": "Tìm kiếm nhãn dán",
+      "noResults": "Không tìm thấy nhãn dán nào",
+      "tryDifferentSearch": "Thử từ khóa khác"
+    },
     "emojiSuggestion": {
       "title": "Emoji",
       "noResults": "Không tìm thấy emoji",
