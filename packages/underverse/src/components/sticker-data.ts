@@ -1,6 +1,8 @@
 export interface Sticker {
   id: string;
   name: string;
+  ext?: string;
+  animation?: "bounce" | "wiggle" | "spin" | "pulse" | "shake" | "pop";
 }
 
 export interface StickerPack {
@@ -27,13 +29,21 @@ export const STICKER_PACKS: StickerPack[] = [
     name: "Boss",
     thumbnail: "thumbs_up",
     stickers: [
-      { id: "thumbs_up", name: "Thumbs Up" },
-      { id: "heart_eyes", name: "Heart Eyes" },
-      { id: "flower_face", name: "Flower Face" },
-      { id: "pensive", name: "Pensive" },
-      { id: "big_belly", name: "Big Belly" },
-      { id: "laughing", name: "Laughing" },
-      { id: "surprised", name: "Surprised" },
+      { id: "thumbs_up", name: "Thumbs Up", animation: "bounce" },
+      { id: "heart_eyes", name: "Heart Eyes", animation: "pulse" },
+      { id: "flower_face", name: "Flower Face", animation: "pop" },
+      { id: "pensive", name: "Pensive", animation: "pulse" },
+      { id: "big_belly", name: "Big Belly", animation: "bounce" },
+      { id: "laughing", name: "Laughing", animation: "bounce" },
+      { id: "surprised", name: "Surprised", animation: "pop" },
+      { id: "waving", name: "Waving", animation: "wiggle" },
+      { id: "angry", name: "Angry", animation: "shake" },
+      { id: "crying", name: "Crying", animation: "wiggle" },
+      { id: "ok_sign", name: "OK", animation: "bounce" },
+      { id: "thinking", name: "Thinking", animation: "pulse" },
+      { id: "working", name: "Working", animation: "wiggle" },
+      { id: "cheers", name: "Cheers", animation: "bounce" },
+      { id: "sleeping", name: "Sleeping", animation: "pulse" },
     ],
   },
   {
@@ -41,10 +51,14 @@ export const STICKER_PACKS: StickerPack[] = [
     name: "Cute Cat",
     thumbnail: "wave",
     stickers: [
-      { id: "wave", name: "Waving Cat" },
-      { id: "love", name: "Loving Cat" },
-      { id: "cry", name: "Crying Cat" },
-      { id: "laugh", name: "Laughing Cat" },
+      { id: "wave", name: "Waving Cat", animation: "wiggle" },
+      { id: "love", name: "Loving Cat", animation: "pulse" },
+      { id: "cry", name: "Crying Cat", animation: "wiggle" },
+      { id: "laugh", name: "Laughing Cat", animation: "bounce" },
+      { id: "sleeping", name: "Sleeping Cat", animation: "pulse" },
+      { id: "scared", name: "Scared Cat", animation: "pop" },
+      { id: "heart_eyes", name: "Heart Eyes Cat", animation: "pulse" },
+      { id: "thumbs_up", name: "Thumbs Up Cat", animation: "bounce" },
     ],
   },
   {

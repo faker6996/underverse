@@ -96,6 +96,7 @@ export const StickerPicker: React.FC<StickerPickerProps> = ({
               packId={packId}
               stickerId={sticker.id}
               name={sticker.name}
+              animation={sticker.animation}
               onClick={() => handleStickerClick(sticker, packId)}
             />
           ))}
@@ -118,6 +119,7 @@ export const StickerPicker: React.FC<StickerPickerProps> = ({
               packId={activePack.id}
               stickerId={sticker.id}
               name={sticker.name}
+              animation={sticker.animation}
               onClick={() => handleStickerClick(sticker, activePack.id)}
             />
           ))}
@@ -196,6 +198,52 @@ export const StickerPicker: React.FC<StickerPickerProps> = ({
           })}
         </div>
       )}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes sticker-bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-7px); }
+        }
+        @keyframes sticker-wiggle {
+          0%, 100% { transform: rotate(0deg); }
+          25% { transform: rotate(-5deg); }
+          75% { transform: rotate(5deg); }
+        }
+        @keyframes sticker-pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.08); }
+        }
+        @keyframes sticker-shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-3px); }
+          75% { transform: translateX(3px); }
+        }
+        @keyframes sticker-spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes sticker-pop {
+          0%, 100% { transform: scale(1) translateY(0); }
+          50% { transform: scale(1.08) translateY(-4px); }
+        }
+        .sticker-bounce:hover img, .group:hover.sticker-bounce img {
+          animation: sticker-bounce 0.6s ease-in-out infinite !important;
+        }
+        .sticker-wiggle:hover img, .group:hover.sticker-wiggle img {
+          animation: sticker-wiggle 0.5s ease-in-out infinite !important;
+        }
+        .sticker-pulse:hover img, .group:hover.sticker-pulse img {
+          animation: sticker-pulse 0.8s ease-in-out infinite !important;
+        }
+        .sticker-shake:hover img, .group:hover.sticker-shake img {
+          animation: sticker-shake 0.15s ease-in-out infinite !important;
+        }
+        .sticker-spin:hover img, .group:hover.sticker-spin img {
+          animation: sticker-spin 1.2s linear infinite !important;
+        }
+        .sticker-pop:hover img, .group:hover.sticker-pop img {
+          animation: sticker-pop 0.4s ease-out !important;
+        }
+      `}} />
     </div>
   );
 };
