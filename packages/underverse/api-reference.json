@@ -2,7 +2,7 @@
   "package": "@underverse-ui/underverse",
   "version": "1.0.175",
   "sourceEntry": "src/index.ts",
-  "totalExports": 239,
+  "totalExports": 241,
   "exports": [
     {
       "name": "*",
@@ -1268,6 +1268,20 @@
       "name": "StatusBadge",
       "kind": "value",
       "source": "./components/Badge",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "StickerAssetVariant",
+      "kind": "type",
+      "source": "./components/sticker-ui",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "StickerImageUrlOptions",
+      "kind": "type",
+      "source": "./components/sticker-ui",
       "reexport": true,
       "local": false
     },

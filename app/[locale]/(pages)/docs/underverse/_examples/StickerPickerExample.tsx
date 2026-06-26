@@ -47,7 +47,7 @@ export default function StickerPickerExample() {
         packId: "memoji_apple",
         id: "thumbs_up",
         name: "Thumbs Up",
-        url: "/stickers/memoji_apple/thumbs_up.png",
+        url: "/stickers/memoji_apple/display/thumbs_up.webp",
       },
       time: "10:31 AM",
     },
@@ -197,12 +197,13 @@ export default function StickerPickerExample() {
   );
 
   const code = `import React from "react";
-import { StickerPicker } from "@underverse-ui/underverse";
+import { StickerPicker, getStickerImageUrl } from "@underverse-ui/underverse";
 
 export default function MyChatComponent() {
   const handleSelect = (sticker) => {
     console.log("Selected sticker:", sticker);
-    // returns: { id: "love", name: "Love", packId: "cute_cat", url: "/stickers/cute_cat/love.png" }
+    // returns: { id: "love", name: "Loving Cat", packId: "cute_cat", url: "/stickers/cute_cat/display/love.webp" }
+    const thumbnailUrl = getStickerImageUrl(sticker.packId, sticker.id, { variant: "thumb" });
   };
 
   return (

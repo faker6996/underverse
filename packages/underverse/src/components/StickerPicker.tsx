@@ -71,7 +71,7 @@ export const StickerPicker: React.FC<StickerPickerProps> = ({
       id: sticker.id,
       name: sticker.name,
       packId,
-      url: getStickerImageUrl(packId, sticker.id),
+      url: getStickerImageUrl(packId, sticker.id, { variant: "display" }),
     });
     setSearch("");
   };
@@ -175,7 +175,7 @@ export const StickerPicker: React.FC<StickerPickerProps> = ({
       {!search && showPackNav && (
         <div className="flex shrink-0 items-center justify-start gap-3 border-t border-border/10 px-4 py-2.5 backdrop-blur-md bg-muted/5 overflow-x-auto scrollbar-none">
           {STICKER_PACKS.map((pack) => {
-            const packThumbUrl = getStickerImageUrl(pack.id, pack.thumbnail);
+            const packThumbUrl = getStickerImageUrl(pack.id, pack.thumbnail, { variant: "thumb" });
             return (
               <button
                 key={pack.id}
