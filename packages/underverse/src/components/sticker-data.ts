@@ -20,6 +20,15 @@ export const STICKER_PACKS: StickerPack[] = [
       { id: "heart_eyes", name: "Heart Eyes" },
       { id: "sunglasses", name: "Sunglasses" },
       { id: "mind_blown", name: "Mind Blown" },
+    ],
+  },
+  {
+    id: "boss",
+    name: "Boss",
+    thumbnail: "thumbs_up",
+    stickers: [
+      { id: "thumbs_up", name: "Thumbs Up" },
+      { id: "heart_eyes", name: "Heart Eyes" },
       { id: "flower_face", name: "Flower Face" },
       { id: "pensive", name: "Pensive" },
       { id: "big_belly", name: "Big Belly" },

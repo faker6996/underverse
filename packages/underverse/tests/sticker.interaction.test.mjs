@@ -65,7 +65,8 @@ test("StickerPicker filters sticker results and calls onStickerSelect", async ()
   await user.type(searchInput, "thumbs");
 
   const matchingStickerButton = await waitFor(() => {
-    const button = within(window.document.body).getByRole("button", { name: "Thumbs Up" });
+    const buttons = within(window.document.body).getAllByRole("button", { name: "Thumbs Up" });
+    const button = buttons[0];
     assert.ok(button);
     return button;
   });
