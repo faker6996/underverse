@@ -66,10 +66,14 @@ export const STICKER_PACKS: StickerPack[] = [
     name: "Cute Dog",
     thumbnail: "excited",
     stickers: [
-      { id: "excited", name: "Excited Dog" },
-      { id: "sad", name: "Sad Dog" },
-      { id: "cool", name: "Cool Dog" },
-      { id: "angry", name: "Angry Dog" },
+      { id: "excited", name: "Excited Dog", animation: "bounce" },
+      { id: "sad", name: "Sad Dog", animation: "wiggle" },
+      { id: "cool", name: "Cool Dog", animation: "pulse" },
+      { id: "angry", name: "Angry Dog", animation: "shake" },
+      { id: "sleeping", name: "Sleeping Dog", animation: "pulse" },
+      { id: "heart_eyes", name: "Heart Eyes Dog", animation: "pulse" },
+      { id: "crying", name: "Crying Dog", animation: "wiggle" },
+      { id: "thumbs_up", name: "Thumbs Up Dog", animation: "bounce" },
     ],
   },
   {
