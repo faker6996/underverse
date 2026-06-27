@@ -8,6 +8,12 @@ import { STICKER_PACKS } from "./sticker-data";
 
 let globalStickerBaseUrl = "/stickers";
 
+export type StickerAssetVariant = "thumb" | "display" | "original";
+
+export interface StickerImageUrlOptions {
+  variant?: StickerAssetVariant;
+}
+
 /**
  * Configure a custom base URL for loading sticker image assets.
  * Defaults to `/stickers`.
@@ -19,7 +25,12 @@ export function setStickerBaseUrl(url: string) {
 /**
  * Resolves the final image URL for a given pack and sticker ID.
  */
-export function getStickerImageUrl(packId: string, stickerId: string): string {
+export function getStickerImageUrl(packId: string, stickerId: string, options: StickerImageUrlOptions = {}): string {
+  const variant = options.variant ?? "original";
+  if (variant === "thumb" || variant === "display") {
+    return `${globalStickerBaseUrl}/${packId}/${variant}/${stickerId}.webp`;
+  }
+
   const pack = STICKER_PACKS.find((p) => p.id === packId);
   const sticker = pack?.stickers.find((s) => s.id === stickerId);
   const ext = sticker?.ext || "png";
@@ -37,7 +48,7 @@ export const StickerGridButton: React.FC<{
   animation?: "bounce" | "wiggle" | "spin" | "pulse" | "shake" | "pop";
 }> = ({ packId, stickerId, name, onClick, className, active = false, size = "md", animation }) => {
   const [isHovered, setIsHovered] = React.useState(false);
-  const imageUrl = getStickerImageUrl(packId, stickerId);
+  const imageUrl = getStickerImageUrl(packId, stickerId, { variant: "thumb" });
 
   const button = (
     <button

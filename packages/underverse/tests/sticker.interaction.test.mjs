@@ -78,7 +78,22 @@ test("StickerPicker filters sticker results and calls onStickerSelect", async ()
   assert.equal(selections[0].id, "thumbs_up");
   assert.equal(selections[0].name, "Thumbs Up");
   assert.equal(selections[0].packId, "memoji_apple");
+  assert.equal(selections[0].url, "/stickers/memoji_apple/display/thumbs_up.webp");
   assert.equal(searchInput.value, "");
+});
+
+test("getStickerImageUrl keeps original PNG default and supports optimized variants", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "sticker-ui.tsx"));
+
+  assert.equal(mod.getStickerImageUrl("memoji_apple", "thumbs_up"), "/stickers/memoji_apple/thumbs_up.png");
+  assert.equal(
+    mod.getStickerImageUrl("memoji_apple", "thumbs_up", { variant: "thumb" }),
+    "/stickers/memoji_apple/thumb/thumbs_up.webp",
+  );
+  assert.equal(
+    mod.getStickerImageUrl("memoji_apple", "thumbs_up", { variant: "display" }),
+    "/stickers/memoji_apple/display/thumbs_up.webp",
+  );
 });
 
 test("StickerPicker renders the configured number of columns via grid template", async () => {
