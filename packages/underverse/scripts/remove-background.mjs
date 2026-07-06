@@ -119,30 +119,49 @@ async function removeBackground(inputPath, outputPath, overrideBgColor = null) {
 
 async function run() {
   const images = [
-    // Goku Black pack (remaining 6 stickers)
+    // Krillin pack (remaining 9 stickers to complete the pack)
     {
-      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_goku_black_angry_1783169404126.jpg",
-      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_goku_black/angry.png",
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_krillin_fight_1783351278361.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_krillin/fight.png",
     },
     {
-      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_goku_black_glare_1783169416550.jpg",
-      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_goku_black/glare.png",
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_krillin_solar_flare_1783351290171.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_krillin/solar_flare.png",
     },
     {
-      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_goku_black_pain_1783169427314.jpg",
-      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_goku_black/pain.png",
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_krillin_happy_1783351298844.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_krillin/happy.png",
     },
     {
-      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_goku_black_scythe_1783169464094.jpg",
-      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_goku_black/cloning.png", // naming it cloning as per the plan
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_krillin_shocked_1783351309008.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_krillin/shocked.png",
+      bgColor: [0, 0, 0], // Force black background
     },
     {
-      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_goku_black_confident_1783169483890.jpg",
-      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_goku_black/confident.png",
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_krillin_injured_1783351318680.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_krillin/injured.png",
+      bgColor: [255, 255, 255], // Force white background override
     },
     {
-      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_goku_black_pointing_1783169514846.jpg",
-      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_goku_black/pointing.png",
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_krillin_kamehameha_1783351360263.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_krillin/kamehameha.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_krillin_love_1783351373811.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_krillin/love.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_krillin_serious_1783351387584.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_krillin/serious.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_krillin_zen_1783351399591.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_krillin/zen.png",
+    },
+    // Master Roshi pack (1st sticker)
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_roshi_peace_1783351410556.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_roshi/peace.png",
     },
   ];
 
