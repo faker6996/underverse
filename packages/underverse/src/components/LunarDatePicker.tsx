@@ -2,18 +2,19 @@
 
 import { useSmartLocale, useSmartTranslations } from "../hooks/useSmartTranslations";
 import { cn } from "../utils/cn";
-import { formatDateShort, parseDateString } from "../utils/date";
 import { useShadCNAnimations } from "../utils/animations";
 import { Calendar, ChevronLeft, ChevronRight, Sparkles, X as XIcon } from "lucide-react";
 import * as React from "react";
 import { useId } from "react";
 import { Popover } from "./Popover";
+import { lunarToSolar, solarToLunar, type LunarDateValue } from "../utils/lunar";
 
-/** Public props for the `DatePicker` component. */
-export interface DatePickerProps {
+export type LunarPickerValue = LunarDateValue;
+
+export interface LunarDatePickerProps {
   id?: string;
-  value?: Date;
-  onChange: (date: Date | undefined) => void;
+  value?: LunarPickerValue;
+  onChange: (date: LunarPickerValue | undefined) => void;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
@@ -28,12 +29,107 @@ export interface DatePickerProps {
   /** Disable selecting past dates (before today) */
   disablePastDates?: boolean;
   /** Minimum selectable date (inclusive). Compared by day in local timezone. */
-  minDate?: Date;
+  minDate?: LunarPickerValue;
   /** Maximum selectable date (inclusive). Compared by day in local timezone. */
-  maxDate?: Date;
+  maxDate?: LunarPickerValue;
 }
 
-export const DatePicker: React.FC<DatePickerProps> = ({
+function toSolarDate(value: LunarPickerValue | undefined): Date | null {
+  if (!value) return null;
+  const solar = lunarToSolar({
+    day: value.day,
+    month: value.month,
+    year: value.year,
+    is_leap_month: value.is_leap_month,
+  });
+  if (!solar) return null;
+  const date = new Date(solar + "T00:00:00");
+  if (Number.isNaN(date.getTime())) return null;
+  return date;
+}
+
+function isValidLunarDate(day: number, month: number, year: number, isLeapMonth: boolean): boolean {
+  const solar = lunarToSolar({ day, month, year, is_leap_month: isLeapMonth });
+  if (!solar) return false;
+  const solarDate = new Date(`${solar}T00:00:00`);
+  if (Number.isNaN(solarDate.getTime())) return false;
+  const roundTrip = solarToLunar(solarDate);
+  return roundTrip.day === day
+    && roundTrip.month === month
+    && roundTrip.year === year
+    && roundTrip.is_leap_month === isLeapMonth;
+}
+
+function getValidDays(month: number, year: number, isLeapMonth: boolean): number[] {
+  const days: number[] = [];
+  for (let day = 1; day <= 30; day += 1) {
+    if (isValidLunarDate(day, month, year, isLeapMonth)) {
+      days.push(day);
+    }
+  }
+  return days;
+}
+
+function getFirstWeekdayOfLunarMonth(month: number, year: number, isLeapMonth: boolean): number {
+  const firstSolarDate = lunarToSolar({
+    day: 1,
+    month,
+    year,
+    is_leap_month: isLeapMonth,
+  });
+
+  if (!firstSolarDate) return 0;
+
+  const solarDate = new Date(firstSolarDate + "T00:00:00");
+  if (Number.isNaN(solarDate.getTime())) return 0;
+
+  return solarDate.getDay();
+}
+
+function hasLeapVariant(month: number, year: number): boolean {
+  return getValidDays(month, year, true).length > 0;
+}
+
+function getTodayLunarValue(): LunarDateValue {
+  const today = new Date();
+  const lunar = solarToLunar(new Date(today.getFullYear(), today.getMonth(), today.getDate()));
+  return {
+    day: lunar.day,
+    month: lunar.month,
+    year: lunar.year,
+    is_leap_month: lunar.is_leap_month,
+  };
+}
+
+function shiftMonth(month: number, year: number, delta: number) {
+  const zeroBased = month - 1 + delta;
+  const nextYear = year + Math.floor(zeroBased / 12);
+  const normalizedMonth = ((zeroBased % 12) + 12) % 12 + 1;
+  return { month: normalizedMonth, year: nextYear };
+}
+
+function parseLunarDateString(text: string): LunarPickerValue | undefined {
+  if (!text) return undefined;
+  const match = text.trim().match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})(?:\s*(L|Nhuận|Leap))?$/i);
+  if (!match) return undefined;
+  const day = parseInt(match[1], 10);
+  const month = parseInt(match[2], 10);
+  const year = parseInt(match[3], 10);
+  const isLeap = !!match[4];
+
+  if (isValidLunarDate(day, month, year, isLeap)) {
+    return { day, month, year, is_leap_month: isLeap };
+  }
+  return undefined;
+}
+
+function formatLunarDateShort(value: LunarPickerValue, leapSuffix: string): string {
+  if (!value) return "";
+  const leapStr = value.is_leap_month ? ` ${leapSuffix}` : "";
+  return `${String(value.day).padStart(2, "0")}/${String(value.month).padStart(2, "0")}/${value.year}${leapStr}`;
+}
+
+export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
   id,
   value,
   onChange,
@@ -55,7 +151,13 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const tv = useSmartTranslations("ValidationInput");
   const locale = useSmartLocale();
   const [isOpen, setIsOpen] = React.useState(false);
-  const [viewDate, setViewDate] = React.useState(value || new Date());
+
+  const todayLunar = React.useMemo(() => getTodayLunarValue(), []);
+
+  const [viewMonth, setViewMonth] = React.useState(value ? value.month : todayLunar.month);
+  const [viewYear, setViewYear] = React.useState(value ? value.year : todayLunar.year);
+  const [viewLeapMonth, setViewLeapMonth] = React.useState(value ? value.is_leap_month : todayLunar.is_leap_month);
+
   const [viewMode, setViewMode] = React.useState<"calendar" | "month" | "year">("calendar");
   const [localRequiredError, setLocalRequiredError] = React.useState<string | undefined>();
   const triggerRef = React.useRef<HTMLDivElement>(null);
@@ -69,24 +171,47 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
   React.useEffect(() => {
     if (value) {
-      const parsed = parseDateString(inputValue, locale);
-      const isSame = parsed && parsed.getTime() === value.getTime();
+      const parsed = parseLunarDateString(inputValue);
+      const isSame = parsed && parsed.day === value.day && parsed.month === value.month && parsed.year === value.year && parsed.is_leap_month === value.is_leap_month;
       if (!isSame) {
-        setInputValue(formatDateShort(value, locale));
+        setInputValue(formatLunarDateShort(value, locale));
       }
     } else if (!isFocused) {
       setInputValue("");
     }
-  }, [value, locale, isFocused]);
+  }, [value, locale, isFocused, inputValue]);
+
+  const isDateDisabled = React.useCallback(
+    (lunarDate: LunarPickerValue) => {
+      if (!lunarDate) return false;
+      const dayDate = toSolarDate(lunarDate);
+      if (!dayDate) return false;
+
+      if (disablePastDates) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (dayDate < today) return true;
+      }
+
+      const minDay = toSolarDate(minDate);
+      if (minDay && dayDate < minDay) return true;
+      const maxDay = toSolarDate(maxDate);
+      if (maxDay && dayDate > maxDay) return true;
+      return false;
+    },
+    [disablePastDates, maxDate, minDate],
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
     setInputValue(text);
-    const parsedDate = parseDateString(text, locale);
+    const parsedDate = parseLunarDateString(text);
     if (parsedDate) {
       if (!isDateDisabled(parsedDate)) {
         onChange(parsedDate);
-        setViewDate(parsedDate);
+        setViewMonth(parsedDate.month);
+        setViewYear(parsedDate.year);
+        setViewLeapMonth(parsedDate.is_leap_month);
         setLocalRequiredError(undefined);
       }
     }
@@ -102,14 +227,14 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         setLocalRequiredError(undefined);
       }
     } else {
-      const parsedDate = parseDateString(inputValue, locale);
+      const parsedDate = parseLunarDateString(inputValue);
       if (parsedDate && !isDateDisabled(parsedDate)) {
         onChange(parsedDate);
-        setInputValue(formatDateShort(parsedDate, locale));
+        setInputValue(formatLunarDateShort(parsedDate, locale));
         setLocalRequiredError(undefined);
       } else {
         if (value) {
-          setInputValue(formatDateShort(value, locale));
+          setInputValue(formatLunarDateShort(value, locale));
           setLocalRequiredError(undefined);
         } else {
           setInputValue("");
@@ -124,11 +249,13 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      const parsedDate = parseDateString(inputValue, locale);
+      const parsedDate = parseLunarDateString(inputValue);
       if (parsedDate && !isDateDisabled(parsedDate)) {
         onChange(parsedDate);
-        setInputValue(formatDateShort(parsedDate, locale));
-        setViewDate(parsedDate);
+        setInputValue(formatLunarDateShort(parsedDate, locale));
+        setViewMonth(parsedDate.month);
+        setViewYear(parsedDate.year);
+        setViewLeapMonth(parsedDate.is_leap_month);
         setIsOpen(false);
         setLocalRequiredError(undefined);
       } else if (!inputValue.trim() && !required) {
@@ -142,32 +269,6 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       setIsOpen(false);
     }
   };
-
-  const normalizeToLocalDay = React.useCallback((date: Date | undefined): Date | null => {
-    if (!date) return null;
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  }, []);
-
-  const minDay = React.useMemo(() => normalizeToLocalDay(minDate), [minDate, normalizeToLocalDay]);
-  const maxDay = React.useMemo(() => normalizeToLocalDay(maxDate), [maxDate, normalizeToLocalDay]);
-
-  const isDateDisabled = React.useCallback(
-    (date: Date) => {
-      const day = normalizeToLocalDay(date);
-      if (!day) return false;
-
-      if (disablePastDates) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        if (day < today) return true;
-      }
-
-      if (minDay && day < minDay) return true;
-      if (maxDay && day > maxDay) return true;
-      return false;
-    },
-    [disablePastDates, maxDay, minDay, normalizeToLocalDay],
-  );
 
   // Inject ShadCN animations
   useShadCNAnimations();
@@ -230,9 +331,14 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   // Keep calendar month synced with current value or today
   React.useEffect(() => {
     if (value) {
-      setViewDate(value);
+      setViewMonth(value.month);
+      setViewYear(value.year);
+      setViewLeapMonth(value.is_leap_month);
     } else {
-      setViewDate(new Date());
+      const today = getTodayLunarValue();
+      setViewMonth(today.month);
+      setViewYear(today.year);
+      setViewLeapMonth(today.is_leap_month);
     }
   }, [value]);
 
@@ -249,47 +355,25 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     }
   }, [isOpen]);
 
-  const handleDateSelect = (date: Date) => {
-    // Create date in local timezone, not UTC
-    // Preserve time from existing value if it's not midnight; otherwise use current time
-    let selectedDate: Date;
-    if (value && (value.getHours() !== 0 || value.getMinutes() !== 0 || value.getSeconds() !== 0)) {
-      // Preserve existing time
-      selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), value.getHours(), value.getMinutes(), value.getSeconds());
-    } else {
-      // Use current time
-      const now = new Date();
-      selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), now.getHours(), now.getMinutes(), now.getSeconds());
-    }
-    onChange(selectedDate);
+  const handleDateSelect = (date: LunarPickerValue) => {
+    if (!date) return;
+    onChange(date);
     setLocalRequiredError(undefined);
     setIsOpen(false);
   };
 
-  const formatDateDisplay = (date: Date): string => {
-    // Use locale for date formatting
-    return date.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  };
-
-  const getDaysInMonth = (date: Date): number => {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-  };
-
-  const getFirstDayOfMonth = (date: Date): number => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  const formatDateDisplay = (date: LunarPickerValue | undefined): string => {
+    if (!date) return "";
+    const formatStr = date.is_leap_month ? t("lunarLeapFormat") : t("lunarFormat");
+    return formatStr.replace("{day}", String(date.day)).replace("{month}", String(date.month)).replace("{year}", String(date.year));
   };
 
   const navigateMonth = React.useCallback((direction: "prev" | "next") => {
-    setViewDate((prev) => {
-      const newDate = new Date(prev);
-      newDate.setMonth(prev.getMonth() + (direction === "next" ? 1 : -1));
-      return newDate;
-    });
-  }, []);
+    const shifted = shiftMonth(viewMonth, viewYear, direction === "next" ? 1 : -1);
+    setViewMonth(shifted.month);
+    setViewYear(shifted.year);
+    setViewLeapMonth(false);
+  }, [viewMonth, viewYear]);
 
   const isElementVerticallyScrollable = (el: Element) => {
     const style = window.getComputedStyle(el);
@@ -299,8 +383,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     return node.scrollHeight > node.clientHeight + 1;
   };
 
-  // Mouse wheel UX similar to Combobox: keep the page from scrolling while hovering the popover.
-  // If the popover itself is scrollable (small viewports), allow normal scrolling; otherwise use the wheel to navigate months.
+  // Mouse wheel UX similar to Combobox
   React.useEffect(() => {
     if (!isOpen) return;
     const container = wheelContainerRef.current;
@@ -310,7 +393,6 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       if (!container.contains(event.target as Node)) return;
       if (event.ctrlKey) return;
 
-      // If the wheel originates from a scrollable element inside the popover, don't hijack it.
       let node: Element | null = event.target as Element | null;
       while (node && node !== container) {
         if (isElementVerticallyScrollable(node)) return;
@@ -336,9 +418,12 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     return () => container.removeEventListener("wheel", onWheel);
   }, [isOpen, navigateMonth]);
 
+  const canUseLeapMonth = React.useMemo(() => hasLeapVariant(viewMonth, viewYear), [viewMonth, viewYear]);
+  const effectiveLeapMonth = canUseLeapMonth ? viewLeapMonth : false;
+
   const renderCalendar = () => {
-    const daysInMonth = getDaysInMonth(viewDate);
-    const firstDayOfMonth = getFirstDayOfMonth(viewDate);
+    const validDays = getValidDays(viewMonth, viewYear, effectiveLeapMonth);
+    const firstDayOfMonth = getFirstWeekdayOfLunarMonth(viewMonth, viewYear, effectiveLeapMonth);
     const days = [];
 
     // Empty cells for days before the first day of the month
@@ -346,13 +431,15 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       days.push(<div key={`empty-${i}`} className={sizeStyles[size].dayCell.split(" ").slice(0, 2).join(" ")} />);
     }
 
-    // Days of the month
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
-      const isSelected =
-        value && date.getDate() === value.getDate() && date.getMonth() === value.getMonth() && date.getFullYear() === value.getFullYear();
-      const isToday = date.toDateString() === new Date().toDateString();
+    const todayLunarKey = formatLunarDateShort(todayLunar, "vi"); // use generic format for comparison
 
+    // Days of the month
+    validDays.forEach((day) => {
+      const date: LunarPickerValue = { day, month: viewMonth, year: viewYear, is_leap_month: effectiveLeapMonth };
+      const isSelected =
+        value && date.day === value.day && date.month === value.month && date.year === value.year && date.is_leap_month === value.is_leap_month;
+
+      const isToday = formatLunarDateShort(date, "vi") === todayLunarKey;
       const isDisabled = isDateDisabled(date);
 
       // Calculate which row this day is in (0-based)
@@ -383,7 +470,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           {isToday && !isSelected && <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />}
         </button>,
       );
-    }
+    });
 
     return days;
   };
@@ -398,13 +485,14 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     return (
       <div className="grid grid-cols-3 gap-2 p-2">
         {months.map((month, idx) => {
-          const isSelected = viewDate.getMonth() === idx;
+          const isSelected = viewMonth === idx + 1;
           return (
             <button
               key={month}
               type="button"
               onClick={() => {
-                setViewDate(new Date(viewDate.getFullYear(), idx, 1));
+                setViewMonth(idx + 1);
+                setViewLeapMonth(false);
                 setViewMode("calendar");
               }}
               className={cn(
@@ -422,20 +510,20 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
   // Render year selector grid
   const renderYearSelector = () => {
-    const currentYear = viewDate.getFullYear();
+    const currentYear = viewYear;
     const startYear = Math.floor(currentYear / 12) * 12;
     const years = Array.from({ length: 12 }, (_, i) => startYear + i);
 
     return (
       <div className="grid grid-cols-3 gap-2 p-2">
         {years.map((year) => {
-          const isSelected = viewDate.getFullYear() === year;
+          const isSelected = viewYear === year;
           return (
             <button
               key={year}
               type="button"
               onClick={() => {
-                setViewDate(new Date(year, viewDate.getMonth(), 1));
+                setViewYear(year);
                 setViewMode("month");
               }}
               className={cn(
@@ -453,9 +541,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
   // Navigate year range for year selector
   const navigateYearRange = (direction: "prev" | "next") => {
-    const currentYear = viewDate.getFullYear();
     const offset = direction === "next" ? 12 : -12;
-    setViewDate(new Date(currentYear + offset, viewDate.getMonth(), 1));
+    setViewYear(viewYear + offset);
   };
 
   const datePickerContent = (
@@ -483,7 +570,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               viewMode === "month" ? "bg-primary/15 text-primary" : "text-foreground hover:bg-accent/50",
             )}
           >
-            {viewDate.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", { month: "long" })}
+            {t("lunarMonth").replace("{month}", String(viewMonth))}
           </button>
           <button
             type="button"
@@ -493,8 +580,22 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               viewMode === "year" ? "bg-primary/15 text-primary" : "text-foreground hover:bg-accent/50",
             )}
           >
-            {viewDate.getFullYear()}
+            {viewYear}
           </button>
+          {canUseLeapMonth && viewMode === "calendar" ? (
+            <button
+              type="button"
+              onClick={() => setViewLeapMonth((prev) => !prev)}
+              className={cn(
+                "rounded-full border px-2 py-0.5 text-[10px] font-semibold transition ml-1",
+                effectiveLeapMonth
+                  ? "border-primary/40 bg-primary/10 text-primary"
+                  : "border-border bg-background text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {t("lunarLeap")}
+            </button>
+          ) : null}
         </div>
         <button
           type="button"
@@ -544,11 +645,11 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         <button
           type="button"
           onClick={() => {
-            const today = new Date();
+            const today = getTodayLunarValue();
             if (isDateDisabled(today)) return;
             handleDateSelect(today);
           }}
-          disabled={isDateDisabled(new Date())}
+          disabled={isDateDisabled(todayLunar)}
           className={cn(
             "flex-1 font-semibold rounded-xl",
             "bg-linear-to-r from-primary/10 to-primary/5 border border-primary/30",
@@ -556,7 +657,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             "transition-all duration-300 flex items-center justify-center",
             "hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:shadow-primary/10",
             sizeStyles[size].actionButton,
-            isDateDisabled(new Date()) && "opacity-50 cursor-not-allowed hover:scale-100 active:scale-100",
+            isDateDisabled(todayLunar) && "opacity-50 cursor-not-allowed hover:scale-100 active:scale-100",
           )}
         >
           <Sparkles className={sizeStyles[size].actionIcon} />
@@ -567,7 +668,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           onClick={() => {
             onChange(undefined);
             setIsOpen(false);
-            setViewDate(new Date());
+            const today = getTodayLunarValue();
+            setViewMonth(today.month);
+            setViewYear(today.year);
+            setViewLeapMonth(today.is_leap_month);
           }}
           className={cn(
             "flex-1 font-semibold rounded-xl",
@@ -586,12 +690,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   );
 
   const autoId = useId();
-  const resolvedId = id ? String(id) : `datepicker-${autoId}`;
+  const resolvedId = id ? String(id) : `lunar-datepicker-${autoId}`;
   const labelId = label ? `${resolvedId}-label` : undefined;
   const labelSize = sizeStyles[size].label;
 
-  // Radius consistent with Input: sm => rounded-md, md/lg => rounded-lg
-  const radiusClass = size === "sm" ? "rounded-md" : "rounded-lg";
   const verticalGap = size === "sm" ? "space-y-1.5" : size === "lg" ? "space-y-2.5" : "space-y-2";
   const effectiveError = localRequiredError;
 
@@ -620,7 +722,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         tabIndex={-1}
         aria-hidden="true"
         value={value ? "selected" : ""}
-        onChange={() => {}}
+        onChange={() => { }}
         required={required}
         disabled={disabled}
         onInvalid={(e) => {
@@ -660,10 +762,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"
                 : [
-                    "border-border/60 hover:border-primary/40",
-                    "focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 focus-within:ring-offset-background focus-within:border-transparent focus-within:hover:border-transparent",
-                    "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
-                  ],
+                  "border-border/60 hover:border-primary/40",
+                  "focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 focus-within:ring-offset-background focus-within:border-transparent focus-within:hover:border-transparent",
+                  "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
+                ],
               "transition-all duration-300 ease-out",
               isOpen && !isFocused && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
               effectiveError && "border-destructive/60 focus-within:ring-destructive/50 bg-destructive/5",
@@ -711,7 +813,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                     e.preventDefault();
                     e.stopPropagation();
                     onChange(undefined);
-                    setViewDate(new Date());
+                    const today = getTodayLunarValue();
+                    setViewMonth(today.month);
+                    setViewYear(today.year);
+                    setViewLeapMonth(today.is_leap_month);
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -719,7 +824,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                       e.stopPropagation();
                       onChange(undefined);
                       setLocalRequiredError(undefined);
-                      setViewDate(new Date());
+                      const today = getTodayLunarValue();
+                      setViewMonth(today.month);
+                      setViewYear(today.year);
+                      setViewLeapMonth(today.is_leap_month);
                     }
                   }}
                   className={cn(
@@ -748,35 +856,29 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     </div>
   );
 };
-
-/** Public props for the `DateRangePicker` component. */
-export interface DateRangePickerProps {
+export interface LunarDateRangePickerProps {
   id?: string;
-  startDate?: Date;
-  endDate?: Date | null;
-  onChange: (start: Date | undefined, end: Date | null | undefined) => void;
+  startDate?: LunarPickerValue;
+  endDate?: LunarPickerValue | null;
+  onChange: (start: LunarPickerValue | undefined, end: LunarPickerValue | null | undefined) => void;
   placeholder?: string;
   className?: string;
   label?: string;
   labelClassName?: string;
   required?: boolean;
-  /** Disable selecting past dates (before today) */
   disablePastDates?: boolean;
-  /** Minimum selectable date (inclusive). Compared by day in local timezone. */
-  minDate?: Date;
-  /** Maximum selectable date (inclusive). Compared by day in local timezone. */
-  maxDate?: Date;
-  /** Size variant */
+  minDate?: LunarPickerValue;
+  maxDate?: LunarPickerValue;
   size?: "sm" | "md" | "lg";
   disabled?: boolean;
 }
 
-export const DateRangePicker: React.FC<DateRangePickerProps> = ({
+export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
   id,
   startDate,
   endDate,
   onChange,
-  placeholder = "Select date range...",
+  placeholder = "Select lunar date range...",
   className,
   label,
   labelClassName,
@@ -796,180 +898,6 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   const wheelContainerRef = React.useRef<HTMLDivElement>(null);
   const wheelDeltaRef = React.useRef(0);
 
-  const triggerRef = React.useRef<HTMLDivElement>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-
-  // Focus and typing state
-  const [isFocused, setIsFocused] = React.useState(false);
-  const [inputValue, setInputValue] = React.useState<string>("");
-
-  const todayDate = React.useMemo(() => {
-    const today = new Date();
-    return new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  }, []);
-
-  const getRangeString = React.useCallback((s: Date | null | undefined, e: Date | null | undefined) => {
-    if (!s) return "";
-    const startStr = formatDateShort(s, locale);
-    if (!e) return `${startStr} - `;
-    return `${startStr} - ${formatDateShort(e, locale)}`;
-  }, [locale]);
-
-  React.useEffect(() => {
-    if (startDate) {
-      const parts = inputValue.split(/\s*-\s*/);
-      const inputStart = parts[0] ? parseDateString(parts[0], locale) : null;
-      const inputEnd = parts[1] ? parseDateString(parts[1], locale) : null;
-      const startSame = inputStart && startDate && inputStart.getTime() === startDate.getTime();
-      const endSame = (!endDate && !inputEnd) || (endDate && inputEnd && endDate.getTime() === inputEnd.getTime());
-      
-      if (!(startSame && endSame)) {
-        setInputValue(getRangeString(startDate, endDate));
-      }
-    } else if (!isFocused) {
-      setInputValue("");
-    }
-  }, [startDate, endDate, locale, isFocused, getRangeString]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const text = e.target.value;
-    setInputValue(text);
-    
-    const parts = text.split(/\s*-\s*/);
-    if (parts.length === 2) {
-      const s = parseDateString(parts[0], locale);
-      const eVal = parseDateString(parts[1], locale);
-      if (s) {
-        const isStartDisabled = (disablePastDates && s < todayDate) || (!!minDay && s < minDay) || (!!maxDay && s > maxDay);
-        if (!isStartDisabled) {
-          setTempStart(s);
-          if (eVal) {
-            const isEndDisabled = (disablePastDates && eVal < todayDate) || (!!minDay && eVal < minDay) || (!!maxDay && eVal > maxDay);
-            if (!isEndDisabled && s <= eVal) {
-              setTempEnd(eVal);
-              onChange(s, eVal);
-              setViewDate(s);
-              setLocalRequiredError(undefined);
-            } else {
-              setTempEnd(null);
-              onChange(s, null);
-            }
-          } else {
-            setTempEnd(null);
-            onChange(s, null);
-          }
-        }
-      }
-    } else if (parts.length === 1 && parts[0].trim()) {
-      const s = parseDateString(parts[0], locale);
-      if (s) {
-        const isStartDisabled = (disablePastDates && s < todayDate) || (!!minDay && s < minDay) || (!!maxDay && s > maxDay);
-        if (!isStartDisabled) {
-          setTempStart(s);
-          setTempEnd(null);
-          onChange(s, null);
-        }
-      }
-    }
-  };
-
-  const handleInputBlur = () => {
-    setIsFocused(false);
-    if (!inputValue.trim()) {
-      if (required) {
-        setLocalRequiredError(tv("required"));
-      } else {
-        setTempStart(null);
-        setTempEnd(null);
-        onChange(undefined, undefined);
-        setLocalRequiredError(undefined);
-      }
-    } else {
-      const parts = inputValue.split(/\s*-\s*/);
-      const s = parts[0] ? parseDateString(parts[0], locale) : null;
-      const eVal = parts[1] ? parseDateString(parts[1], locale) : null;
-      
-      if (s) {
-        const isStartDisabled = (disablePastDates && s < todayDate) || (!!minDay && s < minDay) || (!!maxDay && s > maxDay);
-        if (!isStartDisabled) {
-          if (eVal) {
-            const isEndDisabled = (disablePastDates && eVal < todayDate) || (!!minDay && eVal < minDay) || (!!maxDay && eVal > maxDay);
-            if (!isEndDisabled && s <= eVal) {
-              setTempStart(s);
-              setTempEnd(eVal);
-              onChange(s, eVal);
-              setInputValue(getRangeString(s, eVal));
-              setLocalRequiredError(undefined);
-              return;
-            }
-          } else {
-            setTempStart(s);
-            setTempEnd(null);
-            onChange(s, null);
-            setInputValue(getRangeString(s, null));
-            setLocalRequiredError(undefined);
-            return;
-          }
-        }
-      }
-      
-      if (startDate) {
-        setTempStart(normalizeToLocal(startDate));
-        setTempEnd(normalizeToLocal(endDate));
-        setInputValue(getRangeString(startDate, endDate));
-        setLocalRequiredError(undefined);
-      } else {
-        setTempStart(null);
-        setTempEnd(null);
-        setInputValue("");
-        if (required) {
-          setLocalRequiredError(tv("required"));
-        }
-      }
-    }
-  };
-
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const parts = inputValue.split(/\s*-\s*/);
-      const s = parts[0] ? parseDateString(parts[0], locale) : null;
-      const eVal = parts[1] ? parseDateString(parts[1], locale) : null;
-      
-      if (s) {
-        const isStartDisabled = (disablePastDates && s < todayDate) || (!!minDay && s < minDay) || (!!maxDay && s > maxDay);
-        if (!isStartDisabled) {
-          if (eVal) {
-            const isEndDisabled = (disablePastDates && eVal < todayDate) || (!!minDay && eVal < minDay) || (!!maxDay && eVal > maxDay);
-            if (!isEndDisabled && s <= eVal) {
-              setTempStart(s);
-              setTempEnd(eVal);
-              onChange(s, eVal);
-              setInputValue(getRangeString(s, eVal));
-              setViewDate(s);
-              setIsOpen(false);
-              setLocalRequiredError(undefined);
-              return;
-            }
-          } else {
-            setTempStart(s);
-            setTempEnd(null);
-            onChange(s, null);
-            setInputValue(getRangeString(s, null));
-            setViewDate(s);
-            setIsOpen(false);
-            setLocalRequiredError(undefined);
-            return;
-          }
-        }
-      }
-      setIsOpen(false);
-    } else if (e.key === "Escape") {
-      setIsOpen(false);
-    }
-  };
-
-  // Size styles for consistent sizing across all elements
   const sizeStyles = {
     sm: {
       trigger: "px-2.5 py-1.5 text-sm h-8 md:h-7 md:text-xs md:py-1",
@@ -1024,28 +952,27 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     },
   } as const;
 
-  // Helper to normalize date to local timezone (avoid UTC offset issues)
-  const normalizeToLocal = (date: Date | undefined | null): Date | null => {
-    if (!date) return null;
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  };
+  const triggerRef = React.useRef<HTMLDivElement>(null);
 
-  const minDay = React.useMemo(() => normalizeToLocal(minDate), [minDate]);
-  const maxDay = React.useMemo(() => normalizeToLocal(maxDate), [maxDate]);
+  const [todayLunar] = React.useState<LunarPickerValue>(() => solarToLunar(new Date()));
 
-  // Use passed-in props as the source of truth, but manage a temporary state for selection.
-  const [viewDate, setViewDate] = React.useState<Date>(startDate || new Date());
-  const [tempStart, setTempStart] = React.useState<Date | null>(normalizeToLocal(startDate));
-  const [tempEnd, setTempEnd] = React.useState<Date | null>(normalizeToLocal(endDate));
-  const [hoveredDate, setHoveredDate] = React.useState<Date | null>(null);
+  // Internal selection state
+  const [tempStart, setTempStart] = React.useState<LunarPickerValue | null>(startDate || null);
+  const [tempEnd, setTempEnd] = React.useState<LunarPickerValue | null>(endDate || null);
+  const [hoveredDate, setHoveredDate] = React.useState<LunarPickerValue | null>(null);
 
-  // Sync temp state with props (normalize to avoid timezone issues)
+  // View state
+  const [viewMonth, setViewMonth] = React.useState(startDate ? startDate.month : todayLunar.month);
+  const [viewYear, setViewYear] = React.useState(startDate ? startDate.year : todayLunar.year);
+  const [viewLeapMonth, setViewLeapMonth] = React.useState(startDate ? startDate.is_leap_month : todayLunar.is_leap_month);
+
+  // Sync state when props change
   React.useEffect(() => {
-    setTempStart(normalizeToLocal(startDate));
+    setTempStart(startDate || null);
   }, [startDate]);
 
   React.useEffect(() => {
-    setTempEnd(normalizeToLocal(endDate));
+    setTempEnd(endDate || null);
   }, [endDate]);
 
   React.useEffect(() => {
@@ -1060,21 +987,43 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     }
   }, [endDate, required, startDate]);
 
-  const isSameDay = (a: Date | null, b: Date | null) => {
+  const getLunarTime = React.useCallback((d: LunarPickerValue | null | undefined) => {
+    if (!d) return 0;
+    const solarStr = lunarToSolar(d);
+    return new Date(solarStr).getTime();
+  }, []);
+
+  const isSameDay = (a: LunarPickerValue | null, b: LunarPickerValue | null) => {
     if (!a || !b) return false;
-    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    return a.day === b.day && a.month === b.month && a.year === b.year && a.is_leap_month === b.is_leap_month;
   };
-  const inRange = (d: Date, s: Date, e: Date) => d > s && d < e;
-  const getDaysInMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-  const getFirstDayOfMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1).getDay();
+
+  const inRange = (d: LunarPickerValue, s: LunarPickerValue, e: LunarPickerValue) => {
+    const dTime = getLunarTime(d);
+    return dTime > getLunarTime(s) && dTime < getLunarTime(e);
+  };
+
+  const isDateDisabled = (date: LunarPickerValue) => {
+    const dateTime = getLunarTime(date);
+    if (disablePastDates) {
+      const todayTime = new Date().setHours(0, 0, 0, 0);
+      if (dateTime < todayTime) return true;
+    }
+    if (minDate && dateTime < getLunarTime(minDate)) return true;
+    if (maxDate && dateTime > getLunarTime(maxDate)) return true;
+    return false;
+  };
 
   const navigateMonth = React.useCallback((direction: "prev" | "next") => {
-    setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + (direction === "next" ? 1 : -1), 1));
-  }, []);
+    const shifted = shiftMonth(viewMonth, viewYear, direction === "next" ? 1 : -1);
+    setViewMonth(shifted.month);
+    setViewYear(shifted.year);
+    setViewLeapMonth(false);
+  }, [viewMonth, viewYear]);
 
   const navigateYearRange = React.useCallback((direction: "prev" | "next") => {
-    setViewDate((prev) => new Date(prev.getFullYear() + (direction === "next" ? 12 : -12), prev.getMonth(), 1));
-  }, []);
+    setViewYear(viewYear + (direction === "next" ? 12 : -12));
+  }, [viewYear]);
 
   const isElementVerticallyScrollable = (el: Element) => {
     const style = window.getComputedStyle(el);
@@ -1118,42 +1067,34 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     return () => container.removeEventListener("wheel", onWheel);
   }, [isOpen, navigateMonth]);
 
-  const handleSelect = (date: Date) => {
-    // Create date object with local timezone to avoid UTC offset issues
-    const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
+  const handleSelect = (date: LunarPickerValue) => {
     if (!tempStart || (tempStart && tempEnd)) {
-      setTempStart(localDate);
+      setTempStart(date);
       setTempEnd(null);
       setHoveredDate(null);
-      onChange(localDate, null);
+      onChange(date, null);
     } else if (tempStart && !tempEnd) {
-      if (localDate < tempStart) {
-        setTempStart(localDate);
-        onChange(localDate, null);
+      if (getLunarTime(date) < getLunarTime(tempStart)) {
+        setTempStart(date);
+        onChange(date, null);
       } else {
-        setTempEnd(localDate);
+        setTempEnd(date);
         setLocalRequiredError(undefined);
-        onChange(tempStart, localDate);
+        onChange(tempStart, date);
         setIsOpen(false);
       }
     }
   };
 
   const handleSelectToday = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const localToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const today = solarToLunar(new Date());
+    if (isDateDisabled(today)) return;
 
-    const isPastDate = disablePastDates && localToday < today;
-    const isOutOfRange = (!!minDay && localToday < minDay) || (!!maxDay && localToday > maxDay);
-    if (isPastDate || isOutOfRange) return;
-
-    setTempStart(localToday);
-    setTempEnd(localToday);
+    setTempStart(today);
+    setTempEnd(today);
     setHoveredDate(null);
     setLocalRequiredError(undefined);
-    onChange(localToday, localToday);
+    onChange(today, today);
     setIsOpen(false);
   };
 
@@ -1165,51 +1106,48 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     setIsOpen(false);
   };
 
+  const canUseLeapMonth = React.useMemo(() => hasLeapVariant(viewMonth, viewYear), [viewMonth, viewYear]);
+  const effectiveLeapMonth = canUseLeapMonth ? viewLeapMonth : false;
+
   const renderGrid = () => {
-    const nodes: React.ReactNode[] = [];
-    const daysInMonth = getDaysInMonth(viewDate);
-    const firstDay = getFirstDayOfMonth(viewDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const validDays = getValidDays(viewMonth, viewYear, effectiveLeapMonth);
+    const firstDayOfMonth = getFirstWeekdayOfLunarMonth(viewMonth, viewYear, effectiveLeapMonth);
+    const days = [];
 
-    for (let i = 0; i < firstDay; i++) nodes.push(<div key={`e-${i}`} className="w-8 h-8" />);
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      days.push(<div key={`empty-${i}`} className={sizeStyles[size].dayCell.split(" ").slice(0, 2).join(" ")} />);
+    }
 
-    for (let d = 1; d <= daysInMonth; d++) {
-      const date = new Date(viewDate.getFullYear(), viewDate.getMonth(), d);
-
-      // Check if date is in the past (before today)
-      const isPastDate = disablePastDates && date < today;
-      const isOutOfRange = (!!minDay && date < minDay) || (!!maxDay && date > maxDay);
-      const isDisabled = isPastDate || isOutOfRange;
-
+    validDays.forEach((day) => {
+      const date: LunarPickerValue = { day, month: viewMonth, year: viewYear, is_leap_month: effectiveLeapMonth };
+      const isDisabled = isDateDisabled(date);
       const isSelectedStart = isSameDay(date, tempStart);
       const isSelectedEnd = isSameDay(date, tempEnd);
-
       const isHovering = hoveredDate && tempStart && !tempEnd;
 
-      let isInRange = false;
-      let isRangeStart = false;
-      let isRangeEnd = false;
+      let isInRangeCheck = false;
+      let isRangeStartCheck = false;
+      let isRangeEndCheck = false;
 
       if (tempStart && tempEnd) {
-        if (isSameDay(date, tempStart)) isRangeStart = true;
-        if (isSameDay(date, tempEnd)) isRangeEnd = true;
-        if (inRange(date, tempStart, tempEnd)) isInRange = true;
-      } else if (isHovering) {
-        if (hoveredDate > tempStart) {
-          if (isSameDay(date, tempStart)) isRangeStart = true;
-          if (isSameDay(date, hoveredDate)) isRangeEnd = true;
-          if (inRange(date, tempStart, hoveredDate)) isInRange = true;
+        if (isSelectedStart) isRangeStartCheck = true;
+        if (isSelectedEnd) isRangeEndCheck = true;
+        if (inRange(date, tempStart, tempEnd)) isInRangeCheck = true;
+      } else if (isHovering && tempStart && hoveredDate) {
+        if (getLunarTime(hoveredDate) > getLunarTime(tempStart)) {
+          if (isSelectedStart) isRangeStartCheck = true;
+          if (isSameDay(date, hoveredDate)) isRangeEndCheck = true;
+          if (inRange(date, tempStart, hoveredDate)) isInRangeCheck = true;
         } else {
-          if (isSameDay(date, hoveredDate)) isRangeStart = true;
-          if (isSameDay(date, tempStart)) isRangeEnd = true;
-          if (inRange(date, hoveredDate, tempStart)) isInRange = true;
+          if (isSameDay(date, hoveredDate)) isRangeStartCheck = true;
+          if (isSelectedStart) isRangeEndCheck = true;
+          if (inRange(date, hoveredDate, tempStart)) isInRangeCheck = true;
         }
       }
 
-      nodes.push(
+      days.push(
         <button
-          key={d}
+          key={day}
           type="button"
           onClick={() => !isDisabled && handleSelect(date)}
           disabled={isDisabled}
@@ -1218,50 +1156,41 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
           className={cn(
             "transition-all duration-200 focus:outline-none relative font-medium cursor-pointer",
             sizeStyles[size].dayCell,
-            // Disabled/past date state
             isDisabled && "opacity-30 cursor-not-allowed text-muted-foreground",
-            // Default state
-            !isDisabled && !isInRange && !isRangeStart && !isRangeEnd && "hover:bg-accent/80 hover:text-accent-foreground hover:scale-105 rounded-lg",
-
-            // Range selection styling - smooth continuous background with gradient
-            isInRange && "bg-primary/15 text-foreground",
-            (isRangeStart || isRangeEnd) &&
-              "bg-linear-to-br from-primary to-primary/80 text-primary-foreground hover:from-primary hover:to-primary/70 shadow-lg shadow-primary/25",
-
-            // Only round the actual start and end of the range
-            isRangeStart && !isRangeEnd && "rounded-l-lg rounded-r-none",
-            isRangeEnd && !isRangeStart && "rounded-r-lg rounded-l-none",
-            isRangeStart && isRangeEnd && "rounded-lg", // Single day selection
-
-            // Hover effects for range
-            isInRange && !isDisabled && "hover:bg-primary/25",
-
+            !isDisabled && !isInRangeCheck && !isRangeStartCheck && !isRangeEndCheck && "hover:bg-accent/80 hover:text-accent-foreground hover:scale-105 rounded-lg",
+            isInRangeCheck && "bg-primary/15 text-foreground",
+            (isRangeStartCheck || isRangeEndCheck) && "bg-linear-to-br from-primary to-primary/80 text-primary-foreground hover:from-primary hover:to-primary/70 shadow-lg shadow-primary/25",
+            isRangeStartCheck && !isRangeEndCheck && "rounded-l-lg rounded-r-none",
+            isRangeEndCheck && !isRangeStartCheck && "rounded-r-lg rounded-l-none",
+            isRangeStartCheck && isRangeEndCheck && "rounded-lg",
+            isInRangeCheck && !isDisabled && "hover:bg-primary/25",
             !isDisabled && "focus:bg-accent focus:text-accent-foreground focus:z-10 focus:shadow-md",
           )}
         >
-          {d}
+          {day}
         </button>,
       );
-    }
-    return nodes;
+    });
+
+    return days;
   };
 
   const renderMonthSelector = () => {
-    const months =
-      locale === "vi"
-        ? ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"]
-        : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const months = locale === "vi"
+      ? ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"]
+      : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     return (
       <div className="grid grid-cols-3 gap-2 p-2">
         {months.map((month, idx) => {
-          const isSelected = viewDate.getMonth() === idx;
+          const isSelected = viewMonth === idx + 1;
           return (
             <button
               key={month}
               type="button"
               onClick={() => {
-                setViewDate(new Date(viewDate.getFullYear(), idx, 1));
+                setViewMonth(idx + 1);
+                setViewLeapMonth(false);
                 setViewMode("calendar");
               }}
               className={cn(
@@ -1278,19 +1207,19 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   };
 
   const renderYearSelector = () => {
-    const startYear = Math.floor(viewDate.getFullYear() / 12) * 12;
+    const startYear = Math.floor(viewYear / 12) * 12;
     const years = Array.from({ length: 12 }, (_, i) => startYear + i);
 
     return (
       <div className="grid grid-cols-3 gap-2 p-2">
         {years.map((year) => {
-          const isSelected = viewDate.getFullYear() === year;
+          const isSelected = viewYear === year;
           return (
             <button
               key={year}
               type="button"
               onClick={() => {
-                setViewDate(new Date(year, viewDate.getMonth(), 1));
+                setViewYear(year);
                 setViewMode("month");
               }}
               className={cn(
@@ -1306,11 +1235,10 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     );
   };
 
-  const isTodayUnavailable = (!!minDay && todayDate < minDay) || (!!maxDay && todayDate > maxDay);
+  const isTodayUnavailable = isDateDisabled(todayLunar);
 
   const panel = (
     <div ref={wheelContainerRef} className="w-full">
-      {/* Header */}
       <div className={cn("flex items-center justify-between px-1", sizeStyles[size].headerMargin)}>
         <button
           type="button"
@@ -1335,7 +1263,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
               viewMode === "month" ? "bg-primary/15 text-primary" : "text-foreground hover:bg-accent/50",
             )}
           >
-            {viewDate.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", { month: "long" })}
+            {t("lunarMonth").replace("{month}", String(viewMonth))}
           </button>
           <button
             type="button"
@@ -1346,8 +1274,22 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
               viewMode === "year" ? "bg-primary/15 text-primary" : "text-foreground hover:bg-accent/50",
             )}
           >
-            {viewDate.getFullYear()}
+            {viewYear}
           </button>
+          {canUseLeapMonth && viewMode === "calendar" ? (
+            <button
+              type="button"
+              onClick={() => setViewLeapMonth((prev) => !prev)}
+              className={cn(
+                "rounded-full border px-2 py-0.5 text-[10px] font-semibold transition ml-1",
+                effectiveLeapMonth
+                  ? "border-primary/40 bg-primary/10 text-primary"
+                  : "border-border bg-background text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {t("lunarLeap")}
+            </button>
+          ) : null}
         </div>
         <button
           type="button"
@@ -1422,13 +1364,19 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     </div>
   );
 
-  const displayFormat = (date: Date) => formatDateShort(date);
+  const displayFormat = (date: LunarPickerValue) => {
+    const formatStr = date.is_leap_month ? t("lunarLeapFormat") : t("lunarFormat");
+    return formatStr.replace("{day}", String(date.day)).replace("{month}", String(date.month)).replace("{year}", String(date.year));
+  };
 
-  const displayLabel =
-    tempStart && tempEnd ? `${displayFormat(tempStart)} - ${displayFormat(tempEnd)}` : tempStart ? `${displayFormat(tempStart)} - ...` : placeholder;
+  const displayLabel = tempStart && tempEnd
+    ? `${displayFormat(tempStart)} - ${displayFormat(tempEnd)}`
+    : tempStart ? `${displayFormat(tempStart)} - ...`
+      : placeholder;
+
   const effectiveError = localRequiredError;
   const autoId = useId();
-  const resolvedId = id ? String(id) : `daterangepicker-${autoId}`;
+  const resolvedId = id ? String(id) : `lunardaterangepicker-${autoId}`;
   const labelId = label ? `${resolvedId}-label` : undefined;
 
   return (
@@ -1437,7 +1385,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
         <label
           id={labelId}
           htmlFor={resolvedId}
-          onClick={() => inputRef.current?.focus()}
+          onClick={() => setIsOpen(true)}
           className={cn(
             size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
             "font-medium transition-colors duration-300",
@@ -1454,7 +1402,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
         tabIndex={-1}
         aria-hidden="true"
         value={startDate && endDate ? "selected" : ""}
-        onChange={() => {}}
+        onChange={() => { }}
         required={required}
         disabled={disabled}
         onInvalid={(e) => {
@@ -1478,10 +1426,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
           "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
         )}
         trigger={
-          <div
-            ref={triggerRef}
-            id={resolvedId}
-            role="button"
+          <div ref={triggerRef} id={resolvedId} role="button"
             aria-label={tempStart ? displayLabel : placeholder}
             aria-labelledby={labelId}
             aria-required={required}
@@ -1492,12 +1437,12 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"
                 : [
-                    "border-border/60 hover:border-primary/40",
-                    "focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 focus-within:ring-offset-background focus-within:border-transparent focus-within:hover:border-transparent",
-                    "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
-                  ],
-              "transition-all duration-300 ease-out",
-              isOpen && !isFocused && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
+                  "border-border/60 hover:border-primary/40",
+                  "focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 focus-within:ring-offset-background focus-within:border-transparent focus-within:hover:border-transparent",
+                  "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
+                ],
+              "transition-all duration-300 ease-out text-left",
+              isOpen && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
               effectiveError && "border-destructive/60 focus-within:ring-destructive/50 bg-destructive/5",
             )}
           >
@@ -1510,55 +1455,19 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
               >
                 <Calendar className={cn("transition-transform duration-300", sizeStyles[size].calendarIcon, isOpen && "scale-110")} />
               </div>
-              <input
-                ref={inputRef}
-                type="text"
-                aria-label={tempStart ? displayLabel : placeholder}
-                disabled={disabled}
-                placeholder={placeholder}
-                value={isFocused ? inputValue : (tempStart ? displayLabel : "")}
-                onChange={handleInputChange}
-                onFocus={() => {
-                  setIsFocused(true);
-                  if (!disabled) setIsOpen(true);
-                }}
-                onBlur={handleInputBlur}
-                onKeyDown={handleInputKeyDown}
-                onClick={(e) => {
-                  if (isOpen) {
-                    e.stopPropagation();
-                  }
-                }}
-                className="w-full bg-transparent border-none outline-none focus:outline-none p-0 text-foreground font-medium placeholder-muted-foreground/60 min-w-0"
-              />
+              <span className={cn("w-full truncate font-medium", !tempStart && "text-muted-foreground/60")}>
+                {tempStart ? displayLabel : placeholder}
+              </span>
             </div>
             <span className={cn("transition-all duration-300 text-muted-foreground group-hover:text-foreground", isOpen && "rotate-180 text-primary")}>
               <svg className={cn(sizeStyles[size].navIcon)} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </span>
-          </div>
-        }
-      >
-        {panel}
-      </Popover>
+          </div>}> {panel} </Popover>
       {effectiveError && <div className="text-xs text-destructive">{effectiveError}</div>}
     </div>
   );
 };
 
-export const CompactDatePicker: React.FC<{
-  value?: Date;
-  onChange: (date?: Date) => void;
-  className?: string;
-}> = ({ value, onChange, className }) => {
-  return (
-    <DatePicker
-      value={value}
-      onChange={onChange as (d: Date | undefined) => void}
-      size="sm"
-      className={cn("max-w-56", className)}
-      placeholder="Date"
-    />
-  );
-};
+

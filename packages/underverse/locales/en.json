@@ -45,7 +45,11 @@
   "DatePicker": {
     "placeholder": "Select date",
     "today": "Today",
-    "clear": "Clear"
+    "clear": "Clear",
+    "lunarFormat": "Month {month} {day}, {year}",
+    "lunarLeapFormat": "Month {month} {day}, {year} (Leap)",
+    "lunarMonth": "Month {month}",
+    "lunarLeap": "Leap"
   },
   "DateTimePicker": {
     "time": "Time",

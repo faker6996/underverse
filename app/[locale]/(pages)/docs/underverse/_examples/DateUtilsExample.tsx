@@ -5,7 +5,7 @@ import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 import { useTranslations } from "next-intl";
-import { DateUtils } from "@underverse-ui/underverse";
+import { DateUtils, LunarUtils } from "@underverse-ui/underverse";
 
 export default function DateUtilsExample() {
   const td = useTranslations("DocsUnderverse");
@@ -43,20 +43,26 @@ DateUtils.isYesterday(yesterday)   // true
 
 // Form input formatting
 DateUtils.formatDateForInput(new Date())       // "2026-01-05"
-DateUtils.formatDateTimeForInput(new Date())   // "2026-01-05T14:30"`;
+DateUtils.formatDateTimeForInput(new Date())   // "2026-01-05T14:30"
+
+// --- Lunar Utilities ---
+const lunar = LunarUtils.solarToLunar(new Date())
+LunarUtils.lunarToSolar(lunar)     // e.g., "2026-01-05"
+LunarUtils.formatLunarDate(lunar)  // e.g., "17/11/2025"
+LunarUtils.formatLunarBadge(new Date()) // e.g., "(L11.17)"`;
 
   const functionsRows: PropsRow[] = [
-    { property: "formatDate(date, locale)", type: "string", default: "-", description: "Full date format (e.g., 'January 5, 2026')" },
-    { property: "formatDateShort(date, locale)", type: "string", default: "-", description: "Short date format (e.g., 'Jan 5, 2026')" },
-    { property: "formatTime(date, locale)", type: "string", default: "-", description: "Time only (e.g., '14:30')" },
-    { property: "formatDateTime(date, locale)", type: "string", default: "-", description: "Date + time combined" },
-    { property: "formatTimeAgo(date, locale)", type: "string", default: "-", description: "Relative time (e.g., '2 hours ago')" },
-    { property: "formatDateSmart(date, locale)", type: "string", default: "-", description: "Today/Yesterday + time, or full date" },
-    { property: "isToday(date)", type: "boolean", default: "-", description: "Check if date is today" },
-    { property: "isYesterday(date)", type: "boolean", default: "-", description: "Check if date is yesterday" },
-    { property: "getDayOfWeek(date, locale)", type: "string", default: "-", description: "Localized day name (e.g., 'Sunday')" },
-    { property: "formatDateForInput(date)", type: "string", default: "-", description: "YYYY-MM-DD format for <input type='date'>" },
-    { property: "formatDateTimeForInput(date)", type: "string", default: "-", description: "YYYY-MM-DDTHH:mm format for datetime-local" },
+    { property: "formatDate(date, locale)", type: "string", default: "-", description: td("examples.dateUtils.formatDateDescription") },
+    { property: "formatDateShort(date, locale)", type: "string", default: "-", description: td("examples.dateUtils.formatDateShortDescription") },
+    { property: "formatTime(date, locale)", type: "string", default: "-", description: td("examples.dateUtils.formatTimeDescription") },
+    { property: "formatDateTime(date, locale)", type: "string", default: "-", description: td("examples.dateUtils.formatDateTimeDescription") },
+    { property: "formatTimeAgo(date, locale)", type: "string", default: "-", description: td("examples.dateUtils.formatTimeAgoDescription") },
+    { property: "formatDateSmart(date, locale)", type: "string", default: "-", description: td("examples.dateUtils.formatDateSmartDescription") },
+    { property: "isToday(date)", type: "boolean", default: "-", description: td("examples.dateUtils.isTodayDescription") },
+    { property: "isYesterday(date)", type: "boolean", default: "-", description: td("examples.dateUtils.isYesterdayDescription") },
+    { property: "getDayOfWeek(date, locale)", type: "string", default: "-", description: td("examples.dateUtils.getDayOfWeekDescription") },
+    { property: "formatDateForInput(date)", type: "string", default: "-", description: td("examples.dateUtils.formatDateForInputDescription") },
+    { property: "formatDateTimeForInput(date)", type: "string", default: "-", description: td("examples.dateUtils.formatDateTimeForInputDescription") },
   ];
 
   const demo = (
@@ -141,7 +147,7 @@ DateUtils.formatDateTimeForInput(new Date())   // "2026-01-05T14:30"`;
 
         {/* Utility checks */}
         <div className="p-4 border rounded-lg space-y-2">
-          <h4 className="font-medium">Utility Checks</h4>
+          <h4 className="font-medium">{td("examples.dateUtils.utilityChecks")}</h4>
           <div className="text-sm space-y-1">
             <div>
               <span className="text-muted-foreground">isToday(now):</span> {DateUtils.isToday(now) ? "✅ true" : "❌ false"}
@@ -157,7 +163,7 @@ DateUtils.formatDateTimeForInput(new Date())   // "2026-01-05T14:30"`;
 
         {/* Form Input Formats */}
         <div className="p-4 border rounded-lg space-y-2">
-          <h4 className="font-medium">Form Input Formats</h4>
+          <h4 className="font-medium">{td("examples.dateUtils.formInputFormats")}</h4>
           <div className="text-sm space-y-1">
             <div>
               <span className="text-muted-foreground">formatDateForInput:</span> <code>{DateUtils.formatDateForInput(now)}</code>
@@ -167,46 +173,73 @@ DateUtils.formatDateTimeForInput(new Date())   // "2026-01-05T14:30"`;
             </div>
           </div>
         </div>
+
+        {/* Lunar Date Utilities */}
+        <div className="p-4 border rounded-lg space-y-2 md:col-span-2">
+          <h4 className="font-medium">{td("examples.dateUtils.lunarDateUtilities")}</h4>
+          <div className="text-sm space-y-1 grid md:grid-cols-2 gap-4 mt-2">
+            <div>
+              <span className="text-muted-foreground block mb-1">solarToLunar(now):</span>
+              <pre className="text-[10px] p-2 bg-muted rounded-md overflow-x-auto">
+                {JSON.stringify(LunarUtils.solarToLunar(now), null, 2)}
+              </pre>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <span className="text-muted-foreground block mb-1">lunarToSolar(lunar):</span> 
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{LunarUtils.lunarToSolar(LunarUtils.solarToLunar(now))}</code>
+              </div>
+              <div>
+                <span className="text-muted-foreground block mb-1">formatLunarDate(lunar):</span> 
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{LunarUtils.formatLunarDate(LunarUtils.solarToLunar(now))}</code>
+              </div>
+              <div>
+                <span className="text-muted-foreground block mb-1">formatLunarBadge(now):</span> 
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{LunarUtils.formatLunarBadge(now)}</code>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* formatTimeAgo Examples Table */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">formatTimeAgo Examples</h3>
+        <h3 className="text-lg font-semibold">{td("examples.dateUtils.formatTimeAgoExamples")}</h3>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm border rounded-lg">
             <thead className="bg-muted">
               <tr>
-                <th className="px-4 py-2 text-left">Time Unit</th>
-                <th className="px-4 py-2 text-left">English</th>
-                <th className="px-4 py-2 text-left">Vietnamese</th>
-                <th className="px-4 py-2 text-left">Korean</th>
-                <th className="px-4 py-2 text-left">Japanese</th>
+                <th className="px-4 py-2 text-left">{td("examples.dateUtils.timeUnit")}</th>
+                <th className="px-4 py-2 text-left">{td("examples.dateUtils.english")}</th>
+                <th className="px-4 py-2 text-left">{td("examples.dateUtils.vietnamese")}</th>
+                <th className="px-4 py-2 text-left">{td("examples.dateUtils.korean")}</th>
+                <th className="px-4 py-2 text-left">{td("examples.dateUtils.japanese")}</th>
               </tr>
             </thead>
             <tbody>
               <tr className="border-t">
-                <td className="px-4 py-2">Just now</td>
+                <td className="px-4 py-2">{td("examples.dateUtils.justNow")}</td>
                 <td className="px-4 py-2">just now</td>
                 <td className="px-4 py-2">vừa xong</td>
                 <td className="px-4 py-2">방금</td>
                 <td className="px-4 py-2">たった今</td>
               </tr>
               <tr className="border-t">
-                <td className="px-4 py-2">Minutes</td>
+                <td className="px-4 py-2">{td("examples.dateUtils.minutes")}</td>
                 <td className="px-4 py-2">5 minutes ago</td>
                 <td className="px-4 py-2">5 phút trước</td>
                 <td className="px-4 py-2">5분 전</td>
                 <td className="px-4 py-2">5分前</td>
               </tr>
               <tr className="border-t">
-                <td className="px-4 py-2">Hours</td>
+                <td className="px-4 py-2">{td("examples.dateUtils.hours")}</td>
                 <td className="px-4 py-2">2 hours ago</td>
                 <td className="px-4 py-2">2 giờ trước</td>
                 <td className="px-4 py-2">2시간 전</td>
                 <td className="px-4 py-2">2時間前</td>
               </tr>
               <tr className="border-t">
-                <td className="px-4 py-2">Days</td>
+                <td className="px-4 py-2">{td("examples.dateUtils.days")}</td>
                 <td className="px-4 py-2">3 days ago</td>
                 <td className="px-4 py-2">3 ngày trước</td>
                 <td className="px-4 py-2">3일 전</td>
@@ -219,14 +252,32 @@ DateUtils.formatDateTimeForInput(new Date())   // "2026-01-05T14:30"`;
     </div>
   );
 
-  const docs = <PropsDocsTable rows={functionsRows} />;
+  const lunarFunctionsRows: PropsRow[] = [
+    { property: "solarToLunar(date)", type: "LunarDateValue", default: "-", description: td("examples.dateUtils.solarToLunarDesc") },
+    { property: "lunarToSolar(lunar)", type: "string", default: "-", description: td("examples.dateUtils.lunarToSolarDesc") },
+    { property: "formatLunarDate(lunar)", type: "string", default: "-", description: td("examples.dateUtils.formatLunarDateDesc") },
+    { property: "formatLunarBadge(date)", type: "string", default: "-", description: td("examples.dateUtils.formatLunarBadgeDesc") },
+  ];
+
+  const docs = (
+    <div className="space-y-8 p-1">
+      <div>
+        <p className="text-sm font-medium mb-3">{td("examples.dateUtils.solarDateUtilities")}</p>
+        <PropsDocsTable rows={functionsRows} />
+      </div>
+      <div>
+        <p className="text-sm font-medium mb-3">{td("examples.dateUtils.lunarDateUtilities")}</p>
+        <PropsDocsTable rows={lunarFunctionsRows} />
+      </div>
+    </div>
+  );
 
   return (
     <Tabs id="date-utils-tabs"
       tabs={[
         { value: "preview", label: td("tabs.preview"), content: <div className="p-1">{demo}</div> },
         { value: "code", label: td("tabs.code"), content: <CodeBlock code={code} /> },
-        { value: "docs", label: td("tabs.document"), content: <div className="p-1">{docs}</div> },
+        { value: "docs", label: td("tabs.document"), content: docs },
       ]}
       variant="underline"
       size="sm"

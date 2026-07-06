@@ -45,7 +45,11 @@
   "DatePicker": {
     "placeholder": "날짜 선택",
     "today": "오늘",
-    "clear": "지우기"
+    "clear": "지우기",
+    "lunarFormat": "{year}년 {month}월 {day}일",
+    "lunarLeapFormat": "{year}년 윤{month}월 {day}일",
+    "lunarMonth": "{month}월",
+    "lunarLeap": "윤달"
   },
   "DateTimePicker": {
     "time": "시간",

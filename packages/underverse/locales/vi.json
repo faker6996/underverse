@@ -45,7 +45,11 @@
   "DatePicker": {
     "placeholder": "Chọn ngày",
     "today": "Hôm nay",
-    "clear": "Xóa"
+    "clear": "Xóa",
+    "lunarFormat": "{day} tháng {month}, {year}",
+    "lunarLeapFormat": "{day} tháng {month}, {year} (Nhuận)",
+    "lunarMonth": "Tháng {month}",
+    "lunarLeap": "Nhuận"
   },
   "DateTimePicker": {
     "time": "Thời gian",

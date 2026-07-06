@@ -49,7 +49,11 @@
   "DatePicker": {
     "placeholder": "日付を選択",
     "today": "今日",
-    "clear": "クリア"
+    "clear": "クリア",
+    "lunarFormat": "{year}年{month}月{day}日",
+    "lunarLeapFormat": "{year}年閏{month}月{day}日",
+    "lunarMonth": "{month}月",
+    "lunarLeap": "閏月"
   },
   "DateTimePicker": {
     "time": "時間",
@@ -266,6 +270,9 @@
       },
       "dateTimePicker": {
         "title": "DateTimePicker"
+      },
+      "lunarDatePicker": {
+        "title": "LunarDatePicker"
       },
       "datePicker": {
         "title": "DatePicker (with i18n)"
@@ -1220,7 +1227,8 @@
         "size": "表示サイズ (sm, md, lg)。",
         "disablePastDates": "今日より前の日付を選択不可にする。",
         "minDate": "選択可能な最小日付（含む）。",
-        "maxDate": "選択可能な最大日付（含む）。"
+        "maxDate": "選択可能な最大日付（含む）。",
+        "disabled": "日付範囲選択を無効にします。"
       },
       "pagination": {
         "page": "現在のページ（1 始まり）。",
@@ -1290,6 +1298,59 @@
       },
       "themeToggle": {
         "noProps": "このコンポーネントは ThemeContext を参照・更新します。公開 props はありません。"
+      }
+    },
+    "examples": {
+      "lunarDatePicker": {
+        "defaultLabel": "デフォルト (md)",
+        "smallLabel": "小 (sm)",
+        "required": "必須",
+        "requiredRange": "必須範囲",
+        "disabled": "無効",
+        "dateRangePicker": "日付範囲ピッカー",
+        "futureOnly": "未来のみ",
+        "advanced": "高度な設定",
+        "pickLunarSm": "旧暦の日付を選択 (sm)",
+        "smallLunarSm": "小さな旧暦の日付 (sm)",
+        "selectLunarRange": "旧暦の日付範囲を選択...",
+        "disablePastDates": "過去の日付を無効にする",
+        "submit": "送信",
+        "helperText": "ヘッダーの月または年をクリックしてすばやくジャンプします。フッターアクションは今日とクリアをサポートするようになりました。",
+        "value1": "値 1:",
+        "value2": "値 2:",
+        "range": "範囲:",
+        "futureDate": "未来の日付:"
+      },
+      "dateUtils": {
+        "formatTimeAgoExamples": "formatTimeAgo の例",
+        "timeUnit": "時間単位",
+        "english": "英語",
+        "vietnamese": "ベトナム語",
+        "korean": "韓国語",
+        "japanese": "日本語",
+        "justNow": "たった今",
+        "minutes": "分",
+        "hours": "時間",
+        "days": "日",
+        "utilityChecks": "ユーティリティチェック",
+        "formInputFormats": "入力フォーム形式",
+        "lunarDateUtilities": "旧暦ユーティリティ (src/utils/lunar.ts)",
+        "formatDateDescription": "完全な日付形式 (例: '2026年1月5日')",
+        "formatDateShortDescription": "短い日付形式 (例: '2026年1月5日')",
+        "formatTimeDescription": "時間のみ (例: '14:30')",
+        "formatDateTimeDescription": "日付 + 時間",
+        "formatTimeAgoDescription": "相対的な時間 (例: '2時間前')",
+        "formatDateSmartDescription": "今日/昨日 + 時間、または完全な日付",
+        "isTodayDescription": "今日の日付かどうかを確認",
+        "isYesterdayDescription": "昨日の日付かどうかを確認",
+        "getDayOfWeekDescription": "曜日 (例: '日曜日')",
+        "formatDateForInputDescription": "<input type='date'> 用の YYYY-MM-DD 形式",
+        "formatDateTimeForInputDescription": "datetime-local 用の YYYY-MM-DDTHH:mm 形式",
+        "solarDateUtilities": "太陽暦ユーティリティ",
+        "solarToLunarDesc": "標準のJS DateオブジェクトをLunarDateValueに変換します。",
+        "lunarToSolarDesc": "LunarDateValueを太陽暦の日付文字列（YYYY-MM-DD）に変換します。",
+        "formatLunarDateDesc": "LunarDateValueを標準文字列（DD/MM/YYYY）にフォーマットします。",
+        "formatLunarBadgeDesc": "UI用のコンパクトな旧暦バッジ文字列を返します（例: '(L1.1)'）。"
       }
     }
   },

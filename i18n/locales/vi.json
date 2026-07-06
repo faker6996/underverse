@@ -49,7 +49,11 @@
   "DatePicker": {
     "placeholder": "Chọn ngày",
     "today": "Hôm nay",
-    "clear": "Xóa"
+    "clear": "Xóa",
+    "lunarFormat": "{day} tháng {month}, {year}",
+    "lunarLeapFormat": "{day} tháng {month}, {year} (Nhuận)",
+    "lunarMonth": "Tháng {month}",
+    "lunarLeap": "Nhuận"
   },
   "DateTimePicker": {
     "time": "Thời gian",
@@ -266,6 +270,9 @@
       },
       "dateTimePicker": {
         "title": "DateTimePicker"
+      },
+      "lunarDatePicker": {
+        "title": "LunarDatePicker"
       },
       "datePicker": {
         "title": "DatePicker (with i18n)"
@@ -1257,7 +1264,8 @@
         "size": "Kích thước hiển thị (sm, md, lg).",
         "disablePastDates": "Không cho phép chọn ngày trước hôm nay.",
         "minDate": "Ngày nhỏ nhất có thể chọn (bao gồm).",
-        "maxDate": "Ngày lớn nhất có thể chọn (bao gồm)."
+        "maxDate": "Ngày lớn nhất có thể chọn (bao gồm).",
+        "disabled": "Vô hiệu hoá bộ chọn khoảng thời gian."
       },
       "pagination": {
         "page": "Trang hiện tại (bắt đầu từ 1).",
@@ -1368,6 +1376,59 @@
       "onPageSizeChange": "Hàm thay đổi số mục mỗi trang.",
       "totalItems": "Tổng số mục.",
       "labels": "Ghi đè chuỗi i18n (chuỗi/hàm)."
+    },
+    "examples": {
+      "lunarDatePicker": {
+        "defaultLabel": "Mặc định (md)",
+        "smallLabel": "Nhỏ (sm)",
+        "required": "Bắt buộc",
+        "requiredRange": "Khoảng thời gian bắt buộc",
+        "disabled": "Vô hiệu hóa",
+        "dateRangePicker": "Bộ chọn khoảng thời gian",
+        "futureOnly": "Chỉ tương lai",
+        "advanced": "Nâng cao",
+        "pickLunarSm": "Chọn ngày âm lịch (sm)",
+        "smallLunarSm": "Ngày âm lịch nhỏ (sm)",
+        "selectLunarRange": "Chọn khoảng ngày âm lịch...",
+        "disablePastDates": "Vô hiệu hóa ngày quá khứ",
+        "submit": "Xác nhận",
+        "helperText": "Nhấp vào tháng hoặc năm trong tiêu đề để chuyển nhanh. Các hành động ở chân trang hiện hỗ trợ Hôm nay và Xóa.",
+        "value1": "Giá trị 1:",
+        "value2": "Giá trị 2:",
+        "range": "Khoảng:",
+        "futureDate": "Ngày tương lai:"
+      },
+      "dateUtils": {
+        "formatTimeAgoExamples": "Ví dụ formatTimeAgo",
+        "timeUnit": "Đơn vị",
+        "english": "Tiếng Anh",
+        "vietnamese": "Tiếng Việt",
+        "korean": "Tiếng Hàn",
+        "japanese": "Tiếng Nhật",
+        "justNow": "Vừa xong",
+        "minutes": "Phút",
+        "hours": "Giờ",
+        "days": "Ngày",
+        "utilityChecks": "Kiểm tra tiện ích",
+        "formInputFormats": "Định dạng Input form",
+        "lunarDateUtilities": "Tiện ích ngày âm lịch (src/utils/lunar.ts)",
+        "formatDateDescription": "Định dạng ngày đầy đủ (vd: '5 tháng 1, 2026')",
+        "formatDateShortDescription": "Định dạng ngày ngắn (vd: '5 thg 1, 2026')",
+        "formatTimeDescription": "Chỉ thời gian (vd: '14:30')",
+        "formatDateTimeDescription": "Ngày + thời gian",
+        "formatTimeAgoDescription": "Thời gian tương đối (vd: '2 giờ trước')",
+        "formatDateSmartDescription": "Hôm nay/Hôm qua + thời gian, hoặc ngày đầy đủ",
+        "isTodayDescription": "Kiểm tra xem ngày có phải hôm nay không",
+        "isYesterdayDescription": "Kiểm tra xem ngày có phải hôm qua không",
+        "getDayOfWeekDescription": "Tên thứ trong tuần (vd: 'Chủ Nhật')",
+        "formatDateForInputDescription": "Định dạng YYYY-MM-DD cho <input type='date'>",
+        "formatDateTimeForInputDescription": "Định dạng YYYY-MM-DDTHH:mm cho datetime-local",
+        "solarDateUtilities": "Tiện ích ngày dương lịch",
+        "solarToLunarDesc": "Chuyển đổi đối tượng Date JS chuẩn sang LunarDateValue.",
+        "lunarToSolarDesc": "Chuyển đổi LunarDateValue sang chuỗi ngày dương lịch (YYYY-MM-DD).",
+        "formatLunarDateDesc": "Định dạng LunarDateValue thành chuỗi tiêu chuẩn (DD/MM/YYYY).",
+        "formatLunarBadgeDesc": "Trả về chuỗi huy hiệu ngày âm lịch nhỏ gọn cho UI (vd: '(L1.1)')."
+      }
     }
   },
   "UEditor": {

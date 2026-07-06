@@ -45,7 +45,11 @@
   "DatePicker": {
     "placeholder": "日付を選択",
     "today": "今日",
-    "clear": "クリア"
+    "clear": "クリア",
+    "lunarFormat": "{year}年{month}月{day}日",
+    "lunarLeapFormat": "{year}年閏{month}月{day}日",
+    "lunarMonth": "{month}月",
+    "lunarLeap": "閏月"
   },
   "DateTimePicker": {
     "time": "時間",

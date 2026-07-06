@@ -107,6 +107,10 @@ export type { OverlayScrollAreaProps } from "./components/OverlayScrollArea";
 export { DatePicker, DateRangePicker, CompactDatePicker } from "./components/DatePicker";
 /** Public props for single-date and date-range picker components. */
 export type { DatePickerProps, DateRangePickerProps } from "./components/DatePicker";
+/** Lunar date picker for selecting dates on the lunar calendar. */
+export { LunarDatePicker, LunarDateRangePicker } from "./components/LunarDatePicker";
+/** Public props and value type for the `LunarDatePicker` component. */
+export type { LunarDatePickerProps, LunarPickerValue, LunarDateRangePickerProps } from "./components/LunarDatePicker";
 /** Combined date and time picker. */
 export { DateTimePicker } from "./components/DateTimePicker";
 /** Public props for the `DateTimePicker` component. */
@@ -277,6 +281,12 @@ export { cn as cnLocal } from "./utils/cn";
 export * as DateUtils from "./utils/date";
 /** Supported locale union used by standalone date helpers. */
 export type { SupportedLocale } from "./utils/date";
+
+// Lunar date utilities
+/** Standalone lunar calendar calculation utilities. */
+export * as LunarUtils from "./utils/lunar";
+/** Public lunar date value type. */
+export type { LunarDateValue } from "./utils/lunar";
 
 // Animation utilities
 /** Shared animation helpers used by package components. */

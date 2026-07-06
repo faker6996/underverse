@@ -420,7 +420,7 @@ export default function EmojiPickerExample() {
                   onMouseUp={saveSelection}
                   onKeyUp={saveSelection}
                   {...{ placeholder: "Type a message or select an emoji..." }}
-                  className="emoji-input-editable flex-1 px-4 py-2 min-h-[38px] max-h-24 overflow-y-auto rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm cursor-text leading-relaxed select-text outline-none"
+                  className="emoji-input-editable flex-1 px-4 py-2 min-h-9.5 max-h-24 overflow-y-auto rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm cursor-text leading-relaxed select-text outline-none"
                 />
 
                 <button

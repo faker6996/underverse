@@ -93,7 +93,7 @@ export default function StickerPickerExample() {
       </p>
 
       {/* Simulated Chat & Picker Wrapper */}
-      <div className="relative border border-border/80 rounded-2xl bg-card overflow-hidden shadow-sm flex flex-col h-[500px]">
+      <div className="relative border border-border/80 rounded-2xl bg-card overflow-hidden shadow-sm flex flex-col h-125">
         {/* Chat feed */}
         <div className="flex-1 flex flex-col overflow-hidden bg-muted/5">
           {/* Header */}

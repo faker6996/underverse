@@ -49,7 +49,11 @@
   "DatePicker": {
     "placeholder": "Select date",
     "today": "Today",
-    "clear": "Clear"
+    "clear": "Clear",
+    "lunarFormat": "Month {month} {day}, {year}",
+    "lunarLeapFormat": "Month {month} {day}, {year} (Leap)",
+    "lunarMonth": "Month {month}",
+    "lunarLeap": "Leap"
   },
   "DateTimePicker": {
     "time": "Time",
@@ -270,6 +274,9 @@
         "onChange": "Change handler receiving (start, end).",
         "placeholder": "Placeholder when no range is selected.",
         "className": "Custom class for the trigger."
+      },
+      "lunarDatePicker": {
+        "title": "LunarDatePicker"
       },
       "datePicker": {
         "title": "DatePicker (with i18n)"
@@ -1264,7 +1271,8 @@
         "size": "Display size (sm, md, lg).",
         "disablePastDates": "Disable selecting dates before today.",
         "minDate": "Minimum selectable date (inclusive).",
-        "maxDate": "Maximum selectable date (inclusive)."
+        "maxDate": "Maximum selectable date (inclusive).",
+        "disabled": "Disables the date range picker."
       },
       "pagination": {
         "page": "Current page (1-based).",
@@ -1334,6 +1342,59 @@
       },
       "themeToggle": {
         "noProps": "This component reads and updates ThemeContext; it has no public props."
+      }
+    },
+    "examples": {
+      "lunarDatePicker": {
+        "defaultLabel": "Default (md)",
+        "smallLabel": "Small (sm)",
+        "required": "Required",
+        "requiredRange": "Required range",
+        "disabled": "Disabled",
+        "dateRangePicker": "DateRangePicker",
+        "futureOnly": "Future Only",
+        "advanced": "Advanced",
+        "pickLunarSm": "Pick a lunar date (sm)",
+        "smallLunarSm": "Small lunar date (sm)",
+        "selectLunarRange": "Select lunar date range...",
+        "disablePastDates": "Disable Past Dates",
+        "submit": "Submit",
+        "helperText": "Click the month or year in the header to jump quickly. Footer actions now support Today and Clear.",
+        "value1": "Value 1:",
+        "value2": "Value 2:",
+        "range": "Range:",
+        "futureDate": "Future Date:"
+      },
+      "dateUtils": {
+        "formatTimeAgoExamples": "formatTimeAgo Examples",
+        "timeUnit": "Time Unit",
+        "english": "English",
+        "vietnamese": "Vietnamese",
+        "korean": "Korean",
+        "japanese": "Japanese",
+        "justNow": "Just now",
+        "minutes": "Minutes",
+        "hours": "Hours",
+        "days": "Days",
+        "utilityChecks": "Utility Checks",
+        "formInputFormats": "Form Input Formats",
+        "lunarDateUtilities": "Lunar Date Utilities (src/utils/lunar.ts)",
+        "formatDateDescription": "Full date format (e.g., 'January 5, 2026')",
+        "formatDateShortDescription": "Short date format (e.g., 'Jan 5, 2026')",
+        "formatTimeDescription": "Time only (e.g., '14:30')",
+        "formatDateTimeDescription": "Date + time combined",
+        "formatTimeAgoDescription": "Relative time (e.g., '2 hours ago')",
+        "formatDateSmartDescription": "Today/Yesterday + time, or full date",
+        "isTodayDescription": "Check if date is today",
+        "isYesterdayDescription": "Check if date is yesterday",
+        "getDayOfWeekDescription": "Localized day name (e.g., 'Sunday')",
+        "formatDateForInputDescription": "YYYY-MM-DD format for <input type='date'>",
+        "formatDateTimeForInputDescription": "YYYY-MM-DDTHH:mm format for datetime-local",
+        "solarDateUtilities": "Solar Date Utilities",
+        "solarToLunarDesc": "Converts a standard JS Date object to a LunarDateValue.",
+        "lunarToSolarDesc": "Converts a LunarDateValue to a Solar Date string (YYYY-MM-DD).",
+        "formatLunarDateDesc": "Formats a LunarDateValue to a standard string (DD/MM/YYYY).",
+        "formatLunarBadgeDesc": "Returns a compact lunar date badge string for UI (e.g., '(L1.1)')."
       }
     }
   },

@@ -63,6 +63,7 @@
     "test:public-api": "node --test ./tests/public-api-smoke.test.mjs",
     "test:components-smoke": "node --test ./tests/components-smoke.test.mjs",
     "test:sticker-ui": "node --test ./tests/sticker.interaction.test.mjs",
+    "test:lunar": "node --test --experimental-strip-types ./tests/lunar-utils.test.mjs",
     "test:smoke": "npm run test:public-api && npm run test:components-smoke",
     "build": "npm run typecheck && npm run check:boundaries && npm run generate:api && tsup --config tsup.config.ts",
     "clean": "rimraf dist",

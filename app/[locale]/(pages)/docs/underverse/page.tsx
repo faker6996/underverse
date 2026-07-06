@@ -51,6 +51,7 @@ const CategoryTreeSelectExample = dynamicImport(() => import("./_examples/Catego
 const InputExample = dynamicImport(() => import("./_examples/InputExample"), { ssr: false });
 const TagInputExample = dynamicImport(() => import("./_examples/TagInputExample"), { ssr: false });
 const DatePickerExample = dynamicImport(() => import("./_examples/DatePickerExample"), { ssr: false });
+const LunarDatePickerExample = dynamicImport(() => import("./_examples/LunarDatePickerExample"), { ssr: false });
 const ColorPickerExample = dynamicImport(() => import("./_examples/ColorPickerExample"), { ssr: false });
 const TimePickerExample = dynamicImport(() => import("./_examples/TimePickerExample"), { ssr: false });
 const DateTimePickerExample = dynamicImport(() => import("./_examples/DateTimePickerExample"), { ssr: false });
@@ -252,6 +253,10 @@ function DocsInner() {
             <DocGroupSection title={t("tocGroups.pickers")}>
               <DocSection id="date-picker" title={t("sections.datePicker.title")}>
                 <DatePickerExample />
+              </DocSection>
+
+              <DocSection id="lunar-date-picker" title={t("sections.lunarDatePicker.title")}>
+                <LunarDatePickerExample />
               </DocSection>
 
               <DocSection id="time-picker" title={t("sections.timePicker.title")}>

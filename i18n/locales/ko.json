@@ -49,7 +49,11 @@
   "DatePicker": {
     "placeholder": "날짜 선택",
     "today": "오늘",
-    "clear": "지우기"
+    "clear": "지우기",
+    "lunarFormat": "{year}년 {month}월 {day}일",
+    "lunarLeapFormat": "{year}년 윤{month}월 {day}일",
+    "lunarMonth": "{month}월",
+    "lunarLeap": "윤달"
   },
   "DateTimePicker": {
     "time": "시간",
@@ -266,6 +270,9 @@
       },
       "dateTimePicker": {
         "title": "DateTimePicker"
+      },
+      "lunarDatePicker": {
+        "title": "LunarDatePicker"
       },
       "datePicker": {
         "title": "DatePicker (with i18n)"
@@ -1220,7 +1227,8 @@
         "size": "표시 크기 (sm, md, lg).",
         "disablePastDates": "오늘 이전 날짜 선택 비활성화.",
         "minDate": "선택 가능한 최소 날짜(포함).",
-        "maxDate": "선택 가능한 최대 날짜(포함)."
+        "maxDate": "선택 가능한 최대 날짜(포함).",
+        "disabled": "날짜 범위 선택기를 비활성화합니다."
       },
       "pagination": {
         "page": "현재 페이지(1부터).",
@@ -1290,6 +1298,59 @@
       },
       "themeToggle": {
         "noProps": "이 컴포넌트는 ThemeContext를 사용합니다. 공개 props 가 없습니다."
+      }
+    },
+    "examples": {
+      "lunarDatePicker": {
+        "defaultLabel": "기본 (md)",
+        "smallLabel": "작게 (sm)",
+        "required": "필수",
+        "requiredRange": "필수 범위",
+        "disabled": "비활성화",
+        "dateRangePicker": "기간 선택기",
+        "futureOnly": "미래만",
+        "advanced": "고급",
+        "pickLunarSm": "음력 날짜 선택 (sm)",
+        "smallLunarSm": "작은 음력 날짜 (sm)",
+        "selectLunarRange": "음력 날짜 범위 선택...",
+        "disablePastDates": "과거 날짜 비활성화",
+        "submit": "제출",
+        "helperText": "월이나 연도를 클릭하여 빠르게 이동하세요. 푸터 액션은 이제 오늘과 지우기를 지원합니다.",
+        "value1": "값 1:",
+        "value2": "값 2:",
+        "range": "범위:",
+        "futureDate": "미래 날짜:"
+      },
+      "dateUtils": {
+        "formatTimeAgoExamples": "formatTimeAgo 예제",
+        "timeUnit": "시간 단위",
+        "english": "영어",
+        "vietnamese": "베트남어",
+        "korean": "한국어",
+        "japanese": "일본어",
+        "justNow": "방금",
+        "minutes": "분",
+        "hours": "시간",
+        "days": "일",
+        "utilityChecks": "유틸리티 검사",
+        "formInputFormats": "입력 양식 형식",
+        "lunarDateUtilities": "음력 유틸리티 (src/utils/lunar.ts)",
+        "formatDateDescription": "전체 날짜 형식 (예: '2026년 1월 5일')",
+        "formatDateShortDescription": "짧은 날짜 형식 (예: '2026년 1월 5일')",
+        "formatTimeDescription": "시간만 (예: '14:30')",
+        "formatDateTimeDescription": "날짜 + 시간",
+        "formatTimeAgoDescription": "상대적 시간 (예: '2시간 전')",
+        "formatDateSmartDescription": "오늘/어제 + 시간, 또는 전체 날짜",
+        "isTodayDescription": "오늘 날짜인지 확인",
+        "isYesterdayDescription": "어제 날짜인지 확인",
+        "getDayOfWeekDescription": "요일 (예: '일요일')",
+        "formatDateForInputDescription": "<input type='date'>를 위한 YYYY-MM-DD 형식",
+        "formatDateTimeForInputDescription": "datetime-local을 위한 YYYY-MM-DDTHH:mm 형식",
+        "solarDateUtilities": "양력 날짜 유틸리티",
+        "solarToLunarDesc": "표준 JS Date 객체를 LunarDateValue로 변환합니다.",
+        "lunarToSolarDesc": "LunarDateValue를 양력 날짜 문자열(YYYY-MM-DD)로 변환합니다.",
+        "formatLunarDateDesc": "LunarDateValue를 표준 문자열(DD/MM/YYYY)로 포맷합니다.",
+        "formatLunarBadgeDesc": "UI용 컴팩트한 음력 날짜 뱃지 문자열을 반환합니다 (예: '(L1.1)')."
       }
     }
   },
