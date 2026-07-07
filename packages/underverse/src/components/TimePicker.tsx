@@ -7,6 +7,7 @@ import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { Popover } from "./Popover";
 import { Clock, X, Check, Sun, Moon, Sunset, Coffee } from "lucide-react";
 import Input from "./Input";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 
 type TimeFormat = "24" | "12";
 type TimePickerVariant = "default" | "compact" | "inline";
@@ -60,6 +61,7 @@ export interface TimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   onOpen?: () => void;
   /** Callback when popover closes */
   onClose?: () => void;
+  borderMode?: BorderMode;
 }
 
 type Parts = { h: number; m: number; s: number; p?: "AM" | "PM" };
@@ -629,6 +631,7 @@ export default function TimePicker({
   onOpen,
   onClose,
   className,
+  borderMode,
   ...rest
 }: TimePickerProps) {
   const tv = useSmartTranslations("ValidationInput");
@@ -1026,7 +1029,8 @@ export default function TimePicker({
         aria-required={required}
         aria-invalid={!!effectiveError}
         className={cn(
-          "group flex w-full items-center justify-between rounded-full border bg-background/80 backdrop-blur-sm",
+          "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
+          getBorderRadiusClass(borderMode ?? "full"),
           sz.height,
           sz.padding,
           sz.text,

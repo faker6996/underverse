@@ -5,6 +5,7 @@ import { cn } from "../utils/cn";
 import { X, Search, Loader2 } from "lucide-react";
 import Button from "./Button";
 import { useGlobalI18n } from "../contexts/GlobalI18nContext";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 
 /** Public props for the `TagInput` component. */
 export interface TagInputProps {
@@ -64,6 +65,8 @@ export interface TagInputProps {
 
   /** Maximum visible tags before showing "+N more" badge */
   maxVisibleTags?: number;
+
+  borderMode?: BorderMode;
 }
 
 const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
@@ -86,6 +89,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
       maxTags,
       maxVisibleTags,
       labels,
+      borderMode,
     },
     ref,
   ) => {
@@ -114,21 +118,21 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
     // Size styles
     const sizeStyles = {
       sm: {
-        container: "min-h-8 p-1.5 gap-1 rounded-full",
+        container: "min-h-8 p-1.5 gap-1",
         input: "text-xs",
         tag: "px-1.5 py-0.5 text-xs gap-1 rounded-full",
         tagIcon: "h-3 w-3",
         button: "h-7 text-xs px-2",
       },
       md: {
-        container: "min-h-10 p-2 gap-1.5 rounded-full",
+        container: "min-h-10 p-2 gap-1.5",
         input: "text-sm",
         tag: "px-2 py-1 text-sm gap-1.5 rounded-full",
         tagIcon: "h-3.5 w-3.5",
         button: "h-9 text-sm px-3",
       },
       lg: {
-        container: "min-h-12 p-2.5 gap-2 rounded-full",
+        container: "min-h-12 p-2.5 gap-2",
         input: "text-base",
         tag: "px-2.5 py-1.5 text-base gap-2 rounded-full",
         tagIcon: "h-4 w-4",
@@ -249,6 +253,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
             "bg-background border border-input",
             "transition-all duration-200",
             "hover:border-accent-foreground/20",
+            getBorderRadiusClass(borderMode ?? "full"),
             isFocused && "ring-1 ring-ring ring-offset-1 ring-offset-background border-transparent shadow-md",
             disabled && "opacity-50 cursor-not-allowed",
             sizeStyles[size].container,

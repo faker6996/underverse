@@ -6,6 +6,7 @@ import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { useTranslations } from "next-intl";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import { BORDER_MODE_DOCS_TYPE } from "@/components/ui/radius";
 
 export default function DateTimePickerExample() {
   const t = useTranslations("DocsUnderverse");
@@ -86,6 +87,7 @@ export default function DateTimePickerExample() {
     { property: "label", description: "Field label", type: "string", default: "-" },
     { property: "labelClassName", description: "Custom label classes", type: "string", default: "-" },
     { property: "required", description: "Participates in form validation like Input", type: "boolean", default: "false" },
+    { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
     { property: "size", description: "Trigger size", type: "'sm' | 'md' | 'lg'", default: "'md'" },
     { property: "format", description: "Time format", type: "'12' | '24'", default: "'24'" },
     { property: "includeSeconds", description: "Enable seconds selection", type: "boolean", default: "false" },

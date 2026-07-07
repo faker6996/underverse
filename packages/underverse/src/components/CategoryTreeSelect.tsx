@@ -9,6 +9,7 @@ import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { Label } from "./label";
 import { Popover } from "./Popover";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 
 export interface Category {
   /** Unique category id used for selection and tree relationships. */
@@ -167,6 +168,7 @@ export interface CategoryTreeSelectBaseProps {
    * <CategoryTreeSelect baseIndent={0.25} indentSize={0.75} />
    */
   indentSize?: number;
+  borderMode?: BorderMode;
 }
 
 /** Multi-select mode. This is the default when `singleSelect` is omitted. */
@@ -398,6 +400,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     indentSize = TREE_NODE_INDENT_REM,
     renderItemActions,
     singleSelect = false,
+    borderMode,
   } = props;
 
   const [isOpen, setIsOpen] = useState(false);
@@ -1217,7 +1220,8 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
               }
             }}
             className={cn(
-              "group flex w-full items-center justify-between rounded-full transition-all duration-200",
+              "group flex w-full items-center justify-between transition-all duration-200",
+              getBorderRadiusClass(borderMode ?? "full"),
               "backdrop-blur-sm",
               triggerSizeStyles[size].button,
               triggerVariantStyles[variant],

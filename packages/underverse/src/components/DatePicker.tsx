@@ -8,6 +8,7 @@ import { Calendar, ChevronLeft, ChevronRight, Sparkles, X as XIcon } from "lucid
 import * as React from "react";
 import { useId } from "react";
 import { Popover } from "./Popover";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 
 /** Public props for the `DatePicker` component. */
 export interface DatePickerProps {
@@ -31,6 +32,7 @@ export interface DatePickerProps {
   minDate?: Date;
   /** Maximum selectable date (inclusive). Compared by day in local timezone. */
   maxDate?: Date;
+  borderMode?: BorderMode;
 }
 
 export const DatePicker: React.FC<DatePickerProps> = ({
@@ -50,6 +52,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   disablePastDates = false,
   minDate,
   maxDate,
+  borderMode,
 }) => {
   const t = useSmartTranslations("DatePicker");
   const tv = useSmartTranslations("ValidationInput");
@@ -655,7 +658,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             aria-invalid={!!effectiveError}
             className={cn(
               "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
-              "rounded-full",
+              getBorderRadiusClass(borderMode ?? "full"),
               sizeStyles[size].trigger,
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"
@@ -769,6 +772,7 @@ export interface DateRangePickerProps {
   /** Size variant */
   size?: "sm" | "md" | "lg";
   disabled?: boolean;
+  borderMode?: BorderMode;
 }
 
 export const DateRangePicker: React.FC<DateRangePickerProps> = ({
@@ -786,6 +790,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   maxDate,
   size = "md",
   disabled = false,
+  borderMode,
 }) => {
   const locale = useSmartLocale();
   const t = useSmartTranslations("DatePicker");
@@ -1487,7 +1492,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
             aria-required={required}
             aria-invalid={!!effectiveError}
             className={cn(
-              "group flex w-full items-center justify-between rounded-full border bg-background/80 backdrop-blur-sm",
+              "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
+              getBorderRadiusClass(borderMode ?? "full"),
               sizeStyles[size].trigger,
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"

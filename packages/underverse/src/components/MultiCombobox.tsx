@@ -10,6 +10,7 @@ import { ChevronDown, Search, Check, SearchX, Loader2, X, Sparkles } from "lucid
 import { useShadCNAnimations } from "../utils/animations";
 import { Popover } from "./Popover";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 
 export interface MultiComboboxOption {
   value: string;
@@ -46,6 +47,7 @@ export interface MultiComboboxProps {
   loadingText?: string;
   emptyText?: string;
   // New props
+  borderMode?: BorderMode;
   showSelectedIcons?: boolean;
   maxHeight?: number;
   groupBy?: (option: MultiComboboxOption) => string;
@@ -116,6 +118,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   loading = false,
   loadingText: loadingTextProp,
   emptyText: emptyTextProp,
+  borderMode,
   showSelectedIcons = true,
   maxHeight = 280,
   groupBy,
@@ -616,7 +619,8 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
       aria-required={required}
       aria-invalid={!!effectiveError}
       className={cn(
-        "group flex w-full items-center gap-2 rounded-full transition-all duration-200",
+        "group flex w-full items-center gap-2 transition-all duration-200",
+        getBorderRadiusClass(borderMode ?? "full"),
         sizeStyles[size].trigger,
         variantStyles[variant],
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary",

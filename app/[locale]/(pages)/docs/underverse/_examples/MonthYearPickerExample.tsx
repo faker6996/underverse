@@ -6,6 +6,7 @@ import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { useTranslations } from "next-intl";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import { BORDER_MODE_DOCS_TYPE } from "@/components/ui/radius";
 
 const VIETNAMESE_MONTHS = [
   "Tháng 1",
@@ -236,6 +237,7 @@ const VIETNAMESE_MONTHS = [
     },
     { property: "placeholder", description: t("props.monthYearPicker.placeholder"), type: "string", default: "'Select month/year'" },
     { property: "disabled", description: t("props.monthYearPicker.disabled"), type: "boolean", default: "false" },
+    { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
     { property: "size", description: t("props.monthYearPicker.size"), type: "'sm' | 'md' | 'lg'", default: "'md'" },
     { property: "label", description: t("props.monthYearPicker.label"), type: "string", default: "-" },
     { property: "required", description: t("props.monthYearPicker.required"), type: "boolean", default: "false" },

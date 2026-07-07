@@ -7,6 +7,7 @@ import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 import { Sparkles, Zap, Globe, Palette, Code, Database, Server, Layout, Shield, Settings } from "lucide-react";
+import { BORDER_MODE_DOCS_TYPE } from "@/components/ui/radius";
 
 export default function MultiComboboxExample() {
   const t = useTranslations("DocsUnderverse");
@@ -312,6 +313,7 @@ export default function MultiComboboxExample() {
     { property: "showClear", description: t("props.multiCombobox.showClear"), type: "boolean", default: "true" },
     { property: "className", description: t("props.multiCombobox.className"), type: "string", default: "-" },
     { property: "disabled", description: t("props.multiCombobox.disabled"), type: "boolean", default: "false" },
+    { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
     { property: "size", description: t("props.multiCombobox.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
     { property: "variant", description: "Visual style variant", type: '"default" | "outline" | "ghost"', default: '"default"' },
     { property: "label", description: t("props.multiCombobox.label"), type: "string", default: "-" },

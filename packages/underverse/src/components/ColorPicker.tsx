@@ -7,6 +7,7 @@ import Input from "./Input";
 import { Slider } from "./Slider";
 import { cn } from "../utils/cn";
 import { Pipette, X, Copy, Check, Palette, History } from "lucide-react";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 
 type OutputFormat = "hex" | "rgba" | "hsl" | "hsla";
 type ColorPickerSize = "sm" | "md" | "lg";
@@ -39,6 +40,7 @@ export interface ColorPickerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   showHarmony?: boolean;
   /** Max recent colors to remember */
   maxRecent?: number;
+  borderMode?: BorderMode;
 }
 
 type RGBA = { r: number; g: number; b: number; a: number };
@@ -253,6 +255,7 @@ export default function ColorPicker({
   showRecent = false,
   showHarmony = false,
   maxRecent = 8,
+  borderMode,
   ...rest
 }: ColorPickerProps) {
   const gi18n = useGlobalI18n();
@@ -366,7 +369,8 @@ export default function ColorPicker({
       type="button"
       disabled={disabled}
       className={cn(
-        "w-full px-3 rounded-full border border-input bg-background flex items-center justify-between",
+        "w-full px-3 border border-input bg-background flex items-center justify-between",
+        getBorderRadiusClass(borderMode ?? "full"),
         sizeClasses[size],
         "hover:border-accent-foreground/30 transition-colors",
         disabled && "opacity-50 cursor-not-allowed",

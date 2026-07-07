@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils/cn";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 
 interface RadioGroupContextType {
   value?: string;
@@ -10,6 +11,7 @@ interface RadioGroupContextType {
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
   variant?: "default" | "card" | "button";
+  borderMode?: BorderMode;
 }
 
 const RadioGroupContext = React.createContext<RadioGroupContextType | undefined>(undefined);
@@ -32,6 +34,7 @@ interface RadioGroupProps {
   orientation?: "horizontal" | "vertical";
   size?: "sm" | "md" | "lg";
   variant?: "default" | "card" | "button";
+  borderMode?: BorderMode;
   className?: string;
   children: React.ReactNode;
   required?: boolean;
@@ -50,6 +53,7 @@ export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
       orientation = "vertical",
       size = "md",
       variant = "default",
+      borderMode,
       className,
       children,
       required = false,
@@ -84,6 +88,7 @@ export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
           disabled,
           size,
           variant,
+          borderMode,
         }}
       >
         <div className="space-y-2">
@@ -148,7 +153,7 @@ const sizeStyles = {
 
 export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItemProps>(
   ({ value, id, disabled, className, children, label, labelClassName, description, icon }, ref) => {
-    const { value: selectedValue, onValueChange, name, disabled: groupDisabled, size = "md", variant = "default" } = useRadioGroup();
+    const { value: selectedValue, onValueChange, name, disabled: groupDisabled, size = "md", variant = "default", borderMode } = useRadioGroup();
 
     const isDisabled = disabled || groupDisabled;
     const isSelected = selectedValue === value;
@@ -160,7 +165,8 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
       return (
         <div
           className={cn(
-            "relative rounded-xl border transition-all duration-200 cursor-pointer",
+            "relative border transition-all duration-200 cursor-pointer",
+            getBorderRadiusClass(borderMode ?? "xl"),
             "hover:bg-accent/50 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
             isSelected && "border-primary bg-primary/5 ring-1 ring-primary/20",
             isDisabled && "cursor-not-allowed opacity-50",
@@ -230,7 +236,8 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
           id={radioId}
           disabled={isDisabled}
           className={cn(
-            "inline-flex items-center justify-center gap-2 rounded-lg border font-medium transition-all duration-200",
+            "inline-flex items-center justify-center gap-2 border font-medium transition-all duration-200",
+            getBorderRadiusClass(borderMode ?? "lg"),
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             "disabled:cursor-not-allowed disabled:opacity-50",
             isSelected
@@ -336,6 +343,7 @@ interface SimpleRadioGroupProps {
   orientation?: "horizontal" | "vertical";
   size?: "sm" | "md" | "lg";
   variant?: "default" | "card" | "button";
+  borderMode?: BorderMode;
   className?: string;
   required?: boolean;
   error?: boolean;
@@ -352,6 +360,7 @@ export const SimpleRadioGroup: React.FC<SimpleRadioGroupProps> = ({
   orientation = "vertical",
   size = "md",
   variant = "default",
+  borderMode,
   className,
   required = false,
   error = false,
@@ -367,6 +376,7 @@ export const SimpleRadioGroup: React.FC<SimpleRadioGroupProps> = ({
       orientation={orientation}
       size={size}
       variant={variant}
+      borderMode={borderMode}
       className={className}
       required={required}
       error={error}
@@ -405,6 +415,7 @@ interface RadioButtonGroupProps {
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
   variant?: "default" | "outline" | "solid";
+  borderMode?: BorderMode;
   className?: string;
   fullWidth?: boolean;
 }
@@ -418,6 +429,7 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
   disabled = false,
   size = "md",
   variant = "default",
+  borderMode,
   className,
   fullWidth = false,
 }) => {
@@ -442,17 +454,17 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
 
   const variantClasses = {
     default: {
-      container: "bg-muted rounded-md p-1",
+      container: "bg-muted p-1",
       base: "bg-transparent hover:bg-background/50",
       selected: "bg-background text-foreground shadow-sm",
     },
     outline: {
-      container: "border border-border/50 rounded-md overflow-hidden",
+      container: "border border-border/50 overflow-hidden",
       base: "bg-background border-r border-border/50 hover:bg-accent",
       selected: "bg-primary text-primary-foreground border-primary",
     },
     solid: {
-      container: "border border-border/50 rounded-md overflow-hidden",
+      container: "border border-border/50 overflow-hidden",
       base: "bg-background hover:bg-accent",
       selected: "bg-primary text-primary-foreground",
     },
@@ -462,7 +474,7 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
   const radioName = name || `radio-button-group-${uniqueId}`;
 
   return (
-    <div className={cn("inline-flex", variantClasses[variant].container, fullWidth && "w-full", className)} role="radiogroup">
+    <div className={cn("inline-flex", variantClasses[variant].container, getBorderRadiusClass(borderMode ?? "md"), fullWidth && "w-full", className)} role="radiogroup">
       {items.map((item, index) => {
         const isSelected = currentValue === item.value;
         const isDisabled = item.disabled || disabled;
@@ -483,7 +495,7 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
               sizeClasses[size],
               isSelected ? variantClasses[variant].selected : variantClasses[variant].base,
               variant === "outline" && !isLast && "border-r border-border/50",
-              variant === "default" && "rounded-md",
+              variant === "default" && getBorderRadiusClass(borderMode ?? "md"),
               fullWidth && "flex-1",
             )}
             onClick={() => handleValueChange(item.value)}

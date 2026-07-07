@@ -6,6 +6,7 @@ import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { cn } from "../utils/cn";
 import { Eye, EyeOff, Search, X, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 
 /** Public props for the `Input` component. */
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
@@ -16,6 +17,7 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   description?: string;
   variant?: "default" | "filled" | "outlined" | "minimal";
   size?: "sm" | "md" | "lg";
+  borderMode?: BorderMode;
   leftIcon?: React.ComponentType<{ className?: string }>;
   rightIcon?: React.ComponentType<{ className?: string }>;
   clearable?: boolean;
@@ -52,6 +54,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       value,
       maxLength,
       rightAddon,
+      borderMode,
       ...rest
     },
     ref,
@@ -166,6 +169,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       hint: _hint,
       counter: _counter,
       rightAddon: _rightAddon,
+      borderMode: _borderMode,
       ...restInput
     } = rest as any;
 
@@ -180,7 +184,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     };
 
     // Radius by size for visual consistency with Combobox/DatePicker
-    const radiusClass = size === "sm" ? "rounded-full" : "rounded-full";
+    const radiusClass = getBorderRadiusClass(borderMode ?? "full");
 
     return (
       <div className={cn("w-full group", containerSpacing)}>
@@ -641,6 +645,7 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
   description?: string;
   variant?: "default" | "filled" | "outlined" | "minimal";
   size?: "sm" | "md" | "lg";
+  borderMode?: BorderMode;
   resize?: "none" | "vertical" | "horizontal" | "both";
   counter?: boolean;
   /** Enable OverlayScrollbars on textarea viewport. Default: false */
@@ -663,6 +668,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       required,
       value,
       maxLength,
+      borderMode,
       ...props
     },
     ref,
@@ -751,7 +757,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           className={cn(
-            "w-full rounded-2xl md:rounded-3xl text-foreground transition-all duration-200",
+            "w-full text-foreground transition-all duration-200",
+            getBorderRadiusClass(borderMode ?? "full"),
             "placeholder:text-muted-foreground focus:outline-none",
             "disabled:cursor-not-allowed disabled:opacity-50",
             sizeStyles[size],

@@ -8,6 +8,7 @@ import Button from "./Button";
 import Calendar from "./Calendar";
 import TimePicker from "./TimePicker";
 import { useSmartLocale, useSmartTranslations } from "../hooks/useSmartTranslations";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 
 /** Public props for the `DateTimePicker` component. */
 export interface DateTimePickerProps {
@@ -31,6 +32,7 @@ export interface DateTimePickerProps {
   clearLabel?: string;
   /** Size variant */
   size?: "sm" | "md" | "lg";
+  borderMode?: BorderMode;
 }
 
 export const DateTimePicker: React.FC<DateTimePickerProps> = ({
@@ -49,6 +51,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   doneLabel,
   clearLabel,
   size = "md",
+  borderMode,
 }) => {
   const t = useSmartTranslations("DateTimePicker");
   const tv = useSmartTranslations("ValidationInput");
@@ -258,7 +261,8 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
             aria-required={required}
             aria-invalid={!!effectiveError}
             className={cn(
-              "flex w-full items-center justify-between rounded-full border border-input bg-background",
+              "flex w-full items-center justify-between border border-input bg-background",
+              getBorderRadiusClass(borderMode ?? "full"),
               sizeStyles[size].trigger,
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               disabled && "opacity-50 cursor-not-allowed",

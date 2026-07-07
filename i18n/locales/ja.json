@@ -1344,7 +1344,7 @@
         "isTodayDescription": "今日の日付かどうかを確認",
         "isYesterdayDescription": "昨日の日付かどうかを確認",
         "getDayOfWeekDescription": "曜日 (例: '日曜日')",
-        "formatDateForInputDescription": "<input type='date'> 用の YYYY-MM-DD 形式",
+        "formatDateForInputDescription": "input type='date' 用の YYYY-MM-DD 形式",
         "formatDateTimeForInputDescription": "datetime-local 用の YYYY-MM-DDTHH:mm 形式",
         "solarDateUtilities": "太陽暦ユーティリティ",
         "solarToLunarDesc": "標準のJS DateオブジェクトをLunarDateValueに変換します。",

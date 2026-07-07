@@ -6,6 +6,7 @@ import ColorPicker from "@/components/ui/ColorPicker";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import { BORDER_MODE_DOCS_TYPE } from "@/components/ui/radius";
 
 export default function ColorPickerExample() {
   const t = useTranslations("DocsUnderverse");
@@ -203,6 +204,7 @@ export default function ColorPickerExample() {
     { property: "presets", description: t("props.colorPicker.presets"), type: "string[]", default: "DEFAULT_PRESETS" },
     { property: "clearable", description: t("props.colorPicker.clearable"), type: "boolean", default: "false" },
     { property: "copyable", description: "Show copy to clipboard button", type: "boolean", default: "true" },
+    { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
     { property: "size", description: "Size variant of the picker", type: "'sm' | 'md' | 'lg'", default: "'md'" },
     { property: "variant", description: "Visual variant of the picker", type: "'default' | 'compact' | 'full' | 'minimal'", default: "'default'" },
     { property: "showRecent", description: "Show recent colors history", type: "boolean", default: "false" },

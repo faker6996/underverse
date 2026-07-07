@@ -8,6 +8,7 @@ import * as React from "react";
 import { useId } from "react";
 import { Popover } from "./Popover";
 import { lunarToSolar, solarToLunar, type LunarDateValue } from "../utils/lunar";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 
 export type LunarPickerValue = LunarDateValue;
 
@@ -32,6 +33,7 @@ export interface LunarDatePickerProps {
   minDate?: LunarPickerValue;
   /** Maximum selectable date (inclusive). Compared by day in local timezone. */
   maxDate?: LunarPickerValue;
+  borderMode?: BorderMode;
 }
 
 function toSolarDate(value: LunarPickerValue | undefined): Date | null {
@@ -146,6 +148,7 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
   disablePastDates = false,
   minDate,
   maxDate,
+  borderMode,
 }) => {
   const t = useSmartTranslations("DatePicker");
   const tv = useSmartTranslations("ValidationInput");
@@ -757,7 +760,7 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
             aria-invalid={!!effectiveError}
             className={cn(
               "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
-              "rounded-full",
+              getBorderRadiusClass(borderMode ?? "full"),
               sizeStyles[size].trigger,
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"
@@ -871,6 +874,7 @@ export interface LunarDateRangePickerProps {
   maxDate?: LunarPickerValue;
   size?: "sm" | "md" | "lg";
   disabled?: boolean;
+  borderMode?: BorderMode;
 }
 
 export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
@@ -888,6 +892,7 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
   maxDate,
   size = "md",
   disabled = false,
+  borderMode,
 }) => {
   const locale = useSmartLocale();
   const t = useSmartTranslations("DatePicker");
@@ -1432,7 +1437,8 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
             aria-required={required}
             aria-invalid={!!effectiveError}
             className={cn(
-              "group flex w-full items-center justify-between rounded-full border bg-background/80 backdrop-blur-sm",
+              "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
+              getBorderRadiusClass(borderMode ?? "full"),
               sizeStyles[size].trigger,
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"

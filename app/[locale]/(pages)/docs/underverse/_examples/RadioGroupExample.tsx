@@ -13,6 +13,7 @@ import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { Home, Settings, User } from "lucide-react";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import { BORDER_MODE_DOCS_TYPE } from "@/components/ui/radius";
 
 export default function RadioGroupExample() {
   const t = useTranslations("DocsUnderverse");
@@ -268,6 +269,7 @@ export default function RadioGroupExample() {
     { property: "RadioGroup.orientation", description: t("props.radioGroup.RadioGroup.orientation"), type: '"horizontal" | "vertical"', default: '"vertical"' },
     { property: "RadioGroup.size", description: t("props.radioGroup.RadioGroup.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
     { property: "RadioGroup.variant", description: t("props.radioGroup.RadioGroup.variant"), type: '"default" | "card" | "button"', default: '"default"' },
+    { property: "RadioGroup.borderMode", description: "Border radius customization for card/button variants", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
     { property: "RadioGroup.className", description: t("props.radioGroup.RadioGroup.className"), type: "string", default: "-" },
     { property: "RadioGroup.required", description: t("props.radioGroup.RadioGroup.required"), type: "boolean", default: "false" },
     { property: "RadioGroup.error", description: t("props.radioGroup.RadioGroup.error"), type: "boolean", default: "false" },
@@ -285,6 +287,7 @@ export default function RadioGroupExample() {
     { property: "SimpleRadioGroup.items", description: t("props.radioGroup.SimpleRadioGroup.items"), type: "Array<{ value: string; label: string }>", default: "-" },
     { property: "RadioButtonGroup.items", description: t("props.radioGroup.RadioButtonGroup.items"), type: "Array<{ value: string; label: string }>", default: "-" },
     { property: "RadioButtonGroup.variant", description: t("props.radioGroup.RadioButtonGroup.variant"), type: '"default" | "outline" | "solid"', default: '"default"' },
+    { property: "RadioButtonGroup.borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
     { property: "SegmentedControl.items", description: t("props.radioGroup.SegmentedControl.items"), type: "Array<{ value: string; label: string }>", default: "-" },
     { property: "ToggleGroup.items", description: t("props.radioGroup.ToggleGroup.items"), type: "Array<{ value: string; label: string }>", default: "-" },
   ];

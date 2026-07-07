@@ -1388,7 +1388,7 @@
         "isTodayDescription": "Check if date is today",
         "isYesterdayDescription": "Check if date is yesterday",
         "getDayOfWeekDescription": "Localized day name (e.g., 'Sunday')",
-        "formatDateForInputDescription": "YYYY-MM-DD format for <input type='date'>",
+        "formatDateForInputDescription": "YYYY-MM-DD format for input type='date'",
         "formatDateTimeForInputDescription": "YYYY-MM-DDTHH:mm format for datetime-local",
         "solarDateUtilities": "Solar Date Utilities",
         "solarToLunarDesc": "Converts a standard JS Date object to a LunarDateValue.",

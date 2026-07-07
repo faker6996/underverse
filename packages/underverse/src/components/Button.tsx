@@ -4,6 +4,7 @@ import React, { forwardRef, useCallback, useRef, useState } from "react";
 import { VARIANT_STYLES_BTN, SIZE_STYLES_BTN } from "../constants/button";
 import { cn } from "../utils/cn";
 import { Activity } from "lucide-react";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 
 /** Public props for the `Button` component. */
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -35,6 +36,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   noHoverOverlay?: boolean;
   // Bật nền gradient (alias cho variant="gradient")
   gradient?: boolean;
+  borderMode?: BorderMode;
 }
 
 // Sử dụng forwardRef để chuyển tiếp ref
@@ -64,13 +66,14 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       noWrap = true,
       noHoverOverlay = false,
       gradient = false,
+      borderMode,
       ...rest
     },
     ref,
   ) => {
     const baseStyles = asContainer
-      ? "relative inline-flex justify-center rounded-full font-medium transition-colors duration-150 ease-soft outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px"
-      : "relative inline-flex items-center justify-center gap-2 rounded-full font-medium overflow-hidden transition-colors duration-150 ease-soft outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px";
+      ? "relative inline-flex justify-center font-medium transition-colors duration-150 ease-soft outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px"
+      : "relative inline-flex items-center justify-center gap-2 font-medium overflow-hidden transition-colors duration-150 ease-soft outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px";
 
     const finalVariant = gradient ? "gradient" : variant;
     const variantStyle = VARIANT_STYLES_BTN[finalVariant] || VARIANT_STYLES_BTN.default;
@@ -118,6 +121,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         title={title}
         className={cn(
           baseStyles,
+          getBorderRadiusClass(borderMode ?? "full"),
           variantStyle,
           sizeStyle,
           "group",

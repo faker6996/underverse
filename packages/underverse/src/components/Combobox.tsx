@@ -10,6 +10,7 @@ import { ChevronDown, Search, SearchX, Check, X } from "lucide-react";
 import { useShadCNAnimations } from "../utils/animations";
 import { Popover } from "./Popover";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 
 // --- PROPS ---
 export type ComboboxOption = string | { label: string; value: any; icon?: React.ReactNode; description?: string; disabled?: boolean };
@@ -37,6 +38,7 @@ export interface ComboboxProps {
   loading?: boolean;
   loadingText?: string;
   // New props
+  borderMode?: BorderMode;
   showSelectedIcon?: boolean;
   maxHeight?: number;
   groupBy?: (option: ComboboxOption) => string;
@@ -129,6 +131,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   fontBold = false,
   loading = false,
   loadingText: loadingTextProp,
+  borderMode,
   showSelectedIcon = true,
   maxHeight = 280,
   groupBy,
@@ -586,8 +589,8 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
   const labelSize = size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm";
 
-  // Match DatePicker trigger style: fully rounded
-  const radiusClass = "rounded-full";
+  // Match DatePicker trigger style: fully rounded by default
+  const radiusClass = getBorderRadiusClass(borderMode ?? "full");
 
   const verticalGap = size === "sm" ? "space-y-1.5" : "space-y-2";
 

@@ -1421,7 +1421,7 @@
         "isTodayDescription": "Kiểm tra xem ngày có phải hôm nay không",
         "isYesterdayDescription": "Kiểm tra xem ngày có phải hôm qua không",
         "getDayOfWeekDescription": "Tên thứ trong tuần (vd: 'Chủ Nhật')",
-        "formatDateForInputDescription": "Định dạng YYYY-MM-DD cho <input type='date'>",
+        "formatDateForInputDescription": "Định dạng YYYY-MM-DD cho input type='date'",
         "formatDateTimeForInputDescription": "Định dạng YYYY-MM-DDTHH:mm cho datetime-local",
         "solarDateUtilities": "Tiện ích ngày dương lịch",
         "solarToLunarDesc": "Chuyển đổi đối tượng Date JS chuẩn sang LunarDateValue.",

@@ -7,6 +7,7 @@ import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
 import { Apple, Banana, Cherry, Citrus, Grape, Users, Settings, Bell, Lock, Palette, Globe, Zap, Shield, Sparkles } from "lucide-react";
+import { BORDER_MODE_DOCS_TYPE } from "@/components/ui/radius";
 
 export default function ComboboxExample() {
   const t = useTranslations("DocsUnderverse");
@@ -277,6 +278,7 @@ export default function ComboboxExample() {
     { property: "placeholder", description: t("props.combobox.placeholder"), type: "string", default: '"Select..."' },
     { property: "className", description: t("props.combobox.className"), type: "string", default: "-" },
     { property: "disabled", description: t("props.combobox.disabled"), type: "boolean", default: "false" },
+    { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
     { property: "size", description: t("props.combobox.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
     { property: "variant", description: t("props.combobox.variant"), type: '"default" | "outline" | "ghost" | "filled"', default: '"default"' },
     { property: "allowClear", description: t("props.combobox.allowClear"), type: "boolean", default: "false" },

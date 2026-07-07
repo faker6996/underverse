@@ -7,6 +7,7 @@ import IntlDemoProvider from "../_components/IntlDemoProvider";
 import { Tabs } from "@/components/ui/Tab";
 import { useTranslations } from "next-intl";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import { BORDER_MODE_DOCS_TYPE } from "@/components/ui/radius";
 
 export default function TagInputExample() {
   const t = useTranslations("DocsUnderverse");
@@ -215,6 +216,7 @@ const [appliedTags, setAppliedTags] = useState<string[]>([])
     { property: "label", description: "Label hiển thị phía trên input", type: "string", default: "-" },
     { property: "hideSearchButton", description: "Ẩn nút Search", type: "boolean", default: "false" },
     { property: "hideClearButton", description: "Ẩn nút Clear All", type: "boolean", default: "false" },
+    { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
     { property: "size", description: "Kích thước component", type: '"sm" | "md" | "lg"', default: '"md"' },
     { property: "disabled", description: "Trạng thái disabled", type: "boolean", default: "false" },
     { property: "loading", description: "Trạng thái loading - hiển thị spinner trên nút Search", type: "boolean", default: "false" },

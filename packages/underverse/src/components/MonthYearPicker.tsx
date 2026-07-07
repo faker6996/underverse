@@ -6,6 +6,7 @@ import { useSmartTranslations } from "../hooks/useSmartTranslations";
 import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { Popover } from "./Popover";
 import { Calendar, X, Check, ChevronDown } from "lucide-react";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 
 type MonthYearPickerVariant = "default" | "compact" | "inline";
 type PickerSize = "sm" | "md" | "lg";
@@ -64,6 +65,7 @@ export interface MonthYearPickerProps extends Omit<React.HTMLAttributes<HTMLDivE
   showThisMonth?: boolean;
   /** Column labels */
   columnLabels?: { month?: string; year?: string };
+  borderMode?: BorderMode;
 }
 
 const DEFAULT_MONTH_NAMES = [
@@ -595,6 +597,7 @@ export default function MonthYearPicker({
   showThisMonth = true,
   columnLabels = { month: "Month", year: "Year" },
   className,
+  borderMode,
   ...rest
 }: MonthYearPickerProps) {
   const gi18n = useGlobalI18n();
@@ -781,7 +784,8 @@ export default function MonthYearPicker({
         aria-required={required}
         aria-invalid={!!effectiveError}
         className={cn(
-          "group flex w-full items-center justify-between rounded-full border bg-background/80 backdrop-blur-sm",
+          "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
+          getBorderRadiusClass(borderMode ?? "full"),
           sz.height,
           sz.padding,
           sz.text,

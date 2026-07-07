@@ -1344,7 +1344,7 @@
         "isTodayDescription": "오늘 날짜인지 확인",
         "isYesterdayDescription": "어제 날짜인지 확인",
         "getDayOfWeekDescription": "요일 (예: '일요일')",
-        "formatDateForInputDescription": "<input type='date'>를 위한 YYYY-MM-DD 형식",
+        "formatDateForInputDescription": "input type='date'를 위한 YYYY-MM-DD 형식",
         "formatDateTimeForInputDescription": "datetime-local을 위한 YYYY-MM-DDTHH:mm 형식",
         "solarDateUtilities": "양력 날짜 유틸리티",
         "solarToLunarDesc": "표준 JS Date 객체를 LunarDateValue로 변환합니다.",

@@ -8,6 +8,7 @@ import { Tabs } from "@/components/ui/Tab";
 import { useTranslations } from "next-intl";
 import { useLocale } from "@/hooks/useLocale";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import { BORDER_MODE_DOCS_TYPE } from "@/components/ui/radius";
 
 export default function DatePickerExample() {
   const [date1, setDate1] = React.useState<Date | undefined>();
@@ -200,6 +201,7 @@ export default function DatePickerExample() {
                       { property: "placeholder", description: td("props.datePicker.placeholder"), type: "string", default: "-" },
                       { property: "className", description: td("props.datePicker.className"), type: "string", default: "-" },
                       { property: "disabled", description: td("props.datePicker.disabled"), type: "boolean", default: "false" },
+                      { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
                       { property: "size", description: td("props.datePicker.size"), type: '"sm" | "md"', default: '"md"' },
                       { property: "label", description: td("props.datePicker.label"), type: "string", default: "-" },
                       { property: "required", description: td("props.datePicker.required"), type: "boolean", default: "false" },
@@ -253,6 +255,7 @@ export default function DatePickerExample() {
                       { property: "label", description: td("props.dateRangePicker.label"), type: "string", default: "-" },
                       { property: "labelClassName", description: td("props.dateRangePicker.labelClassName"), type: "string", default: "-" },
                       { property: "required", description: td("props.dateRangePicker.required"), type: "boolean", default: "false" },
+                      { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
                       { property: "size", description: td("props.dateRangePicker.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
                       { property: "disablePastDates", description: td("props.dateRangePicker.disablePastDates"), type: "boolean", default: "false" },
                       { property: "minDate", description: td("props.dateRangePicker.minDate"), type: "Date", default: "-" },

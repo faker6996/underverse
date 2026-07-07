@@ -6,6 +6,7 @@ import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { useTranslations } from "next-intl";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import { BORDER_MODE_DOCS_TYPE } from "@/components/ui/radius";
 
 export default function TimePickerExample() {
   const t = useTranslations("DocsUnderverse");
@@ -346,6 +347,7 @@ export default function TimePickerExample() {
     { property: "onChange", description: t("props.timePicker.onChange"), type: "(value?: string) => void", default: "-" },
     { property: "placeholder", description: t("props.timePicker.placeholder"), type: "string", default: "'Select time'" },
     { property: "disabled", description: t("props.timePicker.disabled"), type: "boolean", default: "false" },
+    { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
     { property: "size", description: t("props.timePicker.size"), type: "'sm' | 'md' | 'lg'", default: "'md'" },
     { property: "label", description: t("props.timePicker.label"), type: "string", default: "-" },
     { property: "required", description: t("props.timePicker.required"), type: "boolean", default: "false" },

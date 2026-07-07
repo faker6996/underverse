@@ -8,6 +8,7 @@ import { Tabs } from "@/components/ui/Tab";
 import { Mail, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import { BORDER_MODE_DOCS_TYPE } from "@/components/ui/radius";
 
 export default function InputExample() {
   const t = useTranslations("DocsUnderverse");
@@ -32,6 +33,11 @@ export default function InputExample() {
     `<Input label='Filled' placeholder='Enter email' value={email} onChange={(e) => setEmail(e.target.value)} variant='filled' />\n` +
     `<Input label='Outlined' placeholder='Search' value={query} onChange={(e) => setQuery(e.target.value)} variant='outlined' />\n` +
     `<Input label='Minimal' placeholder='Short description' value={description} onChange={(e) => setDescription(e.target.value)} variant='minimal' />\n\n` +
+    `// Border Modes\n` +
+    `<Input label='None' placeholder='No radius' borderMode='none' />\n` +
+    `<Input label='Daewoo' placeholder='Custom radius' borderMode='daewoo' />\n` +
+    `<Input label='Infiniq' placeholder='Custom radius' borderMode='infiniq' />\n` +
+    `<Input label='Full' placeholder='Full radius' borderMode='full' />\n\n` +
     `// Sizes & Icons\n` +
     `<Input size='sm' label='Search (sm)' placeholder='Keyword' leftIcon={Search} value={query} onChange={(e) => setQuery(e.target.value)} />\n` +
     `<Input size='md' label='Email (md)' placeholder='you@example.com' type='email' leftIcon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />\n` +
@@ -56,6 +62,17 @@ export default function InputExample() {
           <Input label="Filled" placeholder="Enter email" value={email} onChange={(e) => setEmail(e.target.value)} variant="filled" />
           <Input label="Outlined" placeholder="Search" value={query} onChange={(e) => setQuery(e.target.value)} variant="outlined" />
           <Input label="Minimal" placeholder="Short description" value={description} onChange={(e) => setDescription(e.target.value)} variant="minimal" />
+        </div>
+      </div>
+
+      {/* Border Modes */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Border Modes</p>
+        <div className="grid md:grid-cols-4 gap-3">
+          <Input label="None" placeholder="No radius" borderMode="none" />
+          <Input label="Daewoo" placeholder="Custom" borderMode="daewoo" />
+          <Input label="Infiniq" placeholder="Custom" borderMode="infiniq" />
+          <Input label="Full" placeholder="Full radius" borderMode="full" />
         </div>
       </div>
 
@@ -99,6 +116,7 @@ export default function InputExample() {
     { property: "error", description: t("props.input.error"), type: "string", default: "-" },
     { property: "description", description: t("props.input.description"), type: "string", default: "-" },
     { property: "variant", description: t("props.input.variant"), type: '"default" | "filled" | "outlined" | "minimal"', default: '"default"' },
+    { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
     { property: "size", description: t("props.input.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
     { property: "leftIcon", description: t("props.input.leftIcon"), type: "React.ComponentType<{ className?: string }>", default: "-" },
     { property: "rightIcon", description: t("props.input.rightIcon"), type: "React.ComponentType<{ className?: string }>", default: "-" },

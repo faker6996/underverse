@@ -23,6 +23,7 @@ import { CategoryTreeSelect } from "@/components/ui/CategoryTreeSelect";
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import { BORDER_MODE_DOCS_TYPE } from "@/components/ui/radius";
 
 export default function CategoryTreeSelectExample() {
   const t = useTranslations("DocsUnderverse");
@@ -282,6 +283,7 @@ export default function CategoryTreeSelectExample() {
     { property: "label", description: t("props.categoryTreeSelect.label"), type: "string", default: "-" },
     { property: "labelClassName", description: t("props.categoryTreeSelect.labelClassName"), type: "string", default: "-" },
     { property: "required", description: t("props.categoryTreeSelect.required"), type: "boolean", default: "false" },
+    { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
     { property: "size", description: t("props.categoryTreeSelect.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
     { property: "variant", description: t("props.categoryTreeSelect.variant"), type: '"default" | "outline" | "ghost" | "filled"', default: '"default"' },
     { property: "allowClear", description: t("props.categoryTreeSelect.allowClear"), type: "boolean", default: "false" },

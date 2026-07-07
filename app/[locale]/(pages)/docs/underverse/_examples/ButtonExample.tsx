@@ -7,6 +7,7 @@ import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
 import { ArrowRight, Download, Plus } from "lucide-react";
 import { PropsDocsTable, type PropsRow } from "./PropsDocsTabPattern";
+import { BORDER_MODE_DOCS_TYPE } from "@/components/ui/radius";
 
 export default function ButtonExample() {
   const t = useTranslations("DocsUnderverse");
@@ -39,6 +40,11 @@ export default function ButtonExample() {
     `<Button variant=\"link\">Link</Button>\n` +
     `<Button variant=\"gradient\">Gradient (variant)</Button>\n` +
     `<Button gradient>Gradient (prop)</Button>\n\n` +
+    `// Border Modes\n` +
+    `<Button borderMode=\"none\">None</Button>\n` +
+    `<Button borderMode=\"daewoo\" variant=\"primary\">Daewoo</Button>\n` +
+    `<Button borderMode=\"infiniq\" variant=\"secondary\">Infiniq</Button>\n` +
+    `<Button borderMode=\"full\">Full</Button>\n\n` +
     `// Sizes\n` +
     `<Button size=\"sm\">Small</Button>\n` +
     `<Button size=\"md\">Medium</Button>\n` +
@@ -78,6 +84,17 @@ export default function ButtonExample() {
           </Button>
           <Button variant="gradient">Gradient (variant)</Button>
           <Button gradient>Gradient (prop)</Button>
+        </div>
+      </div>
+
+      {/* Border Modes */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Border Modes</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button borderMode="none">None</Button>
+          <Button borderMode="daewoo" variant="primary">Daewoo</Button>
+          <Button borderMode="infiniq" variant="secondary">Infiniq</Button>
+          <Button borderMode="full">Full</Button>
         </div>
       </div>
 
@@ -153,6 +170,7 @@ export default function ButtonExample() {
       type: '"default" | "outline" | "primary" | "secondary" | "success" | "danger" | "destructive" | "warning" | "info" | "ghost" | "link" | "gradient"',
       default: '"default"',
     },
+    { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
     { property: "size", description: t("props.button.size"), type: '"sm" | "md" | "lg" | "smx" | "icon"', default: '"md"' },
     { property: "className", description: t("props.button.className"), type: "string", default: '""' },
     { property: "iConClassName", description: t("props.button.iConClassName"), type: "string", default: '""' },
@@ -179,6 +197,7 @@ export default function ButtonExample() {
     "icon",
     "iconRight",
     "variant",
+    "borderMode",
     "size",
     "className",
     "iConClassName",
