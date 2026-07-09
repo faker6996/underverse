@@ -158,10 +158,172 @@ async function run() {
       input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_krillin_zen_1783351399591.jpg",
       output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_krillin/zen.png",
     },
-    // Master Roshi pack (1st sticker)
+    // Master Roshi pack (remaining 9 stickers to complete the pack)
     {
-      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_roshi_peace_1783351410556.jpg",
-      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_roshi/peace.png",
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_roshi_fight_1783584732694.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_roshi/fight.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_roshi_buff_1783584743404.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_roshi/buff.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_roshi_nosebleed_1783584751576.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_roshi/nosebleed.png",
+      bgColor: [255, 255, 255], // Force white background override since the outline is very thick
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_roshi_kamehameha_1783584761737.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_roshi/kamehameha.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_roshi_laughing_1783584772207.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_roshi/laughing.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_roshi_wink_1783584895350.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_roshi/wink.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_roshi_peace_v2_1783584904734.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_roshi/peace_v2.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_roshi_thinking_1783585630520.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_roshi/thinking.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_roshi_sleeping_1783585640244.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_roshi/sleeping.png",
+    },
+    // Zamasu pack (10 stickers total)
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_zamasu_sinister_1783585649317.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_zamasu/sinister.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_zamasu_god_stance_1783585939183.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_zamasu/god_stance.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_zamasu_holy_wrath_1783585949211.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_zamasu/holy_wrath.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_zamasu_fusion_prep_1783585957064.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_zamasu/fusion_prep.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_zamasu_tears_1783585966034.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_zamasu/tears.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_zamasu_shocked_1783585977364.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_zamasu/shocked.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_zamasu_blade_1783586817060.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_zamasu/blade.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_zamasu_laughing_1783586825851.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_zamasu/laughing.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_zamasu_injured_1783586836770.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_zamasu/injured.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_zamasu_happy_1783586847502.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_zamasu/happy.png",
+    },
+    // Whis pack (10 stickers total)
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_whis_eating_1783586857200.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_whis/eating.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_whis_laughing_1783590986404.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_whis/laughing.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_whis_shocked_1783590997402.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_whis/shocked.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_whis_calm_1783591006640.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_whis/calm.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_whis_wink_1783591016210.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_whis/wink.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_whis_pointing_1783591061039.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_whis/pointing.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_whis_yawning_1783591070186.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_whis/yawning.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_whis_dodging_1783591080760.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_whis/dodging.png",
+      bgColor: [0, 0, 0], // Force black background since there are energy trails
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_whis_sleeping_1783591090193.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_whis/sleeping.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_whis_sushi_1783591127251.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_whis/sushi.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_whis_tea_1783591349906.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_whis/tea.png",
+      bgColor: [255, 255, 255], // Force white background override
+    },
+    // Shin pack (10 stickers total)
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_shin_shocked_1783591390472.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_shin/shocked.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_shin_fight_1783610372234.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_shin/fight.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_shin_telekinesis_1783610381227.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_shin/telekinesis.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_shin_happy_1783610389871.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_shin/happy.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_shin_scared_1783610400819.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_shin/scared.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_shin_thinking_1783610411000.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_shin/thinking.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_shin_potara_1783610443428.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_shin/potara.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_shin_katchin_1783610455909.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_shin/katchin.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_shin_angry_1783610464361.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_shin/angry.png",
+    },
+    {
+      input: "/Users/tran_van_bach/.gemini/antigravity/brain/39800cef-db21-4c96-8b70-e4bbef8c20ad/db_shin_zen_1783610473638.jpg",
+      output: "/Users/tran_van_bach/Desktop/project/nextJs/underverse/packages/underverse/stickers/db_shin/zen.png",
     },
   ];
 
