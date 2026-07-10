@@ -120,13 +120,14 @@ export default function ImageUpload({
 
       try {
         // Upload files one by one
+        let idCount = 0;
         for (const file of validFiles) {
           const formData = new FormData();
           formData.append("file", file);
 
           // const response = await callApi<UploadedImage>(API_ROUTES.UPLOAD.IMAGE, HTTP_METHOD_ENUM.POST, formData);
           const response = {
-            id: Date.now(),
+            id: Date.now() + idCount,
             path: "",
             url: URL.createObjectURL(file),
             originalName: file.name,
@@ -156,6 +157,7 @@ export default function ImageUpload({
             type: "success",
             message: `"${file.name}" uploaded successfully`,
           });
+          idCount++;
         }
       } catch (error: any) {
         console.error("Upload error:", error);
