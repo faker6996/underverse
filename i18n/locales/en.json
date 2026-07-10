@@ -1172,7 +1172,8 @@
         "previewSize": "Preview size (sm|md|lg).",
         "dragDropText": "Drag & drop instruction text.",
         "browseText": "Browse button text.",
-        "supportedFormatsText": "Supported formats text."
+        "supportedFormatsText": "Supported formats text.",
+        "uploadAreaHeight": "Custom height for the upload area."
       },
       "notificationModal": {
         "isOpen": "Open/close state.",

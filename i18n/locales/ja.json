@@ -1128,7 +1128,8 @@
         "previewSize": "プレビューサイズ(sm|md|lg)。",
         "dragDropText": "ドラッグ&ドロップ案内テキスト。",
         "browseText": "ファイル選択ボタン文言。",
-        "supportedFormatsText": "対応形式のテキスト。"
+        "supportedFormatsText": "対応形式のテキスト。",
+        "uploadAreaHeight": "アップロードエリアのカスタム高さ。"
       },
       "notificationModal": {
         "isOpen": "開閉状態。",

@@ -1165,7 +1165,8 @@
         "previewSize": "Kích thước preview (sm|md|lg).",
         "dragDropText": "Chuỗi hướng dẫn kéo & thả.",
         "browseText": "Nút chọn tệp.",
-        "supportedFormatsText": "Chuỗi định dạng hỗ trợ."
+        "supportedFormatsText": "Chuỗi định dạng hỗ trợ.",
+        "uploadAreaHeight": "Chiều cao tùy chỉnh cho vùng tải lên."
       },
       "notificationModal": {
         "isOpen": "Trạng thái mở/đóng.",

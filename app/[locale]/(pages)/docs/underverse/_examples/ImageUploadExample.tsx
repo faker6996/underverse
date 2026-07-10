@@ -19,11 +19,12 @@ export default function ImageUploadExample() {
     `  browseText='Chọn ảnh'\n` +
     `  supportedFormatsText='Hỗ trợ JPG, PNG, WebP (tối đa 5MB)'\n` +
     `  maxSize={5}\n` +
+    `  uploadAreaHeight={220}\n` +
     `/>\n\n` +
     `// 2) Multiple, custom accept, showPreview lg\n` +
     `<ImageUpload multiple accept='image/png,image/jpeg' previewSize='lg' />\n\n` +
     `// 3) Small trigger, no preview list\n` +
-    `<ImageUpload previewSize='sm' showPreview={false} />\n\n` +
+    `<ImageUpload previewSize='sm'  uploadAreaHeight={100}  showPreview={false} />\n\n` +
     `// 4) Disabled\n` +
     `<ImageUpload disabled />\n\n` +
     `// 5) With callbacks\n` +
@@ -39,6 +40,7 @@ export default function ImageUploadExample() {
           browseText="Chọn ảnh"
           supportedFormatsText="Hỗ trợ JPG, PNG, WebP (tối đa 5MB)"
           maxSize={5}
+          uploadAreaHeight={220}
           onUpload={(img) => setLastUploaded(img.originalName)}
         />
         {lastUploaded && (
@@ -55,7 +57,7 @@ export default function ImageUploadExample() {
       {/* 3) No preview list */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Small trigger, no preview list</p>
-        <ImageUpload previewSize="sm" showPreview={false} />
+        <ImageUpload previewSize="sm" uploadAreaHeight={100} showPreview={false} />
       </div>
 
       {/* 4) Disabled */}
@@ -75,10 +77,11 @@ export default function ImageUploadExample() {
     { property: "disabled", description: t("props.imageUpload.disabled"), type: "boolean", default: "false" },
     { property: "className", description: t("props.imageUpload.className"), type: "string", default: "-" },
     { property: "showPreview", description: t("props.imageUpload.showPreview"), type: "boolean", default: "true" },
-    { property: "previewSize", description: t("props.imageUpload.previewSize"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "previewSize", description: t("props.imageUpload.previewSize"), type: '"sx" | "sm" | "md" | "lg"', default: '"md"' },
     { property: "dragDropText", description: t("props.imageUpload.dragDropText"), type: "string", default: "t('OCR.imageUpload.dragDropText')" },
     { property: "browseText", description: t("props.imageUpload.browseText"), type: "string", default: "t('OCR.imageUpload.browseFiles')" },
     { property: "supportedFormatsText", description: t("props.imageUpload.supportedFormatsText"), type: "string", default: "t('OCR.imageUpload.supportedFormats')" },
+    { property: "uploadAreaHeight", description: t("props.imageUpload.uploadAreaHeight"), type: "string | number", default: "-" },
   ];
   const order = rows.map(r => r.property);
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="ImageUpload.md" />;

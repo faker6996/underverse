@@ -30,10 +30,11 @@ export interface ImageUploadProps {
   disabled?: boolean;
   className?: string;
   showPreview?: boolean;
-  previewSize?: "sm" | "md" | "lg";
+  previewSize?: "sx" | "sm" | "md" | "lg";
   dragDropText?: string;
   browseText?: string;
   supportedFormatsText?: string;
+  uploadAreaHeight?: string | number;
 }
 
 export default function ImageUpload({
@@ -49,6 +50,7 @@ export default function ImageUpload({
   dragDropText,
   browseText,
   supportedFormatsText,
+  uploadAreaHeight,
 }: ImageUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -58,10 +60,17 @@ export default function ImageUpload({
   const t = useSmartTranslations("OCR.imageUpload");
 
   const previewSizes = {
+    sx: "w-12 h-12",
     sm: "w-16 h-16",
     md: "w-24 h-24",
     lg: "w-32 h-32",
-  };
+  } as const;
+
+  const compactUploadArea = typeof uploadAreaHeight === "number"
+    ? uploadAreaHeight <= 150
+    : typeof uploadAreaHeight === "string" && /^\s*\d+(?:\.\d+)?px\s*$/.test(uploadAreaHeight)
+      ? parseFloat(uploadAreaHeight) <= 150
+      : false;
 
   const handleDragOver = useCallback(
     (e: React.DragEvent) => {
@@ -201,11 +210,14 @@ export default function ImageUpload({
       {/* Upload Area */}
       <div
         className={cn(
-          "relative border-2 border-dashed rounded-2xl md:rounded-3xl p-8 text-center transition-all duration-200",
+          "relative border-2 border-dashed rounded-2xl md:rounded-3xl text-center transition-all duration-200",
+          uploadAreaHeight ? "px-4 py-3 sm:px-6 sm:py-4" : "p-8",
+          compactUploadArea && "px-3 py-2 sm:px-4 sm:py-3",
           isDragging && !disabled ? "border-primary bg-primary/5 scale-[1.02]" : "border-border/50 hover:border-primary/50",
           disabled && "opacity-50 cursor-not-allowed",
           uploading && "pointer-events-none",
         )}
+        style={uploadAreaHeight ? { height: uploadAreaHeight } : undefined}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -219,20 +231,32 @@ export default function ImageUpload({
           </div>
         )}
 
-        <div className="space-y-4">
-          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-            <Upload className="w-6 h-6 text-primary" />
+        <div
+          className={cn(
+            "space-y-4",
+            uploadAreaHeight && "flex h-full flex-col items-center justify-center gap-3 space-y-0",
+            compactUploadArea && "flex-row items-center justify-between gap-3 text-left",
+          )}
+        >
+          <div className={cn("bg-primary/10 rounded-full flex items-center justify-center shrink-0", compactUploadArea ? "w-9 h-9 mx-0" : "mx-auto w-12 h-12")}>
+            <Upload className={cn("text-primary", compactUploadArea ? "w-4 h-4" : "w-6 h-6")} />
           </div>
 
-          <div className="space-y-2">
-            <p className="text-muted-foreground">{dragDropText || t("dragDropText")}</p>
+          <div className={cn("space-y-2", compactUploadArea && "flex min-w-0 flex-1 items-center justify-between gap-3 space-y-0")}>
+            <p className={cn("text-muted-foreground", compactUploadArea && "text-sm leading-tight whitespace-nowrap")}>{dragDropText || t("dragDropText")}</p>
 
-            <Button type="button" variant="outline" size="sm" onClick={handleBrowseClick} disabled={disabled || uploading}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className={cn(compactUploadArea && "shrink-0")}
+              onClick={handleBrowseClick}
+              disabled={disabled || uploading}
+            >
               {browseText || t("browseFiles")}
             </Button>
           </div>
-
-          <p className="text-xs text-muted-foreground">{supportedFormatsText || t("supportedFormats")}</p>
+          {!compactUploadArea && <p className="text-xs text-muted-foreground">{supportedFormatsText || t("supportedFormats")}</p>}
         </div>
 
         <input
