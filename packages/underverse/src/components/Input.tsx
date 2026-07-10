@@ -668,7 +668,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       required,
       value,
       maxLength,
-      borderMode,
+      borderMode = "2xl",
       ...props
     },
     ref,
@@ -764,7 +764,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             sizeStyles[size],
             variantStyles[variant],
             error &&
-              "border-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
+            "border-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
             resizeClasses[resize],
             isFocused && "shadow-md",
             variant !== "minimal" && "shadow-sm",
