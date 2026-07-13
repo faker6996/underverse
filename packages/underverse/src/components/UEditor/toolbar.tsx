@@ -247,7 +247,7 @@ export const EditorToolbar = ({
   const [showImageInput, setShowImageInput] = useState(false);
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [isTableMenuOpen, setIsTableMenuOpen] = useState(false);
-  const tableCommandAnchorPosRef = useRef<number | null>(null);
+  const [preservedTableAnchorPos, setPreservedTableAnchorPos] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
@@ -275,7 +275,7 @@ export const EditorToolbar = ({
   const tableAlignAttr = tableAttrs.tableAlign ?? tableAttrs.textAlign;
   const currentTableAlign = tableAlignAttr === "center" || tableAlignAttr === "right" ? tableAlignAttr : "left";
   const isTableSelected = tableInfo !== null;
-  const hasTableContext = isTableSelected || tableCommandAnchorPosRef.current !== null;
+  const hasTableContext = isTableSelected || preservedTableAnchorPos !== null;
   const canMergeCells = hasTableContext && editor.can().mergeCells();
   const canSplitCell = hasTableContext && editor.can().splitCell();
   const currentCellVerticalAlign =
@@ -306,7 +306,7 @@ export const EditorToolbar = ({
   const displayedFontFamilyValue = currentFontFamily || defaultFontFamilyValue;
   const displayedFontSizeLabel = currentFontSize ? currentFontSizeLabel : "13";
   const activeFontSize = currentFontSize || "13px";
-  const tableCommandAnchorPos = tableCommandAnchorPosRef.current ?? tableAnchorPos ?? undefined;
+  const tableCommandAnchorPos = preservedTableAnchorPos ?? tableAnchorPos ?? undefined;
   const isMedium = variant === "medium";
   const isMediumFull = variant === "medium-full";
   const isFull = variant === "default" || variant === "full" || variant === "notion" || !variant;
@@ -924,7 +924,7 @@ export const EditorToolbar = ({
           isOpen={isTableMenuOpen}
           onOpenChange={(open) => {
             setIsTableMenuOpen(open);
-            tableCommandAnchorPosRef.current = open ? getTableAnchorPos(editor) : null;
+            setPreservedTableAnchorPos(open ? getTableAnchorPos(editor) : null);
           }}
           trigger={
             <ToolbarButton onClick={() => {}} title={t("toolbar.table")}>
@@ -940,6 +940,7 @@ export const EditorToolbar = ({
             onInsert={(rows, cols) => {
               editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
               setIsTableMenuOpen(false);
+              setPreservedTableAnchorPos(null);
             }}
           />
           <div className="my-1 border-t" />

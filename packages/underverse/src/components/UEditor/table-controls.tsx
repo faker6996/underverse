@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { Editor } from "@tiptap/core";
+import type { ChainedCommands, Editor } from "@tiptap/core";
 import { moveTableColumn, moveTableRow } from "prosemirror-tables";
 import {
   AlignCenter,
@@ -232,7 +232,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     };
   }, [clearDrag, containerRef, editor, refreshCurrentLayout, syncFromCell, syncFromSelection, updateHoverState]);
 
-  const runAtCellPos = React.useCallback((cellPos: number | null, command: (chain: any) => any, options?: { sync?: boolean }) => {
+  const runAtCellPos = React.useCallback((cellPos: number | null, command: (chain: ChainedCommands) => ChainedCommands, options?: { sync?: boolean }) => {
     const result = runTableCommandAtCellPos(editor, cellPos, command);
     if (options?.sync !== false) {
       scheduleSyncFromSelection();
@@ -240,7 +240,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     return result;
   }, [editor, scheduleSyncFromSelection]);
 
-  const runAtActiveCell = React.useCallback((command: (chain: any) => any, options?: { sync?: boolean }) => {
+  const runAtActiveCell = React.useCallback((command: (chain: ChainedCommands) => ChainedCommands, options?: { sync?: boolean }) => {
     return runAtCellPos(layoutRef.current?.cellPos ?? null, command, options);
   }, [runAtCellPos]);
 
@@ -496,7 +496,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
         destructive: true,
       },
     ];
-  }, [layout, runAtActiveCell, t]);
+  }, [editor, layout, runAtActiveCell, t]);
 
   const getRowHandleMenuItems = React.useCallback((rowHandle: TableAxisHandle) => ([
     {

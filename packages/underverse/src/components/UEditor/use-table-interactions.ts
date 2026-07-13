@@ -365,7 +365,7 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
       clearHoveredTableCell();
       clearAllTableResizeHover();
     };
-  }, [beginResize, cancelResize, cleanupRowResize, clearActiveTableCell, clearAllTableResizeHover, clearHoveredTableCell, editable, editor, handleRowResizePointerMove, handleRowResizePointerUp, hideColumnGuide, hideRowGuide, isRowResizing, scheduleTableLayoutSync, showColumnGuide, showRowGuide, syncActiveRowResizeGuide, syncActiveTableCellFromSelection, updateActiveCellHighlight]);
+  }, [beginResize, cancelResize, cleanupRowResize, clearActiveTableCell, clearAllTableResizeHover, clearHoveredTableCell, editable, editor, handleRowResizePointerMove, handleRowResizePointerUp, hideColumnGuide, hideRowGuide, isRowResizing, scheduleTableLayoutSync, setActiveTableCell, setHoveredTableCell, showColumnGuide, showRowGuide, syncActiveRowResizeGuide, syncActiveTableCellFromSelection, updateActiveCellHighlight]);
 
   return {
     editorContentRef,

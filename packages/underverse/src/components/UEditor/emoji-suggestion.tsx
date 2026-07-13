@@ -5,12 +5,12 @@ import Suggestion from "@tiptap/suggestion";
 import { ReactRenderer } from "@tiptap/react";
 import { PluginKey } from "@tiptap/pm/state";
 import React, { forwardRef, useImperativeHandle } from "react";
-import type { Editor } from "@tiptap/core";
+import type { Editor, Range } from "@tiptap/core";
 import type { SuggestionProps } from "@tiptap/suggestion";
 import { Smile } from "lucide-react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { EmojiGridButton, formatEmojiCountLabel } from "../emoji-ui";
-import { destroyTippyInstance, getFirstTippyInstance, hideTippyInstance, tippy, type TippyInstance } from "./tippy-interop";
+import { destroyTippyInstance, getFirstTippyInstance, hideTippyInstance, setTippyReferenceClientRect, tippy, type TippyInstance } from "./tippy-interop";
 import { EMOJI_LIST } from "./emojis";
 
 type EmojiItem = {
@@ -147,7 +147,7 @@ export const EmojiSuggestion = Extension.create({
                 editor: this.editor,
                 char: ":",
                 pluginKey: new PluginKey("emojiSuggestion"),
-                command: ({ editor, range, props }: { editor: Editor; range: any; props: any }) => {
+                command: ({ editor, range, props }: { editor: Editor; range: Range; props: EmojiItem }) => {
                     editor.chain().focus().deleteRange(range).insertContent(props.emoji).run();
                 },
                 items: getEmojiSuggestionItems,
@@ -184,9 +184,7 @@ export const EmojiSuggestion = Extension.create({
                                 return;
                             }
 
-                            popup?.[0]?.setProps({
-                                getReferenceClientRect: props.clientRect as () => DOMRect,
-                            });
+                            setTippyReferenceClientRect(getFirstTippyInstance(popup), props.clientRect as () => DOMRect);
                         },
                         onKeyDown(props: { event: KeyboardEvent }) {
                             if (!props || !props.event) return false;

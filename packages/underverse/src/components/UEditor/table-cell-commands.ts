@@ -1,4 +1,4 @@
-import type { Editor } from "@tiptap/core";
+import type { ChainedCommands, Editor } from "@tiptap/core";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { TextSelection } from "@tiptap/pm/state";
 import { selectedRect, TableMap } from "@tiptap/pm/tables";
@@ -238,7 +238,11 @@ export function mergeTableCellsPreservingColumnWidths(editor: Editor) {
   return true;
 }
 
-export function runTableCommandAtCellPos(editor: Editor, cellPos: number | null, command: (chain: any) => any) {
+export function runTableCommandAtCellPos(
+  editor: Editor,
+  cellPos: number | null,
+  command: (chain: ChainedCommands) => ChainedCommands,
+) {
   if (cellPos == null) return false;
   focusCell(editor, cellPos);
   return command(editor.chain().focus(null, { scrollIntoView: false })).run();

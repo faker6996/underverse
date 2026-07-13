@@ -1,5 +1,6 @@
 import type { Editor } from "@tiptap/core";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
+import { TextSelection } from "@tiptap/pm/state";
 import { selectedRect, setCellAttr, TableMap } from "@tiptap/pm/tables";
 import { dispatchTableLayoutChange } from "./table-cell-commands";
 import {
@@ -73,6 +74,111 @@ function getSelectionTableCellNode(editor: Editor) {
   return null;
 }
 
+function getSelectionTableCellPos(editor: Editor) {
+  const cellSelection = editor.state.selection as { $anchorCell?: { pos?: unknown } };
+  const anchorCellPos = cellSelection.$anchorCell?.pos;
+  if (typeof anchorCellPos === "number") {
+    const node = editor.state.doc.nodeAt(anchorCellPos);
+    if (node?.type.name === "tableCell" || node?.type.name === "tableHeader") {
+      return anchorCellPos;
+    }
+  }
+
+  const { $from } = editor.state.selection;
+  for (let depth = $from.depth; depth > 0; depth -= 1) {
+    const node = $from.node(depth);
+    if (node.type.name === "tableCell" || node.type.name === "tableHeader") {
+      return $from.before(depth);
+    }
+  }
+
+  return null;
+}
+
+type TableCellSelectionAnchor = {
+  column: number;
+  row: number;
+  tablePos: number;
+};
+
+function getSelectionTableCellAnchor(editor: Editor) {
+  const cellPos = getSelectionTableCellPos(editor);
+  if (cellPos == null) return null;
+
+  const node = editor.state.doc.nodeAt(cellPos);
+  if (!node || (node.type.name !== "tableCell" && node.type.name !== "tableHeader")) return null;
+
+  const $cell = editor.state.doc.resolve(Math.min(cellPos + 1, editor.state.doc.content.size));
+  for (let depth = $cell.depth; depth > 0; depth -= 1) {
+    const tableNode = $cell.node(depth);
+    if (tableNode.type.name !== "table") continue;
+
+    const tableStart = $cell.start(depth);
+    const rect = safeFindCell(TableMap.get(tableNode), cellPos - tableStart);
+    if (!rect) return null;
+
+    return {
+      cellPos,
+      column: rect.left,
+      label: `${indexToColumnName(rect.left)}${rect.top + 1}`,
+      node,
+      row: rect.top,
+      tablePos: tableStart - 1,
+    };
+  }
+
+  return null;
+}
+
+function restoreSelectionAtTableCell(editor: Editor, anchor: TableCellSelectionAnchor) {
+  const tableNode = editor.state.doc.nodeAt(anchor.tablePos);
+  if (!tableNode || tableNode.type.name !== "table") return false;
+
+  const map = TableMap.get(tableNode);
+  if (anchor.row >= map.height || anchor.column >= map.width) return false;
+
+  const relativeCellPos = map.positionAt(anchor.row, anchor.column, tableNode);
+  const cellPos = anchor.tablePos + 1 + relativeCellPos;
+  const cellNode = editor.state.doc.nodeAt(cellPos);
+  if (!cellNode || (cellNode.type.name !== "tableCell" && cellNode.type.name !== "tableHeader")) return false;
+
+  const selectionPos = Math.min(cellPos + 2, editor.state.doc.content.size);
+  editor.view.dispatch(
+    editor.state.tr
+      .setSelection(TextSelection.near(editor.state.doc.resolve(selectionPos)))
+      .setMeta("addToHistory", false),
+  );
+  return true;
+}
+
+export type SelectedTableFormulaCell = {
+  cellPos: number;
+  computedValue: string;
+  formula: string;
+  formulaState: "computed" | "error";
+  label: string;
+  node: ProseMirrorNode;
+  column: number;
+  row: number;
+  tablePos: number;
+};
+
+export function getSelectedTableFormulaCell(editor: Editor): SelectedTableFormulaCell | null {
+  const selectedCell = getSelectionTableCellAnchor(editor);
+  if (!selectedCell) return null;
+
+  const formula = typeof selectedCell.node.attrs.formula === "string" ? selectedCell.node.attrs.formula.trim() : "";
+  if (!formula) return null;
+
+  const computedValue = typeof selectedCell.node.attrs.computedValue === "string" ? selectedCell.node.attrs.computedValue : "";
+  return {
+    ...selectedCell,
+    computedValue,
+    formula,
+    formulaState: computedValue.startsWith("#") ? "error" : "computed",
+  };
+}
+
 function getSelectionTableInfo(editor: Editor) {
   const { $from } = editor.state.selection;
 
@@ -131,6 +237,34 @@ function createCellDisplayContent(cellNode: ProseMirrorNode, displayValue: strin
   return [paragraphType.create(null, cellNode.type.schema.text(displayValue))];
 }
 
+function removeSelectedTableCellFormula(editor: Editor, clearContent: boolean) {
+  const selectedCell = getSelectedTableFormulaCell(editor);
+  if (!selectedCell) return false;
+
+  const nextCell = selectedCell.node.type.create(
+    {
+      ...selectedCell.node.attrs,
+      formula: null,
+      computedValue: null,
+    },
+    clearContent ? createCellDisplayContent(selectedCell.node, "") : selectedCell.node.content,
+    selectedCell.node.marks,
+  );
+
+  let transaction = editor.state.tr
+    .replaceWith(selectedCell.cellPos, selectedCell.cellPos + selectedCell.node.nodeSize, nextCell)
+    .setMeta(UEDITOR_TABLE_FORMULA_RECALCULATE_META, true);
+  const selectionPos = Math.min(selectedCell.cellPos + 2, transaction.doc.content.size);
+  transaction = transaction.setSelection(TextSelection.near(transaction.doc.resolve(selectionPos)));
+  editor.view.dispatch(transaction);
+
+  recalculateActiveTableFormulas(editor);
+  restoreSelectionAtTableCell(editor, selectedCell);
+  editor.view.focus();
+  dispatchTableLayoutChange(editor);
+  return true;
+}
+
 function buildTableValueMap(tableNode: ProseMirrorNode) {
   const map = TableMap.get(tableNode);
   const values = new Map<string, string | number>();
@@ -158,17 +292,10 @@ export function normalizeFormulaInput(formula: string) {
 export function setSelectedTableCellFormula(editor: Editor, formula: string) {
   const normalized = normalizeFormulaInput(formula);
   const { state, view } = editor;
+  const selectionAnchor = getSelectionTableCellAnchor(editor);
 
   if (!normalized) {
-    const clearedFormula = setCellAttr("formula", null)(state, view.dispatch.bind(view));
-    const clearedValue = setCellAttr("computedValue", null)(editor.state, view.dispatch.bind(view));
-    if (clearedFormula || clearedValue) {
-      recalculateActiveTableFormulas(editor);
-      view.focus();
-      dispatchTableLayoutChange(editor);
-      return true;
-    }
-    return false;
+    return clearSelectedTableCellFormula(editor);
   }
 
   const appliedFormula = setCellAttr("formula", normalized)(state, view.dispatch.bind(view));
@@ -176,6 +303,7 @@ export function setSelectedTableCellFormula(editor: Editor, formula: string) {
 
   if (appliedFormula || clearedValue) {
     recalculateActiveTableFormulas(editor);
+    if (selectionAnchor) restoreSelectionAtTableCell(editor, selectionAnchor);
     view.focus();
     dispatchTableLayoutChange(editor);
     return true;
@@ -185,7 +313,11 @@ export function setSelectedTableCellFormula(editor: Editor, formula: string) {
 }
 
 export function clearSelectedTableCellFormula(editor: Editor) {
-  return setSelectedTableCellFormula(editor, "");
+  return removeSelectedTableCellFormula(editor, true);
+}
+
+export function convertSelectedTableCellFormulaToValue(editor: Editor) {
+  return removeSelectedTableCellFormula(editor, false);
 }
 
 export function setSelectedTableCellNumberFormat(editor: Editor, numberFormat: string | null) {

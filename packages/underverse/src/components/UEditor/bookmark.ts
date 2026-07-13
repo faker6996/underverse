@@ -2,10 +2,11 @@ import { Node, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { BookmarkView } from "./BookmarkView";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
+import { sanitizeUEditorUrl } from "./url-safety";
 
 export interface BookmarkOptions {
   fetchMetadata?: (url: string) => Promise<{ title?: string; description?: string; image?: string; publisher?: string }>;
-  HTMLAttributes: Record<string, any>;
+  HTMLAttributes: Record<string, unknown>;
 }
 
 declare module "@tiptap/core" {
@@ -39,11 +40,11 @@ export const Bookmark = Node.create<BookmarkOptions>({
     return {
       url: {
         default: "",
-        parseHTML: (element) => element.getAttribute("href") || element.getAttribute("data-url") || "",
-        renderHTML: (attributes) => ({
-          href: attributes.url,
-          "data-url": attributes.url,
-        }),
+        parseHTML: (element) => sanitizeUEditorUrl(element.getAttribute("href") || element.getAttribute("data-url") || "", "link"),
+        renderHTML: (attributes) => {
+          const url = sanitizeUEditorUrl(String(attributes.url ?? ""), "link");
+          return url ? { href: url, "data-url": url } : {};
+        },
       },
       title: {
         default: "",
@@ -61,10 +62,11 @@ export const Bookmark = Node.create<BookmarkOptions>({
       },
       image: {
         default: "",
-        parseHTML: (element) => element.getAttribute("data-image") || "",
-        renderHTML: (attributes) => ({
-          "data-image": attributes.image,
-        }),
+        parseHTML: (element) => sanitizeUEditorUrl(element.getAttribute("data-image") || "", "image"),
+        renderHTML: (attributes) => {
+          const image = sanitizeUEditorUrl(String(attributes.image ?? ""), "image");
+          return image ? { "data-image": image } : {};
+        },
       },
       publisher: {
         default: "",
@@ -103,9 +105,12 @@ export const Bookmark = Node.create<BookmarkOptions>({
       setBookmark:
         (attributes) =>
         ({ commands }) => {
+          const url = sanitizeUEditorUrl(attributes.url, "link");
+          if (!url) return false;
+          const image = attributes.image ? sanitizeUEditorUrl(attributes.image, "image") : "";
           return commands.insertContent({
             type: this.name,
-            attrs: attributes,
+            attrs: { ...attributes, url, image },
           });
         },
     };
@@ -125,7 +130,6 @@ export const Bookmark = Node.create<BookmarkOptions>({
 
             const { selection } = view.state;
             const parent = selection.$from.parent;
-            console.log("DEBUG handlePaste name:", parent.type.name, "size:", parent.content.size);
             const isEmptyParagraph = parent.type.name === "paragraph" && parent.content.size === 0;
 
             if (isEmptyParagraph) {

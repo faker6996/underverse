@@ -30,4 +30,9 @@ export function destroyTippyInstance(instance?: TippyInstance) {
   instance.destroy();
 }
 
+export function setTippyReferenceClientRect(instance: TippyInstance | undefined, clientRect: () => DOMRect) {
+  if (!instance || instance.state.isDestroyed) return;
+  instance.setProps({ getReferenceClientRect: clientRect });
+}
+
 export type { TippyInstance };

@@ -52,7 +52,7 @@ import UEditorTable from "./table-align";
 import { isSafeUEditorUrl } from "./url-safety";
 import { CodeBlockView } from "./CodeBlockView";
 
-function getFormulaStateAttributes(attributes: Record<string, any>) {
+function getFormulaStateAttributes(attributes: Record<string, unknown>) {
   const formula = attributes["data-formula"];
   if (!formula) {
     return {};
@@ -414,7 +414,6 @@ export function buildUEditorExtensions({
     Gapcursor,
     Link.configure({
       openOnClick: false,
-      protocols: ["http", "https", "mailto", "tel"],
       isAllowedUri: (url) => isSafeUEditorUrl(url ?? "", "link"),
       HTMLAttributes: {
         class: "text-primary underline underline-offset-2 hover:text-primary/80 cursor-pointer",

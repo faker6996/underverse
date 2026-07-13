@@ -59,6 +59,8 @@
     "test:calendar-timeline-ui": "node --test ./tests/calendar-timeline.interaction.test.mjs",
     "test:ueditor-clipboard": "node --test --experimental-strip-types ./tests/ueditor-clipboard-tables.test.mjs",
     "test:ueditor-deep": "node --test --experimental-strip-types ./tests/ueditor-prepare-content.test.mjs",
+    "test:ueditor-form-fields": "node --test --experimental-strip-types ./tests/ueditor-form-fields.test.mjs",
+    "test:ueditor-formula": "node --test --experimental-strip-types ./tests/ueditor-table-formula.test.mjs",
     "test:ueditor-ui": "node --test ./tests/ueditor.interaction.test.mjs",
     "test:public-api": "node --test ./tests/public-api-smoke.test.mjs",
     "test:components-smoke": "node --test ./tests/components-smoke.test.mjs",

@@ -44,6 +44,7 @@ import { mergeTableCellsPreservingColumnWidths } from "./table-cell-commands";
 import { clearSelectedTableCellFormula, recalculateSelectedTable, setSelectedTableCellFormula, setSelectedTableCellNumberFormat } from "./table-formula-commands";
 import type { UEditorFontSizeOption, UEditorLineHeightOption } from "./types";
 import { getDefaultFontSizes, getDefaultLineHeights, normalizeStyleValue } from "./typography-options";
+import { sanitizeUEditorUrl } from "./url-safety";
 
 const FloatingSlashCommandMenu = ({ editor, onClose }: { editor: Editor; onClose: () => void }) => {
   const t = useSmartTranslations("UEditor");
@@ -921,7 +922,8 @@ const LinkPreviewContent = ({ editor, onEdit }: { editor: Editor; onEdit: () => 
   const t = useSmartTranslations("UEditor");
 
   const handleOpen = () => {
-    window.open(url, "_blank", "noopener,noreferrer");
+    const safeUrl = sanitizeUEditorUrl(url, "link");
+    if (safeUrl) window.open(safeUrl, "_blank", "noopener,noreferrer");
   };
 
   const handleUnlink = () => {
@@ -968,16 +970,19 @@ export const CustomBubbleMenu = ({
   });
   const menuRef = useRef<HTMLDivElement>(null);
   const keepOpenRef = useRef(false);
+  const [keepOpen, setKeepOpenState] = useState(false);
   const showTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suppressShowUntilRef = useRef(0);
   const setKeepOpen = useCallback((next: boolean) => {
     keepOpenRef.current = next;
+    setKeepOpenState(next);
     if (!next) setLinkInputOpen(false);
     if (next) setIsVisible(true);
   }, []);
   const closeBubbleMenu = useCallback(() => {
     suppressShowUntilRef.current = Date.now() + 1000;
     keepOpenRef.current = false;
+    setKeepOpenState(false);
     setLinkInputOpen(false);
     setIsVisible(false);
     if (showTimeoutRef.current) {
@@ -1097,14 +1102,14 @@ export const CustomBubbleMenu = ({
       onMouseDown={(e) => {
         const target = e.target as HTMLElement | null;
         if (target?.closest?.("[data-ueditor-close-on-select]")) {
-          keepOpenRef.current = false;
+          setKeepOpen(false);
         } else if (target?.closest?.("[data-ueditor-keep-open]")) {
-          keepOpenRef.current = true;
+          setKeepOpen(true);
         }
         e.preventDefault();
       }}
     >
-      {editor.isActive("link") && !keepOpenRef.current && !linkInputOpen ? (
+      {editor.isActive("link") && !keepOpen && !linkInputOpen ? (
         <LinkPreviewContent
           editor={editor}
           onEdit={() => {

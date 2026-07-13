@@ -25,7 +25,7 @@ import {
   CircleDot,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
-import { destroyTippyInstance, getFirstTippyInstance, hideTippyInstance, tippy, type TippyInstance } from "./tippy-interop";
+import { destroyTippyInstance, getFirstTippyInstance, hideTippyInstance, setTippyReferenceClientRect, tippy, type TippyInstance } from "./tippy-interop";
 
 export type SlashCommandMessages = {
   noResults: string;
@@ -484,9 +484,7 @@ export const SlashCommand = Extension.create<{ messages: SlashCommandMessages }>
                 return;
               }
 
-              popup?.[0]?.setProps({
-                getReferenceClientRect: props.clientRect as () => DOMRect,
-              });
+              setTippyReferenceClientRect(getFirstTippyInstance(popup), props.clientRect as () => DOMRect);
             },
             onKeyDown(props: { event: KeyboardEvent }) {
               if (!props || !props.event) return false;

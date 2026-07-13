@@ -15,7 +15,7 @@ import type {
   UEditorRef,
 } from "./types";
 import { EditorToolbar } from "./toolbar";
-import { CustomBubbleMenu } from "./menus";
+import { CustomBubbleMenu, CustomFloatingMenu } from "./menus";
 import { CharacterCountDisplay } from "./CharacterCount";
 import { prepareUEditorContentForSave, UEditorPrepareContentForSaveError } from "./prepare-content-for-save";
 import { TableControls } from "./table-controls";
@@ -25,6 +25,8 @@ import { useUEditorTableInteractions } from "./use-table-interactions";
 import { useFormulaCoordinateOverlay } from "./use-formula-coordinate-overlay";
 import { MenuBar } from "./menu-bar";
 import {
+  clearSelectedTableCellFormula,
+  getSelectedTableFormulaCell,
   isEditingTableFormulaText,
   recalculateActiveTableFormulas,
   recalculateAllTableFormulas,
@@ -40,6 +42,8 @@ import {
   type FormulaRangePickState,
 } from "./table-formula-range-picker";
 import { isDraftTableFormula } from "./table-formula";
+import { sanitizeUEditorUrl } from "./url-safety";
+import { TableFormulaBar } from "./table-formula-bar";
 
 const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   content = "",
@@ -59,6 +63,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   autofocus = false,
   showToolbar = true,
   showBubbleMenu = true,
+  showFloatingMenu = false,
   showCharacterCount = true,
   showFooter = true,
   maxCharacters,
@@ -195,6 +200,17 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
             cancelFormulaEditing(_view);
             return true;
           }
+          const activeEditor = editorInstanceRef.current;
+          if (
+            activeEditor &&
+            (event.key === "Backspace" || event.key === "Delete") &&
+            getSelectedTableFormulaCell(activeEditor)
+          ) {
+            event.preventDefault();
+            event.stopPropagation();
+            clearSelectedTableCellFormula(activeEditor);
+            return true;
+          }
           if (
             event.key === "ArrowLeft" ||
             event.key === "ArrowRight" ||
@@ -211,7 +227,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
 
           const target = resolveEventElement(event.target);
           const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
-          const href = anchor?.getAttribute("href") ?? "";
+          const href = sanitizeUEditorUrl(anchor?.getAttribute("href") ?? "", "link");
           if (!href) return false;
 
           // If editable, let the bubble menu/floating link preview handle it.
@@ -243,7 +259,9 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
     onSelectionUpdate: ({ editor }) => {
       scheduleFormulaRecalculate(editor);
     },
-    onBlur: ({ editor }) => {
+    onBlur: ({ editor, event }) => {
+      const nextTarget = event.relatedTarget;
+      if (nextTarget instanceof Element && nextTarget.closest("[data-ueditor-formula-bar]")) return;
       scheduleFormulaRecalculate(editor, { force: true });
     },
   });
@@ -378,6 +396,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           letterSpacings={letterSpacings as UEditorLetterSpacingOption[] | undefined}
         />
       )}
+      {editable && <TableFormulaBar editor={editor} />}
       {editable && showBubbleMenu && (
         <CustomBubbleMenu
           editor={editor}
@@ -385,6 +404,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           lineHeights={lineHeights as UEditorLineHeightOption[] | undefined}
         />
       )}
+      {editable && showFloatingMenu && <CustomFloatingMenu editor={editor} />}
       <div
         ref={(node) => {
           editorContentRef.current = node;

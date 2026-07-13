@@ -8,7 +8,14 @@ import React, { forwardRef, useImperativeHandle } from "react";
 import type { SuggestionProps } from "@tiptap/suggestion";
 import { Sigma } from "lucide-react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
-import { destroyTippyInstance, getFirstTippyInstance, hideTippyInstance, tippy, type TippyInstance } from "./tippy-interop";
+import {
+  destroyTippyInstance,
+  getFirstTippyInstance,
+  hideTippyInstance,
+  setTippyReferenceClientRect,
+  tippy,
+  type TippyInstance,
+} from "./tippy-interop";
 
 export type FormulaSuggestionItem = {
   name: string;
@@ -106,7 +113,7 @@ const FormulaSuggestionList = forwardRef<FormulaSuggestionListRef, FormulaSugges
         return true;
       }
 
-      if (event.key === "Enter" || event.key === "Tab") {
+      if (event.key === "Tab") {
         const item = props.items[selectedIndex];
         if (item) {
           props.command(item);
@@ -219,9 +226,7 @@ export const FormulaSuggestion = Extension.create({
                 return;
               }
 
-              popup?.[0]?.setProps({
-                getReferenceClientRect: props.clientRect as () => DOMRect,
-              });
+              setTippyReferenceClientRect(getFirstTippyInstance(popup), props.clientRect as () => DOMRect);
             },
             onKeyDown(props: { event: KeyboardEvent }) {
               const popupInstance = getFirstTippyInstance(popup);

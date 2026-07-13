@@ -37,9 +37,14 @@ test("sanitizeUEditorUrl blocks unsafe editor urls", () => {
   assert.equal(sanitizeUEditorUrl("example.com/post", "link"), "https://example.com/post");
   assert.equal(sanitizeUEditorUrl("/posts/1", "link"), "/posts/1");
   assert.equal(sanitizeUEditorUrl("mailto:hello@example.com", "link"), "mailto:hello@example.com");
+  assert.equal(sanitizeUEditorUrl("//evil.example/phishing", "link"), "");
   assert.equal(sanitizeUEditorUrl("javascript:alert(1)", "link"), "");
   assert.equal(sanitizeUEditorUrl("data:text/html;base64,PGgxPkJvb208L2gxPg==", "image"), "");
+  assert.equal(sanitizeUEditorUrl("//evil.example/tracker.png", "image"), "");
   assert.equal(sanitizeUEditorUrl("https://cdn.example.com/photo.png", "image"), "https://cdn.example.com/photo.png");
+  assert.equal(sanitizeUEditorUrl("data:application/pdf;base64,JVBERi0xLjQ=", "file"), "data:application/pdf;base64,JVBERi0xLjQ=");
+  assert.equal(sanitizeUEditorUrl("data:text/html;base64,PGgxPkJvb208L2gxPg==", "file"), "data:text/html;base64,PGgxPkJvb208L2gxPg==");
+  assert.equal(sanitizeUEditorUrl("javascript:alert(1)", "file"), "");
 });
 
 test("prepareUEditorContentForSave keeps invalid data urls untouched and records structured upload errors", async () => {

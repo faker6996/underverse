@@ -6,18 +6,19 @@ import type { NodeViewProps } from "@tiptap/react";
 import { Download, File as LucideFile, FileText, Image, Music, RefreshCw, Video } from "lucide-react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { cn } from "../../utils/cn";
+import { sanitizeUEditorUrl } from "./url-safety";
 
 function formatBytes(bytes: number, decimals = 1) {
-  if (!bytes || bytes <= 0) return "0 Bytes";
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 Bytes";
   const k = 1024;
   const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ["Bytes", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB"];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
 function getFileIcon(type: string) {
-  const mime = (type || "").toLowerCase();
+  const mime = String(type || "").toLowerCase();
   if (mime.includes("pdf")) return FileText;
   if (mime.startsWith("image/")) return Image;
   if (mime.startsWith("audio/")) return Music;
@@ -31,7 +32,7 @@ function dataURLtoFile(dataurl: string, filename: string, mimeType?: string): Fi
     if (arr.length < 2) return null;
     const mimeMatch = arr[0].match(/:(.*?);/);
     const mime = mimeMatch ? mimeMatch[1] : (mimeType || "application/octet-stream");
-    
+
     const base64Data = arr[arr.length - 1].replace(/\s+/g, "");
     let bytes: Uint8Array;
     if (typeof Buffer !== "undefined") {
@@ -44,11 +45,14 @@ function dataURLtoFile(dataurl: string, filename: string, mimeType?: string): Fi
         bytes[i] = binaryString.charCodeAt(i);
       }
     }
-    return new File([bytes as any], filename, { type: mime });
-  } catch (e) {
-    console.error("Error converting data URI to file:", e);
+    return new File([bytes as unknown as BlobPart], filename, { type: mime });
+  } catch {
     return null;
   }
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error && error.message ? error.message : "Upload failed";
 }
 
 export const FileCardView: React.FC<NodeViewProps> = ({ node, selected, editor, updateAttributes }) => {
@@ -58,60 +62,76 @@ export const FileCardView: React.FC<NodeViewProps> = ({ node, selected, editor, 
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [retryToken, setRetryToken] = useState(0);
   const uploadAttemptedRef = useRef(false);
+  const lastUploadSrcRef = useRef("");
+  const uploadRequestIdRef = useRef(0);
+  const safeSrc = sanitizeUEditorUrl(String(src ?? ""), "file");
+  const extension = editor?.extensionManager?.extensions?.find((item) => item.name === "fileCard");
+  const uploadFn = extension?.options?.upload as ((file: File) => Promise<string> | string) | undefined;
 
   useEffect(() => {
-    if (!src || !src.startsWith("data:")) {
+    if (lastUploadSrcRef.current !== safeSrc) {
+      lastUploadSrcRef.current = safeSrc;
+      uploadAttemptedRef.current = false;
+    }
+
+    if (!safeSrc || !safeSrc.startsWith("data:") || !uploadFn) {
       return;
     }
 
-    const extension = editor?.extensionManager?.extensions?.find((e) => e.name === "fileCard");
-    const uploadFn = extension?.options?.upload;
-
-    if (!uploadFn || uploadAttemptedRef.current || !updateAttributes) {
+    if (uploadAttemptedRef.current || !updateAttributes) {
       return;
     }
 
     uploadAttemptedRef.current = true;
     setUploadError(null);
+    const requestId = uploadRequestIdRef.current + 1;
+    uploadRequestIdRef.current = requestId;
+    let active = true;
 
     const runUpload = async () => {
       try {
-        const file = dataURLtoFile(src, fileName || "file", fileType);
+        const file = dataURLtoFile(safeSrc, fileName || "file", fileType);
         if (!file) {
           throw new Error("Failed to parse file data");
         }
 
         const resolvedUrl = await uploadFn(file);
-        
+        const nextSrc = sanitizeUEditorUrl(String(resolvedUrl ?? ""), "file");
+        if (!nextSrc) throw new Error("Upload handler returned an unsafe URL");
+
         Promise.resolve().then(() => {
-          if (editor && !editor.isDestroyed) {
-            updateAttributes({ src: resolvedUrl });
+          if (active && uploadRequestIdRef.current === requestId && editor && !editor.isDestroyed) {
+            updateAttributes({ src: nextSrc });
           }
         });
-      } catch (err: any) {
-        console.error("File upload failed:", err);
-        setUploadError(err?.message || "Upload failed");
+      } catch (error: unknown) {
+        if (!active || uploadRequestIdRef.current !== requestId) return;
+        setUploadError(getErrorMessage(error));
         uploadAttemptedRef.current = false;
       }
     };
 
     void runUpload();
-  }, [src, fileName, fileType, editor, updateAttributes, retryToken]);
+
+    return () => {
+      active = false;
+    };
+  }, [safeSrc, fileName, fileType, editor, updateAttributes, uploadFn, retryToken]);
 
   const handleDownload = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!src) return;
+    if (!safeSrc) return;
 
     const link = document.createElement("a");
-    link.href = src;
+    link.href = safeSrc;
     link.download = fileName || "download";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  const isUploading = (src || "").startsWith("data:");
+  const hasInlineUpload = safeSrc.startsWith("data:") && Boolean(uploadFn);
   const handleRetryUpload = (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
@@ -138,7 +158,7 @@ export const FileCardView: React.FC<NodeViewProps> = ({ node, selected, editor, 
           </div>
           <div className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
             {fileSize ? <span>{formatBytes(fileSize)}</span> : null}
-            {isUploading && (
+            {hasInlineUpload && (
               <span className={cn(
                 "font-medium truncate max-w-50",
                 uploadError ? "text-destructive" : "text-primary animate-pulse"
@@ -146,7 +166,7 @@ export const FileCardView: React.FC<NodeViewProps> = ({ node, selected, editor, 
                 {uploadError ? `${t("fileCard.uploadFailed") || "Tải lên thất bại"}: ${uploadError}` : t("fileCard.uploading")}
               </span>
             )}
-            {isUploading && uploadError && (
+            {hasInlineUpload && uploadError && (
               <button
                 type="button"
                 onClick={handleRetryUpload}
@@ -160,7 +180,7 @@ export const FileCardView: React.FC<NodeViewProps> = ({ node, selected, editor, 
         </div>
       </div>
 
-      {src && (
+      {safeSrc && (
         <button
           type="button"
           onClick={handleDownload}

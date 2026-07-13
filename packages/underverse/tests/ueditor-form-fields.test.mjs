@@ -19,6 +19,8 @@ const componentsDir = path.resolve(import.meta.dirname, "../src/components/UEdit
 
 const { FormCheckbox } = await importTsModule(path.join(componentsDir, "form-checkbox.ts"));
 const { FormRadio } = await importTsModule(path.join(componentsDir, "form-radio.ts"));
+const { Bookmark } = await importTsModule(path.join(componentsDir, "bookmark.ts"));
+const { FileCard } = await importTsModule(path.join(componentsDir, "file-card.ts"));
 const { prepareUEditorContentForSave } = await importTsModule(path.join(componentsDir, "prepare-content-for-save.ts"));
 
 test("prepareUEditorContentForSave processes file cards and replaces data URL base64", async () => {
@@ -41,6 +43,45 @@ test("prepareUEditorContentForSave processes file cards and replaces data URL ba
   assert.match(result.html, /href="https:\/\/cdn\.example\.com\/files\/report\.pdf"/);
   assert.match(result.html, /data-src="https:\/\/cdn\.example\.com\/files\/report\.pdf"/);
   assert.ok(!result.html.includes("data:application/pdf;base64"));
+});
+
+test("Bookmark and FileCard sanitize URLs and invalid file metadata at extension boundaries", () => {
+  const editor = new Editor({
+    extensions: [Document, Paragraph, Text, Bookmark, FileCard],
+    content: `
+      <div data-type="bookmark" data-url="//evil.example/phishing" data-image="javascript:alert(1)"></div>
+      <div data-type="file-card" data-src="javascript:alert(1)" data-file-name="bad.html" data-file-size="not-a-number"></div>
+    `,
+  });
+
+  const initialNodes = [];
+  editor.state.doc.descendants((node) => {
+    if (node.type.name === "bookmark" || node.type.name === "fileCard") initialNodes.push(node);
+  });
+
+  assert.equal(initialNodes[0]?.attrs.url, "");
+  assert.equal(initialNodes[0]?.attrs.image, "");
+  assert.equal(initialNodes[1]?.attrs.src, "");
+  assert.equal(initialNodes[1]?.attrs.fileSize, null);
+  assert.equal(editor.commands.setBookmark({ url: "javascript:alert(1)" }), false);
+  assert.equal(editor.commands.setFileCard({ src: "javascript:alert(1)", fileName: "bad.html" }), false);
+
+  assert.equal(
+    editor.commands.setBookmark({
+      url: "example.com/post",
+      image: "javascript:alert(1)",
+    }),
+    true,
+  );
+
+  let insertedBookmark = null;
+  editor.state.doc.descendants((node) => {
+    if (node.type.name === "bookmark" && node.attrs.url) insertedBookmark = node;
+  });
+  assert.equal(insertedBookmark?.attrs.url, "https://example.com/post");
+  assert.equal(insertedBookmark?.attrs.image, "");
+
+  editor.destroy();
 });
 
 test("FormCheckbox extension parses and renders correctly", () => {

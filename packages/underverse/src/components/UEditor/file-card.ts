@@ -1,9 +1,10 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { FileCardView } from "./FileCardView";
+import { sanitizeUEditorUrl } from "./url-safety";
 
 export interface FileCardOptions {
-  HTMLAttributes: Record<string, any>;
+  HTMLAttributes: Record<string, unknown>;
   upload?: (file: File) => Promise<string> | string;
 }
 
@@ -36,11 +37,11 @@ export const FileCard = Node.create<FileCardOptions>({
     return {
       src: {
         default: "",
-        parseHTML: (element) => element.getAttribute("href") || element.getAttribute("data-src") || "",
-        renderHTML: (attributes) => ({
-          href: attributes.src,
-          "data-src": attributes.src,
-        }),
+        parseHTML: (element) => sanitizeUEditorUrl(element.getAttribute("href") || element.getAttribute("data-src") || "", "file"),
+        renderHTML: (attributes) => {
+          const src = sanitizeUEditorUrl(String(attributes.src ?? ""), "file");
+          return src ? { href: src, "data-src": src } : {};
+        },
       },
       fileName: {
         default: "",
@@ -52,13 +53,15 @@ export const FileCard = Node.create<FileCardOptions>({
       fileSize: {
         default: null,
         parseHTML: (element) => {
-          const val = element.getAttribute("data-file-size");
-          return val ? Number(val) : null;
+          const rawValue = element.getAttribute("data-file-size");
+          const value = rawValue ? Number(rawValue) : Number.NaN;
+          return Number.isFinite(value) && value >= 0 ? value : null;
         },
         renderHTML: (attributes) => {
-          if (attributes.fileSize === null || attributes.fileSize === undefined) return {};
+          const fileSize = Number(attributes.fileSize);
+          if (!Number.isFinite(fileSize) || fileSize < 0) return {};
           return {
-            "data-file-size": attributes.fileSize,
+            "data-file-size": fileSize,
           };
         },
       },
@@ -99,9 +102,16 @@ export const FileCard = Node.create<FileCardOptions>({
       setFileCard:
         (attributes) =>
         ({ commands }) => {
+          const src = sanitizeUEditorUrl(attributes.src, "file");
+          if (!src) return false;
+          const fileSize = Number(attributes.fileSize);
           return commands.insertContent({
             type: this.name,
-            attrs: attributes,
+            attrs: {
+              ...attributes,
+              src,
+              fileSize: Number.isFinite(fileSize) && fileSize >= 0 ? fileSize : null,
+            },
           });
         },
     };

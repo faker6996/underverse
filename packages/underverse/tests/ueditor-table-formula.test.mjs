@@ -107,6 +107,7 @@ test("UEditor table formula utilities detect draft formulas while users are typi
   assert.equal(formula.isDraftTableFormula("=SUM()"), true);
   assert.equal(formula.isDraftTableFormula("=SUM("), true);
   assert.equal(formula.isDraftTableFormula("=A1+"), true);
+  assert.equal(formula.isDraftTableFormula("=sum"), false);
   assert.equal(formula.isDraftTableFormula("=SUM(A1:A2)"), false);
   assert.equal(formula.isDraftTableFormula("=A1+B1"), false);
 });
