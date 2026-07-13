@@ -1249,6 +1249,62 @@ test("UEditor keeps a typed complete formula editable until the user leaves the 
   });
 });
 
+test("UEditor shows temporary table coordinates and references while editing a formula", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<table><tbody><tr><td>10</td><td>draft</td></tr><tr><td>20</td><td></td></tr><tr><td>30</td><td></td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => {
+    assert.ok(ref.current?.editor);
+  });
+
+  const formulaTextPos = findTextPosition(ref.current.editor, "draft");
+  ref.current.editor.commands.focus();
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection({ from: formulaTextPos, to: formulaTextPos + "draft".length + 2 });
+  });
+  ref.current.editor.commands.insertContent("=SUM(A1:A3)");
+
+  await waitFor(() => {
+    const columnLabels = Array.from(view.container.querySelectorAll('[data-ueditor-formula-coordinate="column"]'), (node) => node.textContent);
+    const rowLabels = Array.from(view.container.querySelectorAll('[data-ueditor-formula-coordinate="row"]'), (node) => node.textContent);
+    const references = Array.from(view.container.querySelectorAll("[data-ueditor-formula-reference]"), (node) =>
+      node.getAttribute("data-ueditor-formula-reference"),
+    );
+    assert.deepEqual(columnLabels, ["A", "B"]);
+    assert.deepEqual(rowLabels, ["1", "2", "3"]);
+    assert.deepEqual(references, ["A1", "A2", "A3"]);
+  });
+
+  const cells = view.container.querySelectorAll("td");
+  fireEvent.mouseMove(cells[2]);
+  await waitFor(() => {
+    const hoverLabel = view.container.querySelector("[data-ueditor-formula-hover-label]");
+    assert.equal(hoverLabel?.textContent, "A2");
+    assert.equal(hoverLabel?.getAttribute("style")?.includes("display: block"), true);
+  });
+
+  const nextTextPos = findTextPosition(ref.current.editor, "20");
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection(nextTextPos);
+  });
+  await waitFor(() => {
+    assert.equal(view.container.querySelector('[data-ueditor-formula-coordinate="column"]'), null);
+    assert.equal(view.container.querySelector("[data-ueditor-formula-reference]"), null);
+  });
+});
+
 test("UEditor does not promote a bare equals sign into an empty formula", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -1333,6 +1389,141 @@ test("UEditor inserts a table cell reference into an active formula by clicking 
     const formulaCell = view.container.querySelectorAll("td")[1];
     assert.equal(formulaCell?.textContent?.trim(), "=SUM(A1)");
     assert.equal(formulaCell?.getAttribute("data-formula"), null);
+  });
+});
+
+test("UEditor separates table references selected by consecutive clicks", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<table><tbody><tr><td>10</td><td>=SUM()</td></tr><tr><td>20</td><td></td></tr><tr><td>30</td><td></td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const formulaTextPos = findTextPosition(ref.current.editor, "=SUM()");
+  ref.current.editor.commands.focus();
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection(formulaTextPos + "=SUM(".length + 2);
+  });
+
+  const cells = view.container.querySelectorAll("td");
+  fireEvent.mouseDown(cells[0], { button: 0, buttons: 1 });
+  fireEvent.mouseUp(cells[0], { button: 0, buttons: 0 });
+  fireEvent.mouseDown(cells[2], { button: 0, buttons: 1 });
+  fireEvent.mouseUp(cells[2], { button: 0, buttons: 0 });
+  fireEvent.mouseDown(cells[4], { button: 0, buttons: 1 });
+  fireEvent.mouseUp(cells[4], { button: 0, buttons: 0 });
+
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("td")[1]?.textContent?.trim(), "=SUM(A1,A2,A3)");
+  });
+});
+
+test("UEditor applies or cancels a formula with explicit actions", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<table><tbody><tr><td>10</td><td>draft</td></tr><tr><td>20</td><td></td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const formulaTextPos = findTextPosition(ref.current.editor, "draft");
+  ref.current.editor.commands.focus();
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection({ from: formulaTextPos, to: formulaTextPos + "draft".length + 2 });
+  });
+  ref.current.editor.commands.insertContent("=SUM(A1)");
+
+  const applyButton = await waitFor(() => {
+    const button = view.container.querySelector("[data-ueditor-formula-apply]");
+    assert.ok(button);
+    assert.equal(button.textContent, "✓ Apply (Enter)");
+    assert.equal(button.disabled, false);
+    return button;
+  });
+  fireEvent.mouseDown(applyButton, { button: 0 });
+  fireEvent.click(applyButton);
+
+  await waitFor(() => {
+    const formulaCell = view.container.querySelectorAll("td")[1];
+    assert.equal(formulaCell?.textContent?.trim(), "10");
+    assert.equal(formulaCell?.getAttribute("data-formula"), "=SUM(A1)");
+    assert.equal(view.container.querySelector("[data-ueditor-formula-actions]"), null);
+  });
+
+  const secondCellTextPos = findTextPosition(ref.current.editor, "20");
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection({ from: secondCellTextPos, to: secondCellTextPos + "20".length + 2 });
+  });
+  ref.current.editor.commands.insertContent("=SUM(");
+  const cancelButton = await waitFor(() => {
+    const button = view.container.querySelector("[data-ueditor-formula-cancel]");
+    const disabledApply = view.container.querySelector("[data-ueditor-formula-apply]");
+    assert.ok(button);
+    assert.equal(disabledApply?.disabled, true);
+    return button;
+  });
+  fireEvent.mouseDown(cancelButton, { button: 0 });
+  fireEvent.click(cancelButton);
+
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("td")[2]?.textContent?.trim(), "");
+    assert.equal(view.container.querySelector("[data-ueditor-formula-actions]"), null);
+  });
+});
+
+test("UEditor applies a complete formula when Enter is pressed", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<table><tbody><tr><td>draft</td><td></td><td></td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const formulaTextPos = findTextPosition(ref.current.editor, "draft");
+  ref.current.editor.commands.focus();
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection({ from: formulaTextPos, to: formulaTextPos + "draft".length + 2 });
+  });
+  ref.current.editor.commands.insertContent("=SUM(B1,C1)");
+
+  await waitFor(() => {
+    assert.equal(view.container.querySelector("[data-ueditor-formula-apply]")?.disabled, false);
+  });
+  fireEvent.keyDown(ref.current.editor.view.dom, { key: "Enter", code: "Enter" });
+
+  await waitFor(() => {
+    const formulaCell = view.container.querySelectorAll("td")[0];
+    assert.equal(formulaCell?.textContent?.trim(), "0");
+    assert.equal(formulaCell?.getAttribute("data-formula"), "=SUM(B1,C1)");
+    assert.equal(view.container.querySelector("[data-ueditor-formula-actions]"), null);
   });
 });
 

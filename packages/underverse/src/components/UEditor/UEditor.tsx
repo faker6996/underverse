@@ -22,6 +22,7 @@ import { TableControls } from "./table-controls";
 import { UEDITOR_PROSEMIRROR_CLASS_NAME } from "./editor-styles";
 import { resolveEventElement } from "./table-dom-utils";
 import { useUEditorTableInteractions } from "./use-table-interactions";
+import { useFormulaCoordinateOverlay } from "./use-formula-coordinate-overlay";
 import { MenuBar } from "./menu-bar";
 import {
   isEditingTableFormulaText,
@@ -31,11 +32,14 @@ import {
 } from "./table-formula-commands";
 import {
   beginFormulaRangePick,
+  cancelFormulaEditing,
+  getFormulaEditingTableContext,
   getFormulaRangePickHighlight,
   updateFormulaRangePick,
   type FormulaRangePickHighlight,
   type FormulaRangePickState,
 } from "./table-formula-range-picker";
+import { isDraftTableFormula } from "./table-formula";
 
 const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   content = "",
@@ -81,6 +85,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   const inFlightPrepareRef = useRef<Promise<UEditorPrepareContentForSaveResult> | null>(null);
   const lastAppliedContentRef = useRef(content ?? "");
   const scheduledFormulaRecalculateRef = useRef(false);
+  const editorInstanceRef = useRef<NonNullable<ReturnType<typeof useEditor>> | null>(null);
   const formulaRangePickRef = useRef<FormulaRangePickState | null>(null);
   const formulaRangeSurfaceRef = useRef<HTMLDivElement | null>(null);
   const [formulaRangeHighlight, setFormulaRangeHighlight] = React.useState<FormulaRangePickHighlight | null>(null);
@@ -174,6 +179,22 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         },
         keydown: (_view, event) => {
           if (!(event instanceof KeyboardEvent)) return false;
+          const formulaContext = getFormulaEditingTableContext(_view);
+          if (formulaContext && event.key === "Enter") {
+            event.preventDefault();
+            event.stopPropagation();
+            const activeEditor = editorInstanceRef.current;
+            if (activeEditor && !isDraftTableFormula(formulaContext.formula)) {
+              recalculateActiveTableFormulas(activeEditor);
+            }
+            return true;
+          }
+          if (formulaContext && event.key === "Escape") {
+            event.preventDefault();
+            event.stopPropagation();
+            cancelFormulaEditing(_view);
+            return true;
+          }
           if (
             event.key === "ArrowLeft" ||
             event.key === "ArrowRight" ||
@@ -226,6 +247,12 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
       scheduleFormulaRecalculate(editor, { force: true });
     },
   });
+  useEffect(() => {
+    editorInstanceRef.current = editor;
+    return () => {
+      if (editorInstanceRef.current === editor) editorInstanceRef.current = null;
+    };
+  }, [editor]);
 
   const {
     editorContentRef,
@@ -233,6 +260,10 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
     tableRowGuideRef,
     activeTableCellHighlightRef,
   } = useUEditorTableInteractions(editor, editable);
+  const formulaCoordinateOverlayRef = useFormulaCoordinateOverlay(editor, editorContentRef, {
+    apply: t("tableMenu.apply"),
+    cancel: t("imageInput.cancelBtn"),
+  });
 
   useImperativeHandle(
     ref,
@@ -380,6 +411,11 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
           aria-hidden="true"
           data-ueditor-active-cell-highlight=""
           className="pointer-events-none hidden absolute z-20 rounded-[2px] border-2 border-primary bg-primary/10"
+        />
+        <div
+          ref={formulaCoordinateOverlayRef}
+          data-ueditor-formula-coordinate-overlay=""
+          className="pointer-events-none absolute inset-0 z-[21] hidden overflow-visible"
         />
         {formulaRangeHighlight && (
           <span

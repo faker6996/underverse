@@ -43,6 +43,41 @@ test("UEditor table formula utilities evaluate basic formulas", async () => {
   assert.deepEqual(formula.evaluateBasicTableFormula("=COUNT(A1:A3)", getCellValue), { value: 3, error: null });
 });
 
+test("UEditor table formula utilities evaluate common decimal and unary-plus syntax", async () => {
+  const formula = await importTsModule(path.join(componentsRoot, "UEditor/table-formula.ts"));
+
+  assert.deepEqual(formula.evaluateBasicTableFormula("=.5 + .25", () => null), { value: 0.75, error: null });
+  assert.deepEqual(formula.evaluateBasicTableFormula("=+1 + +.5", () => null), { value: 1.5, error: null });
+});
+
+test("UEditor table formula utilities parse formatted cell values without accepting partial numbers", async () => {
+  const formula = await importTsModule(path.join(componentsRoot, "UEditor/table-formula.ts"));
+  const values = new Map([
+    ["A1", "1,234.5"],
+    ["A2", "$2,000.25"],
+    ["A3", "12.5%"],
+    ["A4", "12abc"],
+  ]);
+  const getCellValue = (label) => values.get(label);
+
+  assert.deepEqual(formula.evaluateBasicTableFormula("=A1 + 1", getCellValue), { value: 1235.5, error: null });
+  assert.deepEqual(formula.evaluateBasicTableFormula("=A2 + 1", getCellValue), { value: 2001.25, error: null });
+  assert.deepEqual(formula.evaluateBasicTableFormula("=A3 * 2", getCellValue), { value: 0.25, error: null });
+  assert.deepEqual(formula.evaluateBasicTableFormula("=A4 + 1", getCellValue), { value: null, error: "invalid-reference" });
+});
+
+test("UEditor table formula utilities reject non-finite results", async () => {
+  const formula = await importTsModule(path.join(componentsRoot, "UEditor/table-formula.ts"));
+  const hugeNumber = "9".repeat(400);
+  const largeFiniteNumber = "1" + "0".repeat(308);
+
+  assert.deepEqual(formula.evaluateBasicTableFormula(`=${hugeNumber}`, () => null), { value: null, error: "invalid-formula" });
+  assert.deepEqual(formula.evaluateBasicTableFormula(`=${largeFiniteNumber} * 100`, () => null), {
+    value: null,
+    error: "invalid-formula",
+  });
+});
+
 test("UEditor table formula suggestions filter spreadsheet functions", async () => {
   const suggestion = await importTsModule(path.join(componentsRoot, "UEditor/formula-suggestion.tsx"));
 
@@ -59,6 +94,10 @@ test("UEditor table formula suggestions filter spreadsheet functions", async () 
     ["COUNT"],
   );
   assert.deepEqual(suggestion.buildFormulaSuggestionItems({ query: "unknown" }), []);
+  assert.equal(suggestion.isFormulaFunctionSuggestionQuery("SUM"), true);
+  assert.equal(suggestion.isFormulaFunctionSuggestionQuery("SUM("), false);
+  assert.equal(suggestion.isFormulaFunctionSuggestionQuery("SUM(A2:A3)"), false);
+  assert.deepEqual(suggestion.buildFormulaSuggestionItems({ query: "SUM(A2:A3)" }), []);
 });
 
 test("UEditor table formula utilities detect draft formulas while users are typing", async () => {
@@ -101,7 +140,9 @@ test("UEditor table formula utilities handle text references in aggregates", asy
   ]);
   const getCellValue = (label) => values.get(label);
 
-  assert.deepEqual(formula.evaluateBasicTableFormula("=SUM(A1:A2)", getCellValue), { value: null, error: "invalid-reference" });
+  assert.deepEqual(formula.evaluateBasicTableFormula("=SUM(A1:A3)", getCellValue), { value: 10, error: null });
+  assert.deepEqual(formula.evaluateBasicTableFormula("=SUM(A3)", getCellValue), { value: 0, error: null });
+  assert.deepEqual(formula.evaluateBasicTableFormula("=AVG(A1:A3)", getCellValue), { value: 10, error: null });
   assert.deepEqual(formula.evaluateBasicTableFormula("=COUNT(A1:A3)", getCellValue), { value: 1, error: null });
   assert.deepEqual(formula.evaluateBasicTableFormula("=COUNT(A1)", getCellValue), { value: 0, error: null });
 });
@@ -123,6 +164,16 @@ test("UEditor table formula utilities build dependency order and detect cycles",
   assert.deepEqual(formula.getAffectedTableFormulaLabels(graph, ["A1"]), new Set(["B1", "C1"]));
   assert.deepEqual(formula.getAffectedTableFormulaLabels(graph, ["C1"]), new Set(["C1"]));
 
+  const sharedDependencyGraph = formula.buildTableFormulaDependencyGraph([
+    { label: "A1", formula: "=B1+C1" },
+    { label: "B1", formula: "=C1+1" },
+    { label: "C1", formula: "=D1+1" },
+  ]);
+  assert.deepEqual(formula.getTableFormulaRecalculationOrder(sharedDependencyGraph), {
+    order: ["C1", "B1", "A1"],
+    circular: new Set(),
+  });
+
   const circularGraph = formula.buildTableFormulaDependencyGraph([
     { label: "A1", formula: "=B1" },
     { label: "B1", formula: "=A1" },
@@ -131,6 +182,18 @@ test("UEditor table formula utilities build dependency order and detect cycles",
   const circularOrder = formula.getTableFormulaRecalculationOrder(circularGraph);
   assert.deepEqual(circularOrder.order, ["C1"]);
   assert.deepEqual(circularOrder.circular, new Set(["A1", "B1"]));
+
+  const overlappingCycleGraph = formula.buildTableFormulaDependencyGraph([
+    { label: "A1", formula: "=A1+E1+F1" },
+    { label: "C1", formula: "=A1" },
+    { label: "D1", formula: "=F1" },
+    { label: "E1", formula: "=A1+C1+D1" },
+    { label: "F1", formula: "=C1" },
+  ]);
+  assert.deepEqual(
+    formula.getTableFormulaRecalculationOrder(overlappingCycleGraph).circular,
+    new Set(["A1", "C1", "D1", "E1", "F1"]),
+  );
 });
 
 test("UEditor table formula dependency graph handles large linear chains", async () => {
@@ -149,4 +212,21 @@ test("UEditor table formula dependency graph handles large linear chains", async
   assert.equal(order.order.at(-1), "A501");
   assert.equal(order.circular.size, 0);
   assert.ok(durationMs < 1000, `expected formula dependency graph to finish under 1000ms, got ${durationMs}ms`);
+});
+
+test("UEditor table formula dependency graph avoids stack overflow for reverse-ordered chains", async () => {
+  const formula = await importTsModule(path.join(componentsRoot, "UEditor/table-formula.ts"));
+  const cellCount = 10_000;
+  const cells = Array.from({ length: cellCount }, (_, index) => {
+    const row = cellCount - index + 1;
+    return { label: `A${row}`, formula: `=A${row - 1}+1` };
+  });
+
+  const graph = formula.buildTableFormulaDependencyGraph(cells);
+  const order = formula.getTableFormulaRecalculationOrder(graph);
+
+  assert.equal(order.order.length, cellCount);
+  assert.equal(order.order[0], "A2");
+  assert.equal(order.order.at(-1), `A${cellCount + 1}`);
+  assert.equal(order.circular.size, 0);
 });

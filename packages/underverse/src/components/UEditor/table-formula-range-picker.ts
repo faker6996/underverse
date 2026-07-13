@@ -26,7 +26,7 @@ function getCellText(cellNode: ProseMirrorNode) {
   return cellNode.textBetween(0, cellNode.content.size, "\n").trim();
 }
 
-function findSelectionFormulaCell(view: EditorView) {
+export function getFormulaEditingTableContext(view: EditorView) {
   const { $from } = view.state.selection;
 
   for (let depth = $from.depth; depth > 0; depth -= 1) {
@@ -36,17 +36,45 @@ function findSelectionFormulaCell(view: EditorView) {
 
     const cellPos = $from.before(depth);
     const cellDom = view.nodeDOM(cellPos);
+    if (!(cellDom instanceof HTMLTableCellElement)) return null;
     const tableDepth = depth - 2;
     const tableNode = tableDepth > 0 ? $from.node(tableDepth) : null;
     if (!tableNode || tableNode.type.name !== "table") return null;
+    const tableDom = cellDom.closest("table");
+    if (!(tableDom instanceof HTMLTableElement)) return null;
 
     return {
-      cellDom: cellDom instanceof HTMLTableCellElement ? cellDom : null,
+      cellContentEnd: $from.end(depth),
+      cellContentStart: $from.start(depth),
+      cellDom,
+      formula: getCellText(node),
+      tableDom,
+      tableNode,
       tablePos: $from.before(tableDepth),
     };
   }
 
   return null;
+}
+
+export function cancelFormulaEditing(view: EditorView) {
+  const context = getFormulaEditingTableContext(view);
+  if (!context) return false;
+
+  let tr = view.state.tr.delete(context.cellContentStart, context.cellContentEnd);
+  const selectionPos = Math.min(context.cellContentStart, tr.doc.content.size);
+  tr = tr.setSelection(TextSelection.near(tr.doc.resolve(selectionPos)));
+  view.dispatch(tr);
+  view.focus();
+  return true;
+}
+
+function getReferenceInsertionPrefix(view: EditorView, cellContentStart: number, insertionPos: number) {
+  const textBeforeCursor = view.state.doc.textBetween(cellContentStart, insertionPos, "", "");
+  const isInsideFunctionArguments = /[A-Z]+\([^)]*$/i.test(textBeforeCursor);
+  const followsReference = /[A-Z]+[1-9]\d*(?::[A-Z]+[1-9]\d*)?\s*$/i.test(textBeforeCursor);
+
+  return isInsideFunctionArguments && followsReference ? "," : "";
 }
 
 function findTableForPos(view: EditorView, pos: number) {
@@ -82,7 +110,7 @@ function getCellRelativePosFromDomPos(map: TableMap, tableStart: number, domPos:
   return null;
 }
 
-function getPickedCellLabel(view: EditorView, target: EventTarget | null, tablePos: number) {
+export function getFormulaTableCellInfo(view: EditorView, target: EventTarget | null, tablePos: number) {
   const element = resolveEventElement(target);
   const cell = element?.closest?.("th,td");
   if (!(cell instanceof HTMLTableCellElement)) return null;
@@ -99,6 +127,7 @@ function getPickedCellLabel(view: EditorView, target: EventTarget | null, tableP
   return {
     cell,
     label: `${indexToColumnName(rect.left)}${rect.top + 1}`,
+    rect,
   };
 }
 
@@ -136,15 +165,18 @@ function replacePickedLabel(
 export function beginFormulaRangePick(view: EditorView, event: MouseEvent): FormulaRangePickState | null {
   if (event.button !== 0) return null;
 
-  const formulaCell = findSelectionFormulaCell(view);
+  const formulaCell = getFormulaEditingTableContext(view);
   if (!formulaCell) return null;
 
-  const picked = getPickedCellLabel(view, event.target, formulaCell.tablePos);
+  const picked = getFormulaTableCellInfo(view, event.target, formulaCell.tablePos);
   if (!picked || picked.cell === formulaCell.cellDom) return null;
 
   const { from, to } = view.state.selection;
-  let tr = view.state.tr.insertText(picked.label, from, to);
-  tr = tr.setSelection(TextSelection.create(tr.doc, from + picked.label.length));
+  const prefix = from === to ? getReferenceInsertionPrefix(view, formulaCell.cellContentStart, from) : "";
+  const insertedText = `${prefix}${picked.label}`;
+  const insertedFrom = from + prefix.length;
+  let tr = view.state.tr.insertText(insertedText, from, to);
+  tr = tr.setSelection(TextSelection.create(tr.doc, from + insertedText.length));
   view.dispatch(tr);
   view.focus();
 
@@ -155,15 +187,15 @@ export function beginFormulaRangePick(view: EditorView, event: MouseEvent): Form
     anchorLabel: picked.label,
     anchorCell: picked.cell,
     tablePos: formulaCell.tablePos,
-    insertedFrom: from,
-    insertedTo: from + picked.label.length,
+    insertedFrom,
+    insertedTo: insertedFrom + picked.label.length,
     currentLabel: picked.label,
     currentCell: picked.cell,
   };
 }
 
 export function updateFormulaRangePick(view: EditorView, pickState: FormulaRangePickState, event: MouseEvent) {
-  const picked = getPickedCellLabel(view, event.target, pickState.tablePos);
+  const picked = getFormulaTableCellInfo(view, event.target, pickState.tablePos);
   if (!picked) return pickState;
 
   event.preventDefault();

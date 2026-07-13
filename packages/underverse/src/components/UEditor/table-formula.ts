@@ -254,37 +254,70 @@ export function buildTableFormulaDependencyGraph(cells: TableFormulaCell[]): Tab
 }
 
 export function getTableFormulaCircularReferences(graph: TableFormulaDependencyGraph) {
-  const visiting = new Set<string>();
-  const visited = new Set<string>();
   const circular = new Set<string>();
-  const stack: string[] = [];
+  const visited = new Set<string>();
+  const finishOrder: string[] = [];
 
-  const visit = (label: string) => {
-    if (visiting.has(label)) {
-      const start = stack.indexOf(label);
-      for (const cycleLabel of start >= 0 ? stack.slice(start) : [label]) {
-        circular.add(cycleLabel);
+  for (const startLabel of graph.formulas.keys()) {
+    if (visited.has(startLabel)) continue;
+
+    visited.add(startLabel);
+    const stack: Array<{ label: string; references: string[]; nextIndex: number }> = [
+      {
+        label: startLabel,
+        references: Array.from(graph.dependencies.get(startLabel) ?? []).filter((ref) => graph.formulas.has(ref)),
+        nextIndex: 0,
+      },
+    ];
+    while (stack.length > 0) {
+      const frame = stack[stack.length - 1];
+      if (!frame) break;
+
+      const reference = frame.references[frame.nextIndex];
+      if (reference) {
+        frame.nextIndex += 1;
+        if (!visited.has(reference)) {
+          visited.add(reference);
+          stack.push({
+            label: reference,
+            references: Array.from(graph.dependencies.get(reference) ?? []).filter((ref) => graph.formulas.has(ref)),
+            nextIndex: 0,
+          });
+        }
+        continue;
       }
-      return;
+
+      stack.pop();
+      finishOrder.push(frame.label);
     }
-    if (visited.has(label)) return;
+  }
 
-    visiting.add(label);
-    stack.push(label);
+  const assigned = new Set<string>();
+  for (let index = finishOrder.length - 1; index >= 0; index -= 1) {
+    const startLabel = finishOrder[index];
+    if (!startLabel || assigned.has(startLabel)) continue;
 
-    for (const ref of graph.dependencies.get(label) ?? []) {
-      if (graph.formulas.has(ref)) {
-        visit(ref);
+    const component: string[] = [];
+    const stack = [startLabel];
+    assigned.add(startLabel);
+    while (stack.length > 0) {
+      const label = stack.pop();
+      if (!label) continue;
+      component.push(label);
+
+      for (const dependent of graph.dependents.get(label) ?? []) {
+        if (!graph.formulas.has(dependent) || assigned.has(dependent)) continue;
+        assigned.add(dependent);
+        stack.push(dependent);
       }
     }
 
-    stack.pop();
-    visiting.delete(label);
-    visited.add(label);
-  };
-
-  for (const label of graph.formulas.keys()) {
-    visit(label);
+    if (component.length > 1) {
+      for (const label of component) circular.add(label);
+    } else {
+      const label = component[0];
+      if (label && graph.dependencies.get(label)?.has(label)) circular.add(label);
+    }
   }
 
   return circular;
@@ -292,24 +325,42 @@ export function getTableFormulaCircularReferences(graph: TableFormulaDependencyG
 
 export function getTableFormulaRecalculationOrder(graph: TableFormulaDependencyGraph) {
   const circular = getTableFormulaCircularReferences(graph);
+  const visiting = new Set<string>();
   const visited = new Set<string>();
   const order: string[] = [];
 
-  const visit = (label: string) => {
-    if (visited.has(label) || circular.has(label)) return;
-    visited.add(label);
+  for (const startLabel of graph.formulas.keys()) {
+    if (visited.has(startLabel) || circular.has(startLabel)) continue;
 
-    for (const ref of graph.dependencies.get(label) ?? []) {
-      if (graph.formulas.has(ref)) {
-        visit(ref);
+    const stack: Array<{ label: string; references: string[]; nextIndex: number }> = [];
+    const push = (label: string) => {
+      visiting.add(label);
+      stack.push({
+        label,
+        references: Array.from(graph.dependencies.get(label) ?? []).filter((ref) => graph.formulas.has(ref) && !circular.has(ref)),
+        nextIndex: 0,
+      });
+    };
+
+    push(startLabel);
+    while (stack.length > 0) {
+      const frame = stack[stack.length - 1];
+      if (!frame) break;
+
+      const reference = frame.references[frame.nextIndex];
+      if (reference) {
+        frame.nextIndex += 1;
+        if (!visited.has(reference) && !visiting.has(reference)) {
+          push(reference);
+        }
+        continue;
       }
+
+      stack.pop();
+      visiting.delete(frame.label);
+      visited.add(frame.label);
+      order.push(frame.label);
     }
-
-    order.push(label);
-  };
-
-  for (const label of graph.formulas.keys()) {
-    visit(label);
   }
 
   return { order, circular };
@@ -385,9 +436,11 @@ function tokenizeFormula(formula: string): FormulaToken[] | null {
       continue;
     }
 
-    const numberMatch = formula.slice(index).match(/^\d+(?:\.\d+)?/);
+    const numberMatch = formula.slice(index).match(/^(?:\d+(?:\.\d*)?|\.\d+)/);
     if (numberMatch?.[0]) {
-      tokens.push({ type: "number", value: Number.parseFloat(numberMatch[0]) });
+      const value = Number.parseFloat(numberMatch[0]);
+      if (!Number.isFinite(value)) return null;
+      tokens.push({ type: "number", value });
       index += numberMatch[0].length;
       continue;
     }
@@ -407,6 +460,35 @@ function tokenizeFormula(formula: string): FormulaToken[] | null {
   }
 
   return tokens;
+}
+
+function toFiniteFormulaResult(value: number): FormulaEvaluationResult {
+  return Number.isFinite(value) ? { value, error: null } : { value: null, error: "invalid-formula" };
+}
+
+function parseTableCellNumericValue(value: string | number | null | undefined) {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  let normalized = String(value ?? "").trim();
+  if (!normalized || normalized.startsWith("#")) return null;
+
+  const isPercent = normalized.endsWith("%");
+  if (isPercent) normalized = normalized.slice(0, -1).trim();
+
+  const currencyMatch = normalized.match(/^([+-]?)\$(.+)$/);
+  if (currencyMatch) {
+    normalized = `${currencyMatch[1] ?? ""}${currencyMatch[2] ?? ""}`.trim();
+  }
+
+  const groupedNumber = /^[+-]?\d{1,3}(?:,\d{3})+(?:\.\d*)?(?:[eE][+-]?\d+)?$/;
+  const plainNumber = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
+  if (!groupedNumber.test(normalized) && !plainNumber.test(normalized)) return null;
+
+  const parsed = Number(normalized.replace(/,/g, ""));
+  if (!Number.isFinite(parsed)) return null;
+  return isPercent ? parsed / 100 : parsed;
 }
 
 class FormulaParser {
@@ -431,10 +513,7 @@ class FormulaParser {
 
       const right = this.parseTerm();
       if (right.error) return right;
-      left = {
-        value: operator.value === "+" ? left.value + right.value : left.value - right.value,
-        error: null,
-      };
+      left = toFiniteFormulaResult(operator.value === "+" ? left.value + right.value : left.value - right.value);
     }
 
     return left;
@@ -453,10 +532,7 @@ class FormulaParser {
       if (operator.value === "/" && right.value === 0) {
         return { value: null, error: "division-by-zero" };
       }
-      left = {
-        value: operator.value === "*" ? left.value * right.value : left.value / right.value,
-        error: null,
-      };
+      left = toFiniteFormulaResult(operator.value === "*" ? left.value * right.value : left.value / right.value);
     }
 
     return left;
@@ -468,11 +544,11 @@ class FormulaParser {
       return { value: null, error: "invalid-formula" };
     }
 
-    if (token.type === "operator" && token.value === "-") {
+    if (token.type === "operator" && (token.value === "-" || token.value === "+")) {
       this.index += 1;
       const value = this.parseFactor();
       if (value.error) return value;
-      return { value: -value.value, error: null };
+      return toFiniteFormulaResult(token.value === "-" ? -value.value : value.value);
     }
 
     if (token.type === "number") {
@@ -526,11 +602,10 @@ class FormulaParser {
             continue;
           }
 
-          const cellValue = this.readCellNumber(label);
-          if (cellValue.error) return cellValue;
-          values.push(cellValue.value);
+          const cellValue = this.readOptionalCellNumber(label);
+          if (cellValue != null) values.push(cellValue);
         }
-      } else if (name === "COUNT" && token.type === "cell") {
+      } else if (token.type === "cell") {
         this.index += 1;
         const cellValue = this.readOptionalCellNumber(token.value);
         if (cellValue != null) values.push(cellValue);
@@ -549,32 +624,29 @@ class FormulaParser {
       return { value: null, error: "invalid-formula" };
     }
 
-    if (values.length === 0 && name !== "COUNT") {
-      return { value: null, error: "invalid-formula" };
+    if (name === "SUM") return toFiniteFormulaResult(values.reduce((sum, value) => sum + value, 0));
+    if (name === "AVG") {
+      return values.length > 0
+        ? toFiniteFormulaResult(values.reduce((sum, value) => sum + value, 0) / values.length)
+        : { value: null, error: "division-by-zero" };
     }
-
-    if (name === "SUM") return { value: values.reduce((sum, value) => sum + value, 0), error: null };
-    if (name === "AVG") return { value: values.reduce((sum, value) => sum + value, 0) / values.length, error: null };
-    if (name === "MIN") return { value: Math.min(...values), error: null };
-    if (name === "MAX") return { value: Math.max(...values), error: null };
+    if (name === "MIN") return toFiniteFormulaResult(values.length > 0 ? Math.min(...values) : 0);
+    if (name === "MAX") return toFiniteFormulaResult(values.length > 0 ? Math.max(...values) : 0);
     if (name === "COUNT") return { value: values.length, error: null };
 
     return { value: null, error: "invalid-formula" };
   }
 
   private readCellNumber(label: string): FormulaEvaluationResult {
-    const value = this.getCellValue(label);
-    const parsed = typeof value === "number" ? value : Number.parseFloat(String(value ?? "").trim());
-    if (!Number.isFinite(parsed)) {
+    const parsed = parseTableCellNumericValue(this.getCellValue(label));
+    if (parsed == null) {
       return { value: null, error: "invalid-reference" };
     }
     return { value: parsed, error: null };
   }
 
   private readOptionalCellNumber(label: string) {
-    const value = this.getCellValue(label);
-    const parsed = typeof value === "number" ? value : Number.parseFloat(String(value ?? "").trim());
-    return Number.isFinite(parsed) ? parsed : null;
+    return parseTableCellNumericValue(this.getCellValue(label));
   }
 
   private peekOperator(operators: Array<"+" | "-" | "*" | "/">) {

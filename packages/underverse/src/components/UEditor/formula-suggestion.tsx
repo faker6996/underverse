@@ -69,11 +69,19 @@ function isInTableCell(editor: Editor) {
 export function buildFormulaSuggestionItems({ query }: { query: string }): FormulaSuggestionItem[] {
   const normalizedQuery = query.trim().toUpperCase();
 
+  if (!isFormulaFunctionSuggestionQuery(normalizedQuery)) {
+    return [];
+  }
+
   if (!normalizedQuery) {
     return FORMULA_FUNCTIONS;
   }
 
   return FORMULA_FUNCTIONS.filter((item) => item.name.startsWith(normalizedQuery));
+}
+
+export function isFormulaFunctionSuggestionQuery(query: string) {
+  return /^[A-Z]*$/i.test(query.trim());
 }
 
 const FormulaSuggestionList = forwardRef<FormulaSuggestionListRef, FormulaSuggestionListProps>((props, ref) => {
@@ -169,7 +177,11 @@ export const FormulaSuggestion = Extension.create({
         editor: this.editor,
         char: "=",
         pluginKey: new PluginKey("formulaSuggestion"),
-        allow: ({ editor }) => isInTableCell(editor),
+        allow: ({ editor, range }) => {
+          if (!isInTableCell(editor)) return false;
+          const suggestionText = editor.state.doc.textBetween(range.from, range.to, "", "");
+          return suggestionText.startsWith("=") && isFormulaFunctionSuggestionQuery(suggestionText.slice(1));
+        },
         command: ({ editor, range, props }: { editor: Editor; range: Range; props: FormulaSuggestionItem }) => {
           insertFormulaFunction(editor, range, props);
         },
