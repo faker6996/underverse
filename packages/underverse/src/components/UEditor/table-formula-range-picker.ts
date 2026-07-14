@@ -2,7 +2,13 @@ import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { TextSelection } from "@tiptap/pm/state";
 import type { EditorView } from "@tiptap/pm/view";
 import { TableMap } from "@tiptap/pm/tables";
-import { indexToColumnName } from "./table-formula";
+import {
+  buildTableFormulaDependencyGraph,
+  getTableCellRangeLabels,
+  indexToColumnName,
+  parseTableCellRange,
+  type TableFormulaCell,
+} from "./table-formula";
 import { resolveEventElement } from "./table-dom-utils";
 
 export type FormulaRangePickState = {
@@ -13,6 +19,8 @@ export type FormulaRangePickState = {
   insertedTo: number;
   currentLabel: string;
   currentCell: HTMLTableCellElement;
+  blocked: boolean;
+  formulaCellLabel: string;
 };
 
 export type FormulaRangePickHighlight = {
@@ -20,6 +28,7 @@ export type FormulaRangePickHighlight = {
   top: number;
   width: number;
   height: number;
+  blocked: boolean;
 };
 
 function getCellText(cellNode: ProseMirrorNode) {
@@ -42,6 +51,9 @@ export function getFormulaEditingTableContext(view: EditorView) {
     if (!tableNode || tableNode.type.name !== "table") return null;
     const tableDom = cellDom.closest("table");
     if (!(tableDom instanceof HTMLTableElement)) return null;
+    const tableMap = TableMap.get(tableNode);
+    const tableStart = $from.start(tableDepth);
+    const formulaCellRect = tableMap.findCell(cellPos - tableStart);
 
     return {
       cellContentEnd: $from.end(depth),
@@ -51,10 +63,58 @@ export function getFormulaEditingTableContext(view: EditorView) {
       tableDom,
       tableNode,
       tablePos: $from.before(tableDepth),
+      formulaCellLabel: `${indexToColumnName(formulaCellRect.left)}${formulaCellRect.top + 1}`,
     };
   }
 
   return null;
+}
+
+function collectTableFormulaCells(tableNode: ProseMirrorNode) {
+  const tableMap = TableMap.get(tableNode);
+  const formulas: TableFormulaCell[] = [];
+
+  tableNode.forEach((rowNode, rowOffset) => {
+    rowNode.forEach((cellNode, cellOffset) => {
+      const formula = typeof cellNode.attrs.formula === "string" ? cellNode.attrs.formula.trim() : "";
+      if (!formula) return;
+
+      const rect = tableMap.findCell(rowOffset + 1 + cellOffset);
+      formulas.push({
+        label: `${indexToColumnName(rect.left)}${rect.top + 1}`,
+        formula,
+      });
+    });
+  });
+
+  return formulas;
+}
+
+export function getFormulaCycleBlockedLabels(tableNode: ProseMirrorNode, formulaCellLabel: string) {
+  const graph = buildTableFormulaDependencyGraph(collectTableFormulaCells(tableNode));
+  const blocked = new Set<string>();
+  const queue = [formulaCellLabel.toUpperCase()];
+
+  for (let index = 0; index < queue.length; index += 1) {
+    const label = queue[index];
+    if (!label || blocked.has(label)) continue;
+    blocked.add(label);
+    for (const dependent of graph.dependents.get(label) ?? []) {
+      if (!blocked.has(dependent)) queue.push(dependent);
+    }
+  }
+
+  return blocked;
+}
+
+function getReferenceLabels(reference: string) {
+  const range = parseTableCellRange(reference);
+  return range ? getTableCellRangeLabels(range) : [reference.toUpperCase()];
+}
+
+function isBlockedFormulaReference(tableNode: ProseMirrorNode, formulaCellLabel: string, reference: string) {
+  const blockedLabels = getFormulaCycleBlockedLabels(tableNode, formulaCellLabel);
+  return getReferenceLabels(reference).some((label) => blockedLabels.has(label));
 }
 
 export function cancelFormulaEditing(view: EditorView) {
@@ -141,10 +201,22 @@ function replacePickedLabel(
   nextLabel: string,
   currentCell: HTMLTableCellElement,
 ) {
-  if (nextLabel === pickState.currentLabel && currentCell === pickState.currentCell) return pickState;
+  const formulaContext = getFormulaEditingTableContext(view);
+  const blocked = formulaContext
+    ? isBlockedFormulaReference(formulaContext.tableNode, pickState.formulaCellLabel, nextLabel)
+    : false;
+  if (blocked) {
+    return {
+      ...pickState,
+      blocked: true,
+      currentCell,
+    };
+  }
+  if (nextLabel === pickState.currentLabel && currentCell === pickState.currentCell && !pickState.blocked) return pickState;
   if (nextLabel === pickState.currentLabel) {
     return {
       ...pickState,
+      blocked: false,
       currentCell,
     };
   }
@@ -156,6 +228,7 @@ function replacePickedLabel(
 
   return {
     ...pickState,
+    blocked: false,
     insertedTo: nextTo,
     currentLabel: nextLabel,
     currentCell,
@@ -170,6 +243,23 @@ export function beginFormulaRangePick(view: EditorView, event: MouseEvent): Form
 
   const picked = getFormulaTableCellInfo(view, event.target, formulaCell.tablePos);
   if (!picked || picked.cell === formulaCell.cellDom) return null;
+
+  const blocked = isBlockedFormulaReference(formulaCell.tableNode, formulaCell.formulaCellLabel, picked.label);
+  if (blocked) {
+    event.preventDefault();
+    event.stopPropagation();
+    return {
+      anchorLabel: picked.label,
+      anchorCell: picked.cell,
+      tablePos: formulaCell.tablePos,
+      insertedFrom: view.state.selection.from,
+      insertedTo: view.state.selection.from,
+      currentLabel: "",
+      currentCell: picked.cell,
+      blocked: true,
+      formulaCellLabel: formulaCell.formulaCellLabel,
+    };
+  }
 
   const { from, to } = view.state.selection;
   const prefix = from === to ? getReferenceInsertionPrefix(view, formulaCell.cellContentStart, from) : "";
@@ -191,6 +281,8 @@ export function beginFormulaRangePick(view: EditorView, event: MouseEvent): Form
     insertedTo: insertedFrom + picked.label.length,
     currentLabel: picked.label,
     currentCell: picked.cell,
+    blocked: false,
+    formulaCellLabel: formulaCell.formulaCellLabel,
   };
 }
 
@@ -229,5 +321,6 @@ export function getFormulaRangePickHighlight(
     top,
     width: Math.max(0, right - left),
     height: Math.max(0, bottom - top),
+    blocked: pickState.blocked,
   };
 }

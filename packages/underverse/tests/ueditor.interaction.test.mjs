@@ -1360,6 +1360,21 @@ test("UEditor shows temporary table coordinates and references while editing a f
     assert.ok(ref.current?.editor);
   });
 
+  const tableCells = view.container.querySelectorAll("td");
+  const secondRowFirstCell = tableCells[2];
+  let referencedCellLeft = 100;
+  secondRowFirstCell.getBoundingClientRect = () => ({
+    x: referencedCellLeft,
+    y: 60,
+    left: referencedCellLeft,
+    top: 60,
+    right: referencedCellLeft + 80,
+    bottom: 90,
+    width: 80,
+    height: 30,
+    toJSON() {},
+  });
+
   const formulaTextPos = findTextPosition(ref.current.editor, "draft");
   ref.current.editor.commands.focus();
   suppressTextSelectionEndpointWarning(() => {
@@ -1376,6 +1391,19 @@ test("UEditor shows temporary table coordinates and references while editing a f
     assert.deepEqual(columnLabels, ["A", "B"]);
     assert.deepEqual(rowLabels, ["1", "2", "3"]);
     assert.deepEqual(references, ["A1", "A2", "A3"]);
+    assert.equal(
+      view.container.querySelector('[data-ueditor-formula-reference="A2"]')?.style.left,
+      "102px",
+    );
+  });
+
+  referencedCellLeft = 40;
+  fireEvent.scroll(secondRowFirstCell.closest(".tableWrapper"));
+  await waitFor(() => {
+    assert.equal(
+      view.container.querySelector('[data-ueditor-formula-reference="A2"]')?.style.left,
+      "42px",
+    );
   });
 
   const cells = view.container.querySelectorAll("td");
@@ -1517,6 +1545,60 @@ test("UEditor separates table references selected by consecutive clicks", async 
   await waitFor(() => {
     assert.equal(view.container.querySelectorAll("td")[1]?.textContent?.trim(), "=SUM(A1,A2,A3)");
   });
+});
+
+test("UEditor blocks formula references that would create a circular dependency", async (t) => {
+  const originalScrollBy = window.scrollBy;
+  window.scrollBy = () => {};
+  t.after(() => {
+    window.scrollBy = originalScrollBy;
+  });
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: '<table><tbody><tr><td data-formula="=B1" data-computed-value="0">0</td><td>draft</td></tr></tbody></table>',
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const cells = view.container.querySelectorAll("td");
+  const table = view.container.querySelector("table");
+  table.getBoundingClientRect = () => ({
+    x: 0, y: 0, left: 0, top: 0, right: 200, bottom: 30, width: 200, height: 30, toJSON() {},
+  });
+  cells[1].getBoundingClientRect = () => ({
+    x: 100, y: 0, left: 100, top: 0, right: 200, bottom: 30, width: 100, height: 30, toJSON() {},
+  });
+
+  const draftTextPos = findTextPosition(ref.current.editor, "draft");
+  ref.current.editor.commands.focus();
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection({ from: draftTextPos, to: draftTextPos + "draft".length + 2 });
+  });
+  ref.current.editor.commands.insertContent("=SUM()");
+
+  await waitFor(() => {
+    assert.ok(view.container.querySelector('[data-ueditor-formula-blocked-reference="A1"]'));
+    assert.equal(view.container.querySelector("[data-ueditor-formula-actions]")?.style.top, "4px");
+  });
+
+  fireEvent.mouseDown(cells[0], { button: 0, buttons: 1 });
+  await waitFor(() => {
+    assert.equal(cells[1]?.textContent?.trim(), "=SUM()");
+    assert.equal(
+      view.container.querySelector("[data-ueditor-formula-range-highlight]")?.getAttribute("data-ueditor-formula-range-blocked"),
+      "true",
+    );
+  });
+  fireEvent.mouseUp(cells[0], { button: 0, buttons: 0 });
 });
 
 test("UEditor applies or cancels a formula with explicit actions", async () => {

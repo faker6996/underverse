@@ -435,13 +435,19 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         <div
           ref={formulaCoordinateOverlayRef}
           data-ueditor-formula-coordinate-overlay=""
-          className="pointer-events-none absolute inset-0 z-[21] hidden overflow-visible"
+          className="pointer-events-none absolute inset-0 z-[35] hidden overflow-visible"
         />
         {formulaRangeHighlight && (
           <span
             aria-hidden="true"
             data-ueditor-formula-range-highlight=""
-            className="pointer-events-none absolute z-20 rounded-[2px] border-2 border-primary bg-primary/10"
+            data-ueditor-formula-range-blocked={formulaRangeHighlight.blocked ? "true" : undefined}
+            className={cn(
+              "pointer-events-none absolute z-20 rounded-[2px] border-2",
+              formulaRangeHighlight.blocked
+                ? "border-destructive bg-destructive/15"
+                : "border-primary bg-primary/10",
+            )}
             style={{
               left: formulaRangeHighlight.left,
               top: formulaRangeHighlight.top,

@@ -7,6 +7,7 @@ import { getTableFormulaReferences, indexToColumnName, isDraftTableFormula } fro
 import { recalculateActiveTableFormulas } from "./table-formula-commands";
 import {
   cancelFormulaEditing,
+  getFormulaCycleBlockedLabels,
   getFormulaEditingTableContext,
   getFormulaTableCellInfo,
 } from "./table-formula-range-picker";
@@ -41,6 +42,14 @@ function createReferenceHighlight(label: string) {
   return element;
 }
 
+function createBlockedReferenceHighlight(label: string) {
+  const element = document.createElement("span");
+  element.dataset.ueditorFormulaBlockedReference = label;
+  element.className =
+    "pointer-events-none absolute z-[22] rounded-[2px] border-2 border-destructive/80 bg-destructive/10";
+  return element;
+}
+
 type FormulaActionLabels = {
   apply: string;
   cancel: string;
@@ -64,6 +73,7 @@ export function useFormulaCoordinateOverlay(
     let activeTable: HTMLTableElement | null = null;
     let activeTablePos: number | null = null;
     let hoverLabel: HTMLSpanElement | null = null;
+    const scrollListenerOptions = { passive: true, capture: true };
 
     const clearOverlay = () => {
       activeTable = null;
@@ -134,10 +144,14 @@ export function useFormulaCoordinateOverlay(
       actions.className =
         "pointer-events-auto absolute z-50 flex items-center gap-1 rounded-md border border-border bg-background p-1 shadow-md";
       const formulaCellRect = context.cellDom.getBoundingClientRect();
+      const formulaActionsHeight = 34;
+      const formulaActionsTop = formulaCellRect.bottom + 4 + formulaActionsHeight > tableRect.bottom
+        ? Math.max(containerRect.top + 4, formulaCellRect.top - formulaActionsHeight - 4)
+        : formulaCellRect.bottom + 4;
       setPosition(
         actions,
         formulaCellRect.left - containerRect.left + container.scrollLeft,
-        formulaCellRect.bottom - containerRect.top + container.scrollTop + 4,
+        formulaActionsTop - containerRect.top + container.scrollTop,
       );
 
       const applyButton = document.createElement("button");
@@ -197,10 +211,16 @@ export function useFormulaCoordinateOverlay(
       }
 
       const references = new Set(getTableFormulaReferences(context.formula));
+      const blockedReferences = getFormulaCycleBlockedLabels(context.tableNode, context.formulaCellLabel);
       for (const info of cellInfos) {
-        if (!info || !references.has(info.label)) continue;
+        if (!info) continue;
         const cellRect = info.cell.getBoundingClientRect();
-        const highlight = createReferenceHighlight(info.label);
+        const highlight = info.label !== context.formulaCellLabel && blockedReferences.has(info.label)
+          ? createBlockedReferenceHighlight(info.label)
+          : references.has(info.label)
+            ? createReferenceHighlight(info.label)
+            : null;
+        if (!highlight) continue;
         setPosition(
           highlight,
           cellRect.left - containerRect.left + container.scrollLeft + 2,
@@ -264,6 +284,7 @@ export function useFormulaCoordinateOverlay(
     editor.view.dom.addEventListener("mousemove", handleMouseMove);
     editor.view.dom.addEventListener("mouseleave", handleMouseLeave);
     container.addEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, scheduleSync);
+    container.addEventListener("scroll", scheduleSync, scrollListenerOptions);
     window.addEventListener("resize", scheduleSync);
     scheduleSync();
 
@@ -275,6 +296,7 @@ export function useFormulaCoordinateOverlay(
       editor.view.dom.removeEventListener("mousemove", handleMouseMove);
       editor.view.dom.removeEventListener("mouseleave", handleMouseLeave);
       container.removeEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, scheduleSync);
+      container.removeEventListener("scroll", scheduleSync, scrollListenerOptions);
       window.removeEventListener("resize", scheduleSync);
       if (animationFrame != null) window.cancelAnimationFrame(animationFrame);
       clearOverlay();
