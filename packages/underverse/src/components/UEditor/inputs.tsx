@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { Check, X } from "lucide-react";
 import { sanitizeUEditorUrl } from "./url-safety";
@@ -20,7 +20,9 @@ export const LinkInput = ({
 }) => {
   const t = useSmartTranslations("UEditor");
   const [url, setUrl] = useState(initialUrl);
+  const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const errorId = useId();
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -30,25 +32,39 @@ export const LinkInput = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const normalized = normalizeUrl(url);
-    if (normalized) onSubmit(normalized);
+    if (!normalized) {
+      setError(t("linkInput.invalid"));
+      return;
+    }
+
+    setError("");
+    onSubmit(normalized);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2 p-2">
-      <input
-        ref={inputRef}
-        type="text"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        placeholder={t("linkInput.placeholder")}
-        className="flex-1 px-3 py-2 text-sm bg-muted/50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-      />
-      <button type="submit" className="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-        <Check className="w-4 h-4" />
-      </button>
-      <button type="button" onClick={onCancel} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
-        <X className="w-4 h-4" />
-      </button>
+    <form onSubmit={handleSubmit} className="p-2">
+      <div className="flex items-center gap-2">
+        <input
+          ref={inputRef}
+          type="text"
+          value={url}
+          onChange={(e) => {
+            setUrl(e.target.value);
+            if (error) setError("");
+          }}
+          placeholder={t("linkInput.placeholder")}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
+          className="flex-1 px-3 py-2 text-sm bg-muted/50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 aria-invalid:ring-2 aria-invalid:ring-destructive/40"
+        />
+        <button type="submit" className="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+          <Check className="w-4 h-4" />
+        </button>
+        <button type="button" onClick={onCancel} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      {error ? <p id={errorId} role="alert" className="mt-1.5 px-1 text-xs text-destructive">{error}</p> : null}
     </form>
   );
 };

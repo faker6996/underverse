@@ -226,7 +226,8 @@
       "addBlock": "Thêm khối"
     },
     "linkInput": {
-      "placeholder": "Dán hoặc nhập liên kết..."
+      "placeholder": "Dán hoặc nhập liên kết...",
+      "invalid": "Vui lòng nhập liên kết hợp lệ, ví dụ: https://example.com."
     },
     "imageInput": {
       "urlTab": "URL",

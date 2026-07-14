@@ -36,6 +36,7 @@ import {
 import { cn } from "../../utils/cn";
 import { ToolbarButton } from "./toolbar";
 import { LinkInput } from "./inputs";
+import { applyEditorLink } from "./link-commands";
 import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu";
 import { CellBgColorIcon, CellBorderIcon, EditorColorPalette, HighlightColorIcon, TextColorIcon, useEditorColors } from "./colors";
 import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
@@ -336,7 +337,7 @@ const BubbleMenuContent = ({
       <LinkInput
         initialUrl={editor.getAttributes("link").href || ""}
         onSubmit={(url) => {
-          editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+          applyEditorLink(editor, url);
           setShowLinkInput(false);
           // Move focus back to editor so the bubble can resume normal tracking.
           requestAnimationFrame(() => editor.commands.focus());

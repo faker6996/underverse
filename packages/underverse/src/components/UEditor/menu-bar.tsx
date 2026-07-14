@@ -39,6 +39,7 @@ import { cn } from "../../utils/cn";
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, useDropdownMenuClose } from "../DropdownMenu";
 import Modal from "../Modal";
 import { ImageInput, LinkInput } from "./inputs";
+import { applyEditorLink } from "./link-commands";
 import { TableInsertGrid, fileToDataUrl, getTableAnchorPos } from "./toolbar";
 import { sanitizeUEditorUrl } from "./url-safety";
 import { DEFAULT_UEDITOR_IMAGE_MAX_FILE_SIZE, DEFAULT_UEDITOR_IMAGE_MIME_TYPES } from "./clipboard-images";
@@ -652,7 +653,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   };
 
   const handleLinkSubmit = (url: string) => {
-    editor.chain().focus().setLink({ href: url }).run();
+    applyEditorLink(editor, url);
     closeInsertMenu();
   };
 

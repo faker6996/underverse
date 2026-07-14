@@ -142,6 +142,97 @@ test("UEditor renders content and reuses the same in-flight prepareContentForSav
   assert.match(first.html, /Hello editor/);
 });
 
+test("UEditor keeps typing outside a newly applied link", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<p>Linked text</p>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => {
+    assert.ok(ref.current?.editor);
+  });
+
+  const linkCommands = await importTsModule(path.join(componentsRoot, "UEditor/link-commands.ts"));
+  const linkTextPosition = findTextPosition(ref.current.editor, "Linked text");
+  ref.current.editor.commands.setTextSelection({ from: linkTextPosition, to: linkTextPosition + "Linked text".length });
+  linkCommands.applyEditorLink(ref.current.editor, "https://example.com");
+  ref.current.editor.commands.insertContent(" continues");
+
+  const link = view.container.querySelector('a[href="https://example.com"]');
+  assert.ok(link);
+  assert.equal(link.textContent, "Linked text");
+  assert.equal(view.container.querySelector("p")?.textContent, "Linked text continues");
+});
+
+test("UEditor inserts the URL as linked text when no text is selected", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const linkCommands = await importTsModule(path.join(componentsRoot, "UEditor/link-commands.ts"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<p></p>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => {
+    assert.ok(ref.current?.editor);
+  });
+
+  linkCommands.applyEditorLink(ref.current.editor, "https://example.com");
+  ref.current.editor.commands.insertContent(" continues");
+
+  const link = view.container.querySelector('a[href="https://example.com"]');
+  assert.ok(link);
+  assert.equal(link.textContent, "https://example.com");
+  assert.equal(view.container.querySelector("p")?.textContent, "https://example.com continues");
+});
+
+test("UEditor link input reports invalid URLs and normalizes valid domains", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor/inputs.tsx"));
+  const submittedUrls = [];
+  const user = userEvent.setup({ document: window.document });
+  const body = within(window.document.body);
+
+  render(
+    React.createElement(mod.LinkInput, {
+      onSubmit: (url) => submittedUrls.push(url),
+      onCancel: () => {},
+    }),
+  );
+
+  const input = await body.findByPlaceholderText("Paste or type a link...");
+  await user.type(input, "https://ádf");
+  await user.keyboard("{Enter}");
+
+  assert.deepEqual(submittedUrls, []);
+  assert.equal((await body.findByRole("alert")).textContent, "Enter a valid link, such as https://example.com.");
+  assert.equal(input.getAttribute("aria-invalid"), "true");
+
+  await user.clear(input);
+  await user.type(input, "example.com");
+  assert.equal(body.queryByRole("alert"), null);
+  await user.keyboard("{Enter}");
+
+  assert.deepEqual(submittedUrls, ["https://example.com"]);
+});
+
 test("UEditor updates editor content when the controlled content prop changes", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;

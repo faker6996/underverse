@@ -35,8 +35,16 @@ test("extractImageSrcsFromHtml reads quoted, unquoted, and entity-encoded src va
 
 test("sanitizeUEditorUrl blocks unsafe editor urls", () => {
   assert.equal(sanitizeUEditorUrl("example.com/post", "link"), "https://example.com/post");
+  assert.equal(sanitizeUEditorUrl("https://ádf", "link"), "");
+  assert.equal(sanitizeUEditorUrl("ádf", "link"), "");
+  assert.equal(sanitizeUEditorUrl("https://đàewoo.vn", "link"), "https://đàewoo.vn");
+  assert.equal(sanitizeUEditorUrl("http://localhost:3000/editor", "link"), "http://localhost:3000/editor");
+  assert.equal(sanitizeUEditorUrl("https://127.0.0.1/editor", "link"), "https://127.0.0.1/editor");
   assert.equal(sanitizeUEditorUrl("/posts/1", "link"), "/posts/1");
   assert.equal(sanitizeUEditorUrl("mailto:hello@example.com", "link"), "mailto:hello@example.com");
+  assert.equal(sanitizeUEditorUrl("mailto:invalid", "link"), "");
+  assert.equal(sanitizeUEditorUrl("tel:+84123456789", "link"), "tel:+84123456789");
+  assert.equal(sanitizeUEditorUrl("tel:abc", "link"), "");
   assert.equal(sanitizeUEditorUrl("//evil.example/phishing", "link"), "");
   assert.equal(sanitizeUEditorUrl("javascript:alert(1)", "link"), "");
   assert.equal(sanitizeUEditorUrl("data:text/html;base64,PGgxPkJvb208L2gxPg==", "image"), "");

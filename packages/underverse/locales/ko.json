@@ -226,7 +226,8 @@
       "addBlock": "블록 추가"
     },
     "linkInput": {
-      "placeholder": "링크 붙여넣기 또는 입력..."
+      "placeholder": "링크 붙여넣기 또는 입력...",
+      "invalid": "https://example.com과 같은 올바른 링크를 입력해 주세요."
     },
     "imageInput": {
       "urlTab": "URL",

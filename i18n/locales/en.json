@@ -1514,7 +1514,8 @@
       "addBlock": "Add block"
     },
     "linkInput": {
-      "placeholder": "Paste or type a link..."
+      "placeholder": "Paste or type a link...",
+      "invalid": "Enter a valid link, such as https://example.com."
     },
     "imageInput": {
       "urlTab": "URL",

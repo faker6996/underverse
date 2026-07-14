@@ -226,7 +226,8 @@
       "addBlock": "ブロックを追加"
     },
     "linkInput": {
-      "placeholder": "リンクを貼り付けまたは入力..."
+      "placeholder": "リンクを貼り付けまたは入力...",
+      "invalid": "https://example.com のような有効なリンクを入力してください。"
     },
     "imageInput": {
       "urlTab": "URL",

@@ -54,6 +54,7 @@ import { EditorColorPalette, HighlightColorIcon, TextColorIcon, useEditorColors 
 import { DEFAULT_UEDITOR_IMAGE_MAX_FILE_SIZE, DEFAULT_UEDITOR_IMAGE_MIME_TYPES } from "./clipboard-images";
 import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
 import { ImageInput, LinkInput } from "./inputs";
+import { applyEditorLink } from "./link-commands";
 import { EmojiPicker } from "./emoji-picker";
 import { sanitizeUEditorUrl } from "./url-safety";
 import { applyTableAlignment, findTableNodeInfoFromState } from "./table-align-utils";
@@ -370,7 +371,7 @@ export const EditorToolbar = ({
             <LinkInput
               initialUrl={String(editor.getAttributes("link").href ?? "")}
               onSubmit={(url) => {
-                editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+                applyEditorLink(editor, url);
                 setShowLinkInput(false);
               }}
               onCancel={() => setShowLinkInput(false)}
@@ -601,7 +602,7 @@ export const EditorToolbar = ({
           <LinkInput
             initialUrl={String(editor.getAttributes("link").href ?? "")}
             onSubmit={(url) => {
-              editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+              applyEditorLink(editor, url);
               setShowLinkInput(false);
             }}
             onCancel={() => setShowLinkInput(false)}
