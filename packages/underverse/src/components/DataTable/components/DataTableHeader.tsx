@@ -155,7 +155,7 @@ export function DataTableHeader<T extends Record<string, any>>({
       const columnLabel = getColumnLabel(col.title) || col.key;
       const sortByText = sortByLabel ?? gi18n.sortBy ?? "Sort by";
       const sortLabel = `${sortByText} ${columnLabel}`;
-      const useEndIcon = col.iconPosition === "end";
+      const useEndIcon = (col.iconPosition ?? "end") === "end";
 
       const titleContent = (
         <div className={cn("flex items-center gap-1", useEndIcon && "flex-1 justify-between")}>
