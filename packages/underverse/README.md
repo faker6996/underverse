@@ -246,6 +246,42 @@ function App() {
 }
 ```
 
+### Global UI Configuration (Optional)
+
+You can configure global UI behaviors and styles (like default border radius) across all components using `UnderverseConfigProvider`.
+
+```tsx
+import { UnderverseConfigProvider, Button, Input } from "@underverse-ui/underverse";
+
+function App() {
+  return (
+    <UnderverseConfigProvider
+      config={{
+        // Set default border radius for all supported components
+        borderMode: "xl",
+        // Override specific components
+        input: {
+          borderMode: "2xl",
+        },
+        button: {
+          borderMode: "lg",
+        }
+      }}
+    >
+      <div className="space-y-4">
+        {/* These components will inherit the global configuration */}
+        <Input placeholder="I have 2xl border radius" />
+        <Button>I have lg border radius</Button>
+        <Combobox placeholder="I inherit xl border radius" />
+        
+        {/* Direct props override the global config */}
+        <Button borderMode="sm">I override to sm</Button>
+      </div>
+    </UnderverseConfigProvider>
+  );
+}
+```
+
 ## Exported Components
 
 ### Core Components

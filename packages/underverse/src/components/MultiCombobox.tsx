@@ -11,6 +11,7 @@ import { useShadCNAnimations } from "../utils/animations";
 import { Popover } from "./Popover";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 export interface MultiComboboxOption {
   value: string;
@@ -605,6 +606,9 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   const visibleTags = maxTagsVisible ? selectedOptions.slice(0, maxTagsVisible) : selectedOptions;
   const hiddenCount = maxTagsVisible ? Math.max(0, selectedOptions.length - maxTagsVisible) : 0;
 
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.borderMode ?? "full";
+
   const triggerButton = (
     <button
       ref={triggerRef}
@@ -620,7 +624,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
       aria-invalid={!!effectiveError}
       className={cn(
         "group flex w-full items-center gap-2 transition-all duration-200",
-        getBorderRadiusClass(borderMode ?? "full"),
+        getBorderRadiusClass(resolvedBorderMode),
         sizeStyles[size].trigger,
         variantStyles[variant],
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary",

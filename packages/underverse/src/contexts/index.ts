@@ -4,3 +4,6 @@ export { useGlobalI18n, GlobalI18nProvider } from "./GlobalI18nContext";
 
 export type { Locale, Translations, TranslationProviderProps } from "./TranslationContext";
 export type { GlobalI18nConfig } from "./GlobalI18nContext";
+
+export { useUnderverseUIConfig, UnderverseConfigProvider } from "./UnderverseConfigContext";
+export type { UnderverseUIConfig, UnderverseConfigProviderProps } from "./UnderverseConfigContext";

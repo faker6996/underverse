@@ -2,7 +2,7 @@ export const STANDARD_BORDER_MODES = ["none", "sm", "md", "lg", "xl", "2xl", "3x
 
 // Bản đồ các mode đặc thù theo khách hàng
 export const CUSTOM_BORDER_MAP = {
-  daewoo: "rounded-2xl",
+  daewoo: "rounded",
   infiniq: "rounded-full",
 } as const;
 

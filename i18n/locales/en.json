@@ -331,6 +331,9 @@
       },
       "dateUtils": {
         "title": "Date Utilities"
+      },
+      "configProvider": {
+        "title": "Global Config"
       }
     },
     "props": {

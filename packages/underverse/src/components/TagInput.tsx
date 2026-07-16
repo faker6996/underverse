@@ -6,6 +6,7 @@ import { X, Search, Loader2 } from "lucide-react";
 import Button from "./Button";
 import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 /** Public props for the `TagInput` component. */
 export interface TagInputProps {
@@ -223,6 +224,9 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
 
     const currentPlaceholder = value.length > 0 ? defaultPlaceholderWithTags : defaultPlaceholder;
 
+    const globalConfig = useUnderverseUIConfig();
+    const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
+
     return (
       <div className={cn("w-full space-y-2", className)}>
         {/* Label */}
@@ -253,7 +257,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
             "bg-background border border-input",
             "transition-all duration-200",
             "hover:border-accent-foreground/20",
-            getBorderRadiusClass(borderMode ?? "full"),
+            getBorderRadiusClass(resolvedBorderMode),
             isFocused && "ring-1 ring-ring ring-offset-1 ring-offset-background border-transparent shadow-md",
             disabled && "opacity-50 cursor-not-allowed",
             sizeStyles[size].container,

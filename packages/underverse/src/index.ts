@@ -313,7 +313,6 @@ export type { GlobalI18nConfig } from "./contexts/GlobalI18nContext";
 /** Read the nearest `GlobalI18nConfig` — useful for building wrapper components. */
 export { useGlobalI18n } from "./contexts/GlobalI18nContext";
 
-// UnderverseProvider - Alternative name for TranslationProvider (for standalone React usage)
 export {
   UnderverseProvider,
   useTranslations as useUnderverseI18n,
@@ -321,6 +320,14 @@ export {
 } from "./contexts/translation-adapter";
 /** Public props for the standalone `UnderverseProvider` alias. */
 export type { UnderverseProviderProps } from "./contexts/translation-adapter";
+
+// ============================================================================
+// UI CONFIGURATION SYSTEM
+// ============================================================================
+/** Provider for global component configuration (e.g., border radius defaults). */
+export { UnderverseConfigProvider, useUnderverseUIConfig } from "./contexts/UnderverseConfigContext";
+/** Public UI config types. */
+export type { UnderverseUIConfig, UnderverseConfigProviderProps } from "./contexts/UnderverseConfigContext";
 
 // Smart hooks that read NextIntlAdapter or fallback to internal translations
 /** Smart translation hooks that prefer `next-intl` and fall back to internal messages. */

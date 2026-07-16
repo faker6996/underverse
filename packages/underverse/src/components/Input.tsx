@@ -7,6 +7,7 @@ import { cn } from "../utils/cn";
 import { Eye, EyeOff, Search, X, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 /** Public props for the `Input` component. */
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
@@ -184,7 +185,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     };
 
     // Radius by size for visual consistency with Combobox/DatePicker
-    const radiusClass = getBorderRadiusClass(borderMode ?? "full");
+    const globalConfig = useUnderverseUIConfig();
+    const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
+    const radiusClass = getBorderRadiusClass(resolvedBorderMode);
 
     return (
       <div className={cn("w-full group", containerSpacing)}>
@@ -717,6 +720,9 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       lg: "px-5 py-4 text-base min-h-30",
     };
 
+    const globalConfig = useUnderverseUIConfig();
+    const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "2xl";
+
     return (
       <div className="w-full space-y-2">
         {/* Label */}
@@ -758,7 +764,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           onBlur={() => setIsFocused(false)}
           className={cn(
             "w-full text-foreground transition-all duration-200",
-            getBorderRadiusClass(borderMode ?? "full"),
+            getBorderRadiusClass(resolvedBorderMode),
             "placeholder:text-muted-foreground focus:outline-none",
             "disabled:cursor-not-allowed disabled:opacity-50",
             sizeStyles[size],

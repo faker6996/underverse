@@ -27,6 +27,7 @@ const tocGroups: TocGroup[] = [
     sections: [
       { id: "install", labelKey: "sections.install.title" },
       { id: "imports", labelKey: "sections.imports.title" },
+      { id: "config-provider", labelKey: "sections.configProvider.title" },
     ],
   },
   {

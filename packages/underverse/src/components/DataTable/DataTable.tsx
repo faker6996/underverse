@@ -4,6 +4,8 @@ import { Table, TableHeader } from "../Table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useOverlayScrollbarTarget } from "../OverlayScrollbarProvider";
 import { cn } from "../../utils/cn";
+import { getBorderRadiusClass } from "../../utils/radius";
+import { useUnderverseUIConfig } from "../../contexts/UnderverseConfigContext";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import React from "react";
 import { DataTableBodyRows } from "./components/DataTableBody";
@@ -128,8 +130,11 @@ export function DataTable<T extends Record<string, any>>({
   enableHeaderAutoFit = true,
   labels,
   columnColorGroups,
+  borderMode,
 }: DataTableProps<T>) {
   const t = useSmartTranslations("Common");
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.table?.borderMode ?? globalConfig.borderMode;
   const [columnWidthOverrides, setColumnWidthOverrides] = React.useState<Record<string, number>>({});
   const columnsWithWidthOverrides = React.useMemo(
     () => applyColumnWidthOverrides(columns, columnWidthOverrides),
@@ -309,7 +314,8 @@ export function DataTable<T extends Record<string, any>>({
 
       <div
         className={cn(
-          "relative rounded-2xl md:rounded-3xl border border-border/50 bg-card",
+          "relative border border-border/50 bg-card",
+          resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl",
           overflowHidden && "overflow-hidden",
           loading && "opacity-60 pointer-events-none",
         )}

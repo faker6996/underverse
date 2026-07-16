@@ -1,4 +1,5 @@
 import type React from "react";
+import { type BorderMode } from "../../utils/radius";
 
 export type FilterType = "text" | "select" | "date";
 export type DataTableSize = "sm" | "md" | "lg";
@@ -155,4 +156,5 @@ export interface DataTableProps<T> {
   /** Double-click leaf headers to auto-fit column width based on visible content. Default: true */
   enableHeaderAutoFit?: boolean;
   labels?: DataTableLabels;
+  borderMode?: BorderMode;
 }

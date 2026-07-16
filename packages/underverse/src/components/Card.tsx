@@ -2,6 +2,8 @@
 // components/ui/Card.tsx
 import React from "react";
 import { cn } from "../utils/cn";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 // Helper to detect padding classes per direction
 const getPaddingInfo = (className?: string) => {
@@ -33,6 +35,7 @@ export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "t
   innerClassName?: string;
   contentClassName?: string;
   noPadding?: boolean;
+  borderMode?: BorderMode;
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
@@ -50,6 +53,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       innerClassName,
       contentClassName,
       noPadding = false,
+      borderMode,
       onClick,
       onKeyDown,
       role,
@@ -59,6 +63,8 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     ref,
   ) => {
     const isInteractive = clickable && typeof onClick === "function";
+    const globalConfig = useUnderverseUIConfig();
+    const resolvedBorderMode = borderMode ?? globalConfig.card?.borderMode ?? globalConfig.borderMode;
 
     const padding = getPaddingInfo(contentClassName);
     const skipAllPadding = noPadding || padding.hasAll;
@@ -69,7 +75,8 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          "group rounded-2xl md:rounded-3xl bg-card text-card-foreground transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft max-md:rounded-xl",
+          "group bg-card text-card-foreground transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft",
+          resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl max-md:rounded-xl",
           "border border-border/50 shadow-sm backdrop-blur-sm",
           hoverable && "md:hover:-translate-y-0.5 md:hover:border-primary/15 md:hover:shadow-md",
           clickable && "cursor-pointer active:translate-y-px active:bg-accent/5 md:hover:bg-accent/5 md:hover:shadow-md",
@@ -88,7 +95,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         tabIndex={isInteractive ? (tabIndex ?? 0) : tabIndex}
         {...rest}
       >
-        <div className={cn("relative overflow-hidden rounded-2xl md:rounded-3xl max-md:rounded-xl", innerClassName)}>
+        <div className={cn("relative overflow-hidden", resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl max-md:rounded-xl", innerClassName)}>
           {(hoverable || clickable) && (
             <div
               className={cn(

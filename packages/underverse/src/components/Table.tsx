@@ -2,6 +2,8 @@
 
 import React from "react";
 import { cn } from "../utils/cn";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 
 /** Public props for the `Table` component. */
@@ -10,12 +12,13 @@ export interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
   disableContainer?: boolean;
   /** Enable OverlayScrollbars on table container. Default: false */
   useOverlayScrollbar?: boolean;
+  borderMode?: BorderMode;
 }
 
 const TABLE_BASE_CLASS = "w-full border-collapse caption-bottom text-sm";
 const TABLE_CONTAINER_BASE_CLASS = [
   "relative w-full overflow-auto",
-  "rounded-2xl md:rounded-3xl border border-border/50",
+  "border border-border/50",
   "bg-card text-card-foreground shadow-sm",
   "backdrop-blur-sm transition-all duration-300",
 ].join(" ");
@@ -35,9 +38,13 @@ const TableContainer = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
     useOverlayScrollbar?: boolean;
+    borderMode?: BorderMode;
   }
->(({ className, useOverlayScrollbar = false, ...props }, ref) => {
+>(({ className, useOverlayScrollbar = false, borderMode, ...props }, ref) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
+  
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.table?.borderMode ?? globalConfig.borderMode;
 
   useOverlayScrollbarTarget(containerRef, { enabled: useOverlayScrollbar });
 
@@ -47,7 +54,11 @@ const TableContainer = React.forwardRef<
         containerRef.current = node;
         assignRef(ref, node);
       }}
-      className={cn(TABLE_CONTAINER_BASE_CLASS, className)}
+      className={cn(
+        TABLE_CONTAINER_BASE_CLASS,
+        resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl",
+        className,
+      )}
       {...props}
     />
   );
@@ -55,13 +66,13 @@ const TableContainer = React.forwardRef<
 TableContainer.displayName = "TableContainer";
 
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
-  ({ className, containerClassName, disableContainer = false, useOverlayScrollbar = false, ...props }, ref) => {
+  ({ className, containerClassName, disableContainer = false, useOverlayScrollbar = false, borderMode, ...props }, ref) => {
     if (disableContainer) {
       return <table ref={ref} className={cn(TABLE_BASE_CLASS, className)} {...props} />;
     }
 
     return (
-      <TableContainer className={containerClassName} useOverlayScrollbar={useOverlayScrollbar}>
+      <TableContainer className={containerClassName} useOverlayScrollbar={useOverlayScrollbar} borderMode={borderMode}>
         <table ref={ref} className={cn(TABLE_BASE_CLASS, className)} {...props} />
       </TableContainer>
     );

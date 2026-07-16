@@ -81,6 +81,7 @@ const DonationCard = dynamicImport(() => import("./_components/DonationCard"), {
 const UEditorExample = dynamicImport(() => import("./_examples/UEditorExample"), { ssr: false });
 const EmojiPickerExample = dynamicImport(() => import("./_examples/EmojiPickerExample"), { ssr: false });
 const StickerPickerExample = dynamicImport(() => import("./_examples/StickerPickerExample"), { ssr: false });
+const ConfigProviderExample = dynamicImport(() => import("./_examples/ConfigProviderExample"), { ssr: false });
 
 export default function UnderverseGuidePage() {
   return <DocsContent />;
@@ -184,6 +185,10 @@ function DocsInner() {
 
               <DocSection id="imports" title={t("sections.imports.title")}>
                 <CodeBlock code={`import { Button, Badge, Modal, Tabs, ToastProvider, useToast } from '@underverse-ui/underverse';`} />
+              </DocSection>
+
+              <DocSection id="config-provider" title={t("sections.configProvider.title") || "Global UI Config"}>
+                <ConfigProviderExample />
               </DocSection>
             </DocGroupSection>
 

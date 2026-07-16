@@ -11,6 +11,7 @@ import { useShadCNAnimations } from "../utils/animations";
 import { Popover } from "./Popover";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 // --- PROPS ---
 export type ComboboxOption = string | { label: string; value: any; icon?: React.ReactNode; description?: string; disabled?: boolean };
@@ -590,7 +591,9 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const labelSize = size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm";
 
   // Match DatePicker trigger style: fully rounded by default
-  const radiusClass = getBorderRadiusClass(borderMode ?? "full");
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.borderMode ?? "full";
+  const radiusClass = getBorderRadiusClass(resolvedBorderMode);
 
   const verticalGap = size === "sm" ? "space-y-1.5" : "space-y-2";
 

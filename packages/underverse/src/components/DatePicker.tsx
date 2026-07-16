@@ -9,6 +9,7 @@ import * as React from "react";
 import { useId } from "react";
 import { Popover } from "./Popover";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 /** Public props for the `DatePicker` component. */
 export interface DatePickerProps {
@@ -598,6 +599,9 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const verticalGap = size === "sm" ? "space-y-1.5" : size === "lg" ? "space-y-2.5" : "space-y-2";
   const effectiveError = localRequiredError;
 
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.borderMode ?? "full";
+
   return (
     <div className={cn("w-full group", verticalGap)}>
       {label && (
@@ -658,7 +662,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             aria-invalid={!!effectiveError}
             className={cn(
               "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
-              getBorderRadiusClass(borderMode ?? "full"),
+              getBorderRadiusClass(resolvedBorderMode),
               sizeStyles[size].trigger,
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"
@@ -1436,6 +1440,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   const resolvedId = id ? String(id) : `daterangepicker-${autoId}`;
   const labelId = label ? `${resolvedId}-label` : undefined;
 
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.borderMode ?? "full";
+
   return (
     <div className={cn("space-y-1.5", className)}>
       {label && (
@@ -1493,7 +1500,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
             aria-invalid={!!effectiveError}
             className={cn(
               "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
-              getBorderRadiusClass(borderMode ?? "full"),
+              getBorderRadiusClass(resolvedBorderMode),
               sizeStyles[size].trigger,
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"

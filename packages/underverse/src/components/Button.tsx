@@ -5,6 +5,7 @@ import { VARIANT_STYLES_BTN, SIZE_STYLES_BTN } from "../constants/button";
 import { cn } from "../utils/cn";
 import { Activity } from "lucide-react";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 /** Public props for the `Button` component. */
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -79,6 +80,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const variantStyle = VARIANT_STYLES_BTN[finalVariant] || VARIANT_STYLES_BTN.default;
     const sizeStyle = SIZE_STYLES_BTN[size] || SIZE_STYLES_BTN.md;
 
+    const globalConfig = useUnderverseUIConfig();
+    const resolvedBorderMode = borderMode ?? globalConfig.button?.borderMode ?? "full";
+
     const SpinnerIcon = Spinner ?? Activity;
     const [locked, setLocked] = useState(false);
     const lockTimer = useRef<NodeJS.Timeout | null>(null);
@@ -121,7 +125,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         title={title}
         className={cn(
           baseStyles,
-          getBorderRadiusClass(borderMode ?? "full"),
+          getBorderRadiusClass(resolvedBorderMode),
           variantStyle,
           sizeStyle,
           "group",
