@@ -671,7 +671,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       required,
       value,
       maxLength,
-      borderMode = "2xl",
+      borderMode,
       ...props
     },
     ref,

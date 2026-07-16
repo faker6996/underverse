@@ -9,6 +9,7 @@ import Calendar from "./Calendar";
 import TimePicker from "./TimePicker";
 import { useSmartLocale, useSmartTranslations } from "../hooks/useSmartTranslations";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 /** Public props for the `DateTimePicker` component. */
 export interface DateTimePickerProps {
@@ -53,6 +54,8 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   size = "md",
   borderMode,
 }) => {
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
   const t = useSmartTranslations("DateTimePicker");
   const tv = useSmartTranslations("ValidationInput");
   const locale = useSmartLocale();
@@ -262,7 +265,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
             aria-invalid={!!effectiveError}
             className={cn(
               "flex w-full items-center justify-between border border-input bg-background",
-              getBorderRadiusClass(borderMode ?? "full"),
+              getBorderRadiusClass(resolvedBorderMode),
               sizeStyles[size].trigger,
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               disabled && "opacity-50 cursor-not-allowed",
@@ -290,12 +293,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
             </div>
           </button>
         }
-        contentClassName={cn(
-          "w-auto p-0 rounded-2xl md:rounded-3xl",
-          // Keep the popover usable on small viewports
-          "max-w-[calc(100vw-1rem)] max-h-[calc(100vh-6rem)] overflow-auto",
-        )}
-        placement="bottom-end"
+        placement="bottom-start"
+        borderMode={resolvedBorderMode}
+        contentClassName="p-0 overflow-hidden w-auto flex flex-col md:flex-row max-w-[calc(100vw-1rem)] max-h-[calc(100vh-6rem)] overflow-auto"
       >
         <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-border">
           {/* Calendar Section */}

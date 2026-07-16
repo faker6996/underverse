@@ -6,6 +6,8 @@ import React, { useState } from "react";
 import { chainEventHandlers, mergeRefs } from "../utils/react-compose";
 import { Popover } from "./Popover";
 import { ChevronRight } from "lucide-react";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 type DropdownMenuContextValue = {
   closeMenu: () => void;
@@ -37,6 +39,7 @@ interface DropdownMenuProps {
     disabled?: boolean;
     destructive?: boolean;
   }>;
+  borderMode?: BorderMode;
 }
 
 function useResettingIndex(resetToken: unknown) {
@@ -67,6 +70,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   isOpen,
   onOpenChange,
   items,
+  borderMode,
 }) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = isOpen !== undefined ? isOpen : internalOpen;
@@ -108,6 +112,9 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
 
   // Inject ShadCN animations
   useShadCNAnimations();
+
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.dropdownMenu?.borderMode ?? globalConfig.borderMode;
 
   // Keyboard navigation inside the menu (Arrow keys/Home/End)
   React.useEffect(() => {
@@ -188,7 +195,8 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
                     animationDelay: open ? `${Math.min(index * 20, 200)}ms` : "0ms",
                   }}
                   className={cn(
-                    "dropdown-item flex w-full items-center gap-2 px-2.5 py-1.5 text-sm rounded-lg",
+                    "dropdown-item flex w-full items-center gap-2 px-2.5 py-1.5 text-sm",
+                    resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-lg",
                     "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                     "hover:bg-accent hover:text-accent-foreground",
                     "focus:bg-accent focus:text-accent-foreground",
@@ -247,6 +255,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       trigger={enhancedTrigger}
       placement={placement}
       disabled={disabled}
+      borderMode={resolvedBorderMode}
       contentClassName={cn("p-1", contentClassName)}
     >
       {menuBody}
@@ -267,6 +276,7 @@ export interface DropdownMenuItemProps {
   shortcut?: string;
   className?: string;
   closeOnSelect?: boolean;
+  borderMode?: BorderMode;
 }
 
 export const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({
@@ -281,9 +291,13 @@ export const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({
   shortcut,
   className,
   closeOnSelect,
+  borderMode,
 }) => {
   const menu = React.useContext(DropdownMenuContext);
   const shouldCloseOnSelect = closeOnSelect ?? menu?.closeOnSelect ?? false;
+  
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.dropdownMenu?.borderMode ?? globalConfig.borderMode;
 
   return (
     <button
@@ -298,7 +312,8 @@ export const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({
       data-dropdown-menu-item=""
       tabIndex={-1}
       className={cn(
-        "flex w-full items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors group cursor-pointer",
+        "flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors group cursor-pointer",
+        resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-lg",
         "hover:bg-accent hover:text-accent-foreground",
         "focus:bg-accent focus:text-accent-foreground focus:outline-none",
         "disabled:opacity-50 disabled:cursor-not-allowed",
@@ -329,16 +344,22 @@ export const DropdownMenuSub: React.FC<{
   label: string;
   icon?: React.ComponentType<{ className?: string }>;
   disabled?: boolean;
+  borderMode?: BorderMode;
   children: React.ReactNode;
-}> = ({ label, icon: Icon, disabled, children }) => (
-  <DropdownMenu
+}> = ({ label, icon: Icon, disabled, borderMode, children }) => {
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.dropdownMenu?.borderMode ?? globalConfig.borderMode;
+
+  return (
+    <DropdownMenu
     trigger={
       <button
         type="button"
         disabled={disabled}
         onMouseDown={(e) => e.preventDefault()}
         className={cn(
-          "flex w-full items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer",
+          "flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors cursor-pointer",
+          resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-lg",
           "hover:bg-accent hover:text-accent-foreground",
           "focus:bg-accent focus:text-accent-foreground focus:outline-none",
           "disabled:opacity-50 disabled:cursor-not-allowed",
@@ -353,7 +374,8 @@ export const DropdownMenuSub: React.FC<{
   >
     {children}
   </DropdownMenu>
-);
+  );
+};
 
 export const SelectDropdown: React.FC<{
   options: string[];
@@ -361,12 +383,18 @@ export const SelectDropdown: React.FC<{
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
-}> = ({ options, value, onChange, placeholder = "Select...", className }) => (
-  <DropdownMenu
+  borderMode?: BorderMode;
+}> = ({ options, value, onChange, placeholder = "Select...", className, borderMode }) => {
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.dropdownMenu?.borderMode ?? globalConfig.borderMode;
+  
+  return (
+    <DropdownMenu
     trigger={
       <button
         className={cn(
-          "inline-flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-2xl border bg-background border-border/60",
+          "inline-flex items-center justify-between gap-2 px-3 py-2 text-sm border bg-background border-border/60",
+          resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl",
           "hover:bg-accent/50",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           className,
@@ -382,8 +410,10 @@ export const SelectDropdown: React.FC<{
       label: option,
       onClick: () => onChange(option),
     }))}
+    borderMode={resolvedBorderMode}
   />
-);
+  );
+};
 
 export { DropdownMenu };
 export default DropdownMenu;

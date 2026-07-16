@@ -10,6 +10,7 @@ import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { Label } from "./label";
 import { Popover } from "./Popover";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 export interface Category {
   /** Unique category id used for selection and tree relationships. */
@@ -402,6 +403,9 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     singleSelect = false,
     borderMode,
   } = props;
+
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
 
   const [isOpen, setIsOpen] = useState(false);
   const [expandedNodes, setExpandedNodes] = useState<Set<number>>(() =>
@@ -1192,10 +1196,11 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
         matchTriggerWidth
         className="z-9999"
         contentClassName={cn(
-          "p-0 overflow-hidden rounded-2xl md:rounded-3xl",
+          "p-0 overflow-hidden",
           "border-border/40 bg-popover/95 text-popover-foreground",
           "shadow-2xl backdrop-blur-xl",
         )}
+        borderMode={resolvedBorderMode}
         trigger={
           <div
             id={resolvedId}
@@ -1221,7 +1226,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
             }}
             className={cn(
               "group flex w-full items-center justify-between transition-all duration-200",
-              getBorderRadiusClass(borderMode ?? "full"),
+              getBorderRadiusClass(resolvedBorderMode ?? "full"),
               "backdrop-blur-sm",
               triggerSizeStyles[size].button,
               triggerVariantStyles[variant],

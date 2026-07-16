@@ -140,6 +140,8 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   maxInitialOptions,
   showSearchPromptWhenEmptyQuery = false,
 }) => {
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.borderMode ?? "full";
   const tv = useSmartTranslations("ValidationInput");
   const gi18n = useGlobalI18n();
   const placeholder = placeholderProp ?? gi18n.selectPlaceholder ?? "Select...";
@@ -452,7 +454,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   };
 
   const dropdownBody = (
-    <div data-combobox-dropdown data-state={open ? "open" : "closed"} className="w-full rounded-2xl md:rounded-3xl overflow-hidden">
+    <div data-combobox-dropdown data-state={open ? "open" : "closed"} className={cn("w-full overflow-hidden", getBorderRadiusClass(resolvedBorderMode))}>
       {/* Header with selected count and clear */}
       {value.length > 0 && (
         <div className="px-3 py-2 border-b border-border/40 flex items-center justify-between bg-muted/30">
@@ -605,9 +607,6 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
     .filter(Boolean) as MultiComboboxOption[];
   const visibleTags = maxTagsVisible ? selectedOptions.slice(0, maxTagsVisible) : selectedOptions;
   const hiddenCount = maxTagsVisible ? Math.max(0, selectedOptions.length - maxTagsVisible) : 0;
-
-  const globalConfig = useUnderverseUIConfig();
-  const resolvedBorderMode = borderMode ?? globalConfig.borderMode ?? "full";
 
   const triggerButton = (
     <button
@@ -778,7 +777,8 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         placement="bottom-start"
         matchTriggerWidth
         className="z-9999"
-        contentClassName="p-0 overflow-hidden rounded-2xl md:rounded-3xl"
+        borderMode={resolvedBorderMode}
+        contentClassName="p-0 overflow-hidden"
       >
         {dropdownBody}
       </Popover>

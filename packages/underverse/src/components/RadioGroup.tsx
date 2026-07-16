@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "../utils/cn";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 interface RadioGroupContextType {
   value?: string;
@@ -62,6 +63,8 @@ export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
     },
     ref,
   ) => {
+    const globalConfig = useUnderverseUIConfig();
+    const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
     const [internalValue, setInternalValue] = React.useState(defaultValue || "");
     const isControlled = value !== undefined;
     const currentValue = isControlled ? value : internalValue;
@@ -88,7 +91,7 @@ export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
           disabled,
           size,
           variant,
-          borderMode,
+          borderMode: resolvedBorderMode,
         }}
       >
         <div className="space-y-2">
@@ -433,6 +436,8 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
   className,
   fullWidth = false,
 }) => {
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
   const [internalValue, setInternalValue] = React.useState(defaultValue || "");
   const isControlled = value !== undefined;
   const currentValue = isControlled ? value : internalValue;
@@ -474,7 +479,7 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
   const radioName = name || `radio-button-group-${uniqueId}`;
 
   return (
-    <div className={cn("inline-flex", variantClasses[variant].container, getBorderRadiusClass(borderMode ?? "md"), fullWidth && "w-full", className)} role="radiogroup">
+    <div className={cn("inline-flex", variantClasses[variant].container, getBorderRadiusClass(resolvedBorderMode), fullWidth && "w-full", className)} role="radiogroup">
       {items.map((item, index) => {
         const isSelected = currentValue === item.value;
         const isDisabled = item.disabled || disabled;
@@ -495,7 +500,7 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
               sizeClasses[size],
               isSelected ? variantClasses[variant].selected : variantClasses[variant].base,
               variant === "outline" && !isLast && "border-r border-border/50",
-              variant === "default" && getBorderRadiusClass(borderMode ?? "md"),
+              variant === "default" && getBorderRadiusClass(resolvedBorderMode),
               fullWidth && "flex-1",
             )}
             onClick={() => handleValueChange(item.value)}

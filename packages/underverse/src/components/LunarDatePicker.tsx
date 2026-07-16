@@ -9,6 +9,7 @@ import { useId } from "react";
 import { Popover } from "./Popover";
 import { lunarToSolar, solarToLunar, type LunarDateValue } from "../utils/lunar";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 export type LunarPickerValue = LunarDateValue;
 
@@ -150,6 +151,8 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
   maxDate,
   borderMode,
 }) => {
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
   const t = useSmartTranslations("DatePicker");
   const tv = useSmartTranslations("ValidationInput");
   const locale = useSmartLocale();
@@ -738,12 +741,12 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
         open={isOpen}
         onOpenChange={setIsOpen}
         placement="bottom-start"
+        borderMode={resolvedBorderMode}
         disabled={disabled}
         contentWidth={sizeStyles[size].contentWidth}
         contentClassName={cn(
           "p-0",
           "backdrop-blur-xl bg-popover/95 border-border/40 shadow-2xl",
-          "rounded-2xl md:rounded-3xl",
           // Keep usable on small viewports (wheel scroll should stay within the popover if it overflows)
           "max-w-[calc(100vw-1rem)] max-h-[calc(100vh-6rem)] overflow-auto overscroll-contain",
           sizeStyles[size].contentPadding,
@@ -760,7 +763,7 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
             aria-invalid={!!effectiveError}
             className={cn(
               "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
-              getBorderRadiusClass(borderMode ?? "full"),
+              getBorderRadiusClass(resolvedBorderMode),
               sizeStyles[size].trigger,
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"

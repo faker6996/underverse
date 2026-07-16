@@ -5,6 +5,8 @@ import { createPortal } from "react-dom";
 import { cn } from "../utils/cn";
 import { X } from "lucide-react";
 import { useGlobalI18n } from "../contexts/GlobalI18nContext";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 /** Public props for the `Modal` component. */
 interface ModalProps {
@@ -24,6 +26,7 @@ interface ModalProps {
   fullWidth?: boolean;
   width?: string | number;
   height?: string | number;
+  borderMode?: BorderMode;
 }
 
 const sizeStyles = {
@@ -51,8 +54,11 @@ const Modal: React.FC<ModalProps> = ({
   fullWidth = false,
   width,
   height,
+  borderMode,
 }) => {
   const gi18n = useGlobalI18n();
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.borderMode;
   const [isMounted, setIsMounted] = React.useState(false);
   const [isVisible, setIsVisible] = React.useState(false);
   const [isAnimating, setIsAnimating] = React.useState(true);
@@ -198,7 +204,8 @@ const Modal: React.FC<ModalProps> = ({
       <div
         ref={modalContentRef}
         className={cn(
-          "relative w-full rounded-2xl md:rounded-3xl border border-border/40 bg-card text-card-foreground shadow-xl",
+          "relative w-full border border-border/40 bg-card text-card-foreground shadow-xl",
+          resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl",
           "transition-all duration-200 ease-out",
           maxWidthClass,
           fullWidth && "mx-0",

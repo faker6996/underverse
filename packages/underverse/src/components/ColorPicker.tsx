@@ -8,6 +8,7 @@ import { Slider } from "./Slider";
 import { cn } from "../utils/cn";
 import { Pipette, X, Copy, Check, Palette, History } from "lucide-react";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 type OutputFormat = "hex" | "rgba" | "hsl" | "hsla";
 type ColorPickerSize = "sm" | "md" | "lg";
@@ -258,6 +259,8 @@ export default function ColorPicker({
   borderMode,
   ...rest
 }: ColorPickerProps) {
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
   const gi18n = useGlobalI18n();
   const isControlled = value !== undefined;
   const initial = parseAnyColor(isControlled ? value! : defaultValue) || { r: 79, g: 70, b: 229, a: 1 };
@@ -370,7 +373,7 @@ export default function ColorPicker({
       disabled={disabled}
       className={cn(
         "w-full px-3 border border-input bg-background flex items-center justify-between",
-        getBorderRadiusClass(borderMode ?? "full"),
+        getBorderRadiusClass(resolvedBorderMode),
         sizeClasses[size],
         "hover:border-accent-foreground/30 transition-colors",
         disabled && "opacity-50 cursor-not-allowed",
@@ -404,8 +407,9 @@ export default function ColorPicker({
         onOpenChange={setOpen}
         placement="bottom-start"
         matchTriggerWidth={variant === "minimal"}
+        borderMode={resolvedBorderMode}
         contentWidth={contentWidthByVariant[variant]}
-        contentClassName={cn("p-3 rounded-2xl md:rounded-3xl border border-border/50 bg-card shadow-lg", contentClassName)}
+        contentClassName={cn("p-3 border border-border/50 bg-card shadow-lg", contentClassName)}
       >
         <div className="space-y-3">
           {/* Native input + eyedropper + copy + clear */}

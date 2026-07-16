@@ -18,6 +18,15 @@ export interface UnderverseUIConfig {
   table?: {
     borderMode?: BorderMode;
   };
+  popover?: {
+    borderMode?: BorderMode;
+  };
+  dropdownMenu?: {
+    borderMode?: BorderMode;
+  };
+  modal?: {
+    borderMode?: BorderMode;
+  };
   // Future component configs can be added here
 }
 

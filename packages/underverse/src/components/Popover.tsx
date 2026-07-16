@@ -5,6 +5,8 @@ import { createPortal } from "react-dom";
 import { cn } from "../utils/cn";
 import { useShadCNAnimations } from "../utils/animations";
 import { chainEventHandlers, mergeRefs } from "../utils/react-compose";
+import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 type PopoverPlacement = "top" | "bottom" | "left" | "right" | "top-start" | "bottom-start" | "top-end" | "bottom-end";
 
@@ -23,6 +25,7 @@ interface PopoverProps {
   onOpenChange?: (open: boolean) => void;
   matchTriggerWidth?: boolean;
   contentWidth?: number; // optional fixed width
+  borderMode?: BorderMode;
 }
 
 type Side = "top" | "bottom" | "left" | "right";
@@ -145,6 +148,7 @@ export const Popover: React.FC<PopoverProps> = ({
   onOpenChange,
   matchTriggerWidth = false,
   contentWidth,
+  borderMode,
 }) => {
   const isControlled = open !== undefined;
   const [internalOpen, setInternalOpen] = React.useState(false);
@@ -161,6 +165,9 @@ export const Popover: React.FC<PopoverProps> = ({
 
   // Inject ShadCN animations
   useShadCNAnimations();
+  
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.popover?.borderMode ?? globalConfig.borderMode;
 
   const isOpen = isControlled ? (open as boolean) : internalOpen;
   const setIsOpen = React.useCallback(
@@ -380,7 +387,8 @@ export const Popover: React.FC<PopoverProps> = ({
                 {...contentProps}
                
                 className={cn(
-                  "rounded-2xl md:rounded-3xl border bg-popover text-popover-foreground shadow-md",
+                  resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl",
+                  "border bg-popover text-popover-foreground shadow-md",
                   "backdrop-blur-sm bg-popover/95 border-border/60 p-4",
                   contentProps?.className,
                   contentClassName,

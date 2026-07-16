@@ -6,6 +6,7 @@ import { cn } from "../utils/cn";
 import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { X } from "lucide-react";
 import Button from "./Button";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 /** Public props for the `Sheet` component. */
 export interface SheetProps {
@@ -409,7 +410,9 @@ export interface BottomSheetProps extends Omit<SheetProps, "side"> {
 }
 
 export const BottomSheet: React.FC<BottomSheetProps> = ({ snapPoints = ["25%", "50%", "90%"], defaultSnap = 1, ...props }) => {
-  return <Sheet {...props} side="bottom" variant="overlay" className={cn("rounded-t-3xl", props.className)} />;
+  const globalConfig = useUnderverseUIConfig();
+  const isSquare = globalConfig.borderMode === "daewoo" || globalConfig.borderMode === "none";
+  return <Sheet {...props} side="bottom" variant="overlay" className={cn(isSquare ? "" : "rounded-t-3xl", props.className)} />;
 };
 
 /** Public props for the `SidebarSheet` component. */

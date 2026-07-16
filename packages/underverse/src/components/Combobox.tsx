@@ -152,6 +152,9 @@ export const Combobox: React.FC<ComboboxProps> = ({
   maxInitialOptions,
   showSearchPromptWhenEmptyQuery = false,
 }) => {
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.borderMode ?? "full";
+  const radiusClass = getBorderRadiusClass(resolvedBorderMode);
   const tv = useSmartTranslations("ValidationInput");
   const gi18n = useGlobalI18n();
   const placeholder = placeholderProp ?? gi18n.selectPlaceholder ?? "Select…";
@@ -420,7 +423,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
     <div
       data-combobox-dropdown
       data-state={open ? "open" : "closed"}
-      className="w-full rounded-2xl md:rounded-3xl overflow-hidden"
+      className={cn("w-full overflow-hidden", getBorderRadiusClass(resolvedBorderMode))}
     >
       {/* Search Input (only when many options) */}
       {enableSearch && (
@@ -590,11 +593,6 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
   const labelSize = size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm";
 
-  // Match DatePicker trigger style: fully rounded by default
-  const globalConfig = useUnderverseUIConfig();
-  const resolvedBorderMode = borderMode ?? globalConfig.borderMode ?? "full";
-  const radiusClass = getBorderRadiusClass(resolvedBorderMode);
-
   const verticalGap = size === "sm" ? "space-y-1.5" : "space-y-2";
 
   const triggerButtonBaseProps = {
@@ -733,7 +731,8 @@ export const Combobox: React.FC<ComboboxProps> = ({
           placement="bottom-start"
           matchTriggerWidth
           className="z-9999"
-          contentClassName="p-0 overflow-hidden rounded-2xl md:rounded-3xl"
+          borderMode={resolvedBorderMode}
+          contentClassName="p-0 overflow-hidden"
         >
           {dropdownBody}
         </Popover>
@@ -742,7 +741,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
           {triggerButtonInline}
           {open && (
             <div className="absolute left-0 top-full mt-1 z-50 w-full">
-              <div className="rounded-2xl md:rounded-3xl overflow-hidden border text-popover-foreground shadow-md backdrop-blur-sm bg-popover/95 border-border/60">
+              <div className={cn("overflow-hidden border text-popover-foreground shadow-md backdrop-blur-sm bg-popover/95 border-border/60", getBorderRadiusClass(resolvedBorderMode))}>
                 {dropdownBody}
               </div>
             </div>

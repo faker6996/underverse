@@ -8,6 +8,7 @@ import { Popover } from "./Popover";
 import { Clock, X, Check, Sun, Moon, Sunset, Coffee } from "lucide-react";
 import Input from "./Input";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 type TimeFormat = "24" | "12";
 type TimePickerVariant = "default" | "compact" | "inline";
@@ -636,6 +637,8 @@ export default function TimePicker({
 }: TimePickerProps) {
   const tv = useSmartTranslations("ValidationInput");
   const gi18n = useGlobalI18n();
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
   const autoId = React.useId();
   const isControlled = value !== undefined;
   const now = new Date();
@@ -1030,7 +1033,7 @@ export default function TimePicker({
         aria-invalid={!!effectiveError}
         className={cn(
           "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
-          getBorderRadiusClass(borderMode ?? "full"),
+          getBorderRadiusClass(resolvedBorderMode),
           sz.height,
           sz.padding,
           sz.text,
@@ -1445,7 +1448,8 @@ export default function TimePicker({
         <div
           className={cn(
             panelSz.contentPadding,
-            "rounded-2xl md:rounded-3xl border bg-card/95 backdrop-blur-sm shadow-xl",
+            resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl",
+            "border bg-card/95 backdrop-blur-sm shadow-xl",
             effectiveError ? "border-destructive/60 bg-destructive/5" : "border-border/60",
             className,
           )}
@@ -1499,10 +1503,11 @@ export default function TimePicker({
         placement="bottom-start"
         matchTriggerWidth={shouldMatchTriggerWidth}
         contentWidth={shouldMatchTriggerWidth ? undefined : contentWidth}
+        borderMode={resolvedBorderMode}
         contentClassName={cn(
           panelSz.contentPadding,
-          compactPanel && "max-w-[calc(100vw-2rem)] p-4 rounded-2xl",
-          "rounded-2xl md:rounded-3xl border bg-popover/98 backdrop-blur-md shadow-2xl",
+          compactPanel && "max-w-[calc(100vw-2rem)] p-4",
+          "border bg-popover/98 backdrop-blur-md shadow-2xl",
           effectiveError && "border-destructive/40",
           success && !effectiveError && "border-success/40",
           !effectiveError && !success && "border-border/60",

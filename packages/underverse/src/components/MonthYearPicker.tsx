@@ -7,6 +7,7 @@ import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { Popover } from "./Popover";
 import { Calendar, X, Check, ChevronDown } from "lucide-react";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 type MonthYearPickerVariant = "default" | "compact" | "inline";
 type PickerSize = "sm" | "md" | "lg";
@@ -600,6 +601,8 @@ export default function MonthYearPicker({
   borderMode,
   ...rest
 }: MonthYearPickerProps) {
+  const globalConfig = useUnderverseUIConfig();
+  const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
   const gi18n = useGlobalI18n();
   const tv = useSmartTranslations("ValidationInput");
   const now = new Date();
@@ -785,7 +788,7 @@ export default function MonthYearPicker({
         aria-invalid={!!effectiveError}
         className={cn(
           "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
-          getBorderRadiusClass(borderMode ?? "full"),
+          getBorderRadiusClass(resolvedBorderMode),
           sz.height,
           sz.padding,
           sz.text,
@@ -953,7 +956,8 @@ export default function MonthYearPicker({
         <div
           className={cn(
             panelSz.contentPadding,
-            "rounded-2xl border bg-background/80 backdrop-blur-sm",
+            resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl",
+            "border bg-background/80 backdrop-blur-sm",
             effectiveError ? "border-destructive/60 bg-destructive/5" : "border-border/50",
           )}
         >
@@ -995,7 +999,8 @@ export default function MonthYearPicker({
         contentWidth={contentWidth}
         matchTriggerWidth={matchTriggerWidth}
         disabled={disabled}
-        contentClassName={cn(panelSz.contentPadding, compactPanel && "max-w-[calc(100vw-2rem)] p-4 rounded-2xl", "rounded-2xl")}
+        borderMode={resolvedBorderMode}
+        contentClassName={cn(panelSz.contentPadding, compactPanel && "max-w-[calc(100vw-2rem)] p-4")}
       >
         {pickerContent}
       </Popover>
