@@ -1,8 +1,8 @@
 {
   "package": "@underverse-ui/underverse",
-  "version": "1.0.190",
+  "version": "1.0.191",
   "sourceEntry": "src/index.ts",
-  "totalExports": 248,
+  "totalExports": 252,
   "exports": [
     {
       "name": "*",
@@ -1619,6 +1619,20 @@
       "local": false
     },
     {
+      "name": "UnderverseConfigProvider",
+      "kind": "value",
+      "source": "./contexts/UnderverseConfigContext",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "UnderverseConfigProviderProps",
+      "kind": "type",
+      "source": "./contexts/UnderverseConfigContext",
+      "reexport": true,
+      "local": false
+    },
+    {
       "name": "UnderverseLocale",
       "kind": "type",
       "source": null,
@@ -1650,6 +1664,13 @@
       "name": "UnderverseProviderProps",
       "kind": "type",
       "source": "./contexts/translation-adapter",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "UnderverseUIConfig",
+      "kind": "type",
+      "source": "./contexts/UnderverseConfigContext",
       "reexport": true,
       "local": false
     },
@@ -1743,6 +1764,13 @@
       "name": "useUnderverseTranslations",
       "kind": "value",
       "source": "./contexts/TranslationContext",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "useUnderverseUIConfig",
+      "kind": "value",
+      "source": "./contexts/UnderverseConfigContext",
       "reexport": true,
       "local": false
     },
