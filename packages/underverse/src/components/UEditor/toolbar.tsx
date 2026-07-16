@@ -17,6 +17,7 @@ import {
   Bold as BoldIcon,
   ChevronDown,
   ChevronsUpDown,
+  CircleCheckBig,
   Code as CodeIcon,
   FileCode,
   Heading1 as Heading1Icon,
@@ -32,6 +33,7 @@ import {
   Redo as RedoIcon,
   RotateCcw,
   Smile,
+  SquareCheckBig,
   Strikethrough as StrikethroughIcon,
   Subscript as SubscriptIcon,
   Superscript as SuperscriptIcon,
@@ -281,6 +283,8 @@ export const EditorToolbar = ({
   const canSplitCell = hasTableContext && editor.can().splitCell();
   const currentCellVerticalAlign =
     normalizeStyleValue(editor.getAttributes("tableCell").verticalAlign || editor.getAttributes("tableHeader").verticalAlign) || "";
+  const currentCellTextDirection =
+    normalizeStyleValue(editor.getAttributes("tableCell").textDirection || editor.getAttributes("tableHeader").textDirection) || "horizontal";
   const currentFontFamily = normalizeStyleValue(textStyleAttrs.fontFamily);
   const currentFontSize = normalizeStyleValue(textStyleAttrs.fontSize);
   const currentTextColor = normalizeStyleValue(textStyleAttrs.color) || "inherit";
@@ -359,6 +363,25 @@ export const EditorToolbar = ({
         >
           <ListIcon className="w-4 h-4" />
         </ToolbarButton>
+        <DropdownMenu
+          trigger={
+            <ToolbarButton onClick={() => {}} active={editor.isActive("formCheckbox")} title={t("slashCommand.formCheckbox")}>
+              <SquareCheckBig className="w-4 h-4" />
+              <ChevronDown className="w-3 h-3" />
+            </ToolbarButton>
+          }
+        >
+          <DropdownMenuItem
+            icon={SquareCheckBig}
+            label={t("slashCommand.formCheckbox")}
+            onClick={() => editor.chain().focus().setFormCheckbox().run()}
+          />
+          <DropdownMenuItem
+            icon={CircleCheckBig}
+            label={t("slashCommand.roundCheckbox")}
+            onClick={() => editor.chain().focus().setFormCheckbox({ variant: "circle" }).run()}
+          />
+        </DropdownMenu>
         <DropdownMenu
           contentClassName="min-w-72"
           trigger={
@@ -752,6 +775,29 @@ export const EditorToolbar = ({
               </>
             )}
           </DropdownMenu>
+          {hasTableContext && (
+            <DropdownMenu
+              trigger={
+                <ToolbarButton onClick={() => {}} title={t("tableMenu.textDirection")}>
+                  {currentCellTextDirection === "vertical" ? <ArrowDown className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+                  <ChevronDown className="w-3 h-3" />
+                </ToolbarButton>
+              }
+            >
+              <DropdownMenuItem
+                icon={ArrowRight}
+                label={t("tableMenu.horizontalText")}
+                onClick={() => applyTableCellAttribute(editor, "textDirection", null)}
+                active={currentCellTextDirection === "horizontal"}
+              />
+              <DropdownMenuItem
+                icon={ArrowDown}
+                label={t("tableMenu.verticalText")}
+                onClick={() => applyTableCellAttribute(editor, "textDirection", "vertical")}
+                active={currentCellTextDirection === "vertical"}
+              />
+            </DropdownMenu>
+          )}
         </>
       )}
 
@@ -785,6 +831,26 @@ export const EditorToolbar = ({
           onClick={() => editor.chain().focus().toggleTaskList().run()}
           active={editor.isActive("taskList")}
           shortcut="Ctrl+Shift+9"
+        />
+      </DropdownMenu>
+
+      <DropdownMenu
+        trigger={
+          <ToolbarButton onClick={() => {}} active={editor.isActive("formCheckbox")} title={t("slashCommand.formCheckbox")}>
+            <SquareCheckBig className="w-4 h-4" />
+            <ChevronDown className="w-3 h-3" />
+          </ToolbarButton>
+        }
+      >
+        <DropdownMenuItem
+          icon={SquareCheckBig}
+          label={t("slashCommand.formCheckbox")}
+          onClick={() => editor.chain().focus().setFormCheckbox().run()}
+        />
+        <DropdownMenuItem
+          icon={CircleCheckBig}
+          label={t("slashCommand.roundCheckbox")}
+          onClick={() => editor.chain().focus().setFormCheckbox({ variant: "circle" }).run()}
         />
       </DropdownMenu>
 

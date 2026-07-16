@@ -219,6 +219,8 @@
       "fileCardDesc": "Tải lên tệp tin đính kèm",
       "formCheckbox": "Checkbox biểu mẫu",
       "formCheckboxDesc": "Thêm ô checkbox biểu mẫu",
+      "roundCheckbox": "Checkbox tròn",
+      "roundCheckboxDesc": "Thêm checkbox tương tác hình tròn",
       "formRadio": "Radio biểu mẫu",
       "formRadioDesc": "Thêm nút chọn một (Radio) biểu mẫu"
     },
@@ -318,7 +320,10 @@
       "alignVertical": "Căn lề dọc",
       "alignVerticalTop": "Căn trên",
       "alignVerticalMiddle": "Căn giữa",
-      "alignVerticalBottom": "Căn dưới"
+      "alignVerticalBottom": "Căn dưới",
+      "textDirection": "Hướng chữ",
+      "horizontalText": "Chữ ngang",
+      "verticalText": "Chữ dọc"
     },
     "callout": {
       "selectEmoji": "Chọn Biểu tượng",

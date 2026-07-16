@@ -1462,6 +1462,8 @@
       "fileCardDesc": "ファイルカードの添付ファイルをアップロードします",
       "formCheckbox": "フォームチェックボックス",
       "formCheckboxDesc": "インタラクティブなチェックボックスを挿入します",
+      "roundCheckbox": "丸型チェックボックス",
+      "roundCheckboxDesc": "丸型のインタラクティブなチェックボックスを挿入します",
       "formRadio": "フォームラジオボタン",
       "formRadioDesc": "インタラクティブなラジオボタンを挿入します"
     },
@@ -1540,7 +1542,10 @@
       "alignVertical": "垂直揃え",
       "alignVerticalTop": "上揃え",
       "alignVerticalMiddle": "上下中央揃え",
-      "alignVerticalBottom": "下揃え"
+      "alignVerticalBottom": "下揃え",
+      "textDirection": "文字方向",
+      "horizontalText": "横書き",
+      "verticalText": "縦書き"
     },
     "callout": {
       "selectEmoji": "絵文字を選択",

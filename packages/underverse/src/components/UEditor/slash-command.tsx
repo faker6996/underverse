@@ -22,6 +22,7 @@ import {
   Bookmark as BookmarkIcon,
   Paperclip,
   CheckSquare,
+  CircleCheckBig,
   CircleDot,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
@@ -60,6 +61,8 @@ export type SlashCommandMessages = {
   fileCardDesc: string;
   formCheckbox: string;
   formCheckboxDesc: string;
+  roundCheckbox: string;
+  roundCheckboxDesc: string;
   formRadio: string;
   formRadioDesc: string;
 };
@@ -97,6 +100,8 @@ const DEFAULT_MESSAGES: SlashCommandMessages = {
   fileCardDesc: "Upload a file card attachment",
   formCheckbox: "Form Checkbox",
   formCheckboxDesc: "Insert an interactive checkbox field",
+  roundCheckbox: "Round Checkbox",
+  roundCheckboxDesc: "Insert a circular interactive checkbox",
   formRadio: "Form Radio Button",
   formRadioDesc: "Insert an interactive radio button field",
 };
@@ -110,6 +115,7 @@ export type SlashCommandItem = {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   description: string;
+  searchTerms?: string[];
   command: (ctx: SlashCommandExecutionContext) => void;
 };
 
@@ -180,6 +186,8 @@ export function buildSlashCommandMessages(translate: (key: string) => string): S
     fileCardDesc: translate("slashCommand.fileCardDesc") || "Upload a file card attachment",
     formCheckbox: translate("slashCommand.formCheckbox") || "Form Checkbox",
     formCheckboxDesc: translate("slashCommand.formCheckboxDesc") || "Insert an interactive checkbox field",
+    roundCheckbox: translate("slashCommand.roundCheckbox") || "Round Checkbox",
+    roundCheckboxDesc: translate("slashCommand.roundCheckboxDesc") || "Insert a circular interactive checkbox",
     formRadio: translate("slashCommand.formRadio") || "Form Radio Button",
     formRadioDesc: translate("slashCommand.formRadioDesc") || "Insert an interactive radio button field",
   };
@@ -331,8 +339,18 @@ export function buildSlashCommandItems({
       icon: CheckSquare,
       title: messages.formCheckbox,
       description: messages.formCheckboxDesc,
+      searchTerms: ["checkbox", "square checkbox"],
       command: run(({ editor, range }) => {
         getCommandChain(editor, range).setFormCheckbox().run();
+      }),
+    },
+    {
+      icon: CircleCheckBig,
+      title: messages.roundCheckbox,
+      description: messages.roundCheckboxDesc,
+      searchTerms: ["roundcheckbox", "round checkbox", "circle checkbox"],
+      command: run(({ editor, range }) => {
+        getCommandChain(editor, range).setFormCheckbox({ variant: "circle" }).run();
       }),
     },
     {
@@ -343,7 +361,13 @@ export function buildSlashCommandItems({
         getCommandChain(editor, range).setFormRadio({ name: `radio-group-${Math.random().toString(36).substring(2, 6)}` }).run();
       }),
     },
-  ].filter((item) => item.title.toLowerCase().includes(query.toLowerCase()));
+  ].filter((item) => {
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) return true;
+
+    return [item.title, item.description, ...(item.searchTerms ?? [])]
+      .some((value) => value.toLowerCase().includes(normalizedQuery));
+  });
 }
 
 export const SlashCommandList = forwardRef<SlashCommandListRef, SlashCommandListProps>((props, ref) => {

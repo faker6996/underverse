@@ -6,13 +6,15 @@ export interface FormCheckboxOptions {
   HTMLAttributes: Record<string, unknown>;
 }
 
+export type FormCheckboxVariant = "square" | "circle";
+
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     formCheckbox: {
       /**
        * Insert a form checkbox node
        */
-      setFormCheckbox: (attributes?: { checked?: boolean; id?: string; name?: string }) => ReturnType;
+      setFormCheckbox: (attributes?: { checked?: boolean; id?: string; name?: string; variant?: FormCheckboxVariant }) => ReturnType;
     }
   }
 }
@@ -72,6 +74,11 @@ export const FormCheckbox = Node.create<FormCheckboxOptions>({
             name: attributes.name,
           };
         },
+      },
+      variant: {
+        default: "square",
+        parseHTML: (element) => element.getAttribute("data-variant") === "circle" ? "circle" : "square",
+        renderHTML: (attributes) => attributes.variant === "circle" ? { "data-variant": "circle" } : {},
       },
     };
   },

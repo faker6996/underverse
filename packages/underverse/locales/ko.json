@@ -219,6 +219,8 @@
       "fileCardDesc": "파일 카드 첨부 파일을 업로드합니다",
       "formCheckbox": "양식 체크박스",
       "formCheckboxDesc": "대화형 체크박스 필드 삽입",
+      "roundCheckbox": "원형 체크박스",
+      "roundCheckboxDesc": "원형 대화형 체크박스 삽입",
       "formRadio": "양식 라디오 버튼",
       "formRadioDesc": "대화형 라디오 버튼 필드 삽입"
     },
@@ -318,7 +320,10 @@
       "alignVertical": "세로 맞춤",
       "alignVerticalTop": "위쪽 맞춤",
       "alignVerticalMiddle": "가운데 맞춤",
-      "alignVerticalBottom": "아래쪽 맞춤"
+      "alignVerticalBottom": "아래쪽 맞춤",
+      "textDirection": "텍스트 방향",
+      "horizontalText": "가로쓰기",
+      "verticalText": "세로쓰기"
     },
     "callout": {
       "selectEmoji": "이모지 선택",

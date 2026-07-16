@@ -32,6 +32,7 @@ import {
   Undo as UndoIcon,
   Square,
   CircleDot,
+  CircleCheckBig,
   Upload,
 } from "lucide-react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
@@ -723,6 +724,12 @@ export const MenuBar: React.FC<MenuBarProps> = ({
           label: t("menubar.formCheckbox") || "Form Checkbox",
           icon: Square,
           onClick: () => editor.chain().focus().setFormCheckbox().run(),
+        },
+        {
+          type: "action",
+          label: t("slashCommand.roundCheckbox") || "Round Checkbox",
+          icon: CircleCheckBig,
+          onClick: () => editor.chain().focus().setFormCheckbox({ variant: "circle" }).run(),
         },
         {
           type: "action",

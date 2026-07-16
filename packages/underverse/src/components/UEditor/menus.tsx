@@ -32,6 +32,8 @@ import {
   AlignStartVertical,
   AlignCenterVertical,
   AlignEndVertical,
+  ArrowDown,
+  ArrowRight,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { ToolbarButton } from "./toolbar";
@@ -212,6 +214,8 @@ const BubbleMenuContent = ({
   const currentCellBorderWidth = editor.getAttributes("tableCell").borderWidth || editor.getAttributes("tableHeader").borderWidth || "1px";
   const currentCellVerticalAlign =
     normalizeStyleValue(editor.getAttributes("tableCell").verticalAlign || editor.getAttributes("tableHeader").verticalAlign) || "";
+  const currentCellTextDirection =
+    normalizeStyleValue(editor.getAttributes("tableCell").textDirection || editor.getAttributes("tableHeader").textDirection) || "horizontal";
   const isInTable = isSelectionInTable(editor.state);
   const canMergeCells = isInTable && editor.can().mergeCells();
   const canSplitCell = isInTable && editor.can().splitCell();
@@ -902,6 +906,36 @@ const BubbleMenuContent = ({
               label={t("tableMenu.alignVerticalBottom") || "Align bottom"}
               onClick={() => applyTableCellAttribute(editor, "verticalAlign", "bottom", { focus: false })}
               active={currentCellVerticalAlign === "bottom"}
+            />
+          </DropdownMenu>
+          <DropdownMenu
+            onOpenChange={(open) => {
+              onKeepOpenChange?.(open);
+            }}
+            trigger={
+              <ToolbarButton
+                onMouseDown={() => {
+                  onKeepOpenChange?.(true);
+                }}
+                onClick={() => {}}
+                title={t("tableMenu.textDirection")}
+              >
+                {currentCellTextDirection === "vertical" ? <ArrowDown className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+                <ChevronDown className="w-3 h-3" />
+              </ToolbarButton>
+            }
+          >
+            <DropdownMenuItem
+              icon={ArrowRight}
+              label={t("tableMenu.horizontalText")}
+              onClick={() => applyTableCellAttribute(editor, "textDirection", null, { focus: false })}
+              active={currentCellTextDirection === "horizontal"}
+            />
+            <DropdownMenuItem
+              icon={ArrowDown}
+              label={t("tableMenu.verticalText")}
+              onClick={() => applyTableCellAttribute(editor, "textDirection", "vertical", { focus: false })}
+              active={currentCellTextDirection === "vertical"}
             />
           </DropdownMenu>
         </>

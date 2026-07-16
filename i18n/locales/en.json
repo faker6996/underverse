@@ -1507,6 +1507,8 @@
       "fileCardDesc": "Upload a file card attachment",
       "formCheckbox": "Form Checkbox",
       "formCheckboxDesc": "Insert an interactive checkbox field",
+      "roundCheckbox": "Round Checkbox",
+      "roundCheckboxDesc": "Insert a circular interactive checkbox",
       "formRadio": "Form Radio Button",
       "formRadioDesc": "Insert an interactive radio button field"
     },
@@ -1585,7 +1587,10 @@
       "alignVertical": "Vertical Alignment",
       "alignVerticalTop": "Top Align",
       "alignVerticalMiddle": "Middle Align",
-      "alignVerticalBottom": "Bottom Align"
+      "alignVerticalBottom": "Bottom Align",
+      "textDirection": "Text Direction",
+      "horizontalText": "Horizontal Text",
+      "verticalText": "Vertical Text"
     },
     "callout": {
       "selectEmoji": "Select Emoji",

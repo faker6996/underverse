@@ -160,6 +160,14 @@ export const CustomTableCell = TableCell.extend({
           };
         },
       },
+      textDirection: {
+        default: null,
+        parseHTML: (element) =>
+          element.getAttribute("data-text-direction") === "vertical" || element.style.writingMode === "vertical-rl"
+            ? "vertical"
+            : null,
+        renderHTML: (attributes) => attributes.textDirection === "vertical" ? { "data-text-direction": "vertical" } : {},
+      },
     };
   },
 
@@ -170,6 +178,7 @@ export const CustomTableCell = TableCell.extend({
     const borderStyle = HTMLAttributes["data-border-style"];
     const borderWidth = HTMLAttributes["data-border-width"];
     const verticalAlign = HTMLAttributes["data-vertical-align"];
+    const textDirection = HTMLAttributes["data-text-direction"];
 
     let mergedStyle = style;
     if (bg) mergedStyle += `; background-color: ${bg}`;
@@ -177,6 +186,7 @@ export const CustomTableCell = TableCell.extend({
     if (borderStyle) mergedStyle += `; border-style: ${borderStyle}`;
     if (borderWidth) mergedStyle += `; border-width: ${borderWidth}`;
     if (verticalAlign) mergedStyle += `; vertical-align: ${verticalAlign}`;
+    if (textDirection === "vertical") mergedStyle += "; writing-mode: vertical-rl; text-orientation: mixed";
     mergedStyle = mergedStyle.replace(/^;/, "").trim();
 
     return [
@@ -283,6 +293,14 @@ export const CustomTableHeader = TableHeader.extend({
           };
         },
       },
+      textDirection: {
+        default: null,
+        parseHTML: (element) =>
+          element.getAttribute("data-text-direction") === "vertical" || element.style.writingMode === "vertical-rl"
+            ? "vertical"
+            : null,
+        renderHTML: (attributes) => attributes.textDirection === "vertical" ? { "data-text-direction": "vertical" } : {},
+      },
     };
   },
 
@@ -293,6 +311,7 @@ export const CustomTableHeader = TableHeader.extend({
     const borderStyle = HTMLAttributes["data-border-style"];
     const borderWidth = HTMLAttributes["data-border-width"];
     const verticalAlign = HTMLAttributes["data-vertical-align"];
+    const textDirection = HTMLAttributes["data-text-direction"];
 
     let mergedStyle = style;
     if (bg) mergedStyle += `; background-color: ${bg}`;
@@ -300,6 +319,7 @@ export const CustomTableHeader = TableHeader.extend({
     if (borderStyle) mergedStyle += `; border-style: ${borderStyle}`;
     if (borderWidth) mergedStyle += `; border-width: ${borderWidth}`;
     if (verticalAlign) mergedStyle += `; vertical-align: ${verticalAlign}`;
+    if (textDirection === "vertical") mergedStyle += "; writing-mode: vertical-rl; text-orientation: mixed";
     mergedStyle = mergedStyle.replace(/^;/, "").trim();
 
     return [

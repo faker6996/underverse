@@ -361,6 +361,62 @@ test("UEditor minimal toolbar applies bold and italic formatting while typing", 
   });
 });
 
+test("UEditor toolbar checkbox button inserts the same form checkbox as the slash command", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<p>Task item</p>",
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await user.click(await view.findByText("Task item"));
+  await user.click(await view.findByRole("button", { name: "Form Checkbox" }));
+  const squareCheckboxOption = await within(window.document.body).findByText("Form Checkbox");
+  const squareCheckboxButton = squareCheckboxOption.closest("button");
+  assert.ok(squareCheckboxButton);
+  await user.click(squareCheckboxButton);
+
+  await waitFor(() => {
+    assert.ok(within(view.container).getByRole("checkbox"));
+    assert.equal(view.container.querySelector('ul[data-type="taskList"]'), null);
+  });
+});
+
+test("UEditor toolbar inserts a round checkbox variant", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+  const user = userEvent.setup({ document: window.document });
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<p>Round task</p>",
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await user.click(await view.findByText("Round task"));
+  await user.click(await view.findByRole("button", { name: "Form Checkbox" }));
+  const roundCheckboxOption = await within(window.document.body).findByText("Round Checkbox");
+  const roundCheckboxButton = roundCheckboxOption.closest("button");
+  assert.ok(roundCheckboxButton);
+  await user.click(roundCheckboxButton);
+
+  await waitFor(() => {
+    assert.ok(within(view.container).getByRole("checkbox"));
+    assert.match(ref.current?.editor?.getHTML() ?? "", /data-variant="circle"/);
+  });
+});
+
 test("UEditor toolbar applies font family, font size, line height, and letter spacing while typing", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -2629,6 +2685,52 @@ test("UEditor table toolbar applies table alignment and preserves it in HTML", a
     assert.match(table.getAttribute("style") ?? "", /margin-right:\s*auto/i);
     assert.match(table.getAttribute("style") ?? "", /width:\s*max-content/i);
     assert.match(htmlUpdates.at(-1) ?? "", /data-table-align="center"/);
+  });
+});
+
+test("UEditor table toolbar applies and removes vertical text direction", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const htmlUpdates = [];
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<table><tbody><tr><td>Vertical label</td><td>Value</td></tr></tbody></table>",
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+      onHtmlChange: (html) => htmlUpdates.push(html),
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+
+  activateTableCell(firstCell);
+  await user.click(await view.findByRole("button", { name: "Text Direction" }));
+  await user.click(await within(window.document.body).findByRole("button", { name: "Vertical Text" }));
+
+  await waitFor(() => {
+    const currentCell = view.container.querySelector("td");
+    assert.ok(currentCell);
+    assert.equal(currentCell.getAttribute("data-text-direction"), "vertical");
+    assert.match(currentCell.getAttribute("style") ?? "", /writing-mode:\s*vertical-rl/i);
+    assert.match(currentCell.getAttribute("style") ?? "", /text-orientation:\s*mixed/i);
+    assert.match(htmlUpdates.at(-1) ?? "", /data-text-direction="vertical"/);
+  });
+
+  await user.click(await view.findByRole("button", { name: "Text Direction" }));
+  await user.click(await within(window.document.body).findByRole("button", { name: "Horizontal Text" }));
+
+  await waitFor(() => {
+    const currentCell = view.container.querySelector("td");
+    assert.ok(currentCell);
+    assert.equal(currentCell.getAttribute("data-text-direction"), null);
+    assert.doesNotMatch(currentCell.getAttribute("style") ?? "", /writing-mode/i);
   });
 });
 

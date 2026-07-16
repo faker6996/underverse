@@ -100,6 +100,19 @@ test("FormCheckbox extension parses and renders correctly", () => {
   editor.destroy();
 });
 
+test("FormCheckbox preserves the round variant in HTML", () => {
+  const editor = new Editor({
+    extensions: [Document, Paragraph, Text, FormCheckbox],
+    content: '<p><input type="checkbox" data-type="form-checkbox" data-variant="circle" /></p>',
+  });
+
+  const html = editor.getHTML();
+  assert.match(html, /data-type="form-checkbox"/);
+  assert.match(html, /data-variant="circle"/);
+
+  editor.destroy();
+});
+
 test("FormRadio extension parses, renders, and unchecks sibling radios in the same group", () => {
   const editor = new Editor({
     extensions: [Document, Paragraph, Text, FormRadio],

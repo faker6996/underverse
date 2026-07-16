@@ -8,6 +8,7 @@ import { Check } from "lucide-react";
 
 export const FormCheckboxView: React.FC<NodeViewProps> = ({ node, updateAttributes, editor, selected }) => {
   const isChecked = !!node.attrs.checked;
+  const isCircle = node.attrs.variant === "circle";
   const isEditable = editor.isEditable;
 
   const handleToggle = (e: React.MouseEvent | React.KeyboardEvent) => {
@@ -38,7 +39,8 @@ export const FormCheckboxView: React.FC<NodeViewProps> = ({ node, updateAttribut
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
         className={cn(
-          "flex items-center justify-center w-5 h-5 rounded-md border text-primary-foreground transition-all duration-200 outline-none",
+          "flex items-center justify-center w-5 h-5 border text-primary-foreground transition-all duration-200 outline-none",
+          isCircle ? "rounded-full" : "rounded-md",
           isChecked
             ? "bg-primary border-primary scale-100"
             : "bg-background border-border/70 hover:border-primary/50",
