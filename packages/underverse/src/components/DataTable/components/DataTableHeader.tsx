@@ -155,9 +155,10 @@ export function DataTableHeader<T extends Record<string, any>>({
       const columnLabel = getColumnLabel(col.title) || col.key;
       const sortByText = sortByLabel ?? gi18n.sortBy ?? "Sort by";
       const sortLabel = `${sortByText} ${columnLabel}`;
+      const useEndIcon = col.iconPosition === "end";
 
       const titleContent = (
-        <div className="flex items-center gap-1">
+        <div className={cn("flex items-center gap-1", useEndIcon && "flex-1 justify-between")}>
           <span className={cn("font-medium whitespace-nowrap select-text", headerTitleClass)}>{col.title}</span>
           {col.sortable && (
             <Tooltip
@@ -168,8 +169,8 @@ export function DataTableHeader<T extends Record<string, any>>({
                 type="button"
                 title={sortLabel}
                 className={cn(
-                  "p-1 rounded-lg transition-all duration-200 hover:bg-accent",
-                  sort?.key === col.key ? "opacity-100 bg-accent" : "opacity-60 hover:opacity-100",
+                  "p-1 rounded-lg transition-all duration-200 hover:bg-foreground/10",
+                  sort?.key === col.key ? "opacity-100 bg-foreground/10" : "opacity-60 hover:opacity-100",
                 )}
                 onClick={() => {
                   setCurPage(1);
@@ -183,7 +184,7 @@ export function DataTableHeader<T extends Record<string, any>>({
               >
                 <svg viewBox="0 0 20 20" fill="none" className={cn("inline-block", sortIconClass)}>
                   <path
-                    d="M7 8l3-3 3 3"
+                    d="M5 7.5l5-5 5 5"
                     stroke="currentColor"
                     strokeWidth="1.5"
                     strokeLinecap="round"
@@ -191,7 +192,7 @@ export function DataTableHeader<T extends Record<string, any>>({
                     opacity={sort?.key === col.key && sort.order === "asc" ? 1 : 0.4}
                   />
                   <path
-                    d="M7 12l3 3 3-3"
+                    d="M5 12.5l5 5 5-5"
                     stroke="currentColor"
                     strokeWidth="1.5"
                     strokeLinecap="round"
@@ -218,8 +219,8 @@ export function DataTableHeader<T extends Record<string, any>>({
                   type="button"
                   title={gi18n.filterByColumn ? gi18n.filterByColumn(columnLabel) : `Filter by ${columnLabel}`}
                   className={cn(
-                    "p-1.5 rounded-lg transition-all duration-200 hover:bg-accent",
-                    filters[col.key] ? "bg-accent opacity-100" : "opacity-60 hover:opacity-100",
+                    "p-1.5 rounded-lg transition-all duration-200 hover:bg-foreground/10",
+                    filters[col.key] ? "bg-foreground/10 opacity-100" : "opacity-60 hover:opacity-100",
                   )}
                   aria-label={gi18n.filterByColumn ? gi18n.filterByColumn(columnLabel) : `Filter by ${columnLabel}`}
                 >
@@ -257,6 +258,7 @@ export function DataTableHeader<T extends Record<string, any>>({
             isRightAlign && "justify-end",
             isCenterAlign && "justify-center",
             !isRightAlign && !isCenterAlign && "justify-start",
+            useEndIcon && "w-full",
           )}
         >
           {isRightAlign ? (

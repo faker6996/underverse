@@ -24,6 +24,8 @@ export type DataTableColumn<T> = {
   // Common properties
   width?: number | string;
   align?: "left" | "center" | "right";
+  /** Vị trí của icon sort/filter: "inline" (ngay sát text) hoặc "end" (cuối dòng) */
+  iconPosition?: "inline" | "end";
   visible?: boolean; // default true
   /** Cố định cột bên trái hoặc phải khi cuộn ngang */
   fixed?: "left" | "right";

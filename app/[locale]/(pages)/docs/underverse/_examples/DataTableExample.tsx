@@ -65,8 +65,8 @@ export default function DataTableExample() {
         />
       ),
     },
-    { key: "name", title: "Name", dataIndex: "name", sortable: true, filter: { type: "text" }, width: 150, colorTag: "#19386e" },
-    { key: "email", title: "Email", dataIndex: "email", width: 160, colorTag: "#0f766e" },
+    { key: "name", title: "Name", dataIndex: "name", sortable: true, filter: { type: "text" }, width: 150, colorTag: "#19386e", iconPosition: "end" },
+    { key: "email", title: "Email", dataIndex: "email", sortable: true, filter: { type: "text" }, width: 160, colorTag: "#0f766e", iconPosition: "end" },
     { key: "role", title: "Role", dataIndex: "role", filter: { type: "select", options: ["Admin", "Editor", "User"] }, width: 100, colorTag: "#315a8fff" },
     {
       key: "department",
