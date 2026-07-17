@@ -11,6 +11,7 @@ export function normalizeStyleValue(value: unknown) {
 
 export function getDefaultFontFamilies(t: (key: string) => string): UEditorFontFamilyOption[] {
   return [
+    { label: "Inter", value: '"Inter", "Noto Sans", "Noto Sans CJK KR", "Noto Sans CJK JP", "Segoe UI", sans-serif' },
     { label: "굴림", value: '"Gulim", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif' },
     { label: "굴림체", value: '"GulimChe", "Gulim", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif' },
     { label: "궁서", value: '"Gungsuh", "Nanum Myeongjo", serif' },
@@ -21,7 +22,6 @@ export function getDefaultFontFamilies(t: (key: string) => string): UEditorFontF
     { label: "바탕체", value: '"BatangChe", "Batang", "Nanum Myeongjo", serif' },
     { label: "맑은고딕", value: '"Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif' },
     { label: "나눔명조", value: '"Nanum Myeongjo", "Batang", serif' },
-    { label: "Inter", value: '"Inter", "Noto Sans", "Noto Sans CJK KR", "Noto Sans CJK JP", "Segoe UI", sans-serif' },
     { label: "System UI", value: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' },
     { label: "Roboto", value: '"Roboto", "Noto Sans", "Apple SD Gothic Neo", "Hiragino Kaku Gothic ProN", sans-serif' },
     { label: "Lexend", value: '"Lexend", "Be Vietnam Pro", "Segoe UI", sans-serif' },

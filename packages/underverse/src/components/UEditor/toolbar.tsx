@@ -14,35 +14,23 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
-  Bold as BoldIcon,
   ChevronDown,
-  ChevronsUpDown,
   CircleCheckBig,
-  Code as CodeIcon,
   FileCode,
   Heading1 as Heading1Icon,
   Heading2 as Heading2Icon,
   Heading3 as Heading3Icon,
-  Image as ImageIcon,
-  Italic as ItalicIcon,
   Link as LinkIcon,
   List as ListIcon,
   ListOrdered as ListOrderedIcon,
   ListTodo,
   Quote as QuoteIcon,
-  Redo as RedoIcon,
   RotateCcw,
-  Smile,
   SquareCheckBig,
-  Strikethrough as StrikethroughIcon,
-  Subscript as SubscriptIcon,
-  Superscript as SuperscriptIcon,
   Table as TableIcon,
   TableCellsMerge,
   Trash2,
   Type,
-  Underline as UnderlineIcon,
-  Undo as UndoIcon,
   Upload,
   AlignStartVertical,
   AlignCenterVertical,
@@ -62,6 +50,28 @@ import { sanitizeUEditorUrl } from "./url-safety";
 import { applyTableAlignment, findTableNodeInfoFromState } from "./table-align-utils";
 import { resolveEventElement } from "./table-dom-utils";
 import { mergeTableCellsPreservingColumnWidths } from "./table-cell-commands";
+import {
+  FigmaAlignLeftIcon,
+  FigmaBoldIcon,
+  FigmaChevronDownIcon,
+  FigmaCodeIcon,
+  FigmaImageIcon,
+  FigmaItalicIcon,
+  FigmaLetterSpacingIcon,
+  FigmaLineHeightIcon,
+  FigmaLinkIcon,
+  FigmaListIcon,
+  FigmaQuoteIcon,
+  FigmaRedoIcon,
+  FigmaSmileIcon,
+  FigmaStrikeIcon,
+  FigmaSubscriptIcon,
+  FigmaSuperscriptIcon,
+  FigmaTableIcon,
+  FigmaTextStyleIcon,
+  FigmaUnderlineIcon,
+  FigmaUndoIcon,
+} from "./figma-toolbar-icons";
 import type { UEditorFontFamilyOption, UEditorFontSizeOption, UEditorLetterSpacingOption, UEditorLineHeightOption, UEditorVariant } from "./types";
 import {
   getDefaultFontFamilies,
@@ -133,12 +143,12 @@ export const ToolbarButton = React.forwardRef<
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex items-center justify-center w-7 h-7 rounded-md transition-colors duration-150 cursor-pointer",
+        "flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition-colors duration-150 cursor-pointer",
         "gap-0.5 [&_svg+svg]:-ml-1",
         "hover:bg-accent",
         "focus:outline-none focus:ring-2 focus:ring-primary/20",
         "disabled:opacity-40 disabled:cursor-not-allowed",
-        active ? "bg-primary/10 text-primary shadow-sm" : "text-muted-foreground hover:text-foreground",
+        active ? "bg-primary/10 text-primary shadow-sm" : "text-[#7B8184] hover:text-foreground dark:text-muted-foreground",
         className,
       )}
     >
@@ -158,7 +168,7 @@ export const ToolbarButton = React.forwardRef<
 });
 ToolbarButton.displayName = "ToolbarButton";
 
-const ToolbarDivider = () => <div className="mx-0.5 h-5 w-px bg-border/60" />;
+const ToolbarDivider = () => <div aria-hidden="true" className="mx-2 h-9 w-px shrink-0 bg-[rgba(123,129,132,0.24)]" />;
 
 export const TableInsertGrid = ({
   insertLabel,
@@ -344,24 +354,24 @@ export const EditorToolbar = ({
     return (
       <div className="flex flex-wrap items-center gap-0.5 border-b border-border/35 bg-muted/30 p-1.5">
         <ToolbarButton onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title={t("toolbar.undo")}>
-          <UndoIcon className="w-4 h-4" />
+          <FigmaUndoIcon className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title={t("toolbar.redo")}>
-          <RedoIcon className="w-4 h-4" />
+          <FigmaRedoIcon className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarDivider />
         <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("toolbar.bold")}>
-          <BoldIcon className="w-4 h-4" />
+          <FigmaBoldIcon className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} title={t("toolbar.italic")}>
-          <ItalicIcon className="w-4 h-4" />
+          <FigmaItalicIcon className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           active={editor.isActive("bulletList")}
           title={t("toolbar.bulletList")}
         >
-          <ListIcon className="w-4 h-4" />
+          <FigmaListIcon className="h-4 w-4" />
         </ToolbarButton>
         <DropdownMenu
           trigger={
@@ -386,7 +396,7 @@ export const EditorToolbar = ({
           contentClassName="min-w-72"
           trigger={
             <ToolbarButton onClick={() => setShowLinkInput(!editor.isActive("link"))} active={editor.isActive("link")} title={t("toolbar.link")}>
-              <LinkIcon className="w-4 h-4" />
+              <FigmaLinkIcon className="h-4 w-4" />
             </ToolbarButton>
           }
         >
@@ -430,15 +440,22 @@ export const EditorToolbar = ({
       : AlignStartVertical;
 
   return (
-    <div className="flex flex-wrap items-center gap-0.5 border-b border-border/35 bg-linear-to-r from-muted/25 to-transparent p-1.5">
+    <div
+      role="toolbar"
+      className="flex min-h-[60px] flex-nowrap items-center gap-1 overflow-x-auto border-b border-[rgba(196,197,213,0.6)] bg-[#F4F4F4] px-3 py-3 dark:bg-muted/60"
+    >
       {isFull && (
         <DropdownMenu
           trigger={
-            <ToolbarButton onClick={() => {}} title={t("toolbar.fontFamily")} className="min-w-0 max-w-40 px-1.5 w-auto gap-1">
-              <span className="max-w-28 truncate text-xs font-medium" style={{ fontFamily: displayedFontFamilyValue || undefined }}>
+            <ToolbarButton
+              onClick={() => {}}
+              title={t("toolbar.fontFamily")}
+              className="h-9 w-[200px] max-w-[200px] justify-between gap-3 rounded-lg border border-[rgba(196,197,213,0.6)] bg-white px-3 text-[#404040] shadow-[0_1px_2px_rgba(0,0,0,0.07)] hover:bg-white hover:text-[#404040] dark:bg-background dark:text-foreground"
+            >
+              <span className="min-w-0 flex-1 truncate text-left text-sm font-normal" style={{ fontFamily: displayedFontFamilyValue || undefined }}>
                 {displayedFontFamilyLabel}
               </span>
-              <ChevronDown className="h-3 w-3 text-muted-foreground" />
+              <FigmaChevronDownIcon className="h-3 w-3 shrink-0 text-[#7B8184]" />
             </ToolbarButton>
           }
           contentClassName="max-h-80 overflow-y-auto min-w-56 p-2"
@@ -458,12 +475,13 @@ export const EditorToolbar = ({
       {(isMediumFull || isFull) && (
         <DropdownMenu
           trigger={
-            <ToolbarButton onClick={() => {}} title={t("toolbar.fontSize")} className="px-1.5 w-auto gap-1">
-              <div className="flex items-center gap-0.5">
-                <ChevronsUpDown className="h-3 w-3 text-muted-foreground" strokeWidth={2.5} />
-                <span className="min-w-4 text-center text-xs font-semibold leading-none">{displayedFontSizeLabel}</span>
-              </div>
-              <ChevronDown className="h-3 w-3 text-muted-foreground" />
+            <ToolbarButton
+              onClick={() => {}}
+              title={t("toolbar.fontSize")}
+              className="h-9 w-20 justify-between gap-3 rounded-lg border border-[rgba(196,197,213,0.6)] bg-white px-3 text-[#404040] shadow-[0_1px_2px_rgba(0,0,0,0.07)] hover:bg-white hover:text-[#404040] dark:bg-background dark:text-foreground"
+            >
+              <span className="text-sm font-normal leading-none">{displayedFontSizeLabel}</span>
+              <FigmaChevronDownIcon className="h-3 w-3 shrink-0 text-[#7B8184]" />
             </ToolbarButton>
           }
           contentClassName="max-h-80 overflow-y-auto min-w-32 p-2"
@@ -483,8 +501,8 @@ export const EditorToolbar = ({
         contentClassName="p-1"
         trigger={
           <ToolbarButton onClick={() => {}} title={t("toolbar.textStyle")} className="px-1.5 w-auto gap-0.5">
-            <Type className="w-4 h-4" />
-            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+            <FigmaTextStyleIcon className="h-4 w-4" />
+            <FigmaChevronDownIcon className="h-2.5 w-2.5" />
           </ToolbarButton>
         }
       >
@@ -522,8 +540,7 @@ export const EditorToolbar = ({
           <DropdownMenu
             trigger={
               <ToolbarButton onClick={() => {}} title={t("toolbar.lineHeight")} className="gap-0.5">
-                <ArrowUp className="w-3 h-3" />
-                <ArrowDown className="w-3 h-3" />
+                <FigmaLineHeightIcon className="h-4 w-4" />
               </ToolbarButton>
             }
             contentClassName="max-h-72 overflow-y-auto p-1"
@@ -547,8 +564,7 @@ export const EditorToolbar = ({
           <DropdownMenu
             trigger={
               <ToolbarButton onClick={() => {}} title={t("toolbar.letterSpacing")} className="gap-0.5">
-                <ArrowLeft className="w-3 h-3" />
-                <ArrowRight className="w-3 h-3" />
+                <FigmaLetterSpacingIcon className="h-4 w-4" />
               </ToolbarButton>
             }
             contentClassName="max-h-72 overflow-y-auto p-1"
@@ -574,24 +590,24 @@ export const EditorToolbar = ({
       <ToolbarDivider />
 
       <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("toolbar.bold")}>
-        <BoldIcon className="w-4 h-4" />
+        <FigmaBoldIcon className="h-4 w-4" />
       </ToolbarButton>
       <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")} title={t("toolbar.italic")}>
-        <ItalicIcon className="w-4 h-4" />
+        <FigmaItalicIcon className="h-4 w-4" />
       </ToolbarButton>
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleUnderline().run()}
         active={editor.isActive("underline")}
         title={t("toolbar.underline")}
       >
-        <UnderlineIcon className="w-4 h-4" />
+        <FigmaUnderlineIcon className="h-4 w-4" />
       </ToolbarButton>
       <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")} title={t("toolbar.strike")}>
-        <StrikethroughIcon className="w-4 h-4" />
+        <FigmaStrikeIcon className="h-4 w-4" />
       </ToolbarButton>
       {(isMediumFull || isFull) && (
         <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive("code")} title={t("toolbar.code")}>
-          <CodeIcon className="w-4 h-4" />
+          <FigmaCodeIcon className="h-4 w-4" />
         </ToolbarButton>
       )}
       {isFull && (
@@ -601,14 +617,14 @@ export const EditorToolbar = ({
             active={editor.isActive("subscript")}
             title={t("toolbar.subscript")}
           >
-            <SubscriptIcon className="w-4 h-4" />
+            <FigmaSubscriptIcon className="h-4 w-4" />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleSuperscript().run()}
             active={editor.isActive("superscript")}
             title={t("toolbar.superscript")}
           >
-            <SuperscriptIcon className="w-4 h-4" />
+            <FigmaSuperscriptIcon className="h-4 w-4" />
           </ToolbarButton>
         </>
       )}
@@ -617,7 +633,7 @@ export const EditorToolbar = ({
         contentClassName="min-w-72"
         trigger={
           <ToolbarButton onClick={() => setShowLinkInput(!editor.isActive("link"))} active={editor.isActive("link")} title={t("toolbar.link")}>
-            <LinkIcon className="w-4 h-4" />
+            <FigmaLinkIcon className="h-4 w-4" />
           </ToolbarButton>
         }
       >
@@ -656,7 +672,7 @@ export const EditorToolbar = ({
         trigger={
           <ToolbarButton onClick={() => {}} title={t("colors.textColor")}>
             <TextColorIcon color={currentTextColor} />
-            <ChevronDown className="w-3 h-3" />
+            <FigmaChevronDownIcon className="h-2.5 w-2.5" />
           </ToolbarButton>
         }
       >
@@ -678,7 +694,7 @@ export const EditorToolbar = ({
         trigger={
           <ToolbarButton onClick={() => {}} active={editor.isActive("highlight")} title={t("colors.highlight")}>
             <HighlightColorIcon color={currentHighlightColor} />
-            <ChevronDown className="w-3 h-3" />
+            <FigmaChevronDownIcon className="h-2.5 w-2.5" />
           </ToolbarButton>
         }
       >
@@ -703,7 +719,7 @@ export const EditorToolbar = ({
             contentClassName="p-0 overflow-hidden"
             trigger={
               <ToolbarButton onClick={() => {}} title={t("toolbar.emoji")}>
-                <Smile className="w-4 h-4" />
+                <FigmaSmileIcon className="h-4 w-4" />
               </ToolbarButton>
             }
           >
@@ -722,8 +738,8 @@ export const EditorToolbar = ({
           <DropdownMenu
             trigger={
               <ToolbarButton onClick={() => {}} title={t("toolbar.alignment")}>
-                <AlignLeft className="w-4 h-4" />
-                <ChevronDown className="w-3 h-3" />
+                <FigmaAlignLeftIcon className="h-4 w-4" />
+                <FigmaChevronDownIcon className="h-2.5 w-2.5" />
               </ToolbarButton>
             }
           >
@@ -806,8 +822,8 @@ export const EditorToolbar = ({
       <DropdownMenu
         trigger={
           <ToolbarButton onClick={() => {}} title={t("toolbar.bulletList")}>
-            <ListIcon className="w-4 h-4" />
-            <ChevronDown className="w-3 h-3" />
+            <FigmaListIcon className="h-4 w-4" />
+            <FigmaChevronDownIcon className="h-2.5 w-2.5" />
           </ToolbarButton>
         }
       >
@@ -856,7 +872,7 @@ export const EditorToolbar = ({
 
       {isMediumFull && (
         <ToolbarButton onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive("blockquote")} title={t("toolbar.quote")}>
-          <QuoteIcon className="w-4 h-4" />
+          <FigmaQuoteIcon className="h-4 w-4" />
         </ToolbarButton>
       )}
 
@@ -864,8 +880,8 @@ export const EditorToolbar = ({
         <DropdownMenu
           trigger={
             <ToolbarButton onClick={() => {}} title={t("toolbar.quote")}>
-              <QuoteIcon className="w-4 h-4" />
-              <ChevronDown className="w-3 h-3" />
+              <FigmaQuoteIcon className="h-4 w-4" />
+              <FigmaChevronDownIcon className="h-2.5 w-2.5" />
             </ToolbarButton>
           }
         >
@@ -890,8 +906,8 @@ export const EditorToolbar = ({
         <DropdownMenu
           trigger={
             <ToolbarButton onClick={() => {}} title={t("toolbar.image")}>
-              <ImageIcon className="w-4 h-4" />
-              <ChevronDown className="w-3 h-3" />
+              <FigmaImageIcon className="h-4 w-4" />
+              <FigmaChevronDownIcon className="h-2.5 w-2.5" />
             </ToolbarButton>
           }
         >
@@ -995,8 +1011,8 @@ export const EditorToolbar = ({
           }}
           trigger={
             <ToolbarButton onClick={() => {}} title={t("toolbar.table")}>
-              <TableIcon className="w-4 h-4" />
-              <ChevronDown className="w-3 h-3" />
+              <FigmaTableIcon className="h-4 w-4" />
+              <FigmaChevronDownIcon className="h-2.5 w-2.5" />
             </ToolbarButton>
           }
           contentClassName="p-2 min-w-56"
@@ -1095,10 +1111,10 @@ export const EditorToolbar = ({
       <ToolbarDivider />
 
       <ToolbarButton onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title={t("toolbar.undo")}>
-        <UndoIcon className="w-4 h-4" />
+        <FigmaUndoIcon className="h-4 w-4" />
       </ToolbarButton>
       <ToolbarButton onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title={t("toolbar.redo")}>
-        <RedoIcon className="w-4 h-4" />
+        <FigmaRedoIcon className="h-4 w-4" />
       </ToolbarButton>
 
       {hasTableContext && (
