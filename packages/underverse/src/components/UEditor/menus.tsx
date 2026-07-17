@@ -25,6 +25,7 @@ import {
   Underline as UnderlineIcon,
   Strikethrough as StrikethroughIcon,
   Edit2,
+  Eraser,
   Unlink,
   ExternalLink,
   Grid,
@@ -44,6 +45,7 @@ import { CellBgColorIcon, CellBorderIcon, EditorColorPalette, HighlightColorIcon
 import { applyImageLayout, applyImageWidthPreset, deleteSelectedImage, resetImageSize, type UEditorImageWidthPreset } from "./image-commands";
 import { buildSlashCommandItems, buildSlashCommandMessages, SlashCommandList, type SlashCommandListRef } from "./slash-command";
 import { mergeTableCellsPreservingColumnWidths } from "./table-cell-commands";
+import { applyTableCellBorders, type TableBorderPosition } from "./table-border-commands";
 import { clearSelectedTableCellFormula, recalculateSelectedTable, setSelectedTableCellFormula, setSelectedTableCellNumberFormat } from "./table-formula-commands";
 import type { UEditorFontSizeOption, UEditorLineHeightOption } from "./types";
 import { getDefaultFontSizes, getDefaultLineHeights, normalizeStyleValue } from "./typography-options";
@@ -160,6 +162,33 @@ function BorderStylePreviewIcon({ style }: { style: BorderStyleOption }) {
   );
 }
 
+function BorderPositionPreviewIcon({ position }: { position: TableBorderPosition }) {
+  const showTop = position === "all" || position === "outer" || position === "top";
+  const showRight = position === "all" || position === "outer" || position === "right";
+  const showBottom = position === "all" || position === "outer" || position === "bottom";
+  const showLeft = position === "all" || position === "outer" || position === "left";
+  const showHorizontal = position === "all" || position === "inner" || position === "horizontal";
+  const showVertical = position === "all" || position === "inner" || position === "vertical";
+
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" className="h-5 w-5 fill-none stroke-current">
+      <path
+        d="M2 2H18V18H2Z M2 10H18 M10 2V18"
+        className="text-foreground opacity-70"
+        stroke="currentColor"
+        strokeDasharray="2 1.5"
+        strokeWidth="1.25"
+      />
+      {showTop && <path d="M2 2H18" strokeWidth="2" />}
+      {showRight && <path d="M18 2V18" strokeWidth="2" />}
+      {showBottom && <path d="M2 18H18" strokeWidth="2" />}
+      {showLeft && <path d="M2 2V18" strokeWidth="2" />}
+      {showHorizontal && <path d="M2 10H18" strokeWidth="2" />}
+      {showVertical && <path d="M10 2V18" strokeWidth="2" />}
+    </svg>
+  );
+}
+
 const BubbleMenuContent = ({
   editor,
   onKeepOpenChange,
@@ -168,6 +197,7 @@ const BubbleMenuContent = ({
   fontSizes,
   lineHeights,
   initialShowLinkInput = false,
+  cellBorderOpenRequest = 0,
 }: {
   editor: Editor;
   onKeepOpenChange?: (keepOpen: boolean) => void;
@@ -176,6 +206,7 @@ const BubbleMenuContent = ({
   fontSizes?: UEditorFontSizeOption[];
   lineHeights?: UEditorLineHeightOption[];
   initialShowLinkInput?: boolean;
+  cellBorderOpenRequest?: number;
 }) => {
   const t = useSmartTranslations("UEditor");
   useEditorState({
@@ -189,6 +220,12 @@ const BubbleMenuContent = ({
   useEffect(() => {
     setShowLinkInput(initialShowLinkInput);
   }, [initialShowLinkInput]);
+
+  useEffect(() => {
+    if (!cellBorderOpenRequest) return;
+    setActiveColorPalette("cell-border");
+    onKeepOpenChange?.(true);
+  }, [cellBorderOpenRequest, onKeepOpenChange]);
   const [showTypographyPanel, setShowTypographyPanel] = useState(false);
   const [showFormulaPanel, setShowFormulaPanel] = useState(false);
   const [formulaDraft, setFormulaDraft] = useState("");
@@ -212,6 +249,17 @@ const BubbleMenuContent = ({
     normalizeStyleValue(editor.getAttributes("tableCell").numberFormat || editor.getAttributes("tableHeader").numberFormat) || "text";
   const currentCellBorderStyle = editor.getAttributes("tableCell").borderStyle || editor.getAttributes("tableHeader").borderStyle || "solid";
   const currentCellBorderWidth = editor.getAttributes("tableCell").borderWidth || editor.getAttributes("tableHeader").borderWidth || "1px";
+  const currentCellBorderColor =
+    normalizeStyleValue(editor.getAttributes("tableCell").borderColor || editor.getAttributes("tableHeader").borderColor) || "#000000";
+  const [borderStyleDraft, setBorderStyleDraft] = useState<BorderStyleOption>(
+    (["solid", "dashed", "dotted", "double"] as string[]).includes(currentCellBorderStyle)
+      ? (currentCellBorderStyle as BorderStyleOption)
+      : "solid",
+  );
+  const [borderWidthDraft, setBorderWidthDraft] = useState(currentCellBorderWidth);
+  const [borderColorDraft, setBorderColorDraft] = useState(currentCellBorderColor);
+  const [borderEditMode, setBorderEditMode] = useState<"draw" | "erase">("draw");
+  const [activeBorderPosition, setActiveBorderPosition] = useState<TableBorderPosition>("all");
   const currentCellVerticalAlign =
     normalizeStyleValue(editor.getAttributes("tableCell").verticalAlign || editor.getAttributes("tableHeader").verticalAlign) || "";
   const currentCellTextDirection =
@@ -279,23 +327,64 @@ const BubbleMenuContent = ({
     onRequestClose?.();
   }, [onKeepOpenChange, onLinkInputOpenChange, onRequestClose]);
 
-  const applyTableCellAttributeAndClose = useCallback((name: string, value: string | null) => {
-    applyTableCellAttribute(editor, name, value, { focus: false });
-    closeTransientPanels();
-  }, [closeTransientPanels, editor]);
+  const selectTableCellBorderColor = useCallback((color: string) => {
+    const value = color || "currentColor";
+    setBorderColorDraft(value);
+    setBorderEditMode("draw");
+    setActiveBorderPosition("all");
+    applyTableCellBorders(editor, "all", {
+      color: value,
+      style: borderStyleDraft,
+      width: borderWidthDraft,
+    }, { focus: false });
+    setActiveColorPalette("cell-border");
+    onKeepOpenChange?.(true);
+  }, [borderStyleDraft, borderWidthDraft, editor, onKeepOpenChange]);
 
-  const clearTableCellBorderAndClose = useCallback(() => {
-    applyTableCellAttribute(editor, "borderColor", null, { focus: false });
-    applyTableCellAttribute(editor, "borderStyle", null, { focus: false });
-    applyTableCellAttribute(editor, "borderWidth", null, { focus: false });
-    closeTransientPanels();
-  }, [closeTransientPanels, editor]);
+  const applyTableCellBorderPosition = useCallback((position: TableBorderPosition) => {
+    setActiveBorderPosition(position);
+    applyTableCellBorders(editor, position, {
+      color: borderColorDraft,
+      style: borderEditMode === "erase" ? "none" : borderStyleDraft,
+      width: borderWidthDraft,
+    }, { focus: false });
+    onKeepOpenChange?.(true);
+  }, [borderColorDraft, borderEditMode, borderStyleDraft, borderWidthDraft, editor, onKeepOpenChange]);
 
-  const applyTableCellBorderColorAndClose = useCallback((color: string) => {
-    const value = color || null;
-    applyTableCellAttribute(editor, "borderColor", value, { focus: false });
-    closeTransientPanels();
-  }, [closeTransientPanels, editor]);
+  const applyTableCellBorderStyle = useCallback((style: BorderStyleOption) => {
+    setBorderStyleDraft(style);
+    setBorderEditMode("draw");
+    setActiveBorderPosition("all");
+    applyTableCellBorders(editor, "all", {
+      color: borderColorDraft,
+      style,
+      width: borderWidthDraft,
+    }, { focus: false });
+    onKeepOpenChange?.(true);
+  }, [borderColorDraft, borderWidthDraft, editor, onKeepOpenChange]);
+
+  const applyTableCellBorderWidth = useCallback((width: string) => {
+    setBorderWidthDraft(width);
+    setBorderEditMode("draw");
+    setActiveBorderPosition("all");
+    applyTableCellBorders(editor, "all", {
+      color: borderColorDraft,
+      style: borderStyleDraft,
+      width,
+    }, { focus: false });
+    onKeepOpenChange?.(true);
+  }, [borderColorDraft, borderStyleDraft, editor, onKeepOpenChange]);
+
+  const clearTableCellBorders = useCallback(() => {
+    setActiveBorderPosition("all");
+    setBorderEditMode("erase");
+    applyTableCellBorders(editor, "all", {
+      color: borderColorDraft,
+      style: "none",
+      width: borderWidthDraft,
+    }, { focus: false });
+    onKeepOpenChange?.(true);
+  }, [borderColorDraft, borderWidthDraft, editor, onKeepOpenChange]);
 
   const closeColorPalette = useCallback(() => {
     setActiveColorPalette(null);
@@ -358,34 +447,106 @@ const BubbleMenuContent = ({
     const isHighlightPalette = activeColorPalette === "highlight";
 
     if (activeColorPalette === "cell-border") {
-      const currentBorderColor = editor.getAttributes("tableCell").borderColor || editor.getAttributes("tableHeader").borderColor || "currentColor";
-
       return (
-        <div className="flex flex-col gap-2 p-2 w-56 text-sm" data-ueditor-keep-open>
+        <div className="flex w-72 flex-col gap-2 p-2 text-sm" data-ueditor-keep-open>
           <div className="font-semibold text-xs text-muted-foreground uppercase tracking-wider mb-1">
             {t("tableMenu.cellBorder") || "Cell Borders"}
+          </div>
+
+          <div className="flex gap-2">
+            <div className="min-w-0 flex-1">
+              <label className="mb-1 block text-xs text-muted-foreground">{t("tableMenu.borderPosition") || "Border placement"}</label>
+              <div className="grid grid-cols-5 gap-1" role="group" aria-label={t("tableMenu.borderPosition") || "Border placement"}>
+                {([
+                  ["all", "borderAll"],
+                  ["outer", "borderOuter"],
+                  ["inner", "borderInner"],
+                  ["horizontal", "borderHorizontal"],
+                  ["vertical", "borderVertical"],
+                  ["top", "borderTop"],
+                  ["right", "borderRight"],
+                  ["bottom", "borderBottom"],
+                  ["left", "borderLeft"],
+                ] as Array<[TableBorderPosition, string]>).map(([position, labelKey]) => {
+                  const label = t(`tableMenu.${labelKey}`) || position;
+                  return (
+                    <button
+                      key={position}
+                      type="button"
+                      aria-label={label}
+                      title={label}
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => applyTableCellBorderPosition(position)}
+                      className={cn(
+                        "inline-flex h-8 items-center justify-center rounded-md text-foreground transition-colors hover:bg-muted hover:text-primary",
+                        activeBorderPosition === position ? "bg-primary/10 text-primary" : "bg-muted/40",
+                      )}
+                    >
+                      <BorderPositionPreviewIcon position={position} />
+                    </button>
+                  );
+                })}
+                <button
+                  type="button"
+                  aria-label={t("tableMenu.clearBorder") || "Clear borders"}
+                  title={t("tableMenu.clearBorder") || "Clear borders"}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={clearTableCellBorders}
+                  className="inline-flex h-8 items-center justify-center rounded-md bg-muted/40 text-destructive transition-colors hover:bg-destructive/10"
+                >
+                  <BorderStylePreviewIcon style="none" />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1 border-l border-border pl-2 pt-5" role="group" aria-label={t("tableMenu.borderMode") || "Border mode"}>
+              <button
+                type="button"
+                aria-label={t("tableMenu.borderDraw") || "Draw borders"}
+                title={t("tableMenu.borderDraw") || "Draw borders"}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => setBorderEditMode("draw")}
+                className={cn(
+                  "inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors hover:bg-muted",
+                  borderEditMode === "draw" ? "bg-primary/10 text-primary" : "text-muted-foreground",
+                )}
+              >
+                <Edit2 className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                aria-label={t("tableMenu.borderErase") || "Hide borders"}
+                title={t("tableMenu.borderErase") || "Hide borders"}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => setBorderEditMode("erase")}
+                className={cn(
+                  "inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors hover:bg-muted",
+                  borderEditMode === "erase" ? "bg-destructive/10 text-destructive" : "text-muted-foreground",
+                )}
+              >
+                <Eraser className="h-4 w-4" />
+              </button>
+            </div>
           </div>
           
           {/* Border Style Selector */}
           <div className="flex flex-col gap-1">
             <label className="text-xs text-muted-foreground">{t("tableMenu.borderStyle") || "Border Style"}</label>
-            <div className="grid grid-cols-3 gap-1" role="group" aria-label={t("tableMenu.borderStyle") || "Border Style"}>
+            <div className="grid grid-cols-4 gap-1.5" role="group" aria-label={t("tableMenu.borderStyle") || "Border Style"}>
               {([
                 ["solid", "Solid"],
                 ["dashed", "Dashed"],
                 ["dotted", "Dotted"],
                 ["double", "Double"],
-                ["none", "None"],
               ] as Array<[BorderStyleOption, string]>).map(([style, label]) => (
                 <button
                   key={style}
                   type="button"
-                  data-ueditor-close-on-select
                   onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => applyTableCellAttributeAndClose("borderStyle", style)}
+                  onClick={() => applyTableCellBorderStyle(style)}
                   className={cn(
-                    "inline-flex h-8 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium transition-colors hover:bg-muted",
-                    currentCellBorderStyle === style ? "bg-primary/10 text-primary" : "bg-muted/40 text-foreground",
+                    "inline-flex h-8 min-w-0 items-center justify-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors hover:bg-muted",
+                    borderStyleDraft === style ? "bg-primary/10 text-primary" : "bg-muted/40 text-foreground",
                   )}
                 >
                   <BorderStylePreviewIcon style={style} />
@@ -403,12 +564,11 @@ const BubbleMenuContent = ({
                 <button
                   key={width}
                   type="button"
-                  data-ueditor-close-on-select
                   onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => applyTableCellAttributeAndClose("borderWidth", width)}
+                  onClick={() => applyTableCellBorderWidth(width)}
                   className={cn(
                     "h-8 rounded-md px-2 text-xs font-medium transition-colors hover:bg-muted",
-                    currentCellBorderWidth === width ? "bg-primary/10 text-primary" : "bg-muted/40 text-foreground",
+                    borderWidthDraft === width ? "bg-primary/10 text-primary" : "bg-muted/40 text-foreground",
                   )}
                 >
                   {width}
@@ -427,34 +587,22 @@ const BubbleMenuContent = ({
             <span
               className="w-4 h-4 rounded-full border border-border"
               style={{
-                backgroundColor: currentBorderColor,
+                backgroundColor: borderColorDraft,
               }}
             />
           </button>
 
-          <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-border">
-            <button
-              type="button"
-              data-ueditor-close-on-select
-              onClick={clearTableCellBorderAndClose}
-              className="text-xs text-destructive hover:underline"
-            >
-              {t("tableMenu.clearBorder") || "Clear Border"}
-            </button>
-          </div>
         </div>
       );
     }
 
     if (activeColorPalette === "cell-border-color") {
-      const currentBorderColor =
-        normalizeStyleValue(editor.getAttributes("tableCell").borderColor || editor.getAttributes("tableHeader").borderColor) || "";
       return (
         <div className="w-56" data-ueditor-keep-open>
           <EditorColorPalette
             colors={borderColors}
-            currentColor={currentBorderColor}
-            onSelect={applyTableCellBorderColorAndClose}
+            currentColor={borderColorDraft}
+            onSelect={selectTableCellBorderColor}
             label={t("tableMenu.borderColor") || "Border Color"}
           />
         </div>
@@ -998,6 +1146,7 @@ export const CustomBubbleMenu = ({
   const BUBBLE_MENU_ESTIMATED_HEIGHT = 44;
   const [isVisible, setIsVisible] = useState(false);
   const [linkInputOpen, setLinkInputOpen] = useState(false);
+  const [cellBorderOpenRequest, setCellBorderOpenRequest] = useState(0);
   const [position, setPosition] = useState<{ top: number; left: number; placement: "top" | "bottom" }>({
     top: 0,
     left: 0,
@@ -1014,8 +1163,8 @@ export const CustomBubbleMenu = ({
     if (!next) setLinkInputOpen(false);
     if (next) setIsVisible(true);
   }, []);
-  const closeBubbleMenu = useCallback(() => {
-    suppressShowUntilRef.current = Date.now() + 1000;
+  const closeBubbleMenu = useCallback((suppressShow = true) => {
+    suppressShowUntilRef.current = suppressShow ? Date.now() + 1000 : 0;
     keepOpenRef.current = false;
     setKeepOpenState(false);
     setLinkInputOpen(false);
@@ -1122,6 +1271,47 @@ export const CustomBubbleMenu = ({
     };
   }, [editor]);
 
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target && (menuRef.current?.contains(target) || target.closest("[data-ueditor-keep-open]"))) return;
+      const table = target?.closest("table");
+      if (table && editor.view.dom.contains(table)) return;
+      closeBubbleMenu(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeBubbleMenu();
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown, true);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown, true);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [closeBubbleMenu, editor, isVisible]);
+
+  useEffect(() => {
+    const handleTableDoubleClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      const cell = target?.closest("td,th");
+      if (!cell || !editor.view.dom.contains(cell)) return;
+
+      suppressShowUntilRef.current = 0;
+      keepOpenRef.current = true;
+      setKeepOpenState(true);
+      setLinkInputOpen(false);
+      setCellBorderOpenRequest((request) => request + 1);
+      setIsVisible(true);
+      requestAnimationFrame(() => editor.view.focus());
+    };
+
+    editor.view.dom.addEventListener("dblclick", handleTableDoubleClick);
+    return () => editor.view.dom.removeEventListener("dblclick", handleTableDoubleClick);
+  }, [editor]);
+
   if (!isVisible) return null;
 
   return createPortal(
@@ -1161,6 +1351,7 @@ export const CustomBubbleMenu = ({
           fontSizes={fontSizes}
           lineHeights={lineHeights}
           initialShowLinkInput={linkInputOpen}
+          cellBorderOpenRequest={cellBorderOpenRequest}
         />
       )}
     </div>,

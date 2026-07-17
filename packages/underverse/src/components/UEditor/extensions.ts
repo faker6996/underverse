@@ -163,7 +163,7 @@ export const CustomTableCell = TableCell.extend({
       textDirection: {
         default: null,
         parseHTML: (element) =>
-          element.getAttribute("data-text-direction") === "vertical" || element.style.writingMode === "vertical-rl"
+          element.getAttribute("data-text-direction") === "vertical" || ["sideways-lr", "vertical-lr", "vertical-rl"].includes(element.style.writingMode)
             ? "vertical"
             : null,
         renderHTML: (attributes) => attributes.textDirection === "vertical" ? { "data-text-direction": "vertical" } : {},
@@ -186,7 +186,7 @@ export const CustomTableCell = TableCell.extend({
     if (borderStyle) mergedStyle += `; border-style: ${borderStyle}`;
     if (borderWidth) mergedStyle += `; border-width: ${borderWidth}`;
     if (verticalAlign) mergedStyle += `; vertical-align: ${verticalAlign}`;
-    if (textDirection === "vertical") mergedStyle += "; writing-mode: vertical-rl; text-orientation: mixed";
+    if (textDirection === "vertical") mergedStyle += "; writing-mode: sideways-lr; text-orientation: mixed";
     mergedStyle = mergedStyle.replace(/^;/, "").trim();
 
     return [
@@ -296,7 +296,7 @@ export const CustomTableHeader = TableHeader.extend({
       textDirection: {
         default: null,
         parseHTML: (element) =>
-          element.getAttribute("data-text-direction") === "vertical" || element.style.writingMode === "vertical-rl"
+          element.getAttribute("data-text-direction") === "vertical" || ["sideways-lr", "vertical-lr", "vertical-rl"].includes(element.style.writingMode)
             ? "vertical"
             : null,
         renderHTML: (attributes) => attributes.textDirection === "vertical" ? { "data-text-direction": "vertical" } : {},
@@ -319,7 +319,7 @@ export const CustomTableHeader = TableHeader.extend({
     if (borderStyle) mergedStyle += `; border-style: ${borderStyle}`;
     if (borderWidth) mergedStyle += `; border-width: ${borderWidth}`;
     if (verticalAlign) mergedStyle += `; vertical-align: ${verticalAlign}`;
-    if (textDirection === "vertical") mergedStyle += "; writing-mode: vertical-rl; text-orientation: mixed";
+    if (textDirection === "vertical") mergedStyle += "; writing-mode: sideways-lr; text-orientation: mixed";
     mergedStyle = mergedStyle.replace(/^;/, "").trim();
 
     return [

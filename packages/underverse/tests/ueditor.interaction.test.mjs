@@ -909,7 +909,7 @@ test("UEditor bubble menu opens the table formula panel", async () => {
   await body.findByRole("button", { name: "Recalculate" });
 });
 
-test("UEditor bubble menu applies table cell border style and width controls", async () => {
+test("UEditor bubble menu applies spreadsheet-style borders to selected cell edges", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
   const user = userEvent.setup({ document: window.document });
@@ -919,91 +919,104 @@ test("UEditor bubble menu applies table cell border style and width controls", a
   const view = render(
     React.createElement(UEditor, {
       ref,
-      content: "<table><tbody><tr><td>Border target</td><td>Other</td></tr></tbody></table>",
+      content: "<table><tbody><tr><td>A1</td><td>B1</td></tr><tr><td>A2</td><td>B2</td></tr></tbody></table>",
       showToolbar: false,
       showFloatingMenu: false,
       showCharacterCount: false,
     }),
   );
 
-  const firstCell = await waitFor(() => {
-    const element = view.container.querySelector("td");
-    assert.ok(element);
-    return element;
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("td").length, 4);
   });
   await waitFor(() => {
     assert.ok(ref.current?.editor);
   });
 
-  const selectFirstTableCell = () => {
-    let cellPos = null;
+  const getCellPositions = () => {
+    const cellPositions = [];
     ref.current.editor.state.doc.descendants((node, pos) => {
-      if (cellPos != null) return false;
       if (node.type.name === "tableCell" || node.type.name === "tableHeader") {
-        cellPos = pos;
-        return false;
+        cellPositions.push(pos);
       }
       return true;
     });
-    assert.notEqual(cellPos, null);
-    assert.equal(ref.current.editor.commands.setCellSelection({ anchorCell: cellPos, headCell: cellPos }), true);
+    assert.equal(cellPositions.length, 4);
+    return cellPositions;
+  };
+
+  const selectCells = (anchorIndex, headIndex) => {
+    const cellPositions = getCellPositions();
+    assert.equal(
+      ref.current.editor.commands.setCellSelection({ anchorCell: cellPositions[anchorIndex], headCell: cellPositions[headIndex] }),
+      true,
+    );
     ref.current.editor.view.focus();
   };
 
-  selectFirstTableCell();
+  selectCells(0, 0);
 
   await user.click(await body.findByRole("button", { name: "Cell Border" }));
   assert.equal(body.queryByRole("button", { name: "Done" }), null);
+  assert.ok(body.getByRole("button", { name: "All borders" }).querySelector("[stroke-dasharray]"));
 
+  await user.click(await body.findByRole("button", { name: "Dotted" }));
+  await waitFor(() => {
+    const cells = view.container.querySelectorAll("td");
+    assert.equal(cells[0].getAttribute("data-border-style"), "dotted");
+    assert.equal(cells[1].getAttribute("data-border-style"), "solid solid solid dotted");
+    assert.equal(cells[2].getAttribute("data-border-style"), "dotted solid solid");
+    assert.equal(cells[3].getAttribute("data-border-style"), null);
+  });
+
+  selectCells(0, 3);
   await user.click(await body.findByRole("button", { name: "Dashed" }));
-  assert.equal(body.queryByPlaceholderText("Paste or type a link..."), null);
   await waitFor(() => {
-    const updatedCell = view.container.querySelector("td");
-    assert.ok(updatedCell);
-    assert.equal(updatedCell.getAttribute("data-border-style"), "dashed");
-    assert.equal(body.queryByRole("button", { name: "3px" }), null);
+    const cells = view.container.querySelectorAll("td");
+    for (const cell of cells) assert.equal(cell.getAttribute("data-border-style"), "dashed");
   });
-  await new Promise((resolve) => setTimeout(resolve, 1050));
-  assert.equal(body.queryByRole("button", { name: "Dashed" }), null);
-  assert.equal(body.queryByPlaceholderText("Paste or type a link..."), null);
-
-  selectFirstTableCell();
-  await user.click(await body.findByRole("button", { name: "Cell Border" }));
   await user.click(await body.findByRole("button", { name: "3px" }));
-  assert.equal(body.queryByPlaceholderText("Paste or type a link..."), null);
   await waitFor(() => {
-    const updatedCell = view.container.querySelector("td");
-    assert.ok(updatedCell);
-    assert.equal(updatedCell.getAttribute("data-border-width"), "3px");
-    assert.equal(body.queryByRole("button", { name: "Dashed" }), null);
+    const cells = view.container.querySelectorAll("td");
+    for (const cell of cells) assert.equal(cell.getAttribute("data-border-width"), "3px");
   });
-  await new Promise((resolve) => setTimeout(resolve, 1050));
-  assert.equal(body.queryByRole("button", { name: "3px" }), null);
-  assert.equal(body.queryByPlaceholderText("Paste or type a link..."), null);
-
-  selectFirstTableCell();
-  await user.click(await body.findByRole("button", { name: "Cell Border" }));
   await user.click(await body.findByRole("button", { name: "Border Color" }));
   await user.click(await body.findByRole("button", { name: "Black" }));
   await waitFor(() => {
-    const updatedCell = view.container.querySelector("td");
-    assert.ok(updatedCell);
-    assert.equal(updatedCell.getAttribute("data-border-color"), "#000000");
-    assert.equal(body.queryByRole("button", { name: "White" }), null);
+    const cells = view.container.querySelectorAll("td");
+    for (const cell of cells) {
+      assert.equal(cell.getAttribute("data-border-style"), "dashed");
+      assert.equal(cell.getAttribute("data-border-width"), "3px");
+      assert.equal(cell.getAttribute("data-border-color"), "#000000");
+      assert.match(cell.getAttribute("style") ?? "", /border-style:\s*dashed/i);
+    }
   });
-  await new Promise((resolve) => setTimeout(resolve, 1050));
-  assert.equal(body.queryByRole("button", { name: "White" }), null);
-  assert.equal(body.queryByPlaceholderText("Paste or type a link..."), null);
 
+  await user.click(await body.findByRole("button", { name: "Hide borders" }));
+  await user.click(await body.findByRole("button", { name: "Right border" }));
   await waitFor(() => {
-    const updatedCell = view.container.querySelector("td");
-    assert.ok(updatedCell);
-    assert.equal(updatedCell.getAttribute("data-border-color"), "#000000");
-    assert.equal(updatedCell.getAttribute("data-border-style"), "dashed");
-    assert.equal(updatedCell.getAttribute("data-border-width"), "3px");
-    assert.match(updatedCell.getAttribute("style") ?? "", /border-color:\s*(?:#000000|rgb\(0,\s*0,\s*0\))/i);
-    assert.match(updatedCell.getAttribute("style") ?? "", /border-style:\s*dashed/i);
-    assert.match(updatedCell.getAttribute("style") ?? "", /border-width:\s*3px/i);
+    const cells = view.container.querySelectorAll("td");
+    assert.equal(cells[0].getAttribute("data-border-style"), "dashed");
+    assert.equal(cells[1].getAttribute("data-border-style"), "dashed none dashed dashed");
+    assert.equal(cells[2].getAttribute("data-border-style"), "dashed");
+    assert.equal(cells[3].getAttribute("data-border-style"), "dashed none dashed dashed");
+  });
+
+  await user.click(view.container);
+  await waitFor(() => {
+    assert.equal(body.queryByRole("button", { name: "Dotted" }), null);
+  });
+
+  const cells = view.container.querySelectorAll("td");
+  await user.dblClick(cells[0]);
+  await body.findByRole("button", { name: "Dotted" });
+
+  await user.click(cells[1]);
+  assert.ok(body.queryByRole("button", { name: "Dotted" }));
+
+  await user.click(view.container);
+  await waitFor(() => {
+    assert.equal(body.queryByRole("button", { name: "Dotted" }), null);
   });
 });
 
@@ -2718,7 +2731,7 @@ test("UEditor table toolbar applies and removes vertical text direction", async 
     const currentCell = view.container.querySelector("td");
     assert.ok(currentCell);
     assert.equal(currentCell.getAttribute("data-text-direction"), "vertical");
-    assert.match(currentCell.getAttribute("style") ?? "", /writing-mode:\s*vertical-rl/i);
+    assert.match(currentCell.getAttribute("style") ?? "", /writing-mode:\s*sideways-lr/i);
     assert.match(currentCell.getAttribute("style") ?? "", /text-orientation:\s*mixed/i);
     assert.match(htmlUpdates.at(-1) ?? "", /data-text-direction="vertical"/);
   });
