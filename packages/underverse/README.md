@@ -282,6 +282,33 @@ function App() {
 }
 ```
 
+### AccessDenied (Interactive 403 / Upgrade State)
+
+The `AccessDenied` component renders a premium, highly interactive card for 403 Forbidden, 401 Unauthorized, or license upgrade restrictions.
+- **Interactive Robot Face**: Features an SVG illustration whose pupil tracks the cursor position in real-time. Includes an emergency flashing alarm light color-synced with the active variant.
+- **Spotlight Flashlight**: Hovering over the card casts a radial gradient spotlight that reveals a glowing, drop-shadowed status text (e.g., `"403"` or `"PRO"`) under the cursor's path.
+- **Customizable Code**: Customize the background status code or text using the `code` prop. Font size automatically shrinks if the length exceeds 3 characters.
+- **Icon Fallback**: Supports passing a custom React component to `icon` to render a glassmorphic static icon stage instead of the interactive robot face.
+
+#### Usage Example
+
+```tsx
+import { AccessDenied, Button } from "@underverse-ui/underverse";
+
+function App() {
+  return (
+    <AccessDenied
+      title="Tính năng cần nâng cấp"
+      description="Báo cáo và phân tích trên Trang chủ chưa có trong gói license hiện tại. Hãy nâng cấp gói để sử dụng tính năng này."
+      variant="warning" // "destructive" | "warning" | "info"
+      code="PRO"       // Customize background flashlight status text
+    >
+      <Button variant="warning">Nâng cấp gói ngay</Button>
+    </AccessDenied>
+  );
+}
+```
+
 ## Exported Components
 
 ### Core Components

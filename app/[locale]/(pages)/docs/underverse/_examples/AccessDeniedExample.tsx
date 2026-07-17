@@ -18,6 +18,18 @@ export default function AccessDeniedExample() {
     `<AccessDenied variant="destructive" />\n` +
     `<AccessDenied variant="warning" />\n` +
     `<AccessDenied variant="info" />\n\n` +
+    `// Custom Status/License Code\n` +
+    `<AccessDenied\n` +
+    `  code="PRO"\n` +
+    `  title="Tính năng cần nâng cấp"\n` +
+    `  description="Báo cáo và phân tích trên Trang chủ chưa có trong gói license hiện tại. Hãy nâng cấp gói để sử dụng tính năng này."\n` +
+    `  variant="warning"\n` +
+    `>\n` +
+    `  <div className="flex gap-2">\n` +
+    `    <Button variant="outline">Quay lại</Button>\n` +
+    `    <Button variant="primary">Nâng cấp ngay</Button>\n` +
+    `  </div>\n` +
+    `</AccessDenied>\n\n` +
     `// Custom Title and Description\n` +
     `<AccessDenied\n` +
     `  title="Permission Required"\n` +
@@ -56,6 +68,23 @@ export default function AccessDeniedExample() {
           <AccessDenied variant="warning" className="max-w-xl" />
           <AccessDenied variant="info" className="max-w-xl" />
         </div>
+      </div>
+
+      {/* Custom Status/License Code */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Custom Status / License Code</p>
+        <AccessDenied
+          code="PRO"
+          title="Tính năng cần nâng cấp"
+          description="Báo cáo và phân tích trên Trang chủ chưa có trong gói license hiện tại. Hãy nâng cấp gói để sử dụng tính năng này."
+          variant="warning"
+          className="max-w-xl"
+        >
+          <div className="flex gap-2">
+            <Button variant="outline">Quay lại</Button>
+            <Button variant="primary">Nâng cấp ngay</Button>
+          </div>
+        </AccessDenied>
       </div>
 
       {/* Custom Title and Description */}
@@ -118,13 +147,14 @@ export default function AccessDeniedExample() {
   const rows: PropsRow[] = [
     { property: "title", description: t("props.accessDenied.title"), type: "string", default: '"Access Restricted"' },
     { property: "description", description: t("props.accessDenied.description"), type: "string", default: '"You do not have permission to access this area."' },
+    { property: "code", description: t("props.accessDenied.code"), type: "string", default: '"403"' },
     { property: "variant", description: t("props.accessDenied.variant"), type: '"destructive" | "warning" | "info"', default: '"destructive"' },
     { property: "icon", description: t("props.accessDenied.icon"), type: "React.ComponentType<{ className?: string }>", default: "-" },
     { property: "className", description: t("props.accessDenied.className"), type: "string", default: "-" },
     { property: "children", description: t("props.accessDenied.children"), type: "React.ReactNode", default: "-" },
     { property: "overflowHidden", description: t("props.accessDenied.overflowHidden"), type: "boolean", default: "true" },
   ];
-  const order = ["title", "description", "variant", "icon", "className", "children", "overflowHidden"];
+  const order = ["title", "description", "code", "variant", "icon", "className", "children", "overflowHidden"];
   const docs = <PropsDocsTable rows={rows} order={order} markdownFile="AccessDenied.md" />;
 
   return (

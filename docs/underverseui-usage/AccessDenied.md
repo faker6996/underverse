@@ -46,6 +46,7 @@ export function Example() {
 interface AccessDeniedProps {
   title?: string;
   description?: string;
+  code?: string;
   variant?: Variant;
   icon?: React.ComponentType<{ className?: string }>;
   className?: string;

@@ -836,7 +836,8 @@
         "icon": "Icon component for header.",
         "className": "Custom class for card.",
         "children": "Optional actions/content in footer.",
-        "overflowHidden": "Clip the inner card surface. Disable when hover shadows or focus rings should escape."
+        "overflowHidden": "Clip the inner card surface. Disable when hover shadows or focus rings should escape.",
+        "code": "Custom status code or text displayed in the spotlight background and behind the robot face."
       },
       "popover": {
         "trigger": "Trigger element (button/link).",
