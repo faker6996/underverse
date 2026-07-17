@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { cn } from "../utils/cn";
 import { X } from "lucide-react";
 import { useGlobalI18n } from "../contexts/GlobalI18nContext";
-import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { getBorderRadiusClass, getPanelBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 /** Public props for the `Modal` component. */
@@ -205,7 +205,7 @@ const Modal: React.FC<ModalProps> = ({
         ref={modalContentRef}
         className={cn(
           "relative w-full border border-border/40 bg-card text-card-foreground shadow-xl",
-          resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl",
+          resolvedBorderMode ? getPanelBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl",
           "transition-all duration-200 ease-out",
           maxWidthClass,
           fullWidth && "mx-0",

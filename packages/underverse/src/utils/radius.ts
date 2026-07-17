@@ -25,3 +25,11 @@ export function getBorderRadiusClass(borderMode: BorderMode | undefined = "full"
 
   return borderMode;
 }
+
+export function getPanelBorderRadiusClass(borderMode: BorderMode | undefined = "lg") {
+  const resolved = borderMode ?? "lg";
+  if (resolved === "full" || resolved === "infiniq") {
+    return "rounded-2xl";
+  }
+  return getBorderRadiusClass(resolved);
+}

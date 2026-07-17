@@ -10,7 +10,7 @@ import { ChevronDown, Search, Check, SearchX, Loader2, X, Sparkles } from "lucid
 import { useShadCNAnimations } from "../utils/animations";
 import { Popover } from "./Popover";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
-import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { getBorderRadiusClass, getPanelBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 export interface MultiComboboxOption {
@@ -454,7 +454,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   };
 
   const dropdownBody = (
-    <div data-combobox-dropdown data-state={open ? "open" : "closed"} className={cn("w-full overflow-hidden", getBorderRadiusClass(resolvedBorderMode))}>
+    <div data-combobox-dropdown data-state={open ? "open" : "closed"} className={cn("w-full overflow-hidden", getPanelBorderRadiusClass(resolvedBorderMode))}>
       {/* Header with selected count and clear */}
       {value.length > 0 && (
         <div className="px-3 py-2 border-b border-border/40 flex items-center justify-between bg-muted/30">

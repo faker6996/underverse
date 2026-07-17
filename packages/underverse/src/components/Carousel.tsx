@@ -592,7 +592,7 @@ export function Carousel({
               key={idx}
               onClick={() => scrollTo(idx)}
               className={cn(
-                "rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                "rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-75 active:opacity-70",
                 "max-md:w-1.5 max-md:h-1.5",
                 isHorizontal ? "w-2 h-2" : "w-2 h-2",
                 idx === currentIndex
@@ -622,7 +622,7 @@ export function Carousel({
               key={idx}
               onClick={() => scrollTo(idx)}
               className={cn(
-                "shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary",
+                "shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus:outline-none active:scale-95",
                 "max-md:w-12 max-md:h-12",
                 idx === currentIndex ? "border-primary md:scale-110" : "border-transparent opacity-70 hover:opacity-100",
               )}

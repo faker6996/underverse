@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { cn } from "../utils/cn";
 import { useShadCNAnimations } from "../utils/animations";
 import { chainEventHandlers, mergeRefs } from "../utils/react-compose";
-import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { getBorderRadiusClass, getPanelBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 type PopoverPlacement = "top" | "bottom" | "left" | "right" | "top-start" | "bottom-start" | "top-end" | "bottom-end";
@@ -387,7 +387,7 @@ export const Popover: React.FC<PopoverProps> = ({
                 {...contentProps}
                
                 className={cn(
-                  resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl",
+                  resolvedBorderMode ? getPanelBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl",
                   "border bg-popover text-popover-foreground shadow-md",
                   "backdrop-blur-sm bg-popover/95 border-border/60 p-4",
                   contentProps?.className,

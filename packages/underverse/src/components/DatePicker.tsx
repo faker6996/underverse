@@ -303,43 +303,6 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     return node.scrollHeight > node.clientHeight + 1;
   };
 
-  // Mouse wheel UX similar to Combobox: keep the page from scrolling while hovering the popover.
-  // If the popover itself is scrollable (small viewports), allow normal scrolling; otherwise use the wheel to navigate months.
-  React.useEffect(() => {
-    if (!isOpen) return;
-    const container = wheelContainerRef.current;
-    if (!container) return;
-
-    const onWheel = (event: WheelEvent) => {
-      if (!container.contains(event.target as Node)) return;
-      if (event.ctrlKey) return;
-
-      // If the wheel originates from a scrollable element inside the popover, don't hijack it.
-      let node: Element | null = event.target as Element | null;
-      while (node && node !== container) {
-        if (isElementVerticallyScrollable(node)) return;
-        node = node.parentElement;
-      }
-      if (isElementVerticallyScrollable(container)) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      wheelDeltaRef.current += event.deltaY;
-      const threshold = 70;
-      if (Math.abs(wheelDeltaRef.current) < threshold) return;
-
-      const steps = Math.trunc(wheelDeltaRef.current / threshold);
-      wheelDeltaRef.current -= steps * threshold;
-
-      const direction: "prev" | "next" = steps > 0 ? "next" : "prev";
-      for (let i = 0; i < Math.abs(steps); i++) navigateMonth(direction);
-    };
-
-    container.addEventListener("wheel", onWheel, { passive: false });
-    return () => container.removeEventListener("wheel", onWheel);
-  }, [isOpen, navigateMonth]);
-
   const renderCalendar = () => {
     const daysInMonth = getDaysInMonth(viewDate);
     const firstDayOfMonth = getFirstDayOfMonth(viewDate);
@@ -374,12 +337,12 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           }}
           className={cn(
             sizeStyles[size].dayCell,
-            "datepicker-day rounded-lg focus:outline-none relative cursor-pointer",
-            "transition-all duration-200 font-medium",
-            isDisabled && "opacity-30 cursor-not-allowed text-muted-foreground",
+            "datepicker-day rounded-lg relative cursor-pointer",
+            "transition-all duration-200 font-medium active:scale-95",
+            isDisabled && "opacity-30 cursor-not-allowed text-muted-foreground active:scale-100",
             isSelected
-              ? "bg-linear-to-br from-primary to-primary/80 text-primary-foreground font-bold shadow-lg shadow-primary/30 scale-110 z-10 hover:from-primary hover:to-primary/70"
-              : !isDisabled && "hover:bg-accent/80 hover:text-accent-foreground hover:scale-105 focus:bg-accent focus:text-accent-foreground",
+              ? "bg-linear-to-br from-primary to-primary/80 text-primary-foreground font-bold shadow-lg shadow-primary/30 scale-110 z-10 hover:from-primary hover:to-primary/70 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus:outline-none"
+              : !isDisabled && "hover:bg-accent/80 hover:text-accent-foreground hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus:outline-none focus:bg-accent/90",
             isToday && !isSelected && "bg-primary/15 text-primary font-bold ring-2 ring-primary/30",
           )}
         >
@@ -412,7 +375,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 setViewMode("calendar");
               }}
               className={cn(
-                "py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200",
+                "py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-95",
                 isSelected ? "bg-primary text-primary-foreground shadow-md" : "hover:bg-accent/80 text-foreground hover:scale-105",
               )}
             >
@@ -443,7 +406,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 setViewMode("month");
               }}
               className={cn(
-                "py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200",
+                "py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-95",
                 isSelected ? "bg-primary text-primary-foreground shadow-md" : "hover:bg-accent/80 text-foreground hover:scale-105",
               )}
             >

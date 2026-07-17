@@ -2,7 +2,7 @@
 
 import React from "react";
 import { cn } from "../utils/cn";
-import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { getBorderRadiusClass, getPanelBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 
@@ -56,7 +56,7 @@ const TableContainer = React.forwardRef<
       }}
       className={cn(
         TABLE_CONTAINER_BASE_CLASS,
-        resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl",
+        resolvedBorderMode ? getPanelBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl",
         className,
       )}
       {...props}

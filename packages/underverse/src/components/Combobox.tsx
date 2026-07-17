@@ -10,7 +10,7 @@ import { ChevronDown, Search, SearchX, Check, X } from "lucide-react";
 import { useShadCNAnimations } from "../utils/animations";
 import { Popover } from "./Popover";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
-import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import { getBorderRadiusClass, getPanelBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 
 // --- PROPS ---
@@ -423,7 +423,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
     <div
       data-combobox-dropdown
       data-state={open ? "open" : "closed"}
-      className={cn("w-full overflow-hidden", getBorderRadiusClass(resolvedBorderMode))}
+      className={cn("w-full overflow-hidden", getPanelBorderRadiusClass(resolvedBorderMode))}
     >
       {/* Search Input (only when many options) */}
       {enableSearch && (
@@ -656,8 +656,9 @@ export const Combobox: React.FC<ComboboxProps> = ({
               }
             }}
             className={cn(
-              "opacity-0 group-hover:opacity-100 transition-all duration-200",
+              "opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200",
               "p-1 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50 focus-visible:ring-offset-1",
             )}
           >
             <X className="h-3.5 w-3.5" />
@@ -730,7 +731,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
           trigger={triggerButtonForPopover}
           placement="bottom-start"
           matchTriggerWidth
-          className="z-9999"
+          className="z-50"
           borderMode={resolvedBorderMode}
           contentClassName="p-0 overflow-hidden"
         >
@@ -741,7 +742,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
           {triggerButtonInline}
           {open && (
             <div className="absolute left-0 top-full mt-1 z-50 w-full">
-              <div className={cn("overflow-hidden border text-popover-foreground shadow-md backdrop-blur-sm bg-popover/95 border-border/60", getBorderRadiusClass(resolvedBorderMode))}>
+              <div className={cn("overflow-hidden border text-popover-foreground shadow-md backdrop-blur-sm bg-popover/95 border-border/60", getPanelBorderRadiusClass(resolvedBorderMode))}>
                 {dropdownBody}
               </div>
             </div>
