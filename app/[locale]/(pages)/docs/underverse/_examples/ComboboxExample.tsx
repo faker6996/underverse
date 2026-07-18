@@ -112,7 +112,8 @@ export default function ComboboxExample() {
     `<Combobox options={options} variant='default' placeholder='Default' />\n` +
     `<Combobox options={options} variant='outline' placeholder='Outline' />\n` +
     `<Combobox options={options} variant='ghost' placeholder='Ghost' />\n` +
-    `<Combobox options={options} variant='filled' placeholder='Filled' />\n`;
+    `<Combobox options={options} variant='filled' placeholder='Filled' />\n` +
+    `<Combobox options={options} className='bg-primary/10 hover:bg-primary/15' matchTriggerBackground placeholder='Matched bg' />\n`;
 
   const demo = (
     <div className="space-y-8">
@@ -227,6 +228,14 @@ export default function ComboboxExample() {
           <Combobox options={options} value={valueOutline} onChange={setValueOutline} variant="outline" placeholder="Outline" />
           <Combobox options={options} value={valueGhost} onChange={setValueGhost} variant="ghost" placeholder="Ghost" />
           <Combobox options={options} value={valueAdvanced} onChange={setValueAdvanced} variant="filled" placeholder="Filled" />
+          <Combobox
+            options={options}
+            value={valueAdvanced}
+            onChange={setValueAdvanced}
+            className="bg-primary/10 hover:bg-primary/15"
+            matchTriggerBackground
+            placeholder="Matched bg"
+          />
         </div>
       </div>
 
@@ -294,6 +303,7 @@ export default function ComboboxExample() {
     { property: "renderOption", description: "Custom render function for options", type: "(option, isSelected) => ReactNode", default: "-" },
     { property: "renderValue", description: "Custom render function for selected value", type: "(option) => ReactNode", default: "-" },
     { property: "useOverlayScrollbar", description: "Enable OverlayScrollbars for dropdown options list", type: "boolean", default: "false" },
+    { property: "matchTriggerBackground", description: "Match dropdown background to the computed trigger background", type: "boolean", default: "false" },
     { property: "error", description: "Error message to display", type: "string", default: "-" },
     { property: "helperText", description: "Helper text below the combobox", type: "string", default: "-" },
   ];

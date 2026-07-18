@@ -69,6 +69,8 @@ export interface ComboboxProps {
   maxInitialOptions?: number;
   /** Show a prompt instead of options while the query is shorter than minSearchLength. Default: false */
   showSearchPromptWhenEmptyQuery?: boolean;
+  /** Match dropdown background to the computed background of the combobox trigger. Default: false */
+  matchTriggerBackground?: boolean;
 }
 
 // Helper functions
@@ -151,6 +153,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   minSearchLength = 0,
   maxInitialOptions,
   showSearchPromptWhenEmptyQuery = false,
+  matchTriggerBackground = false,
 }) => {
   const globalConfig = useUnderverseUIConfig();
   const resolvedBorderMode = borderMode ?? globalConfig.borderMode ?? "full";
@@ -165,6 +168,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const [query, setQuery] = React.useState("");
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const [localRequiredError, setLocalRequiredError] = React.useState<string | undefined>();
+  const [triggerBackgroundColor, setTriggerBackgroundColor] = React.useState<string>();
 
   // Inject ShadCN animations
   useShadCNAnimations();
@@ -220,6 +224,13 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const virtualItems = canVirtualize ? optionVirtualizer.getVirtualItems() : [];
 
   const triggerRef = React.useRef<HTMLButtonElement>(null);
+
+  const updateTriggerBackgroundColor = React.useCallback(() => {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+    const backgroundColor = window.getComputedStyle(trigger).backgroundColor;
+    setTriggerBackgroundColor((current) => (current === backgroundColor ? current : backgroundColor));
+  }, []);
 
   const scrollVirtualListToIndex = React.useCallback((index: number) => {
     if (!canVirtualize || renderLimitedOptions.length === 0) return;
@@ -295,6 +306,22 @@ export const Combobox: React.FC<ComboboxProps> = ({
       );
     }
   }, [maxInitialOptions, options.length, searchMode, virtualized]);
+
+  React.useLayoutEffect(() => {
+    if (!open || !matchTriggerBackground) {
+      setTriggerBackgroundColor(undefined);
+      return undefined;
+    }
+
+    let raf = 0;
+    const tick = () => {
+      updateTriggerBackgroundColor();
+      raf = window.requestAnimationFrame(tick);
+    };
+    tick();
+
+    return () => window.cancelAnimationFrame(raf);
+  }, [matchTriggerBackground, open, updateTriggerBackgroundColor]);
 
   // Get display values
   const selectedOption =
@@ -594,6 +621,10 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const labelSize = size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm";
 
   const verticalGap = size === "sm" ? "space-y-1.5" : "space-y-2";
+  const dropdownBackgroundStyle =
+    matchTriggerBackground && triggerBackgroundColor
+      ? ({ backgroundColor: triggerBackgroundColor } satisfies React.CSSProperties)
+      : undefined;
 
   const triggerButtonBaseProps = {
     ref: triggerRef,
@@ -734,6 +765,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
           className="z-50"
           borderMode={resolvedBorderMode}
           contentClassName="p-0 overflow-hidden"
+          contentProps={{ style: dropdownBackgroundStyle }}
         >
           {dropdownBody}
         </Popover>
@@ -742,7 +774,10 @@ export const Combobox: React.FC<ComboboxProps> = ({
           {triggerButtonInline}
           {open && (
             <div className="absolute left-0 top-full mt-1 z-50 w-full">
-              <div className={cn("overflow-hidden border text-popover-foreground shadow-md backdrop-blur-sm bg-popover/95 border-border/60", getPanelBorderRadiusClass(resolvedBorderMode))}>
+              <div
+                style={dropdownBackgroundStyle}
+                className={cn("overflow-hidden border text-popover-foreground shadow-md backdrop-blur-sm bg-popover/95 border-border/60", getPanelBorderRadiusClass(resolvedBorderMode))}
+              >
                 {dropdownBody}
               </div>
             </div>
