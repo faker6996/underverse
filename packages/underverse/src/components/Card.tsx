@@ -75,7 +75,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          "group bg-card text-card-foreground transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft",
+          "group/card bg-card text-card-foreground transition-[transform,box-shadow,border-color,background-color] duration-300 ease-soft",
           resolvedBorderMode ? getPanelBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl max-md:rounded-xl",
           "border border-border/50 shadow-sm backdrop-blur-sm",
           hoverable && "md:hover:-translate-y-0.5 md:hover:border-primary/15 md:hover:shadow-md",
@@ -100,7 +100,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
             <div
               className={cn(
                 "pointer-events-none absolute inset-0 bg-linear-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300",
-                "group-hover:opacity-100",
+                "group-hover/card:opacity-100",
               )}
             />
           )}
@@ -111,7 +111,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
                 <h3
                   className={cn(
                     "min-w-0 text-base md:text-lg font-semibold leading-tight tracking-tight wrap-anywhere transition-colors duration-200 max-md:text-sm",
-                    hoverable && "group-hover:text-primary",
+                    hoverable && "group-hover/card:text-primary",
                   )}
                 >
                   {title}
