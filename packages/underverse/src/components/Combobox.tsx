@@ -12,6 +12,7 @@ import { Popover } from "./Popover";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { getBorderRadiusClass, getPanelBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "./form-control-size";
 
 // --- PROPS ---
 export type ComboboxOption = string | { label: string; value: any; icon?: React.ReactNode; description?: string; disabled?: boolean };
@@ -358,9 +359,9 @@ export const Combobox: React.FC<ComboboxProps> = ({
   } as const;
 
   const iconSizeStyles = {
-    sm: "w-4 h-4",
-    md: "w-5 h-5",
-    lg: "w-6 h-6",
+    sm: formControlSizeStyles.sm.icon,
+    md: formControlSizeStyles.md.icon,
+    lg: formControlSizeStyles.lg.icon,
   } as const;
 
   const checkIconSizeStyles = {
@@ -605,9 +606,9 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
   // Size styles for trigger
   const sizeStyles = {
-    sm: "h-8 py-1.5 text-sm md:h-7 md:text-xs",
-    md: "h-10 py-2 text-sm",
-    lg: "h-12 py-3 text-base",
+    sm: formControlSizeStyles.sm.control,
+    md: formControlSizeStyles.md.control,
+    lg: formControlSizeStyles.lg.control,
   } as const;
 
   // Variant styles
@@ -618,7 +619,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
     filled: "border-0 bg-muted/50 hover:bg-muted/80",
   } as const;
 
-  const labelSize = size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm";
+  const labelSize = formControlSizeStyles[size].label;
 
   const verticalGap = size === "sm" ? "space-y-1.5" : "space-y-2";
   const dropdownBackgroundStyle =
@@ -649,7 +650,8 @@ export const Combobox: React.FC<ComboboxProps> = ({
       }
     },
     className: cn(
-      "group flex w-full items-center justify-between px-3 transition-all duration-200",
+      "group flex w-full items-center justify-between transition-all duration-200",
+      formControlFixedClass,
       radiusClass,
       sizeStyles[size],
       variantStyles[variant],
@@ -664,10 +666,10 @@ export const Combobox: React.FC<ComboboxProps> = ({
   const triggerContents = (
     <>
       {/* Selected icon if exists */}
-      {selectedIcon && <span className="shrink-0 w-5 h-5 mr-2 flex items-center justify-center text-primary">{selectedIcon}</span>}
+      {selectedIcon && <span className={cn("mr-2 flex shrink-0 items-center justify-center overflow-hidden text-primary", formControlSizeStyles[size].icon)}>{selectedIcon}</span>}
 
       {/* Value display */}
-      <span className={cn("flex-1 truncate text-left", !displayValue && "text-muted-foreground", fontBold && "font-semibold")}>
+      <span className={cn(formControlValueClass, "text-left", !displayValue && "text-muted-foreground", fontBold && "font-semibold")}>
         {renderValue && selectedOption ? renderValue(selectedOption) : displayValue || placeholder}
       </span>
 

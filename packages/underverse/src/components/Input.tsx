@@ -8,6 +8,7 @@ import { Eye, EyeOff, Search, X, AlertCircle, CheckCircle, Loader2 } from "lucid
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
+import { formControlFixedClass, formControlSizeStyles } from "./form-control-size";
 
 /** Public props for the `Input` component. */
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
@@ -107,24 +108,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       },
     };
 
-    // Size styles
-    const sizeStyles = {
-      sm: {
-        input: "px-3 py-1.5 text-sm h-8 md:h-7 md:py-1 md:text-xs",
-        icon: "w-4 h-4",
-        button: "h-7 w-7",
-      },
-      md: {
-        input: "px-4 py-2 text-sm h-10",
-        icon: "w-5 h-5",
-        button: "h-8 w-8",
-      },
-      lg: {
-        input: "px-5 py-4 text-base h-12",
-        icon: "w-6 h-6",
-        button: "h-10 w-10",
-      },
-    };
+    const sizeStyles = formControlSizeStyles;
 
     const getErrorKey = (v: ValidityState) => {
       if (v.valueMissing) return "required";
@@ -198,7 +182,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               htmlFor={resolvedId}
               className={cn(
                 // Label size follows input size
-                size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
+                sizeStyles[size].label,
                 "font-medium transition-colors duration-200",
                 // default color and highlight while any descendant focused
                 disabled ? "text-muted-foreground" : cn("text-foreground group-focus-within:text-primary", success && "text-primary"),
@@ -230,7 +214,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           {LeftIcon && (
             <div
               className={cn(
-                "absolute left-3 top-1/2 -translate-y-1/2 z-10",
+                "absolute left-3 top-1/2 -translate-y-1/2 z-10 flex max-h-full items-center overflow-hidden",
                 "text-muted-foreground transition-colors duration-200",
                 // highlight icon when input (or controls) focused
                 "group-focus-within:text-primary",
@@ -261,6 +245,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             aria-describedby={[errorId, descId].filter(Boolean).join(" ") || undefined}
             className={cn(
               "w-full text-foreground transition-all duration-200 ease-out",
+              formControlFixedClass,
               "placeholder:text-muted-foreground focus:outline-none focus-visible:outline-none",
               "disabled:cursor-not-allowed disabled:opacity-50",
 
@@ -306,7 +291,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                   "flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-md",
                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
                   "active:bg-accent active:text-accent-foreground",
-                  sizeStyles[size].button,
+                  sizeStyles[size].iconButton,
                 )}
                 tabIndex={0}
                 aria-label={gi18n.clearInput ?? "Clear input"}
@@ -324,7 +309,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                   "flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-full",
                   "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring/40",
                   "active:bg-accent/50 active:text-accent-foreground",
-                  sizeStyles[size].button,
+                  sizeStyles[size].iconButton,
                 )}
                 tabIndex={0}
                 aria-label={showPassword ? (gi18n.hidePassword ?? "Hide password") : (gi18n.showPassword ?? "Show password")}

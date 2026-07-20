@@ -10,6 +10,7 @@ import TimePicker from "./TimePicker";
 import { useSmartLocale, useSmartTranslations } from "../hooks/useSmartTranslations";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "./form-control-size";
 
 /** Public props for the `DateTimePicker` component. */
 export interface DateTimePickerProps {
@@ -66,9 +67,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   // Size styles for consistent sizing
   const sizeStyles = {
     sm: {
-      trigger: "h-8 px-2.5 py-1.5 text-sm md:h-7 md:text-xs",
-      icon: "h-3.5 w-3.5",
-      label: "text-xs",
+      trigger: formControlSizeStyles.sm.compactControl,
+      icon: formControlSizeStyles.sm.icon,
+      label: formControlSizeStyles.sm.label,
       buttonSize: "sm" as const,
       calendarSize: "sm" as const,
       timePickerSize: "sm" as const,
@@ -76,9 +77,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       gap: "gap-2",
     },
     md: {
-      trigger: "h-10 px-3 py-2 text-sm",
-      icon: "h-4 w-4",
-      label: "text-sm",
+      trigger: formControlSizeStyles.md.control,
+      icon: formControlSizeStyles.md.icon,
+      label: formControlSizeStyles.md.label,
       buttonSize: "sm" as const,
       calendarSize: "md" as const,
       timePickerSize: "md" as const,
@@ -86,9 +87,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       gap: "gap-3",
     },
     lg: {
-      trigger: "h-12 px-4 py-3 text-base",
-      icon: "h-5 w-5",
-      label: "text-base",
+      trigger: formControlSizeStyles.lg.control,
+      icon: formControlSizeStyles.lg.icon,
+      label: formControlSizeStyles.lg.label,
       buttonSize: "md" as const,
       calendarSize: "lg" as const,
       timePickerSize: "lg" as const,
@@ -265,6 +266,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
             aria-invalid={!!effectiveError}
             className={cn(
               "flex w-full items-center justify-between border border-input bg-background",
+              formControlFixedClass,
               getBorderRadiusClass(resolvedBorderMode),
               sizeStyles[size].trigger,
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
@@ -273,7 +275,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
               effectiveError && "border-destructive/60 bg-destructive/5",
             )}
           >
-            <span className="min-w-0 flex-1 truncate text-left">{displayValue || placeholder || "Select date & time"}</span>
+            <span className={cn(formControlValueClass, "text-left")}>{displayValue || placeholder || "Select date & time"}</span>
             <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
               {value && (
                 <span

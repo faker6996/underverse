@@ -7,6 +7,7 @@ import Button from "./Button";
 import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
+import { formControlFixedClass, formControlSizeStyles } from "./form-control-size";
 
 /** Public props for the `TagInput` component. */
 export interface TagInputProps {
@@ -119,23 +120,23 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
     // Size styles
     const sizeStyles = {
       sm: {
-        container: "min-h-8 p-1.5 gap-1",
-        input: "text-xs",
-        tag: "px-1.5 py-0.5 text-xs gap-1 rounded-full",
+        container: formControlSizeStyles.sm.control,
+        input: formControlSizeStyles.sm.label,
+        tag: formControlSizeStyles.sm.tag,
         tagIcon: "h-3 w-3",
         button: "h-7 text-xs px-2",
       },
       md: {
-        container: "min-h-10 p-2 gap-1.5",
-        input: "text-sm",
-        tag: "px-2 py-1 text-sm gap-1.5 rounded-full",
+        container: formControlSizeStyles.md.control,
+        input: formControlSizeStyles.md.label,
+        tag: formControlSizeStyles.md.tag,
         tagIcon: "h-3.5 w-3.5",
         button: "h-9 text-sm px-3",
       },
       lg: {
-        container: "min-h-12 p-2.5 gap-2",
-        input: "text-base",
-        tag: "px-2.5 py-1.5 text-base gap-2 rounded-full",
+        container: formControlSizeStyles.lg.control,
+        input: formControlSizeStyles.lg.label,
+        tag: formControlSizeStyles.lg.tag,
         tagIcon: "h-4 w-4",
         button: "h-11 text-base px-4",
       },
@@ -235,7 +236,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
             htmlFor={inputId}
             className={cn(
               "block font-medium transition-colors duration-200",
-              size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
+              formControlSizeStyles[size].label,
               disabled ? "text-muted-foreground" : isFocused ? "text-primary" : "text-foreground",
               labelClassName,
             )}
@@ -253,7 +254,8 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
         <div
           onClick={handleContainerClick}
           className={cn(
-            "flex flex-wrap items-center cursor-text",
+            "flex items-center gap-1.5 cursor-text",
+            formControlFixedClass,
             "bg-background border border-input",
             "transition-all duration-200",
             "hover:border-accent-foreground/20",
@@ -268,13 +270,13 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
             <span
               key={`${tag}-${index}`}
               className={cn(
-                "inline-flex items-center",
+                "inline-flex min-w-0 shrink-0 items-center gap-1 overflow-hidden rounded-full",
                 "bg-primary/10 text-primary font-mono",
                 "animate-in fade-in-0 zoom-in-95 duration-200",
                 sizeStyles[size].tag,
               )}
             >
-              <span className="truncate max-w-50">{tag}</span>
+              <span className="min-w-0 truncate">{tag}</span>
               <button
                 type="button"
                 onClick={(e) => {
@@ -305,7 +307,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
                 setIsExpanded(true);
               }}
               className={cn(
-                "inline-flex items-center cursor-pointer",
+                "inline-flex shrink-0 items-center cursor-pointer overflow-hidden rounded-full",
                 "bg-muted text-muted-foreground hover:bg-muted/80",
                 "transition-colors duration-150",
                 "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring",
@@ -326,7 +328,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
                 setIsExpanded(false);
               }}
               className={cn(
-                "inline-flex items-center cursor-pointer",
+                "inline-flex shrink-0 items-center cursor-pointer overflow-hidden rounded-full",
                 "bg-muted/50 text-muted-foreground hover:bg-muted/80",
                 "transition-colors duration-150",
                 "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring",
@@ -358,7 +360,7 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
             placeholder={isMaxReached ? `Max ${maxTags} tags` : currentPlaceholder}
             disabled={disabled || isMaxReached}
             className={cn(
-              "flex-1 min-w-30 bg-transparent outline-none",
+              "h-full min-w-0 flex-1 bg-transparent outline-none",
               "placeholder:text-muted-foreground",
               "disabled:cursor-not-allowed",
               sizeStyles[size].input,

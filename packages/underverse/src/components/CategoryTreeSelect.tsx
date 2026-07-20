@@ -11,6 +11,7 @@ import { Label } from "./label";
 import { Popover } from "./Popover";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "./form-control-size";
 
 export interface Category {
   /** Unique category id used for selection and tree relationships. */
@@ -1071,29 +1072,29 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
 
   const triggerSizeStyles = {
     sm: {
-      button: "h-8 px-3 py-1.5 text-sm md:h-7 md:text-xs",
+      button: formControlSizeStyles.sm.control,
       iconWrap: "p-1",
-      icon: "w-3.5 h-3.5 md:w-3 md:h-3",
-      text: "text-xs md:text-[11px]",
-      badge: "px-1.5 py-0.5 text-[10px]",
-      actionIcon: "w-3.5 h-3.5",
+      icon: formControlSizeStyles.sm.icon,
+      text: formControlSizeStyles.sm.label,
+      badge: formControlSizeStyles.sm.tag,
+      actionIcon: formControlSizeStyles.sm.icon,
       clearIcon: "h-3 w-3",
     },
     md: {
-      button: "h-10 px-3 py-2.5 text-sm",
+      button: formControlSizeStyles.md.control,
       iconWrap: "p-1.5",
       icon: "w-4 h-4",
-      text: "text-sm",
-      badge: "px-2 py-0.5 text-xs",
+      text: formControlSizeStyles.md.label,
+      badge: formControlSizeStyles.md.tag,
       actionIcon: "w-4 h-4",
       clearIcon: "h-3.5 w-3.5",
     },
     lg: {
-      button: "h-12 px-4 py-3 text-base",
+      button: formControlSizeStyles.lg.control,
       iconWrap: "p-1.5",
       icon: "w-5 h-5",
-      text: "text-base",
-      badge: "px-2.5 py-1 text-sm",
+      text: formControlSizeStyles.lg.label,
+      badge: formControlSizeStyles.lg.tag,
       actionIcon: "w-5 h-5",
       clearIcon: "h-4 w-4",
     },
@@ -1226,6 +1227,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
             }}
             className={cn(
               "group flex w-full items-center justify-between transition-all duration-200",
+              formControlFixedClass,
               getBorderRadiusClass(resolvedBorderMode ?? "full"),
               "backdrop-blur-sm",
               triggerSizeStyles[size].button,
@@ -1236,7 +1238,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
               effectiveError && "border-destructive focus-visible:ring-destructive/30",
             )}
           >
-            <div className="flex min-w-0 flex-1 items-center gap-2.5 text-left">
+            <div className="flex min-h-0 min-w-0 flex-1 items-center gap-2.5 overflow-hidden text-left">
               <div
                 className={cn(
                   "shrink-0 flex items-center justify-center rounded-lg transition-all duration-300",
@@ -1248,7 +1250,8 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
               </div>
               <span
                 className={cn(
-                  "min-w-0 flex-1 truncate font-medium transition-colors duration-200",
+                  formControlValueClass,
+                  "font-medium transition-colors duration-200",
                   triggerSizeStyles[size].text,
                   selectedCount === 0 ? "text-muted-foreground" : "text-foreground",
                 )}
@@ -1273,7 +1276,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
                 </button>
               )}
               {selectedCount > 0 && !singleSelect && (
-                <span className={cn("rounded-full bg-primary/15 font-bold text-primary", triggerSizeStyles[size].badge)}>{selectedCount}</span>
+                <span className={cn("inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/15 font-bold text-primary", triggerSizeStyles[size].badge)}>{selectedCount}</span>
               )}
               <span className={cn("transition-all duration-300 text-muted-foreground group-hover:text-foreground", isOpen && "rotate-180 text-primary")}>
                 <ChevronDown className={triggerSizeStyles[size].actionIcon} />

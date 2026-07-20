@@ -10,6 +10,7 @@ import { Popover } from "./Popover";
 import { lunarToSolar, solarToLunar, type LunarDateValue } from "../utils/lunar";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
+import { formControlFixedClass, formControlSizeStyles } from "./form-control-size";
 
 export type LunarPickerValue = LunarDateValue;
 
@@ -282,7 +283,7 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
   // Size styles for consistent sizing across all elements
   const sizeStyles = {
     sm: {
-      trigger: "px-2.5 py-1.5 text-sm h-8 md:h-7 md:text-xs md:py-1",
+      trigger: formControlSizeStyles.sm.compactControl,
       dayCell: "w-7 h-7 text-xs",
       monthCell: "w-6 h-6 text-xs",
       navButton: "p-1.5",
@@ -293,13 +294,13 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
       actionIcon: "w-2.5 h-2.5",
       contentWidth: 240,
       contentPadding: "p-4",
-      label: "text-xs",
+      label: formControlSizeStyles.sm.label,
       weekdayLabel: "text-[9px] py-1",
       headerMargin: "mb-2",
       footerMargin: "mt-3 pt-2 gap-1.5",
     },
     md: {
-      trigger: "px-3 py-2.5 text-sm h-10",
+      trigger: formControlSizeStyles.md.control,
       dayCell: "w-8 h-8 text-sm",
       monthCell: "w-8 h-8 text-sm",
       navButton: "p-2",
@@ -310,13 +311,13 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
       actionIcon: "w-3.5 h-3.5",
       contentWidth: 280,
       contentPadding: "p-5",
-      label: "text-sm",
+      label: formControlSizeStyles.md.label,
       weekdayLabel: "text-[10px] py-1.5",
       headerMargin: "mb-4",
       footerMargin: "mt-4 pt-3 gap-2",
     },
     lg: {
-      trigger: "px-4 py-3 text-base h-12",
+      trigger: formControlSizeStyles.lg.control,
       dayCell: "w-10 h-10 text-base",
       monthCell: "w-10 h-10 text-base",
       navButton: "p-2.5",
@@ -327,7 +328,7 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
       actionIcon: "w-4 h-4",
       contentWidth: 340,
       contentPadding: "p-6",
-      label: "text-base",
+      label: formControlSizeStyles.lg.label,
       weekdayLabel: "text-xs py-2",
       headerMargin: "mb-5",
       footerMargin: "mt-5 pt-4 gap-2.5",
@@ -763,6 +764,7 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
             aria-invalid={!!effectiveError}
             className={cn(
               "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
+              formControlFixedClass,
               getBorderRadiusClass(resolvedBorderMode),
               sizeStyles[size].trigger,
               disabled
@@ -778,7 +780,7 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
               className,
             )}
           >
-            <div className="flex items-center gap-2.5 flex-1 min-w-0">
+            <div className="flex min-h-0 min-w-0 flex-1 items-center gap-2.5 overflow-hidden">
               <div
                 className={cn(
                   "flex items-center justify-center transition-colors duration-300",
@@ -806,7 +808,7 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
                     e.stopPropagation();
                   }
                 }}
-                className="w-full bg-transparent border-none outline-none focus:outline-none p-0 text-foreground font-medium placeholder-muted-foreground/60 min-w-0"
+                className="h-full min-w-0 flex-1 truncate bg-transparent border-none outline-none focus:outline-none p-0 text-foreground font-medium placeholder-muted-foreground/60"
               />
             </div>
             <div className="flex items-center gap-1 shrink-0">
@@ -908,7 +910,7 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
 
   const sizeStyles = {
     sm: {
-      trigger: "px-2.5 py-1.5 text-sm h-8 md:h-7 md:text-xs md:py-1",
+      trigger: formControlSizeStyles.sm.compactControl,
       dayCell: "w-7 h-7 text-xs",
       monthCell: "w-6 h-6 text-xs",
       navButton: "p-1.5",
@@ -919,13 +921,13 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
       actionIcon: "w-2.5 h-2.5",
       contentWidth: 240,
       contentPadding: "p-4",
-      label: "text-xs",
+      label: formControlSizeStyles.sm.label,
       weekdayLabel: "text-[9px] py-1",
       headerMargin: "mb-2",
       footerMargin: "mt-3 pt-2 gap-1.5",
     },
     md: {
-      trigger: "px-3 py-2.5 text-sm h-10",
+      trigger: formControlSizeStyles.md.control,
       dayCell: "w-8 h-8 text-sm",
       monthCell: "w-8 h-8 text-sm",
       navButton: "p-2",
@@ -936,13 +938,13 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
       actionIcon: "w-3.5 h-3.5",
       contentWidth: 280,
       contentPadding: "p-5",
-      label: "text-sm",
+      label: formControlSizeStyles.md.label,
       weekdayLabel: "text-[10px] py-1.5",
       headerMargin: "mb-4",
       footerMargin: "mt-4 pt-3 gap-2",
     },
     lg: {
-      trigger: "px-4 py-3 text-base h-12",
+      trigger: formControlSizeStyles.lg.control,
       dayCell: "w-10 h-10 text-base",
       monthCell: "w-10 h-10 text-base",
       navButton: "p-2.5",
@@ -953,7 +955,7 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
       actionIcon: "w-4 h-4",
       contentWidth: 340,
       contentPadding: "p-6",
-      label: "text-base",
+      label: formControlSizeStyles.lg.label,
       weekdayLabel: "text-xs py-2",
       headerMargin: "mb-5",
       footerMargin: "mt-5 pt-4 gap-2.5",
@@ -1441,6 +1443,7 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
             aria-invalid={!!effectiveError}
             className={cn(
               "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
+              formControlFixedClass,
               getBorderRadiusClass(borderMode ?? "full"),
               sizeStyles[size].trigger,
               disabled
@@ -1455,7 +1458,7 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
               effectiveError && "border-destructive/60 focus-within:ring-destructive/50 bg-destructive/5",
             )}
           >
-            <div className={cn("flex items-center flex-1 min-w-0", size === "sm" ? "gap-1.5" : "gap-2.5")}>
+            <div className={cn("flex min-h-0 min-w-0 flex-1 items-center overflow-hidden", size === "sm" ? "gap-1.5" : "gap-2.5")}>
               <div
                 className={cn(
                   "flex items-center justify-center transition-colors duration-300",
@@ -1464,11 +1467,11 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
               >
                 <Calendar className={cn("transition-transform duration-300", sizeStyles[size].calendarIcon, isOpen && "scale-110")} />
               </div>
-              <span className={cn("w-full truncate font-medium", !tempStart && "text-muted-foreground/60")}>
+              <span className={cn("min-w-0 flex-1 truncate whitespace-nowrap font-medium", !tempStart && "text-muted-foreground/60")}>
                 {tempStart ? displayLabel : placeholder}
               </span>
             </div>
-            <span className={cn("transition-all duration-300 text-muted-foreground group-hover:text-foreground", isOpen && "rotate-180 text-primary")}>
+            <span className={cn("shrink-0 transition-all duration-300 text-muted-foreground group-hover:text-foreground", isOpen && "rotate-180 text-primary")}>
               <svg className={cn(sizeStyles[size].navIcon)} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
@@ -1478,5 +1481,3 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
     </div>
   );
 };
-
-

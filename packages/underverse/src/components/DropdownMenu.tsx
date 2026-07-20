@@ -8,6 +8,7 @@ import { Popover } from "./Popover";
 import { ChevronRight } from "lucide-react";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "./form-control-size";
 
 type DropdownMenuContextValue = {
   closeMenu: () => void;
@@ -384,7 +385,8 @@ export const SelectDropdown: React.FC<{
   placeholder?: string;
   className?: string;
   borderMode?: BorderMode;
-}> = ({ options, value, onChange, placeholder = "Select...", className, borderMode }) => {
+  size?: FormControlSize;
+}> = ({ options, value, onChange, placeholder = "Select...", className, borderMode, size = "md" }) => {
   const globalConfig = useUnderverseUIConfig();
   const resolvedBorderMode = borderMode ?? globalConfig.dropdownMenu?.borderMode ?? globalConfig.borderMode;
   
@@ -393,15 +395,17 @@ export const SelectDropdown: React.FC<{
     trigger={
       <button
         className={cn(
-          "inline-flex items-center justify-between gap-2 px-3 py-2 text-sm border bg-background border-border/60",
+          "inline-flex items-center justify-between gap-2 border bg-background border-border/60",
           resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl",
+          formControlFixedClass,
+          formControlSizeStyles[size].control,
           "hover:bg-accent/50",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           className,
         )}
       >
-        <span className="truncate max-w-64 text-foreground/90">{value || placeholder}</span>
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" className="opacity-70">
+        <span className={cn(formControlValueClass, "max-w-64 text-foreground/90")}>{value || placeholder}</span>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" className="shrink-0 opacity-70">
           <path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>

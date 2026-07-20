@@ -9,6 +9,7 @@ import { cn } from "../utils/cn";
 import { Pipette, X, Copy, Check, Palette, History } from "lucide-react";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "./form-control-size";
 
 type OutputFormat = "hex" | "rgba" | "hsl" | "hsla";
 type ColorPickerSize = "sm" | "md" | "lg";
@@ -360,9 +361,9 @@ export default function ColorPicker({
   const harmony = showHarmony ? getColorHarmony(rgba) : null;
 
   const sizeClasses = {
-    sm: "h-8 text-xs",
-    md: "h-10 text-sm",
-    lg: "h-12 text-base",
+    sm: formControlSizeStyles.sm.control,
+    md: formControlSizeStyles.md.control,
+    lg: formControlSizeStyles.lg.control,
   };
 
   const swatchSize = size === "sm" ? "sm" : size === "lg" ? "lg" : "md";
@@ -372,23 +373,24 @@ export default function ColorPicker({
       type="button"
       disabled={disabled}
       className={cn(
-        "w-full px-3 border border-input bg-background flex items-center justify-between",
+        "w-full border border-input bg-background flex items-center justify-between",
         getBorderRadiusClass(resolvedBorderMode),
         sizeClasses[size],
+        formControlFixedClass,
         "hover:border-accent-foreground/30 transition-colors",
         disabled && "opacity-50 cursor-not-allowed",
         triggerClassName,
       )}
       aria-label={gi18n.openColorPicker ?? "Open color picker"}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex min-h-0 min-w-0 flex-1 items-center gap-2 overflow-hidden">
         <span
           className={cn("rounded-md border border-border/50 shadow-sm", size === "sm" ? "h-4 w-4" : size === "lg" ? "h-6 w-6" : "h-5 w-5")}
           style={{ backgroundColor: withAlpha ? `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})` : hexForInput }}
         />
-        <span className="font-mono text-muted-foreground">{text}</span>
+        <span className={cn(formControlValueClass, "font-mono text-muted-foreground")}>{text}</span>
       </div>
-      <Pipette className={cn(size === "sm" ? "w-3.5 h-3.5" : size === "lg" ? "w-5 h-5" : "w-4 h-4", "text-muted-foreground")} />
+      <Pipette className={cn(formControlSizeStyles[size].icon, "shrink-0 text-muted-foreground")} />
     </button>
   );
 

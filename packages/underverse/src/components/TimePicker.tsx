@@ -9,6 +9,7 @@ import { Clock, X, Check, Sun, Moon, Sunset, Coffee } from "lucide-react";
 import Input from "./Input";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "./form-control-size";
 
 type TimeFormat = "24" | "12";
 type TimePickerVariant = "default" | "compact" | "inline";
@@ -1006,9 +1007,9 @@ export default function TimePicker({
     };
 
   const sizeClasses = {
-    sm: { label: "text-xs", height: "h-8", padding: "px-2.5 py-1.5", text: "text-xs", icon: "w-3.5 h-3.5" },
-    md: { label: "text-sm", height: "h-10", padding: "px-3 py-2", text: "text-sm", icon: "w-4 h-4" },
-    lg: { label: "text-base", height: "h-12", padding: "px-4 py-3", text: "text-base", icon: "w-5 h-5" },
+    sm: { label: formControlSizeStyles.sm.label, control: formControlSizeStyles.sm.compactControl, icon: formControlSizeStyles.sm.icon },
+    md: { label: formControlSizeStyles.md.label, control: formControlSizeStyles.md.control, icon: formControlSizeStyles.md.icon },
+    lg: { label: formControlSizeStyles.lg.label, control: formControlSizeStyles.lg.control, icon: formControlSizeStyles.lg.icon },
   };
 
   const sz = sizeClasses[size];
@@ -1034,9 +1035,8 @@ export default function TimePicker({
         className={cn(
           "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
           getBorderRadiusClass(resolvedBorderMode),
-          sz.height,
-          sz.padding,
-          sz.text,
+          sz.control,
+          formControlFixedClass,
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           "transition-all duration-300 ease-out",
@@ -1048,7 +1048,7 @@ export default function TimePicker({
           className,
         )}
       >
-        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+        <div className="flex min-h-0 min-w-0 flex-1 items-center gap-2.5 overflow-hidden">
           <div
             className={cn(
               "flex shrink-0 items-center justify-center transition-colors duration-300",
@@ -1065,7 +1065,8 @@ export default function TimePicker({
           </div>
           <span
             className={cn(
-              "min-w-0 truncate font-medium transition-colors duration-200",
+              formControlValueClass,
+              "font-medium transition-colors duration-200",
               !hasCommittedValue && "text-muted-foreground",
               hasCommittedValue ? "text-foreground" : "",
             )}

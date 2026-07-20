@@ -12,6 +12,7 @@ import { Popover } from "./Popover";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { getBorderRadiusClass, getPanelBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "./form-control-size";
 
 export interface MultiComboboxOption {
   value: string;
@@ -324,25 +325,25 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   // Size styles to align with Input defaults
   const sizeStyles = {
     sm: {
-      trigger: "h-8 px-3 py-1.5 text-sm md:h-7 md:text-xs",
-      icon: "h-4 w-4",
+      trigger: formControlSizeStyles.sm.control,
+      icon: formControlSizeStyles.sm.icon,
       search: "px-8 py-1.5 text-xs",
       item: "text-xs px-3 py-1.5",
-      tag: "px-2 py-0.5 text-[10px]",
+      tag: formControlSizeStyles.sm.tag,
     },
     md: {
-      trigger: "h-10 px-4 py-2 text-sm",
-      icon: "h-4 w-4",
+      trigger: formControlSizeStyles.md.control,
+      icon: formControlSizeStyles.md.icon,
       search: "px-10 py-2 text-sm",
       item: "text-sm px-3 py-2",
-      tag: "px-2 py-1 text-xs",
+      tag: formControlSizeStyles.md.tag,
     },
     lg: {
-      trigger: "h-12 px-5 py-3 text-base",
-      icon: "h-5 w-5",
+      trigger: formControlSizeStyles.lg.control,
+      icon: formControlSizeStyles.lg.icon,
       search: "px-10 py-3 text-base",
       item: "text-base px-3 py-3",
-      tag: "px-2.5 py-1 text-sm",
+      tag: formControlSizeStyles.lg.tag,
     },
   } as const;
 
@@ -355,7 +356,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   const autoId = useId();
   const resolvedId = id ? String(id) : `multicombobox-${autoId}`;
   const labelId = label ? `${resolvedId}-label` : undefined;
-  const labelSize = size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm";
+  const labelSize = formControlSizeStyles[size].label;
   const listboxId = `${resolvedId}-listbox`;
 
   // Render a single option
@@ -623,6 +624,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
       aria-invalid={!!effectiveError}
       className={cn(
         "group flex w-full items-center gap-2 transition-all duration-200",
+        formControlFixedClass,
         getBorderRadiusClass(resolvedBorderMode),
         sizeStyles[size].trigger,
         variantStyles[variant],
@@ -632,25 +634,29 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
         !!effectiveError && "border-destructive focus-visible:ring-destructive/30",
       )}
     >
-      <div className={cn("flex items-center gap-1.5 flex-1 overflow-hidden", size === "sm" ? "min-h-4" : size === "lg" ? "min-h-8" : "min-h-6")}>
+      <div className="flex min-h-0 min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
         {value.length > 0 ? (
           showTags ? (
             <>
               {visibleTags.map((option) => {
                 if (renderTag) {
-                  return <React.Fragment key={option.value}>{renderTag(option, () => handleRemove(option.value))}</React.Fragment>;
+                  return (
+                    <span key={option.value} className="inline-flex max-h-full min-w-0 shrink overflow-hidden">
+                      {renderTag(option, () => handleRemove(option.value))}
+                    </span>
+                  );
                 }
                 return (
                   <span
                     key={option.value}
                     className={cn(
-                      "inline-flex items-center gap-1.5 bg-primary/10 text-primary rounded-full transition-all duration-200 min-w-0",
+                      "inline-flex min-w-0 shrink-0 items-center gap-1.5 overflow-hidden rounded-full bg-primary/10 text-primary transition-all duration-200",
                       "hover:bg-primary/20",
                       sizeStyles[size].tag,
                     )}
                   >
                     {showSelectedIcons && option.icon && <span className="shrink-0 w-3.5 h-3.5 flex items-center justify-center">{option.icon}</span>}
-                    <span className="truncate max-w-24">{displayFormat(option)}</span>
+                    <span className="min-w-0 truncate">{displayFormat(option)}</span>
                     <span
                       role="button"
                       tabIndex={0}
@@ -681,14 +687,14 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
               )}
             </>
           ) : (
-            <span className="truncate text-sm font-medium">
+            <span className={cn(formControlValueClass, "font-medium")}>
               {gi18n.selectedCount
                 ? gi18n.selectedCount(value.length)
                 : `${value.length} item${value.length > 1 ? "s" : ""} selected`}
             </span>
           )
         ) : (
-          <span className="text-muted-foreground">{placeholder}</span>
+          <span className={cn(formControlValueClass, "text-muted-foreground")}>{placeholder}</span>
         )}
       </div>
       <div className="flex items-center gap-1.5 shrink-0">
