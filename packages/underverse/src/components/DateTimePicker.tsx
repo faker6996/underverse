@@ -10,7 +10,7 @@ import TimePicker from "./TimePicker";
 import { useSmartLocale, useSmartTranslations } from "../hooks/useSmartTranslations";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "./form-control-size";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "../constants/form-control-size";
 
 /** Public props for the `DateTimePicker` component. */
 export interface DateTimePickerProps {

@@ -10,7 +10,7 @@ import { useId } from "react";
 import { Popover } from "./Popover";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles } from "./form-control-size";
+import { formControlFixedClass, formControlSizeStyles } from "../constants/form-control-size";
 
 /** Public props for the `DatePicker` component. */
 export interface DatePickerProps {

@@ -6,6 +6,7 @@ import { cn } from "../utils/cn";
 import { Activity } from "lucide-react";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
+import { formControlSizeStyles } from "../constants/form-control-size";
 
 /** Public props for the `Button` component. */
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -79,6 +80,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const finalVariant = gradient ? "gradient" : variant;
     const variantStyle = VARIANT_STYLES_BTN[finalVariant] || VARIANT_STYLES_BTN.default;
     const sizeStyle = SIZE_STYLES_BTN[size] || SIZE_STYLES_BTN.md;
+    const iconSizeStyle =
+      size === "sm" ? formControlSizeStyles.sm.icon : size === "lg" || size === "icon" ? formControlSizeStyles.lg.icon : formControlSizeStyles.md.icon;
 
     const globalConfig = useUnderverseUIConfig();
     const resolvedBorderMode = borderMode ?? globalConfig.button?.borderMode ?? "full";
@@ -151,7 +154,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ) : null}
         {loading ? (
           <>
-            <SpinnerIcon className="w-4 h-4 animate-spin" aria-hidden="true" />
+            <SpinnerIcon className={cn(iconSizeStyle, "shrink-0 animate-spin")} aria-hidden="true" />
             {loadingText ? (
               <span className="ml-2" aria-live="polite">
                 {loadingText}
@@ -165,9 +168,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           </>
         ) : (
           <>
-            {Icon ? <Icon className={cn("transition-transform duration-200", iConClassName ? iConClassName : "w-5 h-5")} /> : null}
+            {Icon ? <Icon className={cn("shrink-0 transition-transform duration-200", iConClassName ? iConClassName : iconSizeStyle)} /> : null}
             {children}
-            {IconRight ? <IconRight className="w-4 h-4 transition-transform duration-200" /> : null}
+            {IconRight ? <IconRight className={cn(iconSizeStyle, "shrink-0 transition-transform duration-200")} /> : null}
           </>
         )}
       </button>

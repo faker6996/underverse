@@ -8,7 +8,7 @@ import { Eye, EyeOff, Search, X, AlertCircle, CheckCircle, Loader2 } from "lucid
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles } from "./form-control-size";
+import { formControlFixedClass, formControlSizeStyles } from "../constants/form-control-size";
 
 /** Public props for the `Input` component. */
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {

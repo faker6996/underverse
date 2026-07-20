@@ -7,7 +7,7 @@ import Button from "./Button";
 import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles } from "./form-control-size";
+import { formControlFixedClass, formControlSizeStyles } from "../constants/form-control-size";
 
 /** Public props for the `TagInput` component. */
 export interface TagInputProps {

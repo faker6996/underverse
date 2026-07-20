@@ -442,7 +442,7 @@ export const EditorToolbar = ({
   return (
     <div
       role="toolbar"
-      className="flex min-h-[60px] flex-nowrap items-center gap-1 overflow-x-auto border-b border-[rgba(196,197,213,0.6)] bg-[#F4F4F4] px-3 py-3 dark:bg-muted/60"
+      className="flex min-h-15 flex-nowrap items-center gap-1 overflow-x-auto border-b border-[rgba(196,197,213,0.6)] bg-[#F4F4F4] px-3 py-3 dark:bg-muted/60"
     >
       {isFull && (
         <DropdownMenu
@@ -450,7 +450,7 @@ export const EditorToolbar = ({
             <ToolbarButton
               onClick={() => {}}
               title={t("toolbar.fontFamily")}
-              className="h-9 w-[200px] max-w-[200px] justify-between gap-3 rounded-lg border border-[rgba(196,197,213,0.6)] bg-white px-3 text-[#404040] shadow-[0_1px_2px_rgba(0,0,0,0.07)] hover:bg-white hover:text-[#404040] dark:bg-background dark:text-foreground"
+              className="h-9 w-50 max-w-50 justify-between gap-3 rounded-lg border border-[rgba(196,197,213,0.6)] bg-white px-3 text-[#404040] shadow-[0_1px_2px_rgba(0,0,0,0.07)] hover:bg-white hover:text-[#404040] dark:bg-background dark:text-foreground"
             >
               <span className="min-w-0 flex-1 truncate text-left text-sm font-normal" style={{ fontFamily: displayedFontFamilyValue || undefined }}>
                 {displayedFontFamilyLabel}

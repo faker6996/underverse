@@ -11,7 +11,7 @@ import { Label } from "./label";
 import { Popover } from "./Popover";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "./form-control-size";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "../constants/form-control-size";
 
 export interface Category {
   /** Unique category id used for selection and tree relationships. */

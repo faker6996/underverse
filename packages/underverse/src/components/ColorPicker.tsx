@@ -9,7 +9,7 @@ import { cn } from "../utils/cn";
 import { Pipette, X, Copy, Check, Palette, History } from "lucide-react";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "./form-control-size";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "../constants/form-control-size";
 
 type OutputFormat = "hex" | "rgba" | "hsl" | "hsla";
 type ColorPickerSize = "sm" | "md" | "lg";
