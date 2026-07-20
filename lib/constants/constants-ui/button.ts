@@ -1,3 +1,5 @@
+import { formControlSizeStyles } from "../../../packages/underverse/src/constants/form-control-size";
+
 export const VARIANT_STYLES_BTN = {
   // Mặc định: tối giản, rõ ràng, dùng tokens hệ màu
   default:
@@ -40,9 +42,9 @@ export const VARIANT_STYLES_BTN = {
 };
 
 export const SIZE_STYLES_BTN = {
-  sm: "px-3 py-1.5 text-sm h-8 min-w-8 md:px-2.5 md:py-1 md:h-7 md:text-xs",
-  md: "px-4 py-2 text-sm h-10 min-w-10 md:px-3 md:py-1.5 md:h-9",
-  lg: "px-6 py-3 text-base h-12 min-w-12 md:px-4 md:py-2 md:h-10 md:text-sm",
+  sm: `${formControlSizeStyles.sm.control} min-w-8`,
+  md: `${formControlSizeStyles.md.input} min-w-10`,
+  lg: `${formControlSizeStyles.lg.input} min-w-12`,
   smx: "px-3.5 py-1.5 text-[13px] h-9 min-w-9 md:px-3 md:py-1 md:h-8 md:text-xs",
   icon: "w-11 h-11 p-0 rounded-full flex items-center justify-center md:w-10 md:h-10",
 };
