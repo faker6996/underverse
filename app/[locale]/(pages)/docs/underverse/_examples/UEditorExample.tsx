@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Extension } from "@tiptap/core";
 import { useTranslations } from "next-intl";
-import UEditor, { type UEditorRef, type UEditorUploadImageForSave } from "@/components/ui/UEditor";
+import UEditor, { type UEditorProps, type UEditorRef, type UEditorUploadImageForSave } from "@/components/ui/UEditor";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import CodeBlock from "../_components/CodeBlock";
@@ -21,6 +21,7 @@ const DemoCustomExtension = Extension.create({
     };
   },
 });
+const demoCustomExtension = DemoCustomExtension as unknown as NonNullable<UEditorProps["extraExtensions"]>[number];
 
 const CUSTOM_FONT_FAMILIES = [
   { label: "Inter", value: "Inter, ui-sans-serif, system-ui, sans-serif" },
@@ -491,7 +492,7 @@ export default function UEditorExample() {
         <UEditor
           content="<p>This editor has a custom Tiptap extension injected via <code>extraExtensions</code>. Focus here and press <strong>Cmd+Shift+K</strong> to trigger it.</p>"
           variant="default"
-          extraExtensions={[DemoCustomExtension]}
+          extraExtensions={[demoCustomExtension]}
           showFloatingMenu={false}
           minHeight={100}
         />
