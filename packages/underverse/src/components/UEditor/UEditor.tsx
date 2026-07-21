@@ -90,6 +90,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   const inFlightPrepareRef = useRef<Promise<UEditorPrepareContentForSaveResult> | null>(null);
   const lastAppliedContentRef = useRef(content ?? "");
   const scheduledFormulaRecalculateRef = useRef(false);
+  const pendingFormulaTextRecalculateRef = useRef(false);
   const editorInstanceRef = useRef<NonNullable<ReturnType<typeof useEditor>> | null>(null);
   const formulaRangePickRef = useRef<FormulaRangePickState | null>(null);
   const formulaRangeSurfaceRef = useRef<HTMLDivElement | null>(null);
@@ -248,20 +249,33 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
     },
     onUpdate: ({ editor, transaction }) => {
       if (!transaction.getMeta(UEDITOR_TABLE_FORMULA_RECALCULATE_META)) {
-        scheduleFormulaRecalculate(editor);
+        if (isEditingTableFormulaText(editor)) {
+          pendingFormulaTextRecalculateRef.current = true;
+        } else {
+          pendingFormulaTextRecalculateRef.current = false;
+          scheduleFormulaRecalculate(editor);
+        }
       }
 
-      const html = editor.getHTML();
-      onChange?.(html);
-      onHtmlChange?.(html);
-      onJsonChange?.(editor.getJSON());
+      if (onChange || onHtmlChange) {
+        const html = editor.getHTML();
+        onChange?.(html);
+        onHtmlChange?.(html);
+      }
+      if (onJsonChange) {
+        onJsonChange(editor.getJSON());
+      }
     },
     onSelectionUpdate: ({ editor }) => {
-      scheduleFormulaRecalculate(editor);
+      if (pendingFormulaTextRecalculateRef.current && !isEditingTableFormulaText(editor)) {
+        pendingFormulaTextRecalculateRef.current = false;
+        scheduleFormulaRecalculate(editor);
+      }
     },
     onBlur: ({ editor, event }) => {
       const nextTarget = event.relatedTarget;
       if (nextTarget instanceof Element && nextTarget.closest("[data-ueditor-formula-bar]")) return;
+      pendingFormulaTextRecalculateRef.current = false;
       scheduleFormulaRecalculate(editor, { force: true });
     },
   });

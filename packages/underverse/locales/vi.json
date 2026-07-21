@@ -153,6 +153,8 @@
       "alignCenter": "Căn giữa",
       "alignRight": "Căn phải",
       "justify": "Căn đều",
+      "decreaseIndent": "Giảm lề",
+      "increaseIndent": "Tăng lề",
       "bulletList": "Danh sách dấu chấm",
       "orderedList": "Danh sách số",
       "taskList": "Danh sách công việc",

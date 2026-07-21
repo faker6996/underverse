@@ -41,7 +41,7 @@ import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub,
 import Modal from "../Modal";
 import { ImageInput, LinkInput } from "./inputs";
 import { applyEditorLink } from "./link-commands";
-import { TableInsertGrid, fileToDataUrl, getTableAnchorPos } from "./toolbar";
+import { TableInsertGrid, fileToDataUrl, getEditorUiRenderState, getTableAnchorPos } from "./toolbar";
 import { sanitizeUEditorUrl } from "./url-safety";
 import { DEFAULT_UEDITOR_IMAGE_MAX_FILE_SIZE, DEFAULT_UEDITOR_IMAGE_MIME_TYPES } from "./clipboard-images";
 import { UEDITOR_PROSEMIRROR_CLASS_NAME } from "./editor-styles";
@@ -577,7 +577,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   const t = useSmartTranslations("UEditor");
   useEditorState({
     editor,
-    selector: ({ transactionNumber }) => transactionNumber,
+    selector: ({ editor: currentEditor }) => getEditorUiRenderState(currentEditor),
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);

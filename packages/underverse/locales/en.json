@@ -153,6 +153,8 @@
       "alignCenter": "Align Center",
       "alignRight": "Align Right",
       "justify": "Justify",
+      "decreaseIndent": "Decrease Indent",
+      "increaseIndent": "Increase Indent",
       "bulletList": "Bullet List",
       "orderedList": "Numbered List",
       "taskList": "Task List",

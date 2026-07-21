@@ -142,6 +142,100 @@ test("UEditor renders content and reuses the same in-flight prepareContentForSav
   assert.match(first.html, /Hello editor/);
 });
 
+test("UEditor serializes only the output formats that have subscribers", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const jsonRef = React.createRef();
+  let jsonUpdates = 0;
+
+  render(
+    React.createElement(UEditor, {
+      ref: jsonRef,
+      content: "<p>JSON only</p>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+      onJsonChange: () => {
+        jsonUpdates += 1;
+      },
+    }),
+  );
+
+  await waitFor(() => assert.ok(jsonRef.current?.editor));
+  const jsonEditor = jsonRef.current.editor;
+  const originalGetHtml = jsonEditor.getHTML.bind(jsonEditor);
+  let htmlSerializations = 0;
+  jsonEditor.getHTML = (...args) => {
+    htmlSerializations += 1;
+    return originalGetHtml(...args);
+  };
+
+  jsonEditor.commands.focus("end");
+  jsonEditor.commands.insertContent(" updated");
+  await waitFor(() => assert.equal(jsonUpdates, 1));
+  assert.equal(htmlSerializations, 0);
+
+  cleanup();
+
+  const htmlRef = React.createRef();
+  let htmlUpdates = 0;
+  render(
+    React.createElement(UEditor, {
+      ref: htmlRef,
+      content: "<p>HTML only</p>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+      onHtmlChange: () => {
+        htmlUpdates += 1;
+      },
+    }),
+  );
+
+  await waitFor(() => assert.ok(htmlRef.current?.editor));
+  const htmlEditor = htmlRef.current.editor;
+  const originalGetJson = htmlEditor.getJSON.bind(htmlEditor);
+  let jsonSerializations = 0;
+  htmlEditor.getJSON = (...args) => {
+    jsonSerializations += 1;
+    return originalGetJson(...args);
+  };
+
+  htmlEditor.commands.focus("end");
+  htmlEditor.commands.insertContent(" updated");
+  await waitFor(() => assert.equal(htmlUpdates, 1));
+  assert.equal(jsonSerializations, 0);
+});
+
+test("UEditor character and word counters stay in sync while typing", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<p>one two</p>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+    }),
+  );
+
+  const body = within(window.document.body);
+  await body.findByText("2 words");
+  assert.ok(body.getByText("7 characters"));
+  await waitFor(() => assert.ok(ref.current?.editor));
+
+  ref.current.editor.commands.focus("end");
+  ref.current.editor.commands.insertContent(" three");
+
+  await body.findByText("3 words");
+  assert.ok(body.getByText("13 characters"));
+});
+
 test("UEditor keeps typing outside a newly applied link", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -358,6 +452,228 @@ test("UEditor minimal toolbar applies bold and italic formatting while typing", 
     const latestHtml = htmlUpdates.at(-1) ?? "";
     assert.match(latestHtml, /<strong>Bold<\/strong>/);
     assert.match(latestHtml, /<em>Italic<\/em>/);
+  });
+});
+
+test("UEditor increases and decreases paragraph and blockquote indentation from toolbar and keyboard", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+  const user = userEvent.setup({ document: window.document });
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<p>Plain text</p><blockquote><p>Quoted text</p></blockquote>",
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const editor = ref.current.editor;
+  const increaseButton = await view.findByRole("button", { name: "Increase Indent" });
+  const decreaseButton = await view.findByRole("button", { name: "Decrease Indent" });
+
+  editor.commands.focus();
+  editor.commands.setTextSelection(findTextPosition(editor, "Plain text") + 1);
+  await waitFor(() => {
+    assert.equal(increaseButton.disabled, false);
+    assert.equal(decreaseButton.disabled, true);
+  });
+
+  await user.click(increaseButton);
+  await waitFor(() => {
+    const paragraph = view.container.querySelector("p[data-indent='1']");
+    assert.ok(paragraph);
+    assert.equal(paragraph.style.marginLeft, "2rem");
+    assert.equal(decreaseButton.disabled, false);
+  });
+
+  editor.commands.setTextSelection(findTextPosition(editor, "Plain text"));
+  fireEvent.keyDown(editor.view.dom, { key: "Tab", code: "Tab" });
+  await waitFor(() => {
+    assert.ok(view.container.querySelector("p[data-indent='2']"));
+  });
+
+  fireEvent.keyDown(editor.view.dom, { key: "Tab", code: "Tab", shiftKey: true });
+  await waitFor(() => {
+    assert.ok(view.container.querySelector("p[data-indent='1']"));
+  });
+
+  await user.click(decreaseButton);
+  await waitFor(() => {
+    const paragraph = Array.from(view.container.querySelectorAll("p")).find((item) => item.textContent === "Plain text");
+    assert.ok(paragraph);
+    assert.equal(paragraph.hasAttribute("data-indent"), false);
+    assert.equal(paragraph.style.marginLeft, "");
+  });
+
+  editor.commands.setTextSelection(findTextPosition(editor, "Plain text") + "Plain".length);
+  fireEvent.keyDown(editor.view.dom, { key: "Tab", code: "Tab" });
+  await waitFor(() => {
+    const paragraph = Array.from(view.container.querySelectorAll("p")).find((item) => item.textContent?.includes("Plain"));
+    assert.equal(paragraph?.textContent, `Plain${"\u00a0".repeat(4)} text`);
+    assert.equal(paragraph?.hasAttribute("data-indent"), false);
+    assert.match(editor.getHTML(), /Plain(?:&nbsp;){4} text/);
+  });
+
+  editor.commands.setContent(editor.getHTML());
+  await waitFor(() => {
+    const paragraph = Array.from(view.container.querySelectorAll("p")).find((item) => item.textContent?.includes("Plain"));
+    assert.equal(paragraph?.textContent, `Plain${"\u00a0".repeat(4)} text`);
+  });
+  editor.commands.setTextSelection(findTextPosition(editor, "Plain") + "Plain".length + 4);
+
+  fireEvent.keyDown(editor.view.dom, { key: "Tab", code: "Tab", shiftKey: true });
+  await waitFor(() => {
+    const paragraph = Array.from(view.container.querySelectorAll("p")).find((item) => item.textContent === "Plain text");
+    assert.ok(paragraph);
+    assert.equal(paragraph.hasAttribute("data-indent"), false);
+  });
+
+  editor.commands.setTextSelection(findTextPosition(editor, "Quoted text"));
+  fireEvent.keyDown(editor.view.dom, { key: "Tab", code: "Tab" });
+  await waitFor(() => {
+    const quote = view.container.querySelector("blockquote[data-indent='1']");
+    assert.ok(quote);
+    assert.equal(quote.style.marginLeft, "2rem");
+    assert.equal(quote.querySelector("p")?.hasAttribute("data-indent"), false);
+  });
+
+  fireEvent.keyDown(editor.view.dom, { key: "Tab", code: "Tab", shiftKey: true });
+  await waitFor(() => {
+    assert.equal(view.container.querySelector("blockquote")?.hasAttribute("data-indent"), false);
+  });
+});
+
+test("UEditor indent controls preserve semantic nested bullet and numbered lists", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+  const user = userEvent.setup({ document: window.document });
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: [
+        "<ul><li><p>Bullet one</p></li><li><p>Bullet two</p></li></ul>",
+        "<ol><li><p>Number one</p></li><li><p>Number two</p></li></ol>",
+      ].join(""),
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const editor = ref.current.editor;
+  const increaseButton = await view.findByRole("button", { name: "Increase Indent" });
+  const decreaseButton = await view.findByRole("button", { name: "Decrease Indent" });
+
+  editor.commands.focus();
+  editor.commands.setTextSelection(findTextPosition(editor, "Bullet two") + 1);
+  await waitFor(() => assert.equal(increaseButton.disabled, false));
+  await user.click(increaseButton);
+
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("ul ul").length, 1);
+    assert.equal(view.container.querySelectorAll("[data-indent]").length, 0);
+  });
+
+  await waitFor(() => assert.equal(decreaseButton.disabled, false));
+  await user.click(decreaseButton);
+  await waitFor(() => assert.equal(view.container.querySelectorAll("ul ul").length, 0));
+
+  editor.commands.setTextSelection(findTextPosition(editor, "Number two") + 1);
+  fireEvent.keyDown(editor.view.dom, { key: "Tab", code: "Tab" });
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("ol ol").length, 1);
+    assert.match(editor.getHTML(), /<ol[^>]*>.*<ol[^>]*>/s);
+  });
+
+  fireEvent.keyDown(editor.view.dom, { key: "Tab", code: "Tab", shiftKey: true });
+  await waitFor(() => assert.equal(view.container.querySelectorAll("ol ol").length, 0));
+});
+
+test("UEditor keeps Tab and Shift+Tab reserved for table cell navigation", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<table><tbody><tr><td>Cell A</td><td>Cell B</td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const editor = ref.current.editor;
+  editor.commands.focus();
+  editor.commands.setTextSelection(findTextPosition(editor, "Cell A") + 1);
+
+  fireEvent.keyDown(editor.view.dom, { key: "Tab", code: "Tab" });
+  await waitFor(() => {
+    const { $from } = editor.state.selection;
+    const selectedCell = Array.from({ length: $from.depth }, (_, index) => $from.node($from.depth - index))
+      .find((node) => node.type.name === "tableCell" || node.type.name === "tableHeader");
+    assert.equal(selectedCell?.textContent, "Cell B");
+    assert.equal(view.container.querySelectorAll("[data-indent]").length, 0);
+  });
+
+  fireEvent.keyDown(editor.view.dom, { key: "Tab", code: "Tab", shiftKey: true });
+  await waitFor(() => {
+    const { $from } = editor.state.selection;
+    const selectedCell = Array.from({ length: $from.depth }, (_, index) => $from.node($from.depth - index))
+      .find((node) => node.type.name === "tableCell" || node.type.name === "tableHeader");
+    assert.equal(selectedCell?.textContent, "Cell A");
+  });
+});
+
+test("UEditor preserves, batches, and clamps block indentation in HTML", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: '<p data-indent="2" style="margin-left: 4rem">First block</p><p>Second block</p>',
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const editor = ref.current.editor;
+  assert.match(editor.getHTML(), /data-indent="2"/);
+  assert.match(editor.getHTML(), /margin-left: 4rem/);
+
+  const firstPos = findTextPosition(editor, "First block");
+  const secondPos = findTextPosition(editor, "Second block");
+  editor.commands.setTextSelection({ from: firstPos, to: secondPos + "Second block".length });
+  assert.equal(editor.commands.increaseIndent(), true);
+
+  await waitFor(() => {
+    const paragraphs = view.container.querySelectorAll("p");
+    assert.equal(paragraphs[0]?.getAttribute("data-indent"), "3");
+    assert.equal(paragraphs[1]?.getAttribute("data-indent"), "1");
+  });
+
+  editor.commands.setTextSelection(findTextPosition(editor, "First block") + 1);
+  for (let index = 0; index < 10; index += 1) {
+    editor.commands.increaseIndent();
+  }
+
+  await waitFor(() => {
+    const firstParagraph = Array.from(view.container.querySelectorAll("p")).find((item) => item.textContent === "First block");
+    assert.equal(firstParagraph?.getAttribute("data-indent"), "6");
+    assert.equal(firstParagraph?.style.marginLeft, "12rem");
+    assert.equal(editor.can().increaseIndent(), false);
   });
 });
 

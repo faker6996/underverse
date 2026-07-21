@@ -24,11 +24,25 @@ export function TableFormulaBar({ editor }: { editor: Editor }) {
   const t = useSmartTranslations("UEditor");
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [draftState, setDraftState] = useState<FormulaDraftState | null>(null);
-  useEditorState({
+  const selectedFormulaState = useEditorState({
     editor,
-    selector: ({ transactionNumber }) => transactionNumber,
+    selector: ({ editor: currentEditor }) => {
+      const cell = getSelectedTableFormulaCell(currentEditor);
+      if (!cell) return null;
+
+      return {
+        cellPos: cell.cellPos,
+        column: cell.column,
+        computedValue: cell.computedValue,
+        formula: cell.formula,
+        formulaState: cell.formulaState,
+        label: cell.label,
+        row: cell.row,
+        tablePos: cell.tablePos,
+      };
+    },
   });
-  const selectedCell = getSelectedTableFormulaCell(editor);
+  const selectedCell = selectedFormulaState ? getSelectedTableFormulaCell(editor) : null;
 
   useEffect(() => {
     const focusFormulaInput = () => {

@@ -19,6 +19,8 @@ import {
   Heading1 as Heading1Icon,
   Heading2 as Heading2Icon,
   Heading3 as Heading3Icon,
+  IndentDecrease,
+  IndentIncrease,
   Link as LinkIcon,
   List as ListIcon,
   ListOrdered as ListOrderedIcon,
@@ -102,6 +104,85 @@ export function getTableAnchorPos(editor: Editor) {
   return firstCell instanceof HTMLTableCellElement ? editor.view.posAtDOM(firstCell, 0) + 1 : null;
 }
 
+const EDITOR_UI_ACTIVE_MARKS = [
+  "blockquote",
+  "bold",
+  "bulletList",
+  "code",
+  "codeBlock",
+  "formCheckbox",
+  "highlight",
+  "image",
+  "italic",
+  "link",
+  "orderedList",
+  "paragraph",
+  "strike",
+  "subscript",
+  "superscript",
+  "taskList",
+  "underline",
+] as const;
+
+/**
+ * Returns only the editor state that can change toolbar, menu bar or bubble-menu UI.
+ * TipTap compares this snapshot deeply, so plain typing no longer forces those large
+ * React trees to render when their visible state did not change.
+ */
+export function getEditorUiRenderState(editor: Editor) {
+  const textStyle = editor.getAttributes("textStyle");
+  const highlight = editor.getAttributes("highlight");
+  const image = editor.getAttributes("image");
+  const link = editor.getAttributes("link");
+  const tableCell = editor.getAttributes("tableCell");
+  const tableHeader = editor.getAttributes("tableHeader");
+  const hasTableContext = getTableAnchorPos(editor) !== null;
+  const can = editor.can();
+
+  return {
+    active: EDITOR_UI_ACTIVE_MARKS.map((name) => editor.isActive(name)),
+    alignment: ["left", "center", "right", "justify"].map((textAlign) => editor.isActive({ textAlign })),
+    heading: [1, 2, 3].map((level) => editor.isActive("heading", { level })),
+    textStyle: {
+      color: textStyle.color ?? null,
+      fontFamily: textStyle.fontFamily ?? null,
+      fontSize: textStyle.fontSize ?? null,
+      letterSpacing: textStyle.letterSpacing ?? null,
+      lineHeight: textStyle.lineHeight ?? null,
+    },
+    highlightColor: highlight.color ?? null,
+    image: {
+      imageLayout: image.imageLayout ?? null,
+      imageWidthPreset: image.imageWidthPreset ?? null,
+    },
+    linkHref: link.href ?? null,
+    tableCell: {
+      backgroundColor: tableCell.backgroundColor ?? tableHeader.backgroundColor ?? null,
+      borderColor: tableCell.borderColor ?? tableHeader.borderColor ?? null,
+      borderStyle: tableCell.borderStyle ?? tableHeader.borderStyle ?? null,
+      borderWidth: tableCell.borderWidth ?? tableHeader.borderWidth ?? null,
+      formula: tableCell.formula ?? tableHeader.formula ?? null,
+      numberFormat: tableCell.numberFormat ?? tableHeader.numberFormat ?? null,
+      textDirection: tableCell.textDirection ?? tableHeader.textDirection ?? null,
+      verticalAlign: tableCell.verticalAlign ?? tableHeader.verticalAlign ?? null,
+    },
+    can: {
+      addColumnAfter: hasTableContext && can.addColumnAfter(),
+      addColumnBefore: hasTableContext && can.addColumnBefore(),
+      addRowAfter: hasTableContext && can.addRowAfter(),
+      addRowBefore: hasTableContext && can.addRowBefore(),
+      decreaseIndent: can.decreaseIndent(),
+      increaseIndent: can.increaseIndent(),
+      mergeCells: hasTableContext && can.mergeCells(),
+      redo: can.redo(),
+      splitCell: hasTableContext && can.splitCell(),
+      undo: can.undo(),
+    },
+    hasTableContext,
+    isEmpty: editor.isEmpty,
+  };
+}
+
 export function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -182,7 +263,7 @@ export const TableInsertGrid = ({
   return (
     <div className="mb-2 rounded-xl border border-border/60 bg-muted/20 p-2">
       <div className="mb-2 text-sm font-medium text-foreground">{formatTableInsertLabel(previewTemplate, selection.rows, selection.cols)}</div>
-      <div className="grid grid-cols-8 gap-1" onMouseLeave={() => setSelection((prev) => prev)}>
+      <div className="grid grid-cols-8 gap-1">
         {Array.from({ length: maxRows }).map((_, rowIndex) =>
           Array.from({ length: maxCols }).map((__, colIndex) => {
             const rows = rowIndex + 1;
@@ -248,9 +329,9 @@ export const EditorToolbar = ({
   letterSpacings?: UEditorLetterSpacingOption[];
 }) => {
   const t = useSmartTranslations("UEditor");
-  useEditorState({
+  const editorUiState = useEditorState({
     editor,
-    selector: ({ transactionNumber }) => transactionNumber,
+    selector: ({ editor: currentEditor }) => getEditorUiRenderState(currentEditor),
   });
   const { textColors, highlightColors } = useEditorColors();
   const [showImageInput, setShowImageInput] = useState(false);
@@ -360,6 +441,20 @@ export const EditorToolbar = ({
           title={t("toolbar.bulletList")}
         >
           <FigmaListIcon className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().decreaseIndent().run()}
+          disabled={!editorUiState.can.decreaseIndent}
+          title={t("toolbar.decreaseIndent")}
+        >
+          <IndentDecrease className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().increaseIndent().run()}
+          disabled={!editorUiState.can.increaseIndent}
+          title={t("toolbar.increaseIndent")}
+        >
+          <IndentIncrease className="h-4 w-4" />
         </ToolbarButton>
         <DropdownMenu
           trigger={
@@ -810,6 +905,21 @@ export const EditorToolbar = ({
           shortcut="Ctrl+Shift+9"
         />
       </DropdownMenu>
+
+      <ToolbarButton
+        onClick={() => editor.chain().focus().decreaseIndent().run()}
+        disabled={!editorUiState.can.decreaseIndent}
+        title={t("toolbar.decreaseIndent")}
+      >
+        <IndentDecrease className="h-4 w-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        onClick={() => editor.chain().focus().increaseIndent().run()}
+        disabled={!editorUiState.can.increaseIndent}
+        title={t("toolbar.increaseIndent")}
+      >
+        <IndentIncrease className="h-4 w-4" />
+      </ToolbarButton>
 
       <DropdownMenu
         trigger={

@@ -176,6 +176,7 @@ UEditor supports multiple toolbar and layout variants to match different editing
 The default rich-featured editor variant offering complete formatting controls, including:
 - Font Family, Font Size, Line Height, Letter Spacing
 - Subscript, Superscript, Code Block
+- Increase/Decrease Indent for paragraphs, blockquotes, and nested lists
 - Tables (with advanced column/row resizing and alignments)
 - Image and Link insertion, emojis, text alignment.
 
@@ -189,6 +190,7 @@ A balanced variant for blog posts and article creation. Excludes advanced spacin
 - Font Size (no Font Family selector)
 - Bold, Italic, Underline, Strike, Inline Code
 - Text/Highlight Colors, Alignment (Left, Center, Right, Justify)
+- Increase/Decrease Indent
 - Link, Emoji, Blockquote
 - Tables & Images
 
@@ -203,6 +205,7 @@ A lightweight variant suitable for emails or basic descriptions:
 - Bold, Italic, Underline, Strike
 - Text/Highlight Colors
 - Bullet, Ordered, and Task lists
+- Increase/Decrease Indent
 - Link
 
 ```tsx
@@ -215,6 +218,7 @@ A highly compact variant suitable for comment boxes or quick notes:
 - Undo, Redo
 - Bold, Italic
 - Bullet list
+- Increase/Decrease Indent
 - Link
 
 ```tsx
@@ -409,6 +413,16 @@ These can be inserted via the Menu Bar: **Insert > Form Fields > Checkbox / Radi
 - Center
 - Right
 - Justify
+
+### Indentation
+
+- Use the **Increase Indent** and **Decrease Indent** toolbar buttons in every editable toolbar variant.
+- At the start of a paragraph or blockquote, press `Tab` to increase its indentation and `Shift+Tab` to decrease it.
+- When the caret is inside text, `Tab` inserts spacing at that exact position instead of moving the entire block. `Shift+Tab` removes the tab immediately before the caret when present.
+- Paragraphs and blockquotes are saved with a bounded `data-indent` value and matching `margin-left` style.
+- Bullet and numbered lists use semantic nested `<ul>`/`<ol>` structures instead of visual margins.
+- Inside tables, `Tab` and `Shift+Tab` keep their existing behavior of moving between cells.
+- While a table formula suggestion is open, `Tab` continues to accept the suggestion.
 
 ### UX Features
 

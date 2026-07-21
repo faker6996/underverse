@@ -3,17 +3,24 @@
 import React from "react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import type { Editor } from "@tiptap/core";
+import { useEditorState } from "@tiptap/react";
 import { cn } from "../../utils/cn";
 
 export const CharacterCountDisplay = ({ editor, maxCharacters }: { editor: Editor; maxCharacters?: number }) => {
   const t = useSmartTranslations("UEditor");
+  const { characterCount, wordCount } = useEditorState({
+    editor,
+    selector: ({ editor: currentEditor }) => {
+      const storage = currentEditor.storage as unknown as {
+        characterCount?: { characters?: () => number; words?: () => number };
+      };
 
-  const storage = editor.storage as unknown as {
-    characterCount?: { characters?: () => number; words?: () => number };
-  };
-
-  const characterCount = storage.characterCount?.characters?.() ?? 0;
-  const wordCount = storage.characterCount?.words?.() ?? 0;
+      return {
+        characterCount: storage.characterCount?.characters?.() ?? 0,
+        wordCount: storage.characterCount?.words?.() ?? 0,
+      };
+    },
+  });
   const percentage = maxCharacters ? Math.round((characterCount / maxCharacters) * 100) : 0;
 
   return (
@@ -32,4 +39,3 @@ export const CharacterCountDisplay = ({ editor, maxCharacters }: { editor: Edito
     </div>
   );
 };
-

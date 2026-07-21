@@ -153,6 +153,8 @@
       "alignCenter": "가운데 정렬",
       "alignRight": "오른쪽 정렬",
       "justify": "양쪽 맞춤",
+      "decreaseIndent": "내어쓰기",
+      "increaseIndent": "들여쓰기",
       "bulletList": "글머리 기호 목록",
       "orderedList": "번호 매기기 목록",
       "taskList": "할 일 목록",

@@ -37,7 +37,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
-import { ToolbarButton } from "./toolbar";
+import { getEditorUiRenderState, ToolbarButton } from "./toolbar";
 import { LinkInput } from "./inputs";
 import { applyEditorLink } from "./link-commands";
 import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu";
@@ -224,7 +224,7 @@ const BubbleMenuContent = ({
   const t = useSmartTranslations("UEditor");
   useEditorState({
     editor,
-    selector: ({ transactionNumber }) => transactionNumber,
+    selector: ({ editor: currentEditor }) => getEditorUiRenderState(currentEditor),
   });
   const { textColors, highlightColors } = useEditorColors();
   const [showLinkInput, setShowLinkInput] = useState(initialShowLinkInput);
@@ -1248,21 +1248,26 @@ export const CustomBubbleMenu = ({
       }
     };
 
-    editor.on("selectionUpdate", updatePosition);
-    editor.on("focus", updatePosition);
+    let animationFrameId: number | null = null;
+    const schedulePositionUpdate = () => {
+      if (animationFrameId !== null) return;
+      animationFrameId = requestAnimationFrame(() => {
+        animationFrameId = null;
+        updatePosition();
+      });
+    };
+
+    editor.on("transaction", schedulePositionUpdate);
+    editor.on("focus", schedulePositionUpdate);
     editor.on("blur", handleBlur);
-    editor.on("transaction", updatePosition);
-    editor.on("update", updatePosition);
-    const animationFrameId = requestAnimationFrame(updatePosition);
+    schedulePositionUpdate();
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
       clearShowTimeout();
-      editor.off("selectionUpdate", updatePosition);
-      editor.off("focus", updatePosition);
+      editor.off("transaction", schedulePositionUpdate);
+      editor.off("focus", schedulePositionUpdate);
       editor.off("blur", handleBlur);
-      editor.off("transaction", updatePosition);
-      editor.off("update", updatePosition);
     };
   }, [editor]);
 
@@ -1361,16 +1366,25 @@ export const CustomFloatingMenu = ({ editor }: { editor: Editor }) => {
 
     const handleBlur = () => setIsVisible(false);
 
-    editor.on("selectionUpdate", updatePosition);
-    editor.on("focus", updatePosition);
+    let animationFrameId: number | null = null;
+    const schedulePositionUpdate = () => {
+      if (animationFrameId !== null) return;
+      animationFrameId = requestAnimationFrame(() => {
+        animationFrameId = null;
+        updatePosition();
+      });
+    };
+
+    editor.on("transaction", schedulePositionUpdate);
+    editor.on("focus", schedulePositionUpdate);
     editor.on("blur", handleBlur);
-    editor.on("update", updatePosition);
+    schedulePositionUpdate();
 
     return () => {
-      editor.off("selectionUpdate", updatePosition);
-      editor.off("focus", updatePosition);
+      if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
+      editor.off("transaction", schedulePositionUpdate);
+      editor.off("focus", schedulePositionUpdate);
       editor.off("blur", handleBlur);
-      editor.off("update", updatePosition);
     };
   }, [editor]);
 

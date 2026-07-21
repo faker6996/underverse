@@ -48,6 +48,7 @@ import FontFamily from "./font-family";
 import FontSize from "./font-size";
 import LineHeight from "./line-height";
 import LetterSpacing from "./letter-spacing";
+import Indent from "./indent";
 import UEditorTable from "./table-align";
 import { isSafeUEditorUrl } from "./url-safety";
 import { CodeBlockView } from "./CodeBlockView";
@@ -452,6 +453,7 @@ export function buildUEditorExtensions({
     FontSize,
     LineHeight,
     LetterSpacing,
+    Indent,
     Color,
     Highlight.configure({
       multicolor: true,
