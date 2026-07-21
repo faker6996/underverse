@@ -583,7 +583,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showImageInput, setShowImageInput] = useState(false);
   const [showLinkInput, setShowLinkInput] = useState(false);
-  const [isInsertMenuOpen, setIsInsertMenuOpen] = useState(false);
+  const [openMenuKey, setOpenMenuKey] = useState<string | null>(null);
 
   // Built-in source code dialog state
   const [showSourceDialog, setShowSourceDialog] = useState(false);
@@ -616,7 +616,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   };
 
   const closeInsertMenu = () => {
-    setIsInsertMenuOpen(false);
+    setOpenMenuKey(null);
     setShowImageInput(false);
     setShowLinkInput(false);
   };
@@ -644,7 +644,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
         editor.commands.createParagraphNear();
       } catch {}
     }
-    setIsInsertMenuOpen(false);
+    closeInsertMenu();
   };
 
   const handleInsertTable = (rows: number, cols: number) => {
@@ -749,38 +749,28 @@ export const MenuBar: React.FC<MenuBarProps> = ({
 
   const menus = [
     {
+      key: "file",
       label: t("menubar.file"),
       items: buildFileMenuItems(t, editor, { onSave, onExport }),
-      open: undefined as boolean | undefined,
-      onOpenChange: undefined as ((v: boolean) => void) | undefined,
     },
-    { label: t("menubar.edit"), items: buildEditMenuItems(t, editor), open: undefined, onOpenChange: undefined },
+    { key: "edit", label: t("menubar.edit"), items: buildEditMenuItems(t, editor) },
     {
+      key: "view",
       label: t("menubar.view"),
       items: buildViewMenuItems(t, { containerRef, onSourceCode, openSourceDialog, onPreview: handlePreview, openPreviewDialog }),
-      open: undefined,
-      onOpenChange: undefined,
     },
     {
+      key: "insert",
       label: t("menubar.insert"),
       items: insertMenuItems,
-      open: isInsertMenuOpen,
-      onOpenChange: (open: boolean) => {
-        setIsInsertMenuOpen(open);
-        if (!open) {
-          setShowImageInput(false);
-          setShowLinkInput(false);
-        }
-      },
     },
-    { label: t("menubar.format"), items: buildFormatMenuItems(t, editor), open: undefined, onOpenChange: undefined },
+    { key: "format", label: t("menubar.format"), items: buildFormatMenuItems(t, editor) },
     {
+      key: "tools",
       label: t("menubar.tools"),
       items: buildToolsMenuItems(t, { onSourceCode, openSourceDialog }),
-      open: undefined,
-      onOpenChange: undefined,
     },
-    { label: t("menubar.table"), items: buildTableMenuItems(t, editor, handleInsertTable), open: undefined, onOpenChange: undefined },
+    { key: "table", label: t("menubar.table"), items: buildTableMenuItems(t, editor, handleInsertTable) },
   ];
 
   return (
@@ -795,13 +785,20 @@ export const MenuBar: React.FC<MenuBarProps> = ({
       />
 
       <div className="flex items-center gap-0.5 border-b border-border/35 bg-muted/20 px-1.5 py-0.5">
-        {menus.map(({ label, items, open, onOpenChange }) => (
+        {menus.map(({ key, label, items }) => (
           <DropdownMenu
-            key={label}
+            key={key}
             trigger={<MenuBarTrigger>{label}</MenuBarTrigger>}
             placement="bottom-start"
-            isOpen={open}
-            onOpenChange={onOpenChange}
+            isOpen={openMenuKey === key}
+            onOpenChange={(open) => {
+              setOpenMenuKey((current) => open ? key : current === key ? null : current);
+              if (key === "insert" && !open) {
+                setShowImageInput(false);
+                setShowLinkInput(false);
+              }
+            }}
+            openOnHover
           >
             {renderMenuItems(items)}
           </DropdownMenu>

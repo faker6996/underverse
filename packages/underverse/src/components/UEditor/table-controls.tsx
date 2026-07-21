@@ -12,6 +12,7 @@ import {
   ArrowRight,
   ArrowUp,
   Copy,
+  Paintbrush,
   Table as TableIcon,
   Trash2,
 } from "lucide-react";
@@ -36,12 +37,20 @@ import { TableDragPreview, type TableDragPreviewState } from "./table-drag-previ
 import { TableAddRails } from "./table-add-rails";
 import { TableControlMenu } from "./table-control-menu";
 import { TableColumnHandles, TableRowHandles } from "./table-axis-handles";
+import { TableResizeHandles } from "./table-resize-handles";
 import {
   buildTableControlLayout,
   getCellFromTarget,
   type TableAxisHandle,
   type TableControlLayout,
 } from "./table-layout-model";
+import {
+  applyTableSize,
+  createTableSizeSnapshot,
+  resolveTableResizeDimensions,
+  type TableResizeDimensions,
+  type TableSizeSnapshot,
+} from "./table-size-utils";
 
 const TABLE_MENU_TOP_OFFSET = 10;
 const COLUMN_HANDLE_TOP_OFFSET = 8;
@@ -50,13 +59,23 @@ const COLUMN_HANDLE_TOP_OFFSET = 8;
 type TableControlsProps = {
   editor: Editor;
   containerRef: React.RefObject<HTMLDivElement | null>;
+  showCellInspector?: boolean;
 };
 
 type DragState =
   | { kind: "row"; originIndex: number; targetIndex: number; anchorPos: number }
   | { kind: "column"; originIndex: number; targetIndex: number; anchorPos: number }
   | { kind: "add-row"; previewRows: number }
-  | { kind: "add-column"; previewCols: number };
+  | { kind: "add-column"; previewCols: number }
+  | {
+      kind: "resize-table";
+      pointerId: number;
+      pointerTarget: HTMLButtonElement;
+      startX: number;
+      startY: number;
+      snapshot: TableSizeSnapshot;
+      pendingDimensions: TableResizeDimensions;
+    };
 
 type OpenMenuKey = `row:${number}` | `column:${number}` | "table" | null;
 
@@ -91,15 +110,18 @@ function getSelectedCell(editor: Editor) {
   return getCellFromTarget(domAtPos.node);
 }
 
-export function TableControls({ editor, containerRef }: TableControlsProps) {
+export function TableControls({ editor, containerRef, showCellInspector = true }: TableControlsProps) {
   const t = useSmartTranslations("UEditor");
   const [layout, setLayout] = React.useState<TableControlLayout | null>(null);
   const [dragPreview, setDragPreview] = React.useState<TableDragPreviewState | null>(null);
+  const [tableResizeActive, setTableResizeActive] = React.useState(false);
   const [hoverState, setHoverState] = React.useState<TableHoverState>(DEFAULT_TABLE_HOVER_STATE);
   const [openMenuKey, setOpenMenuKey] = React.useState<OpenMenuKey>(null);
   const layoutRef = React.useRef<TableControlLayout | null>(null);
   const dragStateRef = React.useRef<DragState | null>(null);
   const syncFrameRef = React.useRef<number | null>(null);
+  const tableResizeFrameRef = React.useRef<HTMLDivElement>(null);
+  const tableResizePreviewFrameRef = React.useRef<number | null>(null);
 
   React.useEffect(() => {
     layoutRef.current = layout;
@@ -148,11 +170,47 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     });
   }, [containerRef, editor]);
 
+  const updateTableResizePreview = React.useCallback((dimensions: TableResizeDimensions) => {
+    const frame = tableResizeFrameRef.current;
+    if (!frame) return;
+
+    frame.style.width = `${dimensions.width}px`;
+    frame.style.height = `${dimensions.height}px`;
+    const dimensionsLabel = frame.querySelector<HTMLElement>("[data-table-resize-dimensions]");
+    if (dimensionsLabel) {
+      dimensionsLabel.textContent = `${dimensions.width} × ${dimensions.height}`;
+    }
+  }, []);
+
+  const resetTableResizePreview = React.useCallback(() => {
+    const activeLayout = layoutRef.current;
+    if (!activeLayout) return;
+    updateTableResizePreview({
+      width: Math.round(activeLayout.tableWidth),
+      height: Math.round(activeLayout.tableHeight),
+    });
+  }, [updateTableResizePreview]);
+
   const clearDrag = React.useCallback(() => {
+    const dragState = dragStateRef.current;
+    if (dragState?.kind === "resize-table") {
+      try {
+        if (dragState.pointerTarget.hasPointerCapture?.(dragState.pointerId)) {
+          dragState.pointerTarget.releasePointerCapture(dragState.pointerId);
+        }
+      } catch {}
+    }
+
+    if (tableResizePreviewFrameRef.current !== null) {
+      window.cancelAnimationFrame(tableResizePreviewFrameRef.current);
+      tableResizePreviewFrameRef.current = null;
+    }
     dragStateRef.current = null;
     setDragPreview(null);
+    setTableResizeActive(false);
+    resetTableResizePreview();
     document.body.style.cursor = "";
-  }, []);
+  }, [resetTableResizePreview]);
 
   const updateHoverState = React.useCallback((event: MouseEvent | PointerEvent) => {
     const activeLayout = layoutRef.current;
@@ -201,9 +259,31 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       syncFromCell(cell ?? getSelectedCell(editor));
     };
 
+    const handleDoubleClick = (event: MouseEvent) => {
+      if (event.button !== 0) return;
+
+      const cell = getCellFromTarget(event.target);
+      if (!cell || cell.hasAttribute("data-formula")) return;
+
+      const surface = containerRef.current;
+      const nextLayout = surface ? buildTableControlLayout(editor, surface, cell) : null;
+      if (!nextLayout) return;
+
+      const didSelect = editor.commands.setCellSelection({
+        anchorCell: nextLayout.cellPos,
+        headCell: nextLayout.cellPos,
+      });
+      if (!didSelect) return;
+
+      event.preventDefault();
+      editor.view.focus();
+      setLayout(nextLayout);
+    };
+
     proseMirror.addEventListener("mouseover", handleMouseOver);
     proseMirror.addEventListener("mouseleave", handleMouseLeave);
     proseMirror.addEventListener("click", handleFocusIn);
+    proseMirror.addEventListener("dblclick", handleDoubleClick);
     proseMirror.addEventListener("mouseup", handleFocusIn);
     proseMirror.addEventListener("focusin", handleFocusIn);
     surface.addEventListener("mouseover", handleSurfaceMouseMove);
@@ -220,6 +300,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       proseMirror.removeEventListener("mouseover", handleMouseOver);
       proseMirror.removeEventListener("mouseleave", handleMouseLeave);
       proseMirror.removeEventListener("click", handleFocusIn);
+      proseMirror.removeEventListener("dblclick", handleDoubleClick);
       proseMirror.removeEventListener("mouseup", handleFocusIn);
       proseMirror.removeEventListener("focusin", handleFocusIn);
       surface.removeEventListener("mouseover", handleSurfaceMouseMove);
@@ -278,6 +359,45 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
   const canExpandTable = Boolean(layout);
   const controlsVisible = dragPreview !== null;
   const tableMenuOpen = openMenuKey === "table";
+  const startTableResize = React.useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
+    if (event.button !== 0 || dragStateRef.current) return;
+
+    const activeLayout = layoutRef.current;
+    if (!activeLayout) return;
+
+    const snapshot = createTableSizeSnapshot(
+      editor,
+      activeLayout.cellPos,
+      activeLayout.tableWidth,
+      activeLayout.tableHeight,
+    );
+    if (!snapshot) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    try {
+      event.currentTarget.setPointerCapture?.(event.pointerId);
+    } catch {}
+
+    setOpenMenuKey(null);
+    setHoverState(DEFAULT_TABLE_HOVER_STATE);
+    setTableResizeActive(true);
+    const pendingDimensions = {
+      width: snapshot.startWidth,
+      height: snapshot.startHeight,
+    };
+    dragStateRef.current = {
+      kind: "resize-table",
+      pointerId: event.pointerId,
+      pointerTarget: event.currentTarget,
+      startX: event.clientX,
+      startY: event.clientY,
+      snapshot,
+      pendingDimensions,
+    };
+    updateTableResizePreview(pendingDimensions);
+    document.body.style.cursor = "nwse-resize";
+  }, [editor, updateTableResizePreview]);
   const startAddColumnDrag = React.useCallback(() => {
     setOpenMenuKey(null);
     dragStateRef.current = { kind: "add-column", previewCols: 1 };
@@ -336,6 +456,10 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
       const relativeX = event.clientX - surfaceRect.left + surface.scrollLeft;
       const relativeY = event.clientY - surfaceRect.top + surface.scrollTop;
 
+      if (dragState.kind === "resize-table") {
+        return;
+      }
+
       if (dragState.kind === "row") {
         const targetHandleIndex = nearestIndex(activeLayout.rowHandles.map((item) => item.center), relativeY);
         const targetRow = activeLayout.rowHandles[targetHandleIndex];
@@ -384,7 +508,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
 
     const handleMouseUp = () => {
       const dragState = dragStateRef.current;
-      if (!dragState) return;
+      if (!dragState || dragState.kind === "resize-table") return;
 
       if (dragState.kind === "row" && dragState.originIndex !== dragState.targetIndex) {
         moveTableRow({
@@ -428,10 +552,92 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
     };
   }, [clearDrag, containerRef, editor, expandTableBy, scheduleSyncFromSelection]);
 
+  React.useEffect(() => {
+    const handlePointerMove = (event: PointerEvent) => {
+      const dragState = dragStateRef.current;
+      if (!dragState || dragState.kind !== "resize-table" || event.pointerId !== dragState.pointerId) return;
+
+      dragState.pendingDimensions = resolveTableResizeDimensions({
+        deltaX: event.clientX - dragState.startX,
+        deltaY: event.clientY - dragState.startY,
+        lockAxis: event.ctrlKey && !event.shiftKey,
+        preserveRatio: event.ctrlKey && event.shiftKey,
+        snapshot: dragState.snapshot,
+      });
+
+      if (tableResizePreviewFrameRef.current === null) {
+        tableResizePreviewFrameRef.current = window.requestAnimationFrame(() => {
+          tableResizePreviewFrameRef.current = null;
+          const currentDragState = dragStateRef.current;
+          if (!currentDragState || currentDragState.kind !== "resize-table") return;
+          updateTableResizePreview(currentDragState.pendingDimensions);
+        });
+      }
+
+      document.body.style.cursor = "nwse-resize";
+      if (event.cancelable) event.preventDefault();
+    };
+
+    const finishTableResize = (event: PointerEvent, commit: boolean) => {
+      const dragState = dragStateRef.current;
+      if (!dragState || dragState.kind !== "resize-table" || event.pointerId !== dragState.pointerId) return;
+
+      if (tableResizePreviewFrameRef.current !== null) {
+        window.cancelAnimationFrame(tableResizePreviewFrameRef.current);
+        tableResizePreviewFrameRef.current = null;
+      }
+      updateTableResizePreview(dragState.pendingDimensions);
+
+      if (commit && applyTableSize(editor, dragState.snapshot, dragState.pendingDimensions)) {
+        scheduleSyncFromSelection();
+      }
+      clearDrag();
+    };
+
+    const handlePointerUp = (event: PointerEvent) => finishTableResize(event, true);
+    const handlePointerCancel = (event: PointerEvent) => finishTableResize(event, false);
+
+    window.addEventListener("pointermove", handlePointerMove, { passive: false });
+    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerCancel);
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerCancel);
+      if (tableResizePreviewFrameRef.current !== null) {
+        window.cancelAnimationFrame(tableResizePreviewFrameRef.current);
+        tableResizePreviewFrameRef.current = null;
+      }
+    };
+  }, [clearDrag, editor, scheduleSyncFromSelection, updateTableResizePreview]);
+
+  const openCellInspector = React.useCallback(() => {
+    const cellPos = layoutRef.current?.cellPos;
+    if (!showCellInspector || cellPos == null) return;
+
+    const didSelect = editor.commands.setCellSelection({
+      anchorCell: cellPos,
+      headCell: cellPos,
+    });
+    if (!didSelect) return;
+
+    window.requestAnimationFrame(() => {
+      if (!editor.isDestroyed) editor.view.focus();
+    });
+  }, [editor, showCellInspector]);
+
   const menuItems = React.useMemo(() => {
     if (!layout) return [];
 
     return [
+      ...(showCellInspector
+        ? [{
+            label: t("tableMenu.cellFormatting"),
+            icon: Paintbrush,
+            onClick: openCellInspector,
+          }]
+        : []),
       {
         label: t("tableMenu.alignLeft"),
         icon: AlignLeft,
@@ -496,7 +702,7 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
         destructive: true,
       },
     ];
-  }, [editor, layout, runAtActiveCell, t]);
+  }, [editor, layout, openCellInspector, runAtActiveCell, showCellInspector, t]);
 
   const getRowHandleMenuItems = React.useCallback((rowHandle: TableAxisHandle) => ([
     {
@@ -609,6 +815,17 @@ export function TableControls({ editor, containerRef }: TableControlsProps) {
         }}
         top={menuTop}
       />
+
+      {dragPreview === null && (
+        <TableResizeHandles
+          active={tableResizeActive}
+          ctrlHint={t("tableMenu.resizeCtrlHint")}
+          frameRef={tableResizeFrameRef}
+          layout={layout}
+          onStartResize={startTableResize}
+          resizeBothLabel={t("tableMenu.resizeBoth")}
+        />
+      )}
 
       <TableAddRails
         addColumnVisible={hoverState.addColumnVisible}

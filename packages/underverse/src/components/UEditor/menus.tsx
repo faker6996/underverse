@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
-import { isInTable as isSelectionInTable, setCellAttr } from "@tiptap/pm/tables";
+import { CellSelection, isInTable as isSelectionInTable, setCellAttr } from "@tiptap/pm/tables";
 import { createPortal } from "react-dom";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import {
@@ -100,7 +100,7 @@ const FloatingMenuContent = ({ editor }: { editor: Editor }) => {
     <button
       type="button"
       onClick={() => setShowCommands(true)}
-      className="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-accent transition-all group"
+      className="group flex items-center gap-1 rounded-lg px-2 py-1.5 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
     >
       <Plus className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />
       <span className="text-sm text-muted-foreground group-hover:text-foreground">{t("floatingMenu.addBlock")}</span>
@@ -189,24 +189,37 @@ function BorderPositionPreviewIcon({ position }: { position: TableBorderPosition
   );
 }
 
+type BubbleMenuContext = "none" | "text" | "table-cell" | "image" | "link";
+
+function getBubbleMenuContext(editor: Editor): BubbleMenuContext {
+  const { selection } = editor.state;
+
+  if (editor.isActive("image")) return "image";
+  if (selection instanceof CellSelection) return "table-cell";
+  if (editor.isActive("link")) return "link";
+  if (!selection.empty) return "text";
+
+  return "none";
+}
+
 const BubbleMenuContent = ({
   editor,
+  context,
   onKeepOpenChange,
   onLinkInputOpenChange,
   onRequestClose,
   fontSizes,
   lineHeights,
   initialShowLinkInput = false,
-  cellBorderOpenRequest = 0,
 }: {
   editor: Editor;
+  context: BubbleMenuContext;
   onKeepOpenChange?: (keepOpen: boolean) => void;
   onLinkInputOpenChange?: (open: boolean) => void;
   onRequestClose?: () => void;
   fontSizes?: UEditorFontSizeOption[];
   lineHeights?: UEditorLineHeightOption[];
   initialShowLinkInput?: boolean;
-  cellBorderOpenRequest?: number;
 }) => {
   const t = useSmartTranslations("UEditor");
   useEditorState({
@@ -221,17 +234,13 @@ const BubbleMenuContent = ({
     setShowLinkInput(initialShowLinkInput);
   }, [initialShowLinkInput]);
 
-  useEffect(() => {
-    if (!cellBorderOpenRequest) return;
-    setActiveColorPalette("cell-border");
-    onKeepOpenChange?.(true);
-  }, [cellBorderOpenRequest, onKeepOpenChange]);
   const [showTypographyPanel, setShowTypographyPanel] = useState(false);
   const [showFormulaPanel, setShowFormulaPanel] = useState(false);
   const [formulaDraft, setFormulaDraft] = useState("");
   const [showFontSizeOptions, setShowFontSizeOptions] = useState(false);
   const [fontSizeDraft, setFontSizeDraft] = useState("");
-  const isImageSelected = editor.isActive("image");
+  const isImageSelected = context === "image";
+  const isTableCellSelection = context === "table-cell";
   const imageAttrs = editor.getAttributes("image") as { imageLayout?: string; imageWidthPreset?: UEditorImageWidthPreset | null };
   const imageLayout = imageAttrs.imageLayout === "left" || imageAttrs.imageLayout === "right" ? imageAttrs.imageLayout : "block";
   const imageWidthPreset =
@@ -311,13 +320,10 @@ const BubbleMenuContent = ({
   };
 
   useEffect(() => {
-    onKeepOpenChange?.(showLinkInput);
+    const shouldKeepOpen = showLinkInput || Boolean(activeColorPalette) || showFormulaPanel || showTypographyPanel;
+    onKeepOpenChange?.(shouldKeepOpen);
     onLinkInputOpenChange?.(showLinkInput);
-  }, [onKeepOpenChange, onLinkInputOpenChange, showLinkInput]);
-
-  useEffect(() => {
-    onKeepOpenChange?.(Boolean(activeColorPalette));
-  }, [activeColorPalette, onKeepOpenChange]);
+  }, [activeColorPalette, onKeepOpenChange, onLinkInputOpenChange, showFormulaPanel, showLinkInput, showTypographyPanel]);
 
   const closeTransientPanels = useCallback(() => {
     setActiveColorPalette(null);
@@ -919,6 +925,123 @@ const BubbleMenuContent = ({
       ? AlignEndVertical
       : AlignStartVertical;
 
+  if (isTableCellSelection) {
+    return (
+      <div className="flex items-center gap-0.5 p-1" data-ueditor-cell-inspector="">
+        <ToolbarButton
+          onClick={() => setActiveColorPalette("cell-bg")}
+          active={Boolean(currentCellBgColor)}
+          title={t("tableMenu.cellBackground") || "Cell background"}
+        >
+          <CellBgColorIcon color={currentCellBgColor} />
+        </ToolbarButton>
+        <ToolbarButton
+          onMouseDown={() => onKeepOpenChange?.(true)}
+          onClick={() => setActiveColorPalette("cell-border")}
+          active={Boolean(
+            editor.getAttributes("tableCell").borderColor ||
+              editor.getAttributes("tableHeader").borderColor ||
+              editor.getAttributes("tableCell").borderStyle ||
+              editor.getAttributes("tableHeader").borderStyle ||
+              editor.getAttributes("tableCell").borderWidth ||
+              editor.getAttributes("tableHeader").borderWidth
+          )}
+          title={t("tableMenu.cellBorder") || "Cell border"}
+        >
+          <CellBorderIcon
+            color={
+              editor.getAttributes("tableCell").borderColor ||
+              editor.getAttributes("tableHeader").borderColor
+            }
+          />
+        </ToolbarButton>
+        <ToolbarButton
+          onMouseDown={() => onKeepOpenChange?.(true)}
+          onClick={() => {
+            setFormulaDraft(currentCellFormula);
+            setShowFormulaPanel(true);
+          }}
+          active={Boolean(currentCellFormula)}
+          title={t("tableMenu.formula") || "Formula"}
+        >
+          <Sigma className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => {
+            if (canSplitCell) {
+              editor.chain().focus().splitCell().run();
+              return;
+            }
+            mergeTableCellsPreservingColumnWidths(editor);
+          }}
+          active={canSplitCell}
+          disabled={!canMergeCells && !canSplitCell}
+          title={canSplitCell ? t("tableMenu.splitCell") || "Split cell" : t("tableMenu.mergeCells") || "Merge cells"}
+        >
+          <TableCellsMerge className="w-4 h-4" />
+        </ToolbarButton>
+        <DropdownMenu
+          onOpenChange={onKeepOpenChange}
+          trigger={
+            <ToolbarButton
+              onMouseDown={() => onKeepOpenChange?.(true)}
+              onClick={() => {}}
+              title={t("tableMenu.alignVertical") || "Vertical alignment"}
+            >
+              <VerticalAlignActiveIcon className="w-4 h-4" />
+              <ChevronDown className="w-3 h-3" />
+            </ToolbarButton>
+          }
+        >
+          <DropdownMenuItem
+            icon={AlignStartVertical}
+            label={t("tableMenu.alignVerticalTop") || "Align top"}
+            onClick={() => applyTableCellAttribute(editor, "verticalAlign", "top", { focus: false })}
+            active={currentCellVerticalAlign === "top"}
+          />
+          <DropdownMenuItem
+            icon={AlignCenterVertical}
+            label={t("tableMenu.alignVerticalMiddle") || "Align middle"}
+            onClick={() => applyTableCellAttribute(editor, "verticalAlign", "middle", { focus: false })}
+            active={currentCellVerticalAlign === "middle"}
+          />
+          <DropdownMenuItem
+            icon={AlignEndVertical}
+            label={t("tableMenu.alignVerticalBottom") || "Align bottom"}
+            onClick={() => applyTableCellAttribute(editor, "verticalAlign", "bottom", { focus: false })}
+            active={currentCellVerticalAlign === "bottom"}
+          />
+        </DropdownMenu>
+        <DropdownMenu
+          onOpenChange={onKeepOpenChange}
+          trigger={
+            <ToolbarButton
+              onMouseDown={() => onKeepOpenChange?.(true)}
+              onClick={() => {}}
+              title={t("tableMenu.textDirection")}
+            >
+              {currentCellTextDirection === "vertical" ? <ArrowDown className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+              <ChevronDown className="w-3 h-3" />
+            </ToolbarButton>
+          }
+        >
+          <DropdownMenuItem
+            icon={ArrowRight}
+            label={t("tableMenu.horizontalText")}
+            onClick={() => applyTableCellAttribute(editor, "textDirection", null, { focus: false })}
+            active={currentCellTextDirection === "horizontal"}
+          />
+          <DropdownMenuItem
+            icon={ArrowDown}
+            label={t("tableMenu.verticalText")}
+            onClick={() => applyTableCellAttribute(editor, "textDirection", "vertical", { focus: false })}
+            active={currentCellTextDirection === "vertical"}
+          />
+        </DropdownMenu>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center gap-0.5 p-1">
       <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("toolbar.bold")}>
@@ -962,133 +1085,6 @@ const BubbleMenuContent = ({
       <ToolbarButton onClick={() => setActiveColorPalette("highlight")} active={editor.isActive("highlight")} title={t("colors.highlight")}>
         <HighlightColorIcon color={currentHighlightColor} />
       </ToolbarButton>
-      {isInTable && (
-        <>
-          <ToolbarButton
-            onClick={() => setActiveColorPalette("cell-bg")}
-            active={Boolean(currentCellBgColor)}
-            title={t("tableMenu.cellBackground") || "Cell background"}
-          >
-            <CellBgColorIcon color={currentCellBgColor} />
-          </ToolbarButton>
-          <ToolbarButton
-            onMouseDown={() => {
-              onKeepOpenChange?.(true);
-            }}
-            onClick={() => setActiveColorPalette("cell-border")}
-            active={Boolean(
-              editor.getAttributes("tableCell").borderColor ||
-                editor.getAttributes("tableHeader").borderColor ||
-                editor.getAttributes("tableCell").borderStyle ||
-                editor.getAttributes("tableHeader").borderStyle ||
-                editor.getAttributes("tableCell").borderWidth ||
-                editor.getAttributes("tableHeader").borderWidth
-            )}
-            title={t("tableMenu.cellBorder") || "Cell border"}
-          >
-            <CellBorderIcon
-              color={
-                editor.getAttributes("tableCell").borderColor ||
-                editor.getAttributes("tableHeader").borderColor
-              }
-            />
-          </ToolbarButton>
-          <ToolbarButton
-            onMouseDown={() => {
-              onKeepOpenChange?.(true);
-            }}
-            onClick={() => {
-              setFormulaDraft(currentCellFormula);
-              setShowFormulaPanel(true);
-            }}
-            active={Boolean(currentCellFormula)}
-            title={t("tableMenu.formula") || "Formula"}
-          >
-            <Sigma className="w-4 h-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() => {
-              if (canSplitCell) {
-                editor.chain().focus().splitCell().run();
-                return;
-              }
-              mergeTableCellsPreservingColumnWidths(editor);
-            }}
-            active={canSplitCell}
-            disabled={!canMergeCells && !canSplitCell}
-            title={canSplitCell ? t("tableMenu.splitCell") || "Split cell" : t("tableMenu.mergeCells") || "Merge cells"}
-          >
-            <TableCellsMerge className="w-4 h-4" />
-          </ToolbarButton>
-          <DropdownMenu
-            onOpenChange={(open) => {
-              onKeepOpenChange?.(open);
-            }}
-            trigger={
-              <ToolbarButton
-                onMouseDown={() => {
-                  onKeepOpenChange?.(true);
-                }}
-                onClick={() => {}}
-                title={t("tableMenu.alignVertical") || "Vertical alignment"}
-              >
-                <VerticalAlignActiveIcon className="w-4 h-4" />
-                <ChevronDown className="w-3 h-3" />
-              </ToolbarButton>
-            }
-          >
-            <DropdownMenuItem
-              icon={AlignStartVertical}
-              label={t("tableMenu.alignVerticalTop") || "Align top"}
-              onClick={() => applyTableCellAttribute(editor, "verticalAlign", "top", { focus: false })}
-              active={currentCellVerticalAlign === "top"}
-            />
-            <DropdownMenuItem
-              icon={AlignCenterVertical}
-              label={t("tableMenu.alignVerticalMiddle") || "Align middle"}
-              onClick={() => applyTableCellAttribute(editor, "verticalAlign", "middle", { focus: false })}
-              active={currentCellVerticalAlign === "middle"}
-            />
-            <DropdownMenuItem
-              icon={AlignEndVertical}
-              label={t("tableMenu.alignVerticalBottom") || "Align bottom"}
-              onClick={() => applyTableCellAttribute(editor, "verticalAlign", "bottom", { focus: false })}
-              active={currentCellVerticalAlign === "bottom"}
-            />
-          </DropdownMenu>
-          <DropdownMenu
-            onOpenChange={(open) => {
-              onKeepOpenChange?.(open);
-            }}
-            trigger={
-              <ToolbarButton
-                onMouseDown={() => {
-                  onKeepOpenChange?.(true);
-                }}
-                onClick={() => {}}
-                title={t("tableMenu.textDirection")}
-              >
-                {currentCellTextDirection === "vertical" ? <ArrowDown className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-                <ChevronDown className="w-3 h-3" />
-              </ToolbarButton>
-            }
-          >
-            <DropdownMenuItem
-              icon={ArrowRight}
-              label={t("tableMenu.horizontalText")}
-              onClick={() => applyTableCellAttribute(editor, "textDirection", null, { focus: false })}
-              active={currentCellTextDirection === "horizontal"}
-            />
-            <DropdownMenuItem
-              icon={ArrowDown}
-              label={t("tableMenu.verticalText")}
-              onClick={() => applyTableCellAttribute(editor, "textDirection", "vertical", { focus: false })}
-              active={currentCellTextDirection === "vertical"}
-            />
-          </DropdownMenu>
-        </>
-      )}
-
       <ToolbarButton
         onClick={() => setShowTypographyPanel(true)}
         active={Boolean(currentFontSize || currentLineHeight || editor.isActive("subscript") || editor.isActive("superscript"))}
@@ -1146,7 +1142,6 @@ export const CustomBubbleMenu = ({
   const BUBBLE_MENU_ESTIMATED_HEIGHT = 44;
   const [isVisible, setIsVisible] = useState(false);
   const [linkInputOpen, setLinkInputOpen] = useState(false);
-  const [cellBorderOpenRequest, setCellBorderOpenRequest] = useState(0);
   const [position, setPosition] = useState<{ top: number; left: number; placement: "top" | "bottom" }>({
     top: 0,
     left: 0,
@@ -1185,8 +1180,8 @@ export const CustomBubbleMenu = ({
 
     const updatePosition = () => {
       const { state, view } = editor;
-      const { from, to, empty } = state.selection;
-      const isLinkActive = editor.isActive("link");
+      const { from, to } = state.selection;
+      const context = getBubbleMenuContext(editor);
 
       if (Date.now() < suppressShowUntilRef.current) {
         clearShowTimeout();
@@ -1194,7 +1189,7 @@ export const CustomBubbleMenu = ({
         return;
       }
 
-      if (!keepOpenRef.current && ((empty && !isLinkActive) || !view.hasFocus())) {
+      if (!keepOpenRef.current && (context === "none" || !view.hasFocus())) {
         clearShowTimeout();
         setIsVisible(false);
         return;
@@ -1277,8 +1272,6 @@ export const CustomBubbleMenu = ({
     const handlePointerDown = (event: PointerEvent) => {
       const target = event.target as HTMLElement | null;
       if (target && (menuRef.current?.contains(target) || target.closest("[data-ueditor-keep-open]"))) return;
-      const table = target?.closest("table");
-      if (table && editor.view.dom.contains(table)) return;
       closeBubbleMenu(false);
     };
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -1293,26 +1286,10 @@ export const CustomBubbleMenu = ({
     };
   }, [closeBubbleMenu, editor, isVisible]);
 
-  useEffect(() => {
-    const handleTableDoubleClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement | null;
-      const cell = target?.closest("td,th");
-      if (!cell || !editor.view.dom.contains(cell)) return;
-
-      suppressShowUntilRef.current = 0;
-      keepOpenRef.current = true;
-      setKeepOpenState(true);
-      setLinkInputOpen(false);
-      setCellBorderOpenRequest((request) => request + 1);
-      setIsVisible(true);
-      requestAnimationFrame(() => editor.view.focus());
-    };
-
-    editor.view.dom.addEventListener("dblclick", handleTableDoubleClick);
-    return () => editor.view.dom.removeEventListener("dblclick", handleTableDoubleClick);
-  }, [editor]);
-
   if (!isVisible) return null;
+
+  const context = getBubbleMenuContext(editor);
+  if (context === "none") return null;
 
   return createPortal(
     <div
@@ -1334,7 +1311,7 @@ export const CustomBubbleMenu = ({
         e.preventDefault();
       }}
     >
-      {editor.isActive("link") && !keepOpen && !linkInputOpen ? (
+      {context === "link" && !keepOpen && !linkInputOpen ? (
         <LinkPreviewContent
           editor={editor}
           onEdit={() => {
@@ -1344,14 +1321,15 @@ export const CustomBubbleMenu = ({
         />
       ) : (
         <BubbleMenuContent
+          key={context}
           editor={editor}
+          context={context}
           onKeepOpenChange={setKeepOpen}
           onLinkInputOpenChange={setLinkInputOpen}
           onRequestClose={closeBubbleMenu}
           fontSizes={fontSizes}
           lineHeights={lineHeights}
           initialShowLinkInput={linkInputOpen}
-          cellBorderOpenRequest={cellBorderOpenRequest}
         />
       )}
     </div>,

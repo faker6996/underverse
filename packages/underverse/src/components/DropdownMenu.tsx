@@ -3,7 +3,7 @@
 import { cn } from "../utils/cn";
 import { useShadCNAnimations } from "../utils/animations";
 import React, { useState } from "react";
-import { chainEventHandlers, mergeRefs } from "../utils/react-compose";
+import { setRefValue } from "../utils/react-compose";
 import { Popover } from "./Popover";
 import { ChevronRight } from "lucide-react";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
@@ -13,6 +13,8 @@ import { formControlFixedClass, formControlSizeStyles, formControlValueClass, ty
 type DropdownMenuContextValue = {
   closeMenu: () => void;
   closeOnSelect: boolean;
+  cancelHoverClose: () => void;
+  scheduleHoverClose: () => void;
 };
 
 const DropdownMenuContext = React.createContext<DropdownMenuContextValue | null>(null);
@@ -33,6 +35,8 @@ interface DropdownMenuProps {
   // Alternative API props
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  openOnHover?: boolean;
+  hoverCloseDelay?: number;
   items?: Array<{
     label: string;
     icon?: React.ComponentType<any>;
@@ -70,6 +74,8 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   disabled = false,
   isOpen,
   onOpenChange,
+  openOnHover = false,
+  hoverCloseDelay = 120,
   items,
   borderMode,
 }) => {
@@ -89,11 +95,30 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   const itemsRef = React.useRef<HTMLButtonElement[]>([]);
   const [activeIndex, setActiveIndex] = useResettingIndex(open);
   const parentMenu = React.useContext(DropdownMenuContext);
+  const hoverCloseTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelHoverClose = React.useCallback(() => {
+    if (hoverCloseTimeoutRef.current === null) return;
+    clearTimeout(hoverCloseTimeoutRef.current);
+    hoverCloseTimeoutRef.current = null;
+  }, []);
+
+  const scheduleHoverClose = React.useCallback(() => {
+    if (!openOnHover) return;
+    cancelHoverClose();
+    hoverCloseTimeoutRef.current = setTimeout(() => {
+      hoverCloseTimeoutRef.current = null;
+      setOpen(false);
+    }, hoverCloseDelay);
+  }, [cancelHoverClose, hoverCloseDelay, openOnHover, setOpen]);
+
+  React.useEffect(() => () => cancelHoverClose(), [cancelHoverClose]);
 
   const closeMenu = React.useCallback(() => {
+    cancelHoverClose();
     setOpen(false);
     parentMenu?.closeMenu();
-  }, [parentMenu, setOpen]);
+  }, [cancelHoverClose, parentMenu, setOpen]);
 
   const getEnabledMenuItems = React.useCallback(() => {
     const menuEl = menuRef.current;
@@ -164,8 +189,10 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
     () => ({
       closeMenu,
       closeOnSelect,
+      cancelHoverClose,
+      scheduleHoverClose,
     }),
-    [closeMenu, closeOnSelect],
+    [cancelHoverClose, closeMenu, closeOnSelect, scheduleHoverClose],
   );
 
   const handleItemClick = (itemOnClick: () => void) => {
@@ -177,7 +204,21 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
 
   const menuBody = (
     <DropdownMenuContext.Provider value={menuContext}>
-      <div ref={menuRef} data-dropdown-menu data-state={open ? "open" : "closed"} role="menu" className={cn("min-w-40", className)}>
+      <div
+        ref={menuRef}
+        data-dropdown-menu
+        data-state={open ? "open" : "closed"}
+        role="menu"
+        className={cn("min-w-40", className)}
+        onMouseEnter={openOnHover ? () => {
+          cancelHoverClose();
+          parentMenu?.cancelHoverClose();
+        } : undefined}
+        onMouseLeave={openOnHover ? () => {
+          scheduleHoverClose();
+          parentMenu?.scheduleHoverClose();
+        } : undefined}
+      >
         {items
           ? items.map((item, index) => {
               const IconComponent = item.icon;
@@ -216,37 +257,68 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   );
 
   const triggerProps = trigger.props as React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<HTMLElement> };
-  const childRef = triggerProps.ref;
+  const {
+    ref: childRef,
+    onKeyDown: triggerOnKeyDown,
+    onClick: triggerOnClick,
+    onMouseEnter: triggerOnMouseEnter,
+    onMouseLeave: triggerOnMouseLeave,
+  } = triggerProps;
+  const setTriggerNode = React.useCallback((node: HTMLElement | null) => {
+    setRefValue(childRef, node);
+    triggerRef.current = node;
+  }, [childRef]);
+  const handleTriggerKeyDown = React.useCallback((event: React.KeyboardEvent<HTMLElement>) => {
+    if (!disabled) {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        setOpen(true);
+        requestAnimationFrame(() => focusMenuItem(0));
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        setOpen(true);
+        requestAnimationFrame(() => {
+          const enabled = getEnabledMenuItems();
+          focusMenuItem(enabled.length - 1);
+        });
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+      }
+    }
+    triggerOnKeyDown?.(event);
+  }, [disabled, focusMenuItem, getEnabledMenuItems, setOpen, triggerOnKeyDown]);
+  const handleTriggerClick = React.useCallback((event: React.MouseEvent<HTMLElement>) => {
+    if (openOnHover && !disabled) {
+      cancelHoverClose();
+      setOpen(true);
+    }
+    triggerOnClick?.(event);
+  }, [cancelHoverClose, disabled, openOnHover, setOpen, triggerOnClick]);
+  const handleTriggerMouseEnter = React.useCallback((event: React.MouseEvent<HTMLElement>) => {
+    if (openOnHover && !disabled) {
+      cancelHoverClose();
+      parentMenu?.cancelHoverClose();
+      setOpen(true);
+    }
+    triggerOnMouseEnter?.(event);
+  }, [cancelHoverClose, disabled, openOnHover, parentMenu, setOpen, triggerOnMouseEnter]);
+  const handleTriggerMouseLeave = React.useCallback((event: React.MouseEvent<HTMLElement>) => {
+    scheduleHoverClose();
+    triggerOnMouseLeave?.(event);
+  }, [scheduleHoverClose, triggerOnMouseLeave]);
+
+  // React invokes these ref/event callbacks after render; cloneElement only forwards them to the trigger.
+  // eslint-disable-next-line react-hooks/refs
   const enhancedTrigger = React.cloneElement(trigger as React.ReactElement<any>, {
     ...triggerProps,
-    ref: mergeRefs<HTMLElement>(childRef, (node) => {
-      triggerRef.current = node;
-    }),
+    ref: setTriggerNode,
     "aria-haspopup": "menu",
     "aria-expanded": open,
-    onKeyDown: chainEventHandlers<React.KeyboardEvent<HTMLElement>>((e) => {
-      triggerRef.current = e.currentTarget as HTMLElement;
-      if (!disabled) {
-        if (e.key === "ArrowDown") {
-          e.preventDefault();
-          setOpen(true);
-          requestAnimationFrame(() => focusMenuItem(0));
-        } else if (e.key === "ArrowUp") {
-          e.preventDefault();
-          setOpen(true);
-          requestAnimationFrame(() => {
-            const enabled = getEnabledMenuItems();
-            focusMenuItem(enabled.length - 1);
-          });
-        } else if (e.key === "Escape") {
-          e.preventDefault();
-          setOpen(false);
-        }
-      }
-    }, triggerProps.onKeyDown),
-    onFocus: chainEventHandlers<React.FocusEvent<HTMLElement>>((e) => {
-      triggerRef.current = e.currentTarget as HTMLElement;
-    }, triggerProps.onFocus),
+    onKeyDown: handleTriggerKeyDown,
+    onClick: handleTriggerClick,
+    onMouseEnter: handleTriggerMouseEnter,
+    onMouseLeave: handleTriggerMouseLeave,
   });
 
   return (
@@ -372,6 +444,7 @@ export const DropdownMenuSub: React.FC<{
       </button>
     }
     placement="right"
+    openOnHover
   >
     {children}
   </DropdownMenu>

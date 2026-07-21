@@ -104,16 +104,23 @@ export default function Example() {
 ## Tables
 
 - Contextual table controls appear when selection or hover is inside a table.
-- Toolbar table menu includes a grid picker so users can drag-select the initial table size.
+- The toolbar Table action is creation-only: its menu contains only the grid picker for choosing the new table size.
 - Use the bottom rail and right rail to add rows and columns in a Notion-like way.
 - Drag row and column handles to reorder the table without leaving the editor surface.
 - Reorder drag shows a live target highlight and status badge while you move.
 - Drag the bottom rail or right rail to preview and add multiple rows or columns at once.
 - The table context menu supports add/remove row or column plus header row/column toggles.
-- The bubble menu supports merging selected cells, splitting a merged cell, and setting cell vertical alignment (Top Align, Middle Align, Bottom Align).
+- Text selection inside a cell opens only the text-formatting bubble menu.
+- Double-clicking a non-formula cell selects the whole cell and opens the cell inspector, matching a one-cell `CellSelection`; formula cells keep their Formula Bar behavior.
+- Clicking an empty cell once places the caret for typing. Double-click it to select the whole cell and open the cell inspector.
+- Select one or more whole cells, or choose **Cell Formatting** from the table context menu, to open the dedicated cell inspector.
+- The cell inspector supports background and border styling, formulas, merging/splitting, vertical alignment, and text direction.
 - Toolbar and contextual table menus support aligning the whole table left, center, or right.
 - Columns use TipTap's native resize handles on the right edge of cells.
 - Rows support resize on the bottom edge. Hover near the row boundary to reveal the stronger guide line, then drag vertically.
+- A single whole-table resize handle sits outside the bottom-right corner. Drag it freely to change width and height independently.
+- Hold `Ctrl` to lock the resize to the dominant horizontal or vertical direction. Hold `Ctrl+Shift` to preserve the current proportions.
+- Whole-table resizing scales every column and row proportionally and does not replace the existing single-column or single-row resize behavior.
 - Row height is preserved in saved HTML using `data-row-height="..."` and inline `height: ...px`.
 - The implementation plan for Notion-like table UX lives in [`UEditor-Notion-Table-Plan.md`](./UEditor-Notion-Table-Plan.md).
 
@@ -378,8 +385,9 @@ UEditor includes a comprehensive emoji system with 740+ emojis:
 - Add/remove rows and columns
 - Toggle header row/column
 - Delete table
-- Merge selected cells and split merged cells from the bubble menu
-- Cell vertical alignment (Top, Middle, Bottom align) from the cell bubble menu
+- Open **Cell Formatting** from the table context menu, or select whole cells, to show the cell inspector
+- Merge selected cells and split merged cells from the cell inspector
+- Cell vertical alignment (Top, Middle, Bottom align) from the cell inspector
 
 ### Form Fields (Checkbox / Radio Button)
 
@@ -404,7 +412,8 @@ These can be inserted via the Menu Bar: **Insert > Form Fields > Checkbox / Radi
 
 ### UX Features
 
-- **Bubble Menu**: Appears on text selection with quick formatting options
+- **Menu Bar**: Top-level menus and nested submenus open on hover or click, switch as the pointer moves, and close when the pointer leaves or the user clicks outside
+- **Bubble Menu**: Appears on text selection with quick formatting options; table-cell formatting uses a separate inspector
 - **Floating Menu**: Click + on empty lines to add blocks (disabled by default)
 - **Slash Commands**: Type `/` to open command palette with keyboard navigation
   - Filter by typing (e.g., `/heading`)

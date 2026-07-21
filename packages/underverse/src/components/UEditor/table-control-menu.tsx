@@ -62,7 +62,7 @@ export function TableControlMenu({
                   pointerEvents: shown ? "auto" : "none",
                 }}
               >
-                <MoreHorizontal className="h-4 w-4" />
+                <MoreHorizontal aria-hidden="true" className="h-4 w-4" />
               </button>
             )}
           />

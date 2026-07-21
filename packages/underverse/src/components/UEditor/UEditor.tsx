@@ -456,7 +456,13 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
             }}
           />
         )}
-        {editable && <TableControls editor={editor} containerRef={editorContentRef} />}
+        {editable && (
+          <TableControls
+            editor={editor}
+            containerRef={editorContentRef}
+            showCellInspector={showBubbleMenu}
+          />
+        )}
         <EditorContent
           editor={editor}
           className="min-h-full"

@@ -304,15 +304,29 @@ export function buildTableControlLayout(editor: Editor, surface: HTMLDivElement,
   const map = TableMap.get(tableInfo.node);
   const surfaceRect = surface.getBoundingClientRect();
   const tableRect = table.getBoundingClientRect();
+  const explicitColumnWidths = Array.from(table.querySelectorAll<HTMLTableColElement>("colgroup > col"))
+    .slice(0, map.width)
+    .map((column) => parsePixelMetric(column.style.width));
+  const explicitTableWidth = parsePixelMetric(table.style.width)
+    ?? (explicitColumnWidths.length === map.width && explicitColumnWidths.every((width): width is number => width !== null)
+      ? explicitColumnWidths.reduce((sum, width) => sum + width, 0)
+      : null);
+  const explicitRowHeights = rows.map((tableRow) => (
+    parsePixelMetric(tableRow.getAttribute("data-row-height"))
+    ?? parsePixelMetric(tableRow.style.height)
+  ));
+  const explicitTableHeight = explicitRowHeights.every((height): height is number => height !== null)
+    ? explicitRowHeights.reduce((sum, height) => sum + height, 0)
+    : null;
   const wrapperElement = table.closest(".tableWrapper");
   const wrapper = wrapperElement instanceof HTMLElement ? wrapperElement : null;
   const wrapperRect = wrapper?.getBoundingClientRect() ?? tableRect;
   const tableLeft = tableRect.left - surfaceRect.left + surface.scrollLeft;
   const tableTop = tableRect.top - surfaceRect.top + surface.scrollTop;
-  const avgRowHeight = metricOrFallback(tableRect.height / rows.length, FALLBACK_TABLE_ROW_HEIGHT);
-  const avgColumnWidth = metricOrFallback(tableRect.width / map.width, FALLBACK_TABLE_COLUMN_WIDTH);
-  const tableWidth = metricOrFallback(tableRect.width, avgColumnWidth * map.width);
-  const tableHeight = metricOrFallback(tableRect.height, avgRowHeight * rows.length);
+  const tableWidth = metricOrFallback(tableRect.width, explicitTableWidth ?? FALLBACK_TABLE_COLUMN_WIDTH * map.width);
+  const tableHeight = metricOrFallback(tableRect.height, explicitTableHeight ?? FALLBACK_TABLE_ROW_HEIGHT * rows.length);
+  const avgRowHeight = metricOrFallback(tableHeight / rows.length, FALLBACK_TABLE_ROW_HEIGHT);
+  const avgColumnWidth = metricOrFallback(tableWidth / map.width, FALLBACK_TABLE_COLUMN_WIDTH);
   const wrapperLeft = wrapperRect.left - surfaceRect.left + surface.scrollLeft;
   const wrapperTop = wrapperRect.top - surfaceRect.top + surface.scrollTop;
   const wrapperWidth = metricOrFallback(wrapperRect.width, tableWidth);

@@ -438,6 +438,12 @@ test("UEditor toolbar applies font family, font size, line height, and letter sp
     assert.ok(element);
     return element;
   });
+  const toolbar = view.getByRole("toolbar");
+  assert.match(toolbar.className, /min-h-12/);
+  assert.equal(view.queryByRole("button", { name: "Insert Emoji" }), null);
+  assert.equal(view.getByRole("button", { name: "Text Style" }).querySelectorAll("svg").length, 1);
+  assert.equal(view.getByRole("button", { name: "Alignment" }).querySelectorAll("svg").length, 1);
+  assert.equal(view.getByRole("button", { name: "Bullet List" }).querySelectorAll("svg").length, 1);
 
   await user.click(editorElement);
   fireEvent.click(await view.findByRole("button", { name: "Font Family" }));
@@ -886,15 +892,22 @@ test("UEditor bubble menu opens the table formula panel", async () => {
     assert.ok(ref.current?.editor);
   });
 
-  const totalTextNode = formulaCell.querySelector("p")?.firstChild;
-  assert.ok(totalTextNode);
-  const totalTextPos = ref.current.editor.view.posAtDOM(totalTextNode, 0);
-  ref.current.editor.commands.focus();
-  suppressTextSelectionEndpointWarning(() => {
-    ref.current.editor.commands.setTextSelection({ from: totalTextPos, to: totalTextPos + "Total".length });
+  const cellPositions = [];
+  ref.current.editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === "tableCell" || node.type.name === "tableHeader") {
+      cellPositions.push(pos);
+    }
+    return true;
   });
+  assert.equal(cellPositions.length, 4);
+  assert.equal(
+    ref.current.editor.commands.setCellSelection({ anchorCell: cellPositions[1], headCell: cellPositions[1] }),
+    true,
+  );
+  ref.current.editor.view.focus();
 
   const formulaButton = await body.findByRole("button", { name: "Formula" });
+  assert.equal(body.queryByRole("button", { name: "Bold" }), null);
   await user.click(formulaButton);
 
   const formulaInput = await body.findByRole("textbox", { name: "Formula" });
@@ -1009,15 +1022,24 @@ test("UEditor bubble menu applies spreadsheet-style borders to selected cell edg
 
   const cells = view.container.querySelectorAll("td");
   await user.dblClick(cells[0]);
-  await body.findByRole("button", { name: "Dotted" });
+  await body.findByRole("button", { name: "Cell Border" });
+  assert.equal(ref.current.editor.state.selection.constructor.name, "CellSelection");
+  assert.equal(body.queryByRole("button", { name: "Bold" }), null);
 
-  await user.click(cells[1]);
-  assert.ok(body.queryByRole("button", { name: "Dotted" }));
-
-  await user.click(view.container);
-  await waitFor(() => {
-    assert.equal(body.queryByRole("button", { name: "Dotted" }), null);
+  const firstCellText = cells[0].querySelector("p")?.firstChild;
+  assert.ok(firstCellText);
+  const firstCellTextPos = ref.current.editor.view.posAtDOM(firstCellText, 0);
+  ref.current.editor.commands.focus();
+  suppressTextSelectionEndpointWarning(() => {
+    ref.current.editor.commands.setTextSelection({ from: firstCellTextPos, to: firstCellTextPos + 2 });
   });
+  await body.findByRole("button", { name: "Bold" });
+  assert.equal(body.queryByRole("button", { name: "Cell Border" }), null);
+  assert.equal(body.queryByRole("button", { name: "Formula" }), null);
+
+  selectCells(1, 1);
+  await body.findByRole("button", { name: "Cell Border" });
+  assert.equal(body.queryByRole("button", { name: "Bold" }), null);
 });
 
 test("UEditor table formula command writes formula metadata and computed value", async () => {
@@ -2475,6 +2497,72 @@ test("UEditor preserves table row height from content HTML", async () => {
   assert.match(result.html, /height:\s*72px/i);
 });
 
+test("UEditor menu bar opens top-level and nested menus on hover and closes outside", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const body = within(window.document.body);
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<p>Hover menu behavior</p>",
+      showMenuBar: true,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const formatTrigger = await view.findByRole("button", { name: "Format" });
+  fireEvent.mouseEnter(formatTrigger);
+  await body.findByText("Bold");
+
+  const blockTrigger = await body.findByRole("button", { name: "Block" });
+  fireEvent.mouseEnter(blockTrigger);
+  const paragraphButton = await body.findByRole("button", { name: "Paragraph" });
+  const blockMenu = paragraphButton.closest("[data-dropdown-menu]");
+  assert.ok(blockMenu);
+  fireEvent.mouseLeave(blockTrigger);
+  fireEvent.mouseEnter(blockMenu);
+  await new Promise((resolve) => window.setTimeout(resolve, 180));
+  assert.ok(body.getByRole("button", { name: "Paragraph" }));
+
+  const alignTrigger = body.getByRole("button", { name: "Align" });
+  fireEvent.mouseLeave(blockMenu);
+  fireEvent.mouseEnter(alignTrigger);
+  await body.findByRole("button", { name: "Left" });
+  await new Promise((resolve) => window.setTimeout(resolve, 180));
+  assert.equal(body.queryByRole("button", { name: "Paragraph" }), null);
+
+  const insertTrigger = view.getByRole("button", { name: "Insert" });
+  fireEvent.mouseEnter(insertTrigger);
+  const imageButton = await body.findByRole("button", { name: "Image" });
+  assert.equal(body.queryByText("Bold"), null);
+  const insertMenu = imageButton.closest("[data-dropdown-menu]");
+  assert.ok(insertMenu);
+  fireEvent.mouseLeave(insertTrigger);
+  fireEvent.mouseEnter(insertMenu);
+  await new Promise((resolve) => window.setTimeout(resolve, 180));
+  assert.ok(body.getByRole("button", { name: "Image" }));
+
+  const editorElement = view.container.querySelector(".ProseMirror");
+  assert.ok(editorElement);
+  fireEvent.mouseLeave(insertMenu);
+  fireEvent.mouseEnter(editorElement);
+  await new Promise((resolve) => window.setTimeout(resolve, 180));
+  assert.equal(body.queryByRole("button", { name: "Image" }), null);
+
+  fireEvent.click(formatTrigger);
+  await body.findByText("Bold");
+  fireEvent.click(body.getByRole("button", { name: "Block" }));
+  await body.findByRole("button", { name: "Paragraph" });
+  fireEvent.mouseDown(editorElement);
+  fireEvent.click(editorElement);
+  assert.equal(body.queryByText("Bold"), null);
+  assert.equal(body.queryByRole("button", { name: "Paragraph" }), null);
+});
+
 test("UEditor menu bar preview uses editor table layout styles", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -2651,6 +2739,11 @@ test("UEditor table toolbar inserts a custom-sized table from the grid picker", 
   await user.click(editorElement);
   await user.click(await view.findByRole("button", { name: "Insert Table" }));
   const gridCell = await body.findByRole("button", { name: "Insert 4×5 Table" });
+  const insertTableMenu = gridCell.closest("[data-dropdown-menu]");
+  assert.ok(insertTableMenu);
+  assert.equal(within(insertTableMenu).queryByText("Align Table Center"), null);
+  assert.equal(within(insertTableMenu).queryByText("Add Row After"), null);
+  assert.equal(within(insertTableMenu).queryByText("Delete Table"), null);
   await user.hover(gridCell);
   await user.click(gridCell);
 
@@ -2662,10 +2755,9 @@ test("UEditor table toolbar inserts a custom-sized table from the grid picker", 
   });
 });
 
-test("UEditor table toolbar applies table alignment and preserves it in HTML", async () => {
+test("UEditor contextual table controls apply table alignment and preserve it in HTML", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
-  const user = userEvent.setup({ document: window.document });
   const htmlUpdates = [];
 
   const view = render(
@@ -2685,10 +2777,9 @@ test("UEditor table toolbar applies table alignment and preserves it in HTML", a
   });
 
   activateTableCell(firstCell);
-  fireEvent.click(await view.findByRole("button", { name: "Insert Table" }));
-  const alignCenterButton = await within(window.document.body).findByRole("button", { name: "Align Table Center" });
-  assert.equal(alignCenterButton.disabled, false);
-  fireEvent.click(alignCenterButton);
+  hoverTableMenuZone(view);
+  fireEvent.click(await view.findByRole("button", { name: "Open Table Controls" }));
+  fireEvent.click(await within(window.document.body).findByRole("menuitem", { name: "Align Table Center" }));
 
   await waitFor(() => {
     const table = view.container.querySelector("table");
@@ -2854,6 +2945,309 @@ test("UEditor shows contextual table controls and applies table actions near the
   await waitFor(() => {
     const firstRowCells = view.container.querySelectorAll("tr")[0]?.querySelectorAll("th,td") ?? [];
     assert.equal(firstRowCells.length, 3);
+  });
+});
+
+test("UEditor resizes the whole table freely, locks Ctrl to one axis, and keeps Ctrl+Shift proportional", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<table><tbody><tr><td>A1</td><td>B1</td></tr><tr><td>A2</td><td>B2</td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+  await waitFor(() => assert.ok(ref.current?.editor));
+  activateTableCell(firstCell);
+
+  const frame = await waitFor(() => {
+    const element = view.container.querySelector("[data-table-resize-frame]");
+    assert.ok(element);
+    return element;
+  });
+  assert.equal(frame.style.width, "320px");
+  assert.equal(frame.style.height, "50px");
+
+  const dragResizeHandle = async ({ pointerId, deltaX = 0, deltaY = 0, ctrlKey = false, shiftKey = false, expectedWidth, expectedHeight }) => {
+    const handle = await body.findByRole("button", { name: "Resize Table" });
+    fireEvent.pointerDown(handle, { pointerId, button: 0, clientX: 0, clientY: 0 });
+    fireEvent.pointerMove(window, { pointerId, clientX: deltaX, clientY: deltaY, ctrlKey, shiftKey });
+
+    await waitFor(() => {
+      assert.equal(frame.getAttribute("data-resizing"), "true");
+      assert.equal(frame.style.width, `${expectedWidth}px`);
+      assert.equal(frame.style.height, `${expectedHeight}px`);
+      assert.equal(body.getByRole("status").textContent?.trim(), `${expectedWidth} × ${expectedHeight}`);
+    });
+
+    fireEvent.pointerUp(window, { pointerId, clientX: deltaX, clientY: deltaY, ctrlKey, shiftKey });
+    await waitFor(() => {
+      assert.equal(frame.getAttribute("data-resizing"), "false");
+    });
+  };
+
+  await dragResizeHandle({
+    pointerId: 31,
+    deltaX: 80,
+    deltaY: 50,
+    expectedWidth: 400,
+    expectedHeight: 100,
+  });
+
+  await waitFor(() => {
+    assert.deepEqual(
+      Array.from(view.container.querySelectorAll("td"), (cell) => cell.getAttribute("colwidth")),
+      ["200", "200", "200", "200"],
+    );
+    assert.deepEqual(
+      Array.from(view.container.querySelectorAll("tr"), (row) => row.getAttribute("data-row-height")),
+      ["50", "50"],
+    );
+  });
+
+  await dragResizeHandle({
+    pointerId: 32,
+    deltaX: 80,
+    deltaY: 30,
+    ctrlKey: true,
+    expectedWidth: 480,
+    expectedHeight: 100,
+  });
+
+  await dragResizeHandle({
+    pointerId: 33,
+    deltaX: 10,
+    deltaY: 20,
+    ctrlKey: true,
+    expectedWidth: 480,
+    expectedHeight: 120,
+  });
+
+  await dragResizeHandle({
+    pointerId: 34,
+    deltaX: 20,
+    deltaY: 30,
+    ctrlKey: true,
+    shiftKey: true,
+    expectedWidth: 600,
+    expectedHeight: 150,
+  });
+
+  await waitFor(() => {
+    assert.deepEqual(
+      Array.from(view.container.querySelectorAll("td"), (cell) => cell.getAttribute("colwidth")),
+      ["300", "300", "300", "300"],
+    );
+    assert.deepEqual(
+      Array.from(view.container.querySelectorAll("tr"), (row) => row.getAttribute("data-row-height")),
+      ["75", "75"],
+    );
+  });
+
+  const result = await ref.current.prepareContentForSave();
+  assert.match(result.html, /colwidth="300"/);
+  assert.match(result.html, /data-row-height="75"/);
+});
+
+test("UEditor keeps existing single-column and single-row resize behavior isolated", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const { columnResizingPluginKey } = await import("@tiptap/pm/tables");
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<table><tbody><tr><td>A1</td><td>B1</td></tr><tr><td>A2</td><td>B2</td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const cells = await waitFor(() => {
+    const elements = view.container.querySelectorAll("td");
+    assert.equal(elements.length, 4);
+    return elements;
+  });
+  const rows = view.container.querySelectorAll("tr");
+  const table = view.container.querySelector("table");
+  assert.ok(table);
+  await waitFor(() => assert.ok(ref.current?.editor));
+
+  const rect = (width, height, left = 0, top = 0) => ({
+    width,
+    height,
+    left,
+    top,
+    right: left + width,
+    bottom: top + height,
+    x: left,
+    y: top,
+    toJSON() {},
+  });
+  table.getBoundingClientRect = () => rect(320, 50);
+  rows[0].getBoundingClientRect = () => rect(320, 25, 0, 0);
+  rows[1].getBoundingClientRect = () => rect(320, 25, 0, 25);
+  cells.forEach((cell, index) => {
+    const columnIndex = index % 2;
+    const rowIndex = Math.floor(index / 2);
+    cell.getBoundingClientRect = () => rect(160, 25, columnIndex * 160, rowIndex * 25);
+    Object.defineProperty(cell, "offsetWidth", { configurable: true, value: 160 });
+  });
+
+  activateTableCell(cells[0]);
+  const tableResizeHandle = await body.findByRole("button", { name: "Resize Table" });
+  assert.equal(view.container.querySelectorAll("[data-table-resize-handle]").length, 1);
+  assert.match(tableResizeHandle.className, /right-\[-30px\]/);
+  assert.match(tableResizeHandle.className, /bottom-\[-28px\]/);
+  assert.ok(tableResizeHandle.querySelector("svg"));
+  assert.equal(body.queryByRole("button", { name: "Resize Table Width" }), null);
+  assert.equal(body.queryByRole("button", { name: "Resize Table Height" }), null);
+
+  let firstCellPos = null;
+  ref.current.editor.state.doc.descendants((node, pos) => {
+    if (firstCellPos == null && (node.type.name === "tableCell" || node.type.name === "tableHeader")) {
+      firstCellPos = pos;
+      return false;
+    }
+    return true;
+  });
+  assert.equal(typeof firstCellPos, "number");
+
+  ref.current.editor.view.dispatch(
+    ref.current.editor.state.tr.setMeta(columnResizingPluginKey, { setHandle: firstCellPos }),
+  );
+  fireEvent.mouseDown(cells[0], { button: 0, clientX: 160, clientY: 12 });
+  fireEvent.mouseMove(window, { clientX: 200, clientY: 12, buttons: 1 });
+  fireEvent.mouseUp(window, { clientX: 200, clientY: 12 });
+
+  await waitFor(() => {
+    assert.deepEqual(
+      Array.from(view.container.querySelectorAll("td"), (cell) => cell.getAttribute("colwidth")),
+      ["200", null, "200", null],
+    );
+  });
+
+  const resizedCells = view.container.querySelectorAll("td");
+  const resizedRows = view.container.querySelectorAll("tr");
+  resizedRows[0].getBoundingClientRect = () => rect(360, 25, 0, 0);
+  resizedRows[1].getBoundingClientRect = () => rect(360, 25, 0, 25);
+  resizedCells.forEach((cell, index) => {
+    const columnIndex = index % 2;
+    const rowIndex = Math.floor(index / 2);
+    const left = columnIndex === 0 ? 0 : 200;
+    const width = columnIndex === 0 ? 200 : 160;
+    cell.getBoundingClientRect = () => rect(width, 25, left, rowIndex * 25);
+  });
+
+  fireEvent.mouseMove(resizedCells[0], { clientX: 80, clientY: 24 });
+  fireEvent.mouseDown(resizedCells[0], { button: 0, clientX: 80, clientY: 24 });
+  fireEvent.pointerMove(document, { pointerId: 51, clientX: 80, clientY: 44 });
+  fireEvent.pointerUp(document, { pointerId: 51, clientX: 80, clientY: 44 });
+
+  await waitFor(() => {
+    assert.deepEqual(
+      Array.from(view.container.querySelectorAll("tr"), (row) => row.getAttribute("data-row-height")),
+      ["45", "25"],
+    );
+    assert.deepEqual(
+      Array.from(view.container.querySelectorAll("td"), (cell) => cell.getAttribute("colwidth")),
+      ["200", null, "200", null],
+    );
+  });
+});
+
+test("UEditor opens cell formatting explicitly from table controls", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<table><tbody><tr><td>A1</td><td>B1</td></tr></tbody></table>",
+      showToolbar: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+  await waitFor(() => assert.ok(ref.current?.editor));
+
+  activateTableCell(firstCell);
+  hoverTableMenuZone(view);
+  fireEvent.click(await body.findByRole("button", { name: "Open Table Controls" }));
+  fireEvent.click(await body.findByRole("menuitem", { name: "Cell Formatting" }));
+
+  await body.findByRole("button", { name: "Cell Border" });
+  assert.ok(body.getByRole("button", { name: "Cell Background" }));
+  assert.equal(body.queryByRole("button", { name: "Bold" }), null);
+  assert.equal(ref.current.editor.state.selection.constructor.name, "CellSelection");
+});
+
+test("UEditor keeps a single click in an empty cell editable and opens cell formatting on double-click", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+  const ref = React.createRef();
+  const user = userEvent.setup({ document: window.document });
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<table><tbody><tr><td></td><td>Filled</td></tr></tbody></table>",
+      showToolbar: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const emptyCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+  await waitFor(() => assert.ok(ref.current?.editor));
+
+  activateTableCell(emptyCell);
+  ref.current.editor.view.focus();
+
+  await new Promise((resolve) => window.setTimeout(resolve, 240));
+  assert.notEqual(ref.current.editor.state.selection.constructor.name, "CellSelection");
+  assert.equal(body.queryByRole("button", { name: "Cell Background" }), null);
+  assert.equal(body.queryByRole("button", { name: "Merge Cells" }), null);
+
+  await user.dblClick(emptyCell);
+  await body.findByRole("button", { name: "Cell Background" });
+  assert.equal(ref.current.editor.state.selection.constructor.name, "CellSelection");
+
+  await user.click(body.getByRole("button", { name: "Cell Background" }));
+  await user.click(await body.findByRole("button", { name: "Muted" }));
+
+  await waitFor(() => {
+    assert.equal(view.container.querySelector("td")?.getAttribute("data-background-color"), "var(--muted)");
   });
 });
 
@@ -3328,11 +3722,12 @@ test("UEditor edge rails preview expands table by the previewed rows and columns
 test("UEditor split cell, drag preview, and layout updates after merged-cell edits", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
-  const user = userEvent.setup({ document: window.document });
   const body = within(window.document.body);
+  const ref = React.createRef();
 
   const view = render(
     React.createElement(UEditor, {
+      ref,
       content: [
         "<table><tbody>",
         '<tr><td colspan="2">Merged</td><td>C1</td></tr>',
@@ -3352,13 +3747,21 @@ test("UEditor split cell, drag preview, and layout updates after merged-cell edi
   });
 
   activateTableCell(firstCell);
+  await waitFor(() => assert.ok(ref.current?.editor));
 
-  const paragraph = firstCell.querySelector("p") ?? firstCell;
-  await user.tripleClick(paragraph);
-
-  const editorElement = view.container.querySelector(".ProseMirror");
-  assert.ok(editorElement);
-  fireEvent.focus(editorElement);
+  const mergedCellPos = [];
+  ref.current.editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === "tableCell" || node.type.name === "tableHeader") {
+      mergedCellPos.push(pos);
+    }
+    return true;
+  });
+  assert.ok(mergedCellPos[0] != null);
+  assert.equal(
+    ref.current.editor.commands.setCellSelection({ anchorCell: mergedCellPos[0], headCell: mergedCellPos[0] }),
+    true,
+  );
+  ref.current.editor.view.focus();
 
   const splitCellButton = await body.findByRole("button", { name: "Split Cell" });
   assert.ok(splitCellButton);
