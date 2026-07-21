@@ -32,11 +32,11 @@ jobs:
 
       # Install root dependencies first (needed for building)
       - name: Install root dependencies
-        run: npm install
+        run: npm ci
 
       # Install package dependencies
       - name: Install package dependencies
-        run: npm install
+        run: npm ci
         working-directory: packages/underverse
 
       - name: Verify agent-readable metadata
