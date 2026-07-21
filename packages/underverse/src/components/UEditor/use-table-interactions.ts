@@ -15,6 +15,7 @@ import {
   UEDITOR_TABLE_LAYOUT_CHANGE_EVENT,
 } from "./table-dom-utils";
 import { useTableRowResize } from "./use-table-row-resize";
+import { subscribeSharedGlobalEvent } from "./shared-global-listeners";
 
 export function useUEditorTableInteractions(editor: Editor | null, editable = true) {
   const editorContentRef = useRef<HTMLDivElement | null>(null);
@@ -324,13 +325,25 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
     proseMirror.addEventListener("mouseup", handleSelectionChange);
     proseMirror.addEventListener("keyup", handleSelectionChange);
     proseMirror.addEventListener("focusin", handleSelectionChange);
-    document.addEventListener("selectionchange", handleSelectionChange);
+    const unsubscribeSelectionChange = subscribeSharedGlobalEvent(
+      document,
+      "selectionchange",
+      handleSelectionChange,
+    );
     surface?.addEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, handleActiveCellLayoutChange);
     surface?.addEventListener("scroll", handleActiveCellLayoutChange, scrollListenerOptions);
-    window.addEventListener("resize", handleActiveCellLayoutChange);
-    document.addEventListener("pointermove", handlePointerMove as EventListener);
-    document.addEventListener("pointerup", handlePointerUp as EventListener);
-    window.addEventListener("blur", handleWindowBlur);
+    const unsubscribeResize = subscribeSharedGlobalEvent(window, "resize", handleActiveCellLayoutChange);
+    const unsubscribePointerMove = subscribeSharedGlobalEvent(
+      document,
+      "pointermove",
+      handlePointerMove as EventListener,
+    );
+    const unsubscribePointerUp = subscribeSharedGlobalEvent(
+      document,
+      "pointerup",
+      handlePointerUp as EventListener,
+    );
+    const unsubscribeWindowBlur = subscribeSharedGlobalEvent(window, "blur", handleWindowBlur);
     editor.on("selectionUpdate", syncActiveTableCellFromSelection);
     editor.on("focus", syncActiveTableCellFromSelection);
     editor.on("blur", clearActiveTableCell);
@@ -345,13 +358,13 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
       proseMirror.removeEventListener("mouseup", handleSelectionChange);
       proseMirror.removeEventListener("keyup", handleSelectionChange);
       proseMirror.removeEventListener("focusin", handleSelectionChange);
-      document.removeEventListener("selectionchange", handleSelectionChange);
+      unsubscribeSelectionChange();
       surface?.removeEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, handleActiveCellLayoutChange);
       surface?.removeEventListener("scroll", handleActiveCellLayoutChange, scrollListenerOptions);
-      window.removeEventListener("resize", handleActiveCellLayoutChange);
-      document.removeEventListener("pointermove", handlePointerMove as EventListener);
-      document.removeEventListener("pointerup", handlePointerUp as EventListener);
-      window.removeEventListener("blur", handleWindowBlur);
+      unsubscribeResize();
+      unsubscribePointerMove();
+      unsubscribePointerUp();
+      unsubscribeWindowBlur();
       editor.off("selectionUpdate", syncActiveTableCellFromSelection);
       editor.off("focus", syncActiveTableCellFromSelection);
       editor.off("blur", clearActiveTableCell);

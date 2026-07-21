@@ -111,7 +111,7 @@ All components follow [Vercel Web Interface Guidelines](https://github.com/verce
 
 ## Package Exports
 
-Hiện tại package publish **một public entry point duy nhất**:
+Package có public entry point chính cho toàn bộ component:
 
 ```tsx
 import {
@@ -123,7 +123,13 @@ import {
 } from "@underverse-ui/underverse";
 ```
 
-Không có subpath export như `@underverse-ui/underverse/form` ở version hiện tại.
+Nếu chỉ dùng UEditor, ưu tiên entry chuyên biệt để giảm lượng mã phải tải và phân tích:
+
+```tsx
+import UEditor, { type UEditorRef } from "@underverse-ui/underverse/ueditor";
+```
+
+Các subpath khác như `@underverse-ui/underverse/form` chưa được publish ở version hiện tại.
 
 Lưu ý:
 - Nhiều component trong package là client component và nên dùng trong môi trường React client.

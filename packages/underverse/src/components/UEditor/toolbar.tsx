@@ -124,12 +124,7 @@ const EDITOR_UI_ACTIVE_MARKS = [
   "underline",
 ] as const;
 
-/**
- * Returns only the editor state that can change toolbar, menu bar or bubble-menu UI.
- * TipTap compares this snapshot deeply, so plain typing no longer forces those large
- * React trees to render when their visible state did not change.
- */
-export function getEditorUiRenderState(editor: Editor) {
+function computeEditorUiRenderState(editor: Editor) {
   const textStyle = editor.getAttributes("textStyle");
   const highlight = editor.getAttributes("highlight");
   const image = editor.getAttributes("image");
@@ -181,6 +176,61 @@ export function getEditorUiRenderState(editor: Editor) {
     hasTableContext,
     isEmpty: editor.isEmpty,
   };
+}
+
+type EditorUiRenderState = ReturnType<typeof computeEditorUiRenderState>;
+const editorUiRenderStateCache = new WeakMap<Editor, {
+  state: Editor["state"];
+  value: EditorUiRenderState;
+}>();
+
+/**
+ * Returns only the editor state that can change toolbar, menu bar or bubble-menu UI.
+ * TipTap compares this snapshot deeply, so plain typing no longer forces those large
+ * React trees to render when their visible state did not change. Multiple editor chrome
+ * components share the same snapshot for a transaction to avoid repeating command probes.
+ */
+export function getEditorUiRenderState(editor: Editor) {
+  const state = editor.state;
+  const cached = editorUiRenderStateCache.get(editor);
+  if (cached?.state === state) return cached.value;
+
+  const value = computeEditorUiRenderState(editor);
+  editorUiRenderStateCache.set(editor, { state, value });
+  return value;
+}
+
+const EditorUiRenderStateContext = React.createContext<{
+  editor: Editor;
+  value: EditorUiRenderState;
+} | null>(null);
+
+export function EditorUiRenderStateProvider({
+  children,
+  editor,
+}: {
+  children: React.ReactNode;
+  editor: Editor;
+}) {
+  const value = useEditorState({
+    editor,
+    selector: ({ editor: currentEditor }) => getEditorUiRenderState(currentEditor),
+  });
+
+  return (
+    <EditorUiRenderStateContext.Provider value={{ editor, value }}>
+      {children}
+    </EditorUiRenderStateContext.Provider>
+  );
+}
+
+export function useSharedEditorUiRenderState(editor: Editor) {
+  const context = React.useContext(EditorUiRenderStateContext);
+  if (!context || context.editor !== editor) {
+    throw new Error("UEditor chrome must be rendered inside EditorUiRenderStateProvider");
+  }
+
+  return context.value;
 }
 
 export function fileToDataUrl(file: File): Promise<string> {
@@ -329,10 +379,7 @@ export const EditorToolbar = ({
   letterSpacings?: UEditorLetterSpacingOption[];
 }) => {
   const t = useSmartTranslations("UEditor");
-  const editorUiState = useEditorState({
-    editor,
-    selector: ({ editor: currentEditor }) => getEditorUiRenderState(currentEditor),
-  });
+  const editorUiState = useSharedEditorUiRenderState(editor);
   const { textColors, highlightColors } = useEditorColors();
   const [showImageInput, setShowImageInput] = useState(false);
   const [showLinkInput, setShowLinkInput] = useState(false);

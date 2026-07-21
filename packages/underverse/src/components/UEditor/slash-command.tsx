@@ -2,7 +2,7 @@
 
 import { Extension } from "@tiptap/core";
 import type { Editor, Range } from "@tiptap/core";
-import Suggestion from "@tiptap/suggestion";
+import { Suggestion } from "@tiptap/suggestion";
 import type { SuggestionProps } from "@tiptap/suggestion";
 import { ReactRenderer } from "@tiptap/react";
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from "react";

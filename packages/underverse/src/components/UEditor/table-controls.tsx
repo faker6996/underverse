@@ -51,6 +51,7 @@ import {
   type TableResizeDimensions,
   type TableSizeSnapshot,
 } from "./table-size-utils";
+import { subscribeSharedGlobalEvent } from "./shared-global-listeners";
 
 const TABLE_MENU_TOP_OFFSET = 10;
 const COLUMN_HANDLE_TOP_OFFSET = 8;
@@ -316,7 +317,7 @@ export function TableControls({ editor, containerRef, showCellInspector = true }
     surface.addEventListener("mousemove", handleSurfaceMouseMove);
     surface.addEventListener("scroll", scheduleCurrentLayoutRefresh, scrollListenerOptions);
     surface.addEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, scheduleCurrentLayoutRefresh);
-    window.addEventListener("resize", scheduleCurrentLayoutRefresh);
+    const unsubscribeResize = subscribeSharedGlobalEvent(window, "resize", scheduleCurrentLayoutRefresh);
     editor.on("selectionUpdate", scheduleSyncFromSelection);
     editor.on("update", scheduleCurrentLayoutRefresh);
 
@@ -333,7 +334,7 @@ export function TableControls({ editor, containerRef, showCellInspector = true }
       surface.removeEventListener("mousemove", handleSurfaceMouseMove);
       surface.removeEventListener("scroll", scheduleCurrentLayoutRefresh, scrollListenerOptions);
       surface.removeEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, scheduleCurrentLayoutRefresh);
-      window.removeEventListener("resize", scheduleCurrentLayoutRefresh);
+      unsubscribeResize();
       editor.off("selectionUpdate", scheduleSyncFromSelection);
       editor.off("update", scheduleCurrentLayoutRefresh);
     };
@@ -567,14 +568,18 @@ export function TableControls({ editor, containerRef, showCellInspector = true }
       clearDrag();
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-    window.addEventListener("blur", clearDrag);
+    const unsubscribeMouseMove = subscribeSharedGlobalEvent(
+      window,
+      "mousemove",
+      handleMouseMove as EventListener,
+    );
+    const unsubscribeMouseUp = subscribeSharedGlobalEvent(window, "mouseup", handleMouseUp);
+    const unsubscribeBlur = subscribeSharedGlobalEvent(window, "blur", clearDrag);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-      window.removeEventListener("blur", clearDrag);
+      unsubscribeMouseMove();
+      unsubscribeMouseUp();
+      unsubscribeBlur();
     };
   }, [clearDrag, containerRef, editor, expandTableBy, scheduleSyncFromSelection]);
 
@@ -623,14 +628,27 @@ export function TableControls({ editor, containerRef, showCellInspector = true }
     const handlePointerUp = (event: PointerEvent) => finishTableResize(event, true);
     const handlePointerCancel = (event: PointerEvent) => finishTableResize(event, false);
 
-    window.addEventListener("pointermove", handlePointerMove, { passive: false });
-    window.addEventListener("pointerup", handlePointerUp);
-    window.addEventListener("pointercancel", handlePointerCancel);
+    const unsubscribePointerMove = subscribeSharedGlobalEvent(
+      window,
+      "pointermove",
+      handlePointerMove as EventListener,
+      { passive: false },
+    );
+    const unsubscribePointerUp = subscribeSharedGlobalEvent(
+      window,
+      "pointerup",
+      handlePointerUp as EventListener,
+    );
+    const unsubscribePointerCancel = subscribeSharedGlobalEvent(
+      window,
+      "pointercancel",
+      handlePointerCancel as EventListener,
+    );
 
     return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerUp);
-      window.removeEventListener("pointercancel", handlePointerCancel);
+      unsubscribePointerMove();
+      unsubscribePointerUp();
+      unsubscribePointerCancel();
       if (tableResizePreviewFrameRef.current !== null) {
         window.cancelAnimationFrame(tableResizePreviewFrameRef.current);
         tableResizePreviewFrameRef.current = null;

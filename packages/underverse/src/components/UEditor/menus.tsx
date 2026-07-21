@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Editor } from "@tiptap/core";
-import { useEditorState } from "@tiptap/react";
 import { CellSelection, isInTable as isSelectionInTable, setCellAttr } from "@tiptap/pm/tables";
 import { createPortal } from "react-dom";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
@@ -37,7 +36,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
-import { getEditorUiRenderState, ToolbarButton } from "./toolbar";
+import { ToolbarButton, useSharedEditorUiRenderState } from "./toolbar";
 import { LinkInput } from "./inputs";
 import { applyEditorLink } from "./link-commands";
 import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu";
@@ -50,6 +49,7 @@ import { clearSelectedTableCellFormula, recalculateSelectedTable, setSelectedTab
 import type { UEditorFontSizeOption, UEditorLineHeightOption } from "./types";
 import { getDefaultFontSizes, getDefaultLineHeights, normalizeStyleValue } from "./typography-options";
 import { sanitizeUEditorUrl } from "./url-safety";
+import { subscribeSharedGlobalEvent } from "./shared-global-listeners";
 
 const FloatingSlashCommandMenu = ({ editor, onClose }: { editor: Editor; onClose: () => void }) => {
   const t = useSmartTranslations("UEditor");
@@ -71,8 +71,7 @@ const FloatingSlashCommandMenu = ({ editor, onClose }: { editor: Editor; onClose
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    return subscribeSharedGlobalEvent(document, "keydown", handleKeyDown as EventListener);
   }, [onClose]);
 
   return (
@@ -222,10 +221,7 @@ const BubbleMenuContent = ({
   initialShowLinkInput?: boolean;
 }) => {
   const t = useSmartTranslations("UEditor");
-  useEditorState({
-    editor,
-    selector: ({ editor: currentEditor }) => getEditorUiRenderState(currentEditor),
-  });
+  useSharedEditorUiRenderState(editor);
   const { textColors, highlightColors } = useEditorColors();
   const [showLinkInput, setShowLinkInput] = useState(initialShowLinkInput);
   const [activeColorPalette, setActiveColorPalette] = useState<"text" | "highlight" | "cell-bg" | "cell-border" | "cell-border-color" | null>(null);
@@ -1283,11 +1279,20 @@ export const CustomBubbleMenu = ({
       if (event.key === "Escape") closeBubbleMenu();
     };
 
-    document.addEventListener("pointerdown", handlePointerDown, true);
-    document.addEventListener("keydown", handleKeyDown);
+    const unsubscribePointerDown = subscribeSharedGlobalEvent(
+      document,
+      "pointerdown",
+      handlePointerDown as EventListener,
+      true,
+    );
+    const unsubscribeKeyDown = subscribeSharedGlobalEvent(
+      document,
+      "keydown",
+      handleKeyDown as EventListener,
+    );
     return () => {
-      document.removeEventListener("pointerdown", handlePointerDown, true);
-      document.removeEventListener("keydown", handleKeyDown);
+      unsubscribePointerDown();
+      unsubscribeKeyDown();
     };
   }, [closeBubbleMenu, editor, isVisible]);
 

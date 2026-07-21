@@ -9,7 +9,10 @@ const packageJson = require("./package.json") as {
 const peerDependencies = Object.keys(packageJson.peerDependencies ?? {});
 
 export default defineConfig({
-  entry: ["src/index.ts"],
+  entry: {
+    index: "src/index.ts",
+    ueditor: "src/components/UEditor/index.ts",
+  },
   format: ["esm", "cjs"],
   dts: true,
   sourcemap: true,

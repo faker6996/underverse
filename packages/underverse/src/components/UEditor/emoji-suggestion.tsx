@@ -1,7 +1,7 @@
 "use client";
 
 import { Extension } from "@tiptap/core";
-import Suggestion from "@tiptap/suggestion";
+import { Suggestion } from "@tiptap/suggestion";
 import { ReactRenderer } from "@tiptap/react";
 import { PluginKey } from "@tiptap/pm/state";
 import React, { forwardRef, useImperativeHandle } from "react";
@@ -11,7 +11,6 @@ import { Smile } from "lucide-react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { EmojiGridButton, formatEmojiCountLabel } from "../emoji-ui";
 import { destroyTippyInstance, getFirstTippyInstance, hideTippyInstance, setTippyReferenceClientRect, tippy, type TippyInstance } from "./tippy-interop";
-import { EMOJI_LIST } from "./emojis";
 
 type EmojiItem = {
     emoji: string;
@@ -122,8 +121,17 @@ const EmojiList = forwardRef<EmojiListRef, EmojiListProps>((props, ref) => {
 
 EmojiList.displayName = "EmojiList";
 
-const getEmojiSuggestionItems = ({ query }: { query: string }): EmojiItem[] => {
-    const allEmojis = EMOJI_LIST.flatMap((category) => category.emojis);
+let allEmojiItemsPromise: Promise<EmojiItem[]> | null = null;
+
+function loadAllEmojiItems() {
+    allEmojiItemsPromise ??= import("./emojis").then(({ EMOJI_LIST }) => (
+        EMOJI_LIST.flatMap((category) => category.emojis)
+    ));
+    return allEmojiItemsPromise;
+}
+
+const getEmojiSuggestionItems = async ({ query }: { query: string }): Promise<EmojiItem[]> => {
+    const allEmojis = await loadAllEmojiItems();
 
     if (!query.trim()) {
         // Return popular emojis when no query

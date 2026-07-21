@@ -14,7 +14,7 @@ import type {
   UEditorProps,
   UEditorRef,
 } from "./types";
-import { EditorToolbar } from "./toolbar";
+import { EditorToolbar, EditorUiRenderStateProvider } from "./toolbar";
 import { CustomBubbleMenu, CustomFloatingMenu } from "./menus";
 import { CharacterCountDisplay } from "./CharacterCount";
 import { prepareUEditorContentForSave, UEditorPrepareContentForSaveError } from "./prepare-content-for-save";
@@ -23,7 +23,6 @@ import { UEDITOR_PROSEMIRROR_CLASS_NAME } from "./editor-styles";
 import { resolveEventElement } from "./table-dom-utils";
 import { useUEditorTableInteractions } from "./use-table-interactions";
 import { useFormulaCoordinateOverlay } from "./use-formula-coordinate-overlay";
-import { MenuBar } from "./menu-bar";
 import {
   clearSelectedTableCellFormula,
   getSelectedTableFormulaCell,
@@ -44,7 +43,11 @@ import {
 import { isDraftTableFormula } from "./table-formula";
 import { sanitizeUEditorUrl } from "./url-safety";
 import { TableFormulaBar } from "./table-formula-bar";
-import { findTableNodeInfoFromState } from "./table-align-utils";
+
+const LazyMenuBar = React.lazy(async () => {
+  const { MenuBar } = await import("./menu-bar");
+  return { default: MenuBar };
+});
 
 const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   content = "",
@@ -248,13 +251,14 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         class: UEDITOR_PROSEMIRROR_CLASS_NAME,
       },
     },
-    onUpdate: ({ editor, transaction }) => {
-      if (!transaction.getMeta(UEDITOR_TABLE_FORMULA_RECALCULATE_META)) {
+    onUpdate: ({ editor, transaction, appendedTransactions }) => {
+      const includesFormulaRecalculation = transaction.getMeta(UEDITOR_TABLE_FORMULA_RECALCULATE_META)
+        || appendedTransactions.some((appendedTransaction) => (
+          appendedTransaction.getMeta(UEDITOR_TABLE_FORMULA_RECALCULATE_META)
+        ));
+      if (!includesFormulaRecalculation) {
         if (isEditingTableFormulaText(editor)) {
           pendingFormulaTextRecalculateRef.current = true;
-        } else if (findTableNodeInfoFromState(editor.state)) {
-          pendingFormulaTextRecalculateRef.current = false;
-          scheduleFormulaRecalculate(editor);
         } else {
           pendingFormulaTextRecalculateRef.current = false;
         }
@@ -278,8 +282,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
     onBlur: ({ editor, event }) => {
       const nextTarget = event.relatedTarget;
       if (nextTarget instanceof Element && nextTarget.closest("[data-ueditor-formula-bar]")) return;
-      const shouldRecalculate = pendingFormulaTextRecalculateRef.current
-        || findTableNodeInfoFromState(editor.state) !== null;
+      const shouldRecalculate = pendingFormulaTextRecalculateRef.current;
       pendingFormulaTextRecalculateRef.current = false;
       if (shouldRecalculate) scheduleFormulaRecalculate(editor, { force: true });
     },
@@ -387,42 +390,50 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         className,
       )}
     >
-      {editable && showMenuBar && (
-        <MenuBar
-          editor={editor}
-          containerRef={editorContentRef}
-          uploadImage={uploadImage}
-          imageInsertMode={imageInsertMode}
-          maxImageFileSize={maxImageFileSize}
-          allowedImageMimeTypes={allowedImageMimeTypes}
-          onSave={onSave}
-          onExport={onExport}
-          onSourceCode={onSourceCode}
-          onPreview={onPreview}
-        />
-      )}
-      {editable && showToolbar && (
-        <EditorToolbar
-          editor={editor}
-          variant={variant}
-          uploadImage={uploadImage}
-          imageInsertMode={imageInsertMode}
-          maxImageFileSize={maxImageFileSize}
-          allowedImageMimeTypes={allowedImageMimeTypes}
-          fontFamilies={fontFamilies as UEditorFontFamilyOption[] | undefined}
-          fontSizes={fontSizes as UEditorFontSizeOption[] | undefined}
-          lineHeights={lineHeights as UEditorLineHeightOption[] | undefined}
-          letterSpacings={letterSpacings as UEditorLetterSpacingOption[] | undefined}
-        />
-      )}
-      {editable && <TableFormulaBar editor={editor} />}
-      {editable && showBubbleMenu && (
-        <CustomBubbleMenu
-          editor={editor}
-          fontSizes={fontSizes as UEditorFontSizeOption[] | undefined}
-          lineHeights={lineHeights as UEditorLineHeightOption[] | undefined}
-        />
-      )}
+      {editable && (showMenuBar || showToolbar || showBubbleMenu) ? (
+        <EditorUiRenderStateProvider editor={editor}>
+          {showMenuBar && (
+            <React.Suspense fallback={null}>
+              <LazyMenuBar
+                editor={editor}
+                containerRef={editorContentRef}
+                uploadImage={uploadImage}
+                imageInsertMode={imageInsertMode}
+                maxImageFileSize={maxImageFileSize}
+                allowedImageMimeTypes={allowedImageMimeTypes}
+                onSave={onSave}
+                onExport={onExport}
+                onSourceCode={onSourceCode}
+                onPreview={onPreview}
+              />
+            </React.Suspense>
+          )}
+          {showToolbar && (
+            <EditorToolbar
+              editor={editor}
+              variant={variant}
+              uploadImage={uploadImage}
+              imageInsertMode={imageInsertMode}
+              maxImageFileSize={maxImageFileSize}
+              allowedImageMimeTypes={allowedImageMimeTypes}
+              fontFamilies={fontFamilies as UEditorFontFamilyOption[] | undefined}
+              fontSizes={fontSizes as UEditorFontSizeOption[] | undefined}
+              lineHeights={lineHeights as UEditorLineHeightOption[] | undefined}
+              letterSpacings={letterSpacings as UEditorLetterSpacingOption[] | undefined}
+            />
+          )}
+          <TableFormulaBar editor={editor} />
+          {showBubbleMenu && (
+            <CustomBubbleMenu
+              editor={editor}
+              fontSizes={fontSizes as UEditorFontSizeOption[] | undefined}
+              lineHeights={lineHeights as UEditorLineHeightOption[] | undefined}
+            />
+          )}
+        </EditorUiRenderStateProvider>
+      ) : editable ? (
+        <TableFormulaBar editor={editor} />
+      ) : null}
       {editable && showFloatingMenu && <CustomFloatingMenu editor={editor} />}
       <div
         ref={(node) => {

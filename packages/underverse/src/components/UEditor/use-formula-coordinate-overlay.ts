@@ -12,6 +12,7 @@ import {
   getFormulaTableCellInfo,
 } from "./table-formula-range-picker";
 import { UEDITOR_TABLE_LAYOUT_CHANGE_EVENT } from "./table-dom-utils";
+import { subscribeSharedGlobalEvent } from "./shared-global-listeners";
 
 type CoordinateSegment = {
   start: number;
@@ -285,7 +286,7 @@ export function useFormulaCoordinateOverlay(
     editor.view.dom.addEventListener("mouseleave", handleMouseLeave);
     container.addEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, scheduleSync);
     container.addEventListener("scroll", scheduleSync, scrollListenerOptions);
-    window.addEventListener("resize", scheduleSync);
+    const unsubscribeResize = subscribeSharedGlobalEvent(window, "resize", scheduleSync);
     scheduleSync();
 
     return () => {
@@ -297,7 +298,7 @@ export function useFormulaCoordinateOverlay(
       editor.view.dom.removeEventListener("mouseleave", handleMouseLeave);
       container.removeEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, scheduleSync);
       container.removeEventListener("scroll", scheduleSync, scrollListenerOptions);
-      window.removeEventListener("resize", scheduleSync);
+      unsubscribeResize();
       if (animationFrame != null) window.cancelAnimationFrame(animationFrame);
       clearOverlay();
     };

@@ -2,7 +2,6 @@
 
 import React, { useMemo, useRef, useState } from "react";
 import type { Editor } from "@tiptap/core";
-import { useEditorState } from "@tiptap/react";
 import {
   AlignCenter,
   AlignJustify,
@@ -41,7 +40,7 @@ import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub,
 import Modal from "../Modal";
 import { ImageInput, LinkInput } from "./inputs";
 import { applyEditorLink } from "./link-commands";
-import { TableInsertGrid, fileToDataUrl, getEditorUiRenderState, getTableAnchorPos } from "./toolbar";
+import { TableInsertGrid, fileToDataUrl, getTableAnchorPos, useSharedEditorUiRenderState } from "./toolbar";
 import { sanitizeUEditorUrl } from "./url-safety";
 import { DEFAULT_UEDITOR_IMAGE_MAX_FILE_SIZE, DEFAULT_UEDITOR_IMAGE_MIME_TYPES } from "./clipboard-images";
 import { UEDITOR_PROSEMIRROR_CLASS_NAME } from "./editor-styles";
@@ -575,10 +574,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   onPreview,
 }) => {
   const t = useSmartTranslations("UEditor");
-  useEditorState({
-    editor,
-    selector: ({ editor: currentEditor }) => getEditorUiRenderState(currentEditor),
-  });
+  useSharedEditorUiRenderState(editor);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showImageInput, setShowImageInput] = useState(false);

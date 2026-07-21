@@ -1,4 +1,4 @@
-import TableRow from "@tiptap/extension-table-row";
+import { TableRow } from "@tiptap/extension-table-row";
 import { DEFAULT_TABLE_ROW_HEIGHT, MIN_TABLE_ROW_HEIGHT } from "./table-dom-utils";
 
 function parseRowHeight(value: string | null | undefined) {

@@ -89,12 +89,33 @@ test("EmojiPicker renders the configured number of columns via grid template", a
   );
 
   const firstCategoryGrid = await waitFor(() => {
-    const grid = view.container.querySelector(".grid.gap-1");
+    const grid = view.container.querySelector("[style*='grid-template-columns']");
     assert.ok(grid);
     return grid;
   });
 
   assert.equal(firstCategoryGrid.style.gridTemplateColumns, "repeat(9, minmax(0, 1fr))");
+});
+
+test("UEditor lazily loads the embedded callout emoji picker", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor/emoji-picker.tsx"));
+  const EmbeddedEmojiPicker = mod.EmojiPicker;
+  const user = userEvent.setup({ document: window.document });
+  const selections = [];
+
+  const view = await renderElement(
+    React.createElement(EmbeddedEmojiPicker, {
+      onSelect: (emoji) => selections.push(emoji),
+    }),
+  );
+  const emojiButton = await waitFor(() => {
+    const button = within(view.container).getByRole("button", { name: "heart eyes" });
+    assert.ok(button);
+    return button;
+  });
+
+  await user.click(emojiButton);
+  assert.deepEqual(selections, ["😍"]);
 });
 
 test("EmojiPicker uses localized placeholder and empty state", async () => {

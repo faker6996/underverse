@@ -98,7 +98,8 @@ function rewriteRelativeSpecifiers(sourceText, sourceFile, outFile) {
 
   return sourceText
     .replace(/(from\s*)(["'])(\.{1,2}\/[^"']+)(\2)/g, rewrite)
-    .replace(/(import\s*)(["'])(\.{1,2}\/[^"']+)(\2)/g, rewrite);
+    .replace(/(import\s*)(["'])(\.{1,2}\/[^"']+)(\2)/g, rewrite)
+    .replace(/(import\s*\(\s*)(["'])(\.{1,2}\/[^"']+)(\2)/g, rewrite);
 }
 
 const stableBareSpecifiers = [
@@ -152,6 +153,10 @@ function compileModule(filePath) {
       const specifier = imported.fileName;
       if (!specifier.startsWith(".")) continue;
       const resolved = resolveRelativeImport(normalizedPath, specifier);
+      compileModule(resolved);
+    }
+    for (const match of sourceText.matchAll(/import\s*\(\s*["'](\.{1,2}\/[^"']+)["']\s*\)/g)) {
+      const resolved = resolveRelativeImport(normalizedPath, match[1]);
       compileModule(resolved);
     }
 

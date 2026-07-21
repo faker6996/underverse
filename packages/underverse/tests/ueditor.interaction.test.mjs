@@ -224,6 +224,43 @@ test("UEditor serializes only the output formats that have subscribers", async (
   assert.equal(jsonSerializations, 0);
 });
 
+test("UEditor shares equivalent global event listeners and removes the native listener after cleanup", async () => {
+  const { subscribeSharedGlobalEvent } = await importTsModule(
+    path.join(componentsRoot, "UEditor/shared-global-listeners.ts"),
+  );
+  let nativeAdds = 0;
+  let nativeRemoves = 0;
+
+  class CountingEventTarget extends window.EventTarget {
+    addEventListener(...args) {
+      nativeAdds += 1;
+      return super.addEventListener(...args);
+    }
+
+    removeEventListener(...args) {
+      nativeRemoves += 1;
+      return super.removeEventListener(...args);
+    }
+  }
+
+  const target = new CountingEventTarget();
+  const calls = [];
+  const unsubscribeFirst = subscribeSharedGlobalEvent(target, "resize", () => calls.push("first"));
+  const unsubscribeSecond = subscribeSharedGlobalEvent(target, "resize", () => calls.push("second"));
+
+  assert.equal(nativeAdds, 1);
+  target.dispatchEvent(new window.Event("resize"));
+  assert.deepEqual(calls, ["first", "second"]);
+
+  unsubscribeFirst();
+  target.dispatchEvent(new window.Event("resize"));
+  assert.deepEqual(calls, ["first", "second", "second"]);
+  assert.equal(nativeRemoves, 0);
+
+  unsubscribeSecond();
+  assert.equal(nativeRemoves, 1);
+});
+
 test("UEditor character and word counters stay in sync while typing", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -1825,6 +1862,7 @@ test("UEditor automatically recalculates table formulas after cell edits", async
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
   const ref = React.createRef();
+  const htmlUpdates = [];
 
   const view = render(
     React.createElement(UEditor, {
@@ -1834,6 +1872,7 @@ test("UEditor automatically recalculates table formulas after cell edits", async
       showBubbleMenu: false,
       showFloatingMenu: false,
       showCharacterCount: false,
+      onHtmlChange: (html) => htmlUpdates.push(html),
     }),
   );
 
@@ -1851,6 +1890,7 @@ test("UEditor automatically recalculates table formulas after cell edits", async
     assert.equal(formulaCell?.getAttribute("data-computed-value"), "20");
     assert.equal(formulaCell?.textContent?.trim(), "20");
   });
+  htmlUpdates.length = 0;
 
   const sourceTextNode = sourceCell.querySelector("p")?.firstChild;
   assert.ok(sourceTextNode);
@@ -1866,6 +1906,62 @@ test("UEditor automatically recalculates table formulas after cell edits", async
     assert.equal(formulaCell?.getAttribute("data-computed-value"), "30");
     assert.equal(formulaCell?.textContent?.trim(), "30");
   });
+  assert.equal(htmlUpdates.length, 1);
+  assert.match(htmlUpdates[0] ?? "", /data-computed-value="30"/);
+  assert.match(htmlUpdates[0] ?? "", />30<\/p>/);
+});
+
+test("UEditor recalculates merged-table formulas with cell-scoped transactions", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: [
+        "<table><tbody>",
+        '<tr><td rowspan="2">2</td><td data-formula="=A1*2" data-computed-value="0">0</td></tr>',
+        '<tr><td data-formula="=A1*3" data-computed-value="0">0</td></tr>',
+        "</tbody></table>",
+      ].join(""),
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const editor = ref.current.editor;
+  await waitFor(() => {
+    const cells = view.container.querySelectorAll("td");
+    assert.equal(cells[1]?.getAttribute("data-computed-value"), "4");
+    assert.equal(cells[2]?.getAttribute("data-computed-value"), "6");
+  });
+
+  const formulaStepCounts = [];
+  const trackFormulaTransaction = ({ appendedTransactions, transaction }) => {
+    for (const candidate of [transaction, ...appendedTransactions]) {
+      if (candidate.getMeta("ueditorTableFormulaRecalculate")) {
+        formulaStepCounts.push(candidate.steps.length);
+      }
+    }
+  };
+  editor.on("transaction", trackFormulaTransaction);
+
+  editor.commands.focus();
+  const sourcePos = findTextPosition(editor, "2");
+  editor.commands.setTextSelection({ from: sourcePos, to: sourcePos + 1 });
+  editor.commands.insertContent("3");
+
+  await waitFor(() => {
+    const cells = view.container.querySelectorAll("td");
+    assert.equal(cells[1]?.getAttribute("data-computed-value"), "6");
+    assert.equal(cells[2]?.getAttribute("data-computed-value"), "9");
+  });
+  assert.equal(formulaStepCounts.at(-1), 2);
+  editor.off("transaction", trackFormulaTransaction);
 });
 
 test("UEditor automatically recalculates only the active table after cell edits", async () => {

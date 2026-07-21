@@ -23,6 +23,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./ueditor": {
+      "types": "./dist/ueditor.d.ts",
+      "import": "./dist/ueditor.js",
+      "require": "./dist/ueditor.cjs"
     }
   },
   "files": [
@@ -48,6 +53,7 @@
     "typecheck": "tsc -p tsconfig.tsup.json --noEmit --incremental false",
     "generate:api": "node ./scripts/generate-api-reference.mjs",
     "verify:agent-metadata": "npm run generate:api && node ./scripts/verify-agent-metadata.mjs",
+    "verify:package-exports": "node ./scripts/verify-package-exports.mjs",
     "test:overlay-scrollbar": "node --test --experimental-strip-types ./tests/overlay-scrollbar-provider.test.mjs",
     "test:data-table": "node --test --experimental-strip-types ./tests/data-table-sticky.test.mjs",
     "test:data-table-deep": "node --test --experimental-strip-types ./tests/data-table-headers-validation.test.mjs",
@@ -68,7 +74,7 @@
     "test:sticker-ui": "node --test ./tests/sticker.interaction.test.mjs",
     "test:lunar": "node --test --experimental-strip-types ./tests/lunar-utils.test.mjs",
     "test:smoke": "npm run test:public-api && npm run test:components-smoke",
-    "build": "npm run typecheck && npm run check:boundaries && npm run generate:api && tsup --config tsup.config.ts",
+    "build": "npm run typecheck && npm run check:boundaries && npm run generate:api && tsup --config tsup.config.ts && npm run verify:package-exports",
     "clean": "rimraf dist",
     "prepublishOnly": "npm run clean && node ./scripts/prepare-emojis.mjs && npm run prepare:stickers && npm run build",
     "release": "node ./scripts/release.mjs",

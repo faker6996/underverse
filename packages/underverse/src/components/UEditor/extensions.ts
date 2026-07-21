@@ -1,20 +1,20 @@
 import { mergeAttributes } from "@tiptap/core";
-import Document from "@tiptap/extension-document";
-import Paragraph from "@tiptap/extension-paragraph";
-import Text from "@tiptap/extension-text";
-import Bold from "@tiptap/extension-bold";
-import Italic from "@tiptap/extension-italic";
-import Strike from "@tiptap/extension-strike";
-import Underline from "@tiptap/extension-underline";
-import Heading from "@tiptap/extension-heading";
-import BulletList from "@tiptap/extension-bullet-list";
-import OrderedList from "@tiptap/extension-ordered-list";
-import ListItem from "@tiptap/extension-list-item";
+import { Document } from "@tiptap/extension-document";
+import { Paragraph } from "@tiptap/extension-paragraph";
+import { Text } from "@tiptap/extension-text";
+import { Bold } from "@tiptap/extension-bold";
+import { Italic } from "@tiptap/extension-italic";
+import { Strike } from "@tiptap/extension-strike";
+import { Underline } from "@tiptap/extension-underline";
+import { Heading } from "@tiptap/extension-heading";
+import { BulletList } from "@tiptap/extension-bullet-list";
+import { OrderedList } from "@tiptap/extension-ordered-list";
+import { ListItem } from "@tiptap/extension-list-item";
 import { ListKeymap } from "@tiptap/extension-list";
-import TaskList from "@tiptap/extension-task-list";
-import TaskItem from "@tiptap/extension-task-item";
-import Blockquote from "@tiptap/extension-blockquote";
-import Code from "@tiptap/extension-code";
+import { TaskList } from "@tiptap/extension-task-list";
+import { TaskItem } from "@tiptap/extension-task-item";
+import { Blockquote } from "@tiptap/extension-blockquote";
+import { Code } from "@tiptap/extension-code";
 import { wrappingInputRule } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { Callout } from "./callout";
@@ -22,21 +22,21 @@ import { Bookmark } from "./bookmark";
 import { FileCard } from "./file-card";
 import { FormCheckbox } from "./form-checkbox";
 import { FormRadio } from "./form-radio";
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import History from "@tiptap/extension-history";
-import Link from "@tiptap/extension-link";
+import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
+import { History } from "@tiptap/extension-history";
+import { Link } from "@tiptap/extension-link";
 import { TextStyle } from "@tiptap/extension-text-style";
-import Color from "@tiptap/extension-color";
-import Highlight from "@tiptap/extension-highlight";
-import TextAlign from "@tiptap/extension-text-align";
-import TableCell from "@tiptap/extension-table-cell";
-import TableHeader from "@tiptap/extension-table-header";
-import CharacterCount from "@tiptap/extension-character-count";
-import Typography from "@tiptap/extension-typography";
-import Subscript from "@tiptap/extension-subscript";
-import Superscript from "@tiptap/extension-superscript";
-import HorizontalRule from "@tiptap/extension-horizontal-rule";
-import Gapcursor from "@tiptap/extension-gapcursor";
+import { Color } from "@tiptap/extension-color";
+import { Highlight } from "@tiptap/extension-highlight";
+import { TextAlign } from "@tiptap/extension-text-align";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { CharacterCount } from "@tiptap/extension-character-count";
+import { Typography } from "@tiptap/extension-typography";
+import { Subscript } from "@tiptap/extension-subscript";
+import { Superscript } from "@tiptap/extension-superscript";
+import { HorizontalRule } from "@tiptap/extension-horizontal-rule";
+import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { common, createLowlight } from "lowlight";
 import { buildSlashCommandMessages, SlashCommand } from "./slash-command";
 import { ClipboardImages } from "./clipboard-images";
@@ -54,6 +54,7 @@ import UEditorTable from "./table-align";
 import { isSafeUEditorUrl } from "./url-safety";
 import { CodeBlockView } from "./CodeBlockView";
 import { createOptimizedLowlightPlugin } from "./optimized-lowlight";
+import { TableFormulaRecalculation } from "./table-formula-recalculation";
 
 function getFormulaStateAttributes(attributes: Record<string, unknown>) {
   const formula = attributes["data-formula"];
@@ -498,6 +499,7 @@ export function buildUEditorExtensions({
         class: "border border-black px-2 py-0 bg-muted font-semibold min-w-25",
       },
     }),
+    TableFormulaRecalculation,
     CharacterCount.configure({
       limit: maxCharacters,
     }),

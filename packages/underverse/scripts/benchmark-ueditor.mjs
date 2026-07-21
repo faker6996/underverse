@@ -95,21 +95,38 @@ async function runScenario(UEditor, {
   name,
   replaceSelectedCellValues,
   selectText,
+  showBubbleMenu = false,
   showCharacterCount = false,
+  showMenuBar = false,
+  showToolbar = false,
 }) {
   globalThis.gc?.();
   const ref = React.createRef();
+  let reactCommitCount = 0;
+  let reactRenderDurationMs = 0;
   const mountStartedAt = performance.now();
   render(
-    React.createElement(UEditor, {
-      ref,
-      content,
-      showToolbar: false,
-      showBubbleMenu: false,
-      showFloatingMenu: false,
-      showCharacterCount,
-      showFooter: false,
-    }),
+    React.createElement(
+      React.Profiler,
+      {
+        id: `ueditor-benchmark-${name}`,
+        onRender: (_id, phase, actualDuration) => {
+          if (phase !== "update") return;
+          reactCommitCount += 1;
+          reactRenderDurationMs += actualDuration;
+        },
+      },
+      React.createElement(UEditor, {
+        ref,
+        content,
+        showToolbar,
+        showBubbleMenu,
+        showFloatingMenu: false,
+        showCharacterCount,
+        showFooter: false,
+        showMenuBar,
+      }),
+    ),
   );
 
   await waitFor(() => {
@@ -121,10 +138,10 @@ async function runScenario(UEditor, {
   const editor = ref.current.editor;
   let formulaRecalculationTransactions = 0;
   let updateEvents = 0;
-  const trackFormulaRecalculation = ({ transaction }) => {
-    if (transaction.getMeta("ueditorTableFormulaRecalculate")) {
-      formulaRecalculationTransactions += 1;
-    }
+  const trackFormulaRecalculation = ({ appendedTransactions, transaction }) => {
+    formulaRecalculationTransactions += [transaction, ...appendedTransactions]
+      .filter((candidate) => candidate.getMeta("ueditorTableFormulaRecalculate"))
+      .length;
   };
   const trackUpdate = () => {
     updateEvents += 1;
@@ -172,6 +189,8 @@ async function runScenario(UEditor, {
   descendantVisits = 0;
   descendantStacks = new Map();
   formulaRecalculationTransactions = 0;
+  reactCommitCount = 0;
+  reactRenderDurationMs = 0;
   updateEvents = 0;
   const samples = [];
   for (let index = 0; index < editCount; index += 1) {
@@ -192,6 +211,8 @@ async function runScenario(UEditor, {
     descendantVisitsPerEdit: Number((descendantVisits / editCount).toFixed(2)),
     formulaRecalculationsPerEdit: Number((formulaRecalculationTransactions / editCount).toFixed(2)),
     formulaProbeChanged: formulaProbe ? initialFormulaProbeValue !== getFormulaProbeValue() : null,
+    reactCommitsPerEdit: Number((reactCommitCount / editCount).toFixed(2)),
+    reactRenderMsPerEdit: Number((reactRenderDurationMs / editCount).toFixed(2)),
     updateEventsPerEdit: Number((updateEvents / editCount).toFixed(2)),
     ...(traceDescendants ? {
       descendantStacks: [...descendantStacks.entries()]
@@ -205,6 +226,92 @@ async function runScenario(UEditor, {
   cleanup();
   await new Promise((resolve) => setTimeout(resolve, 10));
   return result;
+}
+
+async function runMultiEditorScenario(UEditor, editorCount) {
+  globalThis.gc?.();
+  const trackedTypes = new Set([
+    "blur",
+    "mousemove",
+    "mouseup",
+    "pointercancel",
+    "pointermove",
+    "pointerup",
+    "resize",
+    "selectionchange",
+  ]);
+  const targets = [document, window];
+  const originals = targets.map((target) => ({
+    add: target.addEventListener,
+    remove: target.removeEventListener,
+    target,
+  }));
+  let nativeGlobalAdds = 0;
+  let activeNativeGlobalListeners = 0;
+  const nativeGlobalAddsByTarget = new Map();
+
+  for (const { add, remove, target } of originals) {
+    target.addEventListener = function instrumentedAdd(type, listener, options) {
+      if (trackedTypes.has(type)) {
+        nativeGlobalAdds += 1;
+        activeNativeGlobalListeners += 1;
+        const key = `${this === document ? "document" : "window"}:${type}`;
+        nativeGlobalAddsByTarget.set(key, (nativeGlobalAddsByTarget.get(key) ?? 0) + 1);
+      }
+      return add.call(this, type, listener, options);
+    };
+    target.removeEventListener = function instrumentedRemove(type, listener, options) {
+      if (trackedTypes.has(type)) activeNativeGlobalListeners -= 1;
+      return remove.call(this, type, listener, options);
+    };
+  }
+
+  try {
+    const refs = Array.from({ length: editorCount }, () => React.createRef());
+    const startedAt = performance.now();
+    render(
+      React.createElement(
+        React.Fragment,
+        null,
+        refs.map((ref, index) => React.createElement(UEditor, {
+          key: index,
+          ref,
+          content: `<p>Editor ${index + 1}</p>`,
+          showBubbleMenu: false,
+          showCharacterCount: false,
+          showFloatingMenu: false,
+          showFooter: false,
+          showMenuBar: false,
+          showToolbar: false,
+        })),
+      ),
+    );
+    await waitFor(() => {
+      if (refs.some((ref) => !ref.current?.editor)) throw new Error("Editors are not ready");
+    }, { timeout: 30_000 });
+    await flushEditorWork();
+
+    const result = {
+      name: `${editorCount} simultaneous editors`,
+      mountMs: Number((performance.now() - startedAt).toFixed(2)),
+      nativeGlobalAdds,
+      nativeGlobalAddBreakdown: [...nativeGlobalAddsByTarget]
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, count]) => `${key}=${count}`)
+        .join(", "),
+      activeNativeGlobalListeners,
+    };
+
+    cleanup();
+    await flushEditorWork();
+    result.listenersAfterCleanup = activeNativeGlobalListeners;
+    return result;
+  } finally {
+    for (const { add, remove, target } of originals) {
+      target.addEventListener = add;
+      target.removeEventListener = remove;
+    }
+  }
 }
 
 try {
@@ -226,6 +333,16 @@ try {
     showCharacterCount: true,
   }));
   results.push(await runScenario(UEditor, {
+    name: "1,500 paragraphs with full editor chrome",
+    content: buildLargeDocument(1_500),
+    editCount: 25,
+    selectText: "Paragraph 1500: benchmark content for transaction and decoration work.",
+    showBubbleMenu: true,
+    showCharacterCount: true,
+    showMenuBar: true,
+    showToolbar: true,
+  }));
+  results.push(await runScenario(UEditor, {
     name: "40x8 formula table, editing outside",
     content: buildFormulaTable(40, 8),
     editCount: 25,
@@ -234,13 +351,17 @@ try {
   results.push(await runScenario(UEditor, {
     name: "200x12 formula table, editing source cell",
     content: buildFormulaTable(200, 12),
-    editCount: 15,
+    editCount: 60,
     formulaProbe: "=A200*2",
     replaceSelectedCellValues: ["100201", "100202"],
     selectText: "100200",
   }));
 
   console.table(results);
+  console.table([
+    await runMultiEditorScenario(UEditor, 1),
+    await runMultiEditorScenario(UEditor, 5),
+  ]);
   if (traceDescendants) {
     for (const result of results) {
       console.log(`\n${result.name}`);

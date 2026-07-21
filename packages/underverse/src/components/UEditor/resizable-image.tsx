@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import Image from "@tiptap/extension-image";
+import { Image } from "@tiptap/extension-image";
 import { mergeAttributes } from "@tiptap/core";
 import { NodeViewWrapper, ReactNodeViewRenderer, type NodeViewProps } from "@tiptap/react";
 import { UEDITOR_TABLE_LAYOUT_CHANGE_EVENT } from "./table-dom-utils";

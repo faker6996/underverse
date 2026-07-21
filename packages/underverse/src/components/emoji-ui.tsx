@@ -2,7 +2,6 @@
 
 import React from "react";
 import { cn } from "../utils/cn";
-import { Tooltip } from "./Tooltip";
 
 export function formatEmojiName(name: string) {
   return name.replaceAll("_", " ");
@@ -58,16 +57,14 @@ export const EmojiGridButton: React.FC<{
   active?: boolean;
 }> = ({ emoji, name, onClick, className, active = false }) => {
   const [hasError, setHasError] = React.useState(false);
-  const [isHovered, setIsHovered] = React.useState(false);
   const unified = React.useMemo(() => getEmojiUnifiedCode(emoji), [emoji]);
 
-  const button = (
+  return (
     <button
       type="button"
       aria-label={formatEmojiName(name)}
+      title={formatEmojiName(name)}
       onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       className={cn(
         "group flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-300",
         "bg-transparent hover:bg-primary/10 border border-transparent hover:border-primary/20",
@@ -89,15 +86,5 @@ export const EmojiGridButton: React.FC<{
         />
       )}
     </button>
-  );
-
-  if (!isHovered) {
-    return button;
-  }
-
-  return (
-    <Tooltip placement="top" content={<span className="text-xs font-medium">{formatEmojiName(name)}</span>}>
-      {button}
-    </Tooltip>
   );
 };

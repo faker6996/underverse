@@ -1,7 +1,7 @@
 "use client";
 
 import { Extension, type Editor, type Range } from "@tiptap/core";
-import Suggestion from "@tiptap/suggestion";
+import { Suggestion } from "@tiptap/suggestion";
 import { ReactRenderer } from "@tiptap/react";
 import { PluginKey } from "@tiptap/pm/state";
 import React, { forwardRef, useImperativeHandle } from "react";
