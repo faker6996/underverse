@@ -183,25 +183,35 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
 
     const proseMirror = editor.view.dom as HTMLElement;
     const surface = editorContentRef.current;
+    let selectionSyncFrameId = 0;
     let selectionSyncTimeoutId = 0;
+    let pendingFallbackCell: HTMLElement | null = null;
     const scrollListenerOptions = { passive: true, capture: true };
 
     const scheduleActiveCellSync = (fallbackCell: HTMLElement | null = null) => {
-      requestAnimationFrame(() => {
+      if (fallbackCell) pendingFallbackCell = fallbackCell;
+
+      const syncActiveCell = () => {
         if (!editor.isFocused) {
           clearActiveTableCell();
           return;
         }
-        setActiveTableCell(getSelectionTableCell(editor.view) ?? fallbackCell);
-      });
+        setActiveTableCell(getSelectionTableCell(editor.view) ?? pendingFallbackCell);
+      };
+
+      if (selectionSyncFrameId === 0) {
+        selectionSyncFrameId = window.requestAnimationFrame(() => {
+          selectionSyncFrameId = 0;
+          syncActiveCell();
+          if (selectionSyncTimeoutId === 0) pendingFallbackCell = null;
+        });
+      }
 
       window.clearTimeout(selectionSyncTimeoutId);
       selectionSyncTimeoutId = window.setTimeout(() => {
-        if (!editor.isFocused) {
-          clearActiveTableCell();
-          return;
-        }
-        setActiveTableCell(getSelectionTableCell(editor.view) ?? fallbackCell);
+        selectionSyncTimeoutId = 0;
+        syncActiveCell();
+        if (selectionSyncFrameId === 0) pendingFallbackCell = null;
       }, 0);
     };
 
@@ -369,7 +379,12 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
       editor.off("focus", syncActiveTableCellFromSelection);
       editor.off("blur", clearActiveTableCell);
       editor.off("update", scheduleTableLayoutSync);
+      if (selectionSyncFrameId !== 0) {
+        window.cancelAnimationFrame(selectionSyncFrameId);
+        selectionSyncFrameId = 0;
+      }
       window.clearTimeout(selectionSyncTimeoutId);
+      pendingFallbackCell = null;
       if (tableLayoutSyncFrameRef.current !== null) {
         window.cancelAnimationFrame(tableLayoutSyncFrameRef.current);
         tableLayoutSyncFrameRef.current = null;

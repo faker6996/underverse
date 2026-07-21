@@ -4,31 +4,38 @@ import { Plugin, PluginKey, type Transaction } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
 
 type LowlightNode = {
-  children?: LowlightNode[];
-  properties?: { className?: string[] };
-  value?: string;
+  children?: unknown[];
+  properties?: { className?: unknown };
+  value?: unknown;
 };
 
 type LowlightResult = {
-  children?: LowlightNode[];
-  value?: LowlightNode[];
+  children?: unknown[];
+  value?: unknown[];
 };
 
-type LowlightInstance = {
+export type LowlightInstance = {
   highlight: (language: string, code: string) => LowlightResult;
   highlightAuto: (code: string) => LowlightResult;
   listLanguages: () => string[];
   registered?: (language: string) => boolean;
 };
 
-function parseHighlightNodes(nodes: LowlightNode[], inheritedClasses: string[] = []) {
-  return nodes.flatMap((node): Array<{ classes: string[]; text: string }> => {
-    const classes = [...inheritedClasses, ...(node.properties?.className ?? [])];
+type EnsureLowlightLanguages = () => Promise<void>;
+
+function parseHighlightNodes(nodes: unknown[], inheritedClasses: string[] = []) {
+  return nodes.flatMap((value): Array<{ classes: string[]; text: string }> => {
+    if (!value || typeof value !== "object") return [];
+    const node = value as LowlightNode;
+    const ownClasses = Array.isArray(node.properties?.className)
+      ? node.properties.className.filter((className): className is string => typeof className === "string")
+      : [];
+    const classes = [...inheritedClasses, ...ownClasses];
     if (node.children) return parseHighlightNodes(node.children, classes);
 
     return [{
       classes,
-      text: node.value ?? "",
+      text: typeof node.value === "string" ? node.value : "",
     }];
   });
 }
@@ -40,7 +47,10 @@ function getHighlightNodes(result: LowlightResult) {
 function highlightCode(lowlight: LowlightInstance, language: string | null | undefined, code: string) {
   if (language) {
     try {
-      if (lowlight.listLanguages().includes(language) || lowlight.registered?.(language)) {
+      const isRegistered = lowlight.registered
+        ? lowlight.registered(language)
+        : lowlight.listLanguages().includes(language);
+      if (isRegistered) {
         return lowlight.highlight(language, code);
       }
     } catch {
@@ -49,6 +59,16 @@ function highlightCode(lowlight: LowlightInstance, language: string | null | und
   }
 
   return lowlight.highlightAuto(code);
+}
+
+function documentContainsNode(doc: ProseMirrorNode, nodeName: string) {
+  let found = false;
+  doc.descendants((node) => {
+    if (node.type.name !== nodeName) return true;
+    found = true;
+    return false;
+  });
+  return found;
 }
 
 function buildLowlightDecorations({
@@ -160,14 +180,21 @@ function transactionTouchesNode(transaction: Transaction, oldDoc: ProseMirrorNod
 
 export function createOptimizedLowlightPlugin({
   defaultLanguage,
+  ensureLanguages,
   lowlight,
   nodeName,
 }: {
   defaultLanguage: string | null | undefined;
+  ensureLanguages?: EnsureLowlightLanguages;
   lowlight: LowlightInstance;
   nodeName: string;
 }) {
-  const pluginKey = new PluginKey<DecorationSet>("ueditorLowlight");
+  type LowlightPluginState = {
+    decorations: DecorationSet;
+    hasCodeBlock: boolean;
+  };
+
+  const pluginKey = new PluginKey<LowlightPluginState>("ueditorLowlight");
   const createDecorations = (doc: ProseMirrorNode) => buildLowlightDecorations({
     defaultLanguage,
     doc,
@@ -175,20 +202,73 @@ export function createOptimizedLowlightPlugin({
     nodeName,
   });
 
-  return new Plugin<DecorationSet>({
+  return new Plugin<LowlightPluginState>({
     key: pluginKey,
     state: {
-      init: (_, state) => createDecorations(state.doc),
-      apply: (transaction, decorationSet, oldState, newState) => {
-        if (transactionTouchesNode(transaction, oldState.doc, newState.doc, nodeName)) {
-          return createDecorations(newState.doc);
+      init: (_, state) => ({
+        decorations: createDecorations(state.doc),
+        hasCodeBlock: documentContainsNode(state.doc, nodeName),
+      }),
+      apply: (transaction, pluginState, oldState, newState) => {
+        if (transaction.getMeta(pluginKey) === "rehighlight") {
+          return {
+            ...pluginState,
+            decorations: createDecorations(newState.doc),
+          };
         }
 
-        return decorationSet.map(transaction.mapping, newState.doc);
+        if (transactionTouchesNode(transaction, oldState.doc, newState.doc, nodeName)) {
+          return {
+            decorations: createDecorations(newState.doc),
+            hasCodeBlock: documentContainsNode(newState.doc, nodeName),
+          };
+        }
+
+        return {
+          ...pluginState,
+          decorations: pluginState.decorations.map(transaction.mapping, newState.doc),
+        };
       },
     },
     props: {
-      decorations: (state) => pluginKey.getState(state),
+      decorations: (state) => pluginKey.getState(state)?.decorations ?? null,
     },
+    view: ensureLanguages
+      ? (view) => {
+          let destroyed = false;
+          let loadRequested = false;
+
+          const requestLanguagesWhenNeeded = () => {
+            if (loadRequested || !pluginKey.getState(view.state)?.hasCodeBlock) return;
+            loadRequested = true;
+
+            void ensureLanguages()
+              .then(() => {
+                if (destroyed || view.isDestroyed) return;
+                view.dispatch(
+                  view.state.tr
+                    .setMeta(pluginKey, "rehighlight")
+                    .setMeta("addToHistory", false),
+                );
+              })
+              .catch(() => {
+                // Keep plain code rendering functional and allow a later edit
+                // to retry loading the optional language registry.
+                loadRequested = false;
+              });
+          };
+
+          requestLanguagesWhenNeeded();
+
+          return {
+            update: (_nextView, previousState) => {
+              if (view.state.doc !== previousState.doc) requestLanguagesWhenNeeded();
+            },
+            destroy: () => {
+              destroyed = true;
+            },
+          };
+        }
+      : undefined,
   });
 }

@@ -249,19 +249,86 @@ async function runMultiEditorScenario(UEditor, editorCount) {
   let nativeGlobalAdds = 0;
   let activeNativeGlobalListeners = 0;
   const nativeGlobalAddsByTarget = new Map();
+  const activeListenerRecords = new Map();
+
+  const getTargetName = (target) => target === document ? "document" : "window";
+  const getCapture = (options) => typeof options === "boolean"
+    ? options
+    : Boolean(options?.capture);
+  const addActiveListener = (target, type, listener, options) => {
+    let byType = activeListenerRecords.get(target);
+    if (!byType) {
+      byType = new Map();
+      activeListenerRecords.set(target, byType);
+    }
+    let byListener = byType.get(type);
+    if (!byListener) {
+      byListener = new Map();
+      byType.set(type, byListener);
+    }
+    let byCapture = byListener.get(listener);
+    if (!byCapture) {
+      byCapture = new Map();
+      byListener.set(listener, byCapture);
+    }
+    const capture = getCapture(options);
+    if (byCapture.has(capture)) return false;
+
+    byCapture.set(capture, {
+      stack: new Error().stack
+        ?.split("\n")
+        .slice(2, 8)
+        .map((line) => line.trim())
+        .join("\n") ?? "unknown",
+    });
+    return true;
+  };
+  const removeActiveListener = (target, type, listener, options) => {
+    const byType = activeListenerRecords.get(target);
+    const byListener = byType?.get(type);
+    const byCapture = byListener?.get(listener);
+    const capture = getCapture(options);
+    if (!byCapture?.delete(capture)) return false;
+
+    if (byCapture.size === 0) byListener.delete(listener);
+    if (byListener.size === 0) byType.delete(type);
+    if (byType.size === 0) activeListenerRecords.delete(target);
+    return true;
+  };
+  const getActiveListenerStacks = () => [...activeListenerRecords]
+    .flatMap(([target, byType]) => [...byType].flatMap(([type, byListener]) => (
+      [...byListener].flatMap(([, byCapture]) => [...byCapture].map(([capture, record]) => ({
+        listener: `${getTargetName(target)}:${type}${capture ? ":capture" : ""}`,
+        stack: record.stack,
+      })))
+    )));
+  const isTestInfrastructureListener = ({ stack }) => (
+    stack.includes("/node_modules/@asamuzakjp/dom-selector/")
+  );
+  const summarizeListeners = (listeners) => [...listeners.reduce((counts, { listener }) => {
+    counts.set(listener, (counts.get(listener) ?? 0) + 1);
+    return counts;
+  }, new Map())]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([key, count]) => `${key}=${count}`)
+    .join(", ");
 
   for (const { add, remove, target } of originals) {
     target.addEventListener = function instrumentedAdd(type, listener, options) {
       if (trackedTypes.has(type)) {
         nativeGlobalAdds += 1;
-        activeNativeGlobalListeners += 1;
-        const key = `${this === document ? "document" : "window"}:${type}`;
+        const key = `${getTargetName(this)}:${type}`;
         nativeGlobalAddsByTarget.set(key, (nativeGlobalAddsByTarget.get(key) ?? 0) + 1);
+        if (addActiveListener(this, type, listener, options)) {
+          activeNativeGlobalListeners += 1;
+        }
       }
       return add.call(this, type, listener, options);
     };
     target.removeEventListener = function instrumentedRemove(type, listener, options) {
-      if (trackedTypes.has(type)) activeNativeGlobalListeners -= 1;
+      if (trackedTypes.has(type) && removeActiveListener(this, type, listener, options)) {
+        activeNativeGlobalListeners -= 1;
+      }
       return remove.call(this, type, listener, options);
     };
   }
@@ -304,7 +371,20 @@ async function runMultiEditorScenario(UEditor, editorCount) {
 
     cleanup();
     await flushEditorWork();
-    result.listenersAfterCleanup = activeNativeGlobalListeners;
+    // TipTap defers editor destruction to avoid tearing down an instance that
+    // React Strict Mode immediately reuses. Measure listeners after that
+    // lifecycle task has had a chance to run, not during the grace period.
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    const remainingListeners = getActiveListenerStacks();
+    const applicationListeners = remainingListeners.filter((listener) => (
+      !isTestInfrastructureListener(listener)
+    ));
+    result.listenersAfterCleanup = applicationListeners.length;
+    result.listenersAfterCleanupBreakdown = summarizeListeners(applicationListeners);
+    result.ignoredTestInfrastructureListenersAfterCleanup = (
+      remainingListeners.length - applicationListeners.length
+    );
+    result.listenersAfterCleanupStacks = applicationListeners;
     return result;
   } finally {
     for (const { add, remove, target } of originals) {
@@ -358,15 +438,21 @@ try {
   }));
 
   console.table(results);
-  console.table([
+  const multiEditorResults = [
     await runMultiEditorScenario(UEditor, 1),
     await runMultiEditorScenario(UEditor, 5),
-  ]);
+  ];
+  console.table(multiEditorResults);
   if (traceDescendants) {
     for (const result of results) {
       console.log(`\n${result.name}`);
       console.dir(result.descendantStacks, { depth: null });
     }
+    console.log("\nListeners remaining after editor cleanup");
+    console.dir(multiEditorResults.map(({ name, listenersAfterCleanupStacks }) => ({
+      name,
+      listeners: listenersAfterCleanupStacks,
+    })), { depth: null });
   }
 } finally {
   cleanup();

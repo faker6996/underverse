@@ -1911,6 +1911,53 @@ test("UEditor automatically recalculates table formulas after cell edits", async
   assert.match(htmlUpdates[0] ?? "", />30<\/p>/);
 });
 
+test("UEditor recalculates dependencies for every cell changed in one transaction", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: [
+        "<table><tbody><tr>",
+        "<td>10</td>",
+        "<td>20</td>",
+        '<td data-formula="=B1*2" data-computed-value="0">0</td>',
+        "</tr></tbody></table>",
+      ].join(""),
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const editor = ref.current.editor;
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("td")[2]?.textContent?.trim(), "40");
+  });
+
+  editor.commands.focus();
+  const firstSourcePos = findTextPosition(editor, "10");
+  const secondSourcePos = findTextPosition(editor, "20");
+  editor.commands.setTextSelection(firstSourcePos);
+
+  const transaction = editor.state.tr
+    .insertText("7", secondSourcePos, secondSourcePos + 2)
+    .insertText("3", firstSourcePos, firstSourcePos + 2);
+  editor.view.dispatch(transaction);
+
+  await waitFor(() => {
+    const cells = view.container.querySelectorAll("td");
+    assert.equal(cells[0]?.textContent?.trim(), "3");
+    assert.equal(cells[1]?.textContent?.trim(), "7");
+    assert.equal(cells[2]?.getAttribute("data-computed-value"), "14");
+    assert.equal(cells[2]?.textContent?.trim(), "14");
+  });
+});
+
 test("UEditor recalculates merged-table formulas with cell-scoped transactions", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;

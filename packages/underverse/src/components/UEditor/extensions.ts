@@ -37,7 +37,6 @@ import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
 import { HorizontalRule } from "@tiptap/extension-horizontal-rule";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
-import { common, createLowlight } from "lowlight";
 import { buildSlashCommandMessages, SlashCommand } from "./slash-command";
 import { ClipboardImages } from "./clipboard-images";
 import { EmojiSuggestion } from "./emoji-suggestion";
@@ -53,7 +52,7 @@ import Indent from "./indent";
 import UEditorTable from "./table-align";
 import { isSafeUEditorUrl } from "./url-safety";
 import { CodeBlockView } from "./CodeBlockView";
-import { createOptimizedLowlightPlugin } from "./optimized-lowlight";
+import { createOptimizedLowlightPlugin, type LowlightInstance } from "./optimized-lowlight";
 import { TableFormulaRecalculation } from "./table-formula-recalculation";
 
 function getFormulaStateAttributes(attributes: Record<string, unknown>) {
@@ -353,7 +352,36 @@ const CustomTaskList = TaskList.extend({
   },
 });
 
-const lowlight = createLowlight(common);
+type CommonLowlightRuntime = ReturnType<(typeof import("./lowlight-runtime"))["createCommonLowlightRuntime"]>;
+
+let commonLowlightRuntime: CommonLowlightRuntime | null = null;
+let commonLowlightLanguagesPromise: Promise<void> | null = null;
+
+const lazyLowlight: LowlightInstance = {
+  highlight: (language, code) => commonLowlightRuntime?.highlight(language, code) ?? {
+    children: [{ value: code }],
+  },
+  highlightAuto: (code) => commonLowlightRuntime?.highlightAuto(code) ?? {
+    children: [{ value: code }],
+  },
+  listLanguages: () => commonLowlightRuntime?.listLanguages() ?? [],
+  registered: (language) => commonLowlightRuntime?.registered(language) ?? false,
+};
+
+function ensureCommonLowlightLanguages() {
+  if (commonLowlightRuntime) return Promise.resolve();
+
+  commonLowlightLanguagesPromise ??= import("./lowlight-runtime")
+    .then(({ createCommonLowlightRuntime }) => {
+      commonLowlightRuntime = createCommonLowlightRuntime();
+    })
+    .catch((error) => {
+      commonLowlightLanguagesPromise = null;
+      throw error;
+    });
+
+  return commonLowlightLanguagesPromise;
+}
 
 const CustomCodeBlockLowlight = CodeBlockLowlight.extend({
   addNodeView() {
@@ -369,6 +397,7 @@ const CustomCodeBlockLowlight = CodeBlockLowlight.extend({
       }),
       createOptimizedLowlightPlugin({
         defaultLanguage: this.options.defaultLanguage,
+        ensureLanguages: ensureCommonLowlightLanguages,
         lowlight: this.options.lowlight,
         nodeName: this.name,
       }),
@@ -445,7 +474,7 @@ export function buildUEditorExtensions({
       },
     }),
     CustomCodeBlockLowlight.configure({
-      lowlight,
+      lowlight: lazyLowlight as CommonLowlightRuntime,
       HTMLAttributes: {
         class: "rounded-lg border border-border/60 bg-muted/40 text-foreground p-4 font-mono text-sm overflow-x-auto",
       },

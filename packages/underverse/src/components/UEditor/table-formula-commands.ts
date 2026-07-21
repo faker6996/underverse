@@ -107,6 +107,18 @@ function buildTableCellLabelIndex(map: TableMap) {
   return labels;
 }
 
+function getTableCellsByLabel(tableNode: ProseMirrorNode) {
+  const map = TableMap.get(tableNode);
+  const cells = new Map<string, ProseMirrorNode>();
+
+  for (const [relativePos, label] of buildTableCellLabelIndex(map)) {
+    const cell = tableNode.nodeAt(relativePos);
+    if (cell) cells.set(label, cell);
+  }
+
+  return { cells, map };
+}
+
 function getCellText(cellNode: ProseMirrorNode) {
   return cellNode.textBetween(0, cellNode.content.size, "\n").trim();
 }
@@ -249,6 +261,37 @@ function getSelectionTableInfoFromState(state: EditorState) {
   return null;
 }
 
+/**
+ * Returns the logical labels changed inside the selected table. A `null`
+ * result means its structure changed, so callers must conservatively
+ * recalculate every formula in that table.
+ */
+export function getChangedActiveTableCellLabels(oldState: EditorState, newState: EditorState) {
+  const oldTable = getSelectionTableInfoFromState(oldState)?.node;
+  const newTable = getSelectionTableInfoFromState(newState)?.node;
+  if (!oldTable || !newTable) return null;
+  if (oldTable === newTable) return new Set<string>();
+
+  const oldIndex = getTableCellsByLabel(oldTable);
+  const newIndex = getTableCellsByLabel(newTable);
+  if (
+    oldIndex.map.width !== newIndex.map.width
+    || oldIndex.map.height !== newIndex.map.height
+    || oldIndex.cells.size !== newIndex.cells.size
+  ) {
+    return null;
+  }
+
+  const changedLabels = new Set<string>();
+  for (const [label, newCell] of newIndex.cells) {
+    const oldCell = oldIndex.cells.get(label);
+    if (!oldCell) return null;
+    if (!oldCell.eq(newCell)) changedLabels.add(label);
+  }
+
+  return changedLabels;
+}
+
 function getSelectionTableInfo(editor: Editor) {
   return getSelectionTableInfoFromState(editor.state);
 }
@@ -278,6 +321,43 @@ function getSelectionTableCellLabelFromState(state: EditorState) {
   if (!rect) return null;
 
   return `${indexToColumnName(rect.left)}${rect.top + 1}`;
+}
+
+function getSelectionTableCellBoundsFromState(state: EditorState) {
+  const { $from } = state.selection;
+
+  for (let depth = $from.depth; depth > 0; depth -= 1) {
+    const node = $from.node(depth);
+    if (node.type.name !== "tableCell" && node.type.name !== "tableHeader") continue;
+    const from = $from.before(depth);
+    return {
+      from,
+      to: from + node.nodeSize,
+    };
+  }
+
+  return null;
+}
+
+/** Fast path for the overwhelmingly common single-cell text transaction. */
+export function getSingleChangedActiveTableCellLabel(
+  transactions: readonly Transaction[],
+  oldState: EditorState,
+  newState: EditorState,
+) {
+  const changedTransactions = transactions.filter((transaction) => transaction.docChanged);
+  if (changedTransactions.length !== 1 || changedTransactions[0].steps.length !== 1) return null;
+
+  const oldLabel = getSelectionTableCellLabelFromState(oldState);
+  const newLabel = getSelectionTableCellLabelFromState(newState);
+  if (!oldLabel || oldLabel !== newLabel) return null;
+
+  const bounds = getSelectionTableCellBoundsFromState(oldState);
+  const step = changedTransactions[0].steps[0] as unknown as { from?: number; to?: number };
+  if (!bounds || typeof step.from !== "number" || typeof step.to !== "number") return null;
+  if (step.from < bounds.from + 1 || step.to > bounds.to - 1) return null;
+
+  return oldLabel;
 }
 
 function getSelectionTableCellLabel(editor: Editor) {
@@ -557,7 +637,10 @@ function dispatchTableCellReplacements(editor: Editor, replacements: TableCellRe
   return true;
 }
 
-export function createActiveTableFormulaRecalculationTransaction(state: EditorState) {
+export function createActiveTableFormulaRecalculationTransaction(
+  state: EditorState,
+  options?: { changedLabels?: Iterable<string> | null },
+) {
   if (isEditingTableFormulaTextInState(state)) return null;
 
   const tableInfo = getSelectionTableInfoFromState(state);
@@ -567,7 +650,11 @@ export function createActiveTableFormulaRecalculationTransaction(state: EditorSt
   const replacements = resolveTableCellReplacements(
     tableInfo.pos,
     recalculateTableCells(tableInfo.node, {
-      changedLabels: activeCellLabel ? [activeCellLabel] : null,
+      changedLabels: options && "changedLabels" in options
+        ? options.changedLabels
+        : activeCellLabel
+          ? [activeCellLabel]
+          : null,
     }),
   );
   if (replacements.length === 0) return null;
