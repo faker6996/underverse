@@ -62,6 +62,7 @@
     "test:ueditor-form-fields": "node --test --experimental-strip-types ./tests/ueditor-form-fields.test.mjs",
     "test:ueditor-formula": "node --test --experimental-strip-types ./tests/ueditor-table-formula.test.mjs",
     "test:ueditor-ui": "node --test ./tests/ueditor.interaction.test.mjs",
+    "benchmark:ueditor": "node --expose-gc ./scripts/benchmark-ueditor.mjs",
     "test:public-api": "node --test ./tests/public-api-smoke.test.mjs",
     "test:components-smoke": "node --test ./tests/components-smoke.test.mjs",
     "test:sticker-ui": "node --test ./tests/sticker.interaction.test.mjs",

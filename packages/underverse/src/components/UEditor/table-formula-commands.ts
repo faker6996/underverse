@@ -16,12 +16,43 @@ import {
 } from "./table-formula";
 
 export const UEDITOR_TABLE_FORMULA_RECALCULATE_META = "ueditorTableFormulaRecalculate";
+const TABLE_FORMULA_PLAN_CACHE_LIMIT = 50;
+
+type TableFormulaPlan = {
+  circular: Set<string>;
+  graph: ReturnType<typeof buildTableFormulaDependencyGraph>;
+  order: string[];
+};
+
+const tableFormulaPlanCache = new Map<string, TableFormulaPlan>();
 
 type CellEntry = {
   index: number;
   node: ProseMirrorNode;
   relativePos: number;
 };
+
+function getTableFormulaPlan(cells: Array<{ formula: string; label: string }>) {
+  const cacheKey = JSON.stringify(cells);
+  const cached = tableFormulaPlanCache.get(cacheKey);
+  if (cached) {
+    tableFormulaPlanCache.delete(cacheKey);
+    tableFormulaPlanCache.set(cacheKey, cached);
+    return cached;
+  }
+
+  const graph = buildTableFormulaDependencyGraph(cells);
+  const { order, circular } = getTableFormulaRecalculationOrder(graph);
+  const plan = { circular, graph, order };
+  tableFormulaPlanCache.set(cacheKey, plan);
+
+  if (tableFormulaPlanCache.size > TABLE_FORMULA_PLAN_CACHE_LIMIT) {
+    const oldestKey = tableFormulaPlanCache.keys().next().value;
+    if (oldestKey !== undefined) tableFormulaPlanCache.delete(oldestKey);
+  }
+
+  return plan;
+}
 
 function collectChildren(node: ProseMirrorNode) {
   const children: ProseMirrorNode[] = [];
@@ -433,13 +464,12 @@ function recalculateTableNode(tableNode: ProseMirrorNode, options?: { changedLab
     }
   }
 
-  const graph = buildTableFormulaDependencyGraph(
+  const { circular, graph, order } = getTableFormulaPlan(
     Array.from(formulaEntries, ([label, entry]) => ({
       label,
       formula: entry.formula,
     })),
   );
-  const { order, circular } = getTableFormulaRecalculationOrder(graph);
   const affectedLabels = options?.changedLabels
     ? getAffectedTableFormulaLabels(graph, options.changedLabels)
     : null;

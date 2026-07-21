@@ -88,6 +88,21 @@ function findTextPosition(editor, text) {
   return found;
 }
 
+function findNodePosition(editor, predicate) {
+  let found = null;
+
+  editor.state.doc.descendants((node, pos) => {
+    if (found != null) return false;
+    if (!predicate(node)) return true;
+
+    found = pos;
+    return false;
+  });
+
+  assert.notEqual(found, null);
+  return found;
+}
+
 function clipboardWithImageAndData({ html = "", text = "" } = {}) {
   const file = new File([new Uint8Array([137, 80, 78, 71])], "clipboard-preview.png", { type: "image/png" });
 
@@ -234,6 +249,52 @@ test("UEditor character and word counters stay in sync while typing", async () =
 
   await body.findByText("3 words");
   assert.ok(body.getByText("13 characters"));
+});
+
+test("UEditor avoids full-document descendant scans while typing outside tables and code blocks", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+  const paragraphs = Array.from({ length: 100 }, (_, index) => `<p>Performance paragraph ${index + 1}</p>`).join("");
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: [
+        paragraphs,
+        '<table><tbody><tr><td>10</td><td data-formula="=A1*2" data-computed-value="20">20</td></tr></tbody></table>',
+      ].join(""),
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+      showFooter: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const editor = ref.current.editor;
+  await waitFor(() => {
+    assert.ok(view.container.querySelector("td[data-formula-state='computed']"));
+  });
+  editor.commands.setTextSelection(findTextPosition(editor, "Performance paragraph 100") + "Performance paragraph 100".length);
+
+  const nodePrototype = Object.getPrototypeOf(editor.state.doc);
+  const originalDescendants = nodePrototype.descendants;
+  let descendantCalls = 0;
+  nodePrototype.descendants = function instrumentedDescendants(callback) {
+    descendantCalls += 1;
+    return originalDescendants.call(this, callback);
+  };
+
+  try {
+    editor.commands.insertContent(" updated");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  } finally {
+    nodePrototype.descendants = originalDescendants;
+  }
+
+  assert.equal(descendantCalls, 0);
 });
 
 test("UEditor keeps typing outside a newly applied link", async () => {
@@ -547,6 +608,122 @@ test("UEditor increases and decreases paragraph and blockquote indentation from 
   });
 });
 
+test("UEditor removes inline tabs atomically with Backspace and Delete", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<p>Plain text</p>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const editor = ref.current.editor;
+  const tabText = `Plain${"\u00a0".repeat(4)} text`;
+
+  editor.commands.focus();
+  editor.commands.setTextSelection(findTextPosition(editor, "Plain text") + "Plain".length);
+  fireEvent.keyDown(editor.view.dom, { key: "Tab", code: "Tab" });
+  await waitFor(() => assert.equal(view.container.querySelector("p")?.textContent, tabText));
+
+  fireEvent.keyDown(editor.view.dom, { key: "Backspace", code: "Backspace" });
+  await waitFor(() => assert.equal(view.container.querySelector("p")?.textContent, "Plain text"));
+
+  assert.equal(editor.commands.undo(), true);
+  await waitFor(() => assert.equal(view.container.querySelector("p")?.textContent, tabText));
+  assert.equal(editor.commands.redo(), true);
+  await waitFor(() => assert.equal(view.container.querySelector("p")?.textContent, "Plain text"));
+
+  editor.commands.setTextSelection(findTextPosition(editor, "Plain text") + "Plain".length);
+  fireEvent.keyDown(editor.view.dom, { key: "Tab", code: "Tab" });
+  await waitFor(() => assert.equal(view.container.querySelector("p")?.textContent, tabText));
+  editor.commands.setTextSelection(findTextPosition(editor, "Plain") + "Plain".length);
+
+  fireEvent.keyDown(editor.view.dom, { key: "Delete", code: "Delete" });
+  await waitFor(() => assert.equal(view.container.querySelector("p")?.textContent, "Plain text"));
+});
+
+test("UEditor removes block indentation before merging or lifting content with Backspace", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: [
+        "<p>Before</p>",
+        '<p data-indent="2" style="margin-left: 4rem">Indented</p>',
+        '<p data-indent="2" style="margin-left: 4rem"></p>',
+        '<blockquote data-indent="1" style="margin-left: 2rem"><p>Quoted</p></blockquote>',
+      ].join(""),
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const editor = ref.current.editor;
+  editor.commands.focus();
+  editor.commands.setTextSelection(findTextPosition(editor, "Indented"));
+
+  fireEvent.keyDown(editor.view.dom, { key: "Backspace", code: "Backspace" });
+  await waitFor(() => {
+    const paragraph = Array.from(view.container.querySelectorAll("p")).find((node) => node.textContent === "Indented");
+    assert.equal(paragraph?.getAttribute("data-indent"), "1");
+    assert.equal(paragraph?.style.marginLeft, "2rem");
+  });
+
+  fireEvent.keyDown(editor.view.dom, { key: "Backspace", code: "Backspace" });
+  await waitFor(() => {
+    const paragraph = Array.from(view.container.querySelectorAll("p")).find((node) => node.textContent === "Indented");
+    assert.ok(paragraph);
+    assert.equal(paragraph.hasAttribute("data-indent"), false);
+    assert.equal(paragraph.style.marginLeft, "");
+  });
+
+  fireEvent.keyDown(editor.view.dom, { key: "Backspace", code: "Backspace" });
+  await waitFor(() => {
+    assert.ok(Array.from(view.container.querySelectorAll("p")).some((node) => node.textContent === "BeforeIndented"));
+  });
+
+  const emptyIndentedPos = findNodePosition(
+    editor,
+    (node) => node.type.name === "paragraph" && node.textContent === "" && node.attrs.indent === 2,
+  );
+  editor.commands.setTextSelection(emptyIndentedPos + 1);
+  fireEvent.keyDown(editor.view.dom, { key: "Backspace", code: "Backspace" });
+  await waitFor(() => {
+    const emptyIndented = Array.from(view.container.querySelectorAll("p[data-indent='1']")).find(
+      (node) => node.textContent === "",
+    );
+    assert.ok(emptyIndented);
+  });
+
+  fireEvent.keyDown(editor.view.dom, { key: "Backspace", code: "Backspace" });
+  await waitFor(() => {
+    const emptyParagraph = Array.from(view.container.querySelectorAll("p")).find((node) => node.textContent === "");
+    assert.ok(emptyParagraph);
+    assert.equal(emptyParagraph.hasAttribute("data-indent"), false);
+  });
+
+  editor.commands.setTextSelection(findTextPosition(editor, "Quoted"));
+  fireEvent.keyDown(editor.view.dom, { key: "Backspace", code: "Backspace" });
+  await waitFor(() => {
+    const quote = view.container.querySelector("blockquote");
+    assert.ok(quote);
+    assert.equal(quote.hasAttribute("data-indent"), false);
+    assert.equal(quote.textContent, "Quoted");
+  });
+});
+
 test("UEditor indent controls preserve semantic nested bullet and numbered lists", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -593,6 +770,34 @@ test("UEditor indent controls preserve semantic nested bullet and numbered lists
 
   fireEvent.keyDown(editor.view.dom, { key: "Tab", code: "Tab", shiftKey: true });
   await waitFor(() => assert.equal(view.container.querySelectorAll("ol ol").length, 0));
+});
+
+test("UEditor uses semantic Backspace behavior for nested lists", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<ul><li><p>Parent</p><ul><li><p>Nested</p></li></ul></li></ul>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const editor = ref.current.editor;
+  editor.commands.focus();
+  editor.commands.setTextSelection(findTextPosition(editor, "Nested"));
+
+  fireEvent.keyDown(editor.view.dom, { key: "Backspace", code: "Backspace" });
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("ul ul").length, 0);
+    assert.equal(view.container.querySelectorAll("ul > li").length, 2);
+    assert.match(editor.getHTML(), /<li[^>]*><p[^>]*>Nested<\/p><\/li>/);
+  });
 });
 
 test("UEditor keeps Tab and Shift+Tab reserved for table cell navigation", async () => {
@@ -4201,6 +4406,7 @@ test("UEditor Bookmark Card exposes retry after metadata fetch fails", async () 
 test("UEditor CodeBlock language selector and copy function", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
+  const ref = React.createRef();
 
   let copiedText = "";
   const originalClipboard = navigator.clipboard;
@@ -4215,6 +4421,7 @@ test("UEditor CodeBlock language selector and copy function", async () => {
 
   const view = render(
     React.createElement(UEditor, {
+      ref,
       content: '<pre><code class="language-javascript">console.log("test");</code></pre>',
       showToolbar: false,
       showBubbleMenu: false,
@@ -4230,6 +4437,16 @@ test("UEditor CodeBlock language selector and copy function", async () => {
     const codeEl = view.container.querySelector("code");
     assert.ok(codeEl);
     assert.match(codeEl.textContent, /console\.log/);
+    assert.ok(codeEl.querySelector("[class*='hljs-']"));
+  });
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  ref.current.editor.commands.focus("end");
+  ref.current.editor.commands.insertContent("\nconst value = 1;");
+  await waitFor(() => {
+    const codeEl = view.container.querySelector("code");
+    assert.match(codeEl?.textContent ?? "", /const value = 1/);
+    assert.ok(codeEl?.querySelector("[class*='hljs-']"));
   });
 
   const copyButton = view.container.querySelector('button[title="Copy code"]');
@@ -4237,7 +4454,7 @@ test("UEditor CodeBlock language selector and copy function", async () => {
   fireEvent.click(copyButton);
 
   await waitFor(() => {
-    assert.equal(copiedText.trim(), 'console.log("test");');
+    assert.equal(copiedText.trim(), 'console.log("test");\nconst value = 1;');
   });
 
   if (originalClipboard) {

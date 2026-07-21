@@ -80,11 +80,14 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
   }, []);
 
   const scheduleTableLayoutSync = React.useCallback(() => {
-    if (tableLayoutSyncFrameRef.current !== null) return;
+    if (!activeTableCellRef.current || tableLayoutSyncFrameRef.current !== null) return;
 
     tableLayoutSyncFrameRef.current = window.requestAnimationFrame(() => {
       tableLayoutSyncFrameRef.current = null;
-      updateActiveCellHighlight(activeTableCellRef.current);
+      const activeCell = activeTableCellRef.current;
+      if (!activeCell) return;
+
+      updateActiveCellHighlight(activeCell);
       editorContentRef.current?.dispatchEvent(new CustomEvent(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT));
     });
   }, [updateActiveCellHighlight]);

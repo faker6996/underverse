@@ -136,7 +136,7 @@ export function getEditorUiRenderState(editor: Editor) {
   const link = editor.getAttributes("link");
   const tableCell = editor.getAttributes("tableCell");
   const tableHeader = editor.getAttributes("tableHeader");
-  const hasTableContext = getTableAnchorPos(editor) !== null;
+  const hasTableContext = findTableNodeInfoFromState(editor.state) !== null;
   const can = editor.can();
 
   return {

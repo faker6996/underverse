@@ -10,6 +10,7 @@ import Heading from "@tiptap/extension-heading";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
 import ListItem from "@tiptap/extension-list-item";
+import { ListKeymap } from "@tiptap/extension-list";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import Blockquote from "@tiptap/extension-blockquote";
@@ -52,6 +53,7 @@ import Indent from "./indent";
 import UEditorTable from "./table-align";
 import { isSafeUEditorUrl } from "./url-safety";
 import { CodeBlockView } from "./CodeBlockView";
+import { createOptimizedLowlightPlugin } from "./optimized-lowlight";
 
 function getFormulaStateAttributes(attributes: Record<string, unknown>) {
   const formula = attributes["data-formula"];
@@ -356,6 +358,21 @@ const CustomCodeBlockLowlight = CodeBlockLowlight.extend({
   addNodeView() {
     return ReactNodeViewRenderer(CodeBlockView);
   },
+
+  addProseMirrorPlugins() {
+    const parentPlugins = this.parent?.() ?? [];
+    return [
+      ...parentPlugins.filter((plugin) => {
+        const key = (plugin.spec.key as unknown as { key?: string } | undefined)?.key;
+        return !key?.startsWith("lowlight$");
+      }),
+      createOptimizedLowlightPlugin({
+        defaultLanguage: this.options.defaultLanguage,
+        lowlight: this.options.lowlight,
+        nodeName: this.name,
+      }),
+    ];
+  },
 });
 
 export function buildUEditorExtensions({
@@ -411,6 +428,7 @@ export function buildUEditorExtensions({
         class: "pl-1",
       },
     }),
+    ListKeymap,
     CustomTaskList,
     TaskItem.configure({
       nested: true,

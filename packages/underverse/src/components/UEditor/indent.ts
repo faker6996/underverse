@@ -1,6 +1,7 @@
 import { Extension } from "@tiptap/core";
 import type { EditorState } from "@tiptap/pm/state";
 import type { Node as ProseMirrorNode, ResolvedPos } from "@tiptap/pm/model";
+import { closeHistory } from "@tiptap/pm/history";
 import { isInTable } from "@tiptap/pm/tables";
 
 declare module "@tiptap/core" {
@@ -114,11 +115,13 @@ function updateBlockIndent({
   dispatch,
   options,
   delta,
+  separateHistory = false,
 }: {
   state: EditorState;
   dispatch: ((transaction: EditorState["tr"]) => void) | undefined;
   options: IndentOptions;
   delta: -1 | 1;
+  separateHistory?: boolean;
 }) {
   const targets = getIndentTargets(state, options.types);
   let transaction = state.tr;
@@ -136,7 +139,9 @@ function updateBlockIndent({
     changed = true;
   }
 
-  if (changed && dispatch) dispatch(transaction.scrollIntoView());
+  if (changed && dispatch) {
+    dispatch((separateHistory ? closeHistory(transaction) : transaction).scrollIntoView());
+  }
   return changed;
 }
 
@@ -151,14 +156,33 @@ function insertTabAtCursor(state: EditorState, dispatch?: (transaction: EditorSt
 }
 
 function removeTabBeforeCursor(state: EditorState, dispatch?: (transaction: EditorState["tr"]) => void) {
-  if (!state.selection.empty || state.selection.$from.parentOffset <= 0) return false;
+  if (!state.selection.empty || state.selection.$from.parentOffset < INLINE_TAB_SPACES.length) return false;
 
   const cursorPos = state.selection.from;
   const tabStartPos = cursorPos - INLINE_TAB_SPACES.length;
-  if (tabStartPos < 0 || state.doc.textBetween(tabStartPos, cursorPos) !== INLINE_TAB_SPACES) return false;
+  if (state.doc.textBetween(tabStartPos, cursorPos) !== INLINE_TAB_SPACES) return false;
 
   if (dispatch) {
-    dispatch(state.tr.delete(tabStartPos, cursorPos).scrollIntoView());
+    dispatch(closeHistory(state.tr.delete(tabStartPos, cursorPos)).scrollIntoView());
+  }
+
+  return true;
+}
+
+function removeTabAfterCursor(state: EditorState, dispatch?: (transaction: EditorState["tr"]) => void) {
+  if (
+    !state.selection.empty ||
+    state.selection.$from.parentOffset + INLINE_TAB_SPACES.length > state.selection.$from.parent.content.size
+  ) {
+    return false;
+  }
+
+  const cursorPos = state.selection.from;
+  const tabEndPos = cursorPos + INLINE_TAB_SPACES.length;
+  if (state.doc.textBetween(cursorPos, tabEndPos) !== INLINE_TAB_SPACES) return false;
+
+  if (dispatch) {
+    dispatch(closeHistory(state.tr.delete(cursorPos, tabEndPos)).scrollIntoView());
   }
 
   return true;
@@ -231,6 +255,8 @@ const Indent = Extension.create<IndentOptions>({
   },
 
   addKeyboardShortcuts() {
+    const dispatch = (transaction: EditorState["tr"]) => this.editor.view.dispatch(transaction);
+
     const handleBlockIndent = (delta: -1 | 1) => {
       const { state } = this.editor;
       const hasBlockTarget = getIndentTargets(state, this.options.types).length > 0;
@@ -245,10 +271,10 @@ const Indent = Extension.create<IndentOptions>({
       // indentation remains available at the start of a block and for ranges.
       if (state.selection.empty && state.selection.$from.parentOffset > 0) {
         if (delta > 0) {
-          return insertTabAtCursor(state, (transaction) => this.editor.view.dispatch(transaction));
+          return insertTabAtCursor(state, dispatch);
         }
 
-        removeTabBeforeCursor(state, (transaction) => this.editor.view.dispatch(transaction));
+        removeTabBeforeCursor(state, dispatch);
         // Keep focus in the editor when there is no preceding tab to remove.
         return true;
       }
@@ -263,9 +289,43 @@ const Indent = Extension.create<IndentOptions>({
       return true;
     };
 
+    const handleBackspace = () => {
+      const { state } = this.editor;
+      if (isInTable(state) || !state.selection.empty) return false;
+
+      const targets = getIndentTargets(state, this.options.types);
+      if (targets.length === 0) return false;
+
+      if (state.selection.$from.parentOffset > 0) {
+        // Tabs inserted by this extension are one logical unit even though
+        // their backward-compatible HTML representation uses four NBSPs.
+        return removeTabBeforeCursor(state, dispatch);
+      }
+
+      // Match word-processor behavior: at the start of an indented block,
+      // remove one indent level before allowing ProseMirror to merge blocks.
+      return updateBlockIndent({
+        state,
+        dispatch,
+        options: this.options,
+        delta: -1,
+        separateHistory: true,
+      });
+    };
+
+    const handleDelete = () => {
+      const { state } = this.editor;
+      if (isInTable(state) || !state.selection.empty) return false;
+      if (getIndentTargets(state, this.options.types).length === 0) return false;
+
+      return removeTabAfterCursor(state, dispatch);
+    };
+
     return {
       Tab: () => handleBlockIndent(1),
       "Shift-Tab": () => handleBlockIndent(-1),
+      Backspace: handleBackspace,
+      Delete: handleDelete,
     };
   },
 });

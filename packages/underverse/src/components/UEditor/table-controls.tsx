@@ -120,6 +120,7 @@ export function TableControls({ editor, containerRef, showCellInspector = true }
   const layoutRef = React.useRef<TableControlLayout | null>(null);
   const dragStateRef = React.useRef<DragState | null>(null);
   const syncFrameRef = React.useRef<number | null>(null);
+  const layoutRefreshFrameRef = React.useRef<number | null>(null);
   const tableResizeFrameRef = React.useRef<HTMLDivElement>(null);
   const tableResizePreviewFrameRef = React.useRef<number | null>(null);
 
@@ -130,11 +131,14 @@ export function TableControls({ editor, containerRef, showCellInspector = true }
   const syncFromCell = React.useCallback((cell: HTMLTableCellElement | null) => {
     const surface = containerRef.current;
     if (!surface || !cell) {
+      layoutRef.current = null;
       setLayout(null);
       return;
     }
 
-    setLayout(buildTableControlLayout(editor, surface, cell));
+    const nextLayout = buildTableControlLayout(editor, surface, cell);
+    layoutRef.current = nextLayout;
+    setLayout(nextLayout);
   }, [containerRef, editor]);
 
   const syncFromSelection = React.useCallback(() => {
@@ -158,17 +162,38 @@ export function TableControls({ editor, containerRef, showCellInspector = true }
   }, []);
 
   const refreshCurrentLayout = React.useCallback(() => {
-    setLayout((prev) => {
-      if (!prev) return prev;
+    const currentLayout = layoutRef.current;
+    if (!currentLayout) return;
 
-      const surface = containerRef.current;
-      if (!surface) return null;
+    const surface = containerRef.current;
+    if (!surface) {
+      layoutRef.current = null;
+      setLayout(null);
+      return;
+    }
 
-      const node = editor.view.nodeDOM(prev.cellPos);
-      const cell = getCellFromTarget(node) ?? getSelectedCell(editor);
-      return cell ? buildTableControlLayout(editor, surface, cell) : null;
-    });
+    const node = editor.view.nodeDOM(currentLayout.cellPos);
+    const cell = getCellFromTarget(node) ?? getSelectedCell(editor);
+    const nextLayout = cell ? buildTableControlLayout(editor, surface, cell) : null;
+    layoutRef.current = nextLayout;
+    setLayout(nextLayout);
   }, [containerRef, editor]);
+
+  const scheduleCurrentLayoutRefresh = React.useCallback(() => {
+    if (!layoutRef.current || layoutRefreshFrameRef.current !== null) return;
+
+    layoutRefreshFrameRef.current = window.requestAnimationFrame(() => {
+      layoutRefreshFrameRef.current = null;
+      refreshCurrentLayout();
+    });
+  }, [refreshCurrentLayout]);
+
+  React.useEffect(() => () => {
+    if (layoutRefreshFrameRef.current !== null) {
+      window.cancelAnimationFrame(layoutRefreshFrameRef.current);
+      layoutRefreshFrameRef.current = null;
+    }
+  }, []);
 
   const updateTableResizePreview = React.useCallback((dimensions: TableResizeDimensions) => {
     const frame = tableResizeFrameRef.current;
@@ -277,6 +302,7 @@ export function TableControls({ editor, containerRef, showCellInspector = true }
 
       event.preventDefault();
       editor.view.focus();
+      layoutRef.current = nextLayout;
       setLayout(nextLayout);
     };
 
@@ -288,11 +314,11 @@ export function TableControls({ editor, containerRef, showCellInspector = true }
     proseMirror.addEventListener("focusin", handleFocusIn);
     surface.addEventListener("mouseover", handleSurfaceMouseMove);
     surface.addEventListener("mousemove", handleSurfaceMouseMove);
-    surface.addEventListener("scroll", refreshCurrentLayout, scrollListenerOptions);
-    surface.addEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, refreshCurrentLayout);
-    window.addEventListener("resize", refreshCurrentLayout);
-    editor.on("selectionUpdate", syncFromSelection);
-    editor.on("update", refreshCurrentLayout);
+    surface.addEventListener("scroll", scheduleCurrentLayoutRefresh, scrollListenerOptions);
+    surface.addEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, scheduleCurrentLayoutRefresh);
+    window.addEventListener("resize", scheduleCurrentLayoutRefresh);
+    editor.on("selectionUpdate", scheduleSyncFromSelection);
+    editor.on("update", scheduleCurrentLayoutRefresh);
 
     syncFromSelection();
 
@@ -305,13 +331,13 @@ export function TableControls({ editor, containerRef, showCellInspector = true }
       proseMirror.removeEventListener("focusin", handleFocusIn);
       surface.removeEventListener("mouseover", handleSurfaceMouseMove);
       surface.removeEventListener("mousemove", handleSurfaceMouseMove);
-      surface.removeEventListener("scroll", refreshCurrentLayout, scrollListenerOptions);
-      surface.removeEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, refreshCurrentLayout);
-      window.removeEventListener("resize", refreshCurrentLayout);
-      editor.off("selectionUpdate", syncFromSelection);
-      editor.off("update", refreshCurrentLayout);
+      surface.removeEventListener("scroll", scheduleCurrentLayoutRefresh, scrollListenerOptions);
+      surface.removeEventListener(UEDITOR_TABLE_LAYOUT_CHANGE_EVENT, scheduleCurrentLayoutRefresh);
+      window.removeEventListener("resize", scheduleCurrentLayoutRefresh);
+      editor.off("selectionUpdate", scheduleSyncFromSelection);
+      editor.off("update", scheduleCurrentLayoutRefresh);
     };
-  }, [clearDrag, containerRef, editor, refreshCurrentLayout, syncFromCell, syncFromSelection, updateHoverState]);
+  }, [clearDrag, containerRef, editor, scheduleCurrentLayoutRefresh, scheduleSyncFromSelection, syncFromCell, syncFromSelection, updateHoverState]);
 
   const runAtCellPos = React.useCallback((cellPos: number | null, command: (chain: ChainedCommands) => ChainedCommands, options?: { sync?: boolean }) => {
     const result = runTableCommandAtCellPos(editor, cellPos, command);

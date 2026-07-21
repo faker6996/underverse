@@ -44,6 +44,7 @@ import {
 import { isDraftTableFormula } from "./table-formula";
 import { sanitizeUEditorUrl } from "./url-safety";
 import { TableFormulaBar } from "./table-formula-bar";
+import { findTableNodeInfoFromState } from "./table-align-utils";
 
 const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   content = "",
@@ -251,9 +252,11 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
       if (!transaction.getMeta(UEDITOR_TABLE_FORMULA_RECALCULATE_META)) {
         if (isEditingTableFormulaText(editor)) {
           pendingFormulaTextRecalculateRef.current = true;
-        } else {
+        } else if (findTableNodeInfoFromState(editor.state)) {
           pendingFormulaTextRecalculateRef.current = false;
           scheduleFormulaRecalculate(editor);
+        } else {
+          pendingFormulaTextRecalculateRef.current = false;
         }
       }
 
@@ -275,8 +278,10 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
     onBlur: ({ editor, event }) => {
       const nextTarget = event.relatedTarget;
       if (nextTarget instanceof Element && nextTarget.closest("[data-ueditor-formula-bar]")) return;
+      const shouldRecalculate = pendingFormulaTextRecalculateRef.current
+        || findTableNodeInfoFromState(editor.state) !== null;
       pendingFormulaTextRecalculateRef.current = false;
-      scheduleFormulaRecalculate(editor, { force: true });
+      if (shouldRecalculate) scheduleFormulaRecalculate(editor, { force: true });
     },
   });
   useEffect(() => {

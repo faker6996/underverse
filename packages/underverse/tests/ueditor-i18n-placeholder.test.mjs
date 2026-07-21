@@ -255,3 +255,25 @@ test("UEditor does not attach placeholder decorations when the document contains
   assert.equal(view.container.querySelector(".is-editor-empty"), null);
   assert.equal(view.container.querySelector("table .is-empty, table.is-empty, table .is-editor-empty, table.is-editor-empty"), null);
 });
+
+test("UEditor keeps the placeholder on the active empty paragraph", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+
+  const view = await render(
+    React.createElement(UEditor, {
+      content: "<p></p>",
+      placeholder: "Start writing",
+      autofocus: true,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const placeholder = view.container.querySelector("p[data-placeholder='Start writing']");
+  assert.ok(placeholder);
+  assert.ok(placeholder.classList.contains("is-empty"));
+  assert.ok(placeholder.classList.contains("is-editor-empty"));
+});
