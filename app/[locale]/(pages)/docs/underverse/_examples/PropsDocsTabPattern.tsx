@@ -16,7 +16,6 @@
 
 import React from "react";
 import { useTranslations } from "next-intl";
-import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 
 export type PropsRow = {
   property: string;
@@ -26,13 +25,6 @@ export type PropsRow = {
   /** Optional category (Appearance | Behavior | Accessibility | etc.) */
   category?: string;
 };
-
-const baseColumns: DataTableColumn<PropsRow>[] = [
-  { key: "property", title: "Property", dataIndex: "property", width: 160 },
-  { key: "description", title: "Description", dataIndex: "description" },
-  { key: "type", title: "Type", dataIndex: "type", width: 260 },
-  { key: "default", title: "Default", dataIndex: "default", width: 140 },
-];
 
 function sortByOrder(rows: PropsRow[], order?: string[]) {
   if (!order || order.length === 0) return rows;
@@ -48,27 +40,16 @@ import Button from "@/components/ui/Button";
 export function PropsDocsTable({
   rows,
   order,
-  columns = baseColumns,
   className,
   markdownFile,
 }: {
   rows: PropsRow[];
   order?: string[];
-  columns?: DataTableColumn<PropsRow>[];
   className?: string;
   markdownFile?: string;
 }) {
   const t = useTranslations("DocsUnderverse");
   const data = sortByOrder(rows, order);
-  const localizedColumns: DataTableColumn<PropsRow>[] =
-    columns === baseColumns || !columns
-      ? [
-          { key: "property", title: t("propsTable.property"), dataIndex: "property", width: 160 },
-          { key: "description", title: t("propsTable.description"), dataIndex: "description" },
-          { key: "type", title: t("propsTable.type"), dataIndex: "type", width: 260 },
-          { key: "default", title: t("propsTable.default"), dataIndex: "default", width: 140 },
-        ]
-      : columns;
 
   const handleDownload = () => {
     if (!markdownFile) return;
@@ -81,7 +62,7 @@ export function PropsDocsTable({
       {markdownFile && (
         <div className="flex justify-start md:justify-end">
           <Button variant="outline" size="sm" onClick={handleDownload} icon={Download} className="gap-2">
-            Download Docs
+            {t("docs.downloadDocs")}
           </Button>
         </div>
       )}
@@ -104,22 +85,52 @@ export function PropsDocsTable({
           </div>
         ))}
       </div>
-      <div className="hidden md:block">
-        <DataTable<PropsRow>
-          columns={localizedColumns}
-          data={data}
-          rowKey={(r: PropsRow) => r.property}
-          striped
-          enableDensityToggle={false}
-          enableColumnVisibilityToggle={false}
-          // server-mode trick to disable built-in pagination UI
-          onQueryChange={() => {}}
-          total={0}
-          page={1}
-          pageSize={data.length}
-          useOverlayScrollbar
-          className={className ?? "text-sm"}
-        />
+      <div className={`hidden overflow-x-auto rounded-xl border border-border/70 md:block ${className ?? ""}`}>
+        <table className="w-full min-w-[40rem] border-separate border-spacing-0 text-left text-sm">
+          <thead className="bg-muted/45 text-xs text-muted-foreground">
+            <tr>
+              <th scope="col" className="w-32 border-b border-border/70 px-4 py-3 font-semibold">
+                {t("propsTable.property")}
+              </th>
+              <th scope="col" className="border-b border-border/70 px-4 py-3 font-semibold">
+                {t("propsTable.description")}
+              </th>
+              <th scope="col" className="w-52 border-b border-border/70 px-4 py-3 font-semibold">
+                {t("propsTable.type")}
+              </th>
+              <th scope="col" className="w-28 border-b border-border/70 px-4 py-3 font-semibold">
+                {t("propsTable.default")}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((row) => (
+              <tr key={row.property} className="align-top transition-colors [&>*]:border-b [&>*]:border-border/55 last:[&>*]:border-b-0 hover:bg-muted/20">
+                <th scope="row" className="px-4 py-3.5 font-mono text-[13px] font-semibold text-primary">
+                  {row.property}
+                  {row.category ? (
+                    <span className="mt-1.5 block font-sans text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                      {row.category}
+                    </span>
+                  ) : null}
+                </th>
+                <td className="px-4 py-3.5 leading-6 text-muted-foreground">
+                  {row.description}
+                </td>
+                <td className="px-4 py-3.5">
+                  <code className="whitespace-pre-wrap break-all rounded bg-muted/55 px-1.5 py-1 font-mono text-[12px] leading-5 text-foreground">
+                    {row.type}
+                  </code>
+                </td>
+                <td className="px-4 py-3.5">
+                  <code className="whitespace-pre-wrap break-words font-mono text-[12px] leading-5 text-foreground">
+                    {row.default}
+                  </code>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

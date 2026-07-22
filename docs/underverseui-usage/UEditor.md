@@ -133,9 +133,13 @@ export default function Example() {
 - Double-clicking empty cell space or padding selects the whole cell and opens the cell inspector; formula cells keep their Formula Bar behavior.
 - Clicking an empty cell once places the caret for typing. Double-click it to select the whole cell and open the cell inspector.
 - Select one or more whole cells, or choose **Cell Formatting** from the table context menu, to open the dedicated cell inspector.
-- The cell inspector supports background and border styling, formulas, merging/splitting, vertical alignment, and text direction.
+- The cell inspector supports background and border styling, formulas, merging/splitting, vertical alignment, text direction, and per-cell text wrapping.
+- Text wrapping is enabled by default. Long URLs and unbroken tokens wrap inside the current column instead of expanding it.
+- Column widths are layout-driven rather than content-driven: typing or pasting text changes row height, not column width.
+- Select one or more cells and use **Wrap Text** to toggle wrapping for the whole selection. The disabled state is persisted as `data-text-wrap="nowrap"`.
 - Toolbar and contextual table menus support aligning the whole table left, center, or right.
 - Columns use TipTap's native resize handles on the right edge of cells.
+- A column can always be resized down to its configured minimum; a previously expanded long token no longer creates a larger dynamic minimum.
 - Rows support resize on the bottom edge. Hover near the row boundary to reveal the stronger guide line, then drag vertically.
 - A single whole-table resize handle sits outside the bottom-right corner. Drag it freely to change width and height independently.
 - Hold `Ctrl` to lock the resize to the dominant horizontal or vertical direction. Hold `Ctrl+Shift` to preserve the current proportions.

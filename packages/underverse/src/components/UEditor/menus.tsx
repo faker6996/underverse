@@ -34,6 +34,7 @@ import {
   AlignEndVertical,
   ArrowDown,
   ArrowRight,
+  WrapText,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { ToolbarButton, useSharedEditorUiRenderState } from "./toolbar";
@@ -269,6 +270,8 @@ const BubbleMenuContent = ({
     normalizeStyleValue(editor.getAttributes("tableCell").verticalAlign || editor.getAttributes("tableHeader").verticalAlign) || "";
   const currentCellTextDirection =
     normalizeStyleValue(editor.getAttributes("tableCell").textDirection || editor.getAttributes("tableHeader").textDirection) || "horizontal";
+  const currentCellTextWrap =
+    normalizeStyleValue(editor.getAttributes("tableCell").textWrap || editor.getAttributes("tableHeader").textWrap) || "wrap";
   const isInTable = isSelectionInTable(editor.state);
   const canMergeCells = isInTable && editor.can().mergeCells();
   const canSplitCell = isInTable && editor.can().splitCell();
@@ -975,6 +978,18 @@ const BubbleMenuContent = ({
           title={canSplitCell ? t("tableMenu.splitCell") || "Split cell" : t("tableMenu.mergeCells") || "Merge cells"}
         >
           <TableCellsMerge className="w-4 h-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => applyTableCellAttribute(
+            editor,
+            "textWrap",
+            currentCellTextWrap === "nowrap" ? "wrap" : "nowrap",
+            { focus: false },
+          )}
+          active={currentCellTextWrap !== "nowrap"}
+          title={currentCellTextWrap === "nowrap" ? t("tableMenu.wrapText") : t("tableMenu.noWrapText")}
+        >
+          <WrapText className="h-4 w-4" />
         </ToolbarButton>
         <DropdownMenu
           onOpenChange={onKeepOpenChange}

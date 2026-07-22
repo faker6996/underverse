@@ -35,6 +35,7 @@ import {
   AlignStartVertical,
   AlignCenterVertical,
   AlignEndVertical,
+  WrapText,
 } from "lucide-react";
 import { setCellAttr } from "@tiptap/pm/tables";
 import { cn } from "../../utils/cn";
@@ -159,6 +160,7 @@ function computeEditorUiRenderState(editor: Editor) {
       formula: tableCell.formula ?? tableHeader.formula ?? null,
       numberFormat: tableCell.numberFormat ?? tableHeader.numberFormat ?? null,
       textDirection: tableCell.textDirection ?? tableHeader.textDirection ?? null,
+      textWrap: tableCell.textWrap ?? tableHeader.textWrap ?? "wrap",
       verticalAlign: tableCell.verticalAlign ?? tableHeader.verticalAlign ?? null,
     },
     can: {
@@ -412,6 +414,8 @@ export const EditorToolbar = ({
     normalizeStyleValue(editor.getAttributes("tableCell").verticalAlign || editor.getAttributes("tableHeader").verticalAlign) || "";
   const currentCellTextDirection =
     normalizeStyleValue(editor.getAttributes("tableCell").textDirection || editor.getAttributes("tableHeader").textDirection) || "horizontal";
+  const currentCellTextWrap =
+    normalizeStyleValue(editor.getAttributes("tableCell").textWrap || editor.getAttributes("tableHeader").textWrap) || "wrap";
   const currentFontFamily = normalizeStyleValue(textStyleAttrs.fontFamily);
   const currentFontSize = normalizeStyleValue(textStyleAttrs.fontSize);
   const currentTextColor = normalizeStyleValue(textStyleAttrs.color) || "inherit";
@@ -897,26 +901,35 @@ export const EditorToolbar = ({
             )}
           </DropdownMenu>
           {hasTableContext && (
-            <DropdownMenu
-              trigger={
-                <ToolbarButton onClick={() => {}} title={t("tableMenu.textDirection")}>
-                  {currentCellTextDirection === "vertical" ? <ArrowDown className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-                </ToolbarButton>
-              }
-            >
-              <DropdownMenuItem
-                icon={ArrowRight}
-                label={t("tableMenu.horizontalText")}
-                onClick={() => applyTableCellAttribute(editor, "textDirection", null)}
-                active={currentCellTextDirection === "horizontal"}
-              />
-              <DropdownMenuItem
-                icon={ArrowDown}
-                label={t("tableMenu.verticalText")}
-                onClick={() => applyTableCellAttribute(editor, "textDirection", "vertical")}
-                active={currentCellTextDirection === "vertical"}
-              />
-            </DropdownMenu>
+            <>
+              <DropdownMenu
+                trigger={
+                  <ToolbarButton onClick={() => {}} title={t("tableMenu.textDirection")}>
+                    {currentCellTextDirection === "vertical" ? <ArrowDown className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+                  </ToolbarButton>
+                }
+              >
+                <DropdownMenuItem
+                  icon={ArrowRight}
+                  label={t("tableMenu.horizontalText")}
+                  onClick={() => applyTableCellAttribute(editor, "textDirection", null)}
+                  active={currentCellTextDirection === "horizontal"}
+                />
+                <DropdownMenuItem
+                  icon={ArrowDown}
+                  label={t("tableMenu.verticalText")}
+                  onClick={() => applyTableCellAttribute(editor, "textDirection", "vertical")}
+                  active={currentCellTextDirection === "vertical"}
+                />
+              </DropdownMenu>
+              <ToolbarButton
+                onClick={() => applyTableCellAttribute(editor, "textWrap", currentCellTextWrap === "nowrap" ? "wrap" : "nowrap")}
+                active={currentCellTextWrap !== "nowrap"}
+                title={currentCellTextWrap === "nowrap" ? t("tableMenu.wrapText") : t("tableMenu.noWrapText")}
+              >
+                <WrapText className="h-4 w-4" />
+              </ToolbarButton>
+            </>
           )}
         </>
       )}

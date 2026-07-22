@@ -1,7 +1,13 @@
+import { mergeAttributes } from "@tiptap/core";
 import { Table } from "@tiptap/extension-table";
+import type { DOMOutputSpec, Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { Plugin } from "@tiptap/pm/state";
 import { tableEditing } from "@tiptap/pm/tables";
-import { DEFAULT_TABLE_COLUMN_WIDTH, dynamicColumnResizing } from "./table-column-resize";
+import {
+  DEFAULT_TABLE_COLUMN_WIDTH,
+  MIN_RESIZED_TABLE_COLUMN_WIDTH,
+  dynamicColumnResizing,
+} from "./table-column-resize";
 import { findTableNodeInfoFromState } from "./table-align-utils";
 
 export type UEditorTableAlign = "left" | "center" | "right";
@@ -31,14 +37,42 @@ function parseTableAlign(element: HTMLElement) {
 function renderTableAlignStyle(tableAlign: UEditorTableAlign) {
   switch (tableAlign) {
     case "center":
-      return "width: max-content; max-width: 100%; margin-left: auto; margin-right: auto;";
+      return "table-layout: fixed; margin-left: auto; margin-right: auto;";
     case "right":
-      return "width: max-content; max-width: 100%; margin-left: auto; margin-right: 0;";
+      return "table-layout: fixed; margin-left: auto; margin-right: 0;";
     case "left":
-      return "width: max-content; max-width: 100%; margin-left: 0; margin-right: auto;";
+      return "table-layout: fixed; margin-left: 0; margin-right: auto;";
     default:
       return "";
   }
+}
+
+function createUEditorColGroup(node: ProseMirrorNode) {
+  const columns: DOMOutputSpec[] = [];
+  let totalWidth = 0;
+  const firstRow = node.firstChild;
+
+  if (firstRow) {
+    for (let cellIndex = 0; cellIndex < firstRow.childCount; cellIndex += 1) {
+      const cell = firstRow.child(cellIndex);
+      const colspan = Math.max(1, Number(cell.attrs.colspan) || 1);
+      const colwidth = Array.isArray(cell.attrs.colwidth) ? cell.attrs.colwidth : [];
+
+      for (let spanIndex = 0; spanIndex < colspan; spanIndex += 1) {
+        const storedWidth = Number(colwidth[spanIndex]);
+        const width = Number.isFinite(storedWidth) && storedWidth > 0
+          ? Math.max(MIN_RESIZED_TABLE_COLUMN_WIDTH, Math.round(storedWidth))
+          : DEFAULT_TABLE_COLUMN_WIDTH;
+        totalWidth += width;
+        columns.push(["col", { style: `width: ${width}px; min-width: ${width}px;`, width: String(width) }]);
+      }
+    }
+  }
+
+  return {
+    colgroup: ["colgroup", {}, ...columns] as DOMOutputSpec,
+    tableWidth: totalWidth > 0 ? `${totalWidth}px` : "",
+  };
 }
 
 declare module "@tiptap/core" {
@@ -112,6 +146,22 @@ const UEditorTable = Table.extend({
           return true;
         },
     };
+  },
+
+  renderHTML({ node, HTMLAttributes }) {
+    const { colgroup, tableWidth } = createUEditorColGroup(node);
+    const table: DOMOutputSpec = [
+      "table",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+        style: tableWidth ? `width: ${tableWidth};` : "table-layout: fixed;",
+      }),
+      colgroup,
+      ["tbody", 0],
+    ];
+
+    return this.options.renderWrapper
+      ? ["div", { class: "tableWrapper" }, table] as DOMOutputSpec
+      : table;
   },
 
   addProseMirrorPlugins() {

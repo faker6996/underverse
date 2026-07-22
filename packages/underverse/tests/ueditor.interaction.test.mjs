@@ -3516,9 +3516,94 @@ test("UEditor contextual table controls apply table alignment and preserve it in
     assert.equal(table.getAttribute("data-table-align"), "center");
     assert.match(table.getAttribute("style") ?? "", /margin-left:\s*auto/i);
     assert.match(table.getAttribute("style") ?? "", /margin-right:\s*auto/i);
-    assert.match(table.getAttribute("style") ?? "", /width:\s*max-content/i);
+    assert.match(table.getAttribute("style") ?? "", /table-layout:\s*fixed/i);
+    assert.match(table.getAttribute("style") ?? "", /width:\s*200px/i);
+    assert.doesNotMatch(table.getAttribute("style") ?? "", /width:\s*max-content/i);
     assert.match(htmlUpdates.at(-1) ?? "", /data-table-align="center"/);
+    assert.match(htmlUpdates.at(-1) ?? "", /table-layout:\s*fixed/i);
+    assert.match(htmlUpdates.at(-1) ?? "", /width:\s*200px/i);
+    assert.doesNotMatch(htmlUpdates.at(-1) ?? "", /width:\s*max-content/i);
   });
+});
+
+test("UEditor wraps long table text by default and toggles wrapping for a cell range", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+  const ref = React.createRef();
+  const htmlUpdates = [];
+  const longToken = "https://example.com/this-is-a-very-long-path-without-any-spaces-or-natural-breaks";
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: `<table><tbody><tr><td>${longToken}</td><td>Second cell</td></tr></tbody></table>`,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+      onHtmlChange: (html) => htmlUpdates.push(html),
+    }),
+  );
+
+  await waitFor(() => {
+    assert.ok(ref.current?.editor);
+    assert.equal(view.container.querySelectorAll("td").length, 2);
+  });
+
+  const initialCells = view.container.querySelectorAll("td");
+  assert.equal(initialCells[0].getAttribute("data-text-wrap"), null);
+  assert.equal(initialCells[0].style.whiteSpace, "normal");
+  assert.equal(initialCells[0].style.overflowWrap, "anywhere");
+  const initialTable = view.container.querySelector("table");
+  assert.equal(initialTable?.style.tableLayout, "fixed");
+  assert.equal(initialTable?.style.width, "200px");
+  assert.deepEqual(
+    Array.from(view.container.querySelectorAll("colgroup > col"), (column) => column.style.width),
+    ["100px", "100px"],
+  );
+
+  const cellPositions = [];
+  ref.current.editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === "tableCell" || node.type.name === "tableHeader") {
+      cellPositions.push(pos);
+    }
+    return true;
+  });
+  assert.equal(cellPositions.length, 2);
+  assert.equal(
+    ref.current.editor.commands.setCellSelection({ anchorCell: cellPositions[0], headCell: cellPositions[1] }),
+    true,
+  );
+  ref.current.editor.view.focus();
+
+  await user.click(await view.findByRole("button", { name: "Don't Wrap Text" }));
+
+  await waitFor(() => {
+    const cells = view.container.querySelectorAll("td");
+    assert.deepEqual(Array.from(cells, (cell) => cell.getAttribute("data-text-wrap")), ["nowrap", "nowrap"]);
+    assert.deepEqual(Array.from(cells, (cell) => cell.style.whiteSpace), ["nowrap", "nowrap"]);
+    assert.match(htmlUpdates.at(-1) ?? "", /data-text-wrap="nowrap"/);
+    assert.match(htmlUpdates.at(-1) ?? "", /table-layout:\s*fixed/i);
+    assert.match(htmlUpdates.at(-1) ?? "", /width:\s*200px/i);
+  });
+
+  await user.click(await view.findByRole("button", { name: "Wrap Text" }));
+
+  await waitFor(() => {
+    const cells = view.container.querySelectorAll("td");
+    assert.deepEqual(Array.from(cells, (cell) => cell.getAttribute("data-text-wrap")), [null, null]);
+    assert.deepEqual(Array.from(cells, (cell) => cell.style.whiteSpace), ["normal", "normal"]);
+    assert.deepEqual(Array.from(cells, (cell) => cell.style.overflowWrap), ["anywhere", "anywhere"]);
+    assert.doesNotMatch(htmlUpdates.at(-1) ?? "", /data-text-wrap="nowrap"/);
+  });
+});
+
+test("UEditor column resize keeps a fixed minimum after content-driven expansion", async () => {
+  const resizeMod = await importTsModule(path.join(componentsRoot, "UEditor/table-column-resize.ts"));
+
+  assert.equal(resizeMod.getColumnResizeMinWidth(25), 25);
+  assert.equal(resizeMod.getColumnResizeMinWidth(40), 40);
+  assert.equal(resizeMod.getColumnResizeMinWidth(Number.NaN), 25);
 });
 
 test("UEditor table toolbar applies and removes vertical text direction", async () => {
@@ -3707,7 +3792,7 @@ test("UEditor resizes the whole table freely, locks Ctrl to one axis, and keeps 
     assert.ok(element);
     return element;
   });
-  assert.equal(frame.style.width, "320px");
+  assert.equal(frame.style.width, "200px");
   assert.equal(frame.style.height, "50px");
 
   const dragResizeHandle = async ({ pointerId, deltaX = 0, deltaY = 0, ctrlKey = false, shiftKey = false, expectedWidth, expectedHeight }) => {
@@ -3732,14 +3817,14 @@ test("UEditor resizes the whole table freely, locks Ctrl to one axis, and keeps 
     pointerId: 31,
     deltaX: 80,
     deltaY: 50,
-    expectedWidth: 400,
+    expectedWidth: 280,
     expectedHeight: 100,
   });
 
   await waitFor(() => {
     assert.deepEqual(
       Array.from(view.container.querySelectorAll("td"), (cell) => cell.getAttribute("colwidth")),
-      ["200", "200", "200", "200"],
+      ["140", "140", "140", "140"],
     );
     assert.deepEqual(
       Array.from(view.container.querySelectorAll("tr"), (row) => row.getAttribute("data-row-height")),
@@ -3752,7 +3837,7 @@ test("UEditor resizes the whole table freely, locks Ctrl to one axis, and keeps 
     deltaX: 80,
     deltaY: 30,
     ctrlKey: true,
-    expectedWidth: 480,
+    expectedWidth: 360,
     expectedHeight: 100,
   });
 
@@ -3761,7 +3846,7 @@ test("UEditor resizes the whole table freely, locks Ctrl to one axis, and keeps 
     deltaX: 10,
     deltaY: 20,
     ctrlKey: true,
-    expectedWidth: 480,
+    expectedWidth: 360,
     expectedHeight: 120,
   });
 
@@ -3771,14 +3856,14 @@ test("UEditor resizes the whole table freely, locks Ctrl to one axis, and keeps 
     deltaY: 30,
     ctrlKey: true,
     shiftKey: true,
-    expectedWidth: 600,
+    expectedWidth: 450,
     expectedHeight: 150,
   });
 
   await waitFor(() => {
     assert.deepEqual(
       Array.from(view.container.querySelectorAll("td"), (cell) => cell.getAttribute("colwidth")),
-      ["300", "300", "300", "300"],
+      ["225", "225", "225", "225"],
     );
     assert.deepEqual(
       Array.from(view.container.querySelectorAll("tr"), (row) => row.getAttribute("data-row-height")),
@@ -3787,7 +3872,7 @@ test("UEditor resizes the whole table freely, locks Ctrl to one axis, and keeps 
   });
 
   const result = await ref.current.prepareContentForSave();
-  assert.match(result.html, /colwidth="300"/);
+  assert.match(result.html, /colwidth="225"/);
   assert.match(result.html, /data-row-height="75"/);
 });
 
@@ -4686,14 +4771,14 @@ test("UEditor edge rails preview expands table by the previewed rows and columns
   const quickAddColumnButton = await body.findByRole("button", { name: "Quick Add Column After" });
   assert.equal(quickAddColumnButton.disabled, false);
 
-  fireEvent.mouseDown(quickAddColumnButton, { clientX: 320 });
-  fireEvent.mouseMove(window, { clientX: 500 });
+  fireEvent.mouseDown(quickAddColumnButton, { clientX: 200 });
+  fireEvent.mouseMove(window, { clientX: 380 });
 
   await waitFor(() => {
     assert.equal(body.getByRole("status").textContent?.trim(), "+2C");
   });
 
-  fireEvent.mouseUp(window, { clientX: 500 });
+  fireEvent.mouseUp(window, { clientX: 380 });
 
   await waitFor(() => {
     const firstRowCells = view.container.querySelectorAll("tr")[0]?.querySelectorAll("th,td") ?? [];

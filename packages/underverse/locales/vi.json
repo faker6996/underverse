@@ -341,7 +341,9 @@
       "alignVerticalBottom": "Căn dưới",
       "textDirection": "Hướng chữ",
       "horizontalText": "Chữ ngang",
-      "verticalText": "Chữ dọc"
+      "verticalText": "Chữ dọc",
+      "wrapText": "Tự xuống dòng",
+      "noWrapText": "Không xuống dòng"
     },
     "callout": {
       "selectEmoji": "Chọn Biểu tượng",

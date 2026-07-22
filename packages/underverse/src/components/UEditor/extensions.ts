@@ -67,6 +67,32 @@ function getFormulaStateAttributes(attributes: Record<string, unknown>) {
   };
 }
 
+type TableCellTextWrap = "wrap" | "nowrap";
+
+function normalizeTableCellTextWrap(value: unknown): TableCellTextWrap {
+  return value === "nowrap" ? "nowrap" : "wrap";
+}
+
+function parseTableCellTextWrap(element: HTMLElement): TableCellTextWrap {
+  if (element.getAttribute("data-text-wrap") === "nowrap" || element.style.whiteSpace === "nowrap") {
+    return "nowrap";
+  }
+
+  return "wrap";
+}
+
+function renderTableCellTextWrap(attributes: Record<string, unknown>) {
+  return normalizeTableCellTextWrap(attributes.textWrap) === "nowrap"
+    ? { "data-text-wrap": "nowrap" }
+    : {};
+}
+
+function getTableCellTextWrapStyle(value: unknown) {
+  return normalizeTableCellTextWrap(value) === "nowrap"
+    ? "white-space: nowrap; overflow-wrap: normal; word-break: normal"
+    : "white-space: normal; overflow-wrap: anywhere; word-break: normal";
+}
+
 export const CustomTableCell = TableCell.extend({
   addAttributes() {
     return {
@@ -171,6 +197,11 @@ export const CustomTableCell = TableCell.extend({
             : null,
         renderHTML: (attributes) => attributes.textDirection === "vertical" ? { "data-text-direction": "vertical" } : {},
       },
+      textWrap: {
+        default: "wrap",
+        parseHTML: parseTableCellTextWrap,
+        renderHTML: renderTableCellTextWrap,
+      },
     };
   },
 
@@ -182,6 +213,7 @@ export const CustomTableCell = TableCell.extend({
     const borderWidth = HTMLAttributes["data-border-width"];
     const verticalAlign = HTMLAttributes["data-vertical-align"];
     const textDirection = HTMLAttributes["data-text-direction"];
+    const textWrap = HTMLAttributes["data-text-wrap"];
 
     let mergedStyle = style;
     if (bg) mergedStyle += `; background-color: ${bg}`;
@@ -190,6 +222,7 @@ export const CustomTableCell = TableCell.extend({
     if (borderWidth) mergedStyle += `; border-width: ${borderWidth}`;
     if (verticalAlign) mergedStyle += `; vertical-align: ${verticalAlign}`;
     if (textDirection === "vertical") mergedStyle += "; writing-mode: sideways-lr; text-orientation: mixed";
+    mergedStyle += `; ${getTableCellTextWrapStyle(textWrap)}`;
     mergedStyle = mergedStyle.replace(/^;/, "").trim();
 
     return [
@@ -304,6 +337,11 @@ export const CustomTableHeader = TableHeader.extend({
             : null,
         renderHTML: (attributes) => attributes.textDirection === "vertical" ? { "data-text-direction": "vertical" } : {},
       },
+      textWrap: {
+        default: "wrap",
+        parseHTML: parseTableCellTextWrap,
+        renderHTML: renderTableCellTextWrap,
+      },
     };
   },
 
@@ -315,6 +353,7 @@ export const CustomTableHeader = TableHeader.extend({
     const borderWidth = HTMLAttributes["data-border-width"];
     const verticalAlign = HTMLAttributes["data-vertical-align"];
     const textDirection = HTMLAttributes["data-text-direction"];
+    const textWrap = HTMLAttributes["data-text-wrap"];
 
     let mergedStyle = style;
     if (bg) mergedStyle += `; background-color: ${bg}`;
@@ -323,6 +362,7 @@ export const CustomTableHeader = TableHeader.extend({
     if (borderWidth) mergedStyle += `; border-width: ${borderWidth}`;
     if (verticalAlign) mergedStyle += `; vertical-align: ${verticalAlign}`;
     if (textDirection === "vertical") mergedStyle += "; writing-mode: sideways-lr; text-orientation: mixed";
+    mergedStyle += `; ${getTableCellTextWrapStyle(textWrap)}`;
     mergedStyle = mergedStyle.replace(/^;/, "").trim();
 
     return [
@@ -515,6 +555,7 @@ export function buildUEditorExtensions({
       allowTableNodeSelection: true,
       HTMLAttributes: {
         class: "border-collapse my-4",
+        style: "table-layout: fixed;",
       },
     }),
     UEditorTableRow,

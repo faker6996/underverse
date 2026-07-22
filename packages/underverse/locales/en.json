@@ -341,7 +341,9 @@
       "alignVerticalBottom": "Bottom Align",
       "textDirection": "Text Direction",
       "horizontalText": "Horizontal Text",
-      "verticalText": "Vertical Text"
+      "verticalText": "Vertical Text",
+      "wrapText": "Wrap Text",
+      "noWrapText": "Don't Wrap Text"
     },
     "callout": {
       "selectEmoji": "Select Emoji",

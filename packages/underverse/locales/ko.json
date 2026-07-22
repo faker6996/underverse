@@ -341,7 +341,9 @@
       "alignVerticalBottom": "아래쪽 맞춤",
       "textDirection": "텍스트 방향",
       "horizontalText": "가로쓰기",
-      "verticalText": "세로쓰기"
+      "verticalText": "세로쓰기",
+      "wrapText": "텍스트 줄 바꿈",
+      "noWrapText": "줄 바꿈 안 함"
     },
     "callout": {
       "selectEmoji": "이모지 선택",

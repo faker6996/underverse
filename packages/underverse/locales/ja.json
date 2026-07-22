@@ -341,7 +341,9 @@
       "alignVerticalBottom": "下揃え",
       "textDirection": "文字方向",
       "horizontalText": "横書き",
-      "verticalText": "縦書き"
+      "verticalText": "縦書き",
+      "wrapText": "テキストを折り返す",
+      "noWrapText": "折り返さない"
     },
     "callout": {
       "selectEmoji": "絵文字を選択",

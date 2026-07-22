@@ -56,16 +56,22 @@ export function applyTableAlignment(editor: Editor, tableAlign: UEditorTableAlig
     ?? (editor.view.dom.querySelectorAll("table").length === 1 ? editor.view.dom.querySelector("table") : null);
 
   if (tableElement instanceof HTMLTableElement) {
+    tableElement.style.tableLayout = "fixed";
+    // Older alignment behavior used content-sized tables. Remove only those
+    // legacy values so explicit widths from column/table resizing stay intact.
+    if (tableElement.style.width === "max-content") {
+      tableElement.style.removeProperty("width");
+    }
+    if (tableElement.style.maxWidth === "100%") {
+      tableElement.style.removeProperty("max-width");
+    }
+
     if (tableAlign) {
       tableElement.setAttribute("data-table-align", tableAlign);
-      tableElement.style.width = "max-content";
-      tableElement.style.maxWidth = "100%";
       tableElement.style.marginLeft = tableAlign === "center" || tableAlign === "right" ? "auto" : "0";
       tableElement.style.marginRight = tableAlign === "center" ? "auto" : tableAlign === "right" ? "0" : "auto";
     } else {
       tableElement.removeAttribute("data-table-align");
-      tableElement.style.removeProperty("width");
-      tableElement.style.removeProperty("max-width");
       tableElement.style.removeProperty("margin-left");
       tableElement.style.removeProperty("margin-right");
     }

@@ -26,13 +26,17 @@ type DynamicColumnDragging = {
   minWidth: number;
 };
 
-function getDynamicColumnMinWidth(startWidth: number, fallbackMinWidth: number) {
-  return Math.max(fallbackMinWidth, Math.round(startWidth / 3));
+export function getColumnResizeMinWidth(configuredMinWidth: number) {
+  const normalizedMinWidth = Number.isFinite(configuredMinWidth) && configuredMinWidth > 0
+    ? Math.round(configuredMinWidth)
+    : MIN_RESIZED_TABLE_COLUMN_WIDTH;
+
+  return Math.max(MIN_RESIZED_TABLE_COLUMN_WIDTH, normalizedMinWidth);
 }
 
 function setColumnStyle(column: HTMLTableColElement, width: number | null) {
   if (width == null) {
-    column.style.width = "";
+    column.style.width = `${DEFAULT_TABLE_COLUMN_WIDTH}px`;
     column.style.minWidth = `${DEFAULT_TABLE_COLUMN_WIDTH}px`;
     return;
   }
@@ -53,7 +57,6 @@ function updateDynamicColumns(
   overrideValue?: number,
 ) {
   let totalWidth = 0;
-  let fixedWidth = true;
   let nextDOM = colgroup.firstChild;
   const row = node.firstChild;
 
@@ -65,10 +68,6 @@ function updateDynamicColumns(
         const rawWidth = overrideCol === col ? overrideValue : colwidth?.[spanIndex];
         const width = rawWidth ? Math.max(rawWidth, MIN_RESIZED_TABLE_COLUMN_WIDTH) : null;
         totalWidth += width ?? DEFAULT_TABLE_COLUMN_WIDTH;
-
-        if (!width) {
-          fixedWidth = false;
-        }
 
         const colElement = isTableColumnElement(nextDOM)
           ? nextDOM
@@ -86,11 +85,10 @@ function updateDynamicColumns(
   }
 
   const hasUserWidth = typeof node.attrs.style === "string" && /\bwidth\s*:/i.test(node.attrs.style);
-  if (fixedWidth && !hasUserWidth) {
+  if (!hasUserWidth) {
     table.style.width = `${totalWidth}px`;
     table.style.minWidth = "";
   } else {
-    table.style.width = "";
     table.style.minWidth = `${totalWidth}px`;
   }
 }
@@ -115,6 +113,7 @@ class UEditorTableView implements NodeView {
     if (node.attrs.style) {
       this.table.style.cssText = node.attrs.style;
     }
+    this.table.style.tableLayout = "fixed";
 
     this.colgroup = this.table.appendChild(document.createElement("colgroup"));
     updateDynamicColumns(node, this.colgroup, this.table);
@@ -350,7 +349,7 @@ function handleMouseDown(
     colspan: attrs.colspan ?? 1,
     colwidth: attrs.colwidth,
   });
-  const minWidth = getDynamicColumnMinWidth(width, cellMinWidth);
+  const minWidth = getColumnResizeMinWidth(cellMinWidth);
   const dragging: DynamicColumnDragging = {
     startX: event.clientX,
     startWidth: width,
