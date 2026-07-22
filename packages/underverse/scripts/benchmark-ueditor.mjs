@@ -93,17 +93,20 @@ async function runScenario(UEditor, {
   formulaProbe,
   insertText = "x",
   name,
+  outputDebounceMs = 0,
   replaceSelectedCellValues,
   selectText,
   showBubbleMenu = false,
   showCharacterCount = false,
   showMenuBar = false,
   showToolbar = false,
+  trackHtmlOutput = false,
 }) {
   globalThis.gc?.();
   const ref = React.createRef();
   let reactCommitCount = 0;
   let reactRenderDurationMs = 0;
+  let outputUpdates = 0;
   const mountStartedAt = performance.now();
   render(
     React.createElement(
@@ -119,6 +122,10 @@ async function runScenario(UEditor, {
       React.createElement(UEditor, {
         ref,
         content,
+        onHtmlChange: trackHtmlOutput ? () => {
+          outputUpdates += 1;
+        } : undefined,
+        outputDebounceMs,
         showToolbar,
         showBubbleMenu,
         showFloatingMenu: false,
@@ -184,6 +191,9 @@ async function runScenario(UEditor, {
     performEdit(index);
     await flushEditorWork();
   }
+  if (trackHtmlOutput && outputDebounceMs > 0) {
+    await new Promise((resolve) => setTimeout(resolve, outputDebounceMs + 10));
+  }
 
   descendantCalls = 0;
   descendantVisits = 0;
@@ -192,12 +202,16 @@ async function runScenario(UEditor, {
   reactCommitCount = 0;
   reactRenderDurationMs = 0;
   updateEvents = 0;
+  outputUpdates = 0;
   const samples = [];
   for (let index = 0; index < editCount; index += 1) {
     const startedAt = performance.now();
     performEdit(index + 5);
     await flushEditorWork();
     samples.push(performance.now() - startedAt);
+  }
+  if (trackHtmlOutput && outputDebounceMs > 0) {
+    await new Promise((resolve) => setTimeout(resolve, outputDebounceMs + 10));
   }
 
   const result = {
@@ -214,6 +228,7 @@ async function runScenario(UEditor, {
     reactCommitsPerEdit: Number((reactCommitCount / editCount).toFixed(2)),
     reactRenderMsPerEdit: Number((reactRenderDurationMs / editCount).toFixed(2)),
     updateEventsPerEdit: Number((updateEvents / editCount).toFixed(2)),
+    outputUpdatesPerEdit: Number((outputUpdates / editCount).toFixed(2)),
     ...(traceDescendants ? {
       descendantStacks: [...descendantStacks.entries()]
         .sort((left, right) => right[1] - left[1])
@@ -421,6 +436,21 @@ try {
     showCharacterCount: true,
     showMenuBar: true,
     showToolbar: true,
+  }));
+  results.push(await runScenario(UEditor, {
+    name: "1,500 paragraphs with immediate HTML output",
+    content: buildLargeDocument(1_500),
+    editCount: 25,
+    selectText: "Paragraph 1500: benchmark content for transaction and decoration work.",
+    trackHtmlOutput: true,
+  }));
+  results.push(await runScenario(UEditor, {
+    name: "1,500 paragraphs with debounced HTML output",
+    content: buildLargeDocument(1_500),
+    editCount: 25,
+    outputDebounceMs: 100,
+    selectText: "Paragraph 1500: benchmark content for transaction and decoration work.",
+    trackHtmlOutput: true,
   }));
   results.push(await runScenario(UEditor, {
     name: "40x8 formula table, editing outside",

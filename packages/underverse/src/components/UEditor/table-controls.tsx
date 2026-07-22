@@ -26,7 +26,11 @@ import {
   expandTableFromCell,
   runTableCommandAtCellPos,
 } from "./table-cell-commands";
-import { resolveEventElement, UEDITOR_TABLE_LAYOUT_CHANGE_EVENT } from "./table-dom-utils";
+import {
+  isPointOverRenderedText,
+  resolveEventElement,
+  UEDITOR_TABLE_LAYOUT_CHANGE_EVENT,
+} from "./table-dom-utils";
 import {
   areTableHoverStatesEqual,
   buildTableHoverState,
@@ -41,6 +45,7 @@ import { TableResizeHandles } from "./table-resize-handles";
 import {
   buildTableControlLayout,
   getCellFromTarget,
+  getTableCellTextSelectionRange,
   type TableAxisHandle,
   type TableControlLayout,
 } from "./table-layout-model";
@@ -54,7 +59,7 @@ import {
 import { subscribeSharedGlobalEvent } from "./shared-global-listeners";
 
 const TABLE_MENU_TOP_OFFSET = 10;
-const COLUMN_HANDLE_TOP_OFFSET = 8;
+const AXIS_HANDLE_RADIUS = 12;
 
 /** Public props for the `TableControls` component. */
 type TableControlsProps = {
@@ -294,6 +299,21 @@ export function TableControls({ editor, containerRef, showCellInspector = true }
       const surface = containerRef.current;
       const nextLayout = surface ? buildTableControlLayout(editor, surface, cell) : null;
       if (!nextLayout) return;
+
+      if (isPointOverRenderedText(cell, event.clientX, event.clientY)) {
+        const textSelection = getTableCellTextSelectionRange(editor, nextLayout.cellPos);
+        if (textSelection) {
+          event.preventDefault();
+          const didSelectText = editor.commands.setTextSelection(textSelection);
+          if (didSelectText) {
+            editor.view.focus();
+            layoutRef.current = nextLayout;
+            setLayout(nextLayout);
+            setHoverState(DEFAULT_TABLE_HOVER_STATE);
+            return;
+          }
+        }
+      }
 
       const didSelect = editor.commands.setCellSelection({
         anchorCell: nextLayout.cellPos,
@@ -812,8 +832,11 @@ export function TableControls({ editor, containerRef, showCellInspector = true }
 
   const menuTop = Math.max(8, layout.tableTop - TABLE_MENU_TOP_OFFSET);
   const menuLeft = Math.max(8, layout.tableLeft);
-  const rowHandleLeft = layout.tableLeft - 12;
-  const columnHandleTop = layout.tableTop - 12;
+  // Visually center the axis handles on the table border. Hover hit testing
+  // remains restricted to the outside half so the inside half cannot compete
+  // with text selection.
+  const rowHandleLeft = layout.tableLeft - AXIS_HANDLE_RADIUS;
+  const columnHandleTop = layout.tableTop - AXIS_HANDLE_RADIUS;
 
   return (
     <>

@@ -43,6 +43,7 @@ import {
 import { isDraftTableFormula } from "./table-formula";
 import { sanitizeUEditorUrl } from "./url-safety";
 import { TableFormulaBar } from "./table-formula-bar";
+import { useUEditorOutput } from "./use-editor-output";
 
 const LazyMenuBar = React.lazy(async () => {
   const { MenuBar } = await import("./menu-bar");
@@ -54,6 +55,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   onChange,
   onHtmlChange,
   onJsonChange,
+  outputDebounceMs = 0,
   uploadImage,
   uploadImageForSave,
   uploadImageConcurrency = 3,
@@ -99,6 +101,12 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   const formulaRangePickRef = useRef<FormulaRangePickState | null>(null);
   const formulaRangeSurfaceRef = useRef<HTMLDivElement | null>(null);
   const [formulaRangeHighlight, setFormulaRangeHighlight] = React.useState<FormulaRangePickHighlight | null>(null);
+  const { flushOutputUpdates, scheduleOutputUpdate } = useUEditorOutput({
+    onChange,
+    onHtmlChange,
+    onJsonChange,
+    outputDebounceMs,
+  });
   const scheduleFormulaRecalculate = React.useCallback((editor: NonNullable<ReturnType<typeof useEditor>>, options?: { force?: boolean }) => {
     if (editor.isDestroyed || scheduledFormulaRecalculateRef.current) return;
     if (!options?.force && isEditingTableFormulaText(editor)) return;
@@ -264,14 +272,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         }
       }
 
-      if (onChange || onHtmlChange) {
-        const html = editor.getHTML();
-        onChange?.(html);
-        onHtmlChange?.(html);
-      }
-      if (onJsonChange) {
-        onJsonChange(editor.getJSON());
-      }
+      scheduleOutputUpdate(editor);
     },
     onSelectionUpdate: ({ editor }) => {
       if (pendingFormulaTextRecalculateRef.current && !isEditingTableFormulaText(editor)) {
@@ -285,6 +286,9 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
       const shouldRecalculate = pendingFormulaTextRecalculateRef.current;
       pendingFormulaTextRecalculateRef.current = false;
       if (shouldRecalculate) scheduleFormulaRecalculate(editor, { force: true });
+      // Formula recalculation is queued first. Flushing in the following
+      // microtask emits the final computed document before focus leaves.
+      queueMicrotask(flushOutputUpdates);
     },
   });
   useEffect(() => {

@@ -79,6 +79,36 @@ test("useSmartTranslations falls back to internal localized defaults when NextIn
   assert.equal(view.container.textContent, "Văn bản thường");
 });
 
+test("useSmartTranslations keeps a stable callback across unrelated renders", async () => {
+  document.documentElement.lang = "en";
+  const hooksMod = await importTsModule(path.join(hooksRoot, "useSmartTranslations.tsx"));
+  const { useSmartTranslations } = hooksMod;
+  const translationCallbacks = [];
+
+  function Probe() {
+    const [renderCount, setRenderCount] = React.useState(0);
+    const t = useSmartTranslations("UEditor");
+    translationCallbacks.push(t);
+
+    return React.createElement(
+      "button",
+      { type: "button", onClick: () => setRenderCount((value) => value + 1) },
+      `${t("toolbar.normal")}:${renderCount}`,
+    );
+  }
+
+  const view = await render(React.createElement(Probe));
+  const firstCallback = translationCallbacks.at(-1);
+
+  await act(async () => {
+    view.container.querySelector("button")?.click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  assert.match(view.container.textContent ?? "", /:1$/);
+  assert.equal(translationCallbacks.at(-1), firstCallback);
+});
+
 test("useSmartLocale prefers the NextIntlAdapter locale over the document locale", async () => {
   document.documentElement.lang = "ko";
   const hooksMod = await importTsModule(path.join(hooksRoot, "useSmartTranslations.tsx"));

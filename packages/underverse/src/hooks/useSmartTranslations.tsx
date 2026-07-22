@@ -85,11 +85,11 @@ export function useSmartTranslations(namespace: string): (key: string) => string
     }
   }, [forceInternal, internalLocale, nextIntlBridge]);
 
-  if (forceInternal) {
-    return internalT;
-  }
+  return React.useCallback((key: string) => {
+    if (forceInternal) {
+      return internalT(key);
+    }
 
-  return (key: string) => {
     const resolvedEnvironmentLocale = environmentLocale && environmentLocale !== internalLocale ? environmentLocale : null;
     const primaryLocale = nextIntlBridge?.locale ?? resolvedEnvironmentLocale ?? internalLocale;
     const fallbackLocale = resolvedEnvironmentLocale && resolvedEnvironmentLocale !== primaryLocale ? resolvedEnvironmentLocale : null;
@@ -132,7 +132,7 @@ export function useSmartTranslations(namespace: string): (key: string) => string
     }
 
     return key;
-  };
+  }, [environmentLocale, forceInternal, internalLocale, internalT, namespace, nextIntlBridge]);
 }
 
 /**

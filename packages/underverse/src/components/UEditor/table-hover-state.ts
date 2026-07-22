@@ -41,6 +41,13 @@ export function buildTableHoverState({
   layout: TableControlLayout;
   surface: HTMLDivElement;
 }): TableHoverState {
+  // A pressed primary pointer inside the editor is normally selecting text.
+  // Do not let table chrome appear underneath that gesture. Table control
+  // drags are already kept visible by their dedicated drag state.
+  if (event.buttons !== 0) {
+    return DEFAULT_TABLE_HOVER_STATE;
+  }
+
   const surfaceRect = surface.getBoundingClientRect();
   const relativeX = event.clientX - surfaceRect.left + surface.scrollLeft;
   const relativeY = event.clientY - surfaceRect.top + surface.scrollTop;
@@ -52,10 +59,10 @@ export function buildTableHoverState({
   const directAddColumn = targetElement?.closest?.("[data-table-control='add-column']");
   const directAddRow = targetElement?.closest?.("[data-table-control='add-row']");
 
-  const directRowHandleIndex = directRowHandle instanceof HTMLElement
+  const directRowHandleIndex = directRowHandle instanceof HTMLElement && relativeX <= layout.tableLeft
     ? Number.parseInt(directRowHandle.dataset.rowHandleIndex ?? "", 10)
     : Number.NaN;
-  const directColumnHandleIndex = directColumnHandle instanceof HTMLElement
+  const directColumnHandleIndex = directColumnHandle instanceof HTMLElement && relativeY <= layout.tableTop
     ? Number.parseInt(directColumnHandle.dataset.columnHandleIndex ?? "", 10)
     : Number.NaN;
   const visibleBounds = getVisibleTableBounds(layout);

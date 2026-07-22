@@ -31,6 +31,7 @@ export default function Example() {
         ref={editorRef}
         content={content}
         onChange={setContent}
+        outputDebounceMs={120}
         uploadImageForSave={async (file) => {
           const fd = new FormData();
           fd.append("file", file);
@@ -47,6 +48,23 @@ export default function Example() {
   );
 }
 ```
+
+### Output performance
+
+`onChange`, `onHtmlChange`, and `onJsonChange` serialize the complete document. For large controlled documents, use `outputDebounceMs` to coalesce rapid transactions into one output update:
+
+```tsx
+<UEditor
+  content={content}
+  onHtmlChange={setContent}
+  outputDebounceMs={120}
+/>
+```
+
+- `0` keeps the backward-compatible immediate callback behavior.
+- `100-200ms` is recommended for large documents.
+- Pending output is flushed when the editor loses focus.
+- `prepareContentForSave()` always reads the latest editor document directly and does not wait for the debounce timer.
 
 ## Images
 
@@ -111,7 +129,8 @@ export default function Example() {
 - Drag the bottom rail or right rail to preview and add multiple rows or columns at once.
 - The table context menu supports add/remove row or column plus header row/column toggles.
 - Text selection inside a cell opens only the text-formatting bubble menu.
-- Double-clicking a non-formula cell selects the whole cell and opens the cell inspector, matching a one-cell `CellSelection`; formula cells keep their Formula Bar behavior.
+- Double-clicking rendered text selects all text in that cell and opens the text bubble menu.
+- Double-clicking empty cell space or padding selects the whole cell and opens the cell inspector; formula cells keep their Formula Bar behavior.
 - Clicking an empty cell once places the caret for typing. Double-click it to select the whole cell and open the cell inspector.
 - Select one or more whole cells, or choose **Cell Formatting** from the table context menu, to open the dedicated cell inspector.
 - The cell inspector supports background and border styling, formulas, merging/splitting, vertical alignment, and text direction.
@@ -241,6 +260,7 @@ Display content without editing capabilities:
 | `onChange`           | `(content: string) => void`          | `undefined`                  | Callback function fired when content changes. |
 | `onHtmlChange`       | `(html: string) => void`             | `undefined`                  | Alias for onChange.                           |
 | `onJsonChange`       | `(json: object) => void`             | `undefined`                  | Callback with JSON structure of content.      |
+| `outputDebounceMs`   | `number`                              | `0`                          | Debounce HTML/JSON callbacks; use `100-200ms` for large controlled documents. |
 | `uploadImage`        | `(file: File) => Promise<string> \| string` | `undefined`            | Image upload handler (used when `imageInsertMode="upload"`). Must return the image URL. |
 | `uploadImageForSave` | `(file: File) => Promise<string \| { url: string; [k: string]: any }>` | `undefined` | Optional upload handler used by `prepareContentForSave()` to transform base64 images before save. |
 | `uploadImageConcurrency` | `number` | `3` | Maximum number of base64 inline images uploaded at once during `prepareContentForSave()`. |

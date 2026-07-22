@@ -104,10 +104,11 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({ childr
     },
     [locale, translations]
   );
+  const value = React.useMemo<TranslationContextType>(() => ({ locale, t }), [locale, t]);
 
   return (
     <GlobalI18nProvider i18n={i18n}>
-      <TranslationContext.Provider value={{ locale, t }}>{children}</TranslationContext.Provider>
+      <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>
     </GlobalI18nProvider>
   );
 };
@@ -128,14 +129,16 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({ childr
 export const useUnderverseTranslations = (namespace: string) => {
   const context = React.useContext(TranslationContext);
 
-  // Fallback for when provider is not available - use English defaults
-  if (!context) {
-    return (key: string): string => {
-      return getUnderverseDefaultTranslation("en", namespace, key);
-    };
-  }
+  return React.useMemo(() => {
+    // Fallback for when provider is not available - use English defaults.
+    if (!context) {
+      return (key: string): string => {
+        return getUnderverseDefaultTranslation("en", namespace, key);
+      };
+    }
 
-  return context.t(namespace);
+    return context.t(namespace);
+  }, [context, namespace]);
 };
 
 /**

@@ -286,6 +286,27 @@ export function getLastCellPosFromState(editor: Editor, pos: number) {
   return tableInfo.start + map.positionAt(map.height - 1, map.width - 1, tableInfo.node);
 }
 
+export function getTableCellTextSelectionRange(editor: Editor, cellPos: number) {
+  const cellNode = editor.state.doc.nodeAt(cellPos);
+  if (!cellNode || (cellNode.type.name !== "tableCell" && cellNode.type.name !== "tableHeader")) {
+    return null;
+  }
+
+  let from: number | null = null;
+  let to: number | null = null;
+
+  cellNode.descendants((node, relativePos) => {
+    if (!node.isText || node.nodeSize === 0) return true;
+
+    const textStart = cellPos + 1 + relativePos;
+    from ??= textStart;
+    to = textStart + node.nodeSize;
+    return true;
+  });
+
+  return from !== null && to !== null && from < to ? { from, to } : null;
+}
+
 export function buildTableControlLayout(editor: Editor, surface: HTMLDivElement, cell: HTMLTableCellElement): TableControlLayout | null {
   const row = cell.closest("tr");
   const table = cell.closest("table");

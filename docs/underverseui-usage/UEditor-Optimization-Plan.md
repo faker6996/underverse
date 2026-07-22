@@ -36,6 +36,14 @@ Harden `UEditor` for production use without breaking the existing public API.
    - Consider a DOMParser-based HTML transform for `prepareContentForSave()`.
    - Add browser-level tests for URL sanitization.
 
+6. Transaction and output performance
+   - Keep translation callbacks referentially stable across unrelated renders.
+   - Avoid rebuilding the editor extension configuration when locale inputs have not changed.
+   - Preserve immediate output callbacks by default for backward compatibility.
+   - Allow large controlled documents to debounce HTML/JSON serialization.
+   - Flush pending debounced output when focus leaves the editor.
+   - Benchmark immediate and debounced HTML output separately.
+
 ## Current Implementation Batch
 
 - Add shared URL sanitizer helpers.
@@ -48,6 +56,23 @@ Harden `UEditor` for production use without breaking the existing public API.
 - Extract table interaction event wiring into `use-table-interactions.ts`.
 - Extract row-height resize state and RAF commit behavior into `use-table-row-resize.ts`.
 - Add a browser-level docs e2e test for live table row resize.
+- Share equivalent global listeners between editor instances and verify cleanup.
+- Lazy-load optional menu bar, emoji data, emoji picker, and syntax grammars.
+- Scope formula recalculation to changed source cells and active tables.
+- Add `outputDebounceMs` for coalesced HTML/JSON output callbacks.
+- Stabilize translation callback identity so extension configuration memoization remains effective.
+- Extend the benchmark with immediate and debounced output scenarios.
+
+## Latest Benchmark Snapshot
+
+Measured with the package benchmark on a document containing 1,500 paragraphs and 25 consecutive edits:
+
+| Output mode | Average edit time | P95 edit time | Output callbacks |
+| --- | ---: | ---: | ---: |
+| Immediate HTML output | `9.63ms` | `11.52ms` | `1.00/edit` |
+| HTML output with `100ms` debounce | `0.72ms` | `1.03ms` | `0.04/edit` |
+
+The debounced case coalesced 25 document updates into one serialization and reduced the measured edit critical path by about 92%. Immediate output remains the default; consumers opt into this optimization with `outputDebounceMs`.
 
 ## Deferred
 

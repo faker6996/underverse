@@ -60,6 +60,12 @@ export interface UEditorProps {
   onHtmlChange?: (html: string) => void;
   /** Called with the current TipTap JSON document after editor updates. */
   onJsonChange?: (json: object) => void;
+  /**
+   * Debounces HTML/JSON output callbacks by the given number of milliseconds.
+   * Defaults to `0` for backward-compatible immediate updates. Values around
+   * `100-200` are recommended for large controlled documents.
+   */
+  outputDebounceMs?: number;
   /** Uploads images immediately when they are inserted in `imageInsertMode="upload"`. */
   uploadImage?: (file: File) => Promise<string> | string;
   /** Uploads embedded/base64 images during `prepareContentForSave`; use this for save-time normalization. */

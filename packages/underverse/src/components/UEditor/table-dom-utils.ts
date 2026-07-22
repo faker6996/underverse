@@ -35,6 +35,41 @@ export function resolveEventElement(target: EventTarget | null) {
   return null;
 }
 
+/**
+ * Returns true only when the pointer is over a rendered text run. Checking the
+ * event target is not sufficient because block elements usually fill the
+ * complete table cell, including its empty padding.
+ */
+export function isPointOverRenderedText(root: HTMLElement, clientX: number, clientY: number) {
+  const view = root.ownerDocument.defaultView;
+  if (!view) return false;
+
+  const walker = root.ownerDocument.createTreeWalker(root, view.NodeFilter.SHOW_TEXT);
+  let textNode = walker.nextNode();
+
+  while (textNode) {
+    if (textNode.textContent?.length) {
+      const range = root.ownerDocument.createRange();
+      range.selectNodeContents(textNode);
+      const textRects = Array.from(range.getClientRects());
+      range.detach?.();
+
+      if (textRects.some((rect) => (
+        clientX >= rect.left
+        && clientX <= rect.right
+        && clientY >= rect.top
+        && clientY <= rect.bottom
+      ))) {
+        return true;
+      }
+    }
+
+    textNode = walker.nextNode();
+  }
+
+  return false;
+}
+
 export function getSelectionTableCell(view: EditorView) {
   const browserSelection = window.getSelection();
   const anchorElement = resolveEventElement(browserSelection?.anchorNode ?? null);

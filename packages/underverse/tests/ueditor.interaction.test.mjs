@@ -224,6 +224,71 @@ test("UEditor serializes only the output formats that have subscribers", async (
   assert.equal(jsonSerializations, 0);
 });
 
+test("UEditor debounces output serialization and flushes the latest document on blur", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+  const htmlUpdates = [];
+  const jsonUpdates = [];
+
+  render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<p>Debounced</p>",
+      outputDebounceMs: 40,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+      onHtmlChange: (html) => htmlUpdates.push(html),
+      onJsonChange: (json) => jsonUpdates.push(json),
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  const editor = ref.current.editor;
+  const originalGetHtml = editor.getHTML.bind(editor);
+  const originalGetJson = editor.getJSON.bind(editor);
+  let htmlSerializations = 0;
+  let jsonSerializations = 0;
+  editor.getHTML = (...args) => {
+    htmlSerializations += 1;
+    return originalGetHtml(...args);
+  };
+  editor.getJSON = (...args) => {
+    jsonSerializations += 1;
+    return originalGetJson(...args);
+  };
+
+  editor.commands.focus("end");
+  editor.commands.insertContent(" A");
+  editor.commands.insertContent(" B");
+  editor.commands.insertContent(" C");
+
+  assert.equal(htmlUpdates.length, 0);
+  assert.equal(jsonUpdates.length, 0);
+  assert.equal(htmlSerializations, 0);
+  assert.equal(jsonSerializations, 0);
+
+  await waitFor(() => assert.equal(htmlUpdates.length, 1), { timeout: 500 });
+  assert.equal(jsonUpdates.length, 1);
+  assert.equal(htmlSerializations, 1);
+  assert.equal(jsonSerializations, 1);
+  assert.match(htmlUpdates[0], /Debounced A B C/);
+
+  editor.commands.insertContent(" D");
+  editor.commands.blur();
+
+  await waitFor(() => assert.equal(htmlUpdates.length, 2));
+  assert.equal(jsonUpdates.length, 2);
+  assert.equal(htmlSerializations, 2);
+  assert.equal(jsonSerializations, 2);
+  assert.match(htmlUpdates[1], /Debounced A B C D/);
+
+  await new Promise((resolve) => setTimeout(resolve, 60));
+  assert.equal(htmlUpdates.length, 2);
+});
+
 test("UEditor shares equivalent global event listeners and removes the native listener after cleanup", async () => {
   const { subscribeSharedGlobalEvent } = await importTsModule(
     path.join(componentsRoot, "UEditor/shared-global-listeners.ts"),
@@ -3915,6 +3980,72 @@ test("UEditor keeps a single click in an empty cell editable and opens cell form
   });
 });
 
+test("UEditor double-click selects all cell text but selects the cell from empty padding", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+  const ref = React.createRef();
+
+  const view = render(
+    React.createElement(UEditor, {
+      ref,
+      content: "<table><tbody><tr><td>Alpha beta</td><td>Second</td></tr></tbody></table>",
+      showToolbar: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const firstCell = await waitFor(() => {
+    const element = view.container.querySelector("td");
+    assert.ok(element);
+    return element;
+  });
+  const paragraph = firstCell.querySelector("p");
+  const textNode = paragraph?.firstChild;
+  assert.ok(paragraph);
+  assert.ok(textNode);
+  await waitFor(() => assert.ok(ref.current?.editor));
+
+  const originalGetClientRects = window.Range.prototype.getClientRects;
+  window.Range.prototype.getClientRects = function getClientRects() {
+    if (this.startContainer === textNode || this.commonAncestorContainer === textNode) {
+      return [{
+        width: 80,
+        height: 18,
+        left: 50,
+        top: 50,
+        right: 130,
+        bottom: 68,
+        x: 50,
+        y: 50,
+        toJSON() {},
+      }];
+    }
+    return originalGetClientRects.call(this);
+  };
+
+  try {
+    fireEvent.doubleClick(paragraph, { button: 0, clientX: 70, clientY: 58 });
+
+    await waitFor(() => {
+      const { selection, doc } = ref.current.editor.state;
+      assert.equal(selection.constructor.name, "TextSelection");
+      assert.equal(doc.textBetween(selection.from, selection.to, " "), "Alpha beta");
+    });
+    await body.findByRole("button", { name: "Bold" });
+    assert.equal(body.queryByRole("button", { name: "Cell Background" }), null);
+
+    fireEvent.doubleClick(firstCell, { button: 0, clientX: 180, clientY: 80 });
+
+    await body.findByRole("button", { name: "Cell Background" });
+    assert.equal(ref.current.editor.state.selection.constructor.name, "CellSelection");
+    assert.equal(body.queryByRole("button", { name: "Bold" }), null);
+  } finally {
+    window.Range.prototype.getClientRects = originalGetClientRects;
+  }
+});
+
 test("UEditor table context menu applies header column and structural actions", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -4239,6 +4370,193 @@ test("UEditor table handles follow merged row and column spans", async () => {
     assert.ok(body.getByRole("button", { name: "Drag Row 1" }));
     assert.ok(body.getByRole("button", { name: "Drag Row 2" }));
     assert.equal(body.queryByRole("button", { name: "Drag Row 3" }), null);
+  });
+});
+
+test("UEditor table hover state ignores a pressed pointer used for text selection", async () => {
+  const hoverStateModule = await importTsModule(
+    path.join(componentsRoot, "UEditor/table-hover-state.ts"),
+  );
+  const surface = window.document.createElement("div");
+  surface.getBoundingClientRect = () => ({
+    width: 500,
+    height: 400,
+    left: 0,
+    top: 0,
+    right: 500,
+    bottom: 400,
+    x: 0,
+    y: 0,
+    toJSON() {},
+  });
+
+  const layout = {
+    cellPos: 2,
+    cornerCellPos: 14,
+    activeRowIndex: 0,
+    activeColumnIndex: 0,
+    tableLeft: 40,
+    tableTop: 40,
+    tableWidth: 320,
+    tableHeight: 60,
+    wrapperLeft: 40,
+    wrapperTop: 40,
+    wrapperWidth: 320,
+    wrapperHeight: 60,
+    viewportWidth: 320,
+    viewportHeight: 60,
+    horizontalScrollbarHeight: 0,
+    verticalScrollbarWidth: 0,
+    avgRowHeight: 30,
+    avgColumnWidth: 160,
+    rowHandles: [
+      { index: 0, cellPos: 2, start: 40, size: 30, center: 55 },
+      { index: 1, cellPos: 8, start: 70, size: 30, center: 85 },
+    ],
+    columnHandles: [
+      { index: 0, cellPos: 2, start: 40, size: 160, center: 120 },
+      { index: 1, cellPos: 5, start: 200, size: 160, center: 280 },
+    ],
+  };
+
+  const selectingText = new window.MouseEvent("mousemove", {
+    buttons: 1,
+    clientX: 20,
+    clientY: 55,
+  });
+  assert.deepEqual(
+    hoverStateModule.buildTableHoverState({ event: selectingText, layout, surface }),
+    hoverStateModule.DEFAULT_TABLE_HOVER_STATE,
+  );
+
+  const regularHover = new window.MouseEvent("mousemove", {
+    buttons: 0,
+    clientX: 20,
+    clientY: 55,
+  });
+  assert.equal(
+    hoverStateModule.buildTableHoverState({ event: regularHover, layout, surface }).rowHandleIndex,
+    0,
+  );
+
+  const centeredRowHandle = window.document.createElement("div");
+  centeredRowHandle.dataset.rowHandleIndex = "0";
+  const insideHalfHover = new window.MouseEvent("mousemove", {
+    buttons: 0,
+    clientX: 45,
+    clientY: 55,
+  });
+  Object.defineProperty(insideHalfHover, "target", { value: centeredRowHandle });
+  assert.equal(
+    hoverStateModule.buildTableHoverState({ event: insideHalfHover, layout, surface }).rowHandleIndex,
+    null,
+  );
+});
+
+test("UEditor text hit testing distinguishes rendered text from table cell padding", async () => {
+  const domUtils = await importTsModule(path.join(componentsRoot, "UEditor/table-dom-utils.ts"));
+  const cell = window.document.createElement("td");
+  cell.innerHTML = "<p>Alpha beta</p>";
+  const textNode = cell.querySelector("p")?.firstChild;
+  assert.ok(textNode);
+
+  const originalGetClientRects = window.Range.prototype.getClientRects;
+  window.Range.prototype.getClientRects = function getClientRects() {
+    if (this.startContainer === textNode || this.commonAncestorContainer === textNode) {
+      return [{
+        width: 80,
+        height: 18,
+        left: 50,
+        top: 50,
+        right: 130,
+        bottom: 68,
+        x: 50,
+        y: 50,
+        toJSON() {},
+      }];
+    }
+    return originalGetClientRects.call(this);
+  };
+
+  try {
+    assert.equal(domUtils.isPointOverRenderedText(cell, 70, 58), true);
+    assert.equal(domUtils.isPointOverRenderedText(cell, 180, 80), false);
+  } finally {
+    window.Range.prototype.getClientRects = originalGetClientRects;
+  }
+});
+
+test("UEditor table handles yield to text selection at the first row and column edges", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<table><tbody><tr><td>First cell text</td><td>B1</td></tr><tr><td>A2</td><td>B2</td></tr></tbody></table>",
+      showToolbar: false,
+      showBubbleMenu: true,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const cells = await waitFor(() => {
+    const elements = view.container.querySelectorAll("td");
+    assert.equal(elements.length, 4);
+    return elements;
+  });
+  const table = view.container.querySelector("table");
+  const surface = getEditorSurface(view);
+  assert.ok(table);
+
+  const rect = (width, height, left = 0, top = 0) => ({
+    width,
+    height,
+    left,
+    top,
+    right: left + width,
+    bottom: top + height,
+    x: left,
+    y: top,
+    toJSON() {},
+  });
+  surface.getBoundingClientRect = () => rect(500, 400);
+  table.getBoundingClientRect = () => rect(320, 60, 40, 40);
+  cells.forEach((cell, index) => {
+    const columnIndex = index % 2;
+    const rowIndex = Math.floor(index / 2);
+    cell.getBoundingClientRect = () => rect(160, 30, 40 + columnIndex * 160, 40 + rowIndex * 30);
+  });
+
+  activateTableCell(cells[0]);
+  const rowHandle = await body.findByRole("button", { name: "Drag Row 1" });
+  const columnHandle = await body.findByRole("button", { name: "Drag Column 1" });
+
+  await waitFor(() => {
+    assert.equal(rowHandle.closest("[data-row-handle-index]")?.style.left, "28px");
+    assert.equal(columnHandle.closest("[data-column-handle-index]")?.style.top, "28px");
+    assert.equal(rowHandle.closest("[data-row-handle-index]")?.style.pointerEvents, "none");
+    assert.equal(rowHandle.style.pointerEvents, "none");
+    assert.equal(rowHandle.querySelector("svg"), null);
+  });
+
+  // Moving a pressed pointer across the idle handle represents a text
+  // selection gesture and must not reveal or activate the six-dot control.
+  fireEvent.mouseMove(rowHandle, { buttons: 1, clientX: 40, clientY: 55 });
+  await waitFor(() => {
+    assert.equal(rowHandle.closest("[data-row-handle-index]")?.style.pointerEvents, "none");
+    assert.equal(rowHandle.style.pointerEvents, "none");
+    assert.equal(rowHandle.querySelector("svg"), null);
+  });
+
+  // With no selection gesture in progress, the outside gutter still exposes
+  // the regular draggable row handle.
+  fireEvent.mouseMove(surface, { buttons: 0, clientX: 20, clientY: 55 });
+  await waitFor(() => {
+    assert.equal(rowHandle.closest("[data-row-handle-index]")?.style.pointerEvents, "auto");
+    assert.equal(rowHandle.style.pointerEvents, "auto");
+    assert.ok(rowHandle.querySelector("svg"));
   });
 });
 

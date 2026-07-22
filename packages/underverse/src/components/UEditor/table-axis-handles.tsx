@@ -48,6 +48,7 @@ export function TableRowHandles({
             style={{
               top: Math.max(8, rowHandle.center - 12),
               left: rowHandleLeft,
+              pointerEvents: visible ? "auto" : "none",
             }}
           >
             <Tooltip
@@ -80,7 +81,10 @@ export function TableRowHandles({
                       style={{
                         opacity: isShown ? 1 : 0,
                         transform: isShown ? "scale(1)" : `scale(${IDLE_HANDLE_SCALE})`,
-                        pointerEvents: isShown ? "auto" : "none",
+                        // The idle marker is only a location hint. Keeping it
+                        // pointer-transparent prevents it from stealing a text
+                        // selection near the first character of a table cell.
+                        pointerEvents: visible ? "auto" : "none",
                       }}
                     >
                       {visible ? (
@@ -139,6 +143,7 @@ export function TableColumnHandles({
             style={{
               top: columnHandleTop,
               left: Math.max(8, columnHandle.center - 12),
+              pointerEvents: visible ? "auto" : "none",
             }}
           >
             <Tooltip
@@ -171,7 +176,7 @@ export function TableColumnHandles({
                       style={{
                         opacity: isShown ? 1 : 0,
                         transform: isShown ? "scale(1)" : `scale(${IDLE_HANDLE_SCALE})`,
-                        pointerEvents: isShown ? "auto" : "none",
+                        pointerEvents: visible ? "auto" : "none",
                       }}
                     >
                       {visible ? (
