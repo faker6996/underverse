@@ -153,7 +153,7 @@ export { MultiCombobox } from "./components/MultiCombobox";
 /** Public option and props types for the `MultiCombobox` component. */
 export type { MultiComboboxOption, MultiComboboxProps } from "./components/MultiCombobox";
 /** Radio-group family for mutually-exclusive choices. */
-export { RadioGroup, RadioGroupItem } from "./components/RadioGroup";
+export { RadioGroup, RadioGroupItem, SimpleRadioGroup, RadioButtonGroup, SegmentedControl, ToggleGroup } from "./components/RadioGroup";
 /** Slider input for numeric ranges and scrubber-style controls. */
 export { Slider } from "./components/Slider";
 /** Public props for the `Slider` component. */
