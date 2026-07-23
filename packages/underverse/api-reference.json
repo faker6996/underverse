@@ -1,8 +1,8 @@
 {
   "package": "@underverse-ui/underverse",
-  "version": "1.0.206",
+  "version": "1.0.207",
   "sourceEntry": "src/index.ts",
-  "totalExports": 252,
+  "totalExports": 256,
   "exports": [
     {
       "name": "*",
@@ -1122,6 +1122,13 @@
       "local": false
     },
     {
+      "name": "RadioButtonGroup",
+      "kind": "value",
+      "source": "./components/RadioGroup",
+      "reexport": true,
+      "local": false
+    },
+    {
       "name": "RadioGroup",
       "kind": "value",
       "source": "./components/RadioGroup",
@@ -1170,6 +1177,13 @@
       "reexport": true,
       "local": false,
       "aliasOf": "default"
+    },
+    {
+      "name": "SegmentedControl",
+      "kind": "value",
+      "source": "./components/RadioGroup",
+      "reexport": true,
+      "local": false
     },
     {
       "name": "SelectDropdown",
@@ -1238,6 +1252,13 @@
       "name": "SimplePaginationProps",
       "kind": "type",
       "source": "./components/Pagination",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "SimpleRadioGroup",
+      "kind": "value",
+      "source": "./components/RadioGroup",
       "reexport": true,
       "local": false
     },
@@ -1490,6 +1511,13 @@
       "reexport": true,
       "local": false,
       "aliasOf": "default"
+    },
+    {
+      "name": "ToggleGroup",
+      "kind": "value",
+      "source": "./components/RadioGroup",
+      "reexport": true,
+      "local": false
     },
     {
       "name": "Tooltip",
