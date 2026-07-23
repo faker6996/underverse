@@ -473,6 +473,11 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
       base: "bg-background hover:bg-accent",
       selected: "bg-primary text-primary-foreground",
     },
+    primary: {
+      container: "bg-muted py-1 px-2",
+      base: "bg-transparent hover:bg-background/50",
+      selected: "bg-primary text-primary-foreground shadow-sm",
+    }
   };
 
   const uniqueId = React.useId();
