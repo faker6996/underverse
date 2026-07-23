@@ -417,7 +417,7 @@ interface RadioButtonGroupProps {
   name?: string;
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
-  variant?: "default" | "outline" | "solid";
+  variant?: "default" | "outline" | "solid" | "primary";
   borderMode?: BorderMode;
   className?: string;
   fullWidth?: boolean;
