@@ -505,7 +505,7 @@ export const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
               sizeClasses[size],
               isSelected ? variantClasses[variant].selected : variantClasses[variant].base,
               variant === "outline" && !isLast && "border-r border-border/50",
-              variant === "default" && getBorderRadiusClass(resolvedBorderMode),
+              (variant === "default" || variant === "primary") && getBorderRadiusClass(resolvedBorderMode),
               fullWidth && "flex-1",
             )}
             onClick={() => handleValueChange(item.value)}
