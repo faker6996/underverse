@@ -606,6 +606,9 @@ export default function MonthYearPicker({
   const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
   const gi18n = useGlobalI18n();
   const tv = useSmartTranslations("ValidationInput");
+  const autoId = React.useId();
+  const triggerId = `month-year-picker-trigger-${autoId}`;
+  const panelId = `${triggerId}-panel`;
   const now = new Date();
   const currentYear = now.getFullYear();
 
@@ -780,11 +783,14 @@ export default function MonthYearPicker({
   const trigger =
     variant === "inline" ? null : (
       <button
+        id={triggerId}
         type="button"
+        role="combobox"
         disabled={disabled}
         aria-label={gi18n.selectMonthYear ?? "Select month and year"}
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-controls={panelId}
         aria-required={required}
         aria-invalid={!!effectiveError}
         className={cn(
@@ -995,6 +1001,7 @@ export default function MonthYearPicker({
         trigger={trigger!}
         open={open}
         onOpenChange={handleOpenChange}
+        contentProps={{ id: panelId }}
         placement="bottom"
         contentWidth={contentWidth}
         matchTriggerWidth={matchTriggerWidth}

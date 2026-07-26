@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable react-hooks/refs -- Tooltip composes child refs and updates them only from ref/event callbacks; the compiler cannot prove that cloneElement defers those callbacks. */
+
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../utils/cn";
@@ -351,7 +353,7 @@ export const Tooltip = React.forwardRef<HTMLElement, TooltipProps>(({
     onBlur: chainEventHandlers<React.FocusEvent<HTMLElement>>(
       triggerPassthroughProps.onBlur,
       childProps.onBlur,
-      (e) => {
+      () => {
         handleBlur();
       },
     ),

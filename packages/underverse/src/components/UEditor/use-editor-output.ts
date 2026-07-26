@@ -21,14 +21,20 @@ export function useUEditorOutput({
   onJsonChange,
   outputDebounceMs,
 }: UEditorOutputCallbacks & { outputDebounceMs?: number }) {
-  const callbacksRef = React.useRef<UEditorOutputCallbacks>({});
+  const callbacksRef = React.useRef<UEditorOutputCallbacks>({
+    onChange,
+    onHtmlChange,
+    onJsonChange,
+  });
   const pendingEditorRef = React.useRef<Editor | null>(null);
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const debounceMs = normalizeDebounceMs(outputDebounceMs);
 
-  // Event callbacks can fire between render and effects. Keep the ref current
-  // during render so a queued emission never calls an obsolete subscriber.
-  callbacksRef.current = { onChange, onHtmlChange, onJsonChange };
+  // Refresh subscriptions before the browser can dispatch another event while
+  // keeping render pure for React Compiler.
+  React.useLayoutEffect(() => {
+    callbacksRef.current = { onChange, onHtmlChange, onJsonChange };
+  }, [onChange, onHtmlChange, onJsonChange]);
 
   const flushOutputUpdates = React.useCallback(() => {
     if (timeoutRef.current !== null) {
@@ -92,4 +98,3 @@ export function useUEditorOutput({
     scheduleOutputUpdate,
   };
 }
-

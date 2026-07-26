@@ -1,791 +1,328 @@
-# Underverse UI
+<p align="center">
+  <img src="https://raw.githubusercontent.com/faker6996/underverse/main/public/logo.png" alt="Underverse UI" width="128" />
+</p>
 
-Docs: https://underverse.infiniq.com.vn/vi/docs/underverse
+<h1 align="center">@underverse-ui/underverse</h1>
 
-**Author:** Tran Van Bach
+<p align="center">
+  Production-focused React components for forms, data-heavy interfaces, overlays, scheduling, and rich-text editing.
+</p>
 
-A comprehensive UI component library for React/Next.js applications, extracted from the main project. Built with Tailwind CSS, `clsx`, and `tailwind-merge`.
+<p align="center">
+  <a href="https://www.npmjs.com/package/@underverse-ui/underverse"><img src="https://img.shields.io/npm/v/@underverse-ui/underverse?style=flat-square&label=npm" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@underverse-ui/underverse"><img src="https://img.shields.io/npm/dm/@underverse-ui/underverse?style=flat-square&label=downloads" alt="npm downloads" /></a>
+  <a href="https://github.com/faker6996/underverse/actions/workflows/quality.yml"><img src="https://github.com/faker6996/underverse/actions/workflows/quality.yml/badge.svg" alt="quality checks" /></a>
+  <a href="https://github.com/faker6996/underverse/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-22c55e?style=flat-square" alt="MIT license" /></a>
+</p>
 
-## ✨ Features
+<p align="center">
+  <a href="https://underverse.infiniq.com.vn/vi/docs/underverse">Documentation</a>
+  ·
+  <a href="https://github.com/faker6996/underverse">GitHub</a>
+  ·
+  <a href="https://github.com/faker6996/underverse/blob/main/packages/underverse/CHANGELOG.md">Changelog</a>
+  ·
+  <a href="https://github.com/faker6996/underverse/issues">Issues</a>
+</p>
 
-- 🎨 **60+ UI Components** - Buttons, Modals, DatePicker, DataTable, and more
-- 🌐 **Multi-language Support** - Built-in translations for English, Vietnamese, Korean, Japanese
-- ⚡ **Tree-shakeable** - Import only what you need
-- 🔌 **Flexible i18n** - Works with `next-intl` or standalone React
-- 🎯 **TypeScript First** - Full type definitions included
-- 🌙 **Dark Mode Ready** - Supports light/dark themes via CSS variables
+## Highlights
 
-## Supported Locales
-
-| Locale | Language   | Flag |
-| ------ | ---------- | ---- |
-| `en`   | English    | 🇺🇸   |
-| `vi`   | Tiếng Việt | 🇻🇳   |
-| `ko`   | 한국어     | 🇰🇷   |
-| `ja`   | 日本語     | 🇯🇵   |
-
-## Requirements
-
-- Node >= 18
-- Peer dependencies: `react`, `react-dom`
-- Optional: `next`, `next-intl` (for Next.js projects)
-
-## Agent-Readable Metadata
-
-For coding agents and automation tools:
-
-- `AGENTS.md`: concise usage and integration rules.
-- `api-reference.json`: generated export index from `src/index.ts`.
-- `llms.txt`: compact LLM-friendly quickstart.
-- `agent-recipes.json`: structured setup/use recipes.
-
-Regenerate API metadata:
-
-```bash
-npm run generate:api
-```
+- More than 60 typed components, from basic controls to DataTable, CalendarTimeline, and UEditor.
+- React 18+ support with ESM and CommonJS package outputs.
+- Tailwind CSS 4 design tokens, dark-mode support, and global component configuration.
+- Built-in English, Vietnamese, Korean, and Japanese UI messages.
+- Keyboard and ARIA behavior covered by component interaction tests.
+- Public API metadata and bundle budgets verified before publishing.
 
 ## Installation
 
 ```bash
-# Install the package
-npm i @underverse-ui/underverse
-
-# For Next.js projects (with next-intl)
-npm i react react-dom next next-intl
-
-# For standalone React projects (Vite, CRA, etc.)
-npm i react react-dom
+npm install @underverse-ui/underverse
 ```
 
-## Tailwind CSS Configuration
+The package declares its framework and feature integrations as peer dependencies. Use React 18 or newer and Tailwind CSS 4 in the consuming application.
 
-Components use color variables like `primary`, `secondary`, `destructive`, etc. Make sure your Tailwind theme/tokens include these variables.
-
----
-
-## ⚡ Performance Optimization
-
-### Optimize Package Imports (Next.js)
-
-For best performance, add `optimizePackageImports` to your Next.js config:
-
-```js
-// next.config.js
-module.exports = {
-  experimental: {
-    optimizePackageImports: ["lucide-react", "@underverse-ui/underverse"],
-  },
-};
-```
-
-This provides:
-
-- ✅ 15-70% faster dev boot
-- ✅ 28% faster builds
-- ✅ 40% faster cold starts
-- ✅ Automatic tree-shaking for barrel imports
-
-### Dynamic Imports for Heavy Components
-
-For pages that conditionally show DataTable or DatePicker:
+## Quick start
 
 ```tsx
-import dynamic from "next/dynamic";
+"use client";
 
-const DataTable = dynamic(() => import("@underverse-ui/underverse").then((m) => m.DataTable), { ssr: false, loading: () => <Skeleton /> });
-```
-
-### Web Interface Guidelines Compliant
-
-All components follow [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines):
-
-- ✅ `focus-visible` ring (not `:focus`)
-- ✅ Label `htmlFor` attribute
-- ✅ ARIA attributes for accessibility
-- ✅ `overscroll-behavior: contain` for modals
-- ✅ Proper ellipsis (`…`) typography
-- ✅ Locale-aware date formatting with `Intl.DateTimeFormat`
-
----
-
-## Package Exports
-
-Package có public entry point chính cho toàn bộ component:
-
-```tsx
 import {
   Button,
-  DataTable,
-  Form,
-  FormField,
-  UEditor,
+  DatePicker,
+  TranslationProvider,
+  UnderverseConfigProvider,
 } from "@underverse-ui/underverse";
+
+export function Example() {
+  return (
+    <TranslationProvider locale="en">
+      <UnderverseConfigProvider config={{ borderMode: "lg" }}>
+        <div className="flex items-center gap-3">
+          <DatePicker onChange={(date) => console.log(date)} />
+          <Button>Continue</Button>
+        </div>
+      </UnderverseConfigProvider>
+    </TranslationProvider>
+  );
+}
 ```
 
-Nếu chỉ dùng UEditor, ưu tiên entry chuyên biệt để giảm lượng mã phải tải và phân tích:
+`TranslationProvider` is optional. Components fall back to English when it is not mounted.
+
+## Tailwind CSS setup
+
+Tailwind ignores dependencies in `node_modules` during automatic source detection. Register Underverse from the stylesheet that imports Tailwind:
+
+```css
+@import "tailwindcss";
+@source "../node_modules/@underverse-ui/underverse/dist";
+```
+
+The source path is relative to that stylesheet, so adjust `../` when the file lives under `src/app` or another nested directory. See Tailwind's [explicit source registration](https://tailwindcss.com/docs/detecting-classes-in-source-files#explicitly-registering-sources) documentation.
+
+Underverse uses semantic Tailwind tokens. Applications that already use shadcn-style tokens can reuse them. A minimal starter map looks like this:
+
+<details>
+<summary>Show starter theme tokens</summary>
+
+```css
+:root {
+  --background: oklch(0.98 0.005 255);
+  --foreground: oklch(0.22 0.012 255);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.55 0.18 255);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.58 0.12 280);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.955 0.01 255);
+  --muted-foreground: oklch(0.4 0.012 255);
+  --accent: color-mix(in oklch, var(--primary) 16%, var(--background));
+  --accent-foreground: var(--foreground);
+  --destructive: oklch(0.56 0.19 22);
+  --destructive-foreground: oklch(0.985 0 0);
+  --success: oklch(0.52 0.16 145);
+  --success-foreground: oklch(0.985 0 0);
+  --warning: oklch(0.62 0.16 60);
+  --warning-foreground: oklch(0.16 0.012 255);
+  --info: oklch(0.62 0.14 210);
+  --info-foreground: oklch(0.985 0 0);
+  --border: oklch(0.7 0.01 255 / 22%);
+  --input: oklch(0.7 0.01 255 / 30%);
+  --ring: color-mix(in oklch, var(--primary) 70%, var(--background));
+  --primary-soft: color-mix(in oklch, var(--primary) 12%, var(--background));
+  --secondary-soft: color-mix(in oklch, var(--secondary) 12%, var(--background));
+  --destructive-soft: color-mix(in oklch, var(--destructive) 12%, var(--background));
+  --success-soft: color-mix(in oklch, var(--success) 12%, var(--background));
+  --warning-soft: color-mix(in oklch, var(--warning) 14%, var(--background));
+  --info-soft: color-mix(in oklch, var(--info) 12%, var(--background));
+  --input-focus: var(--ring);
+  --input-disabled: var(--muted);
+  --input-invalid: var(--destructive);
+  --surface-0: var(--background);
+  --surface-1: oklch(0.99 0.006 255);
+  --surface-2: oklch(0.98 0.007 255);
+  --surface-3: oklch(0.97 0.008 255);
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 5%);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 10%);
+  --shadow-md: 0 4px 6px rgb(0 0 0 / 10%);
+  --shadow-lg: 0 10px 15px rgb(0 0 0 / 10%);
+  --shadow-xl: 0 20px 25px rgb(0 0 0 / 12%);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-soft: var(--secondary-soft);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-soft: var(--info-soft);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-input-focus: var(--input-focus);
+  --color-input-disabled: var(--input-disabled);
+  --color-input-invalid: var(--input-invalid);
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --ease-soft: cubic-bezier(0.25, 1, 0.5, 1);
+}
+```
+
+For the complete light/dark palette, see the [Underverse color system](https://github.com/faker6996/underverse/blob/main/docs/COLOR_SYSTEM.md).
+
+</details>
+
+## Imports and bundle size
+
+The root entry is the standard public API:
+
+```tsx
+import { Button, DataTable, UEditor } from "@underverse-ui/underverse";
+```
+
+It is tree-shakeable and protected by a package bundle budget. Existing applications do not need to change their imports when upgrading.
+
+For an application that only uses the editor, the explicit UEditor entry creates a smaller, clearer module boundary:
 
 ```tsx
 import UEditor, { type UEditorRef } from "@underverse-ui/underverse/ueditor";
 ```
 
-Các subpath khác như `@underverse-ui/underverse/form` chưa được publish ở version hiện tại.
+Do not deep-import files under `dist` or `src`; only the root and `/ueditor` entries are public contracts.
 
-Lưu ý:
-- Nhiều component trong package là client component và nên dùng trong môi trường React client.
-- Form primitives yêu cầu `react-hook-form` và `@hookform/resolvers`.
-- `UEditor` và các component dựa trên Tiptap yêu cầu peer dependencies tương ứng.
+## UEditor
 
----
-
-## �🚀 Quick Start
-
-### Overlay Scrollbars (Optional, Recommended)
-
-Underverse now uses **opt-in, component-level** OverlayScrollbars.
-There is no global DOM scanning, no default global mount, and no app-wide MutationObserver.
+UEditor is a Tiptap-based rich-text editor with slash commands, menus, uploads, tables, formulas, cell formatting, resizing, and spreadsheet paste support.
 
 ```tsx
-import "overlayscrollbars/overlayscrollbars.css";
-import { OverlayScrollbarProvider, ScrollArea, DataTable } from "@underverse-ui/underverse";
+"use client";
 
-function App() {
-  return (
-    <OverlayScrollbarProvider theme="os-theme-underverse" autoHide="leave">
-      <ScrollArea className="h-56 rounded-xl border border-border" useOverlayScrollbar>
-        {/* long content */}
-      </ScrollArea>
+import { useRef, useState } from "react";
+import UEditor, { type UEditorRef } from "@underverse-ui/underverse/ueditor";
 
-      <DataTable
-        columns={columns}
-        data={rows}
-        useOverlayScrollbar
-      />
-    </OverlayScrollbarProvider>
-  );
-}
-```
-
-Provider behavior:
-
-- Provider is **configuration only** (theme/options context).
-- Scrollbars initialize only on components explicitly enabled via `useOverlayScrollbar`.
-- Hard skip targets: `html`, `body`, `[data-radix-portal]`, `[role="dialog"]`, `[aria-modal="true"]`, `[data-sonner-toaster]`.
-- Per-node opt-out remains available via `data-os-ignore`.
-
-Provider props:
-
-- `enabled?: boolean`
-- `theme?: string`
-- `visibility?: "visible" | "hidden" | "auto"`
-- `autoHide?: "never" | "scroll" | "leave" | "move"`
-- `autoHideDelay?: number`
-- `dragScroll?: boolean`
-- `clickScroll?: boolean`
-- `exclude?: string` default: `html, body, [data-os-ignore], [data-radix-portal], [role='dialog'], [aria-modal='true'], [data-sonner-toaster]`
-- `selector?: string` (deprecated, ignored; kept for backward compatibility)
-
-Component-level enable flags:
-
-- `ScrollArea`: `useOverlayScrollbar?: boolean` (default `false`)
-  - `className` styles the outer wrapper
-  - `contentClassName` styles the scroll viewport
-  - set border/radius explicitly; the primitive no longer hardcodes rounded corners
-- `Table`: `useOverlayScrollbar?: boolean` (default `false`)
-- `DataTable`: `useOverlayScrollbar?: boolean` (default `false`)
-- `Combobox`: `useOverlayScrollbar?: boolean` (default `false`)
-- `MultiCombobox`: `useOverlayScrollbar?: boolean` (default `false`)
-- `CategoryTreeSelect`: `useOverlayScrollbar?: boolean` (default `false`)
-- `Textarea`: `useOverlayScrollbar?: boolean` (default `false`)
-- `OverlayScrollArea`: dedicated wrapper for heavy scroll zones (`enabled` default `true`)
-
-When to use:
-
-- Long virtualized/table/list panels
-- Fixed-height navigation panels and log viewers
-
-When not to use:
-
-- Normal form fields
-- Short modal/dialog content
-- Full page root scrolling
-
-### Standalone React (Vite, CRA, etc.)
-
-```tsx
-import { TranslationProvider, Button, DatePicker, ToastProvider, useToast } from "@underverse-ui/underverse";
-
-function App() {
-  return (
-    <TranslationProvider locale="vi">
-      <ToastProvider>
-        <MyComponent />
-      </ToastProvider>
-    </TranslationProvider>
-  );
-}
-
-function MyComponent() {
-  const { addToast } = useToast();
+export function ArticleEditor() {
+  const editorRef = useRef<UEditorRef>(null);
+  const [html, setHtml] = useState("<p>Start writing…</p>");
 
   return (
-    <div>
-      <DatePicker onChange={(date) => console.log(date)} />
-      <Button onClick={() => addToast({ type: "success", message: "Hello!" })}>Click me</Button>
-    </div>
-  );
-}
-```
-
-### Next.js (with next-intl)
-
-```tsx
-import { Button, ToastProvider, useToast } from "@underverse-ui/underverse";
-
-function App() {
-  const { addToast } = useToast();
-  return (
-    <ToastProvider>
-      <Button onClick={() => addToast({ type: "success", message: "Hello" })}>Click me</Button>
-    </ToastProvider>
-  );
-}
-```
-
-### Global UI Configuration (Optional)
-
-You can configure global UI behaviors and styles (like default border radius) across all components using `UnderverseConfigProvider`.
-
-```tsx
-import { UnderverseConfigProvider, Button, Input } from "@underverse-ui/underverse";
-
-function App() {
-  return (
-    <UnderverseConfigProvider
-      config={{
-        // Set default border radius for all supported components
-        borderMode: "xl",
-        // Override specific components
-        input: {
-          borderMode: "2xl",
-        },
-        button: {
-          borderMode: "lg",
-        }
-      }}
-    >
-      <div className="space-y-4">
-        {/* These components will inherit the global configuration */}
-        <Input placeholder="I have 2xl border radius" />
-        <Button>I have lg border radius</Button>
-        <Combobox placeholder="I inherit xl border radius" />
-        
-        {/* Direct props override the global config */}
-        <Button borderMode="sm">I override to sm</Button>
-      </div>
-    </UnderverseConfigProvider>
-  );
-}
-```
-
-### AccessDenied (Interactive 403 / Upgrade State)
-
-The `AccessDenied` component renders a premium, highly interactive card for 403 Forbidden, 401 Unauthorized, or license upgrade restrictions.
-- **Interactive Robot Face**: Features an SVG illustration whose pupil tracks the cursor position in real-time. Includes an emergency flashing alarm light color-synced with the active variant.
-- **Spotlight Flashlight**: Hovering over the card casts a radial gradient spotlight that reveals a glowing, drop-shadowed status text (e.g., `"403"` or `"PRO"`) under the cursor's path.
-- **Customizable Code**: Customize the background status code or text using the `code` prop. Font size automatically shrinks if the length exceeds 3 characters.
-- **Icon Fallback**: Supports passing a custom React component to `icon` to render a glassmorphic static icon stage instead of the interactive robot face.
-
-#### Usage Example
-
-```tsx
-import { AccessDenied, Button } from "@underverse-ui/underverse";
-
-function App() {
-  return (
-    <AccessDenied
-      title="Tính năng cần nâng cấp"
-      description="Báo cáo và phân tích trên Trang chủ chưa có trong gói license hiện tại. Hãy nâng cấp gói để sử dụng tính năng này."
-      variant="warning" // "destructive" | "warning" | "info"
-      code="PRO"       // Customize background flashlight status text
-    >
-      <Button variant="warning">Nâng cấp gói ngay</Button>
-    </AccessDenied>
-  );
-}
-```
-
-## Exported Components
-
-### Core Components
-
-- **Buttons:** `Button`
-- **Display:** `Badge`, `Card`, `Avatar`, `Skeleton`, `Progress`
-- **Form Inputs:** `Input`, `Textarea`, `Checkbox`, `Switch`, `Label`
-
-### Feedback & Overlays
-
-- `Modal`, `ToastProvider`, `useToast`, `Tooltip`, `Popover`, `Sheet` (includes `Drawer`, `SlideOver`, `BottomSheet`, `SidebarSheet`), `Alert`, `GlobalLoading` (includes `PageLoading`, `InlineLoading`, `ButtonLoading`)
-
-### Form Controls & Pickers
-
-- `RadioGroup`, `Slider`, `DatePicker`, `Combobox`, `MultiCombobox`, `CategoryTreeSelect`
-
-### Navigation & Structure
-
-- `Breadcrumb`, `Tabs` (includes `SimpleTabs`, `PillTabs`, `VerticalTabs`), `DropdownMenu`, `Pagination`, `Section`, `ScrollArea`, `OverlayScrollArea`
-
-### Data Display
-
-- `Table`, `DataTable`
-
-### Media Components
-
-- `SmartImage`, `ImageUpload`, `Carousel`, `UEditor`
-
-### Utilities
-
-- `ClientOnly`, `Loading`, `NotificationModal`, `AccessDenied`, `OverlayControls`
-- Headless controls: `ThemeToggle`, `LanguageSwitcher`
-- Utility functions: `cn`, `DateUtils`, style constants
-
-## Important Notes
-
-- Library is i18n‑agnostic: components have sensible English defaults and accept text via props.
-- If your app uses `next-intl`, you can merge our ready‑made messages to localize built‑in texts.
-- `NotificationBell` is not exported (depends on project-specific API/socket implementations).
-- `FloatingContacts` remains app-only and is not exported from the package.
-
----
-
-## 📦 Date Utilities
-
-The package includes standalone date utilities with locale support (no Next.js required):
-
-```tsx
-import { DateUtils } from "@underverse-ui/underverse";
-
-// Format dates with locale
-DateUtils.formatDate(new Date(), "ko"); // "2026년 1월 5일"
-DateUtils.formatDate(new Date(), "ja"); // "2026年1月5日"
-DateUtils.formatDate(new Date(), "vi"); // "05/01/2026"
-DateUtils.formatDate(new Date(), "en"); // "January 5, 2026"
-
-// Relative time formatting
-DateUtils.formatTimeAgo(new Date(Date.now() - 3600000), "ko"); // "1시간 전"
-DateUtils.formatTimeAgo(new Date(Date.now() - 3600000), "ja"); // "1時間前"
-
-// Smart date formatting (Today, Yesterday, or full date)
-DateUtils.formatDateSmart(new Date(), "ja"); // "今日 14:30"
-
-// Utility checks
-DateUtils.isToday(new Date()); // true
-DateUtils.isYesterday(new Date(Date.now() - 86400000)); // true
-
-// Get day of week
-DateUtils.getDayOfWeek(new Date(), "ko"); // "일요일"
-DateUtils.getDayOfWeek(new Date(), "ja"); // "日曜日"
-
-// Form input formatting
-DateUtils.formatDateForInput(new Date()); // "2026-01-05"
-DateUtils.formatDateTimeForInput(new Date()); // "2026-01-05T14:30"
-```
-
-### Available Date Functions
-
-| Function                        | Description                         |
-| ------------------------------- | ----------------------------------- |
-| `formatDate(date, locale)`      | Full date format                    |
-| `formatDateShort(date, locale)` | Short date format                   |
-| `formatTime(date, locale)`      | Time only (HH:mm)                   |
-| `formatDateTime(date, locale)`  | Date + time                         |
-| `formatTimeAgo(date, locale)`   | Relative time (e.g., "2 hours ago") |
-| `formatDateSmart(date, locale)` | Today/Yesterday/Full date           |
-| `isToday(date)`                 | Check if date is today              |
-| `isYesterday(date)`             | Check if date is yesterday          |
-| `getDayOfWeek(date, locale)`    | Get localized day name              |
-| `formatDateForInput(date)`      | YYYY-MM-DD format                   |
-| `formatDateTimeForInput(date)`  | YYYY-MM-DDTHH:mm format             |
-
----
-
-## 🎨 Animation Utilities
-
-The package includes ShadCN-compatible animation utilities:
-
-```tsx
-import { useShadCNAnimations, injectAnimationStyles, getAnimationStyles } from "@underverse-ui/underverse";
-
-// React hook - automatically injects styles on mount
-function MyComponent() {
-  useShadCNAnimations();
-  return <div className="animate-accordion-down">Content</div>;
-}
-
-// Manual injection (for non-React usage)
-injectAnimationStyles();
-
-// Get CSS string for custom injection
-const cssString = getAnimationStyles();
-```
-
-### Available Animations
-
-| Class                          | Description                  |
-| ------------------------------ | ---------------------------- |
-| `animate-accordion-down`       | Accordion expand animation   |
-| `animate-accordion-up`         | Accordion collapse animation |
-| `animate-caret-blink`          | Blinking caret cursor        |
-| `animate-fade-in`              | Fade in effect               |
-| `animate-fade-out`             | Fade out effect              |
-| `animate-slide-in-from-top`    | Slide in from top            |
-| `animate-slide-in-from-bottom` | Slide in from bottom         |
-| `animate-slide-in-from-left`   | Slide in from left           |
-| `animate-slide-in-from-right`  | Slide in from right          |
-| `animate-zoom-in`              | Zoom in effect               |
-| `animate-zoom-out`             | Zoom out effect              |
-
----
-
-## next-intl Integration (Next.js App Router)
-
-1. Configure plugin and time zone (to avoid `ENVIRONMENT_FALLBACK`):
-
-```ts
-// next.config.ts
-import createNextIntlPlugin from "next-intl/plugin";
-
-const withNextIntl = createNextIntlPlugin({
-  locales: ["vi", "en"],
-  defaultLocale: "vi",
-  timeZone: "Asia/Ho_Chi_Minh", // important for SSR
-});
-
-export default withNextIntl({
-  // your other Next config
-});
-```
-
-2. Merge underverse messages with your app messages:
-
-```tsx
-// app/layout.tsx (simplified)
-import { NextIntlClientProvider, getMessages } from "next-intl/server";
-import { underverseMessages } from "@underverse-ui/underverse";
-
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const appMessages = await getMessages();
-  const locale = "vi"; // derive from params/headers
-  const uv = underverseMessages[locale] || underverseMessages.en;
-  const messages = { ...uv, ...appMessages }; // app overrides uv if overlaps
-
-  return (
-    <html lang={locale}>
-      <body>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
-        </NextIntlClientProvider>
-      </body>
-    </html>
-  );
-}
-```
-
-3. Use components normally. Any built‑in texts (DatePicker/Pagination/DataTable/Alert/ImageUpload…) will use merged messages. You can still override labels via props if desired.
-
----
-
-## 🌐 TranslationProvider API
-
-For standalone React apps (without next-intl):
-
-```tsx
-import { TranslationProvider } from "@underverse-ui/underverse";
-
-function App() {
-  return (
-    <TranslationProvider
-      locale="ko" // "en" | "vi" | "ko" | "ja"
-      translations={{
-        // Optional: override default translations
-        Common: {
-          close: "닫기 (custom)",
-        },
-      }}
-    >
-      {children}
-    </TranslationProvider>
-  );
-}
-```
-
-### TranslationProvider Props
-
-| Prop           | Type                           | Default     | Description                  |
-| -------------- | ------------------------------ | ----------- | ---------------------------- |
-| `locale`       | `"en" \| "vi" \| "ko" \| "ja"` | `"en"`      | Active locale                |
-| `translations` | `Translations`                 | `undefined` | Custom translation overrides |
-| `children`     | `ReactNode`                    | -           | Child components             |
-
----
-
-## Message Keys Summary
-
-- `Common`: close, closeAlert, notifications, newNotification, readStatus, openLink, theme, lightTheme, darkTheme, systemTheme, density, compact, normal, comfortable, columns
-- `ValidationInput`: required, typeMismatch, pattern, tooShort, tooLong, rangeUnderflow, rangeOverflow, stepMismatch, badInput, invalid
-- `Loading`: loadingPage, pleaseWait
-- `DatePicker`: placeholder, today, clear
-- `Pagination`: navigationLabel, showingResults ({startItem},{endItem},{totalItems}), firstPage, previousPage, previous, nextPage, next, lastPage, pageNumber ({page}), itemsPerPage, search, noOptions
-- `OCR.imageUpload`: dragDropText, browseFiles, supportedFormats
-
----
-
-## 📋 Exported Components
-
-### Core Components
-
-- **Buttons:** `Button`
-- **Display:** `Badge`, `Card`, `Avatar`, `Skeleton`, `Progress`
-- **Form Inputs:** `Input`, `PasswordInput`, `NumberInput`, `SearchInput`, `Textarea`, `Checkbox`, `Switch`, `Label`, `TagInput`
-
-### Feedback & Overlays
-
-- `Modal`, `ToastProvider`, `useToast`, `Tooltip`, `Popover`
-- `Sheet` (includes `Drawer`, `SlideOver`, `BottomSheet`, `SidebarSheet`)
-- `Alert`, `GlobalLoading` (includes `PageLoading`, `InlineLoading`, `ButtonLoading`)
-
-### Form Controls & Pickers
-
-- `RadioGroup`, `Slider`, `DatePicker`, `DateRangePicker`, `TimePicker`, `Calendar`
-- `Combobox`, `MultiCombobox`, `CategoryTreeSelect`, `ColorPicker`
-
-### Navigation & Structure
-
-- `Breadcrumb`, `Tabs` (includes `SimpleTabs`, `PillTabs`, `VerticalTabs`)
-- `DropdownMenu`, `Pagination`, `SimplePagination`, `CompactPagination`
-- `Section`, `ScrollArea`
-
-### Data Display
-
-- `Table`, `DataTable`, `List`, `Grid`, `Timeline`
-
-### Media Components
-
-- `SmartImage`, `ImageUpload`, `Carousel`, `FallingIcons`, `Watermark`, `UEditor`
-
-### Utilities
-
-- `ClientOnly`, `Loading`, `NotificationModal`, `AccessDenied`, `OverlayControls`
-- `ThemeToggle`, `LanguageSwitcher` (headless)
-- `cn`, `DateUtils`, `useShadCNAnimations`
-
----
-
-## License
-
-MIT
-
-## Author
-
-Tran Van Bach
-
----
-
-## Headless Components Usage
-
-These variants avoid app-specific contexts and routing so you can wire them to your own state.
-
-### ThemeToggle (headless)
-
-```tsx
-import { ThemeToggle } from "@underverse-ui/underverse";
-import type { ThemeToggleProps, ThemeMode } from "@underverse-ui/underverse";
-import { useState } from "react";
-
-export default function ExampleThemeToggle() {
-  const [theme, setTheme] = useState<ThemeMode>("system");
-  return (
-    <ThemeToggle
-      theme={theme}
-      onChange={setTheme}
-      // optional labels
-      labels={{ heading: "Theme", light: "Light", dark: "Dark", system: "System" }}
+    <UEditor
+      ref={editorRef}
+      content={html}
+      onHtmlChange={setHtml}
+      outputDebounceMs={120}
+      placeholder="Type '/' for commands…"
+      showCharacterCount
     />
   );
 }
 ```
 
-If you use `next-themes` or a custom context, pass your current theme and the setter to `onChange`.
+Use `outputDebounceMs` for large controlled documents. Before persisting base64 images, call `editorRef.current?.prepareContentForSave()` with an upload handler.
 
-### LanguageSwitcher (headless)
+[Read the UEditor guide](https://github.com/faker6996/underverse/blob/main/docs/underverseui-usage/UEditor.md) · [Read the table guide](https://github.com/faker6996/underverse/blob/main/docs/underverseui-usage/UEditor-Table-HuongDanSuDung.md)
+
+## Internationalization
+
+Standalone React applications can use the built-in provider:
 
 ```tsx
-import { LanguageSwitcher } from "@underverse-ui/underverse";
-import type { LanguageOption } from "@underverse-ui/underverse";
-import { useRouter, usePathname } from "next/navigation";
+import { TranslationProvider } from "@underverse-ui/underverse";
 
-const locales: LanguageOption[] = [
-  { code: "vi", name: "Tiếng Việt", flag: "🇻🇳" },
-  { code: "en", name: "English", flag: "🇺🇸" },
-  { code: "ko", name: "한국어", flag: "🇰🇷" },
-  { code: "ja", name: "日本語", flag: "🇯🇵" },
-];
-
-export default function ExampleLanguageSwitcher({ currentLocale }: { currentLocale: string }) {
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const onSwitch = (code: string) => {
-    // Replace first segment as locale, e.g. /vi/... -> /en/...
-    const segs = pathname.split("/");
-    segs[1] = code;
-    router.push(segs.join("/"));
-  };
-
-  return <LanguageSwitcher locales={locales} currentLocale={currentLocale} onSwitch={onSwitch} labels={{ heading: "Language" }} />;
-}
+<TranslationProvider locale="vi">{children}</TranslationProvider>;
 ```
 
----
+Supported locales:
 
-## 📁 Full Export Reference
+| Code | Language |
+| --- | --- |
+| `en` | English |
+| `vi` | Tiếng Việt |
+| `ko` | 한국어 |
+| `ja` | 日本語 |
+
+For a `next-intl` application, mount `NextIntlAdapter` inside `NextIntlClientProvider`. The adapter reads the active locale and messages, then falls back to the package's built-in locale messages for missing component strings.
+
+## Optional integrations
+
+Install and configure only the integrations used by your application:
+
+| Feature | Integration |
+| --- | --- |
+| Forms and schema validation | `react-hook-form`, `@hookform/resolvers`, `zod` |
+| UEditor | Tiptap, Lowlight, and Tippy peers declared by the package |
+| Overlay scrollbars | `overlayscrollbars` and its stylesheet |
+| Next.js image/i18n adapters | `next`, `next-intl` |
+
+Overlay scrollbars are opt-in and component-scoped:
 
 ```tsx
-// Core Components
+import "overlayscrollbars/overlayscrollbars.css";
 import {
-  Button,
-  Badge,
-  Card,
-  Avatar,
-  Skeleton,
-  Progress,
-  Input,
-  PasswordInput,
-  NumberInput,
-  SearchInput,
-  Textarea,
-  Checkbox,
-  Switch,
-  Label,
-  TagInput,
-} from "@underverse-ui/underverse";
-
-// Overlays
-import {
-  Modal,
-  ToastProvider,
-  useToast,
-  Tooltip,
-  Popover,
-  Sheet,
-  Drawer,
-  SlideOver,
-  BottomSheet,
-  SidebarSheet,
-  Alert,
-  GlobalLoading,
-  PageLoading,
-  InlineLoading,
-  ButtonLoading,
-} from "@underverse-ui/underverse";
-
-// Pickers
-import {
-  DatePicker,
-  DateRangePicker,
-  TimePicker,
-  Calendar,
-  Combobox,
-  MultiCombobox,
-  CategoryTreeSelect,
-  ColorPicker,
-  RadioGroup,
-  Slider,
-} from "@underverse-ui/underverse";
-
-// Navigation
-import {
-  Breadcrumb,
-  Tabs,
-  SimpleTabs,
-  PillTabs,
-  VerticalTabs,
-  DropdownMenu,
-  Pagination,
-  SimplePagination,
-  CompactPagination,
-  Section,
+  OverlayScrollbarProvider,
   ScrollArea,
 } from "@underverse-ui/underverse";
 
-// Data Display
-import { Table, DataTable, List, Grid, Timeline, Watermark } from "@underverse-ui/underverse";
-
-// Media
-import { SmartImage, ImageUpload, Carousel, FallingIcons, UEditor } from "@underverse-ui/underverse";
-
-// Utilities
-import {
-  cn,
-  DateUtils,
-  useShadCNAnimations,
-  injectAnimationStyles,
-  ClientOnly,
-  Loading,
-  NotificationModal,
-  AccessDenied,
-  ThemeToggle,
-  LanguageSwitcher,
-} from "@underverse-ui/underverse";
-
-// i18n
-import {
-  TranslationProvider,
-  useUnderverseTranslations,
-  useUnderverseLocale,
-  underverseMessages,
-  getUnderverseMessages,
-} from "@underverse-ui/underverse";
-
-// Types
-import type {
-  ButtonProps,
-  InputProps,
-  DatePickerProps,
-  ComboboxProps,
-  PaginationProps,
-  DataTableColumn,
-  Locale,
-  Translations,
-} from "@underverse-ui/underverse";
+<OverlayScrollbarProvider autoHide="leave">
+  <ScrollArea className="h-64" useOverlayScrollbar>
+    {content}
+  </ScrollArea>
+</OverlayScrollbarProvider>;
 ```
 
----
+## Component families
 
-## 🧪 Testing
+| Area | Components |
+| --- | --- |
+| Inputs | Input, Textarea, CheckBox, RadioGroup, Switch, Slider, TagInput |
+| Selection | Combobox, MultiCombobox, CategoryTreeSelect, ColorPicker |
+| Date and time | Calendar, DatePicker, DateRangePicker, DateTimePicker, TimePicker, MonthYearPicker |
+| Data | Table, DataTable, Pagination, Grid, List, Timeline |
+| Navigation | Tabs, Breadcrumb, DropdownMenu, Section, ScrollArea |
+| Overlays | Modal, Sheet, Popover, Tooltip, Toast, Alert |
+| Media and content | SmartImage, ImageUpload, FileUpload, Carousel, EmojiPicker, StickerPicker, UEditor |
+| Scheduling | CalendarTimeline |
 
-### Test with React (Vite)
+Browse every component, example, and generated API contract in the [live documentation](https://underverse.infiniq.com.vn/vi/docs/underverse).
 
-```bash
-# Create new Vite project
-npm create vite@latest my-test-app -- --template react-ts
-cd my-test-app
+## Compatibility
 
-# Install underverse
-npm i @underverse-ui/underverse
+| Runtime | Support |
+| --- | --- |
+| React | 18 and newer |
+| Node.js | 18 and newer |
+| Next.js | 13 and newer |
+| Tailwind CSS | 4.x |
+| Module formats | ESM and CommonJS |
+| TypeScript | Type declarations included |
 
-# Add Tailwind CSS
-npm i -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-```
+## Package metadata
 
-### Test with Next.js
+The npm package also ships:
 
-```bash
-# Create new Next.js project
-npx create-next-app@latest my-test-app --typescript --tailwind
-cd my-test-app
+- `api-reference.json` for a generated machine-readable export index.
+- `llms.txt` and `agent-recipes.json` for coding assistants.
+- `AGENTS.md` for package integration rules.
 
-# Install underverse
-npm i @underverse-ui/underverse next-intl
-```
+## Support
+
+- [Documentation](https://underverse.infiniq.com.vn/vi/docs/underverse)
+- [Issue tracker](https://github.com/faker6996/underverse/issues)
+- [Security policy](https://github.com/faker6996/underverse/blob/main/SECURITY.md)
+- [Contributing guide](https://github.com/faker6996/underverse/blob/main/CONTRIBUTING.md)
+
+## License
+
+[MIT](https://github.com/faker6996/underverse/blob/main/LICENSE) © Tran Van Bach

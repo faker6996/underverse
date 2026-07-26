@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ArrowRight, Check, Package, Search } from "lucide-react";
+import UnderverseLogo from "@/components/ui/UnderverseLogo";
 import packageJson from "@/packages/underverse/package.json";
 import CodeBlock from "./_components/CodeBlock";
 import DocsLayout from "./_components/DocsLayout";
@@ -43,35 +44,46 @@ export default async function UnderverseGuidePage({ params }: UnderverseGuidePag
     <DocsLayout>
       <article className="mx-auto w-full max-w-5xl pb-20">
         <header className="relative overflow-hidden border-b border-border/60 pb-12 pt-3">
-          <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-primary/8 blur-3xl" aria-hidden="true" />
-          <div className="relative max-w-3xl">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-md border border-border/70 bg-background/75 px-2.5 py-1 text-xs font-semibold text-muted-foreground shadow-xs backdrop-blur">
-              <Package className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-              <span translate="no">v{packageJson.version}</span>
-              <span className="text-border" aria-hidden="true">/</span>
-              <span>{t("docs.componentCount", { count: DOCS_REGISTRY.length })}</span>
+          <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
+          <div className="pointer-events-none absolute -left-12 top-10 h-56 w-56 rounded-full bg-cyan-500/10 blur-3xl" aria-hidden="true" />
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-lg border border-border/70 bg-background/75 px-3 py-1.5 text-xs font-semibold text-muted-foreground shadow-xs backdrop-blur">
+                <UnderverseLogo size={18} variant="minimal" />
+                <span translate="no">v{packageJson.version}</span>
+                <span className="text-border" aria-hidden="true">/</span>
+                <span>{t("docs.componentCount", { count: DOCS_REGISTRY.length })}</span>
+              </div>
+              <h1 className="text-balance text-4xl font-bold tracking-[-0.045em] text-foreground sm:text-6xl">
+                {t("docs.heroTitle")}
+              </h1>
+              <p className="mt-5 max-w-2xl text-pretty text-lg leading-8 text-muted-foreground">
+                {t("docs.heroDescription")}
+              </p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <a
+                  href="#installation"
+                  className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-[background-color,transform] hover:bg-primary/90 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transform-none"
+                >
+                  {t("docs.getStarted")}
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </a>
+                <a
+                  href="#components"
+                  className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-background px-4 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <Search className="h-4 w-4" aria-hidden="true" />
+                  {t("docs.browseComponents")}
+                </a>
+              </div>
             </div>
-            <h1 className="text-balance text-4xl font-bold tracking-[-0.045em] text-foreground sm:text-6xl">
-              {t("docs.heroTitle")}
-            </h1>
-            <p className="mt-5 max-w-2xl text-pretty text-lg leading-8 text-muted-foreground">
-              {t("docs.heroDescription")}
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <a
-                href="#installation"
-                className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-[background-color,transform] hover:bg-primary/90 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transform-none"
-              >
-                {t("docs.getStarted")}
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </a>
-              <a
-                href="#components"
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-background px-4 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <Search className="h-4 w-4" aria-hidden="true" />
-                {t("docs.browseComponents")}
-              </a>
+
+            {/* Featured Brand Emblem Badge */}
+            <div className="relative mt-4 flex shrink-0 justify-center lg:mt-0">
+              <div className="group relative flex items-center justify-center rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/10 via-background/60 to-background p-8 shadow-2xl backdrop-blur-xl transition-all duration-500 hover:border-primary/40 hover:shadow-primary/10">
+                <div className="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-cyan-500/20 opacity-50 blur-xl transition-opacity group-hover:opacity-100" aria-hidden="true" />
+                <UnderverseLogo size={112} variant="glowing" />
+              </div>
             </div>
           </div>
         </header>

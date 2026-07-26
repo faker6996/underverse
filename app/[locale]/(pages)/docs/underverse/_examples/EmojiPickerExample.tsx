@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { EmojiPicker } from "@/components/ui/EmojiPicker";
 import CodeBlock from "../_components/CodeBlock";
@@ -37,11 +38,13 @@ export const EmojiText: React.FC<{ text: string }> = ({ text }) => {
         if (part && /\p{Extended_Pictographic}/u.test(part)) {
           const unified = getEmojiUnifiedCode(part);
           return (
-            <img
+            <Image
               key={index}
               src={`/emojis/${unified}.png`}
               alt={part}
               title={part}
+              width={22}
+              height={22}
               className="inline-block h-5.5 w-5.5 mx-0.5 align-middle object-contain hover:scale-120 transition-transform duration-200"
               loading="lazy"
             />

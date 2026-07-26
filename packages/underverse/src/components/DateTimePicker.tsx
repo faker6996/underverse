@@ -60,6 +60,10 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   const t = useSmartTranslations("DateTimePicker");
   const tv = useSmartTranslations("ValidationInput");
   const locale = useSmartLocale();
+  const autoId = React.useId();
+  const triggerId = `date-time-picker-trigger-${autoId}`;
+  const panelId = `${triggerId}-panel`;
+  const labelId = label ? `${triggerId}-label` : undefined;
 
   const [open, setOpen] = React.useState(false);
   const [localRequiredError, setLocalRequiredError] = React.useState<string | undefined>();
@@ -237,7 +241,11 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   return (
     <div className={cn("space-y-1.5", className)}>
       {label && (
-        <label className={cn(sizeStyles[size].label, "font-medium text-foreground flex items-center gap-1", effectiveError && "text-destructive", labelClassName)}>
+        <label
+          id={labelId}
+          htmlFor={triggerId}
+          className={cn(sizeStyles[size].label, "font-medium text-foreground flex items-center gap-1", effectiveError && "text-destructive", labelClassName)}
+        >
           {label} {required && <span className="text-destructive">*</span>}
         </label>
       )}
@@ -258,10 +266,18 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       <Popover
         open={open}
         onOpenChange={setOpen}
+        contentProps={{ id: panelId }}
         trigger={
           <button
+            id={triggerId}
             type="button"
+            role="combobox"
             disabled={disabled}
+            aria-haspopup="dialog"
+            aria-expanded={open}
+            aria-controls={panelId}
+            aria-label={labelId ? undefined : (displayValue || placeholder || "Select date & time")}
+            aria-labelledby={labelId}
             aria-required={required}
             aria-invalid={!!effectiveError}
             className={cn(

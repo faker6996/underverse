@@ -108,19 +108,7 @@ export function useOverlayScrollbarTarget<T extends HTMLElement>(
     return () => {
       controller.destroy();
     };
-  }, [
-    targetRef,
-    resolved.enabled,
-    resolved.theme,
-    resolved.visibility,
-    resolved.autoHide,
-    resolved.autoHideDelay,
-    resolved.dragScroll,
-    resolved.clickScroll,
-    resolved.overflowX,
-    resolved.overflowY,
-    resolved.exclude,
-  ]);
+  }, [resolved, targetRef]);
 }
 
 export default OverlayScrollbarProvider;

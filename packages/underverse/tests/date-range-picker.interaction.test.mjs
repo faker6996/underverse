@@ -85,7 +85,7 @@ test("DateRangePicker supports month and year quick selection before picking a r
 
   const view = await renderElement(React.createElement(Harness));
   const body = within(window.document.body);
-  const trigger = body.getByRole("button", { name: /select date range/i });
+  const trigger = body.getByRole("combobox", { name: /select date range/i });
   const textInput = getVisibleTextInput(view.container);
 
   await clickWithAct(user, trigger);
@@ -129,7 +129,7 @@ test("DateRangePicker reports a null end date while selecting an incomplete rang
 
   const view = await renderElement(React.createElement(Harness));
   const body = within(window.document.body);
-  const trigger = body.getByRole("button", { name: /select date range/i });
+  const trigger = body.getByRole("combobox", { name: /select date range/i });
   const textInput = getVisibleTextInput(view.container);
 
   await clickWithAct(user, trigger);
@@ -162,7 +162,7 @@ test("DateRangePicker footer supports Today and Clear actions", async () => {
 
   const view = await renderElement(React.createElement(Harness));
   const body = within(window.document.body);
-  const trigger = body.getByRole("button", { name: /select date range/i });
+  const trigger = body.getByRole("combobox", { name: /select date range/i });
   const textInput = getVisibleTextInput(view.container);
 
   await clickWithAct(user, trigger);
@@ -208,7 +208,7 @@ test("DateRangePicker shows required error on submit and clears it after selecti
   const body = within(window.document.body);
   const form = view.container.querySelector("form");
   const input = getRequiredInput(view.container);
-  const trigger = body.getByRole("button", { name: /booking range/i });
+  const trigger = body.getByRole("combobox", { name: /booking range/i });
 
   assert.equal(input.checkValidity(), false);
   await triggerRequiredValidation(form, input);
@@ -232,14 +232,17 @@ test("DatePicker supports manual text input typing", async () => {
   const mod = await importTsModule(path.join(path.resolve(import.meta.dirname, "../src/components"), "DatePicker.tsx"));
   const DatePicker = mod.DatePicker;
   const user = userEvent.setup({ document: window.document });
-  let selectedDate = undefined;
+  const selectedDate = { current: undefined };
+  const recordSelectedDate = (date) => {
+    selectedDate.current = date;
+  };
 
   function Harness() {
     const [val, setVal] = React.useState(undefined);
     return React.createElement(DatePicker, {
       value: val,
       onChange: (d) => {
-        selectedDate = d;
+        recordSelectedDate(d);
         setVal(d);
       },
       placeholder: "Pick a date",
@@ -259,10 +262,10 @@ test("DatePicker supports manual text input typing", async () => {
   });
 
   await waitFor(() => {
-    assert.ok(selectedDate instanceof Date);
-    assert.equal(selectedDate.getFullYear(), 2026);
-    assert.equal(selectedDate.getMonth(), 11); // December is 11
-    assert.equal(selectedDate.getDate(), 25);
+    assert.ok(selectedDate.current instanceof Date);
+    assert.equal(selectedDate.current.getFullYear(), 2026);
+    assert.equal(selectedDate.current.getMonth(), 11); // December is 11
+    assert.equal(selectedDate.current.getDate(), 25);
   });
 
   // Blur should format the text to local display
@@ -279,7 +282,10 @@ test("DateRangePicker supports manual text input typing for date range", async (
   const mod = await importTsModule(path.join(path.resolve(import.meta.dirname, "../src/components"), "DatePicker.tsx"));
   const DateRangePicker = mod.DateRangePicker;
   const user = userEvent.setup({ document: window.document });
-  let rangeResult = { start: undefined, end: undefined };
+  const rangeResult = { current: { start: undefined, end: undefined } };
+  const recordRangeResult = (start, end) => {
+    rangeResult.current = { start, end };
+  };
 
   function Harness() {
     const [range, setRange] = React.useState({ start: undefined, end: undefined });
@@ -287,7 +293,7 @@ test("DateRangePicker supports manual text input typing for date range", async (
       startDate: range.start,
       endDate: range.end,
       onChange: (start, end) => {
-        rangeResult = { start, end };
+        recordRangeResult(start, end);
         setRange({ start, end });
       },
       placeholder: "Select date range...",
@@ -306,14 +312,14 @@ test("DateRangePicker supports manual text input typing for date range", async (
   });
 
   await waitFor(() => {
-    assert.ok(rangeResult.start instanceof Date);
-    assert.equal(rangeResult.start.getFullYear(), 2026);
-    assert.equal(rangeResult.start.getMonth(), 11);
-    assert.equal(rangeResult.start.getDate(), 25);
+    assert.ok(rangeResult.current.start instanceof Date);
+    assert.equal(rangeResult.current.start.getFullYear(), 2026);
+    assert.equal(rangeResult.current.start.getMonth(), 11);
+    assert.equal(rangeResult.current.start.getDate(), 25);
 
-    assert.ok(rangeResult.end instanceof Date);
-    assert.equal(rangeResult.end.getFullYear(), 2026);
-    assert.equal(rangeResult.end.getMonth(), 11);
-    assert.equal(rangeResult.end.getDate(), 28);
+    assert.ok(rangeResult.current.end instanceof Date);
+    assert.equal(rangeResult.current.end.getFullYear(), 2026);
+    assert.equal(rangeResult.current.end.getMonth(), 11);
+    assert.equal(rangeResult.current.end.getDate(), 28);
   });
 });

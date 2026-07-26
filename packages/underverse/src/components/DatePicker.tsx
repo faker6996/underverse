@@ -12,6 +12,11 @@ import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 import { formControlFixedClass, formControlSizeStyles } from "../constants/form-control-size";
 
+function normalizeToLocalDate(date: Date | undefined | null): Date | null {
+  if (!date) return null;
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
 /** Public props for the `DatePicker` component. */
 export interface DatePickerProps {
   id?: string;
@@ -73,16 +78,16 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const [inputValue, setInputValue] = React.useState<string>("");
 
   React.useEffect(() => {
-    if (value) {
-      const parsed = parseDateString(inputValue, locale);
-      const isSame = parsed && parsed.getTime() === value.getTime();
-      if (!isSame) {
-        setInputValue(formatDateShort(value, locale));
+    setInputValue((currentInput) => {
+      if (value) {
+        const parsed = parseDateString(currentInput, locale);
+        const isSame = parsed && parsed.getTime() === value.getTime();
+        return isSame ? currentInput : formatDateShort(value, locale);
       }
-    } else if (!isFocused) {
-      setInputValue("");
-    }
-  }, [value, locale, isFocused]);
+
+      return isFocused ? currentInput : "";
+    });
+  }, [isFocused, locale, value]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
@@ -103,7 +108,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       if (required) {
         setLocalRequiredError(tv("required"));
       } else {
-        onChange(undefined);
+        if (value) onChange(undefined);
         setLocalRequiredError(undefined);
       }
     } else {
@@ -556,6 +561,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const autoId = useId();
   const resolvedId = id ? String(id) : `datepicker-${autoId}`;
   const labelId = label ? `${resolvedId}-label` : undefined;
+  const panelId = `${resolvedId}-panel`;
   const labelSize = sizeStyles[size].label;
 
   // Radius consistent with Input: sm => rounded-md, md/lg => rounded-lg
@@ -603,6 +609,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       <Popover
         open={isOpen}
         onOpenChange={setIsOpen}
+        contentProps={{ id: panelId }}
         placement="bottom-start"
         disabled={disabled}
         contentWidth={sizeStyles[size].contentWidth}
@@ -618,12 +625,6 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         trigger={
           <div
             ref={triggerRef}
-            id={resolvedId}
-            role="button"
-            aria-label={value ? formatDateDisplay(value) : (placeholder || t("placeholder"))}
-            aria-labelledby={labelId}
-            aria-required={required}
-            aria-invalid={!!effectiveError}
             className={cn(
               "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
               formControlFixedClass,
@@ -653,8 +654,16 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               </div>
               <input
                 ref={inputRef}
+                id={resolvedId}
                 type="text"
+                role="combobox"
                 aria-label={value ? formatDateDisplay(value) : (placeholder || t("placeholder"))}
+                aria-labelledby={labelId}
+                aria-haspopup="dialog"
+                aria-expanded={isOpen}
+                aria-controls={panelId}
+                aria-required={required}
+                aria-invalid={!!effectiveError}
                 disabled={disabled}
                 placeholder={placeholder || t("placeholder")}
                 value={isFocused ? inputValue : (value ? formatDateDisplay(value) : "")}
@@ -790,20 +799,22 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   }, [locale]);
 
   React.useEffect(() => {
-    if (startDate) {
-      const parts = inputValue.split(/\s*-\s*/);
-      const inputStart = parts[0] ? parseDateString(parts[0], locale) : null;
-      const inputEnd = parts[1] ? parseDateString(parts[1], locale) : null;
-      const startSame = inputStart && startDate && inputStart.getTime() === startDate.getTime();
-      const endSame = (!endDate && !inputEnd) || (endDate && inputEnd && endDate.getTime() === inputEnd.getTime());
-      
-      if (!(startSame && endSame)) {
-        setInputValue(getRangeString(startDate, endDate));
+    setInputValue((currentInput) => {
+      if (startDate) {
+        const parts = currentInput.split(/\s*-\s*/);
+        const inputStart = parts[0] ? parseDateString(parts[0], locale) : null;
+        const inputEnd = parts[1] ? parseDateString(parts[1], locale) : null;
+        const startSame = inputStart && inputStart.getTime() === startDate.getTime();
+        const endSame = (!endDate && !inputEnd) || (endDate && inputEnd && endDate.getTime() === inputEnd.getTime());
+
+        return startSame && endSame
+          ? currentInput
+          : getRangeString(startDate, endDate);
       }
-    } else if (!isFocused) {
-      setInputValue("");
-    }
-  }, [startDate, endDate, locale, isFocused, getRangeString]);
+
+      return isFocused ? currentInput : "";
+    });
+  }, [endDate, getRangeString, isFocused, locale, startDate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
@@ -855,7 +866,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
       } else {
         setTempStart(null);
         setTempEnd(null);
-        onChange(undefined, undefined);
+        if (startDate || endDate) onChange(undefined, undefined);
         setLocalRequiredError(undefined);
       }
     } else {
@@ -888,8 +899,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
       }
       
       if (startDate) {
-        setTempStart(normalizeToLocal(startDate));
-        setTempEnd(normalizeToLocal(endDate));
+        setTempStart(normalizeToLocalDate(startDate));
+        setTempEnd(normalizeToLocalDate(endDate));
         setInputValue(getRangeString(startDate, endDate));
         setLocalRequiredError(undefined);
       } else {
@@ -998,28 +1009,22 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     },
   } as const;
 
-  // Helper to normalize date to local timezone (avoid UTC offset issues)
-  const normalizeToLocal = (date: Date | undefined | null): Date | null => {
-    if (!date) return null;
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  };
-
-  const minDay = React.useMemo(() => normalizeToLocal(minDate), [minDate]);
-  const maxDay = React.useMemo(() => normalizeToLocal(maxDate), [maxDate]);
+  const minDay = normalizeToLocalDate(minDate);
+  const maxDay = normalizeToLocalDate(maxDate);
 
   // Use passed-in props as the source of truth, but manage a temporary state for selection.
   const [viewDate, setViewDate] = React.useState<Date>(startDate || new Date());
-  const [tempStart, setTempStart] = React.useState<Date | null>(normalizeToLocal(startDate));
-  const [tempEnd, setTempEnd] = React.useState<Date | null>(normalizeToLocal(endDate));
+  const [tempStart, setTempStart] = React.useState<Date | null>(normalizeToLocalDate(startDate));
+  const [tempEnd, setTempEnd] = React.useState<Date | null>(normalizeToLocalDate(endDate));
   const [hoveredDate, setHoveredDate] = React.useState<Date | null>(null);
 
   // Sync temp state with props (normalize to avoid timezone issues)
   React.useEffect(() => {
-    setTempStart(normalizeToLocal(startDate));
+    setTempStart(normalizeToLocalDate(startDate));
   }, [startDate]);
 
   React.useEffect(() => {
-    setTempEnd(normalizeToLocal(endDate));
+    setTempEnd(normalizeToLocalDate(endDate));
   }, [endDate]);
 
   React.useEffect(() => {
@@ -1042,13 +1047,13 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   const getDaysInMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
   const getFirstDayOfMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1).getDay();
 
-  const navigateMonth = React.useCallback((direction: "prev" | "next") => {
+  const navigateMonth = (direction: "prev" | "next") => {
     setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + (direction === "next" ? 1 : -1), 1));
-  }, []);
+  };
 
-  const navigateYearRange = React.useCallback((direction: "prev" | "next") => {
+  const navigateYearRange = (direction: "prev" | "next") => {
     setViewDate((prev) => new Date(prev.getFullYear() + (direction === "next" ? 12 : -12), prev.getMonth(), 1));
-  }, []);
+  };
 
   const isElementVerticallyScrollable = (el: Element) => {
     const style = window.getComputedStyle(el);
@@ -1085,12 +1090,14 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
       wheelDeltaRef.current -= steps * threshold;
 
       const direction: "prev" | "next" = steps > 0 ? "next" : "prev";
-      for (let i = 0; i < Math.abs(steps); i++) navigateMonth(direction);
+      for (let i = 0; i < Math.abs(steps); i++) {
+        setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + (direction === "next" ? 1 : -1), 1));
+      }
     };
 
     container.addEventListener("wheel", onWheel, { passive: false });
     return () => container.removeEventListener("wheel", onWheel);
-  }, [isOpen, navigateMonth]);
+  }, [isOpen]);
 
   const handleSelect = (date: Date) => {
     // Create date object with local timezone to avoid UTC offset issues
@@ -1404,6 +1411,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   const autoId = useId();
   const resolvedId = id ? String(id) : `daterangepicker-${autoId}`;
   const labelId = label ? `${resolvedId}-label` : undefined;
+  const panelId = `${resolvedId}-panel`;
 
   const globalConfig = useUnderverseUIConfig();
   const resolvedBorderMode = borderMode ?? globalConfig.borderMode ?? "full";
@@ -1443,6 +1451,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
       <Popover
         open={isOpen}
         onOpenChange={setIsOpen}
+        contentProps={{ id: panelId }}
         placement="bottom-start"
         disabled={disabled}
         contentWidth={sizeStyles[size].contentWidth}
@@ -1457,12 +1466,6 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
         trigger={
           <div
             ref={triggerRef}
-            id={resolvedId}
-            role="button"
-            aria-label={tempStart ? displayLabel : placeholder}
-            aria-labelledby={labelId}
-            aria-required={required}
-            aria-invalid={!!effectiveError}
             className={cn(
               "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
               formControlFixedClass,
@@ -1491,8 +1494,16 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
               </div>
               <input
                 ref={inputRef}
+                id={resolvedId}
                 type="text"
+                role="combobox"
                 aria-label={tempStart ? displayLabel : placeholder}
+                aria-labelledby={labelId}
+                aria-haspopup="dialog"
+                aria-expanded={isOpen}
+                aria-controls={panelId}
+                aria-required={required}
+                aria-invalid={!!effectiveError}
                 disabled={disabled}
                 placeholder={placeholder}
                 value={isFocused ? inputValue : (tempStart ? displayLabel : "")}

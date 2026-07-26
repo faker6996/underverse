@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { StickerPicker } from "@/components/ui/StickerPicker";
 import CodeBlock from "../_components/CodeBlock";
@@ -142,10 +143,13 @@ export default function StickerPickerExample() {
                   >
                     {msg.text && <p>{msg.text}</p>}
                     {msg.sticker && (
-                      <img
+                      <Image
                         src={msg.sticker.url}
                         alt={msg.sticker.name}
                         title={msg.sticker.name}
+                        width={96}
+                        height={96}
+                        unoptimized
                         className="h-24 w-24 object-contain hover:scale-110 transition-transform duration-200 select-none pointer-events-none"
                       />
                     )}

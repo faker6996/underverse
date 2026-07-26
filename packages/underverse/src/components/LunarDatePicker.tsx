@@ -699,6 +699,7 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
   const autoId = useId();
   const resolvedId = id ? String(id) : `lunar-datepicker-${autoId}`;
   const labelId = label ? `${resolvedId}-label` : undefined;
+  const panelId = `${resolvedId}-panel`;
   const labelSize = sizeStyles[size].label;
 
   const verticalGap = size === "sm" ? "space-y-1.5" : size === "lg" ? "space-y-2.5" : "space-y-2";
@@ -741,6 +742,7 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
       <Popover
         open={isOpen}
         onOpenChange={setIsOpen}
+        contentProps={{ id: panelId }}
         placement="bottom-start"
         borderMode={resolvedBorderMode}
         disabled={disabled}
@@ -756,12 +758,6 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
         trigger={
           <div
             ref={triggerRef}
-            id={resolvedId}
-            role="button"
-            aria-label={value ? formatDateDisplay(value) : (placeholder || t("placeholder"))}
-            aria-labelledby={labelId}
-            aria-required={required}
-            aria-invalid={!!effectiveError}
             className={cn(
               "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
               formControlFixedClass,
@@ -791,8 +787,16 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
               </div>
               <input
                 ref={inputRef}
+                id={resolvedId}
                 type="text"
+                role="combobox"
                 aria-label={value ? formatDateDisplay(value) : (placeholder || t("placeholder"))}
+                aria-labelledby={labelId}
+                aria-haspopup="dialog"
+                aria-expanded={isOpen}
+                aria-controls={panelId}
+                aria-required={required}
+                aria-invalid={!!effectiveError}
                 disabled={disabled}
                 placeholder={placeholder || t("placeholder")}
                 value={isFocused ? inputValue : (value ? formatDateDisplay(value) : "")}
@@ -962,7 +966,7 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
     },
   } as const;
 
-  const triggerRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
 
   const [todayLunar] = React.useState<LunarPickerValue>(() => solarToLunar(new Date()));
 
@@ -1388,6 +1392,7 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
   const autoId = useId();
   const resolvedId = id ? String(id) : `lunardaterangepicker-${autoId}`;
   const labelId = label ? `${resolvedId}-label` : undefined;
+  const panelId = `${resolvedId}-panel`;
 
   return (
     <div className={cn("space-y-1.5", className)}>
@@ -1424,6 +1429,7 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
       <Popover
         open={isOpen}
         onOpenChange={setIsOpen}
+        contentProps={{ id: panelId }}
         placement="bottom-start"
         disabled={disabled}
         contentWidth={sizeStyles[size].contentWidth}
@@ -1436,9 +1442,17 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
           "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-300",
         )}
         trigger={
-          <div ref={triggerRef} id={resolvedId} role="button"
+          <button
+            ref={triggerRef}
+            id={resolvedId}
+            type="button"
+            role="combobox"
+            disabled={disabled}
             aria-label={tempStart ? displayLabel : placeholder}
             aria-labelledby={labelId}
+            aria-haspopup="dialog"
+            aria-expanded={isOpen}
+            aria-controls={panelId}
             aria-required={required}
             aria-invalid={!!effectiveError}
             className={cn(
@@ -1476,7 +1490,7 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </span>
-          </div>}> {panel} </Popover>
+          </button>}> {panel} </Popover>
       {effectiveError && <div className="text-xs text-destructive">{effectiveError}</div>}
     </div>
   );

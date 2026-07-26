@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Github, Menu, Package, Search } from "lucide-react";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import UnderverseLogo from "@/components/ui/UnderverseLogo";
 import packageJson from "@/packages/underverse/package.json";
 
 interface DocsHeaderProps {
@@ -32,19 +33,12 @@ export default function DocsHeader({ onMobileMenuToggle, onSearchOpen }: DocsHea
 
         <Link
           href={`/${locale}/docs/underverse`}
-          className="flex shrink-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex shrink-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group"
         >
-          <svg className="h-8 w-8" viewBox="0 0 64 64" role="img" aria-label="Underverse UI">
-            <defs>
-              <linearGradient id="docsUvGradient" x1="0" x2="1" y1="0" y2="1">
-                <stop offset="0%" stopColor="#4f46e5" />
-                <stop offset="100%" stopColor="#0891b2" />
-              </linearGradient>
-            </defs>
-            <rect width="64" height="64" rx="16" fill="url(#docsUvGradient)" />
-            <path d="M22 17v21c0 7 4 10 10 10s10-3 10-10V17h-5v21c0 4-2 6-5 6s-5-2-5-6V17z" fill="#f8fafc" />
-          </svg>
-          <span className="hidden text-sm font-semibold tracking-tight text-foreground sm:inline">Underverse UI</span>
+          <UnderverseLogo size={32} variant="glowing" />
+          <span className="hidden text-base font-bold tracking-tight text-foreground sm:inline group-hover:text-primary transition-colors">
+            Underverse <span className="text-primary font-extrabold">UI</span>
+          </span>
         </Link>
 
         <a

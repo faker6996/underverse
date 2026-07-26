@@ -8,6 +8,8 @@ const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 const packageJson = JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8"));
 const packageName = packageJson.name;
 const peerDependencies = Object.keys(packageJson.peerDependencies ?? {});
+const MAX_UEDITOR_CONSUMER_BYTES = 550_000;
+const MAX_UEDITOR_INITIAL_BYTES = 525_000;
 
 async function bundleConsumer(name, source, { bundleLowlight = false } = {}) {
   const external = peerDependencies
@@ -80,6 +82,14 @@ assert.ok(
   root.bytes <= subpath.bytes + allowedByteDifference,
   `Root UEditor bundle (${root.bytes} bytes) exceeds the subpath bundle (${subpath.bytes} bytes) by more than ${allowedByteDifference} bytes`,
 );
+assert.ok(
+  root.bytes <= MAX_UEDITOR_CONSUMER_BYTES,
+  `Root UEditor consumer bundle (${root.bytes} bytes) exceeds the ${MAX_UEDITOR_CONSUMER_BYTES}-byte budget`,
+);
+assert.ok(
+  subpath.bytes <= MAX_UEDITOR_CONSUMER_BYTES,
+  `Subpath UEditor consumer bundle (${subpath.bytes} bytes) exceeds the ${MAX_UEDITOR_CONSUMER_BYTES}-byte budget`,
+);
 
 const isHighlightGrammar = (input) => /highlight\.js\/(?:es|lib)\/languages\//.test(input);
 assert.ok(
@@ -90,6 +100,10 @@ assert.equal(
   rootWithLowlight.initialInputs.some(isHighlightGrammar),
   false,
   "Highlight.js grammars must stay out of UEditor initial chunks until a code block is used",
+);
+assert.ok(
+  rootWithLowlight.initialBytes <= MAX_UEDITOR_INITIAL_BYTES,
+  `UEditor initial bundle (${rootWithLowlight.initialBytes} bytes) exceeds the ${MAX_UEDITOR_INITIAL_BYTES}-byte budget`,
 );
 
 console.log(

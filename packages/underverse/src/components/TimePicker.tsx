@@ -668,6 +668,7 @@ export default function TimePicker({
   const directEditInputRef = React.useRef<HTMLInputElement>(null);
   const triggerId = `time-picker-trigger-${autoId}`;
   const labelId = label ? `time-picker-label-${autoId}` : undefined;
+  const panelId = `${triggerId}-panel`;
 
   React.useEffect(() => {
     if (isControlled) {
@@ -1029,11 +1030,13 @@ export default function TimePicker({
       <button
         id={triggerId}
         type="button"
+        role="combobox"
         disabled={disabled}
         aria-label={gi18n.selectTime ?? "Select time"}
         aria-labelledby={labelId}
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-controls={panelId}
         aria-required={required}
         aria-invalid={!!effectiveError}
         className={cn(
@@ -1505,6 +1508,7 @@ export default function TimePicker({
         trigger={trigger!}
         open={open}
         onOpenChange={handleOpenChange}
+        contentProps={{ id: panelId }}
         placement="bottom-start"
         matchTriggerWidth={shouldMatchTriggerWidth}
         contentWidth={shouldMatchTriggerWidth ? undefined : contentWidth}

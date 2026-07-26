@@ -1,0 +1,10 @@
+# Default owner for repository changes.
+* @faker6996
+
+# Published package and release automation.
+/packages/underverse/ @faker6996
+/.github/workflows/ @faker6996
+
+# Documentation and localization contracts.
+/app/\[locale\]/(pages)/docs/underverse/ @faker6996
+/i18n/ @faker6996

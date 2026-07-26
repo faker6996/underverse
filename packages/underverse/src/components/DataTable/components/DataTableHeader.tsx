@@ -277,6 +277,7 @@ export function DataTableHeader<T extends Record<string, any>>({
     },
     [
       filters,
+      gi18n,
       headerAlign,
       headerMinHeightClass,
       headerTitleClass,
@@ -285,6 +286,7 @@ export function DataTableHeader<T extends Record<string, any>>({
       setFilters,
       setSort,
       sort,
+      sortByLabel,
       sortIconClass,
       t,
     ],

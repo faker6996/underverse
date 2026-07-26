@@ -5374,7 +5374,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:17"
+              "source": "packages/underverse/src/components/DatePicker.tsx:22"
             },
             {
               "name": "value",
@@ -5382,7 +5382,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:18"
+              "source": "packages/underverse/src/components/DatePicker.tsx:23"
             },
             {
               "name": "onChange",
@@ -5390,7 +5390,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:19"
+              "source": "packages/underverse/src/components/DatePicker.tsx:24"
             },
             {
               "name": "placeholder",
@@ -5398,7 +5398,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:20"
+              "source": "packages/underverse/src/components/DatePicker.tsx:25"
             },
             {
               "name": "className",
@@ -5406,7 +5406,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:21"
+              "source": "packages/underverse/src/components/DatePicker.tsx:26"
             },
             {
               "name": "disabled",
@@ -5414,7 +5414,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:22"
+              "source": "packages/underverse/src/components/DatePicker.tsx:27"
             },
             {
               "name": "size",
@@ -5422,7 +5422,7 @@
               "required": false,
               "default": "\"md\"",
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:23"
+              "source": "packages/underverse/src/components/DatePicker.tsx:28"
             },
             {
               "name": "label",
@@ -5430,7 +5430,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:24"
+              "source": "packages/underverse/src/components/DatePicker.tsx:29"
             },
             {
               "name": "labelClassName",
@@ -5438,7 +5438,7 @@
               "required": false,
               "default": null,
               "description": "Custom class for label",
-              "source": "packages/underverse/src/components/DatePicker.tsx:26"
+              "source": "packages/underverse/src/components/DatePicker.tsx:31"
             },
             {
               "name": "required",
@@ -5446,7 +5446,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:27"
+              "source": "packages/underverse/src/components/DatePicker.tsx:32"
             },
             {
               "name": "todayLabel",
@@ -5454,7 +5454,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:28"
+              "source": "packages/underverse/src/components/DatePicker.tsx:33"
             },
             {
               "name": "clearLabel",
@@ -5462,7 +5462,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:29"
+              "source": "packages/underverse/src/components/DatePicker.tsx:34"
             },
             {
               "name": "weekdayLabels",
@@ -5470,7 +5470,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:30"
+              "source": "packages/underverse/src/components/DatePicker.tsx:35"
             },
             {
               "name": "disablePastDates",
@@ -5478,7 +5478,7 @@
               "required": false,
               "default": "false",
               "description": "Disable selecting past dates (before today)",
-              "source": "packages/underverse/src/components/DatePicker.tsx:32"
+              "source": "packages/underverse/src/components/DatePicker.tsx:37"
             },
             {
               "name": "minDate",
@@ -5486,7 +5486,7 @@
               "required": false,
               "default": null,
               "description": "Minimum selectable date (inclusive). Compared by day in local timezone.",
-              "source": "packages/underverse/src/components/DatePicker.tsx:34"
+              "source": "packages/underverse/src/components/DatePicker.tsx:39"
             },
             {
               "name": "maxDate",
@@ -5494,7 +5494,7 @@
               "required": false,
               "default": null,
               "description": "Maximum selectable date (inclusive). Compared by day in local timezone.",
-              "source": "packages/underverse/src/components/DatePicker.tsx:36"
+              "source": "packages/underverse/src/components/DatePicker.tsx:41"
             },
             {
               "name": "borderMode",
@@ -5502,7 +5502,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:37"
+              "source": "packages/underverse/src/components/DatePicker.tsx:42"
             }
           ]
         },
@@ -5518,7 +5518,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:1530"
+              "source": "packages/underverse/src/components/DatePicker.tsx:1541"
             },
             {
               "name": "onChange",
@@ -5526,7 +5526,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:1531"
+              "source": "packages/underverse/src/components/DatePicker.tsx:1542"
             },
             {
               "name": "className",
@@ -5534,7 +5534,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:1532"
+              "source": "packages/underverse/src/components/DatePicker.tsx:1543"
             }
           ]
         },
@@ -5550,7 +5550,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:726"
+              "source": "packages/underverse/src/components/DatePicker.tsx:735"
             },
             {
               "name": "startDate",
@@ -5558,7 +5558,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:727"
+              "source": "packages/underverse/src/components/DatePicker.tsx:736"
             },
             {
               "name": "endDate",
@@ -5566,7 +5566,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:728"
+              "source": "packages/underverse/src/components/DatePicker.tsx:737"
             },
             {
               "name": "onChange",
@@ -5574,7 +5574,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:729"
+              "source": "packages/underverse/src/components/DatePicker.tsx:738"
             },
             {
               "name": "placeholder",
@@ -5582,7 +5582,7 @@
               "required": false,
               "default": "\"Select date range...\"",
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:730"
+              "source": "packages/underverse/src/components/DatePicker.tsx:739"
             },
             {
               "name": "className",
@@ -5590,7 +5590,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:731"
+              "source": "packages/underverse/src/components/DatePicker.tsx:740"
             },
             {
               "name": "label",
@@ -5598,7 +5598,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:732"
+              "source": "packages/underverse/src/components/DatePicker.tsx:741"
             },
             {
               "name": "labelClassName",
@@ -5606,7 +5606,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:733"
+              "source": "packages/underverse/src/components/DatePicker.tsx:742"
             },
             {
               "name": "required",
@@ -5614,7 +5614,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:734"
+              "source": "packages/underverse/src/components/DatePicker.tsx:743"
             },
             {
               "name": "disablePastDates",
@@ -5622,7 +5622,7 @@
               "required": false,
               "default": "false",
               "description": "Disable selecting past dates (before today)",
-              "source": "packages/underverse/src/components/DatePicker.tsx:736"
+              "source": "packages/underverse/src/components/DatePicker.tsx:745"
             },
             {
               "name": "minDate",
@@ -5630,7 +5630,7 @@
               "required": false,
               "default": null,
               "description": "Minimum selectable date (inclusive). Compared by day in local timezone.",
-              "source": "packages/underverse/src/components/DatePicker.tsx:738"
+              "source": "packages/underverse/src/components/DatePicker.tsx:747"
             },
             {
               "name": "maxDate",
@@ -5638,7 +5638,7 @@
               "required": false,
               "default": null,
               "description": "Maximum selectable date (inclusive). Compared by day in local timezone.",
-              "source": "packages/underverse/src/components/DatePicker.tsx:740"
+              "source": "packages/underverse/src/components/DatePicker.tsx:749"
             },
             {
               "name": "size",
@@ -5646,7 +5646,7 @@
               "required": false,
               "default": "\"md\"",
               "description": "Size variant",
-              "source": "packages/underverse/src/components/DatePicker.tsx:742"
+              "source": "packages/underverse/src/components/DatePicker.tsx:751"
             },
             {
               "name": "disabled",
@@ -5654,7 +5654,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:743"
+              "source": "packages/underverse/src/components/DatePicker.tsx:752"
             },
             {
               "name": "borderMode",
@@ -5662,7 +5662,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:744"
+              "source": "packages/underverse/src/components/DatePicker.tsx:753"
             }
           ]
         }
@@ -5830,7 +5830,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:868"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:872"
             },
             {
               "name": "startDate",
@@ -5838,7 +5838,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:869"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:873"
             },
             {
               "name": "endDate",
@@ -5846,7 +5846,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:870"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:874"
             },
             {
               "name": "onChange",
@@ -5854,7 +5854,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:871"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:875"
             },
             {
               "name": "placeholder",
@@ -5862,7 +5862,7 @@
               "required": false,
               "default": "\"Select lunar date range...\"",
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:872"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:876"
             },
             {
               "name": "className",
@@ -5870,7 +5870,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:873"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:877"
             },
             {
               "name": "label",
@@ -5878,7 +5878,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:874"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:878"
             },
             {
               "name": "labelClassName",
@@ -5886,7 +5886,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:875"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:879"
             },
             {
               "name": "required",
@@ -5894,7 +5894,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:876"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:880"
             },
             {
               "name": "disablePastDates",
@@ -5902,7 +5902,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:877"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:881"
             },
             {
               "name": "minDate",
@@ -5910,7 +5910,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:878"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:882"
             },
             {
               "name": "maxDate",
@@ -5918,7 +5918,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:879"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:883"
             },
             {
               "name": "size",
@@ -5926,7 +5926,7 @@
               "required": false,
               "default": "\"md\"",
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:880"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:884"
             },
             {
               "name": "disabled",
@@ -5934,7 +5934,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:881"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:885"
             },
             {
               "name": "borderMode",
@@ -5942,7 +5942,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:882"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:886"
             }
           ]
         }
@@ -9486,7 +9486,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Tooltip.tsx:18"
+              "source": "packages/underverse/src/components/Tooltip.tsx:20"
             },
             {
               "name": "children",
@@ -9494,7 +9494,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Tooltip.tsx:14"
+              "source": "packages/underverse/src/components/Tooltip.tsx:16"
             },
             {
               "name": "content",
@@ -9502,7 +9502,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Tooltip.tsx:15"
+              "source": "packages/underverse/src/components/Tooltip.tsx:17"
             },
             {
               "name": "placement",
@@ -9510,7 +9510,7 @@
               "required": false,
               "default": "\"top\"",
               "description": null,
-              "source": "packages/underverse/src/components/Tooltip.tsx:16"
+              "source": "packages/underverse/src/components/Tooltip.tsx:18"
             },
             {
               "name": "delay",
@@ -9518,7 +9518,7 @@
               "required": false,
               "default": "{ open: 200, close: 300 }",
               "description": null,
-              "source": "packages/underverse/src/components/Tooltip.tsx:17"
+              "source": "packages/underverse/src/components/Tooltip.tsx:19"
             },
             {
               "name": "disabled",
@@ -9526,7 +9526,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/Tooltip.tsx:19"
+              "source": "packages/underverse/src/components/Tooltip.tsx:21"
             },
             {
               "name": "variant",
@@ -9534,7 +9534,7 @@
               "required": false,
               "default": "\"default\"",
               "description": null,
-              "source": "packages/underverse/src/components/Tooltip.tsx:20"
+              "source": "packages/underverse/src/components/Tooltip.tsx:22"
             },
             {
               "name": "asChild",
@@ -9542,7 +9542,7 @@
               "required": false,
               "default": "true",
               "description": "When true, augment the child directly instead of adding a wrapper. Default: true",
-              "source": "packages/underverse/src/components/Tooltip.tsx:22"
+              "source": "packages/underverse/src/components/Tooltip.tsx:24"
             }
           ]
         }
@@ -9566,7 +9566,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Popover.tsx:15"
+              "source": "packages/underverse/src/components/Popover.tsx:17"
             },
             {
               "name": "children",
@@ -9574,7 +9574,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Popover.tsx:16"
+              "source": "packages/underverse/src/components/Popover.tsx:18"
             },
             {
               "name": "className",
@@ -9582,7 +9582,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Popover.tsx:17"
+              "source": "packages/underverse/src/components/Popover.tsx:19"
             },
             {
               "name": "contentClassName",
@@ -9590,7 +9590,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Popover.tsx:18"
+              "source": "packages/underverse/src/components/Popover.tsx:20"
             },
             {
               "name": "contentProps",
@@ -9598,7 +9598,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Popover.tsx:19"
+              "source": "packages/underverse/src/components/Popover.tsx:21"
             },
             {
               "name": "contentScrollable",
@@ -9606,7 +9606,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/Popover.tsx:20"
+              "source": "packages/underverse/src/components/Popover.tsx:22"
             },
             {
               "name": "placement",
@@ -9614,7 +9614,7 @@
               "required": false,
               "default": "\"bottom\"",
               "description": null,
-              "source": "packages/underverse/src/components/Popover.tsx:21"
+              "source": "packages/underverse/src/components/Popover.tsx:23"
             },
             {
               "name": "modal",
@@ -9622,7 +9622,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/Popover.tsx:22"
+              "source": "packages/underverse/src/components/Popover.tsx:24"
             },
             {
               "name": "disabled",
@@ -9630,7 +9630,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/Popover.tsx:23"
+              "source": "packages/underverse/src/components/Popover.tsx:25"
             },
             {
               "name": "open",
@@ -9638,7 +9638,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Popover.tsx:24"
+              "source": "packages/underverse/src/components/Popover.tsx:26"
             },
             {
               "name": "onOpenChange",
@@ -9646,7 +9646,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Popover.tsx:25"
+              "source": "packages/underverse/src/components/Popover.tsx:27"
             },
             {
               "name": "matchTriggerWidth",
@@ -9654,7 +9654,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/Popover.tsx:26"
+              "source": "packages/underverse/src/components/Popover.tsx:28"
             },
             {
               "name": "contentWidth",
@@ -9662,7 +9662,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Popover.tsx:27"
+              "source": "packages/underverse/src/components/Popover.tsx:29"
             },
             {
               "name": "borderMode",
@@ -9670,7 +9670,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Popover.tsx:28"
+              "source": "packages/underverse/src/components/Popover.tsx:30"
             }
           ]
         }

@@ -1,0 +1,85 @@
+name: Repository Quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            packages/underverse/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install package dependencies
+        run: npm ci
+        working-directory: packages/underverse
+
+      - name: Run lint, types, docs, i18n, and interaction tests
+        run: npm run check
+
+      - name: Build documentation application
+        run: npm run build
+
+      - name: Build and verify package exports
+        run: npm run build
+        working-directory: packages/underverse
+
+  package-runtime:
+    name: Package runtime (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - "20"
+          - "22"
+          - "24"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: packages/underverse/package-lock.json
+
+      - name: Install package dependencies
+        run: npm ci
+        working-directory: packages/underverse
+
+      - name: Typecheck package
+        run: npm run typecheck
+        working-directory: packages/underverse
+
+      - name: Run package smoke tests
+        run: npm run test:smoke
+        working-directory: packages/underverse

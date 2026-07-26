@@ -233,6 +233,9 @@ export function DataTable<T extends Record<string, any>>({
   const tableRef = React.useRef<HTMLTableElement>(null);
   const canVirtualizeRows = virtualizedRows && !loading && displayedData.length > 0;
   const shouldUseScrollViewport = stickyHeader || canVirtualizeRows;
+  // TanStack Virtual exposes imperative methods by design; keep this component
+  // outside React Compiler memoization until the library publishes a compatible API.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: canVirtualizeRows ? displayedData.length : 0,
     getScrollElement: () => viewportRef.current,

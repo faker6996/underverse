@@ -87,7 +87,7 @@ test("DatePicker shows required error on submit and clears it after selecting to
   const body = within(window.document.body);
   const form = view.container.querySelector("form");
   const input = getRequiredInput(view.container);
-  const trigger = body.getByRole("button", { name: /delivery date/i });
+  const trigger = body.getByRole("combobox", { name: /delivery date/i });
 
   assert.equal(input.checkValidity(), false);
   await triggerRequiredValidation(form, input);
@@ -340,7 +340,7 @@ test("DateTimePicker shows required error on submit and clears it after selectin
   const body = within(window.document.body);
   const form = view.container.querySelector("form");
   const input = getRequiredInput(view.container);
-  const trigger = body.getByRole("button", { name: /pick date and time/i });
+  const trigger = body.getByRole("combobox", { name: /appointment/i });
 
   assert.equal(input.checkValidity(), false);
   await triggerRequiredValidation(form, input);

@@ -4,6 +4,15 @@ All notable changes to `@underverse-ui/underverse` are documented in this file.
 
 ## Unreleased
 
+## [2.0.0] - 2026-07-26
+
+### Highlights
+
+- Preserved the existing `@underverse-ui/underverse` entry while adding the explicit `@underverse-ui/underverse/ueditor` entry for editor-focused applications.
+- Hardened UEditor table, selection, indentation, formula, resize, text-wrap, and output-serialization behavior with interaction coverage.
+- Added generated API contracts, package export verification, bundle budgets, and multi-version Node.js quality gates.
+- Reworked the GitHub and npm READMEs around consumer installation, Tailwind setup, imports, i18n, and compatibility.
+
 ### Changed
 
 - `Avatar` now defaults to a native `<img>` element (`imageStrategy="img"`) instead of SmartImage/next/image. This eliminates `/_next/image` requests on remount and prevents avatar flicker in dense chat/message lists. Pass `imageStrategy="next-image"` to restore the previous behaviour for large avatars that need CDN optimization.

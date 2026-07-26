@@ -1,431 +1,317 @@
 <p align="center">
-  <img src="public/favicon.svg" alt="Underverse UI" width="120" />
+  <img src="public/logo.png" alt="Underverse UI" width="128" />
 </p>
 
 <h1 align="center">Underverse UI</h1>
 
 <p align="center">
-  <strong>A premium React/Next.js component library — beautifully crafted, production-ready, and fully typed.</strong>
+  Production-focused React components for forms, data-heavy interfaces, overlays, scheduling, and rich-text editing.
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@underverse-ui/underverse"><img src="https://img.shields.io/npm/v/@underverse-ui/underverse?style=flat-square&color=0ea5e9&label=npm" alt="npm version" /></a>
-  <a href="https://www.npmjs.com/package/@underverse-ui/underverse"><img src="https://img.shields.io/npm/dm/@underverse-ui/underverse?style=flat-square&color=8b5cf6&label=downloads" alt="npm downloads" /></a>
-  <img src="https://img.shields.io/badge/next.js-16-black?style=flat-square&logo=next.js" alt="Next.js 16" />
-  <img src="https://img.shields.io/badge/react-19-61dafb?style=flat-square&logo=react" alt="React 19" />
-  <img src="https://img.shields.io/badge/tailwind-4-38bdf8?style=flat-square&logo=tailwindcss" alt="Tailwind CSS 4" />
-  <img src="https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript" alt="TypeScript" />
-  <a href="/packages/underverse/README.md"><img src="https://img.shields.io/badge/license-MIT-22c55e?style=flat-square" alt="License" /></a>
+  <a href="https://www.npmjs.com/package/@underverse-ui/underverse"><img src="https://img.shields.io/npm/v/@underverse-ui/underverse?style=flat-square&label=npm" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@underverse-ui/underverse"><img src="https://img.shields.io/npm/dm/@underverse-ui/underverse?style=flat-square&label=downloads" alt="npm downloads" /></a>
+  <a href="https://github.com/faker6996/underverse/actions/workflows/quality.yml"><img src="https://github.com/faker6996/underverse/actions/workflows/quality.yml/badge.svg" alt="quality checks" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-22c55e?style=flat-square" alt="MIT license" /></a>
 </p>
 
 <p align="center">
-  <a href="https://underverse.infiniq.com.vn/vi/docs/underverse">📖 Live Docs</a> •
-  <a href="#-quick-start">🚀 Quick Start</a> •
-  <a href="#-component-catalog">🧩 Components</a> •
-  <a href="https://github.com/faker6996/underverse/issues">🐛 Issues</a>
+  <a href="https://underverse.infiniq.com.vn/vi/docs/underverse">Documentation</a>
+  ·
+  <a href="https://www.npmjs.com/package/@underverse-ui/underverse">npm</a>
+  ·
+  <a href="packages/underverse/CHANGELOG.md">Changelog</a>
+  ·
+  <a href="https://github.com/faker6996/underverse/issues">Issues</a>
 </p>
 
----
+## Why Underverse
 
-## ✨ Highlights
+- More than 60 typed components, from basic controls to DataTable, CalendarTimeline, and UEditor.
+- React 18+ support with ESM and CommonJS package outputs.
+- Tailwind CSS 4 design tokens, dark-mode support, and global component configuration.
+- Built-in English, Vietnamese, Korean, and Japanese UI messages.
+- Keyboard and ARIA behavior covered by component interaction tests.
+- Public API metadata and bundle budgets verified before package publishing.
 
-|     | Feature            | Details                                                                        |
-| --- | ------------------ | ------------------------------------------------------------------------------ |
-| 🧩  | **78+ Components** | From Button to DataTable, CalendarTimeline, UEditor (Tiptap), Charts, and more |
-| 🎨  | **Tailwind CSS 4** | First-class dark mode, CSS custom properties, zero-runtime theme tokens        |
-| 🌐  | **i18n Ready**     | `next-intl` powered — English & Vietnamese out of the box                      |
-| ♿  | **Accessible**     | ARIA patterns, keyboard navigation, focus management                           |
-| 📦  | **Tree-shakeable** | ESM + CJS dual build via `tsup` — import only what you use                     |
-| 🧪  | **Well Tested**    | Unit, interaction, and E2E tests (Node test runner + Playwright)               |
-| 🤖  | **AI-Friendly**    | Ships `AGENTS.md`, `api-reference.json`, `llms.txt`, and `agent-recipes.json`  |
-
----
-
-## 📐 Architecture
-
-```
-underverse/
-├── app/                          # Next.js 16 App Router
-│   ├── [locale]/                 # i18n dynamic locale routing
-│   │   └── (pages)/              # Page groups (docs, demos, etc.)
-│   ├── api/                      # API routes
-│   ├── globals.css               # Global styles + Tailwind theme
-│   ├── layout.tsx                # Root layout
-│   └── robots.ts / sitemap.ts    # SEO utilities
-│
-├── components/ui/                # 78+ source UI components
-│   ├── Button.tsx                # Atomic components
-│   ├── DataTable/                # Complex compound components
-│   ├── CalendarTimeline/         # Scheduler / timeline view
-│   └── UEditor/                  # Rich-text editor (Tiptap-based)
-│
-├── i18n/                         # next-intl locale config & messages
-│   └── locales/{en,vi}.json      # Translation files
-│
-├── lib/                          # Utilities, constants, helpers
-├── hooks/                        # Custom React hooks
-├── contexts/                     # React context providers
-├── docs/                         # Internal documentation
-├── scripts/                      # i18n check, cleanup, CI scripts
-│
-├── packages/underverse/          # 📦 Publishable npm package
-│   ├── src/                      # Package source (re-exports from components/ui)
-│   ├── dist/                     # Built output (ESM + CJS + types)
-│   ├── locales/                  # Package-level i18n messages
-│   ├── tests/                    # Package-level tests
-│   └── CHANGELOG.md              # Release history
-│
-├── Dockerfile                    # Production Docker image
-├── Jenkinsfile                   # CI/CD pipeline
-└── playwright.config.ts          # E2E test configuration
-```
-
----
-
-## 🧩 Component Catalog
-
-<details>
-<summary><strong>View all 78+ components →</strong></summary>
-
-### Core UI
-
-| Component                   | Description                                                                |
-| --------------------------- | -------------------------------------------------------------------------- |
-| `Button`                    | Variants: default, outline, ghost, destructive, link — with loading states |
-| `Badge`                     | Status indicators with color variants                                      |
-| `Card`                      | Content container with header/body/footer                                  |
-| `Avatar`                    | User avatars with image fallback                                           |
-| `Skeleton`                  | Loading placeholder animation                                              |
-| `Progress`                  | Determinate / indeterminate progress bars                                  |
-| `Loading` / `GlobalLoading` | Spinner & full-page loading overlay                                        |
-
-### Form Controls
-
-| Component                       | Description                                   |
-| ------------------------------- | --------------------------------------------- |
-| `Input`                         | Text input with label, error states, icons    |
-| `Textarea`                      | Multi-line input with auto-resize             |
-| `CheckBox`                      | Checkbox with indeterminate state             |
-| `RadioGroup`                    | Radio button group                            |
-| `Switch`                        | Toggle switch                                 |
-| `Slider`                        | Range slider                                  |
-| `Combobox` / `MultiCombobox`    | Searchable select with single/multi selection |
-| `CategoryTreeSelect`            | Hierarchical tree select                      |
-| `DatePicker` / `DateTimePicker` | Date & date-time picker                       |
-| `MonthYearPicker`               | Month/year only picker                        |
-| `TimePicker`                    | Time picker                                   |
-| `Calendar`                      | Standalone calendar component                 |
-| `ColorPicker`                   | Color selection input                         |
-| `TagInput`                      | Multi-tag input field                         |
-| `EmojiPicker`                   | Emoji selection widget                        |
-| `ImageUpload` / `FileUpload`    | Drag-and-drop file/image upload               |
-| `Form` / `label`                | Form wrapper (react-hook-form integration)    |
-
-### Data Display
-
-| Component          | Description                                                                 |
-| ------------------ | --------------------------------------------------------------------------- |
-| `Table`            | Basic table                                                                 |
-| `DataTable`        | Feature-rich data table with sorting, filtering, pagination, sticky headers |
-| `List`             | Ordered/unordered list                                                      |
-| `Pagination`       | Page navigation                                                             |
-| `Timeline`         | Vertical timeline events                                                    |
-| `CalendarTimeline` | Horizontal scheduler / Gantt-style timeline                                 |
-| `Breadcrumb`       | Navigation breadcrumb trail                                                 |
-
-### Overlays & Feedback
-
-| Component           | Description                              |
-| ------------------- | ---------------------------------------- |
-| `Modal`             | Dialog with backdrop                     |
-| `Sheet`             | Side sliding panel                       |
-| `Popover`           | Contextual floating content              |
-| `Tooltip`           | Hover/focus tooltip                      |
-| `DropdownMenu`      | Contextual menu                          |
-| `Toast`             | Notification toasts with `ToastProvider` |
-| `Alert`             | Inline alert messages                    |
-| `NotificationModal` | Confirmation/notification dialog         |
-
-### Layout & Navigation
-
-| Component           | Description                                            |
-| ------------------- | ------------------------------------------------------ |
-| `Section`           | Semantic layout section with spacing/container options |
-| `Grid`              | CSS grid layout helper                                 |
-| `Tab`               | Tab navigation                                         |
-| `ScrollArea`        | Custom scrollable area                                 |
-| `OverlayScrollArea` | OverlayScrollbars-powered scroll area                  |
-| `Carousel`          | Image/content carousel                                 |
-
-### Special
-
-| Component              | Description                                                            |
-| ---------------------- | ---------------------------------------------------------------------- |
-| `UEditor`              | Rich-text editor powered by Tiptap — tables, code blocks, images, etc. |
-| `SmartImage`           | Next.js Image with lazy loading & blur placeholder                     |
-| `ThemeToggle`          | Light / dark / system theme switcher                                   |
-| `LanguageSwitcher`     | Locale switcher UI                                                     |
-| `MusicPlayer`          | Background music player                                                |
-| `FloatingContacts`     | Floating social contact buttons                                        |
-| `FallingIcons`         | Decorative falling icon animation                                      |
-| `Watermark`            | Page watermark overlay                                                 |
-| `ColorThemeCustomizer` | Live theme color customizer                                            |
-| `AccessDenied`         | 403 access denied page                                                 |
-| `ClientOnly`           | SSR-safe client-only wrapper                                           |
-
-</details>
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- **Node.js** ≥ 18
-- **npm** ≥ 9
-
-### 1. Clone & Install
+## Installation
 
 ```bash
-git clone https://github.com/faker6996/underverse.git
-cd underverse
-npm install
+npm install @underverse-ui/underverse
 ```
 
-### 2. Configure Environment
+The package declares its framework and feature integrations as peer dependencies. Use React 18 or newer and Tailwind CSS 4 in the consuming application.
 
-```bash
-cp .env.example .env.local
-```
-
-### 3. Run Development Server
-
-```bash
-npm run dev
-# ➜ http://localhost:3000
-# ➜ Docs: http://localhost:3000/docs/underverse
-```
-
-### 4. Build for Production
-
-```bash
-npm run build
-npm run start
-```
-
----
-
-## 📦 Install as a Package
-
-Use Underverse UI in **any** Next.js project:
-
-```bash
-npm i @underverse-ui/underverse
-```
+## Quick start
 
 ```tsx
-import { Button, ToastProvider, useToast } from "@underverse-ui/underverse";
+"use client";
 
-export default function App() {
-  const { addToast } = useToast();
+import {
+  Button,
+  DatePicker,
+  TranslationProvider,
+  UnderverseConfigProvider,
+} from "@underverse-ui/underverse";
+
+export function Example() {
   return (
-    <ToastProvider>
-      <Button onClick={() => addToast({ type: "success", message: "Saved!" })}>Save</Button>
-    </ToastProvider>
+    <TranslationProvider locale="en">
+      <UnderverseConfigProvider config={{ borderMode: "lg" }}>
+        <div className="flex items-center gap-3">
+          <DatePicker onChange={(date) => console.log(date)} />
+          <Button>Continue</Button>
+        </div>
+      </UnderverseConfigProvider>
+    </TranslationProvider>
   );
 }
 ```
 
-### Headless Components
+`TranslationProvider` is optional. Components fall back to English when it is not mounted.
 
-Some components ship as **headless** — they render the UI but leave state management to you:
+## Tailwind CSS setup
 
-```tsx
-// Theme Toggle (headless)
-import { ThemeToggle } from "@underverse-ui/underverse";
-import { useState } from "react";
+Tailwind ignores dependencies in `node_modules` during automatic source detection. Register the package from the stylesheet that imports Tailwind:
 
-export function MyThemeToggle() {
-  const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
-  return <ThemeToggle theme={theme} onChange={setTheme} />;
+```css
+@import "tailwindcss";
+@source "../node_modules/@underverse-ui/underverse/dist";
+```
+
+The source path is relative to that stylesheet, so adjust `../` when the file lives under `src/app` or another nested directory. See Tailwind's [explicit source registration](https://tailwindcss.com/docs/detecting-classes-in-source-files#explicitly-registering-sources) documentation.
+
+Underverse uses semantic Tailwind tokens. Applications that already use shadcn-style tokens can reuse them. A minimal starter map looks like this:
+
+<details>
+<summary>Show starter theme tokens</summary>
+
+```css
+:root {
+  --background: oklch(0.98 0.005 255);
+  --foreground: oklch(0.22 0.012 255);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.55 0.18 255);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.58 0.12 280);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.955 0.01 255);
+  --muted-foreground: oklch(0.4 0.012 255);
+  --accent: color-mix(in oklch, var(--primary) 16%, var(--background));
+  --accent-foreground: var(--foreground);
+  --destructive: oklch(0.56 0.19 22);
+  --destructive-foreground: oklch(0.985 0 0);
+  --success: oklch(0.52 0.16 145);
+  --success-foreground: oklch(0.985 0 0);
+  --warning: oklch(0.62 0.16 60);
+  --warning-foreground: oklch(0.16 0.012 255);
+  --info: oklch(0.62 0.14 210);
+  --info-foreground: oklch(0.985 0 0);
+  --border: oklch(0.7 0.01 255 / 22%);
+  --input: oklch(0.7 0.01 255 / 30%);
+  --ring: color-mix(in oklch, var(--primary) 70%, var(--background));
+  --primary-soft: color-mix(in oklch, var(--primary) 12%, var(--background));
+  --secondary-soft: color-mix(in oklch, var(--secondary) 12%, var(--background));
+  --destructive-soft: color-mix(in oklch, var(--destructive) 12%, var(--background));
+  --success-soft: color-mix(in oklch, var(--success) 12%, var(--background));
+  --warning-soft: color-mix(in oklch, var(--warning) 14%, var(--background));
+  --info-soft: color-mix(in oklch, var(--info) 12%, var(--background));
+  --input-focus: var(--ring);
+  --input-disabled: var(--muted);
+  --input-invalid: var(--destructive);
+  --surface-0: var(--background);
+  --surface-1: oklch(0.99 0.006 255);
+  --surface-2: oklch(0.98 0.007 255);
+  --surface-3: oklch(0.97 0.008 255);
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 5%);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 10%);
+  --shadow-md: 0 4px 6px rgb(0 0 0 / 10%);
+  --shadow-lg: 0 10px 15px rgb(0 0 0 / 10%);
+  --shadow-xl: 0 20px 25px rgb(0 0 0 / 12%);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-soft: var(--secondary-soft);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-soft: var(--info-soft);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-input-focus: var(--input-focus);
+  --color-input-disabled: var(--input-disabled);
+  --color-input-invalid: var(--input-invalid);
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --ease-soft: cubic-bezier(0.25, 1, 0.5, 1);
 }
 ```
 
-```tsx
-// Language Switcher (headless)
-import { LanguageSwitcher } from "@underverse-ui/underverse";
-import { useRouter, usePathname } from "next/navigation";
+For the complete light/dark palette, see the [color system](docs/COLOR_SYSTEM.md).
 
-export function MyLangSwitcher({ currentLocale }: { currentLocale: string }) {
-  const router = useRouter();
-  const pathname = usePathname();
+</details>
+
+## Imports and bundle size
+
+The existing root entry remains the standard public API:
+
+```tsx
+import { Button, DataTable, UEditor } from "@underverse-ui/underverse";
+```
+
+It is tree-shakeable and protected by a package bundle budget. No import migration is required when upgrading.
+
+For an application that only uses the editor, the explicit UEditor entry creates a smaller, clearer module boundary:
+
+```tsx
+import UEditor, { type UEditorRef } from "@underverse-ui/underverse/ueditor";
+```
+
+Do not deep-import files under `dist` or `src`; only the root and `/ueditor` entries are public contracts.
+
+## UEditor
+
+UEditor is a Tiptap-based rich-text editor with slash commands, menus, uploads, tables, formulas, cell formatting, resizing, and spreadsheet paste support.
+
+```tsx
+"use client";
+
+import { useRef, useState } from "react";
+import UEditor, { type UEditorRef } from "@underverse-ui/underverse/ueditor";
+
+export function ArticleEditor() {
+  const editorRef = useRef<UEditorRef>(null);
+  const [html, setHtml] = useState("<p>Start writing…</p>");
+
   return (
-    <LanguageSwitcher
-      locales={[
-        { code: "vi", name: "Tiếng Việt", flag: "🇻🇳" },
-        { code: "en", name: "English", flag: "🇺🇸" },
-      ]}
-      currentLocale={currentLocale}
-      onSwitch={(code) => {
-        const segs = pathname.split("/");
-        segs[1] = code;
-        router.push(segs.join("/"));
-      }}
+    <UEditor
+      ref={editorRef}
+      content={html}
+      onHtmlChange={setHtml}
+      outputDebounceMs={120}
+      placeholder="Type '/' for commands…"
+      showCharacterCount
     />
   );
 }
 ```
 
----
+Use `outputDebounceMs` for large controlled documents. Before persisting base64 images, call `editorRef.current?.prepareContentForSave()` with an upload handler.
 
-## 🌐 Internationalization (i18n)
+[Read the UEditor guide](docs/underverseui-usage/UEditor.md) · [Read the table guide](docs/underverseui-usage/UEditor-Table-HuongDanSuDung.md)
 
-Powered by [`next-intl`](https://next-intl-docs.vercel.app/) with English and Vietnamese built-in.
+## Internationalization
 
-The package ships its own i18n messages — merge them into your app:
+Standalone React applications can use the built-in provider:
 
 ```tsx
-import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
-import { underverseMessages } from "@underverse-ui/underverse";
+import { TranslationProvider } from "@underverse-ui/underverse";
 
-export default async function Layout({ children, params }) {
-  const locale = (await params).locale;
-  const appMessages = await getMessages();
-  const uv = underverseMessages[locale] || underverseMessages.en;
-
-  return (
-    <NextIntlClientProvider locale={locale} messages={{ ...uv, ...appMessages }}>
-      {children}
-    </NextIntlClientProvider>
-  );
-}
+<TranslationProvider locale="vi">{children}</TranslationProvider>;
 ```
 
-**Config files:**
+Supported locales:
 
-- `i18n.config.ts` — default locale & supported locales
-- `i18n/routing.ts` — route strategy & locale detection
-- `i18n/locales/{en,vi}.json` — translation messages
+| Code | Language |
+| --- | --- |
+| `en` | English |
+| `vi` | Tiếng Việt |
+| `ko` | 한국어 |
+| `ja` | 日本語 |
 
----
+For a `next-intl` application, mount `NextIntlAdapter` inside `NextIntlClientProvider`. The adapter reads the active locale and messages, then falls back to the package's built-in locale messages for missing component strings.
 
-## 🛠 Scripts Reference
+## Optional integrations
 
-### Development
+Install and configure only the integrations used by your application:
 
-| Command                 | Description                            |
-| ----------------------- | -------------------------------------- |
-| `npm run dev`           | Start dev server (with Node inspector) |
-| `npm run dev_v2`        | Start dev server with Turbopack        |
-| `npm run build`         | Build production bundle                |
-| `npm run start`         | Start production server                |
-| `npm run lint`          | Run ESLint                             |
-| `npm run typecheck`     | Type-check main app                    |
-| `npm run typecheck:app` | Type-check app-specific config         |
+| Feature | Integration |
+| --- | --- |
+| Forms and schema validation | `react-hook-form`, `@hookform/resolvers`, `zod` |
+| UEditor | Tiptap, Lowlight, and Tippy peers declared by the package |
+| Overlay scrollbars | `overlayscrollbars` and its stylesheet |
+| Next.js image/i18n adapters | `next`, `next-intl` |
 
-### Testing
+Overlay scrollbars are opt-in and component-scoped:
 
-| Command                          | Description                                                        |
-| -------------------------------- | ------------------------------------------------------------------ |
-| `npm run check`                  | Run **all** type-checks, boundary checks, locale checks, and tests |
-| `npm run test:e2e`               | Playwright end-to-end tests                                        |
-| `npm run test:e2e:headed`        | E2E tests in headed browser                                        |
-| `npm run test:ueditor`           | UEditor unit tests                                                 |
-| `npm run test:data-table`        | DataTable unit tests                                               |
-| `npm run test:calendar-timeline` | CalendarTimeline unit tests                                        |
-| `npm run test:underverse-smoke`  | Package smoke tests (public API + component rendering)             |
+```tsx
+import "overlayscrollbars/overlayscrollbars.css";
+import {
+  OverlayScrollbarProvider,
+  ScrollArea,
+} from "@underverse-ui/underverse";
 
-### i18n Utilities
+<OverlayScrollbarProvider autoHide="leave">
+  <ScrollArea className="h-64" useOverlayScrollbar>
+    {content}
+  </ScrollArea>
+</OverlayScrollbarProvider>;
+```
 
-| Command                      | Description                        |
-| ---------------------------- | ---------------------------------- |
-| `npm run i18n:check`         | Check for missing translation keys |
-| `npm run i18n:check-locales` | Validate locale file structure     |
-| `npm run i18n:dedupe`        | Remove duplicate keys              |
-| `npm run i18n:remove-unused` | Remove unused translation keys     |
+## Component families
 
-### Package Publishing
+| Area | Components |
+| --- | --- |
+| Inputs | Input, Textarea, CheckBox, RadioGroup, Switch, Slider, TagInput |
+| Selection | Combobox, MultiCombobox, CategoryTreeSelect, ColorPicker |
+| Date and time | Calendar, DatePicker, DateRangePicker, DateTimePicker, TimePicker, MonthYearPicker |
+| Data | Table, DataTable, Pagination, Grid, List, Timeline |
+| Navigation | Tabs, Breadcrumb, DropdownMenu, Section, ScrollArea |
+| Overlays | Modal, Sheet, Popover, Tooltip, Toast, Alert |
+| Media and content | SmartImage, ImageUpload, FileUpload, Carousel, EmojiPicker, StickerPicker, UEditor |
+| Scheduling | CalendarTimeline |
 
-| Command                            | Description                    |
-| ---------------------------------- | ------------------------------ |
-| `npm run dev:underverse`           | Watch-build the package (tsup) |
-| `npm run release:underverse`       | Release patch version          |
-| `npm run release:underverse:minor` | Release minor version          |
-| `npm run release:underverse:major` | Release major version          |
-| `npm run release:underverse:beta`  | Release beta version           |
+Browse every component, example, and generated API contract in the [live documentation](https://underverse.infiniq.com.vn/vi/docs/underverse).
 
-### Docker
+## Compatibility
 
-| Command                     | Description               |
-| --------------------------- | ------------------------- |
-| `npm run docker:local:up`   | Start local Docker stack  |
-| `npm run docker:local:down` | Stop local Docker stack   |
-| `npm run docker:up`         | Start production Docker   |
-| `npm run docker:restart`    | Restart production Docker |
+| Runtime | Support |
+| --- | --- |
+| React | 18 and newer |
+| Node.js | 18 and newer |
+| Next.js | 13 and newer |
+| Tailwind CSS | 4.x |
+| Module formats | ESM and CommonJS |
+| TypeScript | Type declarations included |
 
-### Code Quality
+## Contributing and security
 
-| Command                            | Description                             |
-| ---------------------------------- | --------------------------------------- |
-| `npm run check:package-boundaries` | Verify package boundary rules           |
-| `npm run cleanup:console`          | Remove stray `console.log` statements   |
-| `npm run fix:tailwind`             | Fix Tailwind arbitrary value formatting |
+Repository setup, test commands, and pull-request rules live in [CONTRIBUTING.md](CONTRIBUTING.md). Please report vulnerabilities through the process in [SECURITY.md](SECURITY.md), not through a public issue.
 
----
+## License
 
-## 🏗 Tech Stack
-
-| Layer             | Technology                                                             |
-| ----------------- | ---------------------------------------------------------------------- |
-| **Framework**     | [Next.js 16](https://nextjs.org/) (App Router)                         |
-| **UI**            | [React 19](https://react.dev/)                                         |
-| **Language**      | [TypeScript 5](https://www.typescriptlang.org/)                        |
-| **Styling**       | [Tailwind CSS 4](https://tailwindcss.com/) + `clsx` + `tailwind-merge` |
-| **Variants**      | [class-variance-authority](https://cva.style/)                         |
-| **Icons**         | [Lucide React](https://lucide.dev/)                                    |
-| **Rich Text**     | [Tiptap 3](https://tiptap.dev/) (ProseMirror-based)                    |
-| **Forms**         | [React Hook Form](https://react-hook-form.com/)                        |
-| **i18n**          | [next-intl](https://next-intl-docs.vercel.app/)                        |
-| **Scrolling**     | [OverlayScrollbars](https://kingsora.github.io/OverlayScrollbars/)     |
-| **Package Build** | [tsup](https://tsup.egoist.dev/)                                       |
-| **Testing**       | Node test runner + [Playwright](https://playwright.dev/)               |
-| **CI/CD**         | Jenkins + Docker                                                       |
-
----
-
-## 🤖 AI & Agent Support
-
-The published package includes metadata for AI coding assistants:
-
-| File                 | Purpose                                       |
-| -------------------- | --------------------------------------------- |
-| `AGENTS.md`          | Coding guidelines, patterns, and conventions  |
-| `api-reference.json` | Machine-readable API surface (auto-generated) |
-| `llms.txt`           | LLM-friendly package summary                  |
-| `agent-recipes.json` | Common integration recipes for AI agents      |
-
----
-
-## 📄 Additional Docs
-
-- [`packages/underverse/README.md`](/packages/underverse/README.md) — Detailed package documentation
-- [`packages/underverse/PUBLISHING.md`](/packages/underverse/PUBLISHING.md) — Publishing workflow
-- [`packages/underverse/CHANGELOG.md`](/packages/underverse/CHANGELOG.md) — Release history
-- [`docs/COLOR_SYSTEM.md`](/docs/COLOR_SYSTEM.md) — Color system & theming guide
-- [`docs/underverseui-usage/`](/docs/underverseui-usage/) — Per-component usage guides
-
----
-
-## 📜 License
-
-| Scope                           | License                              |
-| ------------------------------- | ------------------------------------ |
-| **App code**                    | Private — All rights reserved        |
-| **`@underverse-ui/underverse`** | [MIT](packages/underverse/README.md) |
-
----
-
-<p align="center">
-  Made with 💜 by <a href="https://github.com/faker6996">Tran Van Bach</a>
-</p>
+[MIT](LICENSE) © Tran Van Bach

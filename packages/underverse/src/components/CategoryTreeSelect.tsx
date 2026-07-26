@@ -687,6 +687,9 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   ]);
 
   const canVirtualize = virtualized && !inline && !viewOnly;
+  // TanStack Virtual exposes imperative methods by design; keep this component
+  // outside React Compiler memoization until the library publishes a compatible API.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const treeVirtualizer = useVirtualizer({
     count: canVirtualize ? flattenedRows.length : 0,
     getScrollElement: () => dropdownViewportRef.current,

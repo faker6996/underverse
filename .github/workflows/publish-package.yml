@@ -19,6 +19,9 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    concurrency:
+      group: publish-underverse-main
+      cancel-in-progress: false
 
     steps:
       - name: Checkout code
@@ -39,23 +42,34 @@ jobs:
         run: npm ci
         working-directory: packages/underverse
 
-      - name: Verify agent-readable metadata
-        run: npm run verify:agent-metadata
-        working-directory: packages/underverse
+      - name: Run repository quality checks
+        run: npm run check
 
-      - name: Test overlay scrollbar provider
-        run: npm run test:overlay-scrollbar
-        working-directory: packages/underverse
+      - name: Build documentation application
+        run: npm run build
 
       - name: Build package
         run: npm run build
         working-directory: packages/underverse
 
-      - name: Bump version (patch)
-        run: npm version patch --no-git-tag-version
+      - name: Resolve release version
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+
+          if npm view "$PACKAGE_NAME@$CURRENT_VERSION" version >/dev/null 2>&1; then
+            npm version patch --no-git-tag-version
+            RELEASE_VERSION=$(node -p "require('./package.json').version")
+            echo "$PACKAGE_NAME@$CURRENT_VERSION already exists; publishing $RELEASE_VERSION."
+          else
+            RELEASE_VERSION=$CURRENT_VERSION
+            echo "Publishing the pre-bumped version $PACKAGE_NAME@$RELEASE_VERSION."
+          fi
+
+          echo "RELEASE_VERSION=$RELEASE_VERSION" >> "$GITHUB_ENV"
         working-directory: packages/underverse
 
-      - name: Regenerate API metadata after version bump
+      - name: Regenerate release metadata
         run: npm run generate:api
         working-directory: packages/underverse
 
@@ -72,6 +86,6 @@ jobs:
           git config --local user.name "github-actions[bot]"
           cd packages/underverse
           VERSION=$(node -p "require('./package.json').version")
-          git add package.json api-reference.json
+          git add package.json package-lock.json api-reference.json
           git commit -m "chore: bump @underverse-ui/underverse to v$VERSION [skip ci]" || echo "No changes to commit"
           git push

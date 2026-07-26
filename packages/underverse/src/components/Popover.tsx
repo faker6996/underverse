@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable react-hooks/refs -- Popover composes child refs and updates them only from ref/event callbacks; the compiler cannot prove that cloneElement defers those callbacks. */
+
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../utils/cn";
@@ -420,16 +422,16 @@ export const Popover: React.FC<PopoverProps> = ({
           "data-underverse-popover-trigger": triggerSelector,
           onClick: chainEventHandlers<React.MouseEvent<HTMLElement>>(
             (e) => {
-            triggerRef.current = e.currentTarget as HTMLElement;
-            e.preventDefault();
-            e.stopPropagation();
-            handleTriggerClick();
+              triggerRef.current = e.currentTarget as HTMLElement;
+              e.preventDefault();
+              e.stopPropagation();
+              handleTriggerClick();
             },
             triggerProps.onClick,
           ),
           onFocus: chainEventHandlers<React.FocusEvent<HTMLElement>>(
             (e) => {
-            triggerRef.current = e.currentTarget as HTMLElement;
+              triggerRef.current = e.currentTarget as HTMLElement;
             },
             triggerProps.onFocus,
           ),

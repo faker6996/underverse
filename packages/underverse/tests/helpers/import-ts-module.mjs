@@ -15,7 +15,6 @@ const workspaceNodeModules = path.join(workspaceRoot, "node_modules");
 const tempNodeModules = path.join(tempRoot, "node_modules");
 const requireFromTemp = createRequire(path.join(tempRoot, "index.mjs"));
 const requireFromPackage = createRequire(path.join(packageRoot, "package.json"));
-const requireFromWorkspace = createRequire(path.join(workspaceRoot, "package.json"));
 
 function linkNodeModulesEntries(fromDir) {
   if (!fs.existsSync(fromDir)) return;
@@ -112,7 +111,10 @@ const stableBareSpecifiers = [
 ];
 
 function resolveBareSpecifier(specifier) {
-  return requireFromWorkspace.resolve(specifier);
+  // Interaction tests load Testing Library and React DOM from the package
+  // installation. Resolve React from the same installation so hooks never
+  // cross two independent React module instances.
+  return requireFromPackage.resolve(specifier);
 }
 
 function rewriteBareSpecifiers(sourceText, outFile) {

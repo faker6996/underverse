@@ -146,7 +146,7 @@ function App() {
               </Button>
               <Modal isOpen={open} onClose={() => setOpen(false)} title="Global Config Modal">
                 <div className="p-4 text-sm text-muted-foreground">
-                  Notice how this modal container uses the '3xl' border radius configured in the global UnderverseUIConfig provider.
+                  Notice how this modal container uses the &apos;3xl&apos; border radius configured in the global UnderverseUIConfig provider.
                 </div>
               </Modal>
             </div>

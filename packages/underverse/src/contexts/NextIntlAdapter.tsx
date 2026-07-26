@@ -89,39 +89,30 @@ function NextIntlAdapterProvider({
   messages: Record<string, unknown>;
 }) {
   const normalizedLocale = normalizeLocale(locale, "en");
-  const translatorCache = React.useMemo(
-    () => new Map<string, (key: string, values?: Record<string, unknown>) => string>(),
-    [normalizedLocale, messages]
+  const runtimeTranslator = React.useMemo(() => createTranslator({
+    locale: normalizedLocale,
+    messages,
+    onError: () => {},
+  }), [messages, normalizedLocale]);
+
+  const translate = React.useCallback(
+    (namespace: string, key: string, values?: Record<string, unknown>): NextIntlTranslationResult => {
+      const namespacedKey = namespace ? `${namespace}.${key}` : key;
+
+      try {
+        return {
+          locale: normalizedLocale,
+          translated: runtimeTranslator(namespacedKey as never, values as never),
+        };
+      } catch {
+        return {
+          locale: normalizedLocale,
+          translated: null,
+        };
+      }
+    },
+    [normalizedLocale, runtimeTranslator],
   );
-
-  const translate = React.useCallback((namespace: string, key: string, values?: Record<string, unknown>): NextIntlTranslationResult => {
-    let translator = translatorCache.get(namespace);
-
-    if (!translator) {
-      const runtimeTranslator = createTranslator({
-        locale: normalizedLocale,
-        messages,
-        namespace,
-        onError: () => {},
-      });
-      translator = (translationKey: string, translationValues?: Record<string, unknown>) => (
-        runtimeTranslator(translationKey as never, translationValues as never)
-      );
-      translatorCache.set(namespace, translator);
-    }
-
-    try {
-      return {
-        locale: normalizedLocale,
-        translated: translator(key, values),
-      };
-    } catch {
-      return {
-        locale: normalizedLocale,
-        translated: null,
-      };
-    }
-  }, [messages, normalizedLocale, translatorCache]);
 
   const value = React.useMemo<NextIntlBridgeContextValue>(() => ({
     locale: normalizedLocale,
