@@ -47,12 +47,7 @@ The package declares its framework and feature integrations as peer dependencies
 ```tsx
 "use client";
 
-import {
-  Button,
-  DatePicker,
-  TranslationProvider,
-  UnderverseConfigProvider,
-} from "@underverse-ui/underverse";
+import { Button, DatePicker, TranslationProvider, UnderverseConfigProvider } from "@underverse-ui/underverse";
 
 export function Example() {
   return (
@@ -218,14 +213,7 @@ export function ArticleEditor() {
   const [html, setHtml] = useState("<p>Start writing…</p>");
 
   return (
-    <UEditor
-      ref={editorRef}
-      content={html}
-      onHtmlChange={setHtml}
-      outputDebounceMs={120}
-      placeholder="Type '/' for commands…"
-      showCharacterCount
-    />
+    <UEditor ref={editorRef} content={html} onHtmlChange={setHtml} outputDebounceMs={120} placeholder="Type '/' for commands…" showCharacterCount />
   );
 }
 ```
@@ -246,12 +234,12 @@ import { TranslationProvider } from "@underverse-ui/underverse";
 
 Supported locales:
 
-| Code | Language |
-| --- | --- |
-| `en` | English |
+| Code | Language   |
+| ---- | ---------- |
+| `en` | English    |
 | `vi` | Tiếng Việt |
-| `ko` | 한국어 |
-| `ja` | 日本語 |
+| `ko` | 한국어     |
+| `ja` | 日本語     |
 
 For a `next-intl` application, mount `NextIntlAdapter` inside `NextIntlClientProvider`. The adapter reads the active locale and messages, then falls back to the package's built-in locale messages for missing component strings.
 
@@ -259,21 +247,18 @@ For a `next-intl` application, mount `NextIntlAdapter` inside `NextIntlClientPro
 
 Install and configure only the integrations used by your application:
 
-| Feature | Integration |
-| --- | --- |
-| Forms and schema validation | `react-hook-form`, `@hookform/resolvers`, `zod` |
-| UEditor | Tiptap, Lowlight, and Tippy peers declared by the package |
-| Overlay scrollbars | `overlayscrollbars` and its stylesheet |
-| Next.js image/i18n adapters | `next`, `next-intl` |
+| Feature                     | Integration                                               |
+| --------------------------- | --------------------------------------------------------- |
+| Forms and schema validation | `react-hook-form`, `@hookform/resolvers`, `zod`           |
+| UEditor                     | Tiptap, Lowlight, and Tippy peers declared by the package |
+| Overlay scrollbars          | `overlayscrollbars` and its stylesheet                    |
+| Next.js image/i18n adapters | `next`, `next-intl`                                       |
 
 Overlay scrollbars are opt-in and component-scoped:
 
 ```tsx
 import "overlayscrollbars/overlayscrollbars.css";
-import {
-  OverlayScrollbarProvider,
-  ScrollArea,
-} from "@underverse-ui/underverse";
+import { OverlayScrollbarProvider, ScrollArea } from "@underverse-ui/underverse";
 
 <OverlayScrollbarProvider autoHide="leave">
   <ScrollArea className="h-64" useOverlayScrollbar>
@@ -284,29 +269,29 @@ import {
 
 ## Component families
 
-| Area | Components |
-| --- | --- |
-| Inputs | Input, Textarea, CheckBox, RadioGroup, Switch, Slider, TagInput |
-| Selection | Combobox, MultiCombobox, CategoryTreeSelect, ColorPicker |
-| Date and time | Calendar, DatePicker, DateRangePicker, DateTimePicker, TimePicker, MonthYearPicker |
-| Data | Table, DataTable, Pagination, Grid, List, Timeline |
-| Navigation | Tabs, Breadcrumb, DropdownMenu, Section, ScrollArea |
-| Overlays | Modal, Sheet, Popover, Tooltip, Toast, Alert |
+| Area              | Components                                                                         |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| Inputs            | Input, Textarea, CheckBox, RadioGroup, Switch, Slider, TagInput                    |
+| Selection         | Combobox, MultiCombobox, CategoryTreeSelect, ColorPicker                           |
+| Date and time     | Calendar, DatePicker, DateRangePicker, DateTimePicker, TimePicker, MonthYearPicker |
+| Data              | Table, DataTable, Pagination, Grid, List, Timeline                                 |
+| Navigation        | Tabs, Breadcrumb, DropdownMenu, Section, ScrollArea                                |
+| Overlays          | Modal, Sheet, Popover, Tooltip, Toast, Alert                                       |
 | Media and content | SmartImage, ImageUpload, FileUpload, Carousel, EmojiPicker, StickerPicker, UEditor |
-| Scheduling | CalendarTimeline |
+| Scheduling        | CalendarTimeline                                                                   |
 
 Browse every component, example, and generated API contract in the [live documentation](https://underverse.infiniq.com.vn/vi/docs/underverse).
 
 ## Compatibility
 
-| Runtime | Support |
-| --- | --- |
-| React | 18 and newer |
-| Node.js | 18 and newer |
-| Next.js | 13 and newer |
-| Tailwind CSS | 4.x |
-| Module formats | ESM and CommonJS |
-| TypeScript | Type declarations included |
+| Runtime        | Support                    |
+| -------------- | -------------------------- |
+| React          | 18 and newer               |
+| Node.js        | 18 and newer               |
+| Next.js        | 13 and newer               |
+| Tailwind CSS   | 4.x                        |
+| Module formats | ESM and CommonJS           |
+| TypeScript     | Type declarations included |
 
 ## Contributing and security
 
