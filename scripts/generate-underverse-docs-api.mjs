@@ -80,14 +80,28 @@ function removeOptionalUndefined(checker, type) {
     : checker.getUnionType(remaining, ts.UnionReduction.None);
 }
 
+function portableTypeSignature(signature) {
+  return signature.replace(/import\("([^"]+)"\)/g, (fullMatch, rawSpecifier) => {
+    const specifier = rawSpecifier.replaceAll("\\", "/");
+    const nodeModulesMarker = "/node_modules/";
+    const nodeModulesIndex = specifier.lastIndexOf(nodeModulesMarker);
+
+    if (nodeModulesIndex >= 0) {
+      return `import("${specifier.slice(nodeModulesIndex + nodeModulesMarker.length)}")`;
+    }
+
+    return fullMatch;
+  });
+}
+
 function typeText(checker, type, declaration) {
-  return checker.typeToString(
+  return portableTypeSignature(checker.typeToString(
     type,
     declaration,
     ts.TypeFormatFlags.NoTruncation |
       ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope |
       ts.TypeFormatFlags.WriteArrowStyleSignature,
-  );
+  ));
 }
 
 function declaredTypeText(declaration) {
@@ -198,10 +212,12 @@ function functionContract(checker, exportName, symbol) {
     name: exportName,
     kind: "function",
     signature: signatures
-      .map((signature) => checker.signatureToString(
-        signature,
-        declaration,
-        ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.WriteArrowStyleSignature,
+      .map((signature) => portableTypeSignature(
+        checker.signatureToString(
+          signature,
+          declaration,
+          ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.WriteArrowStyleSignature,
+        ),
       ))
       .join(" | "),
     source: toPosix(path.relative(repositoryRoot, declaration.getSourceFile().fileName)),
@@ -305,6 +321,13 @@ function generateManifest() {
 
 const manifest = generateManifest();
 const serialized = `${JSON.stringify(manifest, null, 2)}\n`;
+const absoluteTypeImport = /import\("(?:[A-Za-z]:[/\\]|\/)[^"]+"\)/;
+
+if (absoluteTypeImport.test(serialized)) {
+  throw new Error(
+    "Generated API signatures contain an absolute import path. Normalize it before writing the manifest.",
+  );
+}
 
 if (checkOnly) {
   if (!fs.existsSync(outputPath) || fs.readFileSync(outputPath, "utf8") !== serialized) {

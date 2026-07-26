@@ -33,6 +33,9 @@ jobs:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
 
+      - name: Remove deprecated npm configuration
+        run: npm config delete always-auth --location=user
+
       # Install root dependencies first (needed for building)
       - name: Install root dependencies
         run: npm ci
