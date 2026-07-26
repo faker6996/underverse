@@ -1,5 +1,5 @@
 {
-  "name": "ecommerce-web",
+  "name": "underverse-ui-docs",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -37,8 +37,8 @@
     "docker:local:down": "docker compose -f docker-compose.local.yml down",
     "docker:local:ps": "docker compose -f docker-compose.local.yml ps",
     "docker:local:logs": "docker compose -f docker-compose.local.yml logs -f",
-    "docker:up": "docker-compose -f docker-compose.prod.yml up -d ecommerce-web",
-    "docker:down": "docker-compose -f docker-compose.prod.yml down",
+    "docker:up": "docker compose -f docker-compose.yml up -d underverse-web",
+    "docker:down": "docker compose -f docker-compose.yml down",
     "docker:restart": "npm run docker:down && npm run docker:up",
     "i18n:check": "node scripts/check-missing-keys.mjs",
     "i18n:check-locales": "node scripts/check-locales.mjs",
