@@ -4,8 +4,10 @@ import React from 'react';
 import { ThemeToggle } from '@underverse-ui/underverse';
 import CodeBlock from "../_components/CodeBlock";
 import { Tabs } from "@/components/ui/Tab";
+import { useTranslations } from "next-intl";
 
 export default function ThemeToggleHeadlessExample() {
+  const t = useTranslations("DocsUnderverse");
   const [theme, setTheme] = React.useState<'light'|'dark'|'system'>('system');
 
   const code =
@@ -26,12 +28,11 @@ export default function ThemeToggleHeadlessExample() {
   return (
     <Tabs id="theme-toggle-headless-tabs"
       tabs={[
-        { value: "preview", label: "Preview", content: <div className="p-1">{demo}</div> },
-        { value: "code", label: "Code", content: <CodeBlock code={code} /> },
+        { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
       ]}
       variant="underline"
       size="sm"
     />
   );
 }
-

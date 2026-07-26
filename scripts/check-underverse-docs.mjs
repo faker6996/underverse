@@ -15,6 +15,18 @@ const exampleMapPath = path.join(
   repositoryRoot,
   "app/[locale]/(pages)/docs/underverse/_components/ComponentExample.tsx",
 );
+const exampleDirectory = path.join(
+  repositoryRoot,
+  "app/[locale]/(pages)/docs/underverse/_examples",
+);
+const apiManifestPath = path.join(
+  repositoryRoot,
+  "app/[locale]/(pages)/docs/underverse/_data/component-api.generated.json",
+);
+const componentPagePath = path.join(
+  repositoryRoot,
+  "app/[locale]/(pages)/docs/underverse/[slug]/page.tsx",
+);
 
 function flatten(value, prefix = "", output = new Map()) {
   for (const [key, nestedValue] of Object.entries(value)) {
@@ -55,12 +67,13 @@ for (const locale of locales.slice(1)) {
 
 const registrySource = fs.readFileSync(registryPath, "utf8");
 const entries = [...registrySource.matchAll(
-  /component\("([^"]+)",\s*"([^"]+)",\s*"([^"]+)",\s*\[[^\]]*\],\s*"([^"]+)"/g,
+  /component\("([^"]+)",\s*"([^"]+)",\s*"([^"]+)",\s*\[([^\]]*)\],\s*"([^"]+)"/g,
 )].map((match) => ({
   slug: match[1],
   translationKey: match[2],
   category: match[3],
-  sourceFile: match[4],
+  importNames: [...match[4].matchAll(/"([^"]+)"/g)].map((nameMatch) => nameMatch[1]),
+  sourceFile: match[5],
 }));
 
 if (!entries.length) fail(`No component entries were parsed from ${registryPath}.`);
@@ -85,16 +98,69 @@ for (const entry of entries) {
 }
 
 const exampleMapSource = fs.readFileSync(exampleMapPath, "utf8");
-const exampleSlugs = new Set(
-  [...exampleMapSource.matchAll(/^\s*(?:"([^"]+)"|([a-zA-Z][\w-]*)):\s*load\(/gm)].map(
-    (match) => match[1] || match[2],
+const exampleEntries = [
+  ...exampleMapSource.matchAll(
+    /^\s*(?:"([^"]+)"|([a-zA-Z][\w-]*)):\s*load\(\(\) => import\("\.\.\/_examples\/([^"]+)"\)/gm,
   ),
-);
+].map((match) => ({
+  slug: match[1] || match[2],
+  exampleFile: `${match[3]}.tsx`,
+}));
+const exampleSlugs = new Set(exampleEntries.map((entry) => entry.slug));
 for (const slug of seenSlugs) {
   if (!exampleSlugs.has(slug)) fail(`Registry item ${slug} has no real demo in ComponentExample.tsx.`);
 }
 for (const slug of exampleSlugs) {
   if (!seenSlugs.has(slug)) fail(`ComponentExample.tsx contains an undocumented demo: ${slug}.`);
+}
+
+const apiManifest = JSON.parse(fs.readFileSync(apiManifestPath, "utf8"));
+const componentPageSource = fs.readFileSync(componentPagePath, "utf8");
+if (!/<ComponentApiReference\b/.test(componentPageSource)) {
+  fail("The shared component page must render the generated ComponentApiReference.");
+}
+
+for (const entry of entries) {
+  const contract = apiManifest.components?.[entry.slug];
+  if (!contract) {
+    fail(`Registry item ${entry.slug} has no generated API contract.`);
+    continue;
+  }
+  if (!Array.isArray(contract.apis) || contract.apis.length === 0) {
+    fail(`Registry item ${entry.slug} has an empty generated API contract.`);
+  }
+
+  const apiNames = new Set((contract.apis ?? []).map((api) => api.name));
+  for (const importName of entry.importNames) {
+    if (!apiNames.has(importName)) {
+      fail(`${entry.slug} imports ${importName}, but the generated API contract does not expose it.`);
+    }
+  }
+}
+
+for (const { slug, exampleFile } of exampleEntries) {
+  const examplePath = path.join(exampleDirectory, exampleFile);
+  const source = fs.readFileSync(examplePath, "utf8");
+  if (!/<Tabs\b/.test(source)) {
+    fail(`${slug} must use the shared Tabs documentation layout in ${exampleFile}.`);
+  }
+  if (!/value:\s*["']preview["']/.test(source)) {
+    fail(`${slug} is missing a preview example in ${exampleFile}.`);
+  }
+  if (!/value:\s*["']code["']/.test(source)) {
+    fail(`${slug} is missing source code for its example in ${exampleFile}.`);
+  }
+
+  const templateLiterals = [...source.matchAll(/`([\s\S]*?)`/g)].map((match) => match[1]);
+  const internalImports = templateLiterals.flatMap((literal) =>
+    [...literal.matchAll(/(?:from\s+|import\s+)["'](@\/components\/ui\/[^"']+)["']/g)]
+      .map((match) => match[1]),
+  );
+  if (internalImports.length) {
+    fail(
+      `${slug} exposes internal imports in ${exampleFile}: ${[...new Set(internalImports)].join(", ")}`,
+    );
+  }
 }
 
 if (!process.exitCode) {

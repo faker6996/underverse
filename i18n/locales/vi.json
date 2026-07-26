@@ -144,6 +144,14 @@
       "apiEyebrow": "Tham chiếu",
       "apiReference": "Tham chiếu API",
       "apiDescription": "Tra cứu các thuộc tính, kiểu dữ liệu được chấp nhận, giá trị mặc định và lưu ý về hành vi.",
+      "apiGenerated": "Dữ liệu được sinh từ API TypeScript công khai của thư viện. Kiểu dữ liệu, thuộc tính bắt buộc và giá trị mặc định luôn đồng bộ với mã nguồn.",
+      "apiNoDescription": "Mã nguồn chưa cung cấp mô tả bổ sung.",
+      "required": "Bắt buộc",
+      "apiKinds": {
+        "component": "Component",
+        "function": "Hàm",
+        "namespace": "Namespace"
+      },
       "usageGuidance": "Hướng dẫn sử dụng",
       "accessibility": "Trợ năng",
       "accessibilityDescription": "Khi dùng {name}, hãy giữ trạng thái focus dễ nhận biết, cung cấp tên truy cập khi cần và kiểm tra bàn phím cùng trình đọc màn hình trong ngữ cảnh thực tế.",
@@ -1433,6 +1441,31 @@
       }
     },
     "examples": {
+      "ueditor": {
+        "basic": {
+          "title": "Trình soạn thảo tài liệu",
+          "description": "Dùng đầy đủ thanh công cụ và menu khi soạn tài liệu dài hoặc nội dung có cấu trúc."
+        },
+        "minimal": {
+          "title": "Thanh công cụ tối giản",
+          "description": "Giữ thao tác thiết yếu, số lượng nội dung và giới hạn ký tự rõ ràng cho biểu mẫu gọn."
+        },
+        "readOnly": {
+          "title": "Chế độ chỉ đọc",
+          "description": "Hiển thị HTML đã lưu mà không có công cụ chỉnh sửa, phù hợp cho bản xem trước và nội dung đã xuất bản."
+        },
+        "samples": {
+          "documentTitle": "Đánh giá sản phẩm hằng tuần",
+          "documentDescription": "Ghi lại quyết định, phân công việc tiếp theo và định dạng tài liệu ngay trong trình soạn thảo.",
+          "reviewRelease": "Đánh giá bản phát hành hiện tại",
+          "confirmMilestone": "Xác nhận cột mốc tiếp theo",
+          "placeholder": "Nhập '/' để mở lệnh hoặc bắt đầu soạn thảo...",
+          "minimalContent": "Trình soạn thảo tập trung cho ghi chú ngắn và biểu mẫu đơn giản.",
+          "readOnlyTitle": "Tóm tắt bản phát hành",
+          "readOnlyDescription": "Trình soạn thảo có thể hiển thị HTML đã lưu mà không kèm công cụ chỉnh sửa.",
+          "readOnlyQuote": "Dùng chế độ chỉ đọc cho bản xem trước và nội dung đã xuất bản."
+        }
+      },
       "lunarDatePicker": {
         "defaultLabel": "Mặc định (md)",
         "smallLabel": "Nhỏ (sm)",

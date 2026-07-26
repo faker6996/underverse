@@ -43,13 +43,13 @@ export default function MusicPlayerExample() {
     </div>
   );
 
-  const usage = `import MusicPlayer from '@/components/ui/MusicPlayer';
+  const usage = `import { MusicPlayer } from '@underverse-ui/underverse';
 
 export function Example() {
   return <MusicPlayer />;
 }`;
 
-  const customPlaylistCode = `import MusicPlayer, { Song } from '@/components/ui/MusicPlayer';
+  const customPlaylistCode = `import { MusicPlayer, type Song } from '@underverse-ui/underverse';
 
 const myPlaylist: Song[] = [
   {

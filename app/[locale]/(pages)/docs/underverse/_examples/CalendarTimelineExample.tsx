@@ -420,6 +420,10 @@ export function Example() {
   )}
 />`;
 
+  const exampleCode = `${code}
+
+${recipes}`;
+
   const rows: PropsRow[] = [
     { property: "resources", description: t("props.calendarTimeline.resources"), type: "CalendarTimelineResource[]", default: "-" },
     { property: "events", description: t("props.calendarTimeline.events"), type: "CalendarTimelineEvent[]", default: "-" },
@@ -513,8 +517,7 @@ export function Example() {
     <Tabs id="calendar-timeline-tabs"
       tabs={[
         { value: "preview", label: t("tabs.preview"), content: <div className="p-1">{demo}</div> },
-        { value: "code", label: t("tabs.code"), content: <CodeBlock code={code} /> },
-        { value: "recipes", label: "Recipes", content: <CodeBlock code={recipes} /> },
+        { value: "code", label: t("tabs.code"), content: <CodeBlock code={exampleCode} /> },
         { value: "docs", label: t("tabs.document"), content: <div className="p-1">{docs}</div> },
       ]}
       variant="underline"

@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { ArrowRight, ExternalLink, Github, Package } from "lucide-react";
 import CodeBlock from "../_components/CodeBlock";
+import ComponentApiReference from "../_components/ComponentApiReference";
 import ComponentExample from "../_components/ComponentExample";
 import DocsFooterNav from "../_components/DocsFooterNav";
 import DocsLayout from "../_components/DocsLayout";
@@ -22,6 +23,25 @@ type ComponentDetailPageProps = {
 
 function translationPath(key: string) {
   return key as never;
+}
+
+function toCamelCase(value: string) {
+  return value.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
+}
+
+function lowerFirst(value: string) {
+  return value ? `${value[0].toLowerCase()}${value.slice(1)}` : value;
+}
+
+function translatedStringAt(root: unknown, path: string[]) {
+  let current = root;
+  for (const segment of path) {
+    if (!current || typeof current !== "object" || !(segment in current)) {
+      return null;
+    }
+    current = (current as Record<string, unknown>)[segment];
+  }
+  return typeof current === "string" ? current : null;
 }
 
 export function generateStaticParams() {
@@ -63,6 +83,7 @@ export default async function ComponentDetailPage({ params }: ComponentDetailPag
   const title = t(translationPath(`sections.${doc.translationKey}.title`));
   const category = t(translationPath(`tocGroups.${doc.category}`));
   const description = t("docs.componentDescription", { name: title, category });
+  const propMessages = t.raw("props") as unknown;
   const sourceUrl = `${GITHUB_REPOSITORY}/blob/main/${doc.sourcePath}`;
   const categoryGuidanceKey = `docs.categoryUse.${doc.category}` as "docs.categoryUse.core";
   const related = DOCS_REGISTRY.filter(
@@ -161,6 +182,38 @@ export default async function ComponentDetailPage({ params }: ComponentDetailPag
             </div>
             <ComponentExample slug={doc.slug} />
           </section>
+
+          <ComponentApiReference
+            slug={doc.slug}
+            getPropDescription={(apiName, propName) => {
+              const group = toCamelCase(doc.slug);
+              const candidates = [
+                [group, apiName, propName],
+                [lowerFirst(apiName), propName],
+                [group, propName],
+              ];
+              for (const candidate of candidates) {
+                const translated = translatedStringAt(propMessages, candidate);
+                if (translated) return translated;
+              }
+              return null;
+            }}
+            labels={{
+              eyebrow: t("docs.apiEyebrow"),
+              title: t("docs.apiReference"),
+              description: t("docs.apiDescription"),
+              generated: t("docs.apiGenerated"),
+              component: t("docs.apiKinds.component"),
+              function: t("docs.apiKinds.function"),
+              namespace: t("docs.apiKinds.namespace"),
+              property: t("propsTable.property"),
+              type: t("propsTable.type"),
+              defaultValue: t("propsTable.default"),
+              propDescription: t("propsTable.description"),
+              required: t("docs.required"),
+              noDescription: t("docs.apiNoDescription"),
+            }}
+          />
 
           <section aria-labelledby="usage-guidance">
             <h2

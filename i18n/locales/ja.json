@@ -144,6 +144,14 @@
       "apiEyebrow": "リファレンス",
       "apiReference": "API リファレンス",
       "apiDescription": "利用可能なプロパティ、受け付ける型、デフォルト値、動作上の注意点を確認できます。",
+      "apiGenerated": "ライブラリの公開TypeScript APIから生成されます。型、必須プロパティ、デフォルト値はソースコードと常に同期されます。",
+      "apiNoDescription": "ソースコードに追加の説明は定義されていません。",
+      "required": "必須",
+      "apiKinds": {
+        "component": "コンポーネント",
+        "function": "関数",
+        "namespace": "名前空間"
+      },
       "usageGuidance": "使用ガイド",
       "accessibility": "アクセシビリティ",
       "accessibilityDescription": "{name} を使用する際は、フォーカスを明確に表示し、必要に応じてアクセシブルな名前を付け、実際の環境でキーボードとスクリーンリーダーの動作を確認してください。",
@@ -1433,6 +1441,31 @@
       }
     },
     "examples": {
+      "ueditor": {
+        "basic": {
+          "title": "文書エディター",
+          "description": "長文や構造化されたコンテンツに、すべてのツールバーと文書メニューを使用します。"
+        },
+        "minimal": {
+          "title": "最小ツールバー",
+          "description": "コンパクトなフォームには、必要な操作、コンテンツ量、文字数制限だけを表示します。"
+        },
+        "readOnly": {
+          "title": "読み取り専用",
+          "description": "プレビューや公開済みコンテンツで、編集操作を表示せずに保存済みHTMLを描画します。"
+        },
+        "samples": {
+          "documentTitle": "週間プロダクトレビュー",
+          "documentDescription": "エディター内で意思決定を記録し、次の作業を割り当て、文書を整形できます。",
+          "reviewRelease": "現在のリリースを確認",
+          "confirmMilestone": "次のマイルストーンを確認",
+          "placeholder": "「/」でコマンドを開くか、そのまま入力を始めてください...",
+          "minimalContent": "短いメモやシンプルなフォーム向けの集中型エディターです。",
+          "readOnlyTitle": "リリース概要",
+          "readOnlyDescription": "編集操作を表示せずに保存済みHTMLを描画できます。",
+          "readOnlyQuote": "プレビューや公開済みコンテンツには読み取り専用モードを使用します。"
+        }
+      },
       "lunarDatePicker": {
         "defaultLabel": "デフォルト (md)",
         "smallLabel": "小 (sm)",

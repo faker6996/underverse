@@ -131,7 +131,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
               />
               <DocCommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
 
-              <div className="mx-auto flex w-full max-w-[100rem] flex-1 px-4 sm:px-6">
+              <div className="mx-auto flex w-full max-w-400 flex-1 px-4 sm:px-6">
                 <aside className="hidden w-60 shrink-0 border-r border-border/60 py-7 pr-5 lg:block">
                   <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain pr-1">
                     <button

@@ -144,6 +144,14 @@
       "apiEyebrow": "Reference",
       "apiReference": "API reference",
       "apiDescription": "Review the available properties, accepted types, default values, and behavioral notes.",
+      "apiGenerated": "Generated from the package's public TypeScript API. Types, required fields, and defaults stay synchronized with the source code.",
+      "apiNoDescription": "No additional description is defined in the source code.",
+      "required": "Required",
+      "apiKinds": {
+        "component": "Component",
+        "function": "Function",
+        "namespace": "Namespace"
+      },
       "usageGuidance": "Usage guidance",
       "accessibility": "Accessibility",
       "accessibilityDescription": "When using {name}, preserve visible focus, provide an accessible name where needed, and verify keyboard and screen-reader behavior in your final context.",
@@ -1433,6 +1441,31 @@
       }
     },
     "examples": {
+      "ueditor": {
+        "basic": {
+          "title": "Document editor",
+          "description": "Use the complete toolbar and document menu for long-form, structured content."
+        },
+        "minimal": {
+          "title": "Minimal toolbar",
+          "description": "Keep essential actions, content totals, and a clear character limit for compact forms."
+        },
+        "readOnly": {
+          "title": "Read-only",
+          "description": "Render stored HTML without editing controls for previews and published content."
+        },
+        "samples": {
+          "documentTitle": "Weekly product review",
+          "documentDescription": "Capture decisions, assign follow-up work, and format the document without leaving the editor.",
+          "reviewRelease": "Review the current release",
+          "confirmMilestone": "Confirm the next milestone",
+          "placeholder": "Type '/' for commands, or just start writing...",
+          "minimalContent": "A focused editor for short notes and simple form fields.",
+          "readOnlyTitle": "Release summary",
+          "readOnlyDescription": "The editor can render saved HTML without edit controls.",
+          "readOnlyQuote": "Use read-only mode for previews and published content."
+        }
+      },
       "lunarDatePicker": {
         "defaultLabel": "Default (md)",
         "smallLabel": "Small (sm)",

@@ -62,7 +62,7 @@ export const DOCS_REGISTRY: readonly ComponentDocItem[] = [
 
   component("input", "input", "formInputs", ["Input", "PasswordInput", "NumberInput"], "components/Input.tsx"),
   component("textarea", "textarea", "formInputs", ["Textarea"], "components/Input.tsx"),
-  component("checkbox", "checkbox", "formInputs", ["CheckBox"], "components/CheckBox.tsx"),
+  component("checkbox", "checkbox", "formInputs", ["Checkbox"], "components/CheckBox.tsx"),
   component("switch", "switch", "formInputs", ["Switch"], "components/Switch.tsx"),
   component("radio-group", "radioGroup", "formInputs", ["RadioGroup"], "components/RadioGroup.tsx"),
   component("slider", "slider", "formInputs", ["Slider"], "components/Slider.tsx"),
@@ -89,7 +89,7 @@ export const DOCS_REGISTRY: readonly ComponentDocItem[] = [
   component("tooltip", "tooltip", "feedback", ["Tooltip"], "components/Tooltip.tsx"),
   component("popover", "popover", "feedback", ["Popover"], "components/Popover.tsx"),
   component("sheet", "sheet", "feedback", ["Sheet"], "components/Sheet.tsx"),
-  component("loading", "loading", "feedback", ["Loading"], "components/Loading.tsx"),
+  component("loading", "loading", "feedback", ["LoadingSpinner", "LoadingDots", "LoadingBar"], "components/Loading.tsx"),
   component("notification-modal", "notificationModal", "feedback", ["NotificationModal"], "components/NotificationModal.tsx"),
 
   component("breadcrumb", "breadcrumb", "navigation", ["Breadcrumb"], "components/Breadcrumb.tsx"),
@@ -125,7 +125,7 @@ export const DOCS_REGISTRY: readonly ComponentDocItem[] = [
   component("language-switcher-headless", "languageSwitcherHeadless", "theming", ["LanguageSwitcherHeadless"], "components/LanguageSwitcherHeadless.tsx"),
 
   component("translation-provider", "translationProvider", "i18n", ["TranslationProvider"], "contexts/TranslationContext.tsx"),
-  component("date-utils", "dateUtils", "i18n", ["formatDate", "formatDateTime"], "utils/date.ts"),
+  component("date-utils", "dateUtils", "i18n", ["DateUtils"], "utils/date.ts"),
 ] as const;
 
 export type DocsSlug = (typeof DOCS_REGISTRY)[number]["slug"];

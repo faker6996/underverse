@@ -56,7 +56,7 @@ export default function ButtonExample() {
     `<Button iconRight={ArrowRight} variant=\"primary\">Tiếp tục</Button>\n` +
     `<Button icon={Plus} iconRight={ArrowRight} variant=\"secondary\">New</Button>\n\n` +
     `// Loading & Disabled\n` +
-    `<Button loading loadingText=\"Đang xử lý...\">Loading</Button>\n` +
+    `<Button loading loadingText=\"Đang xử lý…\">Loading</Button>\n` +
     `<Button disabled variant=\"outline\">Disabled</Button>\n` +
     `<Button loading preserveChildrenOnLoading variant=\"success\">Lưu</Button>\n` +
     `<Button onClick={onSave} loading={saving} variant=\"primary\">Lưu thay đổi</Button>\n\n` +
@@ -128,7 +128,7 @@ export default function ButtonExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Loading / Disabled</p>
         <div className="flex flex-wrap items-center gap-3">
-          <Button loading loadingText="Dang x? ly...">
+          <Button loading loadingText="Đang xử lý…">
             Loading
           </Button>
           <Button disabled variant="outline">

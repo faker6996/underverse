@@ -196,6 +196,27 @@ test("TimePicker inline variant clears required error after choosing now", async
   });
 });
 
+test("TimePicker inline variant uses a stable panel width and panel-safe radius", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "TimePicker.tsx"));
+  const TimePicker = mod.default;
+  const view = await renderElement(
+    React.createElement(TimePicker, {
+      variant: "inline",
+      borderMode: "full",
+      defaultValue: "14:30",
+    }),
+  );
+
+  const wrapper = view.container.firstElementChild;
+  assert.ok(wrapper);
+  assert.ok(wrapper.classList.contains("w-80"));
+
+  const panel = wrapper.querySelector(".shadow-xl");
+  assert.ok(panel);
+  assert.ok(panel.classList.contains("rounded-2xl"));
+  assert.equal(panel.classList.contains("rounded-full"), false);
+});
+
 test("TimePicker arrow navigation moves DOM focus between wheel columns", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "TimePicker.tsx"));
   const TimePicker = mod.default;

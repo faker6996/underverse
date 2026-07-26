@@ -137,7 +137,10 @@ export default function DataTableExample() {
     </Button>
   );
 
-  const code = `const columns = [
+  const code = `import { DataTable, Checkbox, Button } from '@underverse-ui/underverse'
+
+// Server-side Data
+const columns = [
   { key: 'select', title: <Checkbox />, render: (_, r) => <Checkbox /> },
   { key: 'name', title: 'Name', dataIndex: 'name', sortable: true, filter: { type: 'text' } },
   { key: 'email', title: 'Email', dataIndex: 'email', width: 160 }, // hover/click to inspect overflow text
@@ -334,7 +337,9 @@ export default function DataTableExample() {
         <h3 className="text-sm font-semibold">Vertical Scroll Without Horizontal Scroll</h3>
         <p className="mt-1 text-xs text-muted-foreground">
           This example keeps sticky header and vertical scrolling, but uses a compact column set with
-          <code className="mx-1 rounded bg-background px-1 py-0.5">horizontalMode="fit"</code>
+          <code className="mx-1 rounded bg-background px-1 py-0.5">
+            horizontalMode=&quot;fit&quot;
+          </code>
           to lock horizontal scrolling. OverlayScrollbars is still enabled here for the vertical axis only.
         </p>
       </div>
@@ -359,7 +364,25 @@ export default function DataTableExample() {
     </div>
   );
 
-  const groupedCode = `// Multi-row headers example with column grouping
+  const verticalOnlyCode = `// Vertical Only
+const compactColumns = [
+  { key: 'name', title: 'Name', dataIndex: 'name', sortable: true },
+  { key: 'role', title: 'Role', dataIndex: 'role' },
+  { key: 'status', title: 'Status', dataIndex: 'status' },
+  { key: 'created_at', title: 'Created', dataIndex: 'created_at' },
+]
+
+<DataTable
+  columns={compactColumns}
+  data={rows}
+  rowKey="id"
+  stickyHeader
+  maxHeight={260}
+  horizontalMode="fit"
+  useOverlayScrollbar
+/>`;
+
+  const groupedCode = `// Multi-Row Headers
 const groupedColumns: DataTableColumn<User>[] = [
   { key: 'select', title: <Checkbox />, fixed: 'left', render: ... },
   {
@@ -399,30 +422,40 @@ const groupedColumns: DataTableColumn<User>[] = [
 
 <DataTable columns={groupedColumns} ... />`;
 
+  const examplesCode = [code, verticalOnlyCode, groupedCode].join("\n\n");
+
   return (
     <IntlDemoProvider>
       <Tabs id="data-table-tabs"
         tabs={[
-          { value: "preview", label: td("tabs.preview"), content: <div className="p-1">{demo}</div> },
-          { value: "vertical-only", label: "Vertical Only", content: <div className="p-1">{demoVerticalOnly}</div> },
           {
-            value: "multi-row",
-            label: "Multi-Row Headers",
+            value: "preview",
+            label: td("tabs.preview"),
             content: (
-              <div className="space-y-4">
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <h3 className="text-sm font-semibold mb-2">Multi-Row Headers with Column Grouping</h3>
-                  <p className="text-xs text-muted-foreground">
-                    Group related columns together using the <code className="px-1 py-0.5 bg-background rounded">children</code> property.
-                    Group columns only show titles (no sort/filter), while leaf columns support all features.
-                  </p>
+              <div className="space-y-10">
+                <div className="space-y-3" data-doc-preview="plain">
+                  <h3 className="text-sm font-semibold">Server-side Data</h3>
+                  {demo}
                 </div>
-                <div className="p-1">{demoGrouped}</div>
+                <div className="space-y-3" data-doc-preview="plain">
+                  <h3 className="text-sm font-semibold">Vertical Only</h3>
+                  {demoVerticalOnly}
+                </div>
+                <div className="space-y-3" data-doc-preview="plain">
+                  <h3 className="text-sm font-semibold">Multi-Row Headers</h3>
+                  <div className="rounded-lg border border-border/50 bg-muted/40 p-4">
+                    <p className="text-xs text-muted-foreground">
+                      Group related columns with the{" "}
+                      <code className="rounded bg-background px-1 py-0.5">children</code>{" "}
+                      property. Leaf columns retain sorting and filtering.
+                    </p>
+                  </div>
+                  {demoGrouped}
+                </div>
               </div>
-            )
+            ),
           },
-          { value: "code", label: td("tabs.code"), content: <CodeBlock code={code} /> },
-          { value: "grouped-code", label: "Grouped Code", content: <CodeBlock code={groupedCode} /> },
+          { value: "code", label: td("tabs.code"), content: <CodeBlock code={examplesCode} /> },
           {
             value: "docs",
             label: td("tabs.document"),

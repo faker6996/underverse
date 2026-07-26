@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Braces, Code2, Eye } from "lucide-react";
+import { Code2, Eye } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   Tabs as BaseTabs,
@@ -18,7 +18,11 @@ export { SimpleTabs, PillTabs, VerticalTabs };
 const DOCUMENTATION_TAB_VALUES = new Set(["docs", "props", "api"]);
 const SECTION_HEADING_TAGS = new Set(["h2", "h3", "h4", "h5", "p"]);
 
-type PreviewSection = { title: string; content: React.ReactNode };
+type PreviewSection = {
+  title: string;
+  content: React.ReactNode;
+  surface?: "default" | "plain";
+};
 type SourceSection = { title: string; source: string };
 type DocumentationSection = PreviewSection & { source?: string };
 
@@ -56,6 +60,7 @@ function sectionFromElement(element: React.ReactElement): PreviewSection | null 
   return {
     title,
     content: React.cloneElement(element, undefined, ...children.slice(1)),
+    surface: elementProps(element)["data-doc-preview"] === "plain" ? "plain" : "default",
   };
 }
 
@@ -217,6 +222,7 @@ function normalizeTitle(value: string): string[] {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
+    .replace(/đ/g, "d")
     .replace(/&/g, " and ")
     .replace(/[^a-z0-9]+/g, " ")
     .trim()
@@ -263,6 +269,7 @@ function slugify(value: string): string {
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
+      .replace(/đ/g, "d")
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "") || "example"
   );
@@ -282,10 +289,10 @@ export function Tabs(props: TabsProps) {
   );
 
   if (!preview || !code || hasUnsupportedTopLevelTab) return <BaseTabs {...props} />;
-  return <DocumentationExamples preview={preview} code={code} api={api} />;
+  return <DocumentationExamples preview={preview} code={code} />;
 }
 
-function DocumentationExamples({ preview, code, api }: { preview: Tab; code: Tab; api?: Tab }) {
+function DocumentationExamples({ preview, code }: { preview: Tab; code: Tab }) {
   const t = useTranslations("DocsUnderverse.docs");
   const previewSections = extractPreviewSections(preview.content);
   const completeSource = findSource(code.content);
@@ -305,32 +312,28 @@ function DocumentationExamples({ preview, code, api }: { preview: Tab; code: Tab
             title={section.title}
             preview={section.content}
             code={section.source ? replaceSource(code.content, section.source) : code.content}
+            surface={section.surface}
           />
         ))}
       </div>
 
-      {api ? (
-        <section id="api-reference" aria-labelledby="api-reference-title" className="scroll-m-24">
-          <div className="border-b border-border/60 pb-4">
-            <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-primary">
-              <Braces className="h-4 w-4" aria-hidden="true" />
-              <span>{t("apiEyebrow")}</span>
-            </div>
-            <h2 id="api-reference-title" data-doc-heading className="text-balance text-2xl font-semibold tracking-tight text-foreground">
-              {t("apiReference")}
-            </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
-              {t("apiDescription")}
-            </p>
-          </div>
-          <div className="mt-5">{api.content}</div>
-        </section>
-      ) : null}
     </div>
   );
 }
 
-function DocumentationExampleCard({ id, title, preview, code }: { id: string; title: string; preview: React.ReactNode; code: React.ReactNode }) {
+function DocumentationExampleCard({
+  id,
+  title,
+  preview,
+  code,
+  surface = "default",
+}: {
+  id: string;
+  title: string;
+  preview: React.ReactNode;
+  code: React.ReactNode;
+  surface?: "default" | "plain";
+}) {
   const [codeOpen, setCodeOpen] = React.useState(false);
   const reactId = React.useId();
   const codeId = `${id}-code-${reactId.replace(/:/g, "")}`;
@@ -360,11 +363,15 @@ function DocumentationExampleCard({ id, title, preview, code }: { id: string; ti
           </button>
         </div>
 
-        <div className="relative min-h-36 overflow-x-auto bg-[linear-gradient(to_right,color-mix(in_oklab,var(--border)_22%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklab,var(--border)_22%,transparent)_1px,transparent_1px)] bg-[size:24px_24px] p-5 sm:p-7">
-          <div className="relative rounded-xl bg-background/94 p-4 shadow-xs ring-1 ring-border/55 backdrop-blur-sm sm:p-6">
-            {preview}
+        {surface === "plain" ? (
+          <div className="bg-background p-4 sm:p-5">{preview}</div>
+        ) : (
+          <div className="relative min-h-36 overflow-x-auto bg-[linear-gradient(to_right,color-mix(in_oklab,var(--border)_22%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklab,var(--border)_22%,transparent)_1px,transparent_1px)] bg-[size:24px_24px] p-5 sm:p-7">
+            <div className="relative rounded-xl bg-background/94 p-4 shadow-xs ring-1 ring-border/55 backdrop-blur-sm sm:p-6">
+              {preview}
+            </div>
           </div>
-        </div>
+        )}
 
         {codeOpen ? (
           <div id={codeId} className="border-t border-border/70 bg-muted/10 p-3 sm:p-4">

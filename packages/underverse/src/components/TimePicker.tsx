@@ -7,7 +7,11 @@ import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { Popover } from "./Popover";
 import { Clock, X, Check, Sun, Moon, Sunset, Coffee } from "lucide-react";
 import Input from "./Input";
-import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
+import {
+  getBorderRadiusClass,
+  getPanelBorderRadiusClass,
+  type BorderMode,
+} from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "../constants/form-control-size";
 
@@ -1421,7 +1425,7 @@ export default function TimePicker({
   // Inline variant renders content directly without popover
   if (variant === "inline") {
     return (
-      <div className="w-fit max-w-full" {...rest}>
+      <div className="w-80 max-w-full" {...rest}>
         {label && (
           <div className="flex items-center justify-between mb-3">
             <label
@@ -1449,7 +1453,7 @@ export default function TimePicker({
         <div
           className={cn(
             panelSz.contentPadding,
-            resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl md:rounded-3xl",
+            getPanelBorderRadiusClass(resolvedBorderMode),
             "border bg-card/95 backdrop-blur-sm shadow-xl",
             effectiveError ? "border-destructive/60 bg-destructive/5" : "border-border/60",
             className,

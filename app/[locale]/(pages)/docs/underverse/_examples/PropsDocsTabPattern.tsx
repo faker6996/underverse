@@ -86,7 +86,7 @@ export function PropsDocsTable({
         ))}
       </div>
       <div className={`hidden overflow-x-auto rounded-xl border border-border/70 md:block ${className ?? ""}`}>
-        <table className="w-full min-w-[40rem] border-separate border-spacing-0 text-left text-sm">
+        <table className="w-full min-w-160 border-separate border-spacing-0 text-left text-sm">
           <thead className="bg-muted/45 text-xs text-muted-foreground">
             <tr>
               <th scope="col" className="w-32 border-b border-border/70 px-4 py-3 font-semibold">
@@ -118,12 +118,12 @@ export function PropsDocsTable({
                   {row.description}
                 </td>
                 <td className="px-4 py-3.5">
-                  <code className="whitespace-pre-wrap break-all rounded bg-muted/55 px-1.5 py-1 font-mono text-[12px] leading-5 text-foreground">
+                  <code className="whitespace-pre-wrap break-all rounded bg-muted/55 px-1.5 py-1 font-mono text-xs leading-5 text-foreground">
                     {row.type}
                   </code>
                 </td>
                 <td className="px-4 py-3.5">
-                  <code className="whitespace-pre-wrap break-words font-mono text-[12px] leading-5 text-foreground">
+                  <code className="whitespace-pre-wrap wrap-break-word font-mono text-xs leading-5 text-foreground">
                     {row.default}
                   </code>
                 </td>

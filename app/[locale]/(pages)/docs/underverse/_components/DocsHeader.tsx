@@ -20,7 +20,7 @@ export default function DocsHeader({ onMobileMenuToggle, onSearchOpen }: DocsHea
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/92 backdrop-blur-xl supports-backdrop-filter:bg-background/78">
-      <div className="mx-auto flex h-15 max-w-[100rem] items-center gap-4 px-4 sm:px-6">
+      <div className="mx-auto flex h-15 max-w-400 items-center gap-4 px-4 sm:px-6">
         <button
           type="button"
           onClick={onMobileMenuToggle}
