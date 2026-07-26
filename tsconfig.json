@@ -17,7 +17,7 @@
       "@/*": ["./*"],
       "@underverse-ui/underverse": ["packages/underverse/src/index.ts"]
     },
-    "types": ["@types/node"],
+    "types": ["node"],
     "allowJs": true,
     "skipLibCheck": true,
     "incremental": true,
