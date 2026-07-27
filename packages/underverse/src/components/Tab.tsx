@@ -66,19 +66,19 @@ const variantStyles = {
   },
   underline: {
     container: "relative border-b border-border/60",
-    tab: "relative transition-colors duration-200 pb-3 border-b-2 border-transparent hover:border-primary/30",
+    tab: "relative transition-colors duration-200 border-b-2 border-transparent hover:border-primary/30",
     activeTab: "text-primary border-primary font-semibold",
     inactiveTab: "text-muted-foreground hover:text-foreground",
   },
   card: {
-    container: "space-y-1.5 bg-muted/20 p-2 rounded-2xl border border-border/30",
+    container: "bg-muted/20 p-1.5 rounded-2xl border border-border/30",
     tab: "rounded-xl border border-transparent transition-all duration-200",
     activeTab: "bg-primary text-primary-foreground border-primary shadow-md",
     inactiveTab: "text-muted-foreground hover:text-foreground hover:bg-accent/50 hover:border-border/50",
   },
   "underline-card": {
     container: "border-b border-border/60 bg-card/80 backdrop-blur-sm rounded-t-2xl p-1",
-    tab: "relative transition-all duration-200 pb-3 px-4 rounded-t-xl border-b-2 border-transparent hover:border-primary/30 hover:bg-accent/30",
+    tab: "relative transition-all duration-200 rounded-t-xl border-b-2 border-transparent hover:border-primary/30 hover:bg-accent/30",
     activeTab: "text-primary border-primary font-semibold bg-accent/30",
     inactiveTab: "text-muted-foreground hover:text-foreground",
   },
@@ -217,7 +217,9 @@ export const Tabs: React.FC<TabsProps> = ({
 
   const containerClasses = cn(
     "relative",
-    orientation === "horizontal" ? "w-full flex space-x-1 overflow-x-auto" : "flex flex-col space-y-1 shrink-0",
+    orientation === "horizontal"
+      ? "w-full flex items-center space-x-1 overflow-x-auto"
+      : "flex flex-col space-y-1 shrink-0",
     variantStyles[variant].container,
     className,
   );
@@ -258,10 +260,7 @@ export const Tabs: React.FC<TabsProps> = ({
             tab.href && tab.disabled && "pointer-events-none cursor-not-allowed opacity-50",
           );
           const sharedStyle: React.CSSProperties = {
-            boxShadow: "none",
-            transform: "none",
             outline: "none",
-            border: "none",
           };
           const sharedProps = {
             ref: (el: HTMLElement | null) => {
