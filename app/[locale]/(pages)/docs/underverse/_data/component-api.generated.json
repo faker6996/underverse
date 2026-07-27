@@ -10856,7 +10856,7 @@
               "required": false,
               "default": "true",
               "description": null,
-              "source": "packages/underverse/src/components/Tab.tsx:359"
+              "source": "packages/underverse/src/components/Tab.tsx:358"
             },
             {
               "name": "id",
@@ -10976,7 +10976,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Tab.tsx:344"
+              "source": "packages/underverse/src/components/Tab.tsx:343"
             },
             {
               "name": "defaultValue",
@@ -10984,7 +10984,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Tab.tsx:349"
+              "source": "packages/underverse/src/components/Tab.tsx:348"
             },
             {
               "name": "className",
@@ -10992,7 +10992,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Tab.tsx:350"
+              "source": "packages/underverse/src/components/Tab.tsx:349"
             }
           ]
         },
@@ -11008,7 +11008,7 @@
               "required": false,
               "default": "\"w-48\"",
               "description": null,
-              "source": "packages/underverse/src/components/Tab.tsx:368"
+              "source": "packages/underverse/src/components/Tab.tsx:367"
             },
             {
               "name": "id",
