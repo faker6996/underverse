@@ -694,7 +694,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
             </span>
           )
         ) : (
-          <span className={cn(formControlValueClass, "text-muted-foreground")}>{placeholder}</span>
+          <span className={cn(formControlValueClass, "text-left text-muted-foreground")}>{placeholder}</span>
         )}
       </div>
       <div className="flex items-center gap-1.5 shrink-0">

@@ -177,3 +177,19 @@ test("MultiCombobox virtualized rendering does not render every large-list optio
   assert.ok(renderCount > 0, "Expected visible options to render");
   assert.ok(renderCount < 80, `Expected virtualized rendering to avoid all options, got ${renderCount}`);
 });
+
+test("MultiCombobox aligns its placeholder to the left", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "MultiCombobox.tsx"));
+
+  render(
+    React.createElement(mod.MultiCombobox, {
+      options: ["Alpha"],
+      value: [],
+      onChange: () => {},
+      placeholder: "Choose items",
+    }),
+  );
+
+  const placeholder = within(window.document.body).getByText("Choose items");
+  assert.ok(placeholder.classList.contains("text-left"));
+});
