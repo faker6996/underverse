@@ -1,6 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { Plugin } from "@tiptap/pm/state";
-import { getClipboardTableContent, getClipboardTsvTableContent } from "./clipboard-tables";
+import { getClipboardTableContent, getClipboardTsvTableContent, hasClipboardHtmlTable } from "./clipboard-tables";
 import { sanitizeUEditorUrl } from "./url-safety";
 
 export type ClipboardImagesOptions = {
@@ -112,6 +112,9 @@ export const ClipboardImages = Extension.create<ClipboardImagesOptions>({
               editor.chain().focus().insertContent(tableContent).run();
               return true;
             }
+
+            // Let ProseMirror preserve surrounding rich text and multiple tables.
+            if (hasClipboardHtmlTable(event.clipboardData)) return false;
 
             const tsvTableContent = getClipboardTsvTableContent(event.clipboardData);
             if (tsvTableContent) {

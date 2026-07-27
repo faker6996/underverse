@@ -1174,6 +1174,73 @@ test("UEditor pastes spreadsheet HTML as a table instead of the clipboard previe
   });
 });
 
+test("UEditor preserves surrounding content when pasted HTML contains multiple tables", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const user = userEvent.setup({ document: window.document });
+
+  const view = render(
+    React.createElement(UEditor, {
+      content: "<p>Paste target</p>",
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  const editorElement = await waitFor(() => {
+    const element = view.container.querySelector(".ProseMirror");
+    assert.ok(element);
+    return element;
+  });
+
+  await user.click(editorElement);
+  fireEvent.paste(editorElement, {
+    clipboardData: clipboardWithImageAndData({
+      html: [
+        "<html><body>",
+        "<!--StartFragment-->",
+        "<p><strong>1. Background &amp; Objectives:</strong></p>",
+        "<p>Electronic labor contracts must remain legally binding.</p>",
+        "<table><tbody>",
+        "<tr><th>Compliance Criteria</th><th>Current process</th><th>New process</th></tr>",
+        "<tr><td>Authentication Method</td><td>Email/SMS OTP</td><td>VNeID</td></tr>",
+        "</tbody></table>",
+        "<p><strong>2. Details:</strong></p>",
+        "<table><tbody>",
+        "<tr><th>Item</th><th>Quantity</th><th>Total</th></tr>",
+        "<tr><td>Digital Signature Service</td><td>871</td><td>7.055.100</td></tr>",
+        "</tbody></table>",
+        "<p><strong>3. Payment method:</strong> Transfer</p>",
+        "<p>Thank you for your approval.</p>",
+        "<!--EndFragment-->",
+        "</body></html>",
+      ].join(""),
+      text: [
+        "1. Background & Objectives:",
+        "Electronic labor contracts must remain legally binding.",
+        "Compliance Criteria\tCurrent process\tNew process",
+        "Authentication Method\tEmail/SMS OTP\tVNeID",
+        "2. Details:",
+        "Item\tQuantity\tTotal",
+        "Digital Signature Service\t871\t7.055.100",
+        "3. Payment method: Transfer",
+        "Thank you for your approval.",
+      ].join("\n"),
+    }),
+  });
+
+  await waitFor(() => {
+    assert.equal(view.container.querySelectorAll("table").length, 2);
+    assert.match(editorElement.textContent ?? "", /1\. Background & Objectives:/);
+    assert.match(editorElement.textContent ?? "", /2\. Details:/);
+    assert.match(editorElement.textContent ?? "", /3\. Payment method: Transfer/);
+    assert.match(editorElement.textContent ?? "", /Thank you for your approval\./);
+    assert.equal(view.container.querySelector("img"), null);
+  });
+});
+
 test("UEditor converts spreadsheet TSV clipboard data to a table before handling preview images", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;
@@ -4057,12 +4124,57 @@ test("UEditor keeps a single click in an empty cell editable and opens cell form
   await body.findByRole("button", { name: "Cell Background" });
   assert.equal(ref.current.editor.state.selection.constructor.name, "CellSelection");
 
-  await user.click(body.getByRole("button", { name: "Cell Background" }));
+  const cellBackgroundButton = body.getByRole("button", { name: "Cell Background" });
+  fireEvent.mouseDown(cellBackgroundButton);
+  ref.current.editor.commands.blur();
+  fireEvent.click(cellBackgroundButton);
+
+  await body.findByRole("button", { name: "Muted" });
+  fireEvent.pointerMove(body.getByRole("button", { name: "Muted" }));
+  assert.ok(body.getByRole("button", { name: "Muted" }));
+
+  const moreColorsButton = body.getByRole("button", { name: "More Colors..." });
+  const customColorInput = window.document.querySelector("[data-ueditor-keep-open] input[type='color']");
+  assert.ok(customColorInput);
+  assert.equal(moreColorsButton.contains(customColorInput), false);
+  assert.equal(ref.current.editor.state.selection.constructor.name, "CellSelection");
+  const setInputValue = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
+  assert.ok(setInputValue);
+
+  for (let index = 0; index < 20; index += 1) {
+    setInputValue.call(customColorInput, `#1234${index.toString(16).padStart(2, "0")}`);
+    fireEvent.input(customColorInput);
+  }
+  assert.equal(view.container.querySelector("td")?.getAttribute("data-background-color"), null);
+
+  setInputValue.call(customColorInput, "#123456");
+  fireEvent.change(customColorInput);
+  await waitFor(() => {
+    assert.equal(view.container.querySelector("td")?.getAttribute("data-background-color"), "#123456");
+    assert.ok(body.getByRole("button", { name: "More Colors..." }));
+  });
+
   await user.click(await body.findByRole("button", { name: "Muted" }));
 
   await waitFor(() => {
     assert.equal(view.container.querySelector("td")?.getAttribute("data-background-color"), "var(--muted)");
   });
+});
+
+test("UEditor keeps an expanded cell color palette inside the viewport", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor/menus.tsx"));
+  const position = mod.getBubbleMenuPosition({
+    start: { top: 818, bottom: 838, left: 300 },
+    end: { top: 818, bottom: 838, left: 400 },
+    menuSize: { width: 226, height: 234 },
+    viewport: { width: 1440, height: 1000 },
+  });
+
+  assert.equal(position.placement, "top");
+  assert.ok(position.top - 234 >= 8);
+  assert.ok(position.top <= 992);
+  assert.ok(position.left - 113 >= 8);
+  assert.ok(position.left + 113 <= 1432);
 });
 
 test("UEditor double-click selects all cell text but selects the cell from empty padding", async () => {

@@ -83,6 +83,33 @@ test("clipboard HTML table parser normalizes empty inline cells to paragraph con
   assert.deepEqual(cells[2]?.content, [{ type: "paragraph" }]);
 });
 
+test("clipboard HTML table parser defers mixed documents and multiple tables", () => {
+  const mixedDocument = getClipboardTableContent(
+    clipboardData({
+      html: [
+        "<!--StartFragment-->",
+        "<p>Background and objectives</p>",
+        "<table><tbody><tr><td>Current process</td><td>New process</td></tr></tbody></table>",
+        "<p>Payment information</p>",
+        "<!--EndFragment-->",
+      ].join(""),
+    }),
+  );
+  const multipleTables = getClipboardTableContent(
+    clipboardData({
+      html: [
+        "<!--StartFragment-->",
+        "<table><tbody><tr><td>Compliance</td></tr></tbody></table>",
+        "<table><tbody><tr><td>Payment</td></tr></tbody></table>",
+        "<!--EndFragment-->",
+      ].join(""),
+    }),
+  );
+
+  assert.equal(mixedDocument, null);
+  assert.equal(multipleTables, null);
+});
+
 test("clipboard HTML table parser preserves Excel class and inline cell styles", () => {
   const table = getClipboardTableContent(
     clipboardData({

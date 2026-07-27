@@ -188,17 +188,34 @@ export const EditorColorPalette = ({
   colors,
   currentColor,
   onSelect,
+  onCustomColorSelect,
   label,
 }: {
   colors: UEditorColorOption[];
   currentColor: string;
   onSelect: (color: string) => void;
+  onCustomColorSelect?: (color: string) => void;
   label: string;
 }) => {
   const t = useSmartTranslations("UEditor");
   const colorInputRef = useRef<HTMLInputElement>(null);
   const automaticColor = colors[0]?.color ?? "";
   const paletteColors = colors.slice(1);
+  const customColorSelect = onCustomColorSelect ?? onSelect;
+
+  React.useEffect(() => {
+    const input = colorInputRef.current;
+    if (!input) return;
+
+    const commitColor = () => customColorSelect(input.value);
+    input.addEventListener("change", commitColor);
+    return () => input.removeEventListener("change", commitColor);
+  }, [customColorSelect]);
+
+  React.useEffect(() => {
+    const input = colorInputRef.current;
+    if (input) input.value = currentColor.startsWith("#") ? currentColor : "#000000";
+  }, [currentColor]);
 
   return (
     <div className="w-56 p-2">
@@ -259,15 +276,14 @@ export const EditorColorPalette = ({
         />
         <span className="flex-1 text-center">{t("colors.moreColors")}</span>
         <Palette className="h-4 w-4 text-muted-foreground" />
-        <input
-          ref={colorInputRef}
-          type="color"
-          value={currentColor.startsWith("#") ? currentColor : "#000000"}
-          onChange={(event) => onSelect(event.target.value)}
-          className="sr-only"
-          tabIndex={-1}
-        />
       </button>
+      <input
+        ref={colorInputRef}
+        type="color"
+        defaultValue={currentColor.startsWith("#") ? currentColor : "#000000"}
+        className="sr-only"
+        tabIndex={-1}
+      />
     </div>
   );
 };

@@ -108,17 +108,20 @@ const FloatingMenuContent = ({ editor }: { editor: Editor }) => {
   );
 };
 
-function applyTableCellBackground(editor: Editor, color: string) {
+function applyTableCellBackground(editor: Editor, color: string, options: { focus?: boolean } = {}) {
+  const shouldFocus = options.focus ?? true;
   const value = color || null;
   const { state, view } = editor;
   const applied = setCellAttr("backgroundColor", value)(state, view.dispatch.bind(view));
 
   if (applied) {
-    view.focus();
+    if (shouldFocus) view.focus();
     return;
   }
 
-  editor.chain().focus().setCellAttribute("backgroundColor", value).run();
+  const chain = editor.chain();
+  if (shouldFocus) chain.focus();
+  chain.setCellAttribute("backgroundColor", value).run();
 }
 
 function applyTableCellAttribute(editor: Editor, name: string, value: string | null, options: { focus?: boolean } = {}) {
@@ -190,6 +193,46 @@ function BorderPositionPreviewIcon({ position }: { position: TableBorderPosition
 }
 
 type BubbleMenuContext = "none" | "text" | "table-cell" | "image" | "link";
+
+export function getBubbleMenuPosition({
+  start,
+  end,
+  menuSize,
+  viewport,
+  offset = 16,
+  padding = 8,
+}: {
+  start: { top: number; left: number; bottom: number };
+  end: { top: number; left: number; bottom: number };
+  menuSize: { width: number; height: number };
+  viewport: { width: number; height: number };
+  offset?: number;
+  padding?: number;
+}) {
+  const selectionTop = Math.min(start.top, end.top);
+  const selectionBottom = Math.max(start.bottom, end.bottom);
+  const spaceAbove = selectionTop - offset - padding;
+  const spaceBelow = viewport.height - padding - selectionBottom - offset;
+  const placement: "top" | "bottom" =
+    menuSize.height <= spaceAbove || spaceAbove >= spaceBelow ? "top" : "bottom";
+
+  const halfWidth = menuSize.width / 2;
+  const minLeft = padding + halfWidth;
+  const maxLeft = viewport.width - padding - halfWidth;
+  const selectionCenter = (start.left + end.left) / 2;
+  const left = maxLeft >= minLeft
+    ? Math.min(maxLeft, Math.max(minLeft, selectionCenter))
+    : viewport.width / 2;
+
+  const requestedTop = placement === "top" ? selectionTop - offset : selectionBottom + offset;
+  const minTop = placement === "top" ? padding + menuSize.height : padding;
+  const maxTop = placement === "top" ? viewport.height - padding : viewport.height - padding - menuSize.height;
+  const top = maxTop >= minTop
+    ? Math.min(maxTop, Math.max(minTop, requestedTop))
+    : Math.max(padding, requestedTop);
+
+  return { top, left, placement };
+}
 
 function getBubbleMenuContext(editor: Editor): BubbleMenuContext {
   const { selection } = editor.state;
@@ -396,24 +439,36 @@ const BubbleMenuContent = ({
     onKeepOpenChange?.(false);
   }, [onKeepOpenChange]);
 
-  const applyInlineColorAndClose = useCallback((color: string) => {
+  const applyInlineColor = useCallback((color: string, focus: boolean) => {
     if (activeColorPalette === "text") {
+      const chain = editor.chain();
+      if (focus) chain.focus();
       if (color === "inherit") {
-        editor.chain().focus().unsetColor().run();
+        chain.unsetColor().run();
       } else {
-        editor.chain().focus().setColor(color).run();
+        chain.setColor(color).run();
       }
     } else if (activeColorPalette === "highlight") {
+      const chain = editor.chain();
+      if (focus) chain.focus();
       if (color === "") {
-        editor.chain().focus().unsetHighlight().run();
+        chain.unsetHighlight().run();
       } else {
-        editor.chain().focus().toggleHighlight({ color }).run();
+        chain.toggleHighlight({ color }).run();
       }
     } else {
-      applyTableCellBackground(editor, color);
+      applyTableCellBackground(editor, color, { focus });
     }
+  }, [activeColorPalette, editor]);
+
+  const applyInlineColorAndClose = useCallback((color: string) => {
+    applyInlineColor(color, true);
     closeColorPalette();
-  }, [activeColorPalette, closeColorPalette, editor]);
+  }, [applyInlineColor, closeColorPalette]);
+
+  const applyCustomColor = useCallback((color: string) => {
+    applyInlineColor(color, false);
+  }, [applyInlineColor]);
 
   useEffect(() => {
     if (!showLinkInput) return;
@@ -620,6 +675,7 @@ const BubbleMenuContent = ({
           colors={isTextPalette ? textColors : highlightColors}
           currentColor={isTextPalette ? currentTextColor : isHighlightPalette ? currentHighlightColor : currentCellBgColor}
           onSelect={applyInlineColorAndClose}
+          onCustomColorSelect={applyCustomColor}
           label={
             isTextPalette ? t("colors.textColor") : isHighlightPalette ? t("colors.highlight") : t("tableMenu.cellBackground") || "Cell background"
           }
@@ -928,6 +984,7 @@ const BubbleMenuContent = ({
     return (
       <div className="flex items-center gap-0.5 p-1" data-ueditor-cell-inspector="">
         <ToolbarButton
+          onMouseDown={() => onKeepOpenChange?.(true)}
           onClick={() => setActiveColorPalette("cell-bg")}
           active={Boolean(currentCellBgColor)}
           title={t("tableMenu.cellBackground") || "Cell background"}
@@ -1159,6 +1216,7 @@ export const CustomBubbleMenu = ({
     placement: "top",
   });
   const menuRef = useRef<HTMLDivElement>(null);
+  const updatePositionRef = useRef<() => void>(() => {});
   const keepOpenRef = useRef(false);
   const [keepOpen, setKeepOpenState] = useState(false);
   const showTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -1222,23 +1280,15 @@ export const CustomBubbleMenu = ({
         return;
       }
 
-      const viewportPadding = 8;
       const menuHeight = menuRef.current?.getBoundingClientRect().height || BUBBLE_MENU_ESTIMATED_HEIGHT;
-      const editorTop = view.dom.getBoundingClientRect().top;
-      const selectionTop = Math.min(start.top, end.top);
-      const selectionBottom = Math.max(start.bottom, end.bottom);
-      const hasRoomAboveEditor = selectionTop - BUBBLE_MENU_OFFSET - menuHeight >= editorTop + viewportPadding;
-      const placement = hasRoomAboveEditor ? "top" : "bottom";
-      const left = Math.min(
-        window.innerWidth - viewportPadding,
-        Math.max(viewportPadding, (start.left + end.left) / 2),
-      );
-      const top =
-        placement === "top"
-          ? Math.max(viewportPadding, selectionTop - BUBBLE_MENU_OFFSET)
-          : Math.min(window.innerHeight - viewportPadding, selectionBottom + BUBBLE_MENU_OFFSET);
-
-      setPosition({ top, left, placement });
+      const menuWidth = menuRef.current?.getBoundingClientRect().width || 0;
+      setPosition(getBubbleMenuPosition({
+        start,
+        end,
+        menuSize: { width: menuWidth, height: menuHeight },
+        viewport: { width: window.innerWidth, height: window.innerHeight },
+        offset: BUBBLE_MENU_OFFSET,
+      }));
       if (keepOpenRef.current) {
         clearShowTimeout();
         setIsVisible(true);
@@ -1271,9 +1321,11 @@ export const CustomBubbleMenu = ({
     editor.on("transaction", schedulePositionUpdate);
     editor.on("focus", schedulePositionUpdate);
     editor.on("blur", handleBlur);
+    updatePositionRef.current = updatePosition;
     schedulePositionUpdate();
 
     return () => {
+      updatePositionRef.current = () => {};
       if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
       clearShowTimeout();
       editor.off("transaction", schedulePositionUpdate);
@@ -1281,6 +1333,27 @@ export const CustomBubbleMenu = ({
       editor.off("blur", handleBlur);
     };
   }, [editor]);
+
+  useEffect(() => {
+    if (!isVisible || typeof ResizeObserver === "undefined") return;
+    const menu = menuRef.current;
+    if (!menu) return;
+
+    let animationFrameId: number | null = null;
+    const observer = new ResizeObserver(() => {
+      if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(() => {
+        animationFrameId = null;
+        updatePositionRef.current();
+      });
+    });
+    observer.observe(menu);
+
+    return () => {
+      if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
+      observer.disconnect();
+    };
+  }, [isVisible]);
 
   useEffect(() => {
     if (!isVisible) return;

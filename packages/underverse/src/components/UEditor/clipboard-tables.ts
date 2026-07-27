@@ -52,6 +52,10 @@ function getClipboardData(dataTransfer: ClipboardDataLike, type: string) {
   }
 }
 
+export function hasClipboardHtmlTable(dataTransfer: ClipboardDataLike) {
+  return /<table(?:\s|>)/i.test(getClipboardData(dataTransfer, "text/html"));
+}
+
 function extractClipboardHtmlFragment(html: string) {
   const startMarker = "<!--StartFragment-->";
   const endMarker = "<!--EndFragment-->";
@@ -63,6 +67,19 @@ function extractClipboardHtmlFragment(html: string) {
   }
 
   return html;
+}
+
+function hasMeaningfulContentOutsideTable(container: HTMLElement) {
+  const clone = container.cloneNode(true) as HTMLElement;
+  clone.querySelectorAll("table, style, script, meta, link").forEach((element) => element.remove());
+
+  const remainingText = (clone.textContent ?? "")
+    .replace(/\u00a0/g, " ")
+    .replace(/\u200b/g, "")
+    .trim();
+  if (remainingText) return true;
+
+  return !!clone.querySelector("img, video, audio, iframe, object, embed, svg, canvas, hr, input, textarea, select, button");
 }
 
 function normalizeClipboardCellText(value: string) {
@@ -912,7 +929,11 @@ export function getClipboardTableContent(dataTransfer: ClipboardDataLike) {
   const fragment = extractClipboardHtmlFragment(html);
   const fragmentDoc = new DOMParser().parseFromString(fragment, "text/html");
   const styleMap = parseClipboardCssClassStyles(doc);
-  const table = fragmentDoc.querySelector("table") ?? doc.querySelector("table");
+  const sourceBody = fragmentDoc.querySelector("table") ? fragmentDoc.body : doc.body;
+  const tables = sourceBody.querySelectorAll("table");
+  if (tables.length !== 1 || hasMeaningfulContentOutsideTable(sourceBody)) return null;
+
+  const table = tables[0];
   if (!(table instanceof HTMLTableElement)) return null;
 
   return createTableContent(getHtmlTableRows(table, styleMap), 1, {
