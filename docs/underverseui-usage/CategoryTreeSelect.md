@@ -162,7 +162,7 @@ Use `virtualized` for large dropdown trees. The component flattens only currentl
   onChange={setSelectedDepartmentIds}
   label="Departments"
   virtualized
-  estimatedItemHeight={44}
+  estimatedItemHeight={36}
   overscan={8}
   maxInitialOptions={80}
 />
@@ -212,7 +212,7 @@ Dùng `renderItemActions` để inject custom UI vào cuối mỗi dòng. Click 
 Dùng `baseIndent` và `indentSize` để kiểm soát khoảng cách lề của tree mà không cần CSS override.
 
 ```tsx
-// Mặc định: baseIndent=0.75, indentSize=1 (rem)
+// Mặc định: baseIndent=0, indentSize=0.75 (rem)
 <CategoryTreeSelect
   categories={categories}
   inline
@@ -280,7 +280,7 @@ interface CategoryTreeSelectProps {
   /** Enable OverlayScrollbars for dropdown tree viewport. Default: false */
   useOverlayScrollbar?: boolean;
   virtualized?: boolean; // Virtualize dropdown tree rows
-  estimatedItemHeight?: number; // Default: 44
+  estimatedItemHeight?: number; // Default: 36
   overscan?: number; // Default: 8
   maxInitialOptions?: number; // Limit rows before typing a query
   searchMode?: "auto" | "manual"; // Default: "auto"
@@ -289,8 +289,8 @@ interface CategoryTreeSelectProps {
   minSearchLength?: number; // Default: 0
   showSearchPromptWhenEmptyQuery?: boolean; // Default: false
   renderItemActions?: (category: Category) => React.ReactNode; // Custom actions at row trailing edge
-  baseIndent?: number; // Base left padding rem, default: 0.75
-  indentSize?: number; // Extra left padding rem per depth level, default: 1
+  baseIndent?: number; // Base left padding rem, default: 0
+  indentSize?: number; // Extra left padding rem per depth level, default: 0.75
 }
 
 interface Category {

@@ -114,7 +114,7 @@ export interface CategoryTreeSelectBaseProps {
   leafOnlySelect?: boolean;
   /** Virtualize the dropdown tree by rendering only visible rows. Inline/view-only trees keep recursive rendering. */
   virtualized?: boolean;
-  /** Estimated tree row height used by virtualized rendering. Default: `44`. */
+  /** Estimated tree row height used by virtualized rendering. Default: `36`. */
   estimatedItemHeight?: number;
   /** Number of extra rows rendered above and below the visible range. Default: `8`. */
   overscan?: number;
@@ -147,7 +147,7 @@ export interface CategoryTreeSelectBaseProps {
    */
   renderItemActions?: (category: Category) => React.ReactNode;
   /**
-   * Base left padding in rem applied to every node regardless of depth. Default: `0.75`.
+   * Base left padding in rem applied to every node regardless of depth. Default: `0`.
    *
    * @remarks
    * Combined with `indentSize`, the final padding of a node at a given depth is:
@@ -159,7 +159,7 @@ export interface CategoryTreeSelectBaseProps {
    */
   baseIndent?: number;
   /**
-   * Additional left padding in rem added per depth level. Default: `1`.
+   * Additional left padding in rem added per depth level. Default: `0.75`.
    *
    * @remarks
    * Set to a smaller value (e.g. `0.75`) to reduce the visual gap between
@@ -201,9 +201,8 @@ const defaultLabels: Required<CategoryTreeSelectLabels> = {
   noResultsText: "No results found",
 };
 
-const TREE_NODE_BASE_PADDING_REM = 0.75;
-const TREE_NODE_INDENT_REM = 1;
-const TREE_BRANCH_OFFSET_CLASS = "ml-1.5 pl-1.5";
+const TREE_NODE_BASE_PADDING_REM = 0;
+const TREE_NODE_INDENT_REM = 0.75;
 const TREE_NODE_GAP_CLASS = "gap-1.5";
 const TREE_EXPANDER_PLACEHOLDER_CLASS = "w-5";
 const CATEGORY_TREE_DROPDOWN_MAX_HEIGHT = 320;
@@ -390,7 +389,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     useOverlayScrollbar = false,
     leafOnlySelect = false,
     virtualized = false,
-    estimatedItemHeight = 44,
+    estimatedItemHeight = 36,
     overscan = 8,
     maxInitialOptions,
     searchMode = "auto",
@@ -763,7 +762,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
         key={category.id}
         ref={virtualItem ? treeVirtualizer.measureElement : undefined}
         data-index={virtualItem?.index}
-        className={cn("min-w-0 [content-visibility:auto] [contain-intrinsic-size:44px]", !virtualItem && "animate-in fade-in-50 duration-200")}
+        className={cn("min-w-0 [content-visibility:auto] [contain-intrinsic-size:36px]", !virtualItem && "animate-in fade-in-50 duration-200")}
         style={{ animationDelay: virtualItem ? undefined : `${level * 30}ms`, ...rowStyle }}
       >
         <div
@@ -773,7 +772,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           aria-selected={viewOnly ? undefined : isSelected}
           onClick={() => !viewOnly && handleSelect(category.id, category)}
           className={cn(
-            "relative flex min-w-0 items-center px-3 py-2.5 min-h-11 transition-all duration-200 rounded-3xl",
+            "relative flex min-h-9 min-w-0 items-center rounded-3xl transition-all duration-200",
             TREE_NODE_GAP_CLASS,
             !viewOnly && (isSelectable ? "cursor-pointer" : "cursor-default"),
             isSelectable && !isSelected && "hover:bg-accent/50",
@@ -854,12 +853,13 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
         {!virtualItem && hasChildren && isExpanded && (
           <div
             role="group"
-            className={cn(
-              TREE_BRANCH_OFFSET_CLASS,
-              "border-l-2 border-dashed border-border/50",
-              "animate-in slide-in-from-top-2 fade-in-50 duration-200",
-            )}
+            className="relative animate-in fade-in-50 slide-in-from-top-2 duration-200"
           >
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 w-px border-l border-dashed border-border/50"
+              style={{ left: `${level * indentSize + baseIndent + 0.5}rem` }}
+            />
             {children.map((child) => renderCategoryRow(child, level + 1))}
           </div>
         )}

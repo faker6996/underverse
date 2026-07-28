@@ -9077,7 +9077,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Estimated tree row height used by virtualized rendering. Default: `44`.",
+              "description": "Estimated tree row height used by virtualized rendering. Default: `36`.",
               "source": "packages/underverse/src/components/CategoryTreeSelect.tsx:118"
             },
             {
@@ -9149,7 +9149,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Base left padding in rem applied to every node regardless of depth. Default: `0.75`.",
+              "description": "Base left padding in rem applied to every node regardless of depth. Default: `0`.",
               "source": "packages/underverse/src/components/CategoryTreeSelect.tsx:160"
             },
             {
@@ -9157,7 +9157,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Additional left padding in rem added per depth level. Default: `1`.",
+              "description": "Additional left padding in rem added per depth level. Default: `0.75`.",
               "source": "packages/underverse/src/components/CategoryTreeSelect.tsx:172"
             },
             {
@@ -14425,7 +14425,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/node_modules/@types/react/index.d.ts:3266"
+              "source": "node_modules/@types/react/index.d.ts:3303"
             },
             {
               "name": "label",
@@ -14518,7 +14518,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/node_modules/@types/react/index.d.ts:3266"
+              "source": "node_modules/@types/react/index.d.ts:3303"
             },
             {
               "name": "success",
