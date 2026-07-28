@@ -4,6 +4,16 @@ All notable changes to `@underverse-ui/underverse` are documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `CategoryTreeSelect` now supports `showTreeLines` to show or hide dashed hierarchy guide lines in recursive and virtualized trees.
+- `DataTable` columns now support `headerAlign` for per-column header alignment.
+
+### Changed
+
+- `DataTable` headers now default to centered alignment.
+- `DataTable` body cells now default to left alignment, with per-column overrides through `align`.
+
 ## [2.0.0] - 2026-07-26
 
 ### Highlights
