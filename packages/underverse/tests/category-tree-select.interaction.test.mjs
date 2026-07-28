@@ -191,3 +191,24 @@ test("CategoryTreeSelect treats orphan manual-search nodes as roots and keeps ma
 
   assert.ok(body.getByRole("treeitem", { name: /manual child/i }));
 });
+
+test("CategoryTreeSelect shows hierarchy guide lines only when enabled", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "CategoryTreeSelect.tsx"));
+  const renderTree = (showTreeLines) => {
+    render(
+      React.createElement(mod.CategoryTreeSelect, {
+        categories,
+        viewOnly: true,
+        defaultExpanded: true,
+        showTreeLines,
+      }),
+    );
+  };
+
+  renderTree(false);
+  assert.equal(window.document.querySelectorAll("[data-tree-line]").length, 0);
+
+  cleanup();
+  renderTree(true);
+  assert.ok(window.document.querySelectorAll("[data-tree-line]").length > 0);
+});

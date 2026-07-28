@@ -170,6 +170,8 @@ export interface CategoryTreeSelectBaseProps {
    * <CategoryTreeSelect baseIndent={0.25} indentSize={0.75} />
    */
   indentSize?: number;
+  /** Show dashed vertical guide lines between parent and child levels. Default: `true`. */
+  showTreeLines?: boolean;
   borderMode?: BorderMode;
 }
 
@@ -399,6 +401,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
     showSearchPromptWhenEmptyQuery = false,
     baseIndent = TREE_NODE_BASE_PADDING_REM,
     indentSize = TREE_NODE_INDENT_REM,
+    showTreeLines = true,
     renderItemActions,
     singleSelect = false,
     borderMode,
@@ -782,6 +785,15 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           )}
           style={{ paddingLeft: `${level * indentSize + baseIndent}rem` }}
         >
+          {virtualItem && showTreeLines && Array.from({ length: level }, (_, ancestorLevel) => (
+            <span
+              key={ancestorLevel}
+              data-tree-line
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 w-px border-l border-dashed border-border/50"
+              style={{ left: `${ancestorLevel * indentSize + baseIndent + 0.5}rem` }}
+            />
+          ))}
           {/* Left indicator removed - using border instead */}
 
           {/* Expand/Collapse button */}
@@ -855,11 +867,14 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
             role="group"
             className="relative animate-in fade-in-50 slide-in-from-top-2 duration-200"
           >
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 w-px border-l border-dashed border-border/50"
-              style={{ left: `${level * indentSize + baseIndent + 0.5}rem` }}
-            />
+            {showTreeLines && (
+              <span
+                data-tree-line
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 w-px border-l border-dashed border-border/50"
+                style={{ left: `${level * indentSize + baseIndent + 0.5}rem` }}
+              />
+            )}
             {children.map((child) => renderCategoryRow(child, level + 1))}
           </div>
         )}
