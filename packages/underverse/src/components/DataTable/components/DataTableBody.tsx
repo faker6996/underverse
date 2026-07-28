@@ -187,6 +187,7 @@ export function DataTableBodyRows<T extends Record<string, any>>({
                     style={getStickyColumnStyle(col)}
                     className={cn(
                       cellPadding,
+                      (!col.align || col.align === "left") && "text-left",
                       col.align === "right" && "text-right",
                       col.align === "center" && "text-center",
                       showBorderLeft && "border-l border-border/60",

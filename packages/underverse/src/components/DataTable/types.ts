@@ -24,7 +24,10 @@ export type DataTableColumn<T> = {
 
   // Common properties
   width?: number | string;
+  /** Body cell alignment for this column. Defaults to `"left"`. */
   align?: "left" | "center" | "right";
+  /** Header alignment for this column. Defaults to the table header alignment (`"center"` initially). */
+  headerAlign?: "left" | "center" | "right";
   /** Vị trí của icon sort/filter: "inline" (ngay sát text) hoặc "end" (cuối dòng). Mặc định là "end". */
   iconPosition?: "inline" | "end";
   visible?: boolean; // default true

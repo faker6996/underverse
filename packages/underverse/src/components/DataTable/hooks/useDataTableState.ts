@@ -30,7 +30,7 @@ export function useDataTableState<T>({
   const defaultVisibleLeafKeys = React.useMemo(() => allLeafColumns.filter((column) => column.visible !== false).map((column) => column.key), [allLeafColumns]);
   const knownLeafKeysRef = React.useRef(new Set(defaultVisibleLeafKeys));
 
-  const [headerAlign, setHeaderAlign] = React.useState<HeaderAlign>("left");
+  const [headerAlign, setHeaderAlign] = React.useState<HeaderAlign>("center");
   const [visibleCols, setVisibleCols] = React.useState<string[]>(defaultVisibleLeafKeys);
   const [filters, setFilters] = React.useState<Record<string, any>>({});
   const [sort, setSort] = React.useState<Sorter>(null);

@@ -181,7 +181,7 @@ test("DataTable updates header alignment from the toolbar toggle", async () => {
       enableHeaderAlignToggle: true,
       labels: {
         headerAlign: "Header Align",
-        alignCenter: "Center",
+        alignRight: "Right",
       },
     }),
   );
@@ -193,14 +193,40 @@ test("DataTable updates header alignment from the toolbar toggle", async () => {
     return element;
   };
 
-  assert.equal(getHeaderCell().className.includes("text-center"), false);
+  assert.ok(getHeaderCell().className.includes("text-center"));
 
   await user.click(body.getByRole("button", { name: "Header Align" }));
-  await user.click(body.getByRole("menuitem", { name: "Center" }));
+  await user.click(body.getByRole("menuitem", { name: "Right" }));
 
   await waitFor(() => {
-    assert.ok(getHeaderCell().className.includes("text-center"));
+    assert.ok(getHeaderCell().className.includes("text-right"));
   });
+});
+
+test("DataTable left-aligns body cells by default and supports per-column alignment", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
+  const DataTable = mod.default;
+
+  const view = render(
+    React.createElement(DataTable, {
+      columns: [
+        { key: "name", title: "Name", dataIndex: "name" },
+        { key: "amount", title: "Amount", dataIndex: "amount", align: "right" },
+      ],
+      data: [{ id: "1", name: "Alpha", amount: "100" }],
+      rowKey: "id",
+      pageSize: 10,
+      stickyHeader: false,
+    }),
+  );
+
+  const nameCell = view.container.querySelector('td[data-underverse-column-key="name"]');
+  const amountCell = view.container.querySelector('td[data-underverse-column-key="amount"]');
+  assert.ok(nameCell?.className.includes("text-left"));
+  assert.ok(amountCell?.className.includes("text-right"));
+
+  const amountHeader = view.container.querySelector('th[data-underverse-column-key="amount"]');
+  assert.ok(amountHeader?.className.includes("text-center"));
 });
 
 test("DataTable persists page size with storageKey across remounts", async () => {

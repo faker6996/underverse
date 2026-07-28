@@ -140,9 +140,9 @@ export function DataTableHeader<T extends Record<string, any>>({
             className={cn(
               "flex items-center gap-1",
               headerMinHeightClass,
-              col.align === "right" && "justify-end",
-              col.align === "center" && "justify-center",
-              !col.align && "justify-start",
+              (col.headerAlign ?? headerAlign) === "right" && "justify-end",
+              (col.headerAlign ?? headerAlign) === "center" && "justify-center",
+              (col.headerAlign ?? headerAlign) === "left" && "justify-start",
             )}
           >
             <span className={cn("font-medium whitespace-nowrap select-text", headerTitleClass)}>{col.title}</span>
@@ -150,8 +150,9 @@ export function DataTableHeader<T extends Record<string, any>>({
         );
       }
 
-      const isRightAlign = col.align === "right" || (!col.align && headerAlign === "right");
-      const isCenterAlign = col.align === "center" || (!col.align && headerAlign === "center");
+      const resolvedHeaderAlign = col.headerAlign ?? headerAlign;
+      const isRightAlign = resolvedHeaderAlign === "right";
+      const isCenterAlign = resolvedHeaderAlign === "center";
       const columnLabel = getColumnLabel(col.title) || col.key;
       const sortByText = sortByLabel ?? gi18n.sortBy ?? "Sort by";
       const sortLabel = `${sortByText} ${columnLabel}`;
@@ -324,8 +325,8 @@ export function DataTableHeader<T extends Record<string, any>>({
                 }}
                 className={cn(
                   "relative",
-                  (col.align === "right" || (!col.align && headerAlign === "right")) && "text-right",
-                  (col.align === "center" || (!col.align && headerAlign === "center")) && "text-center",
+                  (col.headerAlign ?? headerAlign) === "right" && "text-right",
+                  (col.headerAlign ?? headerAlign) === "center" && "text-center",
                   showBorderLeft && "border-l border-border/60",
                   getStickyHeaderClass(col),
                 )}
