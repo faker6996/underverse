@@ -4,6 +4,12 @@ All notable changes to `@underverse-ui/underverse` are documented in this file.
 
 ## Unreleased
 
+### Fixed
+
+- `DataTable` sortable headers now keep their titles visually centered while the sort control remains aligned to the trailing edge.
+
+## [2.0.2] - 2026-07-28
+
 ### Added
 
 - `CategoryTreeSelect` now supports `showTreeLines` to show or hide dashed hierarchy guide lines in recursive and virtualized trees.

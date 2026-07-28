@@ -159,8 +159,25 @@ export function DataTableHeader<T extends Record<string, any>>({
       const useEndIcon = (col.iconPosition ?? "end") === "end";
 
       const titleContent = (
-        <div className={cn("flex items-center gap-1", useEndIcon && "flex-1 justify-between")}>
-          <span className={cn("font-medium whitespace-nowrap select-text", headerTitleClass)}>{col.title}</span>
+        <div
+          data-underverse-datatable-header-content={col.key}
+          className={cn(
+            "items-center gap-1",
+            useEndIcon && isCenterAlign
+              ? "grid flex-1 grid-cols-[1fr_auto_1fr]"
+              : "flex",
+            useEndIcon && !isCenterAlign && "flex-1 justify-between",
+          )}
+        >
+          <span
+            className={cn(
+              "font-medium whitespace-nowrap select-text",
+              useEndIcon && isCenterAlign && "col-start-2",
+              headerTitleClass,
+            )}
+          >
+            {col.title}
+          </span>
           {col.sortable && (
             <Tooltip
               placement="top"
@@ -171,6 +188,7 @@ export function DataTableHeader<T extends Record<string, any>>({
                 title={sortLabel}
                 className={cn(
                   "p-1 rounded-lg transition-all duration-200 hover:bg-foreground/10",
+                  useEndIcon && isCenterAlign && "col-start-3 justify-self-end",
                   sort?.key === col.key ? "opacity-100 bg-foreground/10" : "opacity-60 hover:opacity-100",
                 )}
                 onClick={() => {

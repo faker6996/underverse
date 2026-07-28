@@ -229,6 +229,31 @@ test("DataTable left-aligns body cells by default and supports per-column alignm
   assert.ok(amountHeader?.className.includes("text-center"));
 });
 
+test("DataTable keeps sortable header titles centered independently from end-positioned sort controls", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
+  const DataTable = mod.default;
+
+  const view = render(
+    React.createElement(DataTable, {
+      columns: [
+        { key: "name", title: "Name", dataIndex: "name", sortable: true },
+      ],
+      data: [{ id: "1", name: "Alpha" }],
+      rowKey: "id",
+      pageSize: 10,
+      stickyHeader: false,
+    }),
+  );
+
+  const headerCell = view.container.querySelector('th[data-underverse-column-key="name"]');
+  const headerContent = view.container.querySelector('[data-underverse-datatable-header-content="name"]');
+  const sortButton = headerCell?.querySelector('button[aria-label="Sort by Name"]');
+
+  assert.ok(headerCell?.className.includes("text-center"));
+  assert.ok(headerContent?.className.includes("grid-cols-[1fr_auto_1fr]"));
+  assert.ok(sortButton?.className.includes("justify-self-end"));
+});
+
 test("DataTable persists page size with storageKey across remounts", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
   const DataTable = mod.default;
