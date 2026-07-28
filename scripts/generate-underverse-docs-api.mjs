@@ -174,7 +174,9 @@ function componentContract(checker, exportName, symbol) {
 
   const defaults = bindingDefaults(declaration, new Set(publicProps.map((prop) => prop.name)));
   const props = publicProps.map((prop) => {
-    const propDeclaration = prop.valueDeclaration ?? prop.declarations?.[0] ?? declaration;
+    const propDeclaration = prop.declarations?.find((candidate) =>
+      path.resolve(candidate.getSourceFile().fileName).startsWith(`${sourceRoot}${path.sep}`),
+    ) ?? prop.valueDeclaration ?? prop.declarations?.[0] ?? declaration;
     const optional = Boolean(prop.flags & ts.SymbolFlags.Optional);
     const rawType = checker.getTypeOfSymbolAtLocation(prop, propDeclaration);
     const resolvedType = optional ? removeOptionalUndefined(checker, rawType) : rawType;

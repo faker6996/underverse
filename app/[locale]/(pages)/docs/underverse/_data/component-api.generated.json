@@ -14429,11 +14429,11 @@
           "props": [
             {
               "name": "name",
-              "type": "string | undefined",
+              "type": "string",
               "required": true,
               "default": null,
               "description": null,
-              "source": "node_modules/@types/react/index.d.ts:3303"
+              "source": "packages/underverse/src/components/Form.tsx:205"
             },
             {
               "name": "label",
@@ -14522,11 +14522,11 @@
             },
             {
               "name": "name",
-              "type": "string | undefined",
+              "type": "string",
               "required": true,
               "default": null,
               "description": null,
-              "source": "node_modules/@types/react/index.d.ts:3303"
+              "source": "packages/underverse/src/components/Form.tsx:186"
             },
             {
               "name": "success",
