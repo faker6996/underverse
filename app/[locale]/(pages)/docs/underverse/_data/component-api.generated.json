@@ -8846,7 +8846,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/CategoryTreeSelect.tsx:178"
+              "source": "packages/underverse/src/components/CategoryTreeSelect.tsx:180"
             },
             {
               "name": "value",
@@ -8854,7 +8854,7 @@
               "required": false,
               "default": null,
               "description": "Selected category ids.\nSelected category id or `null` when nothing is selected.",
-              "source": "packages/underverse/src/components/CategoryTreeSelect.tsx:180"
+              "source": "packages/underverse/src/components/CategoryTreeSelect.tsx:182"
             },
             {
               "name": "onChange",
@@ -8862,7 +8862,7 @@
               "required": false,
               "default": null,
               "description": "Called with the full selected id list.\nCalled with the selected id or `null`.",
-              "source": "packages/underverse/src/components/CategoryTreeSelect.tsx:182"
+              "source": "packages/underverse/src/components/CategoryTreeSelect.tsx:184"
             },
             {
               "name": "id",
@@ -9161,12 +9161,20 @@
               "source": "packages/underverse/src/components/CategoryTreeSelect.tsx:172"
             },
             {
+              "name": "showTreeLines",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": "Show dashed vertical guide lines between parent and child levels. Default: `true`.",
+              "source": "packages/underverse/src/components/CategoryTreeSelect.tsx:174"
+            },
+            {
               "name": "borderMode",
               "type": "BorderMode",
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/CategoryTreeSelect.tsx:173"
+              "source": "packages/underverse/src/components/CategoryTreeSelect.tsx:175"
             }
           ]
         }
@@ -11874,7 +11882,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:107"
+              "source": "packages/underverse/src/components/DataTable/types.ts:110"
             },
             {
               "name": "data",
@@ -11882,7 +11890,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:108"
+              "source": "packages/underverse/src/components/DataTable/types.ts:111"
             },
             {
               "name": "rowKey",
@@ -11890,7 +11898,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:109"
+              "source": "packages/underverse/src/components/DataTable/types.ts:112"
             },
             {
               "name": "loading",
@@ -11898,7 +11906,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:110"
+              "source": "packages/underverse/src/components/DataTable/types.ts:113"
             },
             {
               "name": "total",
@@ -11906,7 +11914,7 @@
               "required": false,
               "default": "0",
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:111"
+              "source": "packages/underverse/src/components/DataTable/types.ts:114"
             },
             {
               "name": "page",
@@ -11914,7 +11922,7 @@
               "required": false,
               "default": "1",
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:112"
+              "source": "packages/underverse/src/components/DataTable/types.ts:115"
             },
             {
               "name": "pageSize",
@@ -11922,7 +11930,7 @@
               "required": false,
               "default": "20",
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:113"
+              "source": "packages/underverse/src/components/DataTable/types.ts:116"
             },
             {
               "name": "pageSizeOptions",
@@ -11930,7 +11938,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:114"
+              "source": "packages/underverse/src/components/DataTable/types.ts:117"
             },
             {
               "name": "onQueryChange",
@@ -11938,7 +11946,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:115"
+              "source": "packages/underverse/src/components/DataTable/types.ts:118"
             },
             {
               "name": "caption",
@@ -11946,7 +11954,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:116"
+              "source": "packages/underverse/src/components/DataTable/types.ts:119"
             },
             {
               "name": "toolbar",
@@ -11954,7 +11962,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:117"
+              "source": "packages/underverse/src/components/DataTable/types.ts:120"
             },
             {
               "name": "columnColorGroups",
@@ -11962,7 +11970,7 @@
               "required": false,
               "default": null,
               "description": "Define color groups for the column visibility dropdown legend.\nKey = color value used in column's `colorTag` (e.g. \"#1e40af\").\nIf not provided, columns with colorTag still get colored but won't be grouped in dropdown.",
-              "source": "packages/underverse/src/components/DataTable/types.ts:123"
+              "source": "packages/underverse/src/components/DataTable/types.ts:126"
             },
             {
               "name": "size",
@@ -11970,7 +11978,7 @@
               "required": false,
               "default": "\"md\"",
               "description": "Visual size preset. Maps to component scales in the table UI.",
-              "source": "packages/underverse/src/components/DataTable/types.ts:125"
+              "source": "packages/underverse/src/components/DataTable/types.ts:128"
             },
             {
               "name": "enableColumnVisibilityToggle",
@@ -11978,7 +11986,7 @@
               "required": false,
               "default": "true",
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:126"
+              "source": "packages/underverse/src/components/DataTable/types.ts:129"
             },
             {
               "name": "enableDensityToggle",
@@ -11986,7 +11994,7 @@
               "required": false,
               "default": "true",
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:127"
+              "source": "packages/underverse/src/components/DataTable/types.ts:130"
             },
             {
               "name": "enableHeaderAlignToggle",
@@ -11994,7 +12002,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:128"
+              "source": "packages/underverse/src/components/DataTable/types.ts:131"
             },
             {
               "name": "striped",
@@ -12002,7 +12010,7 @@
               "required": false,
               "default": "true",
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:129"
+              "source": "packages/underverse/src/components/DataTable/types.ts:132"
             },
             {
               "name": "columnDividers",
@@ -12010,7 +12018,7 @@
               "required": false,
               "default": "false",
               "description": "Hiển thị đường kẻ dọc ngăn cách giữa các cột",
-              "source": "packages/underverse/src/components/DataTable/types.ts:131"
+              "source": "packages/underverse/src/components/DataTable/types.ts:134"
             },
             {
               "name": "className",
@@ -12018,7 +12026,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:132"
+              "source": "packages/underverse/src/components/DataTable/types.ts:135"
             },
             {
               "name": "storageKey",
@@ -12026,7 +12034,7 @@
               "required": false,
               "default": null,
               "description": "Key để lưu pageSize vào localStorage. Nếu không cung cấp, pageSize sẽ không được persist",
-              "source": "packages/underverse/src/components/DataTable/types.ts:134"
+              "source": "packages/underverse/src/components/DataTable/types.ts:137"
             },
             {
               "name": "stickyHeader",
@@ -12034,7 +12042,7 @@
               "required": false,
               "default": "true",
               "description": "Bật sticky header khi cuộn. Mặc định là false",
-              "source": "packages/underverse/src/components/DataTable/types.ts:136"
+              "source": "packages/underverse/src/components/DataTable/types.ts:139"
             },
             {
               "name": "maxHeight",
@@ -12042,7 +12050,7 @@
               "required": false,
               "default": "500",
               "description": "Chiều cao tối đa của bảng khi bật stickyHeader (mặc định: 500px)",
-              "source": "packages/underverse/src/components/DataTable/types.ts:138"
+              "source": "packages/underverse/src/components/DataTable/types.ts:141"
             },
             {
               "name": "horizontalMode",
@@ -12050,7 +12058,7 @@
               "required": false,
               "default": "\"auto\"",
               "description": "Horizontal sizing strategy for the table viewport.\n- \"auto\": default, prefer fitting the container and only scroll when content truly overflows\n- \"scroll\": preserve explicit column widths and force horizontal scrolling via min-width aggregation\n- \"fit\": use fixed table layout and suppress horizontal scrolling",
-              "source": "packages/underverse/src/components/DataTable/types.ts:145"
+              "source": "packages/underverse/src/components/DataTable/types.ts:148"
             },
             {
               "name": "overflowHidden",
@@ -12058,7 +12066,7 @@
               "required": false,
               "default": "true",
               "description": "Clip overflow của outer wrapper. Tắt khi cần cho phép shadow/focus ring tràn ra ngoài.",
-              "source": "packages/underverse/src/components/DataTable/types.ts:147"
+              "source": "packages/underverse/src/components/DataTable/types.ts:150"
             },
             {
               "name": "useOverlayScrollbar",
@@ -12066,7 +12074,7 @@
               "required": false,
               "default": "false",
               "description": "Enable OverlayScrollbars on table viewport. Default: false",
-              "source": "packages/underverse/src/components/DataTable/types.ts:149"
+              "source": "packages/underverse/src/components/DataTable/types.ts:152"
             },
             {
               "name": "virtualizedRows",
@@ -12074,7 +12082,7 @@
               "required": false,
               "default": "false",
               "description": "Virtualize body rows for large page sizes. Default: false",
-              "source": "packages/underverse/src/components/DataTable/types.ts:151"
+              "source": "packages/underverse/src/components/DataTable/types.ts:154"
             },
             {
               "name": "estimatedRowHeight",
@@ -12082,7 +12090,7 @@
               "required": false,
               "default": null,
               "description": "Estimated row height used by virtualized rendering. Defaults to the active density row height.",
-              "source": "packages/underverse/src/components/DataTable/types.ts:153"
+              "source": "packages/underverse/src/components/DataTable/types.ts:156"
             },
             {
               "name": "overscan",
@@ -12090,7 +12098,7 @@
               "required": false,
               "default": "8",
               "description": "Number of extra rows rendered above and below the visible range. Default: 8",
-              "source": "packages/underverse/src/components/DataTable/types.ts:155"
+              "source": "packages/underverse/src/components/DataTable/types.ts:158"
             },
             {
               "name": "enableHeaderAutoFit",
@@ -12098,7 +12106,7 @@
               "required": false,
               "default": "true",
               "description": "Double-click leaf headers to auto-fit column width based on visible content. Default: true",
-              "source": "packages/underverse/src/components/DataTable/types.ts:157"
+              "source": "packages/underverse/src/components/DataTable/types.ts:160"
             },
             {
               "name": "labels",
@@ -12106,7 +12114,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:158"
+              "source": "packages/underverse/src/components/DataTable/types.ts:161"
             },
             {
               "name": "borderMode",
@@ -12114,7 +12122,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:159"
+              "source": "packages/underverse/src/components/DataTable/types.ts:162"
             }
           ]
         }
