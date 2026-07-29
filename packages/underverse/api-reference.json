@@ -1,8 +1,8 @@
 {
   "package": "@underverse-ui/underverse",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "sourceEntry": "src/index.ts",
-  "totalExports": 256,
+  "totalExports": 257,
   "exports": [
     {
       "name": "*",
@@ -461,6 +461,13 @@
     },
     {
       "name": "DataTableLabels",
+      "kind": "type",
+      "source": "./components/DataTable",
+      "reexport": true,
+      "local": false
+    },
+    {
+      "name": "DataTablePaginationAlign",
       "kind": "type",
       "source": "./components/DataTable",
       "reexport": true,
