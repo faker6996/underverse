@@ -5,6 +5,7 @@ export type {
   DataTableColumn,
   DataTableDensity,
   DataTableLabels,
+  DataTablePaginationAlign,
   DataTableProps,
   DataTableQuery,
   DataTableSize,

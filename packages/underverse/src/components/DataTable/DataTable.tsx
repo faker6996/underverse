@@ -127,6 +127,7 @@ export function DataTable<T extends Record<string, any>>({
   virtualizedRows = false,
   estimatedRowHeight,
   overscan = 8,
+  paginationAlign = "right",
   enableHeaderAutoFit = true,
   labels,
   columnColorGroups,
@@ -391,6 +392,7 @@ export function DataTable<T extends Record<string, any>>({
         pageSizeOptions={pageSizeOptions}
         setCurPageSize={setCurPageSize}
         size={size}
+        align={paginationAlign}
       />
     </div>
   );

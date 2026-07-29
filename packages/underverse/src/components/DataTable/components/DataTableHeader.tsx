@@ -314,7 +314,7 @@ export function DataTableHeader<T extends Record<string, any>>({
   return (
     <>
       {headerRows.map((row, rowIndex) => (
-        <TableRow key={`header-row-${rowIndex}`}>
+        <TableRow key={`header-row-${rowIndex}`} className="!border-border/10">
           {row.map((headerCell, cellIndex) => {
             const { column: col, colSpan, rowSpan, isLeaf } = headerCell;
             const prevCell = cellIndex > 0 ? row[cellIndex - 1] : null;

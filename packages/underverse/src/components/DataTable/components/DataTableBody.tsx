@@ -132,7 +132,7 @@ export function DataTableBodyRows<T extends Record<string, any>>({
   return (
     <TableBody>
       {loading ? (
-        <TableRow>
+        <TableRow className="!border-border/10">
           <TableCell colSpan={leafColumns.length} className="text-center py-8">
             <div className="flex items-center justify-center gap-2 text-muted-foreground">
               <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -148,7 +148,7 @@ export function DataTableBodyRows<T extends Record<string, any>>({
           </TableCell>
         </TableRow>
       ) : displayedData.length === 0 ? (
-        <TableRow>
+        <TableRow className="!border-border/10">
           <TableCell colSpan={leafColumns.length} className="text-center py-6 text-muted-foreground">
             {labels?.noData || t("noData")}
           </TableCell>
@@ -168,7 +168,11 @@ export function DataTableBodyRows<T extends Record<string, any>>({
               key={getRowKey(row, idx)}
               ref={virtualRow ? measureVirtualRow : undefined}
               data-index={virtualRow?.index}
-              className={cn(densityRowClass, isStripedRow ? "bg-surface-1" : "bg-surface-0")}
+              className={cn(
+                "!border-border/10",
+                densityRowClass,
+                isStripedRow ? "bg-surface-1" : "bg-surface-0",
+              )}
               style={{
                 contentVisibility: "auto",
                 containIntrinsicSize: density === "compact" ? "0 36px" : density === "comfortable" ? "0 56px" : "0 48px",

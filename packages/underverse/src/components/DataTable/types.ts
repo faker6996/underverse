@@ -5,6 +5,7 @@ export type FilterType = "text" | "select" | "date";
 export type DataTableSize = "sm" | "md" | "lg";
 export type DataTableDensity = "compact" | "normal" | "comfortable";
 export type DataTableHorizontalMode = "auto" | "scroll" | "fit";
+export type DataTablePaginationAlign = "left" | "center" | "right";
 
 export type DataTableColumn<T> = {
   key: string; // unique key
@@ -156,6 +157,8 @@ export interface DataTableProps<T> {
   estimatedRowHeight?: number;
   /** Number of extra rows rendered above and below the visible range. Default: 8 */
   overscan?: number;
+  /** Alignment of the page navigation controls. Default: "right" */
+  paginationAlign?: DataTablePaginationAlign;
   /** Double-click leaf headers to auto-fit column width based on visible content. Default: true */
   enableHeaderAutoFit?: boolean;
   labels?: DataTableLabels;

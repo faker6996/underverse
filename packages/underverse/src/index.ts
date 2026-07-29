@@ -236,7 +236,7 @@ export type { UseOverlayScrollbarTargetOptions } from "./components/OverlayScrol
 /** Data table with sorting, filtering, density, sticky header, and server-query support. */
 export { default as DataTable } from "./components/DataTable";
 /** Public table column, query, sorting, density, and labels types for `DataTable`. */
-export type { DataTableColumn, DataTableDensity, DataTableLabels, DataTableProps, DataTableQuery, DataTableSize, FilterType, Sorter } from "./components/DataTable";
+export type { DataTableColumn, DataTableDensity, DataTableLabels, DataTablePaginationAlign, DataTableProps, DataTableQuery, DataTableSize, FilterType, Sorter } from "./components/DataTable";
 /** Low-level table primitives for custom table composition. */
 export * from "./components/Table";
 /** Form primitives integrating labels, messages, and validation helpers. */

@@ -4,7 +4,7 @@ import React from "react";
 import Button from "../../Button";
 import { Combobox } from "../../Combobox";
 import { cn } from "../../../utils/cn";
-import type { DataTableSize } from "../types";
+import type { DataTablePaginationAlign, DataTableSize } from "../types";
 
 export function DataTablePagination({
   totalItems,
@@ -14,6 +14,7 @@ export function DataTablePagination({
   pageSizeOptions,
   setCurPageSize,
   size,
+  align,
 }: {
   totalItems: number;
   curPage: number;
@@ -22,6 +23,7 @@ export function DataTablePagination({
   pageSizeOptions?: number[];
   setCurPageSize: React.Dispatch<React.SetStateAction<number>>;
   size: DataTableSize;
+  align: DataTablePaginationAlign;
 }) {
   const totalPages = Math.ceil(totalItems / curPageSize);
   const pages = React.useMemo(() => {
@@ -57,12 +59,33 @@ export function DataTablePagination({
   const pageSizeClass = size === "sm" ? "w-16" : size === "lg" ? "w-24" : "w-20";
 
   return (
-    <div className={cn("flex items-center justify-between gap-2 px-1 pt-3 text-muted-foreground", containerTextClass)}>
-      <div className="tabular-nums">
-        {(curPage - 1) * curPageSize + 1}-{Math.min(curPage * curPageSize, totalItems)}/{totalItems}
+    <div className={cn("relative flex items-center gap-2 px-1 pt-3 text-muted-foreground", containerTextClass)}>
+      <div className="flex items-center gap-2">
+        <div className="tabular-nums">
+          {(curPage - 1) * curPageSize + 1}-{Math.min(curPage * curPageSize, totalItems)}/{totalItems}
+        </div>
+
+        {pageSizeOptions && (
+          <Combobox
+            options={pageSizeOptions.map(String)}
+            value={String(curPageSize)}
+            onChange={(v) => {
+              setCurPage(1);
+              setCurPageSize(Number(v));
+            }}
+            size={size}
+            className={pageSizeClass}
+          />
+        )}
       </div>
 
-      <div className="flex items-center gap-0.5">
+      <div
+        className={cn(
+          "flex items-center gap-0.5",
+          align === "center" && "absolute left-1/2 -translate-x-1/2",
+          align === "right" && "ml-auto",
+        )}
+      >
         <Button
           variant="ghost"
           size={controlButtonSize}
@@ -104,18 +127,6 @@ export function DataTablePagination({
         </Button>
       </div>
 
-      {pageSizeOptions && (
-        <Combobox
-          options={pageSizeOptions.map(String)}
-          value={String(curPageSize)}
-          onChange={(v) => {
-            setCurPage(1);
-            setCurPageSize(Number(v));
-          }}
-          size={size}
-          className={pageSizeClass}
-        />
-      )}
     </div>
   );
 }

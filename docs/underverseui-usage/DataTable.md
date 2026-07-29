@@ -90,6 +90,7 @@ interface DataTableProps<T> {
   page?: number;
   pageSize?: number;
   pageSizeOptions?: number[]; // show page size selector if provided
+  paginationAlign?: "left" | "center" | "right";
   onQueryChange?: (q: DataTableQuery) => void; // server-side
   caption?: React.ReactNode;
   toolbar?: React.ReactNode;

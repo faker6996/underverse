@@ -482,6 +482,7 @@ const groupedColumns: DataTableColumn<User>[] = [
                     { property: "size", description: td("props.dataTable.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
                     { property: "striped", description: td("props.dataTable.striped"), type: "boolean", default: "true" },
                     { property: "columnDividers", description: td("props.dataTable.columnDividers"), type: "boolean", default: "false" },
+                    { property: "paginationAlign", description: "Căn vị trí cụm nút chuyển trang", type: '"left" | "center" | "right"', default: '"right"' },
                     { property: "horizontalMode", description: 'Chiến lược layout ngang của bảng: "auto" = fit trước rồi mới overflow, "scroll" = ép cuộn ngang, "fit" = khóa cuộn ngang', type: '"auto" | "scroll" | "fit"', default: '"auto"' },
                     { property: "useOverlayScrollbar", description: "Enable OverlayScrollbars for table viewport", type: "boolean", default: "false" },
                     { property: "enableDensityToggle", description: td("props.dataTable.enableDensityToggle"), type: "boolean", default: "true" },
