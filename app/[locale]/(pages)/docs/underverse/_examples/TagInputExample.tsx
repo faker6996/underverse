@@ -217,7 +217,7 @@ const [appliedTags, setAppliedTags] = useState<string[]>([])
     { property: "hideSearchButton", description: "Ẩn nút Search", type: "boolean", default: "false" },
     { property: "hideClearButton", description: "Ẩn nút Clear All", type: "boolean", default: "false" },
     { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
-    { property: "size", description: "Kích thước component", type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "size", description: "Kích thước component", type: '"xs" | "sm" | "md" | "lg" | "xl"', default: '"md"' },
     { property: "disabled", description: "Trạng thái disabled", type: "boolean", default: "false" },
     { property: "loading", description: "Trạng thái loading - hiển thị spinner trên nút Search", type: "boolean", default: "false" },
     { property: "maxTags", description: "Số tags tối đa được phép", type: "number", default: "-" },

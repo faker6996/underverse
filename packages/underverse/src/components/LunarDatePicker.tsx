@@ -10,7 +10,7 @@ import { Popover } from "./Popover";
 import { lunarToSolar, solarToLunar, type LunarDateValue } from "../utils/lunar";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles } from "../constants/form-control-size";
+import { formControlFixedClass, formControlSizeStyles, type FormControlSize } from "../constants/form-control-size";
 
 export type LunarPickerValue = LunarDateValue;
 
@@ -21,7 +21,7 @@ export interface LunarDatePickerProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: FormControlSize;
   label?: string;
   /** Custom class for label */
   labelClassName?: string;
@@ -140,7 +140,7 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
   placeholder,
   className,
   disabled = false,
-  size = "md",
+  size: requestedSize = "md",
   label,
   labelClassName,
   required,
@@ -152,6 +152,7 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
   maxDate,
   borderMode,
 }) => {
+  const size = requestedSize === "xs" ? "sm" : requestedSize === "xl" ? "lg" : requestedSize;
   const globalConfig = useUnderverseUIConfig();
   const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
   const t = useSmartTranslations("DatePicker");
@@ -763,6 +764,7 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
               formControlFixedClass,
               getBorderRadiusClass(resolvedBorderMode),
               sizeStyles[size].trigger,
+              formControlSizeStyles[requestedSize].control,
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"
                 : [
@@ -881,7 +883,7 @@ export interface LunarDateRangePickerProps {
   disablePastDates?: boolean;
   minDate?: LunarPickerValue;
   maxDate?: LunarPickerValue;
-  size?: "sm" | "md" | "lg";
+  size?: FormControlSize;
   disabled?: boolean;
   borderMode?: BorderMode;
 }
@@ -899,10 +901,11 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
   disablePastDates = false,
   minDate,
   maxDate,
-  size = "md",
+  size: requestedSize = "md",
   disabled = false,
   borderMode,
 }) => {
+  const size = requestedSize === "xs" ? "sm" : requestedSize === "xl" ? "lg" : requestedSize;
   const locale = useSmartLocale();
   const t = useSmartTranslations("DatePicker");
   const tv = useSmartTranslations("ValidationInput");
@@ -1460,6 +1463,7 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
               formControlFixedClass,
               getBorderRadiusClass(borderMode ?? "full"),
               sizeStyles[size].trigger,
+              formControlSizeStyles[requestedSize].control,
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"
                 : [

@@ -8,6 +8,7 @@ import { Label } from "./label";
 import Input from "./Input";
 import Button from "./Button";
 import { Checkbox } from "./CheckBox";
+import type { FormControlSize } from "../constants/form-control-size";
 
 // Form wrapper with validation support
 /** Public props for the `FormWrapper` component. */
@@ -17,11 +18,11 @@ interface FormWrapperProps<T extends FieldValues = FieldValues> {
   initialValues?: Partial<T>;
   validationSchema?: Record<string, any>; // Simple validation schema
   className?: string;
-  size?: "sm" | "md" | "lg"; // unify inner control sizes
+  size?: FormControlSize;
 }
 
 // Provide form-level config (e.g., size) to inner controls
-type FormConfig = { size: "sm" | "md" | "lg" };
+type FormConfig = { size: FormControlSize };
 const FormConfigContext = React.createContext<FormConfig>({ size: "md" });
 
 const FormWrapper = <T extends FieldValues = FieldValues>({

@@ -105,9 +105,11 @@ export default function ComboboxExample() {
     `  <button type='submit'>Submit</button>\n` +
     `</form>\n\n` +
     `// 6) Sizes\n` +
+    `<Combobox options={options} size='xs' placeholder='Extra Small' />\n` +
     `<Combobox options={options} size='sm' placeholder='Small' />\n` +
     `<Combobox options={options} size='md' placeholder='Medium' />\n` +
-    `<Combobox options={options} size='lg' placeholder='Large' />\n\n` +
+    `<Combobox options={options} size='lg' placeholder='Large' />\n` +
+    `<Combobox options={options} size='xl' placeholder='Extra Large' />\n\n` +
     `// 7) Variants\n` +
     `<Combobox options={options} variant='default' placeholder='Default' />\n` +
     `<Combobox options={options} variant='outline' placeholder='Outline' />\n` +
@@ -210,10 +212,12 @@ export default function ComboboxExample() {
           <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">6</span>
           Sizes
         </h4>
-        <div className="flex flex-wrap items-end gap-3">
+        <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-5">
+          <Combobox options={options} value={value} onChange={setValue} size="xs" placeholder="Extra Small" />
           <Combobox options={options} value={value} onChange={setValue} size="sm" placeholder="Small" />
           <Combobox options={options} value={value} onChange={setValue} size="md" placeholder="Medium" />
           <Combobox options={options} value={value} onChange={setValue} size="lg" placeholder="Large" />
+          <Combobox options={options} value={value} onChange={setValue} size="xl" placeholder="Extra Large" />
         </div>
       </div>
 
@@ -288,7 +292,7 @@ export default function ComboboxExample() {
     { property: "className", description: t("props.combobox.className"), type: "string", default: "-" },
     { property: "disabled", description: t("props.combobox.disabled"), type: "boolean", default: "false" },
     { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
-    { property: "size", description: t("props.combobox.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "size", description: t("props.combobox.size"), type: '"xs" | "sm" | "md" | "lg" | "xl"', default: '"md"' },
     { property: "variant", description: t("props.combobox.variant"), type: '"default" | "outline" | "ghost" | "filled"', default: '"default"' },
     { property: "allowClear", description: t("props.combobox.allowClear"), type: "boolean", default: "false" },
     { property: "searchPlaceholder", description: t("props.combobox.searchPlaceholder"), type: "string", default: '"Search..."' },

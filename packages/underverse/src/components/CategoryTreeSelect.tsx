@@ -11,7 +11,7 @@ import { Label } from "./label";
 import { Popover } from "./Popover";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "../constants/form-control-size";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
 
 export interface Category {
   /** Unique category id used for selection and tree relationships. */
@@ -62,7 +62,7 @@ export interface CategoryTreeSelectBaseProps {
   /** Participate in form-required validation. */
   required?: boolean;
   /** Visual size of the trigger. */
-  size?: "sm" | "md" | "lg";
+  size?: FormControlSize;
   /** Visual style of the trigger. */
   variant?: "default" | "outline" | "ghost" | "filled";
   /** Show a clear button when a selection exists. */
@@ -1089,6 +1089,15 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   const selectedCount = valueArray.length;
 
   const triggerSizeStyles = {
+    xs: {
+      button: formControlSizeStyles.xs.control,
+      iconWrap: "p-0.5",
+      icon: formControlSizeStyles.xs.icon,
+      text: formControlSizeStyles.xs.label,
+      badge: formControlSizeStyles.xs.tag,
+      actionIcon: formControlSizeStyles.xs.icon,
+      clearIcon: "h-2.5 w-2.5",
+    },
     sm: {
       button: formControlSizeStyles.sm.control,
       iconWrap: "p-1",
@@ -1114,6 +1123,15 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
       text: formControlSizeStyles.lg.label,
       badge: formControlSizeStyles.lg.tag,
       actionIcon: "w-5 h-5",
+      clearIcon: "h-4 w-4",
+    },
+    xl: {
+      button: formControlSizeStyles.xl.control,
+      iconWrap: "p-2",
+      icon: formControlSizeStyles.xl.icon,
+      text: formControlSizeStyles.xl.label,
+      badge: formControlSizeStyles.xl.tag,
+      actionIcon: formControlSizeStyles.xl.icon,
       clearIcon: "h-4 w-4",
     },
   } as const;

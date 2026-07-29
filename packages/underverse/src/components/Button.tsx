@@ -81,7 +81,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const variantStyle = VARIANT_STYLES_BTN[finalVariant] || VARIANT_STYLES_BTN.default;
     const sizeStyle = SIZE_STYLES_BTN[size] || SIZE_STYLES_BTN.md;
     const iconSizeStyle =
-      size === "sm" ? formControlSizeStyles.sm.icon : size === "lg" || size === "icon" ? formControlSizeStyles.lg.icon : formControlSizeStyles.md.icon;
+      size === "xs" || size === "sm" ? formControlSizeStyles.sm.icon : size === "lg" || size === "xl" || size === "icon" ? formControlSizeStyles.lg.icon : formControlSizeStyles.md.icon;
 
     const globalConfig = useUnderverseUIConfig();
     const resolvedBorderMode = borderMode ?? globalConfig.button?.borderMode ?? "full";

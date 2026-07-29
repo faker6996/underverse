@@ -46,9 +46,11 @@ export default function ButtonExample() {
     `<Button borderMode=\"infiniq\" variant=\"secondary\">Infiniq</Button>\n` +
     `<Button borderMode=\"full\">Full</Button>\n\n` +
     `// Sizes\n` +
+    `<Button size=\"xs\">Extra Small</Button>\n` +
     `<Button size=\"sm\">Small</Button>\n` +
     `<Button size=\"md\">Medium</Button>\n` +
     `<Button size=\"lg\">Large</Button>\n` +
+    `<Button size=\"xl\">Extra Large</Button>\n` +
     `<Button size=\"smx\">Smx</Button>\n` +
     `<Button size=\"icon\" variant=\"outline\" icon={Plus} aria-label=\"Add\" />\n\n` +
     `// Icons\n` +
@@ -102,9 +104,11 @@ export default function ButtonExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Sizes</p>
         <div className="flex flex-wrap items-center gap-3">
+          <Button size="xs">Extra Small</Button>
           <Button size="sm">Small</Button>
           <Button size="md">Medium</Button>
           <Button size="lg">Large</Button>
+          <Button size="xl">Extra Large</Button>
           <Button size="smx">Smx</Button>
           <Button size="icon" variant="outline" icon={Plus} aria-label="Add" />
         </div>
@@ -171,7 +175,7 @@ export default function ButtonExample() {
       default: '"default"',
     },
     { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
-    { property: "size", description: t("props.button.size"), type: '"sm" | "md" | "lg" | "smx" | "icon"', default: '"md"' },
+    { property: "size", description: t("props.button.size"), type: '"xs" | "sm" | "md" | "lg" | "xl" | "smx" | "icon"', default: '"md"' },
     { property: "className", description: t("props.button.className"), type: "string", default: '""' },
     { property: "iConClassName", description: t("props.button.iConClassName"), type: "string", default: '""' },
     { property: "disabled", description: t("props.button.disabled"), type: "boolean", default: "false" },

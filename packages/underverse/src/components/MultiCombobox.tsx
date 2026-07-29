@@ -12,7 +12,7 @@ import { Popover } from "./Popover";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { getBorderRadiusClass, getPanelBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "../constants/form-control-size";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
 
 export interface MultiComboboxOption {
   value: string;
@@ -37,7 +37,7 @@ export interface MultiComboboxProps {
   showClear?: boolean;
   className?: string;
   disabled?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: FormControlSize;
   variant?: "default" | "outline" | "ghost";
   label?: string;
   /** Custom class for label */
@@ -324,6 +324,13 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
 
   // Size styles to align with Input defaults
   const sizeStyles = {
+    xs: {
+      trigger: formControlSizeStyles.xs.control,
+      icon: formControlSizeStyles.xs.icon,
+      search: "px-7 py-1 text-xs",
+      item: "text-xs px-2 py-1",
+      tag: formControlSizeStyles.xs.tag,
+    },
     sm: {
       trigger: formControlSizeStyles.sm.control,
       icon: formControlSizeStyles.sm.icon,
@@ -344,6 +351,13 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
       search: "px-10 py-3 text-base",
       item: "text-base px-3 py-3",
       tag: formControlSizeStyles.lg.tag,
+    },
+    xl: {
+      trigger: formControlSizeStyles.xl.control,
+      icon: formControlSizeStyles.xl.icon,
+      search: "px-10 py-3.5 text-base",
+      item: "text-base px-4 py-3.5",
+      tag: formControlSizeStyles.xl.tag,
     },
   } as const;
 

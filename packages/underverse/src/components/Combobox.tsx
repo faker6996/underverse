@@ -12,7 +12,7 @@ import { Popover } from "./Popover";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { getBorderRadiusClass, getPanelBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "../constants/form-control-size";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
 
 // --- PROPS ---
 export type ComboboxOption = string | { label: string; value: any; icon?: React.ReactNode; description?: string; disabled?: boolean };
@@ -26,7 +26,7 @@ export interface ComboboxProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: FormControlSize;
   variant?: "default" | "outline" | "ghost" | "filled";
   allowClear?: boolean;
   searchPlaceholder?: string;
@@ -353,21 +353,27 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
   // Size styles for dropdown items
   const itemSizeStyles = {
+    xs: "px-2 py-1 text-xs gap-1.5",
     sm: "px-2.5 py-1.5 text-xs gap-2",
     md: "px-3 py-2.5 text-sm gap-3",
     lg: "px-4 py-3 text-base gap-3",
+    xl: "px-5 py-3.5 text-base gap-3",
   } as const;
 
   const iconSizeStyles = {
+    xs: formControlSizeStyles.xs.icon,
     sm: formControlSizeStyles.sm.icon,
     md: formControlSizeStyles.md.icon,
     lg: formControlSizeStyles.lg.icon,
+    xl: formControlSizeStyles.xl.icon,
   } as const;
 
   const checkIconSizeStyles = {
+    xs: "h-3 w-3",
     sm: "h-3.5 w-3.5",
     md: "h-4 w-4",
     lg: "h-5 w-5",
+    xl: "h-5 w-5",
   } as const;
 
   // Render single option
@@ -430,7 +436,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
             <div className="flex-1 min-w-0">
               <span className="block truncate">{itemLabel}</span>
               {itemDescription && (
-                <span className={cn("block text-muted-foreground truncate mt-0.5", size === "sm" ? "text-[10px]" : "text-xs")}>
+                <span className={cn("block text-muted-foreground truncate mt-0.5", size === "xs" || size === "sm" ? "text-[10px]" : "text-xs")}>
                   {itemDescription}
                 </span>
               )}
@@ -455,12 +461,12 @@ export const Combobox: React.FC<ComboboxProps> = ({
     >
       {/* Search Input (only when many options) */}
       {enableSearch && (
-        <div className={cn("relative border-b border-border/30", size === "sm" ? "p-2" : size === "lg" ? "p-3" : "p-2.5")}>
+        <div className={cn("relative border-b border-border/30", size === "xs" ? "p-1.5" : size === "sm" ? "p-2" : size === "lg" ? "p-3" : size === "xl" ? "p-3.5" : "p-2.5")}>
           <div className="relative">
             <Search
               className={cn(
                 "absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 transition-colors peer-focus:text-primary",
-                size === "sm" ? "h-3.5 w-3.5" : size === "lg" ? "h-5 w-5" : "h-4 w-4",
+                size === "xs" ? "h-3 w-3" : size === "sm" ? "h-3.5 w-3.5" : size === "lg" || size === "xl" ? "h-5 w-5" : "h-4 w-4",
               )}
             />
             <input
@@ -491,7 +497,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
               placeholder={searchPlaceholder}
               className={cn(
                 "peer w-full rounded-xl bg-muted/40 pr-3",
-                size === "sm" ? "py-1.5 pl-8 text-xs" : size === "lg" ? "py-3 pl-10 text-base" : "py-2.5 pl-9 text-sm",
+                size === "xs" ? "py-1 pl-7 text-xs" : size === "sm" ? "py-1.5 pl-8 text-xs" : size === "lg" ? "py-3 pl-10 text-base" : size === "xl" ? "py-3.5 pl-10 text-base" : "py-2.5 pl-9 text-sm",
                 "border border-transparent",
                 "focus:outline-none focus:bg-background focus:border-primary/30 focus:ring-2 focus:ring-primary/10",
                 "transition-all duration-200",
@@ -508,7 +514,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
                 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
               >
-                <X className={cn(size === "sm" ? "h-3 w-3" : size === "lg" ? "h-4 w-4" : "h-3.5 w-3.5")} />
+                <X className={cn(size === "xs" ? "h-3 w-3" : size === "sm" ? "h-3 w-3" : size === "lg" || size === "xl" ? "h-4 w-4" : "h-3.5 w-3.5")} />
               </button>
             )}
           </div>
@@ -525,7 +531,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
         className={cn("overflow-y-auto overscroll-contain", (!useOverlayScrollbar || virtualized) && comboboxScrollClassName)}
         style={{ maxHeight }}
       >
-        <div className={cn(size === "sm" ? "p-1" : size === "lg" ? "p-2" : "p-1.5")}>
+        <div className={cn(size === "xs" ? "p-1" : size === "sm" ? "p-1" : size === "lg" || size === "xl" ? "p-2" : "p-1.5")}>
           {loading ? (
             <div className="px-3 py-10 text-center">
               <div className="flex flex-col items-center gap-3 animate-in fade-in-0 zoom-in-95 duration-300">
@@ -606,9 +612,11 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
   // Size styles for trigger
   const sizeStyles = {
+    xs: formControlSizeStyles.xs.control,
     sm: formControlSizeStyles.sm.control,
     md: formControlSizeStyles.md.control,
     lg: formControlSizeStyles.lg.control,
+    xl: formControlSizeStyles.xl.control,
   } as const;
 
   // Variant styles
@@ -621,7 +629,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
   const labelSize = formControlSizeStyles[size].label;
 
-  const verticalGap = size === "sm" ? "space-y-1.5" : "space-y-2";
+  const verticalGap = size === "xs" || size === "sm" ? "space-y-1.5" : "space-y-2";
   const dropdownBackgroundStyle =
     matchTriggerBackground && triggerBackgroundColor
       ? ({ backgroundColor: triggerBackgroundColor } satisfies React.CSSProperties)

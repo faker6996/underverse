@@ -8,7 +8,7 @@ import { Eye, EyeOff, Search, X, AlertCircle, CheckCircle, Loader2 } from "lucid
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles } from "../constants/form-control-size";
+import { formControlFixedClass, formControlSizeStyles, type FormControlSize } from "../constants/form-control-size";
 
 /** Public props for the `Input` component. */
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
@@ -18,7 +18,7 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   error?: string;
   description?: string;
   variant?: "default" | "filled" | "outlined" | "minimal";
-  size?: "sm" | "md" | "lg";
+  size?: FormControlSize;
   borderMode?: BorderMode;
   leftIcon?: React.ComponentType<{ className?: string }>;
   rightIcon?: React.ComponentType<{ className?: string }>;
@@ -76,7 +76,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const charCount = typeof value === "string" ? value.length : 0;
     const errorId = errMsg && resolvedId ? `${resolvedId}-error` : undefined;
     const descId = !errMsg && (description || hint) && resolvedId ? `${resolvedId}-desc` : undefined;
-    const containerSpacing = size === "sm" ? "space-y-1.5" : "space-y-2";
+    const containerSpacing = size === "xs" || size === "sm" ? "space-y-1.5" : "space-y-2";
 
     // Variant styles
     const variantStyles = {
@@ -262,8 +262,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               errMsg ? variantStyles[variant].error : variantStyles[variant].focus,
 
               // Reduce visual weight for sm: no default drop shadows
-              size !== "sm" && variant !== "minimal" && "shadow-sm",
-              size !== "sm" && isFocused && "shadow-md",
+              size !== "xs" && size !== "sm" && variant !== "minimal" && "shadow-sm",
+              size !== "xs" && size !== "sm" && isFocused && "shadow-md",
 
               className,
             )}
@@ -534,9 +534,11 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
     const inputSize = props.size || "md";
 
     const stepperSizeStyles = {
+      xs: { width: "w-6", icon: { width: 7, height: 4, path: { up: "M3.5 1L6 3H1L3.5 1Z", down: "M3.5 3L1 1H6L3.5 3Z" } } },
       sm: { width: "w-7", icon: { width: 8, height: 5, path: { up: "M4 1L7 4H1L4 1Z", down: "M4 4L1 1H7L4 4Z" } } },
       md: { width: "w-9", icon: { width: 10, height: 6, path: { up: "M5 1L9 5H1L5 1Z", down: "M5 5L1 1H9L5 5Z" } } },
       lg: { width: "w-11", icon: { width: 12, height: 7, path: { up: "M6 1L11 6H1L6 1Z", down: "M6 6L1 1H11L6 6Z" } } },
+      xl: { width: "w-12", icon: { width: 14, height: 8, path: { up: "M7 1L13 7H1L7 1Z", down: "M7 7L1 1H13L7 7Z" } } },
     };
 
     const ss = stepperSizeStyles[inputSize];

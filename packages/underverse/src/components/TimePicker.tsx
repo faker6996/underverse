@@ -13,7 +13,7 @@ import {
   type BorderMode,
 } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "../constants/form-control-size";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
 
 type TimeFormat = "24" | "12";
 type TimePickerVariant = "default" | "compact" | "inline";
@@ -25,7 +25,7 @@ export interface TimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   onChange?: (value: string | undefined) => void;
   placeholder?: string;
   disabled?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: FormControlSize;
   label?: string;
   required?: boolean;
   format?: TimeFormat; // 24 or 12
@@ -611,7 +611,7 @@ export default function TimePicker({
   onChange,
   placeholder = "Select time",
   disabled = false,
-  size = "md",
+  size: requestedSize = "md",
   label,
   required,
   format = "24",
@@ -640,6 +640,7 @@ export default function TimePicker({
   borderMode,
   ...rest
 }: TimePickerProps) {
+  const size: PickerSize = requestedSize === "xs" ? "sm" : requestedSize === "xl" ? "lg" : requestedSize;
   const tv = useSmartTranslations("ValidationInput");
   const gi18n = useGlobalI18n();
   const globalConfig = useUnderverseUIConfig();
@@ -1043,6 +1044,7 @@ export default function TimePicker({
           "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
           getBorderRadiusClass(resolvedBorderMode),
           sz.control,
+          formControlSizeStyles[requestedSize].control,
           formControlFixedClass,
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:opacity-50 disabled:cursor-not-allowed",

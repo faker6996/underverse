@@ -7,7 +7,7 @@ import Button from "./Button";
 import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles } from "../constants/form-control-size";
+import { formControlFixedClass, formControlSizeStyles, type FormControlSize } from "../constants/form-control-size";
 
 /** Public props for the `TagInput` component. */
 export interface TagInputProps {
@@ -45,7 +45,7 @@ export interface TagInputProps {
   className?: string;
 
   /** Size: 'sm' | 'md' | 'lg' */
-  size?: "sm" | "md" | "lg";
+  size?: FormControlSize;
 
   /** Disabled state */
   disabled?: boolean;
@@ -119,6 +119,13 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
 
     // Size styles
     const sizeStyles = {
+      xs: {
+        container: formControlSizeStyles.xs.control,
+        input: formControlSizeStyles.xs.label,
+        tag: formControlSizeStyles.xs.tag,
+        tagIcon: "h-2.5 w-2.5",
+        button: "h-6 text-xs px-1.5",
+      },
       sm: {
         container: formControlSizeStyles.sm.control,
         input: formControlSizeStyles.sm.label,
@@ -139,6 +146,13 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
         tag: formControlSizeStyles.lg.tag,
         tagIcon: "h-4 w-4",
         button: "h-11 text-base px-4",
+      },
+      xl: {
+        container: formControlSizeStyles.xl.control,
+        input: formControlSizeStyles.xl.label,
+        tag: formControlSizeStyles.xl.tag,
+        tagIcon: "h-4 w-4",
+        button: "h-12 text-base px-5",
       },
     };
 

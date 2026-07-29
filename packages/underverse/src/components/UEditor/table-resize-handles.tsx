@@ -33,7 +33,7 @@ export function TableResizeHandles({
       data-resizing={active ? "true" : "false"}
       className={cn(
         "pointer-events-none absolute z-[38] box-border border border-primary/55",
-        active && "border-primary bg-primary/[0.03]",
+        active && "border-primary bg-primary/3",
       )}
       style={{
         left: layout.tableLeft,

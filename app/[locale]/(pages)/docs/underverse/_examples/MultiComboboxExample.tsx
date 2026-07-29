@@ -314,7 +314,7 @@ export default function MultiComboboxExample() {
     { property: "className", description: t("props.multiCombobox.className"), type: "string", default: "-" },
     { property: "disabled", description: t("props.multiCombobox.disabled"), type: "boolean", default: "false" },
     { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
-    { property: "size", description: t("props.multiCombobox.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "size", description: t("props.multiCombobox.size"), type: '"xs" | "sm" | "md" | "lg" | "xl"', default: '"md"' },
     { property: "variant", description: "Visual style variant", type: '"default" | "outline" | "ghost"', default: '"default"' },
     { property: "label", description: t("props.multiCombobox.label"), type: "string", default: "-" },
     { property: "title", description: t("props.multiCombobox.title"), type: "string", default: "-" },

@@ -8,7 +8,7 @@ import { Popover } from "./Popover";
 import { Calendar, X, Check, ChevronDown } from "lucide-react";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "../constants/form-control-size";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
 
 type MonthYearPickerVariant = "default" | "compact" | "inline";
 type PickerSize = "sm" | "md" | "lg";
@@ -26,7 +26,7 @@ export interface MonthYearPickerProps extends Omit<React.HTMLAttributes<HTMLDivE
   /** Disabled state */
   disabled?: boolean;
   /** Size variant */
-  size?: PickerSize;
+  size?: FormControlSize;
   /** Label text */
   label?: string;
   /** Custom class for label */
@@ -577,7 +577,7 @@ export default function MonthYearPicker({
   onChange,
   placeholder = "Select month/year",
   disabled = false,
-  size = "md",
+  size: requestedSize = "md",
   label,
   labelClassName,
   required,
@@ -602,6 +602,7 @@ export default function MonthYearPicker({
   borderMode,
   ...rest
 }: MonthYearPickerProps) {
+  const size: PickerSize = requestedSize === "xs" ? "sm" : requestedSize === "xl" ? "lg" : requestedSize;
   const globalConfig = useUnderverseUIConfig();
   const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
   const gi18n = useGlobalI18n();
@@ -797,6 +798,7 @@ export default function MonthYearPicker({
           "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
           getBorderRadiusClass(resolvedBorderMode),
           sz.control,
+          formControlSizeStyles[requestedSize].control,
           formControlFixedClass,
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:opacity-50 disabled:cursor-not-allowed",

@@ -9,10 +9,10 @@ import { cn } from "../utils/cn";
 import { Pipette, X, Copy, Check, Palette, History } from "lucide-react";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "../constants/form-control-size";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
 
 type OutputFormat = "hex" | "rgba" | "hsl" | "hsla";
-type ColorPickerSize = "sm" | "md" | "lg";
+type ColorPickerSize = FormControlSize;
 type ColorPickerVariant = "default" | "compact" | "full" | "minimal";
 
 /** Public props for the `ColorPicker` component. */
@@ -217,16 +217,18 @@ const DEFAULT_PRESETS = [
   "#f3f4f6",
 ];
 
-const Swatch: React.FC<{ color: string; onClick?: () => void; ariaLabel?: string; size?: "sm" | "md" | "lg" }> = ({
+const Swatch: React.FC<{ color: string; onClick?: () => void; ariaLabel?: string; size?: FormControlSize }> = ({
   color,
   onClick,
   ariaLabel,
   size = "md",
 }) => {
   const sizeClasses = {
+    xs: "h-4 w-4",
     sm: "h-5 w-5",
     md: "h-6 w-6",
     lg: "h-8 w-8",
+    xl: "h-10 w-10",
   };
   return (
     <button
@@ -361,12 +363,14 @@ export default function ColorPicker({
   const harmony = showHarmony ? getColorHarmony(rgba) : null;
 
   const sizeClasses = {
+    xs: formControlSizeStyles.xs.control,
     sm: formControlSizeStyles.sm.control,
     md: formControlSizeStyles.md.control,
     lg: formControlSizeStyles.lg.control,
+    xl: formControlSizeStyles.xl.control,
   };
 
-  const swatchSize = size === "sm" ? "sm" : size === "lg" ? "lg" : "md";
+  const swatchSize = size;
 
   const trigger = (
     <button

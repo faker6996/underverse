@@ -10,7 +10,7 @@ import { useId } from "react";
 import { Popover } from "./Popover";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles } from "../constants/form-control-size";
+import { formControlFixedClass, formControlSizeStyles, type FormControlSize } from "../constants/form-control-size";
 
 function normalizeToLocalDate(date: Date | undefined | null): Date | null {
   if (!date) return null;
@@ -25,7 +25,7 @@ export interface DatePickerProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: FormControlSize;
   label?: string;
   /** Custom class for label */
   labelClassName?: string;
@@ -49,7 +49,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   placeholder,
   className,
   disabled = false,
-  size = "md",
+  size: requestedSize = "md",
   label,
   labelClassName,
   required,
@@ -61,6 +61,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   maxDate,
   borderMode,
 }) => {
+  const size = requestedSize === "xs" ? "sm" : requestedSize === "xl" ? "lg" : requestedSize;
   const t = useSmartTranslations("DatePicker");
   const tv = useSmartTranslations("ValidationInput");
   const locale = useSmartLocale();
@@ -630,6 +631,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               formControlFixedClass,
               getBorderRadiusClass(resolvedBorderMode),
               sizeStyles[size].trigger,
+              formControlSizeStyles[requestedSize].control,
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"
                 : [
@@ -748,7 +750,7 @@ export interface DateRangePickerProps {
   /** Maximum selectable date (inclusive). Compared by day in local timezone. */
   maxDate?: Date;
   /** Size variant */
-  size?: "sm" | "md" | "lg";
+  size?: FormControlSize;
   disabled?: boolean;
   borderMode?: BorderMode;
 }
@@ -766,10 +768,11 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   disablePastDates = false,
   minDate,
   maxDate,
-  size = "md",
+  size: requestedSize = "md",
   disabled = false,
   borderMode,
 }) => {
+  const size = requestedSize === "xs" ? "sm" : requestedSize === "xl" ? "lg" : requestedSize;
   const locale = useSmartLocale();
   const t = useSmartTranslations("DatePicker");
   const tv = useSmartTranslations("ValidationInput");
@@ -1471,6 +1474,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
               formControlFixedClass,
               getBorderRadiusClass(resolvedBorderMode),
               sizeStyles[size].trigger,
+              formControlSizeStyles[requestedSize].control,
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"
                 : [

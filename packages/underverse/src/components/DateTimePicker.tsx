@@ -10,7 +10,7 @@ import TimePicker from "./TimePicker";
 import { useSmartLocale, useSmartTranslations } from "../hooks/useSmartTranslations";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass } from "../constants/form-control-size";
+import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
 
 /** Public props for the `DateTimePicker` component. */
 export interface DateTimePickerProps {
@@ -33,7 +33,7 @@ export interface DateTimePickerProps {
   /** Label for the "Clear" button */
   clearLabel?: string;
   /** Size variant */
-  size?: "sm" | "md" | "lg";
+  size?: FormControlSize;
   borderMode?: BorderMode;
 }
 
@@ -52,9 +52,10 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   required,
   doneLabel,
   clearLabel,
-  size = "md",
+  size: requestedSize = "md",
   borderMode,
 }) => {
+  const size = requestedSize === "xs" ? "sm" : requestedSize === "xl" ? "lg" : requestedSize;
   const globalConfig = useUnderverseUIConfig();
   const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
   const t = useSmartTranslations("DateTimePicker");
@@ -285,6 +286,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
               formControlFixedClass,
               getBorderRadiusClass(resolvedBorderMode),
               sizeStyles[size].trigger,
+              formControlSizeStyles[requestedSize].control,
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               disabled && "opacity-50 cursor-not-allowed",
               !displayValue && "text-muted-foreground",

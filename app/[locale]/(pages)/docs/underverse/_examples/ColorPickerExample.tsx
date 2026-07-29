@@ -205,7 +205,7 @@ export default function ColorPickerExample() {
     { property: "clearable", description: t("props.colorPicker.clearable"), type: "boolean", default: "false" },
     { property: "copyable", description: "Show copy to clipboard button", type: "boolean", default: "true" },
     { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
-    { property: "size", description: "Size variant of the picker", type: "'sm' | 'md' | 'lg'", default: "'md'" },
+    { property: "size", description: "Size variant of the picker", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
     { property: "variant", description: "Visual variant of the picker", type: "'default' | 'compact' | 'full' | 'minimal'", default: "'default'" },
     { property: "showRecent", description: "Show recent colors history", type: "boolean", default: "false" },
     { property: "showHarmony", description: "Show color harmony suggestions", type: "boolean", default: "false" },

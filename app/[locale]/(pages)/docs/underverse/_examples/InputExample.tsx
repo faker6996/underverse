@@ -39,9 +39,11 @@ export default function InputExample() {
     `<Input label='Infiniq' placeholder='Custom radius' borderMode='infiniq' />\n` +
     `<Input label='Full' placeholder='Full radius' borderMode='full' />\n\n` +
     `// Sizes & Icons\n` +
+    `<Input size='xs' label='Search (xs)' placeholder='Keyword' leftIcon={Search} value={query} onChange={(e) => setQuery(e.target.value)} />\n` +
     `<Input size='sm' label='Search (sm)' placeholder='Keyword' leftIcon={Search} value={query} onChange={(e) => setQuery(e.target.value)} />\n` +
     `<Input size='md' label='Email (md)' placeholder='you@example.com' type='email' leftIcon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />\n` +
-    `<Input size='lg' label='Name (lg)' placeholder='Full name' value={name} onChange={(e) => setName(e.target.value)} />\n\n` +
+    `<Input size='lg' label='Name (lg)' placeholder='Full name' value={name} onChange={(e) => setName(e.target.value)} />\n` +
+    `<Input size='xl' label='Name (xl)' placeholder='Full name' value={name} onChange={(e) => setName(e.target.value)} />\n\n` +
     `// States\n` +
     `<Input label='Required' placeholder='Enter value' required clearable value={name} onChange={(e)=>setName(e.target.value)} hint='This field is required' />\n` +
     `<Input label='Char limit' placeholder='Max 20' value={description} onChange={(e)=>setDescription(e.target.value)} counter maxLength={20} description='Helper text shows below' />\n` +
@@ -79,10 +81,12 @@ export default function InputExample() {
       {/* Sizes & Icons */}
       <div className="space-y-2">
         <p className="text-sm font-medium">Sizes & Icons</p>
-        <div className="grid md:grid-cols-3 gap-3">
+        <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-5">
+          <Input size="xs" label="Search (xs)" placeholder="Keyword" leftIcon={Search} value={query} onChange={(e) => setQuery(e.target.value)} />
           <Input size="sm" label="Search (sm)" placeholder="Keyword" leftIcon={Search} value={query} onChange={(e) => setQuery(e.target.value)} />
           <Input size="md" label="Email (md)" placeholder="you@example.com" type="email" leftIcon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} />
           <Input size="lg" label="Name (lg)" placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} />
+          <Input size="xl" label="Name (xl)" placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
       </div>
 
@@ -117,7 +121,7 @@ export default function InputExample() {
     { property: "description", description: t("props.input.description"), type: "string", default: "-" },
     { property: "variant", description: t("props.input.variant"), type: '"default" | "filled" | "outlined" | "minimal"', default: '"default"' },
     { property: "borderMode", description: "Border radius customization", type: BORDER_MODE_DOCS_TYPE, default: '"full"' },
-    { property: "size", description: t("props.input.size"), type: '"sm" | "md" | "lg"', default: '"md"' },
+    { property: "size", description: t("props.input.size"), type: '"xs" | "sm" | "md" | "lg" | "xl"', default: '"md"' },
     { property: "leftIcon", description: t("props.input.leftIcon"), type: "React.ComponentType<{ className?: string }>", default: "-" },
     { property: "rightIcon", description: t("props.input.rightIcon"), type: "React.ComponentType<{ className?: string }>", default: "-" },
     { property: "clearable", description: t("props.input.clearable"), type: "boolean", default: "false" },
@@ -187,4 +191,3 @@ export default function InputExample() {
     </IntlDemoProvider>
   );
 }
-
