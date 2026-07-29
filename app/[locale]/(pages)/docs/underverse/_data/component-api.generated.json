@@ -2258,7 +2258,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": "\"md\"",
               "description": null,
@@ -2386,7 +2386,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": null,
               "description": null,
@@ -2610,7 +2610,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": null,
               "description": null,
@@ -2770,7 +2770,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": null,
               "description": null,
@@ -2902,7 +2902,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:629"
+              "source": "packages/underverse/src/components/Input.tsx:631"
             },
             {
               "name": "labelClassName",
@@ -2910,7 +2910,7 @@
               "required": false,
               "default": null,
               "description": "Custom class for label",
-              "source": "packages/underverse/src/components/Input.tsx:631"
+              "source": "packages/underverse/src/components/Input.tsx:633"
             },
             {
               "name": "error",
@@ -2918,7 +2918,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:632"
+              "source": "packages/underverse/src/components/Input.tsx:634"
             },
             {
               "name": "description",
@@ -2926,7 +2926,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:633"
+              "source": "packages/underverse/src/components/Input.tsx:635"
             },
             {
               "name": "variant",
@@ -2934,7 +2934,7 @@
               "required": false,
               "default": "\"default\"",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:634"
+              "source": "packages/underverse/src/components/Input.tsx:636"
             },
             {
               "name": "size",
@@ -2942,7 +2942,7 @@
               "required": false,
               "default": "\"md\"",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:635"
+              "source": "packages/underverse/src/components/Input.tsx:637"
             },
             {
               "name": "borderMode",
@@ -2950,7 +2950,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:636"
+              "source": "packages/underverse/src/components/Input.tsx:638"
             },
             {
               "name": "resize",
@@ -2958,7 +2958,7 @@
               "required": false,
               "default": "\"vertical\"",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:637"
+              "source": "packages/underverse/src/components/Input.tsx:639"
             },
             {
               "name": "counter",
@@ -2966,7 +2966,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:638"
+              "source": "packages/underverse/src/components/Input.tsx:640"
             },
             {
               "name": "useOverlayScrollbar",
@@ -2974,7 +2974,7 @@
               "required": false,
               "default": "false",
               "description": "Enable OverlayScrollbars on textarea viewport. Default: false",
-              "source": "packages/underverse/src/components/Input.tsx:640"
+              "source": "packages/underverse/src/components/Input.tsx:642"
             }
           ]
         }
@@ -2998,7 +2998,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:629"
+              "source": "packages/underverse/src/components/Input.tsx:631"
             },
             {
               "name": "labelClassName",
@@ -3006,7 +3006,7 @@
               "required": false,
               "default": null,
               "description": "Custom class for label",
-              "source": "packages/underverse/src/components/Input.tsx:631"
+              "source": "packages/underverse/src/components/Input.tsx:633"
             },
             {
               "name": "error",
@@ -3014,7 +3014,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:632"
+              "source": "packages/underverse/src/components/Input.tsx:634"
             },
             {
               "name": "description",
@@ -3022,7 +3022,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:633"
+              "source": "packages/underverse/src/components/Input.tsx:635"
             },
             {
               "name": "variant",
@@ -3030,7 +3030,7 @@
               "required": false,
               "default": "\"default\"",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:634"
+              "source": "packages/underverse/src/components/Input.tsx:636"
             },
             {
               "name": "size",
@@ -3038,7 +3038,7 @@
               "required": false,
               "default": "\"md\"",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:635"
+              "source": "packages/underverse/src/components/Input.tsx:637"
             },
             {
               "name": "borderMode",
@@ -3046,7 +3046,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:636"
+              "source": "packages/underverse/src/components/Input.tsx:638"
             },
             {
               "name": "resize",
@@ -3054,7 +3054,7 @@
               "required": false,
               "default": "\"vertical\"",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:637"
+              "source": "packages/underverse/src/components/Input.tsx:639"
             },
             {
               "name": "counter",
@@ -3062,7 +3062,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:638"
+              "source": "packages/underverse/src/components/Input.tsx:640"
             },
             {
               "name": "useOverlayScrollbar",
@@ -3070,7 +3070,7 @@
               "required": false,
               "default": "false",
               "description": "Enable OverlayScrollbars on textarea viewport. Default: false",
-              "source": "packages/underverse/src/components/Input.tsx:640"
+              "source": "packages/underverse/src/components/Input.tsx:642"
             }
           ]
         },
@@ -3122,7 +3122,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": "\"md\"",
               "description": null,
@@ -3314,7 +3314,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": null,
               "description": null,
@@ -3474,7 +3474,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": null,
               "description": null,
@@ -3634,7 +3634,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": null,
               "description": null,
@@ -4818,7 +4818,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": "\"md\"",
               "description": "Size: 'sm' | 'md' | 'lg'",
@@ -4970,7 +4970,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": "\"md\"",
               "description": "Size: 'sm' | 'md' | 'lg'",
@@ -5418,7 +5418,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": "\"md\"",
               "description": null,
@@ -5518,7 +5518,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:1541"
+              "source": "packages/underverse/src/components/DatePicker.tsx:1545"
             },
             {
               "name": "onChange",
@@ -5526,7 +5526,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:1542"
+              "source": "packages/underverse/src/components/DatePicker.tsx:1546"
             },
             {
               "name": "className",
@@ -5534,7 +5534,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:1543"
+              "source": "packages/underverse/src/components/DatePicker.tsx:1547"
             }
           ]
         },
@@ -5550,7 +5550,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:735"
+              "source": "packages/underverse/src/components/DatePicker.tsx:737"
             },
             {
               "name": "startDate",
@@ -5558,7 +5558,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:736"
+              "source": "packages/underverse/src/components/DatePicker.tsx:738"
             },
             {
               "name": "endDate",
@@ -5566,7 +5566,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:737"
+              "source": "packages/underverse/src/components/DatePicker.tsx:739"
             },
             {
               "name": "onChange",
@@ -5574,7 +5574,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:738"
+              "source": "packages/underverse/src/components/DatePicker.tsx:740"
             },
             {
               "name": "placeholder",
@@ -5582,7 +5582,7 @@
               "required": false,
               "default": "\"Select date range...\"",
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:739"
+              "source": "packages/underverse/src/components/DatePicker.tsx:741"
             },
             {
               "name": "className",
@@ -5590,7 +5590,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:740"
+              "source": "packages/underverse/src/components/DatePicker.tsx:742"
             },
             {
               "name": "label",
@@ -5598,7 +5598,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:741"
+              "source": "packages/underverse/src/components/DatePicker.tsx:743"
             },
             {
               "name": "labelClassName",
@@ -5606,7 +5606,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:742"
+              "source": "packages/underverse/src/components/DatePicker.tsx:744"
             },
             {
               "name": "required",
@@ -5614,7 +5614,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:743"
+              "source": "packages/underverse/src/components/DatePicker.tsx:745"
             },
             {
               "name": "disablePastDates",
@@ -5622,7 +5622,7 @@
               "required": false,
               "default": "false",
               "description": "Disable selecting past dates (before today)",
-              "source": "packages/underverse/src/components/DatePicker.tsx:745"
+              "source": "packages/underverse/src/components/DatePicker.tsx:747"
             },
             {
               "name": "minDate",
@@ -5630,7 +5630,7 @@
               "required": false,
               "default": null,
               "description": "Minimum selectable date (inclusive). Compared by day in local timezone.",
-              "source": "packages/underverse/src/components/DatePicker.tsx:747"
+              "source": "packages/underverse/src/components/DatePicker.tsx:749"
             },
             {
               "name": "maxDate",
@@ -5638,15 +5638,15 @@
               "required": false,
               "default": null,
               "description": "Maximum selectable date (inclusive). Compared by day in local timezone.",
-              "source": "packages/underverse/src/components/DatePicker.tsx:749"
+              "source": "packages/underverse/src/components/DatePicker.tsx:751"
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": "\"md\"",
               "description": "Size variant",
-              "source": "packages/underverse/src/components/DatePicker.tsx:751"
+              "source": "packages/underverse/src/components/DatePicker.tsx:753"
             },
             {
               "name": "disabled",
@@ -5654,7 +5654,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:752"
+              "source": "packages/underverse/src/components/DatePicker.tsx:754"
             },
             {
               "name": "borderMode",
@@ -5662,7 +5662,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DatePicker.tsx:753"
+              "source": "packages/underverse/src/components/DatePicker.tsx:755"
             }
           ]
         }
@@ -5730,7 +5730,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": "\"md\"",
               "description": null,
@@ -5830,7 +5830,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:872"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:874"
             },
             {
               "name": "startDate",
@@ -5838,7 +5838,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:873"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:875"
             },
             {
               "name": "endDate",
@@ -5846,7 +5846,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:874"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:876"
             },
             {
               "name": "onChange",
@@ -5854,7 +5854,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:875"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:877"
             },
             {
               "name": "placeholder",
@@ -5862,7 +5862,7 @@
               "required": false,
               "default": "\"Select lunar date range...\"",
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:876"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:878"
             },
             {
               "name": "className",
@@ -5870,7 +5870,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:877"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:879"
             },
             {
               "name": "label",
@@ -5878,7 +5878,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:878"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:880"
             },
             {
               "name": "labelClassName",
@@ -5886,7 +5886,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:879"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:881"
             },
             {
               "name": "required",
@@ -5894,7 +5894,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:880"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:882"
             },
             {
               "name": "disablePastDates",
@@ -5902,7 +5902,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:881"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:883"
             },
             {
               "name": "minDate",
@@ -5910,7 +5910,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:882"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:884"
             },
             {
               "name": "maxDate",
@@ -5918,15 +5918,15 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:883"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:885"
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": "\"md\"",
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:884"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:886"
             },
             {
               "name": "disabled",
@@ -5934,7 +5934,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:885"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:887"
             },
             {
               "name": "borderMode",
@@ -5942,7 +5942,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/LunarDatePicker.tsx:886"
+              "source": "packages/underverse/src/components/LunarDatePicker.tsx:888"
             }
           ]
         }
@@ -5957,7 +5957,7 @@
         {
           "name": "TimePicker",
           "kind": "component",
-          "signature": "({ value, defaultValue, onChange, placeholder, disabled, size, label, required, format, includeSeconds, minuteStep, secondStep, clearable, variant, matchTriggerWidth, showNow, showPresets, allowManualInput, customPresets, min, max, minTime, maxTime, disabledTimes, error, success, helperText, animate, onOpen, onClose, className, borderMode, ...rest }: TimePickerProps) => JSX.Element",
+          "signature": "({ value, defaultValue, onChange, placeholder, disabled, size: requestedSize, label, required, format, includeSeconds, minuteStep, secondStep, clearable, variant, matchTriggerWidth, showNow, showPresets, allowManualInput, customPresets, min, max, minTime, maxTime, disabledTimes, error, success, helperText, animate, onOpen, onClose, className, borderMode, ...rest }: TimePickerProps) => JSX.Element",
           "source": "packages/underverse/src/components/TimePicker.tsx",
           "props": [
             {
@@ -6002,7 +6002,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": "\"md\"",
               "description": null,
@@ -6338,7 +6338,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": "\"md\"",
               "description": "Size variant",
@@ -6365,7 +6365,7 @@
         {
           "name": "MonthYearPicker",
           "kind": "component",
-          "signature": "({ value, defaultValue, onChange, placeholder, disabled, size, label, labelClassName, required, clearable, variant, matchTriggerWidth, monthNames, shortMonthNames, minYear, maxYear, minDate, maxDate, error, success, helperText, animate, onOpen, onClose, showThisMonth, columnLabels, className, borderMode, ...rest }: MonthYearPickerProps) => JSX.Element",
+          "signature": "({ value, defaultValue, onChange, placeholder, disabled, size: requestedSize, label, labelClassName, required, clearable, variant, matchTriggerWidth, monthNames, shortMonthNames, minYear, maxYear, minDate, maxDate, error, success, helperText, animate, onOpen, onClose, showThisMonth, columnLabels, className, borderMode, ...rest }: MonthYearPickerProps) => JSX.Element",
           "source": "packages/underverse/src/components/MonthYearPicker.tsx",
           "props": [
             {
@@ -6410,7 +6410,7 @@
             },
             {
               "name": "size",
-              "type": "PickerSize",
+              "type": "FormControlSize",
               "required": false,
               "default": "\"md\"",
               "description": "Size variant",
@@ -6589,7 +6589,7 @@
         {
           "name": "MonthYearPickerBase",
           "kind": "component",
-          "signature": "({ value, defaultValue, onChange, placeholder, disabled, size, label, labelClassName, required, clearable, variant, matchTriggerWidth, monthNames, shortMonthNames, minYear, maxYear, minDate, maxDate, error, success, helperText, animate, onOpen, onClose, showThisMonth, columnLabels, className, borderMode, ...rest }: MonthYearPickerProps) => JSX.Element",
+          "signature": "({ value, defaultValue, onChange, placeholder, disabled, size: requestedSize, label, labelClassName, required, clearable, variant, matchTriggerWidth, monthNames, shortMonthNames, minYear, maxYear, minDate, maxDate, error, success, helperText, animate, onOpen, onClose, showThisMonth, columnLabels, className, borderMode, ...rest }: MonthYearPickerProps) => JSX.Element",
           "source": "packages/underverse/src/components/MonthYearPicker.tsx",
           "props": [
             {
@@ -6634,7 +6634,7 @@
             },
             {
               "name": "size",
-              "type": "PickerSize",
+              "type": "FormControlSize",
               "required": false,
               "default": "\"md\"",
               "description": "Size variant",
@@ -8218,7 +8218,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": "\"md\"",
               "description": null,
@@ -8586,7 +8586,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": "\"md\"",
               "description": null,
@@ -8922,7 +8922,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": null,
               "description": "Visual size of the trigger.",
@@ -11873,7 +11873,7 @@
         {
           "name": "DataTable",
           "kind": "component",
-          "signature": "<T extends Record<string, any>>({ columns, data, rowKey, loading, total, page, pageSize, pageSizeOptions, onQueryChange, caption, toolbar, size, enableColumnVisibilityToggle, enableDensityToggle, enableHeaderAlignToggle, striped, columnDividers, className, storageKey, stickyHeader, maxHeight, horizontalMode, overflowHidden, useOverlayScrollbar, virtualizedRows, estimatedRowHeight, overscan, enableHeaderAutoFit, labels, columnColorGroups, borderMode, }: DataTableProps<T>) => JSX.Element",
+          "signature": "<T extends Record<string, any>>({ columns, data, rowKey, loading, total, page, pageSize, pageSizeOptions, onQueryChange, caption, toolbar, size, enableColumnVisibilityToggle, enableDensityToggle, enableHeaderAlignToggle, striped, columnDividers, className, storageKey, stickyHeader, maxHeight, horizontalMode, overflowHidden, useOverlayScrollbar, virtualizedRows, estimatedRowHeight, overscan, paginationAlign, enableHeaderAutoFit, labels, columnColorGroups, borderMode, }: DataTableProps<T>) => JSX.Element",
           "source": "packages/underverse/src/components/DataTable/DataTable.tsx",
           "props": [
             {
@@ -11882,7 +11882,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:110"
+              "source": "packages/underverse/src/components/DataTable/types.ts:111"
             },
             {
               "name": "data",
@@ -11890,7 +11890,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:111"
+              "source": "packages/underverse/src/components/DataTable/types.ts:112"
             },
             {
               "name": "rowKey",
@@ -11898,7 +11898,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:112"
+              "source": "packages/underverse/src/components/DataTable/types.ts:113"
             },
             {
               "name": "loading",
@@ -11906,7 +11906,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:113"
+              "source": "packages/underverse/src/components/DataTable/types.ts:114"
             },
             {
               "name": "total",
@@ -11914,7 +11914,7 @@
               "required": false,
               "default": "0",
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:114"
+              "source": "packages/underverse/src/components/DataTable/types.ts:115"
             },
             {
               "name": "page",
@@ -11922,7 +11922,7 @@
               "required": false,
               "default": "1",
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:115"
+              "source": "packages/underverse/src/components/DataTable/types.ts:116"
             },
             {
               "name": "pageSize",
@@ -11930,7 +11930,7 @@
               "required": false,
               "default": "20",
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:116"
+              "source": "packages/underverse/src/components/DataTable/types.ts:117"
             },
             {
               "name": "pageSizeOptions",
@@ -11938,7 +11938,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:117"
+              "source": "packages/underverse/src/components/DataTable/types.ts:118"
             },
             {
               "name": "onQueryChange",
@@ -11946,7 +11946,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:118"
+              "source": "packages/underverse/src/components/DataTable/types.ts:119"
             },
             {
               "name": "caption",
@@ -11954,7 +11954,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:119"
+              "source": "packages/underverse/src/components/DataTable/types.ts:120"
             },
             {
               "name": "toolbar",
@@ -11962,7 +11962,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:120"
+              "source": "packages/underverse/src/components/DataTable/types.ts:121"
             },
             {
               "name": "columnColorGroups",
@@ -11970,7 +11970,7 @@
               "required": false,
               "default": null,
               "description": "Define color groups for the column visibility dropdown legend.\nKey = color value used in column's `colorTag` (e.g. \"#1e40af\").\nIf not provided, columns with colorTag still get colored but won't be grouped in dropdown.",
-              "source": "packages/underverse/src/components/DataTable/types.ts:126"
+              "source": "packages/underverse/src/components/DataTable/types.ts:127"
             },
             {
               "name": "size",
@@ -11978,7 +11978,7 @@
               "required": false,
               "default": "\"md\"",
               "description": "Visual size preset. Maps to component scales in the table UI.",
-              "source": "packages/underverse/src/components/DataTable/types.ts:128"
+              "source": "packages/underverse/src/components/DataTable/types.ts:129"
             },
             {
               "name": "enableColumnVisibilityToggle",
@@ -11986,7 +11986,7 @@
               "required": false,
               "default": "true",
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:129"
+              "source": "packages/underverse/src/components/DataTable/types.ts:130"
             },
             {
               "name": "enableDensityToggle",
@@ -11994,7 +11994,7 @@
               "required": false,
               "default": "true",
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:130"
+              "source": "packages/underverse/src/components/DataTable/types.ts:131"
             },
             {
               "name": "enableHeaderAlignToggle",
@@ -12002,7 +12002,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:131"
+              "source": "packages/underverse/src/components/DataTable/types.ts:132"
             },
             {
               "name": "striped",
@@ -12010,7 +12010,7 @@
               "required": false,
               "default": "true",
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:132"
+              "source": "packages/underverse/src/components/DataTable/types.ts:133"
             },
             {
               "name": "columnDividers",
@@ -12018,7 +12018,7 @@
               "required": false,
               "default": "false",
               "description": "Hiển thị đường kẻ dọc ngăn cách giữa các cột",
-              "source": "packages/underverse/src/components/DataTable/types.ts:134"
+              "source": "packages/underverse/src/components/DataTable/types.ts:135"
             },
             {
               "name": "className",
@@ -12026,7 +12026,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:135"
+              "source": "packages/underverse/src/components/DataTable/types.ts:136"
             },
             {
               "name": "storageKey",
@@ -12034,7 +12034,7 @@
               "required": false,
               "default": null,
               "description": "Key để lưu pageSize vào localStorage. Nếu không cung cấp, pageSize sẽ không được persist",
-              "source": "packages/underverse/src/components/DataTable/types.ts:137"
+              "source": "packages/underverse/src/components/DataTable/types.ts:138"
             },
             {
               "name": "stickyHeader",
@@ -12042,7 +12042,7 @@
               "required": false,
               "default": "true",
               "description": "Bật sticky header khi cuộn. Mặc định là false",
-              "source": "packages/underverse/src/components/DataTable/types.ts:139"
+              "source": "packages/underverse/src/components/DataTable/types.ts:140"
             },
             {
               "name": "maxHeight",
@@ -12050,7 +12050,7 @@
               "required": false,
               "default": "500",
               "description": "Chiều cao tối đa của bảng khi bật stickyHeader (mặc định: 500px)",
-              "source": "packages/underverse/src/components/DataTable/types.ts:141"
+              "source": "packages/underverse/src/components/DataTable/types.ts:142"
             },
             {
               "name": "horizontalMode",
@@ -12058,7 +12058,7 @@
               "required": false,
               "default": "\"auto\"",
               "description": "Horizontal sizing strategy for the table viewport.\n- \"auto\": default, prefer fitting the container and only scroll when content truly overflows\n- \"scroll\": preserve explicit column widths and force horizontal scrolling via min-width aggregation\n- \"fit\": use fixed table layout and suppress horizontal scrolling",
-              "source": "packages/underverse/src/components/DataTable/types.ts:148"
+              "source": "packages/underverse/src/components/DataTable/types.ts:149"
             },
             {
               "name": "overflowHidden",
@@ -12066,7 +12066,7 @@
               "required": false,
               "default": "true",
               "description": "Clip overflow của outer wrapper. Tắt khi cần cho phép shadow/focus ring tràn ra ngoài.",
-              "source": "packages/underverse/src/components/DataTable/types.ts:150"
+              "source": "packages/underverse/src/components/DataTable/types.ts:151"
             },
             {
               "name": "useOverlayScrollbar",
@@ -12074,7 +12074,7 @@
               "required": false,
               "default": "false",
               "description": "Enable OverlayScrollbars on table viewport. Default: false",
-              "source": "packages/underverse/src/components/DataTable/types.ts:152"
+              "source": "packages/underverse/src/components/DataTable/types.ts:153"
             },
             {
               "name": "virtualizedRows",
@@ -12082,7 +12082,7 @@
               "required": false,
               "default": "false",
               "description": "Virtualize body rows for large page sizes. Default: false",
-              "source": "packages/underverse/src/components/DataTable/types.ts:154"
+              "source": "packages/underverse/src/components/DataTable/types.ts:155"
             },
             {
               "name": "estimatedRowHeight",
@@ -12090,7 +12090,7 @@
               "required": false,
               "default": null,
               "description": "Estimated row height used by virtualized rendering. Defaults to the active density row height.",
-              "source": "packages/underverse/src/components/DataTable/types.ts:156"
+              "source": "packages/underverse/src/components/DataTable/types.ts:157"
             },
             {
               "name": "overscan",
@@ -12098,7 +12098,15 @@
               "required": false,
               "default": "8",
               "description": "Number of extra rows rendered above and below the visible range. Default: 8",
-              "source": "packages/underverse/src/components/DataTable/types.ts:158"
+              "source": "packages/underverse/src/components/DataTable/types.ts:159"
+            },
+            {
+              "name": "paginationAlign",
+              "type": "DataTablePaginationAlign",
+              "required": false,
+              "default": "\"right\"",
+              "description": "Alignment of the page navigation controls. Default: \"right\"",
+              "source": "packages/underverse/src/components/DataTable/types.ts:161"
             },
             {
               "name": "enableHeaderAutoFit",
@@ -12106,7 +12114,7 @@
               "required": false,
               "default": "true",
               "description": "Double-click leaf headers to auto-fit column width based on visible content. Default: true",
-              "source": "packages/underverse/src/components/DataTable/types.ts:160"
+              "source": "packages/underverse/src/components/DataTable/types.ts:163"
             },
             {
               "name": "labels",
@@ -12114,7 +12122,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:161"
+              "source": "packages/underverse/src/components/DataTable/types.ts:164"
             },
             {
               "name": "borderMode",
@@ -12122,7 +12130,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/DataTable/types.ts:162"
+              "source": "packages/underverse/src/components/DataTable/types.ts:165"
             }
           ]
         }
@@ -14370,7 +14378,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Form.tsx:15"
+              "source": "packages/underverse/src/components/Form.tsx:16"
             },
             {
               "name": "onSubmit",
@@ -14378,7 +14386,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Form.tsx:16"
+              "source": "packages/underverse/src/components/Form.tsx:17"
             },
             {
               "name": "initialValues",
@@ -14386,7 +14394,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Form.tsx:17"
+              "source": "packages/underverse/src/components/Form.tsx:18"
             },
             {
               "name": "validationSchema",
@@ -14394,7 +14402,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Form.tsx:18"
+              "source": "packages/underverse/src/components/Form.tsx:19"
             },
             {
               "name": "className",
@@ -14402,15 +14410,15 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Form.tsx:19"
+              "source": "packages/underverse/src/components/Form.tsx:20"
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Form.tsx:20"
+              "source": "packages/underverse/src/components/Form.tsx:21"
             }
           ]
         },
@@ -14433,7 +14441,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Form.tsx:205"
+              "source": "packages/underverse/src/components/Form.tsx:206"
             },
             {
               "name": "label",
@@ -14498,7 +14506,7 @@
             },
             {
               "name": "size",
-              "type": "\"sm\" | \"md\" | \"lg\"",
+              "type": "FormControlSize",
               "required": false,
               "default": null,
               "description": null,
@@ -14526,7 +14534,7 @@
               "required": true,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Form.tsx:186"
+              "source": "packages/underverse/src/components/Form.tsx:187"
             },
             {
               "name": "success",
@@ -14653,7 +14661,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Form.tsx:121"
+              "source": "packages/underverse/src/components/Form.tsx:122"
             }
           ]
         },
