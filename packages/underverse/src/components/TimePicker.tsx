@@ -13,7 +13,13 @@ import {
   type BorderMode,
 } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
+import {
+  formControlFixedClass,
+  formControlLabelClass,
+  formControlSizeStyles,
+  formControlValueClass,
+  type FormControlSize,
+} from "../constants/form-control-size";
 
 type TimeFormat = "24" | "12";
 type TimePickerVariant = "default" | "compact" | "inline";
@@ -1434,7 +1440,7 @@ export default function TimePicker({
           <div className="flex items-center justify-between mb-3">
             <label
               id={labelId}
-              className={cn(sz.label, "font-semibold", disabled ? "text-muted-foreground" : "text-foreground", effectiveError && "text-destructive")}
+              className={cn(sz.label, formControlLabelClass, disabled ? "text-muted-foreground" : "text-foreground", effectiveError && "text-destructive")}
             >
               {label}
               {required && <span className="text-destructive ml-1">*</span>}
@@ -1479,7 +1485,7 @@ export default function TimePicker({
             htmlFor={triggerId}
             className={cn(
               sz.label,
-              "font-semibold",
+              formControlLabelClass,
               disabled ? "text-muted-foreground" : "text-foreground",
               effectiveError && "text-destructive",
               "cursor-pointer transition-colors hover:text-primary",

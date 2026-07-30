@@ -48,5 +48,14 @@ export const formControlSizeStyles = {
 
 export type FormControlSize = keyof typeof formControlSizeStyles;
 
+/**
+ * Shared visual weight for labels attached to form controls.
+ *
+ * Keep this separate from the size map so every label renderer—including
+ * inline control labels that cannot render the shared `<Label>` primitive—
+ * follows the same typography contract.
+ */
+export const formControlLabelClass = "font-medium";
+
 export const formControlFixedClass = "min-h-0 overflow-hidden";
 export const formControlValueClass = "max-h-full min-w-0 flex-1 truncate whitespace-nowrap";

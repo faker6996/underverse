@@ -10,7 +10,12 @@ import { Popover } from "./Popover";
 import { lunarToSolar, solarToLunar, type LunarDateValue } from "../utils/lunar";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, type FormControlSize } from "../constants/form-control-size";
+import {
+  formControlFixedClass,
+  formControlLabelClass,
+  formControlSizeStyles,
+  type FormControlSize,
+} from "../constants/form-control-size";
 
 export type LunarPickerValue = LunarDateValue;
 
@@ -716,7 +721,8 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
             onClick={() => inputRef.current?.focus()}
             className={cn(
               labelSize,
-              "font-semibold transition-colors duration-300 cursor-pointer",
+              formControlLabelClass,
+              "transition-colors duration-300 cursor-pointer",
               disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary hover:text-primary",
               effectiveError && "text-destructive",
               labelClassName,
@@ -1406,7 +1412,8 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
           onClick={() => setIsOpen(true)}
           className={cn(
             size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
-            "font-medium transition-colors duration-300",
+            formControlLabelClass,
+            "transition-colors duration-300",
             disabled ? "text-muted-foreground cursor-not-allowed" : "text-foreground group-focus-within:text-primary hover:text-primary cursor-pointer",
             effectiveError && "text-destructive",
             labelClassName

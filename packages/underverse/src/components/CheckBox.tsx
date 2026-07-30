@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "../utils/cn";
 import { Check } from "lucide-react";
+import { formControlLabelClass } from "../constants/form-control-size";
 
 /** Public props for the `Checkbox` component. */
 export interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -39,7 +40,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         >
           {isChecked && <Check className="w-4 h-4" />}
         </div>
-        {label && <span className={cn("text-sm text-foreground", labelClassName)}>{label}</span>}
+        {label && <span className={cn("text-sm text-foreground", formControlLabelClass, labelClassName)}>{label}</span>}
       </label>
     );
   },

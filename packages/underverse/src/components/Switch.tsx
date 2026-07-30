@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils/cn";
+import { formControlLabelClass } from "../constants/form-control-size";
 
 /** Public props for the `Switch` component. */
 interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
@@ -113,7 +114,7 @@ export const Switch: React.FC<SwitchProps> = ({
       </div>
 
       {label && (
-        <span className={cn("text-sm font-medium text-foreground transition-colors", disabled && "text-muted-foreground", labelClassName)}>
+        <span className={cn("text-sm text-foreground transition-colors", formControlLabelClass, disabled && "text-muted-foreground", labelClassName)}>
           {label}
         </span>
       )}

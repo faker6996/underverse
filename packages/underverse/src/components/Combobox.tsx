@@ -12,7 +12,13 @@ import { Popover } from "./Popover";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { getBorderRadiusClass, getPanelBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
+import {
+  formControlFixedClass,
+  formControlLabelClass,
+  formControlSizeStyles,
+  formControlValueClass,
+  type FormControlSize,
+} from "../constants/form-control-size";
 
 // --- PROPS ---
 export type ComboboxOption = string | { label: string; value: any; icon?: React.ReactNode; description?: string; disabled?: boolean };
@@ -741,7 +747,8 @@ export const Combobox: React.FC<ComboboxProps> = ({
             onClick={() => triggerRef.current?.focus()}
             className={cn(
               labelSize,
-              "font-medium transition-colors duration-200",
+              formControlLabelClass,
+              "transition-colors duration-200",
               disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary",
               effectiveError && "text-destructive",
               labelClassName,

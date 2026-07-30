@@ -4,6 +4,7 @@ import * as React from "react";
 import { cn } from "../utils/cn";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
+import { formControlLabelClass } from "../constants/form-control-size";
 
 interface RadioGroupContextType {
   value?: string;
@@ -206,7 +207,7 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 {Icon && <Icon className="h-4 w-4 text-foreground" />}
-                <label htmlFor={radioId} className={cn("font-medium text-foreground cursor-pointer", sizeStyles[size].text, labelClassName)}>
+                <label htmlFor={radioId} className={cn(formControlLabelClass, "text-foreground cursor-pointer", sizeStyles[size].text, labelClassName)}>
                   {label || children}
                 </label>
               </div>
@@ -239,7 +240,8 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
           id={radioId}
           disabled={isDisabled}
           className={cn(
-            "inline-flex items-center justify-center gap-2 border font-medium transition-all duration-200",
+            "inline-flex items-center justify-center gap-2 border transition-all duration-200",
+            formControlLabelClass,
             getBorderRadiusClass(borderMode ?? "lg"),
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             "disabled:cursor-not-allowed disabled:opacity-50",
@@ -297,7 +299,8 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
           <label
             htmlFor={radioId}
             className={cn(
-              "font-medium text-foreground cursor-pointer flex-1",
+              formControlLabelClass,
+              "text-foreground cursor-pointer flex-1",
               "disabled:cursor-not-allowed disabled:opacity-50",
               sizeStyles[size].text,
               isDisabled && "cursor-not-allowed opacity-50",

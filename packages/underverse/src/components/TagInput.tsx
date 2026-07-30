@@ -7,7 +7,12 @@ import Button from "./Button";
 import { useGlobalI18n } from "../contexts/GlobalI18nContext";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, type FormControlSize } from "../constants/form-control-size";
+import {
+  formControlFixedClass,
+  formControlLabelClass,
+  formControlSizeStyles,
+  type FormControlSize,
+} from "../constants/form-control-size";
 
 /** Public props for the `TagInput` component. */
 export interface TagInputProps {
@@ -249,7 +254,8 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
           <label
             htmlFor={inputId}
             className={cn(
-              "block font-medium transition-colors duration-200",
+              "block transition-colors duration-200",
+              formControlLabelClass,
               formControlSizeStyles[size].label,
               disabled ? "text-muted-foreground" : isFocused ? "text-primary" : "text-foreground",
               labelClassName,

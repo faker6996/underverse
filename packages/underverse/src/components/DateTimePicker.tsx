@@ -10,7 +10,13 @@ import TimePicker from "./TimePicker";
 import { useSmartLocale, useSmartTranslations } from "../hooks/useSmartTranslations";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
+import {
+  formControlFixedClass,
+  formControlLabelClass,
+  formControlSizeStyles,
+  formControlValueClass,
+  type FormControlSize,
+} from "../constants/form-control-size";
 
 /** Public props for the `DateTimePicker` component. */
 export interface DateTimePickerProps {
@@ -245,7 +251,13 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
         <label
           id={labelId}
           htmlFor={triggerId}
-          className={cn(sizeStyles[size].label, "font-medium text-foreground flex items-center gap-1", effectiveError && "text-destructive", labelClassName)}
+          className={cn(
+            sizeStyles[size].label,
+            formControlLabelClass,
+            "text-foreground flex items-center gap-1",
+            effectiveError && "text-destructive",
+            labelClassName,
+          )}
         >
           {label} {required && <span className="text-destructive">*</span>}
         </label>

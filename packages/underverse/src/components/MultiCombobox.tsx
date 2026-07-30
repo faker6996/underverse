@@ -12,7 +12,13 @@ import { Popover } from "./Popover";
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { getBorderRadiusClass, getPanelBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
+import {
+  formControlFixedClass,
+  formControlLabelClass,
+  formControlSizeStyles,
+  formControlValueClass,
+  type FormControlSize,
+} from "../constants/form-control-size";
 
 export interface MultiComboboxOption {
   value: string;
@@ -747,7 +753,8 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
           <label
             className={cn(
               size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
-              "font-medium transition-colors duration-200",
+              formControlLabelClass,
+              "transition-colors duration-200",
               disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary",
               effectiveError && "text-destructive",
               labelClassName,
@@ -766,7 +773,8 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
           onClick={() => triggerRef.current?.focus()}
           className={cn(
             labelSize,
-            "font-medium transition-colors duration-200",
+            formControlLabelClass,
+            "transition-colors duration-200",
             disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary",
             effectiveError && "text-destructive",
             labelClassName,

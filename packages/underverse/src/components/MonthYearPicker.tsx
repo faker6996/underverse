@@ -8,7 +8,13 @@ import { Popover } from "./Popover";
 import { Calendar, X, Check, ChevronDown } from "lucide-react";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
+import {
+  formControlFixedClass,
+  formControlLabelClass,
+  formControlSizeStyles,
+  formControlValueClass,
+  type FormControlSize,
+} from "../constants/form-control-size";
 
 type MonthYearPickerVariant = "default" | "compact" | "inline";
 type PickerSize = "sm" | "md" | "lg";
@@ -942,7 +948,7 @@ export default function MonthYearPicker({
     return (
       <div className={cn("w-full", className)} {...rest}>
         {label && (
-          <label className={cn(sz.label, "block mb-1.5 font-medium text-foreground/80", effectiveError && "text-destructive", labelClassName)}>
+          <label className={cn(sz.label, "block mb-1.5 text-foreground/80", formControlLabelClass, effectiveError && "text-destructive", labelClassName)}>
             {label}
             {required && <span className="text-destructive ml-0.5">*</span>}
           </label>
@@ -980,7 +986,7 @@ export default function MonthYearPicker({
   return (
     <div className={cn("w-full", className)} {...rest}>
       {label && (
-        <label className={cn(sz.label, "block mb-1.5 font-medium text-foreground/80", effectiveError && "text-destructive", labelClassName)}>
+        <label className={cn(sz.label, "block mb-1.5 text-foreground/80", formControlLabelClass, effectiveError && "text-destructive", labelClassName)}>
           {label}
           {required && <span className="text-destructive ml-0.5">*</span>}
         </label>

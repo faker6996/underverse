@@ -8,7 +8,12 @@ import { Eye, EyeOff, Search, X, AlertCircle, CheckCircle, Loader2 } from "lucid
 import { useOverlayScrollbarTarget } from "./OverlayScrollbarProvider";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, type FormControlSize } from "../constants/form-control-size";
+import {
+  formControlFixedClass,
+  formControlLabelClass,
+  formControlSizeStyles,
+  type FormControlSize,
+} from "../constants/form-control-size";
 
 /** Public props for the `Input` component. */
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
@@ -183,7 +188,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               className={cn(
                 // Label size follows input size
                 sizeStyles[size].label,
-                "font-medium transition-colors duration-200",
+                formControlLabelClass,
+                "transition-colors duration-200",
                 // default color and highlight while any descendant focused
                 disabled ? "text-muted-foreground" : cn("text-foreground group-focus-within:text-primary", success && "text-primary"),
                 errMsg && "text-destructive",
@@ -717,7 +723,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           <div className="flex items-center justify-between">
             <label
               className={cn(
-                "text-sm font-medium transition-colors duration-200",
+                "text-sm transition-colors duration-200",
+                formControlLabelClass,
                 isFocused ? "text-primary" : "text-foreground",
                 error && "text-destructive",
                 labelClassName,

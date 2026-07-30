@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "../utils/cn";
 import { useGlobalI18n } from "../contexts/GlobalI18nContext";
+import { formControlLabelClass } from "../constants/form-control-size";
 
 /** Public props for the `Slider` component. */
 interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "size"> {
@@ -294,7 +295,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
         {/* Label and value display */}
         {(label || showValue) && (
           <div className="flex items-center justify-between">
-            {label && <label className={cn("text-sm font-medium text-foreground", labelClassName)}>{label}</label>}
+            {label && <label className={cn("text-sm text-foreground", formControlLabelClass, labelClassName)}>{label}</label>}
             {showValue && <span className={cn("text-xs font-mono text-muted-foreground min-w-8 text-right", valueClassName)}>{displayValue}</span>}
           </div>
         )}
