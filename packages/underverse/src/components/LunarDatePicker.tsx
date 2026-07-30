@@ -769,11 +769,11 @@ export const LunarDatePicker: React.FC<LunarDatePickerProps> = ({
                 ? "border-border/40 opacity-50 cursor-not-allowed"
                 : [
                   "border-border/60 hover:border-primary/40",
-                  "focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 focus-within:ring-offset-background focus-within:border-transparent focus-within:hover:border-transparent",
-                  "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
+                  "focus-within:border-primary focus-within:ring-0",
+                  "hover:bg-accent/10",
                 ],
               "transition-all duration-300 ease-out",
-              isOpen && !isFocused && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
+              isOpen && !isFocused && "border-primary shadow-lg shadow-primary/10",
               effectiveError && "border-destructive/60 focus-within:ring-destructive/50 bg-destructive/5",
               className,
             )}
@@ -1468,11 +1468,11 @@ export const LunarDateRangePicker: React.FC<LunarDateRangePickerProps> = ({
                 ? "border-border/40 opacity-50 cursor-not-allowed"
                 : [
                   "border-border/60 hover:border-primary/40",
-                  "focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 focus-within:ring-offset-background focus-within:border-transparent focus-within:hover:border-transparent",
-                  "hover:bg-accent/10 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
+                  "focus-within:border-primary focus-within:ring-0",
+                  "hover:bg-accent/10",
                 ],
               "transition-all duration-300 ease-out text-left",
-              isOpen && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
+              isOpen && "border-primary shadow-lg shadow-primary/10",
               effectiveError && "border-destructive/60 focus-within:ring-destructive/50 bg-destructive/5",
             )}
           >

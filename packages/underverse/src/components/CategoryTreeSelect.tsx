@@ -1270,7 +1270,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
               triggerVariantStyles[variant],
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               disabled && "opacity-50 cursor-not-allowed hover:transform-none hover:shadow-none",
-              isOpen && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
+              isOpen && "border-primary shadow-lg shadow-primary/10",
               effectiveError && "border-destructive focus-visible:ring-destructive/30",
             )}
           >

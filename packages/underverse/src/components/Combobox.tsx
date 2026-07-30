@@ -665,7 +665,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
       variantStyles[variant],
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary",
       "disabled:cursor-not-allowed disabled:opacity-50",
-      open && "ring-2 ring-primary/20 border-primary",
+      open && "border-primary",
       !!effectiveError && "border-destructive focus-visible:ring-destructive/30",
       className,
     ),

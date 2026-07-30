@@ -1052,8 +1052,7 @@ export default function TimePicker({
           effectiveError && "border-destructive/60 focus-visible:ring-destructive/50 bg-destructive/5",
           success && !effectiveError && "border-success/60 focus-visible:ring-success/50 bg-success/5",
           !effectiveError && !success && "border-border/60 hover:border-primary/40 hover:bg-accent/10",
-          animate && !disabled && "hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
-          open && "ring-2 ring-primary/30 border-primary/50 shadow-lg shadow-primary/10",
+          open && "border-primary shadow-lg shadow-primary/10",
           className,
         )}
       >
