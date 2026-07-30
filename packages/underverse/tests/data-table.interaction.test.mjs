@@ -101,6 +101,57 @@ test("DataTable keeps page size selector visible when the current page size fits
   });
 });
 
+test("DataTable hides the toolbar row when showToolbar is false", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
+  const DataTable = mod.default;
+
+  const view = render(
+    React.createElement(DataTable, {
+      columns: [{ key: "name", title: "Name", dataIndex: "name" }],
+      data: [{ id: "1", name: "Ada Lovelace" }],
+      rowKey: "id",
+      caption: "People",
+      toolbar: React.createElement("button", null, "Custom action"),
+      showToolbar: false,
+      stickyHeader: false,
+    }),
+  );
+
+  assert.equal(view.queryByText("People"), null);
+  assert.equal(view.queryByRole("button", { name: "Density" }), null);
+  assert.equal(view.queryByRole("button", { name: "Columns" }), null);
+  assert.equal(view.queryByRole("button", { name: "Custom action" }), null);
+});
+
+test("DataTable uppercases all header levels when uppercaseHeader is enabled", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
+  const DataTable = mod.default;
+
+  const view = render(
+    React.createElement(DataTable, {
+      columns: [
+        {
+          key: "profile",
+          title: "Profile details",
+          children: [
+            { key: "name", title: "Full name", dataIndex: "name" },
+          ],
+        },
+      ],
+      data: [{ id: "1", name: "Ada Lovelace" }],
+      rowKey: "id",
+      uppercaseHeader: true,
+      stickyHeader: false,
+    }),
+  );
+
+  const headerCells = view.container.querySelectorAll("th");
+  assert.equal(headerCells.length, 2);
+  headerCells.forEach((headerCell) => {
+    assert.equal(headerCell.classList.contains("uppercase"), true);
+  });
+});
+
 test("DataTable applies colorTag background to fixed leaf headers", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "DataTable/index.ts"));
   const DataTable = mod.default;

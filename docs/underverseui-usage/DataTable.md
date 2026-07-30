@@ -94,10 +94,12 @@ interface DataTableProps<T> {
   onQueryChange?: (q: DataTableQuery) => void; // server-side
   caption?: React.ReactNode;
   toolbar?: React.ReactNode;
+  showToolbar?: boolean; // Hiển thị hàng toolbar phía trên bảng. Mặc định: true
   size?: "sm" | "md" | "lg"; // default: "md"
   enableColumnVisibilityToggle?: boolean;
   enableDensityToggle?: boolean;
   enableHeaderAlignToggle?: boolean;
+  uppercaseHeader?: boolean; // Viết hoa toàn bộ text trong header. Mặc định: false
   striped?: boolean; // Bật/tắt màu nền sẽn kẽ cho các dòng
   /** Hiển thị đường kẻ dọc ngăn cách giữa các cột */
   columnDividers?: boolean;

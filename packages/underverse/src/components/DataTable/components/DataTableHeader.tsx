@@ -44,6 +44,7 @@ export function DataTableHeader<T extends Record<string, any>>({
   filters,
   sort,
   columnDividers,
+  uppercaseHeader,
   setCurPage,
   setFilters,
   setSort,
@@ -64,6 +65,7 @@ export function DataTableHeader<T extends Record<string, any>>({
   filters: Record<string, any>;
   sort: Sorter;
   columnDividers: boolean;
+  uppercaseHeader: boolean;
   setCurPage: React.Dispatch<React.SetStateAction<number>>;
   setFilters: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   setSort: React.Dispatch<React.SetStateAction<Sorter>>;
@@ -345,6 +347,7 @@ export function DataTableHeader<T extends Record<string, any>>({
                   "relative",
                   (col.headerAlign ?? headerAlign) === "right" && "text-right",
                   (col.headerAlign ?? headerAlign) === "center" && "text-center",
+                  uppercaseHeader && "uppercase",
                   showBorderLeft && "border-l border-border/60",
                   getStickyHeaderClass(col),
                 )}

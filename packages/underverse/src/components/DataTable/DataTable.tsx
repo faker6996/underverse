@@ -111,10 +111,12 @@ export function DataTable<T extends Record<string, any>>({
   onQueryChange,
   caption,
   toolbar,
+  showToolbar = true,
   size = "md",
   enableColumnVisibilityToggle = true,
   enableDensityToggle = true,
   enableHeaderAlignToggle = false,
+  uppercaseHeader = false,
   striped = true,
   columnDividers = false,
   className,
@@ -297,24 +299,26 @@ export function DataTable<T extends Record<string, any>>({
 
   return (
     <div className={cn("space-y-2", className)}>
-      <DataTableToolbar
-        caption={caption}
-        toolbar={toolbar}
-        columns={columnsWithWidthOverrides}
-        visibleCols={visibleCols}
-        setVisibleCols={setVisibleCols}
-        enableDensityToggle={enableDensityToggle}
-        enableColumnVisibilityToggle={enableColumnVisibilityToggle}
-        enableHeaderAlignToggle={enableHeaderAlignToggle}
-        size={size}
-        density={density}
-        setDensity={setDensity}
-        setHeaderAlign={setHeaderAlign}
-        labels={labels}
-        t={t}
-        columnColorGroups={columnColorGroups}
-        defaultVisibleKeys={defaultVisibleKeys}
-      />
+      {showToolbar && (
+        <DataTableToolbar
+          caption={caption}
+          toolbar={toolbar}
+          columns={columnsWithWidthOverrides}
+          visibleCols={visibleCols}
+          setVisibleCols={setVisibleCols}
+          enableDensityToggle={enableDensityToggle}
+          enableColumnVisibilityToggle={enableColumnVisibilityToggle}
+          enableHeaderAlignToggle={enableHeaderAlignToggle}
+          size={size}
+          density={density}
+          setDensity={setDensity}
+          setHeaderAlign={setHeaderAlign}
+          labels={labels}
+          t={t}
+          columnColorGroups={columnColorGroups}
+          defaultVisibleKeys={defaultVisibleKeys}
+        />
+      )}
 
       <div
         className={cn(
@@ -350,6 +354,7 @@ export function DataTable<T extends Record<string, any>>({
                 filters={filters}
                 sort={sort}
                 columnDividers={columnDividers}
+                uppercaseHeader={uppercaseHeader}
                 setCurPage={setCurPage}
                 setFilters={setFilters}
                 setSort={setSort}

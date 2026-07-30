@@ -119,6 +119,8 @@ export interface DataTableProps<T> {
   onQueryChange?: (q: DataTableQuery) => void; // server-side
   caption?: React.ReactNode;
   toolbar?: React.ReactNode;
+  /** Show the toolbar row above the table. Default: true */
+  showToolbar?: boolean;
   /** 
    * Define color groups for the column visibility dropdown legend.
    * Key = color value used in column's `colorTag` (e.g. "#1e40af").
@@ -130,6 +132,8 @@ export interface DataTableProps<T> {
   enableColumnVisibilityToggle?: boolean;
   enableDensityToggle?: boolean;
   enableHeaderAlignToggle?: boolean;
+  /** Uppercase all text displayed in table headers. Default: false */
+  uppercaseHeader?: boolean;
   striped?: boolean; // Bật/tắt màu nền sẽn kẽ cho các dòng
   /** Hiển thị đường kẻ dọc ngăn cách giữa các cột */
   columnDividers?: boolean;
