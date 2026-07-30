@@ -2206,6 +2206,7 @@
       "sourcePath": "packages/underverse/src/components/Input.tsx",
       "importNames": [
         "Input",
+        "SearchInput",
         "PasswordInput",
         "NumberInput"
       ],
@@ -2351,6 +2352,190 @@
               "default": null,
               "description": "Custom content rendered inside the input container (positioned absolutely)",
               "source": "packages/underverse/src/components/Input.tsx:38"
+            },
+            {
+              "name": "rightSection",
+              "type": "React.ReactNode",
+              "required": false,
+              "default": null,
+              "description": "Custom content attached to the end of the input, after built-in controls",
+              "source": "packages/underverse/src/components/Input.tsx:40"
+            }
+          ]
+        },
+        {
+          "name": "SearchInput",
+          "kind": "component",
+          "signature": "React.ForwardRefExoticComponent<SearchInputProps & React.RefAttributes<HTMLInputElement>>",
+          "source": "packages/underverse/src/components/Input.tsx",
+          "props": [
+            {
+              "name": "mode",
+              "type": "\"default\" | \"button\"",
+              "required": false,
+              "default": "\"default\"",
+              "description": "Search interaction style. `default` searches as the value changes; `button` searches on Enter or button click.",
+              "source": "packages/underverse/src/components/Input.tsx:388"
+            },
+            {
+              "name": "onSearch",
+              "type": "(value: string) => void",
+              "required": false,
+              "default": null,
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:389"
+            },
+            {
+              "name": "searchDelay",
+              "type": "number",
+              "required": false,
+              "default": "300",
+              "description": "Debounce duration for `default` mode. Ignored in `button` mode.",
+              "source": "packages/underverse/src/components/Input.tsx:391"
+            },
+            {
+              "name": "searchButtonLabel",
+              "type": "string",
+              "required": false,
+              "default": "\"Search\"",
+              "description": "Accessible label for the search action in `button` mode.",
+              "source": "packages/underverse/src/components/Input.tsx:393"
+            },
+            {
+              "name": "variant",
+              "type": "\"default\" | \"filled\" | \"outlined\" | \"minimal\"",
+              "required": false,
+              "default": null,
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:25"
+            },
+            {
+              "name": "size",
+              "type": "FormControlSize",
+              "required": false,
+              "default": "\"md\"",
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:26"
+            },
+            {
+              "name": "loading",
+              "type": "boolean",
+              "required": false,
+              "default": "false",
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:31"
+            },
+            {
+              "name": "borderMode",
+              "type": "BorderMode",
+              "required": false,
+              "default": null,
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:27"
+            },
+            {
+              "name": "success",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:32"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:24"
+            },
+            {
+              "name": "error",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:23"
+            },
+            {
+              "name": "maxLength",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:36"
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:20"
+            },
+            {
+              "name": "labelClassName",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": "Custom class for label",
+              "source": "packages/underverse/src/components/Input.tsx:22"
+            },
+            {
+              "name": "rightIcon",
+              "type": "React.ComponentType<{ className?: string }>",
+              "required": false,
+              "default": null,
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:29"
+            },
+            {
+              "name": "clearable",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:30"
+            },
+            {
+              "name": "onClear",
+              "type": "() => void",
+              "required": false,
+              "default": null,
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:33"
+            },
+            {
+              "name": "hint",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:34"
+            },
+            {
+              "name": "counter",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": null,
+              "source": "packages/underverse/src/components/Input.tsx:35"
+            },
+            {
+              "name": "rightAddon",
+              "type": "React.ReactNode",
+              "required": false,
+              "default": null,
+              "description": "Custom content rendered inside the input container (positioned absolutely)",
+              "source": "packages/underverse/src/components/Input.tsx:38"
+            },
+            {
+              "name": "rightSection",
+              "type": "React.ReactNode",
+              "required": false,
+              "default": null,
+              "description": "Custom content attached to the end of the input, after built-in controls",
+              "source": "packages/underverse/src/components/Input.tsx:40"
             }
           ]
         },
@@ -2366,7 +2551,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:414"
+              "source": "packages/underverse/src/components/Input.tsx:547"
             },
             {
               "name": "strengthLabels",
@@ -2374,7 +2559,7 @@
               "required": false,
               "default": "[\"Weak\", \"Fair\", \"Good\", \"Strong\"]",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:415"
+              "source": "packages/underverse/src/components/Input.tsx:548"
             },
             {
               "name": "variant",
@@ -2511,6 +2696,14 @@
               "default": null,
               "description": "Custom content rendered inside the input container (positioned absolutely)",
               "source": "packages/underverse/src/components/Input.tsx:38"
+            },
+            {
+              "name": "rightSection",
+              "type": "React.ReactNode",
+              "required": false,
+              "default": null,
+              "description": "Custom content attached to the end of the input, after built-in controls",
+              "source": "packages/underverse/src/components/Input.tsx:40"
             }
           ]
         },
@@ -2526,7 +2719,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:472"
+              "source": "packages/underverse/src/components/Input.tsx:605"
             },
             {
               "name": "max",
@@ -2534,7 +2727,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:473"
+              "source": "packages/underverse/src/components/Input.tsx:606"
             },
             {
               "name": "step",
@@ -2542,7 +2735,7 @@
               "required": false,
               "default": "1",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:474"
+              "source": "packages/underverse/src/components/Input.tsx:607"
             },
             {
               "name": "showSteppers",
@@ -2550,7 +2743,7 @@
               "required": false,
               "default": "true",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:475"
+              "source": "packages/underverse/src/components/Input.tsx:608"
             },
             {
               "name": "onIncrement",
@@ -2558,7 +2751,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:476"
+              "source": "packages/underverse/src/components/Input.tsx:609"
             },
             {
               "name": "onDecrement",
@@ -2566,7 +2759,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:477"
+              "source": "packages/underverse/src/components/Input.tsx:610"
             },
             {
               "name": "formatThousands",
@@ -2574,7 +2767,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:478"
+              "source": "packages/underverse/src/components/Input.tsx:611"
             },
             {
               "name": "locale",
@@ -2582,7 +2775,7 @@
               "required": false,
               "default": "\"vi-VN\"",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:479"
+              "source": "packages/underverse/src/components/Input.tsx:612"
             },
             {
               "name": "value",
@@ -2590,7 +2783,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:480"
+              "source": "packages/underverse/src/components/Input.tsx:613"
             },
             {
               "name": "onChange",
@@ -2598,7 +2791,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:481"
+              "source": "packages/underverse/src/components/Input.tsx:614"
             },
             {
               "name": "variant",
@@ -2735,158 +2928,14 @@
               "default": null,
               "description": "Custom content rendered inside the input container (positioned absolutely)",
               "source": "packages/underverse/src/components/Input.tsx:38"
-            }
-          ]
-        },
-        {
-          "name": "SearchInput",
-          "kind": "component",
-          "signature": "React.ForwardRefExoticComponent<SearchInputProps & React.RefAttributes<HTMLInputElement>>",
-          "source": "packages/underverse/src/components/Input.tsx",
-          "props": [
-            {
-              "name": "onSearch",
-              "type": "(value: string) => void",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:375"
             },
             {
-              "name": "searchDelay",
-              "type": "number",
-              "required": false,
-              "default": "300",
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:376"
-            },
-            {
-              "name": "variant",
-              "type": "\"default\" | \"filled\" | \"outlined\" | \"minimal\"",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:25"
-            },
-            {
-              "name": "size",
-              "type": "FormControlSize",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:26"
-            },
-            {
-              "name": "loading",
-              "type": "boolean",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:31"
-            },
-            {
-              "name": "borderMode",
-              "type": "BorderMode",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:27"
-            },
-            {
-              "name": "success",
-              "type": "boolean",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:32"
-            },
-            {
-              "name": "description",
-              "type": "string",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:24"
-            },
-            {
-              "name": "error",
-              "type": "string",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:23"
-            },
-            {
-              "name": "maxLength",
-              "type": "number",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:36"
-            },
-            {
-              "name": "label",
-              "type": "string",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:20"
-            },
-            {
-              "name": "labelClassName",
-              "type": "string",
-              "required": false,
-              "default": null,
-              "description": "Custom class for label",
-              "source": "packages/underverse/src/components/Input.tsx:22"
-            },
-            {
-              "name": "rightIcon",
-              "type": "React.ComponentType<{ className?: string }>",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:29"
-            },
-            {
-              "name": "clearable",
-              "type": "boolean",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:30"
-            },
-            {
-              "name": "onClear",
-              "type": "() => void",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:33"
-            },
-            {
-              "name": "hint",
-              "type": "string",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:34"
-            },
-            {
-              "name": "counter",
-              "type": "boolean",
-              "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:35"
-            },
-            {
-              "name": "rightAddon",
+              "name": "rightSection",
               "type": "React.ReactNode",
               "required": false,
               "default": null,
-              "description": "Custom content rendered inside the input container (positioned absolutely)",
-              "source": "packages/underverse/src/components/Input.tsx:38"
+              "description": "Custom content attached to the end of the input, after built-in controls",
+              "source": "packages/underverse/src/components/Input.tsx:40"
             }
           ]
         },
@@ -2902,7 +2951,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:637"
+              "source": "packages/underverse/src/components/Input.tsx:770"
             },
             {
               "name": "labelClassName",
@@ -2910,7 +2959,7 @@
               "required": false,
               "default": null,
               "description": "Custom class for label",
-              "source": "packages/underverse/src/components/Input.tsx:639"
+              "source": "packages/underverse/src/components/Input.tsx:772"
             },
             {
               "name": "error",
@@ -2918,7 +2967,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:640"
+              "source": "packages/underverse/src/components/Input.tsx:773"
             },
             {
               "name": "description",
@@ -2926,7 +2975,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:641"
+              "source": "packages/underverse/src/components/Input.tsx:774"
             },
             {
               "name": "variant",
@@ -2934,7 +2983,7 @@
               "required": false,
               "default": "\"default\"",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:642"
+              "source": "packages/underverse/src/components/Input.tsx:775"
             },
             {
               "name": "size",
@@ -2942,7 +2991,7 @@
               "required": false,
               "default": "\"md\"",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:643"
+              "source": "packages/underverse/src/components/Input.tsx:776"
             },
             {
               "name": "borderMode",
@@ -2950,7 +2999,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:644"
+              "source": "packages/underverse/src/components/Input.tsx:777"
             },
             {
               "name": "resize",
@@ -2958,7 +3007,7 @@
               "required": false,
               "default": "\"vertical\"",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:645"
+              "source": "packages/underverse/src/components/Input.tsx:778"
             },
             {
               "name": "counter",
@@ -2966,7 +3015,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:646"
+              "source": "packages/underverse/src/components/Input.tsx:779"
             },
             {
               "name": "useOverlayScrollbar",
@@ -2974,7 +3023,7 @@
               "required": false,
               "default": "false",
               "description": "Enable OverlayScrollbars on textarea viewport. Default: false",
-              "source": "packages/underverse/src/components/Input.tsx:648"
+              "source": "packages/underverse/src/components/Input.tsx:781"
             }
           ]
         }
@@ -2998,7 +3047,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:637"
+              "source": "packages/underverse/src/components/Input.tsx:770"
             },
             {
               "name": "labelClassName",
@@ -3006,7 +3055,7 @@
               "required": false,
               "default": null,
               "description": "Custom class for label",
-              "source": "packages/underverse/src/components/Input.tsx:639"
+              "source": "packages/underverse/src/components/Input.tsx:772"
             },
             {
               "name": "error",
@@ -3014,7 +3063,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:640"
+              "source": "packages/underverse/src/components/Input.tsx:773"
             },
             {
               "name": "description",
@@ -3022,7 +3071,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:641"
+              "source": "packages/underverse/src/components/Input.tsx:774"
             },
             {
               "name": "variant",
@@ -3030,7 +3079,7 @@
               "required": false,
               "default": "\"default\"",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:642"
+              "source": "packages/underverse/src/components/Input.tsx:775"
             },
             {
               "name": "size",
@@ -3038,7 +3087,7 @@
               "required": false,
               "default": "\"md\"",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:643"
+              "source": "packages/underverse/src/components/Input.tsx:776"
             },
             {
               "name": "borderMode",
@@ -3046,7 +3095,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:644"
+              "source": "packages/underverse/src/components/Input.tsx:777"
             },
             {
               "name": "resize",
@@ -3054,7 +3103,7 @@
               "required": false,
               "default": "\"vertical\"",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:645"
+              "source": "packages/underverse/src/components/Input.tsx:778"
             },
             {
               "name": "counter",
@@ -3062,7 +3111,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:646"
+              "source": "packages/underverse/src/components/Input.tsx:779"
             },
             {
               "name": "useOverlayScrollbar",
@@ -3070,7 +3119,7 @@
               "required": false,
               "default": "false",
               "description": "Enable OverlayScrollbars on textarea viewport. Default: false",
-              "source": "packages/underverse/src/components/Input.tsx:648"
+              "source": "packages/underverse/src/components/Input.tsx:781"
             }
           ]
         },
@@ -3215,6 +3264,14 @@
               "default": null,
               "description": "Custom content rendered inside the input container (positioned absolutely)",
               "source": "packages/underverse/src/components/Input.tsx:38"
+            },
+            {
+              "name": "rightSection",
+              "type": "React.ReactNode",
+              "required": false,
+              "default": null,
+              "description": "Custom content attached to the end of the input, after built-in controls",
+              "source": "packages/underverse/src/components/Input.tsx:40"
             }
           ]
         },
@@ -3230,7 +3287,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:472"
+              "source": "packages/underverse/src/components/Input.tsx:605"
             },
             {
               "name": "max",
@@ -3238,7 +3295,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:473"
+              "source": "packages/underverse/src/components/Input.tsx:606"
             },
             {
               "name": "step",
@@ -3246,7 +3303,7 @@
               "required": false,
               "default": "1",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:474"
+              "source": "packages/underverse/src/components/Input.tsx:607"
             },
             {
               "name": "showSteppers",
@@ -3254,7 +3311,7 @@
               "required": false,
               "default": "true",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:475"
+              "source": "packages/underverse/src/components/Input.tsx:608"
             },
             {
               "name": "onIncrement",
@@ -3262,7 +3319,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:476"
+              "source": "packages/underverse/src/components/Input.tsx:609"
             },
             {
               "name": "onDecrement",
@@ -3270,7 +3327,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:477"
+              "source": "packages/underverse/src/components/Input.tsx:610"
             },
             {
               "name": "formatThousands",
@@ -3278,7 +3335,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:478"
+              "source": "packages/underverse/src/components/Input.tsx:611"
             },
             {
               "name": "locale",
@@ -3286,7 +3343,7 @@
               "required": false,
               "default": "\"vi-VN\"",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:479"
+              "source": "packages/underverse/src/components/Input.tsx:612"
             },
             {
               "name": "value",
@@ -3294,7 +3351,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:480"
+              "source": "packages/underverse/src/components/Input.tsx:613"
             },
             {
               "name": "onChange",
@@ -3302,7 +3359,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:481"
+              "source": "packages/underverse/src/components/Input.tsx:614"
             },
             {
               "name": "variant",
@@ -3439,6 +3496,14 @@
               "default": null,
               "description": "Custom content rendered inside the input container (positioned absolutely)",
               "source": "packages/underverse/src/components/Input.tsx:38"
+            },
+            {
+              "name": "rightSection",
+              "type": "React.ReactNode",
+              "required": false,
+              "default": null,
+              "description": "Custom content attached to the end of the input, after built-in controls",
+              "source": "packages/underverse/src/components/Input.tsx:40"
             }
           ]
         },
@@ -3454,7 +3519,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:414"
+              "source": "packages/underverse/src/components/Input.tsx:547"
             },
             {
               "name": "strengthLabels",
@@ -3462,7 +3527,7 @@
               "required": false,
               "default": "[\"Weak\", \"Fair\", \"Good\", \"Strong\"]",
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:415"
+              "source": "packages/underverse/src/components/Input.tsx:548"
             },
             {
               "name": "variant",
@@ -3599,6 +3664,14 @@
               "default": null,
               "description": "Custom content rendered inside the input container (positioned absolutely)",
               "source": "packages/underverse/src/components/Input.tsx:38"
+            },
+            {
+              "name": "rightSection",
+              "type": "React.ReactNode",
+              "required": false,
+              "default": null,
+              "description": "Custom content attached to the end of the input, after built-in controls",
+              "source": "packages/underverse/src/components/Input.tsx:40"
             }
           ]
         },
@@ -3609,20 +3682,36 @@
           "source": "packages/underverse/src/components/Input.tsx",
           "props": [
             {
+              "name": "mode",
+              "type": "\"default\" | \"button\"",
+              "required": false,
+              "default": "\"default\"",
+              "description": "Search interaction style. `default` searches as the value changes; `button` searches on Enter or button click.",
+              "source": "packages/underverse/src/components/Input.tsx:388"
+            },
+            {
               "name": "onSearch",
               "type": "(value: string) => void",
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:375"
+              "source": "packages/underverse/src/components/Input.tsx:389"
             },
             {
               "name": "searchDelay",
               "type": "number",
               "required": false,
               "default": "300",
-              "description": null,
-              "source": "packages/underverse/src/components/Input.tsx:376"
+              "description": "Debounce duration for `default` mode. Ignored in `button` mode.",
+              "source": "packages/underverse/src/components/Input.tsx:391"
+            },
+            {
+              "name": "searchButtonLabel",
+              "type": "string",
+              "required": false,
+              "default": "\"Search\"",
+              "description": "Accessible label for the search action in `button` mode.",
+              "source": "packages/underverse/src/components/Input.tsx:393"
             },
             {
               "name": "variant",
@@ -3636,7 +3725,7 @@
               "name": "size",
               "type": "FormControlSize",
               "required": false,
-              "default": null,
+              "default": "\"md\"",
               "description": null,
               "source": "packages/underverse/src/components/Input.tsx:26"
             },
@@ -3644,7 +3733,7 @@
               "name": "loading",
               "type": "boolean",
               "required": false,
-              "default": null,
+              "default": "false",
               "description": null,
               "source": "packages/underverse/src/components/Input.tsx:31"
             },
@@ -3716,7 +3805,7 @@
               "name": "clearable",
               "type": "boolean",
               "required": false,
-              "default": null,
+              "default": "true",
               "description": null,
               "source": "packages/underverse/src/components/Input.tsx:30"
             },
@@ -3751,6 +3840,14 @@
               "default": null,
               "description": "Custom content rendered inside the input container (positioned absolutely)",
               "source": "packages/underverse/src/components/Input.tsx:38"
+            },
+            {
+              "name": "rightSection",
+              "type": "React.ReactNode",
+              "required": false,
+              "default": null,
+              "description": "Custom content attached to the end of the input, after built-in controls",
+              "source": "packages/underverse/src/components/Input.tsx:40"
             }
           ]
         }
@@ -14655,6 +14752,14 @@
               "default": null,
               "description": "Custom content rendered inside the input container (positioned absolutely)",
               "source": "packages/underverse/src/components/Input.tsx:38"
+            },
+            {
+              "name": "rightSection",
+              "type": "React.ReactNode",
+              "required": false,
+              "default": null,
+              "description": "Custom content attached to the end of the input, after built-in controls",
+              "source": "packages/underverse/src/components/Input.tsx:40"
             }
           ]
         },

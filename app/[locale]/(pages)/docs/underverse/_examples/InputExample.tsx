@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Input, { PasswordInput, NumberInput } from "@/components/ui/Input";
+import Input, { PasswordInput, NumberInput, SearchInput } from "@/components/ui/Input";
 import CodeBlock from "../_components/CodeBlock";
 import IntlDemoProvider from "../_components/IntlDemoProvider";
 import { Tabs } from "@/components/ui/Tab";
@@ -18,9 +18,10 @@ export default function InputExample() {
   const [query, setQuery] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [qty, setQty] = React.useState("10");
+  const [, setLastSearch] = React.useState("");
 
   const code =
-    `import Input, { PasswordInput, NumberInput } from '@underverse-ui/underverse'\n` +
+    `import Input, { PasswordInput, NumberInput, SearchInput } from '@underverse-ui/underverse'\n` +
     `import { Mail, Search } from 'lucide-react'\n\n` +
     `const [name, setName] = useState("")\n` +
     `const [email, setEmail] = useState("")\n` +
@@ -51,6 +52,7 @@ export default function InputExample() {
     `<Input label='Loading' placeholder='Loading...' loading />\n` +
     `<Input label='Success' placeholder='Looks good' success />\n\n` +
     `// Specialized\n` +
+    `<SearchInput mode='button' placeholder='Search' defaultValue='jgdjdfdfdg' onSearch={(value) => console.log(value)} />\n` +
     `<PasswordInput label='Password' placeholder='••••••••' value={password} onChange={(e)=>setPassword(e.target.value)} showStrength />\n` +
     `<NumberInput label='Quantity' value={qty} onChange={(e)=>setQty(e.target.value)} min={0} max={99} showSteppers formatThousands />`;
 
@@ -108,6 +110,7 @@ export default function InputExample() {
       <div className="space-y-2">
         <p className="text-sm font-medium">Specialized</p>
         <div className="grid md:grid-cols-2 gap-3">
+          <SearchInput mode="button" placeholder="Search" defaultValue="jgdjdfdfdg" onSearch={setLastSearch} />
           <PasswordInput label="Password" placeholder="••••••••" value={password} onChange={(e)=>setPassword(e.target.value)} showStrength />
           <NumberInput label="Quantity" value={qty} onChange={(e)=>setQty(e.target.value)} min={0} max={99} showSteppers formatThousands />
         </div>
@@ -140,6 +143,14 @@ export default function InputExample() {
   ];
   const orderInput = rowsInput.map(r => r.property);
 
+  const rowsSearch: PropsRow[] = [
+    { property: "mode", description: "Search as the value changes or through an attached search button.", type: '"default" | "button"', default: '"default"' },
+    { property: "onSearch", description: "Called after the debounce in default mode, or on Enter/button click in button mode.", type: "(value: string) => void", default: "-" },
+    { property: "searchDelay", description: "Debounce duration in milliseconds for default mode.", type: "number", default: "300" },
+    { property: "searchButtonLabel", description: "Accessible label for the search action button.", type: "string", default: '"Search"' },
+  ];
+  const orderSearch = rowsSearch.map(r => r.property);
+
   const rowsPassword: PropsRow[] = [
     { property: "showStrength", description: t("props.passwordInput.showStrength"), type: "boolean", default: "false" },
     { property: "strengthLabels", description: t("props.passwordInput.strengthLabels"), type: "string[]", default: "[\"Weak\",\"Fair\",\"Good\",\"Strong\"]" },
@@ -165,6 +176,10 @@ export default function InputExample() {
       <div>
         <p className="text-sm font-medium">Input</p>
         <PropsDocsTable rows={rowsInput} order={orderInput} />
+      </div>
+      <div>
+        <p className="text-sm font-medium">SearchInput</p>
+        <PropsDocsTable rows={rowsSearch} order={orderSearch} />
       </div>
       <div>
         <p className="text-sm font-medium">PasswordInput</p>

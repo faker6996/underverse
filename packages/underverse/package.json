@@ -73,6 +73,7 @@
     "benchmark:ueditor": "node --expose-gc ./scripts/benchmark-ueditor.mjs",
     "test:public-api": "node --test ./tests/public-api-smoke.test.mjs",
     "test:components-smoke": "node --test ./tests/components-smoke.test.mjs",
+    "test:input-search": "node --test ./tests/input-search.interaction.test.mjs",
     "test:label-typography": "node --test ./tests/label-typography.test.mjs",
     "test:sticker-ui": "node --test ./tests/sticker.interaction.test.mjs",
     "test:lunar": "node --test --experimental-strip-types ./tests/lunar-utils.test.mjs",

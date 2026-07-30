@@ -36,6 +36,8 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   maxLength?: number;
   /** Custom content rendered inside the input container (positioned absolutely) */
   rightAddon?: React.ReactNode;
+  /** Custom content attached to the end of the input, after built-in controls */
+  rightSection?: React.ReactNode;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -61,6 +63,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       value,
       maxLength,
       rightAddon,
+      rightSection,
       borderMode,
       ...rest
     },
@@ -261,7 +264,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
               // Icon padding adjustments
               LeftIcon && "pl-10",
-              (RightIcon || showPasswordToggle || clearable || loading || success || errMsg) && "pr-10",
+              (RightIcon || showPasswordToggle || clearable || loading || success || errMsg || rightSection) && "pr-10",
 
               // Variant styles
               variantStyles[variant].container,
@@ -278,51 +281,60 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           />
 
           {/* Right Icons */}
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
-            {/* Status Icon */}
-            {getStatusIcon()}
-
-            {/* Custom Right Icon */}
-            {RightIcon && !loading && !success && !errMsg && <RightIcon className={cn("text-muted-foreground", sizeStyles[size].icon)} />}
-
-            {/* Clear Button */}
-            {clearable && hasValue && !loading && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (onClear) return onClear();
-                  (rest.onChange as any)?.({ target: { value: "" } });
-                }}
-                className={cn(
-                  "flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-md",
-                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-                  "active:bg-accent active:text-accent-foreground",
-                  sizeStyles[size].iconButton,
-                )}
-                tabIndex={0}
-                aria-label={gi18n.clearInput ?? "Clear input"}
-              >
-                <X className={sizeStyles[size].icon} />
-              </button>
+          <div
+            className={cn(
+              "absolute z-10 flex items-center gap-1",
+              rightSection ? "inset-y-0 right-0" : "right-3 top-1/2 -translate-y-1/2",
             )}
+          >
+            <div className={cn("flex items-center gap-1", rightSection && "px-1")}>
+              {/* Status Icon */}
+              {getStatusIcon()}
 
-            {/* Password Toggle */}
-            {showPasswordToggle && (
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className={cn(
-                  "flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-full",
-                  "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring/40",
-                  "active:bg-accent/50 active:text-accent-foreground",
-                  sizeStyles[size].iconButton,
-                )}
-                tabIndex={0}
-                aria-label={showPassword ? (gi18n.hidePassword ?? "Hide password") : (gi18n.showPassword ?? "Show password")}
-              >
-                {showPassword ? <EyeOff className={sizeStyles[size].icon} /> : <Eye className={sizeStyles[size].icon} />}
-              </button>
-            )}
+              {/* Custom Right Icon */}
+              {RightIcon && !loading && !success && !errMsg && <RightIcon className={cn("text-muted-foreground", sizeStyles[size].icon)} />}
+
+              {/* Clear Button */}
+              {clearable && hasValue && !loading && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onClear) return onClear();
+                    (rest.onChange as any)?.({ target: { value: "" } });
+                  }}
+                  className={cn(
+                    "flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-md",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+                    "active:bg-accent active:text-accent-foreground",
+                    sizeStyles[size].iconButton,
+                  )}
+                  tabIndex={0}
+                  aria-label={gi18n.clearInput ?? "Clear input"}
+                >
+                  <X className={sizeStyles[size].icon} />
+                </button>
+              )}
+
+              {/* Password Toggle */}
+              {showPasswordToggle && (
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className={cn(
+                    "flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-full",
+                    "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring/40",
+                    "active:bg-accent/50 active:text-accent-foreground",
+                    sizeStyles[size].iconButton,
+                  )}
+                  tabIndex={0}
+                  aria-label={showPassword ? (gi18n.hidePassword ?? "Hide password") : (gi18n.showPassword ?? "Show password")}
+                >
+                  {showPassword ? <EyeOff className={sizeStyles[size].icon} /> : <Eye className={sizeStyles[size].icon} />}
+                </button>
+              )}
+            </div>
+
+            {rightSection}
           </div>
 
           {/* Right Addon (e.g. NumberInput steppers) */}
@@ -372,35 +384,156 @@ Input.displayName = "Input";
 
 /** Public props for the `SearchInput` component. */
 export interface SearchInputProps extends Omit<InputProps, "leftIcon" | "type"> {
+  /** Search interaction style. `default` searches as the value changes; `button` searches on Enter or button click. */
+  mode?: "default" | "button";
   onSearch?: (value: string) => void;
+  /** Debounce duration for `default` mode. Ignored in `button` mode. */
   searchDelay?: number;
+  /** Accessible label for the search action in `button` mode. */
+  searchButtonLabel?: string;
 }
 
+const searchButtonWidthStyles: Record<FormControlSize, string> = {
+  xs: "w-6",
+  sm: "w-8",
+  md: "w-10",
+  lg: "w-12",
+  xl: "w-14",
+};
+
+const searchButtonPaddingStyles: Record<FormControlSize, string> = {
+  xs: "pr-14",
+  sm: "pr-18",
+  md: "pr-20",
+  lg: "pr-24",
+  xl: "pr-28",
+};
+
+const searchButtonRadiusStyles: Record<string, string> = {
+  none: "rounded-r-none",
+  sm: "rounded-r-sm",
+  md: "rounded-r-md",
+  lg: "rounded-r-lg",
+  xl: "rounded-r-xl",
+  "2xl": "rounded-r-2xl",
+  "3xl": "rounded-r-3xl",
+  full: "rounded-r-full",
+  daewoo: "rounded-r",
+  infiniq: "rounded-r-full",
+};
+
 export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
-  ({ onSearch, searchDelay = 300, placeholder = "Search…", ...props }, ref) => {
-    const [searchValue, setSearchValue] = useState(props.value || "");
+  (
+    {
+      mode = "default",
+      onSearch,
+      searchDelay = 300,
+      searchButtonLabel = "Search",
+      placeholder = "Search…",
+      value,
+      defaultValue,
+      onChange,
+      onClear,
+      onKeyDown,
+      clearable = true,
+      size = "md",
+      className,
+      disabled,
+      loading = false,
+      rightSection,
+      borderMode,
+      ...props
+    },
+    ref,
+  ) => {
+    const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue ?? "");
+    const isControlled = value !== undefined;
+    const searchValue = isControlled ? value : uncontrolledValue;
+    const searchText = String(searchValue ?? "");
+    const globalConfig = useUnderverseUIConfig();
+    const resolvedBorderMode = borderMode ?? globalConfig.input?.borderMode ?? globalConfig.borderMode ?? "full";
+    const searchButtonRadiusClass = searchButtonRadiusStyles[resolvedBorderMode] ?? getBorderRadiusClass(resolvedBorderMode);
+
+    const triggerSearch = useCallback(() => {
+      onSearch?.(searchText);
+    }, [onSearch, searchText]);
 
     // Debounced search
     React.useEffect(() => {
-      if (!onSearch) return;
+      if (!onSearch || mode !== "default") return;
 
       const timer = setTimeout(() => {
-        onSearch(searchValue as string);
+        onSearch(searchText);
       }, searchDelay);
 
       return () => clearTimeout(timer);
-    }, [searchValue, onSearch, searchDelay]);
+    }, [mode, onSearch, searchDelay, searchText]);
+
+    const searchButton =
+      mode === "button" ? (
+        <button
+          type="button"
+          onClick={triggerSearch}
+          disabled={disabled || loading}
+          className={cn(
+            "flex h-full shrink-0 cursor-pointer items-center justify-center border-l border-border bg-transparent text-foreground",
+            "transition-colors hover:bg-accent hover:text-accent-foreground",
+            "focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+            "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
+            searchButtonWidthStyles[size],
+            searchButtonRadiusClass,
+          )}
+          aria-label={searchButtonLabel}
+        >
+          <Search className={formControlSizeStyles[size].icon} aria-hidden="true" />
+        </button>
+      ) : null;
 
     return (
       <Input
         ref={ref}
         type="search"
-        leftIcon={Search}
+        leftIcon={mode === "default" ? Search : undefined}
         placeholder={placeholder}
-        clearable
+        clearable={clearable}
         value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
-        onClear={() => setSearchValue("")}
+        onChange={(event) => {
+          if (!isControlled) setUncontrolledValue(event.target.value);
+          onChange?.(event);
+        }}
+        onClear={() => {
+          if (!isControlled) {
+            setUncontrolledValue("");
+          } else if (!onClear && onChange) {
+            onChange({ target: { value: "" }, currentTarget: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
+          }
+          onClear?.();
+        }}
+        onKeyDown={(event) => {
+          onKeyDown?.(event);
+          if (mode === "button" && event.key === "Enter" && !event.defaultPrevented && !event.nativeEvent.isComposing) {
+            triggerSearch();
+          }
+        }}
+        size={size}
+        className={cn(
+          "[&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none",
+          mode === "button" && searchButtonPaddingStyles[size],
+          className,
+        )}
+        disabled={disabled}
+        loading={loading}
+        rightSection={
+          mode === "button" ? (
+            <>
+              {rightSection}
+              {searchButton}
+            </>
+          ) : (
+            rightSection
+          )
+        }
+        borderMode={borderMode}
         {...props}
       />
     );

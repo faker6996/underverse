@@ -60,7 +60,7 @@ export const DOCS_REGISTRY: readonly ComponentDocItem[] = [
   component("skeleton", "skeleton", "core", ["Skeleton"], "components/Skeleton.tsx"),
   component("progress", "progress", "core", ["Progress"], "components/Progress.tsx"),
 
-  component("input", "input", "formInputs", ["Input", "PasswordInput", "NumberInput"], "components/Input.tsx"),
+  component("input", "input", "formInputs", ["Input", "SearchInput", "PasswordInput", "NumberInput"], "components/Input.tsx"),
   component("textarea", "textarea", "formInputs", ["Textarea"], "components/Input.tsx"),
   component("checkbox", "checkbox", "formInputs", ["Checkbox"], "components/CheckBox.tsx"),
   component("switch", "switch", "formInputs", ["Switch"], "components/Switch.tsx"),
