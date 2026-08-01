@@ -9,6 +9,7 @@ import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 import {
   formControlFixedClass,
+  formControlGroupOutlineClass,
   formControlLabelClass,
   formControlSizeStyles,
   type FormControlSize,
@@ -276,11 +277,11 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(
           className={cn(
             "flex items-center gap-1.5 cursor-text",
             formControlFixedClass,
-            "bg-background border border-input",
+            "bg-background",
+            formControlGroupOutlineClass,
             "transition-all duration-200",
-            "hover:border-accent-foreground/20",
             getBorderRadiusClass(resolvedBorderMode),
-            isFocused && "ring-1 ring-ring ring-offset-1 ring-offset-background border-transparent shadow-md",
+            isFocused && "shadow-md",
             disabled && "opacity-50 cursor-not-allowed",
             sizeStyles[size].container,
           )}

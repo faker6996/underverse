@@ -10,6 +10,7 @@ import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 import {
   formControlFixedClass,
+  formControlOutlineClass,
   formControlLabelClass,
   formControlSizeStyles,
   type FormControlSize,
@@ -89,25 +90,21 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     // Variant styles
     const variantStyles = {
       default: {
-        container: "bg-background border border-input hover:border-accent-foreground/20",
-        focus:
-          "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
-        error:
-          "border-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
+        container: cn("bg-background", formControlOutlineClass),
+        focus: "",
+        error: "border-destructive focus-visible:outline-none focus-visible:border-destructive",
       },
       filled: {
         container: "bg-muted/50 border border-transparent hover:bg-muted/70",
         focus:
           "focus-visible:outline-none focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
-        error:
-          "bg-destructive/10 border-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
+        error: "bg-destructive/10 border-destructive focus-visible:outline-none focus-visible:border-destructive",
       },
       outlined: {
         container: "bg-transparent border border-border/50 hover:border-accent-foreground/30",
         focus:
           "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
-        error:
-          "border-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
+        error: "border-destructive focus-visible:outline-none focus-visible:border-destructive",
       },
       minimal: {
         container: "bg-transparent border-0 border-b border-border/50 hover:border-accent-foreground/30",
@@ -823,8 +820,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     );
 
     const variantStyles = {
-      default:
-        "bg-background border border-input hover:border-accent-foreground/20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
+      default: cn("bg-background", formControlOutlineClass),
       filled:
         "bg-muted/50 border border-transparent hover:bg-muted/70 focus-visible:outline-none focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
       outlined:
@@ -897,7 +893,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             sizeStyles[size],
             variantStyles[variant],
             error &&
-            "border-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background focus-visible:border-transparent",
+            "border-destructive focus-visible:outline-none focus-visible:border-destructive",
             resizeClasses[resize],
             isFocused && "shadow-md",
             variant !== "minimal" && "shadow-sm",

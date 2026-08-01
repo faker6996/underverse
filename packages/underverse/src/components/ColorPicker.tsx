@@ -9,7 +9,7 @@ import { cn } from "../utils/cn";
 import { Pipette, X, Copy, Check, Palette, History } from "lucide-react";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
+import { formControlFixedClass, formControlOutlineClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
 
 type OutputFormat = "hex" | "rgba" | "hsl" | "hsla";
 type ColorPickerSize = FormControlSize;
@@ -377,11 +377,13 @@ export default function ColorPicker({
       type="button"
       disabled={disabled}
       className={cn(
-        "w-full border border-input bg-background flex items-center justify-between",
+        "w-full bg-background flex items-center justify-between",
+        formControlOutlineClass,
         getBorderRadiusClass(resolvedBorderMode),
         sizeClasses[size],
         formControlFixedClass,
-        "hover:border-accent-foreground/30 transition-colors",
+        "transition-colors",
+        open && "border-ring",
         disabled && "opacity-50 cursor-not-allowed",
         triggerClassName,
       )}

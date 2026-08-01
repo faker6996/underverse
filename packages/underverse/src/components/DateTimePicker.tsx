@@ -12,6 +12,7 @@ import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 import {
   formControlFixedClass,
+  formControlOutlineClass,
   formControlLabelClass,
   formControlSizeStyles,
   formControlValueClass,
@@ -255,6 +256,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
             sizeStyles[size].label,
             formControlLabelClass,
             "text-foreground flex items-center gap-1",
+            open && "text-primary",
             effectiveError && "text-destructive",
             labelClassName,
           )}
@@ -294,14 +296,15 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
             aria-required={required}
             aria-invalid={!!effectiveError}
             className={cn(
-              "flex w-full items-center justify-between border border-input bg-background",
+              "flex w-full items-center justify-between bg-background",
               formControlFixedClass,
+              formControlOutlineClass,
               getBorderRadiusClass(resolvedBorderMode),
               sizeStyles[size].trigger,
               formControlSizeStyles[requestedSize].control,
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               disabled && "opacity-50 cursor-not-allowed",
               !displayValue && "text-muted-foreground",
+              open && "border-ring",
               effectiveError && "border-destructive/60 bg-destructive/5",
             )}
           >

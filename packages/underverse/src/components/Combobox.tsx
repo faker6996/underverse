@@ -14,6 +14,7 @@ import { getBorderRadiusClass, getPanelBorderRadiusClass, type BorderMode } from
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 import {
   formControlFixedClass,
+  formControlOutlineClass,
   formControlLabelClass,
   formControlSizeStyles,
   formControlValueClass,
@@ -627,7 +628,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
 
   // Variant styles
   const variantStyles = {
-    default: "border border-input bg-background hover:bg-accent/5 hover:border-primary/40",
+    default: "bg-background hover:bg-accent/5",
     outline: "border-2 border-input bg-transparent hover:border-primary/60",
     ghost: "border-0 bg-transparent hover:bg-accent/50",
     filled: "border-0 bg-muted/50 hover:bg-muted/80",
@@ -666,13 +667,13 @@ export const Combobox: React.FC<ComboboxProps> = ({
     className: cn(
       "group flex w-full items-center justify-between transition-all duration-200",
       formControlFixedClass,
+      formControlOutlineClass,
       radiusClass,
       sizeStyles[size],
       variantStyles[variant],
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary",
       "disabled:cursor-not-allowed disabled:opacity-50",
-      open && "border-primary",
-      !!effectiveError && "border-destructive focus-visible:ring-destructive/30",
+      open && "border-ring",
+      !!effectiveError && "border-destructive",
       className,
     ),
   };
@@ -750,6 +751,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
               formControlLabelClass,
               "transition-colors duration-200",
               disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary",
+              open && "text-primary",
               effectiveError && "text-destructive",
               labelClassName,
             )}

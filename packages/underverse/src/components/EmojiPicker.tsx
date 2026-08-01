@@ -7,6 +7,7 @@ import { cn } from "../utils/cn";
 import { EmojiGridButton } from "./emoji-ui";
 import { Tooltip } from "./Tooltip";
 import { EMOJI_LIST } from "./UEditor/emojis";
+import { formControlOutlineClass } from "../constants/form-control-size";
 
 /** Public props for the `EmojiPicker` component. */
 export interface EmojiPickerProps {
@@ -195,8 +196,9 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className={cn(
-                "w-full rounded-2xl border border-border/10 bg-muted/20 py-2 pl-9.5 pr-9 text-sm transition-all duration-300",
-                "placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/20",
+                "w-full rounded-2xl bg-muted/20 py-2 pl-9.5 pr-9 text-sm transition-all duration-300",
+                formControlOutlineClass,
+                "placeholder:text-muted-foreground/60",
                 "focus:bg-background/90 focus:shadow-[0_0_12px_rgba(var(--color-primary-rgb),0.04)]",
               )}
             />

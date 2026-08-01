@@ -13,6 +13,7 @@ import {
   setSelectedTableCellFormula,
 } from "./table-formula-commands";
 import { resolveEventElement } from "./table-dom-utils";
+import { formControlOutlineClass } from "../../constants/form-control-size";
 
 type FormulaDraftState = {
   cellKey: string;
@@ -121,7 +122,7 @@ export function TableFormulaBar({ editor }: { editor: Editor }) {
           }
         }}
         aria-label={t("tableMenu.editFormula")}
-        className="h-7 min-w-0 flex-1 rounded-md border border-border/60 bg-background px-2 font-mono text-sm text-foreground outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/15"
+        className={`h-7 min-w-0 flex-1 rounded-md bg-background px-2 font-mono text-sm text-foreground ${formControlOutlineClass}`}
       />
       {selectedCell.formulaState === "error" && (
         <span

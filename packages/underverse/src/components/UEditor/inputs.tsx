@@ -4,6 +4,7 @@ import React, { useEffect, useId, useRef, useState } from "react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
 import { Check, X } from "lucide-react";
 import { sanitizeUEditorUrl } from "./url-safety";
+import { formControlOutlineClass } from "../../constants/form-control-size";
 
 function normalizeUrl(raw: string) {
   return sanitizeUEditorUrl(raw, "link");
@@ -55,7 +56,7 @@ export const LinkInput = ({
           placeholder={t("linkInput.placeholder")}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
-          className="flex-1 px-3 py-2 text-sm bg-muted/50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 aria-invalid:ring-2 aria-invalid:ring-destructive/40"
+          className={`flex-1 rounded-lg bg-muted/50 px-3 py-2 text-sm ${formControlOutlineClass} aria-invalid:border-destructive`}
         />
         <button type="submit" className="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
           <Check className="w-4 h-4" />
@@ -97,7 +98,7 @@ export const ImageInput = ({ onSubmit, onCancel }: { onSubmit: (url: string, alt
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder={t("imageInput.urlPlaceholder")}
-          className="w-full mt-1 px-3 py-2 text-sm bg-muted/50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+          className={`mt-1 w-full rounded-lg bg-muted/50 px-3 py-2 text-sm ${formControlOutlineClass}`}
         />
       </div>
       <div>
@@ -107,7 +108,7 @@ export const ImageInput = ({ onSubmit, onCancel }: { onSubmit: (url: string, alt
           value={alt}
           onChange={(e) => setAlt(e.target.value)}
           placeholder={t("imageInput.altPlaceholder")}
-          className="w-full mt-1 px-3 py-2 text-sm bg-muted/50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+          className={`mt-1 w-full rounded-lg bg-muted/50 px-3 py-2 text-sm ${formControlOutlineClass}`}
         />
       </div>
       <div className="flex gap-2">

@@ -7,6 +7,7 @@ import { cn } from "../utils/cn";
 import { STICKER_PACKS, Sticker } from "./sticker-data";
 import { StickerGridButton, getStickerImageUrl } from "./sticker-ui";
 import { Tooltip } from "./Tooltip";
+import { formControlOutlineClass } from "../constants/form-control-size";
 
 export interface StickerPickerProps {
   onStickerSelect: (sticker: { id: string; name: string; packId: string; url: string }) => void;
@@ -146,8 +147,9 @@ export const StickerPicker: React.FC<StickerPickerProps> = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className={cn(
-                "w-full rounded-2xl border border-border/10 bg-muted/20 py-2 pl-9.5 pr-9 text-sm transition-all duration-300",
-                "placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/20",
+                "w-full rounded-2xl bg-muted/20 py-2 pl-9.5 pr-9 text-sm transition-all duration-300",
+                formControlOutlineClass,
+                "placeholder:text-muted-foreground/60",
                 "focus:bg-background/90 focus:shadow-[0_0_12px_rgba(var(--color-primary-rgb),0.04)]",
               )}
             />

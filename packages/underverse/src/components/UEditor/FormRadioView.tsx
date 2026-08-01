@@ -7,6 +7,7 @@ import { cn } from "../../utils/cn";
 import { Popover } from "../Popover";
 import { Settings } from "lucide-react";
 import { useSmartTranslations } from "../../hooks/useSmartTranslations";
+import { formControlOutlineClass } from "../../constants/form-control-size";
 
 export const FormRadioView: React.FC<NodeViewProps> = ({ node, updateAttributes, editor, selected }) => {
   const t = useSmartTranslations("UEditor");
@@ -78,7 +79,7 @@ export const FormRadioView: React.FC<NodeViewProps> = ({ node, updateAttributes,
                 type="text"
                 value={groupName}
                 onChange={(e) => updateAttributes({ name: e.target.value })}
-                className="w-full text-sm px-2 py-1.5 border border-border/60 rounded-lg bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className={`w-full rounded-lg bg-background px-2 py-1.5 text-sm text-foreground ${formControlOutlineClass}`}
               />
             </div>
           </Popover>

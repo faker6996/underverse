@@ -328,6 +328,11 @@ textarea::placeholder {
   color: oklch(from var(--foreground) 70% c h / 0.6);
 }
 
+/* Demo captions such as "Default" and "Compact" follow their open form control. */
+#docs-content .space-y-2:has([aria-expanded="true"]) > p.text-muted-foreground {
+  color: var(--primary);
+}
+
 /* Override autofill yellow background to match theme */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,

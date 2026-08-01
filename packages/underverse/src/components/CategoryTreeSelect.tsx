@@ -11,7 +11,7 @@ import { Label } from "./label";
 import { Popover } from "./Popover";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
+import { formControlFixedClass, formControlOutlineClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
 
 export interface Category {
   /** Unique category id used for selection and tree relationships. */
@@ -996,6 +996,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
           className={cn(
             size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
             disabled ? "text-muted-foreground" : "text-foreground",
+            isOpen && "text-primary",
             effectiveError && "text-destructive",
             labelClassName,
           )}
@@ -1137,7 +1138,7 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
   } as const;
 
   const triggerVariantStyles = {
-    default: "border border-input bg-background shadow-sm hover:border-primary/50",
+    default: "bg-background shadow-sm",
     outline: "border-2 border-input bg-transparent hover:border-primary",
     ghost: "border border-transparent bg-muted/50 hover:bg-muted",
     filled: "border border-transparent bg-muted/70 hover:bg-muted",
@@ -1264,14 +1265,14 @@ export function CategoryTreeSelect(props: CategoryTreeSelectProps) {
             className={cn(
               "group flex w-full items-center justify-between transition-all duration-200",
               formControlFixedClass,
+              formControlOutlineClass,
               getBorderRadiusClass(resolvedBorderMode ?? "full"),
               "backdrop-blur-sm",
               triggerSizeStyles[size].button,
               triggerVariantStyles[variant],
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               disabled && "opacity-50 cursor-not-allowed hover:transform-none hover:shadow-none",
-              isOpen && "border-primary shadow-lg shadow-primary/10",
-              effectiveError && "border-destructive focus-visible:ring-destructive/30",
+              isOpen && "border-ring shadow-lg shadow-primary/10",
+              effectiveError && "border-destructive",
             )}
           >
             <div className="flex min-h-0 min-w-0 flex-1 items-center gap-2.5 overflow-hidden text-left">

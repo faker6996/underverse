@@ -10,6 +10,7 @@ import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 import {
   formControlFixedClass,
+  formControlOutlineClass,
   formControlLabelClass,
   formControlSizeStyles,
   formControlValueClass,
@@ -801,18 +802,18 @@ export default function MonthYearPicker({
         aria-required={required}
         aria-invalid={!!effectiveError}
         className={cn(
-          "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
+          "group flex w-full items-center justify-between bg-background/80 backdrop-blur-sm",
           getBorderRadiusClass(resolvedBorderMode),
           sz.control,
           formControlSizeStyles[requestedSize].control,
           formControlFixedClass,
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          formControlOutlineClass,
           "disabled:opacity-50 disabled:cursor-not-allowed",
           "transition-all duration-300 ease-out",
-          effectiveError && "border-destructive/60 focus-visible:ring-destructive/50 bg-destructive/5",
-          success && !effectiveError && "border-success/60 focus-visible:ring-success/50 bg-success/5",
-          !effectiveError && !success && "border-border/60 hover:border-primary/40 hover:bg-accent/10",
-          open && "border-primary shadow-lg shadow-primary/10",
+          effectiveError && "border-destructive/60 bg-destructive/5",
+          success && !effectiveError && "border-success/60 bg-success/5",
+          !effectiveError && !success && "hover:bg-accent/10",
+          open && "border-ring shadow-lg shadow-primary/10",
           className,
         )}
       >
@@ -986,7 +987,7 @@ export default function MonthYearPicker({
   return (
     <div className={cn("w-full", className)} {...rest}>
       {label && (
-        <label className={cn(sz.label, "block mb-1.5 text-foreground/80", formControlLabelClass, effectiveError && "text-destructive", labelClassName)}>
+        <label className={cn(sz.label, "block mb-1.5 text-foreground/80", formControlLabelClass, open && "text-primary", effectiveError && "text-destructive", labelClassName)}>
           {label}
           {required && <span className="text-destructive ml-0.5">*</span>}
         </label>

@@ -37,6 +37,7 @@ import {
   WrapText,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
+import { formControlGroupOutlineClass } from "../../constants/form-control-size";
 import { ToolbarButton, useSharedEditorUiRenderState } from "./toolbar";
 import { LinkInput } from "./inputs";
 import { applyEditorLink } from "./link-commands";
@@ -744,7 +745,7 @@ const BubbleMenuContent = ({
           </button>
         </div>
 
-        <div className="flex h-9 items-center overflow-hidden rounded-md border border-border/60 bg-muted/40">
+        <div className={cn("flex h-9 items-center overflow-hidden rounded-md bg-muted/40", formControlGroupOutlineClass)}>
           <input
             value={formulaDraft}
             onChange={(event) => setFormulaDraft(event.target.value)}
@@ -845,7 +846,7 @@ const BubbleMenuContent = ({
         <div className="space-y-2">
           <div>
             <div className="mb-1 px-1 text-[11px] font-medium text-muted-foreground">{t("toolbar.fontSize")}</div>
-            <div className="flex h-9 items-center overflow-hidden rounded-md border border-border/60 bg-muted/40">
+            <div className={cn("flex h-9 items-center overflow-hidden rounded-md bg-muted/40", formControlGroupOutlineClass)}>
               <input
                 type="number"
                 min={8}

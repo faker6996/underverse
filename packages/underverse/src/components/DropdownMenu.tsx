@@ -8,7 +8,7 @@ import { Popover } from "./Popover";
 import { ChevronRight } from "lucide-react";
 import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
-import { formControlFixedClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
+import { formControlFixedClass, formControlOutlineClass, formControlSizeStyles, formControlValueClass, type FormControlSize } from "../constants/form-control-size";
 
 type DropdownMenuContextValue = {
   closeMenu: () => void;
@@ -468,12 +468,12 @@ export const SelectDropdown: React.FC<{
     trigger={
       <button
         className={cn(
-          "inline-flex items-center justify-between gap-2 border bg-background border-border/60",
+          "inline-flex items-center justify-between gap-2 bg-background",
+          formControlOutlineClass,
           resolvedBorderMode ? getBorderRadiusClass(resolvedBorderMode) : "rounded-2xl",
           formControlFixedClass,
           formControlSizeStyles[size].control,
           "hover:bg-accent/50",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           className,
         )}
       >

@@ -12,6 +12,7 @@ import { getBorderRadiusClass, type BorderMode } from "../utils/radius";
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 import {
   formControlFixedClass,
+  formControlGroupOutlineClass,
   formControlLabelClass,
   formControlSizeStyles,
   type FormControlSize,
@@ -591,6 +592,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               formControlLabelClass,
               "transition-colors duration-300 cursor-pointer",
               disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary hover:text-primary",
+              isOpen && "text-primary",
               effectiveError && "text-destructive",
               labelClassName,
             )}
@@ -633,21 +635,21 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           <div
             ref={triggerRef}
             className={cn(
-              "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
+              "group flex w-full items-center justify-between bg-background/80 backdrop-blur-sm",
               formControlFixedClass,
+              formControlGroupOutlineClass,
               getBorderRadiusClass(resolvedBorderMode),
               sizeStyles[size].trigger,
               formControlSizeStyles[requestedSize].control,
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"
                 : [
-                    "border-border/60 hover:border-primary/40",
-                    "focus-within:border-primary focus-within:ring-0",
+                    "focus-within:border-ring",
                     "hover:bg-accent/10",
                   ],
               "transition-all duration-300 ease-out",
-              isOpen && !isFocused && "border-primary shadow-lg shadow-primary/10",
-              effectiveError && "border-destructive/60 focus-within:ring-destructive/50 bg-destructive/5",
+              isOpen && "border-ring shadow-lg shadow-primary/10",
+              effectiveError && "border-destructive/60 bg-destructive/5",
               className,
             )}
           >
@@ -1437,6 +1439,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
             formControlLabelClass,
             "transition-colors duration-300",
             disabled ? "text-muted-foreground cursor-not-allowed" : "text-foreground group-focus-within:text-primary hover:text-primary cursor-pointer",
+            isOpen && "text-primary",
             effectiveError && "text-destructive",
             labelClassName
           )}
@@ -1477,21 +1480,21 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
           <div
             ref={triggerRef}
             className={cn(
-              "group flex w-full items-center justify-between border bg-background/80 backdrop-blur-sm",
+              "group flex w-full items-center justify-between bg-background/80 backdrop-blur-sm",
               formControlFixedClass,
+              formControlGroupOutlineClass,
               getBorderRadiusClass(resolvedBorderMode),
               sizeStyles[size].trigger,
               formControlSizeStyles[requestedSize].control,
               disabled
                 ? "border-border/40 opacity-50 cursor-not-allowed"
                 : [
-                    "border-border/60 hover:border-primary/40",
-                    "focus-within:border-primary focus-within:ring-0",
+                    "focus-within:border-ring",
                     "hover:bg-accent/10",
                   ],
               "transition-all duration-300 ease-out",
-              isOpen && !isFocused && "border-primary shadow-lg shadow-primary/10",
-              effectiveError && "border-destructive/60 focus-within:ring-destructive/50 bg-destructive/5",
+              isOpen && "border-ring shadow-lg shadow-primary/10",
+              effectiveError && "border-destructive/60 bg-destructive/5",
             )}
           >
             <div className={cn("flex min-h-0 min-w-0 flex-1 items-center overflow-hidden", size === "sm" ? "gap-1.5" : "gap-2.5")}>

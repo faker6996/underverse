@@ -14,6 +14,7 @@ import { getBorderRadiusClass, getPanelBorderRadiusClass, type BorderMode } from
 import { useUnderverseUIConfig } from "../contexts/UnderverseConfigContext";
 import {
   formControlFixedClass,
+  formControlOutlineClass,
   formControlLabelClass,
   formControlSizeStyles,
   formControlValueClass,
@@ -368,7 +369,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
   } as const;
 
   const variantStyles = {
-    default: "border border-input bg-background shadow-sm hover:border-primary/50",
+    default: "bg-background shadow-sm",
     outline: "border-2 border-input bg-transparent hover:border-primary",
     ghost: "border border-transparent bg-muted/50 hover:bg-muted",
   } as const;
@@ -645,13 +646,13 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
       className={cn(
         "group flex w-full items-center gap-2 transition-all duration-200",
         formControlFixedClass,
+        formControlOutlineClass,
         getBorderRadiusClass(resolvedBorderMode),
         sizeStyles[size].trigger,
         variantStyles[variant],
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        open && "border-primary",
-        !!effectiveError && "border-destructive focus-visible:ring-destructive/30",
+        open && "border-ring",
+        !!effectiveError && "border-destructive",
       )}
     >
       <div className="flex min-h-0 min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
@@ -756,6 +757,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
               formControlLabelClass,
               "transition-colors duration-200",
               disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary",
+              open && "text-primary",
               effectiveError && "text-destructive",
               labelClassName,
             )}
@@ -776,6 +778,7 @@ export const MultiCombobox: React.FC<MultiComboboxProps> = ({
             formControlLabelClass,
             "transition-colors duration-200",
             disabled ? "text-muted-foreground" : "text-foreground group-focus-within:text-primary",
+            open && "text-primary",
             effectiveError && "text-destructive",
             labelClassName,
           )}
