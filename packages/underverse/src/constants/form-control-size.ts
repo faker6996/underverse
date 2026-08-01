@@ -59,7 +59,5 @@ export const formControlLabelClass = "font-medium";
 
 export const formControlFixedClass = "min-h-0 overflow-hidden";
 export const formControlValueClass = "max-h-full min-w-0 flex-1 truncate whitespace-nowrap";
-export const formControlOutlineClass =
-  "border border-input hover:border-primary/40 focus-visible:outline-none focus-visible:border-ring";
-export const formControlGroupOutlineClass =
-  "border border-input hover:border-primary/40 focus-within:border-ring";
+export const formControlOutlineClass = "border border-input hover:border-primary/40 focus-visible:outline-none focus-visible:border-ring";
+export const formControlGroupOutlineClass = "border border-input hover:border-primary/40 focus-within:border-ring";
