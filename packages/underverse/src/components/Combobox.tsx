@@ -667,10 +667,10 @@ export const Combobox: React.FC<ComboboxProps> = ({
     className: cn(
       "group flex w-full items-center justify-between transition-all duration-200",
       formControlFixedClass,
-      formControlOutlineClass,
       radiusClass,
       sizeStyles[size],
       variantStyles[variant],
+      formControlOutlineClass,
       "disabled:cursor-not-allowed disabled:opacity-50",
       open && "border-ring",
       !!effectiveError && "border-destructive",
