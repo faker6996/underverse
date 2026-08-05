@@ -559,6 +559,7 @@ export interface MenuBarProps {
   onExport?: () => void;
   onSourceCode?: () => void;
   onPreview?: (html: string) => void | false;
+  showPreviewButton?: boolean;
 }
 
 export const MenuBar: React.FC<MenuBarProps> = ({
@@ -572,6 +573,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   onExport,
   onSourceCode,
   onPreview,
+  showPreviewButton = true,
 }) => {
   const t = useSmartTranslations("UEditor");
   useSharedEditorUiRenderState(editor);
@@ -799,18 +801,20 @@ export const MenuBar: React.FC<MenuBarProps> = ({
             {renderMenuItems(items)}
           </DropdownMenu>
         ))}
-        <button
-          type="button"
-          onClick={handlePreview}
-          aria-label={t("menubar.preview")}
-          title={t("menubar.preview")}
-          className={cn(
-            "ml-auto inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors",
-            "hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
-          )}
-        >
-          <Eye className="h-4 w-4" aria-hidden="true" />
-        </button>
+        {showPreviewButton && (
+          <button
+            type="button"
+            onClick={handlePreview}
+            aria-label={t("menubar.preview")}
+            title={t("menubar.preview")}
+            className={cn(
+              "ml-auto inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors",
+              "hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
+            )}
+          >
+            <Eye className="h-4 w-4" aria-hidden="true" />
+          </button>
+        )}
       </div>
 
       {/* Built-in source code dialog */}

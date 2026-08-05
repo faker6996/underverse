@@ -3484,6 +3484,48 @@ test("UEditor menu bar eye button opens preview directly", async () => {
   assert.match(previewContent.textContent ?? "", /Direct preview body/);
 });
 
+test("UEditor can hide the menu bar preview button", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const body = within(window.document.body);
+
+  render(
+    React.createElement(UEditor, {
+      content: "<p>Hidden preview button</p>",
+      showMenuBar: true,
+      showPreviewButton: false,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await body.findByRole("button", { name: "View" });
+  assert.equal(body.queryByRole("button", { name: "Preview" }), null);
+});
+
+test("UEditor removes the placeholder after Enter creates an empty line", async () => {
+  const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
+  const UEditor = mod.default;
+  const ref = React.createRef();
+
+  render(
+    React.createElement(UEditor, {
+      ref,
+      showToolbar: false,
+      showBubbleMenu: false,
+      showFloatingMenu: false,
+      showCharacterCount: false,
+    }),
+  );
+
+  await waitFor(() => assert.ok(ref.current?.editor));
+  fireEvent.keyDown(ref.current.editor.view.dom, { key: "Enter", code: "Enter" });
+  assert.equal(ref.current.editor.state.doc.childCount, 2);
+  assert.equal(ref.current.editor.view.dom.querySelector("[data-placeholder]"), null);
+});
+
 test("UEditor menu bar preview callback keeps the built-in preview fallback", async () => {
   const mod = await importTsModule(path.join(componentsRoot, "UEditor.tsx"));
   const UEditor = mod.default;

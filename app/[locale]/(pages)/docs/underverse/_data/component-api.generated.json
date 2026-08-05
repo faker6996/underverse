@@ -5418,23 +5418,15 @@
               "source": "packages/underverse/src/components/UEditor/types.ts:107"
             },
             {
-              "name": "onSave",
-              "type": "() => void",
+              "name": "showPreviewButton",
+              "type": "boolean",
               "required": false,
-              "default": null,
-              "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:108"
-            },
-            {
-              "name": "onExport",
-              "type": "() => void",
-              "required": false,
-              "default": null,
-              "description": null,
+              "default": "true",
+              "description": "Whether to show the preview button at the end of the menu bar. Defaults to `true`.",
               "source": "packages/underverse/src/components/UEditor/types.ts:109"
             },
             {
-              "name": "onSourceCode",
+              "name": "onSave",
               "type": "() => void",
               "required": false,
               "default": null,
@@ -5442,12 +5434,28 @@
               "source": "packages/underverse/src/components/UEditor/types.ts:110"
             },
             {
+              "name": "onExport",
+              "type": "() => void",
+              "required": false,
+              "default": null,
+              "description": null,
+              "source": "packages/underverse/src/components/UEditor/types.ts:111"
+            },
+            {
+              "name": "onSourceCode",
+              "type": "() => void",
+              "required": false,
+              "default": null,
+              "description": null,
+              "source": "packages/underverse/src/components/UEditor/types.ts:112"
+            },
+            {
               "name": "onPreview",
               "type": "(html: string) => void | false",
               "required": false,
               "default": null,
               "description": "Fires when View > Preview or the eye button is clicked.\nReturn false to prevent the built-in preview dialog.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:115"
+              "source": "packages/underverse/src/components/UEditor/types.ts:117"
             }
           ]
         }

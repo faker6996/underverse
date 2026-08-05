@@ -162,6 +162,13 @@ export default function UEditorExample() {
       category: "Appearance",
     },
     {
+      property: "showPreviewButton",
+      description: "Shows the preview button at the end of the menu bar.",
+      type: "boolean",
+      default: "true",
+      category: "Appearance",
+    },
+    {
       property: "showToolbar",
       description: "Shows the primary formatting toolbar.",
       type: "boolean",

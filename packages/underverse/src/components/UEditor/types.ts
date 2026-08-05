@@ -105,6 +105,8 @@ export interface UEditorProps {
   /** Additional TipTap extensions appended after the built-in UEditor extensions. */
   extraExtensions?: Extension[];
   showMenuBar?: boolean;
+  /** Whether to show the preview button at the end of the menu bar. Defaults to `true`. */
+  showPreviewButton?: boolean;
   onSave?: () => void;
   onExport?: () => void;
   onSourceCode?: () => void;

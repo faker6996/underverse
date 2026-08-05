@@ -579,8 +579,12 @@ export function buildUEditorExtensions({
       placeholder,
       emptyEditorClass: "is-editor-empty",
       emptyNodeClass: "is-empty",
-      shouldShow: ({ node, hasTable }) => {
+      shouldShow: ({ editor, node, hasTable, isEmptyDoc }) => {
         const nodeName = node.type.name;
+
+        if (!isEmptyDoc || editor.state.doc.childCount !== 1) {
+          return false;
+        }
 
         if (nodeName === "table" || nodeName === "tableCell" || nodeName === "tableHeader") {
           return false;

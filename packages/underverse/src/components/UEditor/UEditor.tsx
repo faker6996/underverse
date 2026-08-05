@@ -86,6 +86,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   uploadFileForSave,
   extraExtensions,
   showMenuBar = false,
+  showPreviewButton = true,
   onSave,
   onExport,
   onSourceCode,
@@ -409,6 +410,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
                 onExport={onExport}
                 onSourceCode={onSourceCode}
                 onPreview={onPreview}
+                showPreviewButton={showPreviewButton}
               />
             </React.Suspense>
           )}
