@@ -9,7 +9,7 @@ export const UEDITOR_TABLE_LAYOUT_CHANGE_EVENT = "ueditor:table-layout-change";
 
 export const isRowResizingGlobal = { active: false };
 
-const TABLE_RESIZE_HIT_ZONE = 10;
+const TABLE_RESIZE_HIT_ZONE = 5;
 
 export function findTableRowNodeInfo(view: EditorView, rowElement: HTMLTableRowElement): { pos: number; node: ProseMirrorNode } | null {
   const firstCell = rowElement.querySelector("th,td");
