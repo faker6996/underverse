@@ -202,6 +202,20 @@ export const EditorColorPalette = ({
   const automaticColor = colors[0]?.color ?? "";
   const paletteColors = colors.slice(1);
   const customColorSelect = onCustomColorSelect ?? onSelect;
+  const [hexInput, setHexInput] = React.useState(currentColor.startsWith("#") ? currentColor : "");
+
+  React.useEffect(() => {
+    setHexInput(currentColor.startsWith("#") ? currentColor : "");
+  }, [currentColor]);
+
+  const commitHex = (val: string) => {
+    let formatted = val.trim();
+    if (!formatted) return;
+    if (!formatted.startsWith("#")) formatted = `#${formatted}`;
+    if (/^#([0-9A-F]{3}){1,2}$/i.test(formatted)) {
+      customColorSelect(formatted);
+    }
+  };
 
   React.useEffect(() => {
     const input = colorInputRef.current;
@@ -218,7 +232,7 @@ export const EditorColorPalette = ({
   }, [currentColor]);
 
   return (
-    <div className="w-56 p-2">
+    <div className="w-56 p-2" data-ueditor-keep-open>
       <span className="px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</span>
       <button
         type="button"
@@ -260,23 +274,41 @@ export const EditorColorPalette = ({
         ))}
       </div>
 
-      <button
-        type="button"
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={() => colorInputRef.current?.click()}
-        className="mt-3 flex h-9 w-full items-center gap-3 rounded-md px-2 text-sm text-foreground transition-colors hover:bg-muted"
-      >
-        <span
-          aria-hidden="true"
-          className="h-5 w-5 rounded border border-border"
-          style={{
-            background:
-              "linear-gradient(135deg, #ff004c 0%, #fffb00 22%, #00ff66 42%, #00d5ff 62%, #2446ff 78%, #ff00d4 100%)",
-          }}
-        />
-        <span className="flex-1 text-center">{t("colors.moreColors")}</span>
-        <Palette className="h-4 w-4 text-muted-foreground" />
-      </button>
+      <div className="mt-3 flex items-center gap-2">
+        <div className="flex h-8 flex-1 items-center gap-1.5 rounded-md border border-input bg-muted/30 px-2">
+          <span
+            className="h-4 w-4 shrink-0 rounded-[2px] border border-border"
+            style={{ backgroundColor: hexInput.startsWith("#") ? hexInput : currentColor.startsWith("#") ? currentColor : "transparent" }}
+          />
+          <input
+            type="text"
+            value={hexInput}
+            onChange={(e) => setHexInput(e.target.value)}
+            onBlur={() => commitHex(hexInput)}
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.key === "Enter") {
+                e.preventDefault();
+                commitHex(hexInput);
+              }
+            }}
+            placeholder="#HEX"
+            className="h-full w-full bg-transparent text-xs font-mono text-foreground outline-none placeholder:text-muted-foreground"
+          />
+        </div>
+        <button
+          type="button"
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={() => colorInputRef.current?.click()}
+          title={t("colors.moreColors")}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-muted/30 text-foreground transition-colors hover:bg-muted"
+        >
+          <Palette className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </div>
+
       <input
         ref={colorInputRef}
         type="color"

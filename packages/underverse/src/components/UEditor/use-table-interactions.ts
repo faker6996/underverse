@@ -56,11 +56,23 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
     }
   }, [getProseMirrorElement]);
 
+  const hotspotTimerRef = useRef<number | null>(null);
+  const activeHotspotKeyRef = useRef<string | null>(null);
+
+  const clearHotspotTimer = React.useCallback(() => {
+    if (hotspotTimerRef.current !== null) {
+      window.clearTimeout(hotspotTimerRef.current);
+      hotspotTimerRef.current = null;
+    }
+  }, []);
+
   const clearAllTableResizeHover = React.useCallback(() => {
+    clearHotspotTimer();
+    activeHotspotKeyRef.current = null;
     setEditorResizeCursor("");
     hideColumnGuide();
     hideRowGuide();
-  }, [hideColumnGuide, hideRowGuide, setEditorResizeCursor]);
+  }, [clearHotspotTimer, hideColumnGuide, hideRowGuide, setEditorResizeCursor]);
 
   const updateActiveCellHighlight = React.useCallback((cell: HTMLElement | null) => {
     const surface = editorContentRef.current;
@@ -255,17 +267,45 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
       const nearRight = isColumnResizeHotspot(cell, event.clientX, event.clientY);
 
       if (nearBottom && cell instanceof HTMLTableCellElement) {
-        hideColumnGuide();
-        showRowGuide(table, row, cell);
+        const hotspotKey = `row:${row.rowIndex}-${cell.cellIndex}`;
+        if (activeHotspotKeyRef.current === hotspotKey) {
+          hideColumnGuide();
+          showRowGuide(table, row, cell);
+          return;
+        }
+        if (activeHotspotKeyRef.current !== hotspotKey) {
+          clearHotspotTimer();
+          activeHotspotKeyRef.current = hotspotKey;
+          hotspotTimerRef.current = window.setTimeout(() => {
+            hotspotTimerRef.current = null;
+            hideColumnGuide();
+            showRowGuide(table, row, cell);
+          }, 100);
+        }
         return;
       }
 
       if (nearRight && cell instanceof HTMLTableCellElement) {
-        hideRowGuide();
-        showColumnGuide(table, row, cell);
+        const hotspotKey = `col:${row.rowIndex}-${cell.cellIndex}`;
+        if (activeHotspotKeyRef.current === hotspotKey) {
+          hideRowGuide();
+          showColumnGuide(table, row, cell);
+          return;
+        }
+        if (activeHotspotKeyRef.current !== hotspotKey) {
+          clearHotspotTimer();
+          activeHotspotKeyRef.current = hotspotKey;
+          hotspotTimerRef.current = window.setTimeout(() => {
+            hotspotTimerRef.current = null;
+            hideRowGuide();
+            showColumnGuide(table, row, cell);
+          }, 100);
+        }
         return;
       }
 
+      clearHotspotTimer();
+      activeHotspotKeyRef.current = null;
       clearAllTableResizeHover();
     };
 

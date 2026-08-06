@@ -455,12 +455,12 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         <span
           ref={tableColumnGuideRef}
           aria-hidden="true"
-          className="pointer-events-none absolute z-20 bg-primary opacity-0 transition-opacity duration-100"
+          className="pointer-events-none absolute z-20 bg-primary opacity-0 transition-opacity duration-200 delay-100 ease-out"
         />
         <span
           ref={tableRowGuideRef}
           aria-hidden="true"
-          className="pointer-events-none absolute z-20 bg-primary opacity-0 transition-opacity duration-100"
+          className="pointer-events-none absolute z-20 bg-primary opacity-0 transition-opacity duration-200 delay-100 ease-out"
         />
         <span
           ref={activeTableCellHighlightRef}

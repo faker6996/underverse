@@ -202,6 +202,17 @@ function edgeCell(view: EditorView, event: MouseEvent, side: "left" | "right", h
   return index % map.width === 0 ? -1 : start + map.map[index - 1];
 }
 
+let handleHoverTimer: number | null = null;
+let pendingHandleCell = -1;
+
+function clearHandleHoverTimer() {
+  if (handleHoverTimer !== null) {
+    window.clearTimeout(handleHoverTimer);
+    handleHoverTimer = null;
+  }
+  pendingHandleCell = -1;
+}
+
 function updateHandle(view: EditorView, value: number) {
   view.dispatch(view.state.tr.setMeta(columnResizingPluginKey, { setHandle: value }));
 }
@@ -221,9 +232,20 @@ function handleMouseMove(view: EditorView, event: MouseEvent, handleWidth: numbe
     else if (right - event.clientX <= handleWidth) cell = edgeCell(view, event, "right", handleWidth);
   }
 
-  if (cell === pluginState.activeHandle) return;
+  if (cell === pluginState.activeHandle) {
+    clearHandleHoverTimer();
+    return;
+  }
 
-  if (!lastColumnResizable && cell !== -1) {
+  if (cell === -1) {
+    clearHandleHoverTimer();
+    if (pluginState.activeHandle !== -1) {
+      updateHandle(view, -1);
+    }
+    return;
+  }
+
+  if (!lastColumnResizable) {
     const $cell = view.state.doc.resolve(cell);
     const table = $cell.node(-1);
     const map = TableMap.get(table);
@@ -231,13 +253,28 @@ function handleMouseMove(view: EditorView, event: MouseEvent, handleWidth: numbe
     const nodeAfter = $cell.nodeAfter;
     if (!nodeAfter) return;
 
-    if (map.colCount($cell.pos - tableStart) + nodeAfter.attrs.colspan - 1 === map.width - 1) return;
+    if (map.colCount($cell.pos - tableStart) + nodeAfter.attrs.colspan - 1 === map.width - 1) {
+      clearHandleHoverTimer();
+      if (pluginState.activeHandle !== -1) {
+        updateHandle(view, -1);
+      }
+      return;
+    }
   }
 
-  updateHandle(view, cell);
+  if (pendingHandleCell === cell) return;
+
+  clearHandleHoverTimer();
+  pendingHandleCell = cell;
+  handleHoverTimer = window.setTimeout(() => {
+    handleHoverTimer = null;
+    pendingHandleCell = -1;
+    updateHandle(view, cell);
+  }, 100);
 }
 
 function handleMouseLeave(view: EditorView) {
+  clearHandleHoverTimer();
   if (!view.editable) return;
 
   const pluginState = columnResizingPluginKey.getState(view.state);
@@ -335,6 +372,7 @@ function handleMouseDown(
   event: MouseEvent,
   cellMinWidth: number,
 ) {
+  clearHandleHoverTimer();
   if (!view.editable) return false;
 
   const win = view.dom.ownerDocument.defaultView ?? window;

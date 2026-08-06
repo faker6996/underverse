@@ -73,7 +73,7 @@ export function TableRowHandles({
                         onStartDrag(rowHandle);
                       }}
                       className={cn(
-                        "inline-flex h-6 w-6 items-center justify-center rounded-full transition-[opacity,transform,colors,border,background-color] duration-150",
+                        "inline-flex h-6 w-6 items-center justify-center rounded-full transition-[opacity,transform,colors,border,background-color] duration-200 delay-100 ease-out",
                         visible
                           ? "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur hover:bg-accent hover:text-foreground cursor-grab active:cursor-grabbing"
                           : "border-transparent bg-transparent cursor-pointer",
@@ -168,7 +168,7 @@ export function TableColumnHandles({
                         onStartDrag(columnHandle);
                       }}
                       className={cn(
-                        "inline-flex h-6 w-6 items-center justify-center rounded-full transition-[opacity,transform,colors,border,background-color] duration-150",
+                        "inline-flex h-6 w-6 items-center justify-center rounded-full transition-[opacity,transform,colors,border,background-color] duration-200 delay-100 ease-out",
                         visible
                           ? "border border-border/70 bg-background/95 text-muted-foreground shadow-sm backdrop-blur hover:bg-accent hover:text-foreground cursor-grab active:cursor-grabbing"
                           : "border-transparent bg-transparent cursor-pointer",

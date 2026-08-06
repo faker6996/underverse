@@ -1259,7 +1259,12 @@ export const CustomBubbleMenu = ({
         return;
       }
 
-      if (!keepOpenRef.current && (context === "none" || !view.hasFocus())) {
+      const isInputFocused = () => {
+        const active = document.activeElement;
+        return Boolean(active && (menuRef.current?.contains(active) || active.closest?.("[data-ueditor-keep-open]")));
+      };
+
+      if (!keepOpenRef.current && !isInputFocused() && (context === "none" || !view.hasFocus())) {
         clearShowTimeout();
         setIsVisible(false);
         return;
@@ -1304,7 +1309,8 @@ export const CustomBubbleMenu = ({
     };
 
     const handleBlur = () => {
-      if (!keepOpenRef.current) {
+      const isInputFocused = Boolean(document.activeElement && (menuRef.current?.contains(document.activeElement) || document.activeElement.closest?.("[data-ueditor-keep-open]")));
+      if (!keepOpenRef.current && !isInputFocused) {
         clearShowTimeout();
         setIsVisible(false);
       }
@@ -1406,6 +1412,9 @@ export const CustomBubbleMenu = ({
           setKeepOpen(false);
         } else if (target?.closest?.("[data-ueditor-keep-open]")) {
           setKeepOpen(true);
+        }
+        if (target && target.closest("input, textarea, select")) {
+          return;
         }
         e.preventDefault();
       }}

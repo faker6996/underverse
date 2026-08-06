@@ -297,7 +297,7 @@ export const ToolbarButton = React.forwardRef<
 });
 ToolbarButton.displayName = "ToolbarButton";
 
-const ToolbarDivider = () => <div aria-hidden="true" className="mx-1.5 h-7 w-px shrink-0 bg-[rgba(123,129,132,0.24)]" />;
+const ToolbarDivider = () => <div aria-hidden="true" className="mx-1 h-5 w-px shrink-0 bg-[rgba(123,129,132,0.24)]" />;
 
 export const TableInsertGrid = ({
   insertLabel,
@@ -575,7 +575,7 @@ export const EditorToolbar = ({
   return (
     <div
       role="toolbar"
-      className="flex min-h-12 flex-nowrap items-center gap-0.5 overflow-x-auto border-b border-[rgba(196,197,213,0.6)] bg-[#F4F4F4] px-2 py-2 dark:bg-muted/60"
+      className="flex min-h-9 flex-nowrap items-center gap-0.5 overflow-x-auto border-b border-[rgba(196,197,213,0.6)] bg-[#F4F4F4] px-1.5 py-1 dark:bg-muted/60"
     >
       {isFull && (
         <DropdownMenu
@@ -583,9 +583,9 @@ export const EditorToolbar = ({
             <ToolbarButton
               onClick={() => {}}
               title={t("toolbar.fontFamily")}
-              className="h-8 w-44 max-w-44 justify-between gap-2 border border-[rgba(196,197,213,0.6)] bg-white px-2.5 text-[#404040] shadow-[0_1px_2px_rgba(0,0,0,0.07)] hover:bg-white hover:text-[#404040] dark:bg-background dark:text-foreground"
+              className="h-7 w-40 max-w-40 justify-between gap-1.5 border border-[rgba(196,197,213,0.6)] bg-white px-2 text-[#404040] shadow-[0_1px_2px_rgba(0,0,0,0.07)] hover:bg-white hover:text-[#404040] dark:bg-background dark:text-foreground"
             >
-              <span className="min-w-0 flex-1 truncate text-left text-sm font-normal" style={{ fontFamily: displayedFontFamilyValue || undefined }}>
+              <span className="min-w-0 flex-1 truncate text-left text-xs font-normal" style={{ fontFamily: displayedFontFamilyValue || undefined }}>
                 {displayedFontFamilyLabel}
               </span>
               <FigmaChevronDownIcon className="h-3 w-3 shrink-0 text-[#7B8184]" />
@@ -611,9 +611,9 @@ export const EditorToolbar = ({
             <ToolbarButton
               onClick={() => {}}
               title={t("toolbar.fontSize")}
-              className="h-8 w-16 justify-between gap-2 border border-[rgba(196,197,213,0.6)] bg-white px-2.5 text-[#404040] shadow-[0_1px_2px_rgba(0,0,0,0.07)] hover:bg-white hover:text-[#404040] dark:bg-background dark:text-foreground"
+              className="h-7 w-14 justify-between gap-1 border border-[rgba(196,197,213,0.6)] bg-white px-2 text-[#404040] shadow-[0_1px_2px_rgba(0,0,0,0.07)] hover:bg-white hover:text-[#404040] dark:bg-background dark:text-foreground"
             >
-              <span className="text-sm font-normal leading-none">{displayedFontSizeLabel}</span>
+              <span className="text-xs font-normal leading-none">{displayedFontSizeLabel}</span>
               <FigmaChevronDownIcon className="h-3 w-3 shrink-0 text-[#7B8184]" />
             </ToolbarButton>
           }

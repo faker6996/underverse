@@ -4,6 +4,8 @@ import { getVisibleTableBounds, type TableControlLayout } from "./table-layout-m
 
 const ADD_COLUMN_RAIL_GAP = 4;
 const ADD_ROW_RAIL_GAP = 4;
+const BUTTON_LONG_SIZE = 36;
+const BUTTON_SHORT_SIZE = 14;
 
 export function TableAddRails({
   addColumnVisible,
@@ -27,10 +29,10 @@ export function TableAddRails({
   quickAddRowLabel: string;
 }) {
   const visibleBounds = getVisibleTableBounds(layout);
-  const columnRailTop = visibleBounds.top;
+  const columnRailTop = visibleBounds.top + Math.max(0, (visibleBounds.height - BUTTON_LONG_SIZE) / 2);
   const columnRailLeft = visibleBounds.right + ADD_COLUMN_RAIL_GAP;
   const rowRailTop = layout.wrapperTop + layout.wrapperHeight + ADD_ROW_RAIL_GAP;
-  const rowRailLeft = visibleBounds.left;
+  const rowRailLeft = visibleBounds.left + Math.max(0, (visibleBounds.width - BUTTON_LONG_SIZE) / 2);
   const showColumnRail = controlsVisible || addColumnVisible;
   const showRowRail = controlsVisible || addRowVisible;
 
@@ -54,15 +56,15 @@ export function TableAddRails({
           className={cn(
             "absolute z-30 inline-flex items-center justify-center rounded-md",
             "border border-border/70 bg-muted/40 text-muted-foreground shadow-sm backdrop-blur",
-            "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed",
+            "transition-[opacity,transform,colors] duration-200 delay-100 ease-out cursor-pointer hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed",
           )}
           style={{
-            top: showColumnRail ? columnRailTop : columnRailTop + Math.max(0, visibleBounds.height / 2 - 24),
+            top: columnRailTop,
             left: columnRailLeft,
-            width: showColumnRail ? 18 : 12,
-            height: showColumnRail ? visibleBounds.height : 48,
+            width: BUTTON_SHORT_SIZE,
+            height: BUTTON_LONG_SIZE,
             opacity: showColumnRail ? 1 : 0,
-            transform: showColumnRail ? "scale(1)" : "scale(0.92)",
+            transform: showColumnRail ? "scale(1)" : "scale(0.85)",
             pointerEvents: showColumnRail ? "auto" : "none",
           }}
         >
@@ -88,15 +90,15 @@ export function TableAddRails({
           className={cn(
             "absolute z-30 inline-flex items-center justify-center rounded-md",
             "border border-border/70 bg-muted/40 text-muted-foreground shadow-sm backdrop-blur",
-            "transition-[opacity,transform,colors] duration-150 hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed",
+            "transition-[opacity,transform,colors] duration-200 delay-100 ease-out cursor-pointer hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed",
           )}
           style={{
             top: rowRailTop,
-            left: showRowRail ? rowRailLeft : rowRailLeft + Math.max(0, visibleBounds.width / 2 - 24),
-            width: showRowRail ? visibleBounds.width : 48,
-            height: showRowRail ? 16 : 12,
+            left: rowRailLeft,
+            width: BUTTON_LONG_SIZE,
+            height: BUTTON_SHORT_SIZE,
             opacity: showRowRail ? 1 : 0,
-            transform: showRowRail ? "scale(1)" : "scale(0.92)",
+            transform: showRowRail ? "scale(1)" : "scale(0.85)",
             pointerEvents: showRowRail ? "auto" : "none",
           }}
         >

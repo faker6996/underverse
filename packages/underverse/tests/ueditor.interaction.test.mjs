@@ -1062,7 +1062,7 @@ test("UEditor toolbar applies font family, font size, line height, and letter sp
     return element;
   });
   const toolbar = view.getByRole("toolbar");
-  assert.match(toolbar.className, /min-h-12/);
+  assert.match(toolbar.className, /min-h-9/);
   assert.equal(view.queryByRole("button", { name: "Insert Emoji" }), null);
   assert.equal(view.getByRole("button", { name: "Text Style" }).querySelectorAll("svg").length, 1);
   assert.equal(view.getByRole("button", { name: "Alignment" }).querySelectorAll("svg").length, 1);
