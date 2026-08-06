@@ -5143,7 +5143,7 @@
               "required": false,
               "default": "\"\"",
               "description": "Initial or controlled HTML content for the editor.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:56"
+              "source": "packages/underverse/src/components/UEditor/types.ts:69"
             },
             {
               "name": "onChange",
@@ -5151,7 +5151,7 @@
               "required": false,
               "default": null,
               "description": "Called with the current HTML after editor updates. Kept for backward compatibility with `onHtmlChange`.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:58"
+              "source": "packages/underverse/src/components/UEditor/types.ts:71"
             },
             {
               "name": "onHtmlChange",
@@ -5159,7 +5159,7 @@
               "required": false,
               "default": null,
               "description": "Called with the current HTML after editor updates. Prefer this when the consumer stores HTML.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:60"
+              "source": "packages/underverse/src/components/UEditor/types.ts:73"
             },
             {
               "name": "onJsonChange",
@@ -5167,7 +5167,7 @@
               "required": false,
               "default": null,
               "description": "Called with the current TipTap JSON document after editor updates.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:62"
+              "source": "packages/underverse/src/components/UEditor/types.ts:75"
             },
             {
               "name": "outputDebounceMs",
@@ -5175,7 +5175,7 @@
               "required": false,
               "default": "0",
               "description": "Debounces HTML/JSON output callbacks by the given number of milliseconds.\nDefaults to `0` for backward-compatible immediate updates. Values around\n`100-200` are recommended for large controlled documents.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:68"
+              "source": "packages/underverse/src/components/UEditor/types.ts:81"
             },
             {
               "name": "uploadImage",
@@ -5183,7 +5183,7 @@
               "required": false,
               "default": null,
               "description": "Uploads images immediately when they are inserted in `imageInsertMode=\"upload\"`.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:70"
+              "source": "packages/underverse/src/components/UEditor/types.ts:83"
             },
             {
               "name": "uploadImageForSave",
@@ -5191,7 +5191,7 @@
               "required": false,
               "default": null,
               "description": "Uploads embedded/base64 images during `prepareContentForSave`; use this for save-time normalization.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:72"
+              "source": "packages/underverse/src/components/UEditor/types.ts:85"
             },
             {
               "name": "uploadImageConcurrency",
@@ -5199,7 +5199,7 @@
               "required": false,
               "default": "3",
               "description": "Maximum number of concurrent save-time image/file uploads.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:74"
+              "source": "packages/underverse/src/components/UEditor/types.ts:87"
             },
             {
               "name": "imageInsertMode",
@@ -5207,7 +5207,7 @@
               "required": false,
               "default": "\"base64\"",
               "description": "Whether inserted images are kept as base64 in editor state or uploaded immediately.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:76"
+              "source": "packages/underverse/src/components/UEditor/types.ts:89"
             },
             {
               "name": "maxImageFileSize",
@@ -5215,7 +5215,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:77"
+              "source": "packages/underverse/src/components/UEditor/types.ts:90"
             },
             {
               "name": "allowedImageMimeTypes",
@@ -5223,7 +5223,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:78"
+              "source": "packages/underverse/src/components/UEditor/types.ts:91"
             },
             {
               "name": "fallbackToDataUrl",
@@ -5231,7 +5231,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:79"
+              "source": "packages/underverse/src/components/UEditor/types.ts:92"
             },
             {
               "name": "placeholder",
@@ -5239,7 +5239,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:80"
+              "source": "packages/underverse/src/components/UEditor/types.ts:93"
             },
             {
               "name": "className",
@@ -5247,7 +5247,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:81"
+              "source": "packages/underverse/src/components/UEditor/types.ts:94"
             },
             {
               "name": "editable",
@@ -5255,7 +5255,7 @@
               "required": false,
               "default": "true",
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:82"
+              "source": "packages/underverse/src/components/UEditor/types.ts:95"
             },
             {
               "name": "autofocus",
@@ -5263,7 +5263,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:83"
+              "source": "packages/underverse/src/components/UEditor/types.ts:96"
             },
             {
               "name": "showToolbar",
@@ -5271,7 +5271,7 @@
               "required": false,
               "default": "true",
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:84"
+              "source": "packages/underverse/src/components/UEditor/types.ts:97"
             },
             {
               "name": "showBubbleMenu",
@@ -5279,7 +5279,7 @@
               "required": false,
               "default": "true",
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:85"
+              "source": "packages/underverse/src/components/UEditor/types.ts:98"
             },
             {
               "name": "showFloatingMenu",
@@ -5287,7 +5287,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:86"
+              "source": "packages/underverse/src/components/UEditor/types.ts:99"
             },
             {
               "name": "showCharacterCount",
@@ -5295,7 +5295,7 @@
               "required": false,
               "default": "true",
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:87"
+              "source": "packages/underverse/src/components/UEditor/types.ts:100"
             },
             {
               "name": "showFooter",
@@ -5303,7 +5303,7 @@
               "required": false,
               "default": "true",
               "description": "Whether to show the editor footer. Defaults to `true`.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:89"
+              "source": "packages/underverse/src/components/UEditor/types.ts:102"
             },
             {
               "name": "maxCharacters",
@@ -5311,7 +5311,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:90"
+              "source": "packages/underverse/src/components/UEditor/types.ts:103"
             },
             {
               "name": "minHeight",
@@ -5319,7 +5319,7 @@
               "required": false,
               "default": "\"200px\"",
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:91"
+              "source": "packages/underverse/src/components/UEditor/types.ts:104"
             },
             {
               "name": "maxHeight",
@@ -5327,7 +5327,7 @@
               "required": false,
               "default": "\"auto\"",
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:92"
+              "source": "packages/underverse/src/components/UEditor/types.ts:105"
             },
             {
               "name": "variant",
@@ -5335,7 +5335,7 @@
               "required": false,
               "default": "\"default\"",
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:93"
+              "source": "packages/underverse/src/components/UEditor/types.ts:106"
             },
             {
               "name": "rounded",
@@ -5343,7 +5343,7 @@
               "required": false,
               "default": "true",
               "description": "Whether the editor has rounded corners. Defaults to `true`.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:95"
+              "source": "packages/underverse/src/components/UEditor/types.ts:108"
             },
             {
               "name": "fontFamilies",
@@ -5351,7 +5351,15 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:96"
+              "source": "packages/underverse/src/components/UEditor/types.ts:109"
+            },
+            {
+              "name": "defaultFontFamily",
+              "type": "UEditorBuiltinFontFamily",
+              "required": false,
+              "default": "\"Inter\"",
+              "description": "Default font family for the editor. Defaults to `\"Inter\"`.",
+              "source": "packages/underverse/src/components/UEditor/types.ts:111"
             },
             {
               "name": "fontSizes",
@@ -5359,7 +5367,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:97"
+              "source": "packages/underverse/src/components/UEditor/types.ts:112"
             },
             {
               "name": "lineHeights",
@@ -5367,7 +5375,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:98"
+              "source": "packages/underverse/src/components/UEditor/types.ts:113"
             },
             {
               "name": "letterSpacings",
@@ -5375,7 +5383,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:99"
+              "source": "packages/underverse/src/components/UEditor/types.ts:114"
             },
             {
               "name": "fetchMetadata",
@@ -5383,7 +5391,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:100"
+              "source": "packages/underverse/src/components/UEditor/types.ts:115"
             },
             {
               "name": "uploadFile",
@@ -5391,7 +5399,7 @@
               "required": false,
               "default": null,
               "description": "Uploads file cards immediately after insertion when available.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:102"
+              "source": "packages/underverse/src/components/UEditor/types.ts:117"
             },
             {
               "name": "uploadFileForSave",
@@ -5399,7 +5407,7 @@
               "required": false,
               "default": null,
               "description": "Uploads embedded/base64 file cards during `prepareContentForSave`; falls back to `uploadImageForSave` if omitted.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:104"
+              "source": "packages/underverse/src/components/UEditor/types.ts:119"
             },
             {
               "name": "extraExtensions",
@@ -5407,7 +5415,7 @@
               "required": false,
               "default": null,
               "description": "Additional TipTap extensions appended after the built-in UEditor extensions.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:106"
+              "source": "packages/underverse/src/components/UEditor/types.ts:121"
             },
             {
               "name": "showMenuBar",
@@ -5415,7 +5423,7 @@
               "required": false,
               "default": "false",
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:107"
+              "source": "packages/underverse/src/components/UEditor/types.ts:122"
             },
             {
               "name": "showPreviewButton",
@@ -5423,7 +5431,7 @@
               "required": false,
               "default": "true",
               "description": "Whether to show the preview button at the end of the menu bar. Defaults to `true`.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:109"
+              "source": "packages/underverse/src/components/UEditor/types.ts:124"
             },
             {
               "name": "onSave",
@@ -5431,7 +5439,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:110"
+              "source": "packages/underverse/src/components/UEditor/types.ts:125"
             },
             {
               "name": "onExport",
@@ -5439,7 +5447,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:111"
+              "source": "packages/underverse/src/components/UEditor/types.ts:126"
             },
             {
               "name": "onSourceCode",
@@ -5447,7 +5455,7 @@
               "required": false,
               "default": null,
               "description": null,
-              "source": "packages/underverse/src/components/UEditor/types.ts:112"
+              "source": "packages/underverse/src/components/UEditor/types.ts:127"
             },
             {
               "name": "onPreview",
@@ -5455,7 +5463,7 @@
               "required": false,
               "default": null,
               "description": "Fires when View > Preview or the eye button is clicked.\nReturn false to prevent the built-in preview dialog.",
-              "source": "packages/underverse/src/components/UEditor/types.ts:117"
+              "source": "packages/underverse/src/components/UEditor/types.ts:132"
             }
           ]
         }
