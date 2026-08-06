@@ -246,7 +246,7 @@ export function TableControls({ editor, containerRef, showCellInspector = true }
   const updateHoverState = React.useCallback((event: MouseEvent | PointerEvent) => {
     const activeLayout = layoutRef.current;
     const surface = containerRef.current;
-    if (!activeLayout || !surface || dragStateRef.current) {
+    if (!activeLayout || !surface || dragStateRef.current || event.buttons !== 0) {
       setHoverState(DEFAULT_TABLE_HOVER_STATE);
       return;
     }

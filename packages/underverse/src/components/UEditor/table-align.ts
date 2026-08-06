@@ -1,7 +1,7 @@
 import { mergeAttributes } from "@tiptap/core";
 import { Table } from "@tiptap/extension-table";
 import type { DOMOutputSpec, Node as ProseMirrorNode } from "@tiptap/pm/model";
-import { Plugin } from "@tiptap/pm/state";
+import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { tableEditing } from "@tiptap/pm/tables";
 import {
   DEFAULT_TABLE_COLUMN_WIDTH,
@@ -9,6 +9,7 @@ import {
   dynamicColumnResizing,
 } from "./table-column-resize";
 import { findTableNodeInfoFromState } from "./table-align-utils";
+import { isRowResizeHotspot, isRowResizingGlobal, resolveEventElement } from "./table-dom-utils";
 
 export type UEditorTableAlign = "left" | "center" | "right";
 
@@ -178,6 +179,38 @@ const UEditorTable = Table.extend({
             }),
           ]
         : []),
+      new Plugin({
+        key: new PluginKey("tableRowResizeInterceptor"),
+        props: {
+          handleDOMEvents: {
+            mousedown(view, event) {
+              if (event.button !== 0) return false;
+              const target = resolveEventElement(event.target);
+              const cell = target?.closest("th,td");
+              if (cell instanceof HTMLElement && isRowResizeHotspot(cell, event.clientX, event.clientY)) {
+                isRowResizingGlobal.active = true;
+                return true;
+              }
+              return false;
+            },
+            mousemove(_view, event) {
+              if (isRowResizingGlobal.active) {
+                if (event.buttons === 0) {
+                  isRowResizingGlobal.active = false;
+                  return false;
+                }
+                event.preventDefault();
+                return true;
+              }
+              return false;
+            },
+            mouseup() {
+              isRowResizingGlobal.active = false;
+              return false;
+            },
+          },
+        },
+      }),
       tableEditing({
         allowTableNodeSelection: this.options.allowTableNodeSelection,
       }),

@@ -6,6 +6,7 @@ import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import {
   findTableRowNodeInfo,
   isRowResizeHotspot,
+  isRowResizingGlobal,
   MIN_TABLE_ROW_HEIGHT,
 } from "./table-dom-utils";
 
@@ -88,6 +89,9 @@ export function useTableRowResize({
     };
 
     showRowGuide(table, row, cell, startHeight);
+    isRowResizingGlobal.active = true;
+    window.getSelection()?.removeAllRanges();
+    document.body.style.userSelect = "none";
     document.body.style.cursor = "row-resize";
     event.preventDefault();
     event.stopPropagation();
@@ -138,6 +142,8 @@ export function useTableRowResize({
     }
 
     stateRef.current = null;
+    isRowResizingGlobal.active = false;
+    document.body.style.userSelect = "";
     document.body.style.cursor = "";
     clearHoveredTableCell();
     clearAllTableResizeHover();
@@ -148,6 +154,8 @@ export function useTableRowResize({
     if (!stateRef.current) return;
 
     stateRef.current = null;
+    isRowResizingGlobal.active = false;
+    document.body.style.userSelect = "";
     document.body.style.cursor = "";
     clearHoveredTableCell();
     clearAllTableResizeHover();
@@ -156,6 +164,8 @@ export function useTableRowResize({
 
   const cleanup = React.useCallback(() => {
     stateRef.current = null;
+    isRowResizingGlobal.active = false;
+    document.body.style.userSelect = "";
     document.body.style.cursor = "";
   }, []);
 

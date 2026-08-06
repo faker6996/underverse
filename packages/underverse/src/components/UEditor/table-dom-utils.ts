@@ -5,7 +5,9 @@ export const DEFAULT_TABLE_ROW_HEIGHT = 25;
 export const MIN_TABLE_ROW_HEIGHT = DEFAULT_TABLE_ROW_HEIGHT;
 export const COLUMN_RESIZE_LINE_THICKNESS = 2;
 export const ROW_RESIZE_LINE_THICKNESS = 2;
-export const UEDITOR_TABLE_LAYOUT_CHANGE_EVENT = "ueditor-table-layout-change";
+export const UEDITOR_TABLE_LAYOUT_CHANGE_EVENT = "ueditor:table-layout-change";
+
+export const isRowResizingGlobal = { active: false };
 
 const TABLE_RESIZE_HIT_ZONE = 10;
 
@@ -85,18 +87,84 @@ export function getSelectionTableCell(view: EditorView) {
   return cell instanceof HTMLElement ? cell : null;
 }
 
-export function isRowResizeHotspot(cell: HTMLElement, clientX: number, clientY: number) {
+export function resolveRowResizeTarget(
+  cell: HTMLElement,
+  clientX: number,
+  clientY: number,
+): { row: HTMLTableRowElement; cell: HTMLTableCellElement } | null {
   const rect = cell.getBoundingClientRect();
-  const nearBottom = rect.bottom - clientY <= TABLE_RESIZE_HIT_ZONE;
-  const nearRight = rect.right - clientX <= TABLE_RESIZE_HIT_ZONE;
-  return nearBottom && !nearRight;
+  const row = cell.closest("tr");
+  if (!(row instanceof HTMLTableRowElement) || !(cell instanceof HTMLTableCellElement)) {
+    return null;
+  }
+
+  const distToBottom = Math.abs(clientY - rect.bottom);
+  const distToTop = Math.abs(clientY - rect.top);
+  const distToRight = Math.abs(clientX - rect.right);
+  const distToLeft = Math.abs(clientX - rect.left);
+
+  if (distToRight <= 3 || distToLeft <= 3) {
+    return null;
+  }
+
+  if (distToBottom <= TABLE_RESIZE_HIT_ZONE) {
+    return { row, cell };
+  }
+
+  if (distToTop <= TABLE_RESIZE_HIT_ZONE) {
+    const prevRow = row.previousElementSibling;
+    if (prevRow instanceof HTMLTableRowElement) {
+      const cellIndex = cell.cellIndex;
+      const prevCell = (prevRow.children[cellIndex] ?? prevRow.firstElementChild) as HTMLTableCellElement | null;
+      if (prevCell instanceof HTMLTableCellElement) {
+        return { row: prevRow, cell: prevCell };
+      }
+    }
+  }
+
+  return null;
+}
+
+export function resolveColumnResizeTarget(
+  cell: HTMLElement,
+  clientX: number,
+  clientY: number,
+): { row: HTMLTableRowElement; cell: HTMLTableCellElement } | null {
+  const rect = cell.getBoundingClientRect();
+  const row = cell.closest("tr");
+  if (!(row instanceof HTMLTableRowElement) || !(cell instanceof HTMLTableCellElement)) {
+    return null;
+  }
+
+  const distToRight = Math.abs(clientX - rect.right);
+  const distToLeft = Math.abs(clientX - rect.left);
+  const distToBottom = Math.abs(clientY - rect.bottom);
+  const distToTop = Math.abs(clientY - rect.top);
+
+  if (distToBottom <= 3 || distToTop <= 3) {
+    return null;
+  }
+
+  if (distToRight <= TABLE_RESIZE_HIT_ZONE) {
+    return { row, cell };
+  }
+
+  if (distToLeft <= TABLE_RESIZE_HIT_ZONE) {
+    const prevCell = cell.previousElementSibling;
+    if (prevCell instanceof HTMLTableCellElement) {
+      return { row, cell: prevCell };
+    }
+  }
+
+  return null;
+}
+
+export function isRowResizeHotspot(cell: HTMLElement, clientX: number, clientY: number) {
+  return resolveRowResizeTarget(cell, clientX, clientY) !== null;
 }
 
 export function isColumnResizeHotspot(cell: HTMLElement, clientX: number, clientY: number) {
-  const rect = cell.getBoundingClientRect();
-  const nearRight = rect.right - clientX <= TABLE_RESIZE_HIT_ZONE;
-  const nearBottom = rect.bottom - clientY <= TABLE_RESIZE_HIT_ZONE;
-  return nearRight && !nearBottom;
+  return resolveColumnResizeTarget(cell, clientX, clientY) !== null;
 }
 
 export function getRelativeBoundaryMetrics(surface: HTMLElement, table: HTMLTableElement, row: HTMLTableRowElement, cell: HTMLTableCellElement) {

@@ -10,7 +10,9 @@ import {
   getSelectionTableCell,
   isColumnResizeHotspot,
   isRowResizeHotspot,
+  resolveColumnResizeTarget,
   resolveEventElement,
+  resolveRowResizeTarget,
   ROW_RESIZE_LINE_THICKNESS,
   UEDITOR_TABLE_LAYOUT_CHANGE_EVENT,
 } from "./table-dom-utils";
@@ -240,6 +242,11 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
         return;
       }
 
+      if (event.buttons !== 0) {
+        clearAllTableResizeHover();
+        return;
+      }
+
       const target = resolveEventElement(event.target);
       if (!(target instanceof Element)) {
         clearAllTableResizeHover();
@@ -263,14 +270,14 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
         return;
       }
 
-      const nearBottom = isRowResizeHotspot(cell, event.clientX, event.clientY);
-      const nearRight = isColumnResizeHotspot(cell, event.clientX, event.clientY);
+      const rowTarget = resolveRowResizeTarget(cell, event.clientX, event.clientY);
+      const colTarget = resolveColumnResizeTarget(cell, event.clientX, event.clientY);
 
-      if (nearBottom && cell instanceof HTMLTableCellElement) {
-        const hotspotKey = `row:${row.rowIndex}-${cell.cellIndex}`;
+      if (rowTarget) {
+        const hotspotKey = `row:${rowTarget.row.rowIndex}-${rowTarget.cell.cellIndex}`;
         if (activeHotspotKeyRef.current === hotspotKey) {
           hideColumnGuide();
-          showRowGuide(table, row, cell);
+          showRowGuide(table, rowTarget.row, rowTarget.cell);
           return;
         }
         if (activeHotspotKeyRef.current !== hotspotKey) {
@@ -279,17 +286,17 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
           hotspotTimerRef.current = window.setTimeout(() => {
             hotspotTimerRef.current = null;
             hideColumnGuide();
-            showRowGuide(table, row, cell);
+            showRowGuide(table, rowTarget.row, rowTarget.cell);
           }, 100);
         }
         return;
       }
 
-      if (nearRight && cell instanceof HTMLTableCellElement) {
-        const hotspotKey = `col:${row.rowIndex}-${cell.cellIndex}`;
+      if (colTarget) {
+        const hotspotKey = `col:${colTarget.row.rowIndex}-${colTarget.cell.cellIndex}`;
         if (activeHotspotKeyRef.current === hotspotKey) {
           hideRowGuide();
-          showColumnGuide(table, row, cell);
+          showColumnGuide(table, colTarget.row, colTarget.cell);
           return;
         }
         if (activeHotspotKeyRef.current !== hotspotKey) {
@@ -298,7 +305,7 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
           hotspotTimerRef.current = window.setTimeout(() => {
             hotspotTimerRef.current = null;
             hideRowGuide();
-            showColumnGuide(table, row, cell);
+            showColumnGuide(table, colTarget.row, colTarget.cell);
           }, 100);
         }
         return;
@@ -331,17 +338,24 @@ export function useUEditorTableInteractions(editor: Editor | null, editable = tr
         return;
       }
 
-      setActiveTableCell(cell);
-      scheduleActiveCellSync(cell);
-
       const row = cell.closest("tr");
       const table = cell.closest("table");
       if (!(row instanceof HTMLTableRowElement) || !(table instanceof HTMLTableElement)) return;
 
-      if (beginResize(event, table, row, cell)) {
-        suppressActiveCellHighlightRef.current = true;
-        updateActiveCellHighlight(null);
+      const rowTarget = resolveRowResizeTarget(cell, event.clientX, event.clientY);
+      if (rowTarget) {
+        event.preventDefault();
+        event.stopPropagation();
+        window.getSelection()?.removeAllRanges();
+        if (beginResize(event, table, rowTarget.row, rowTarget.cell)) {
+          suppressActiveCellHighlightRef.current = true;
+          updateActiveCellHighlight(null);
+          return;
+        }
       }
+
+      setActiveTableCell(cell);
+      scheduleActiveCellSync(cell);
     };
 
     const handlePointerMove = (event: MouseEvent) => {
