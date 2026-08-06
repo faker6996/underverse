@@ -365,6 +365,7 @@ export const EditorToolbar = ({
   maxImageFileSize = DEFAULT_UEDITOR_IMAGE_MAX_FILE_SIZE,
   allowedImageMimeTypes = DEFAULT_UEDITOR_IMAGE_MIME_TYPES,
   fontFamilies,
+  defaultFontFamily = "Inter",
   fontSizes,
   lineHeights,
   letterSpacings,
@@ -376,6 +377,7 @@ export const EditorToolbar = ({
   maxImageFileSize?: number;
   allowedImageMimeTypes?: string[];
   fontFamilies?: UEditorFontFamilyOption[];
+  defaultFontFamily?: string;
   fontSizes?: UEditorFontSizeOption[];
   lineHeights?: UEditorLineHeightOption[];
   letterSpacings?: UEditorLetterSpacingOption[];
@@ -436,9 +438,9 @@ export const EditorToolbar = ({
     availableLineHeights.find((option) => normalizeStyleValue(option.value) === currentLineHeight)?.label ?? t("toolbar.lineHeightDefault");
   const currentLetterSpacingLabel =
     availableLetterSpacings.find((option) => normalizeStyleValue(option.value) === currentLetterSpacing)?.label ?? t("toolbar.letterSpacingDefault");
-  const defaultFontFamily = availableFontFamilies[0];
-  const defaultFontFamilyValue = defaultFontFamily?.value ?? "";
-  const displayedFontFamilyLabel = currentFontFamily ? currentFontFamilyLabel : (defaultFontFamily?.label ?? t("toolbar.fontDefault"));
+  const defaultFontFamilyOption = availableFontFamilies.find((opt) => normalizeStyleValue(opt.value) === normalizeStyleValue(defaultFontFamily)) ?? availableFontFamilies[0];
+  const defaultFontFamilyValue = defaultFontFamilyOption?.value ?? defaultFontFamily ?? "Inter";
+  const displayedFontFamilyLabel = currentFontFamily ? currentFontFamilyLabel : (defaultFontFamilyOption?.label ?? defaultFontFamily ?? t("toolbar.fontDefault"));
   const displayedFontFamilyValue = currentFontFamily || defaultFontFamilyValue;
   const displayedFontSizeLabel = currentFontSize ? currentFontSizeLabel : "13";
   const activeFontSize = currentFontSize || "13px";
@@ -720,6 +722,28 @@ export const EditorToolbar = ({
       )}
 
       <ToolbarDivider />
+
+      {(isMediumFull || isFull) && (
+        <DropdownMenu
+          isOpen={isTableMenuOpen}
+          onOpenChange={setIsTableMenuOpen}
+          trigger={
+            <ToolbarButton onClick={() => {}} title={t("toolbar.table")}>
+              <FigmaTableIcon className="h-4 w-4" />
+            </ToolbarButton>
+          }
+          contentClassName="p-2 min-w-56"
+        >
+          <TableInsertGrid
+            insertLabel={t("tableMenu.insertTable")}
+            previewTemplate={t("tableMenu.gridPreview")}
+            onInsert={(rows, cols) => {
+              editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+              setIsTableMenuOpen(false);
+            }}
+          />
+        </DropdownMenu>
+      )}
 
       <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title={t("toolbar.bold")}>
         <FigmaBoldIcon className="h-4 w-4" />
@@ -1127,28 +1151,6 @@ export const EditorToolbar = ({
               />
             </>
           )}
-        </DropdownMenu>
-      )}
-
-      {(isMediumFull || isFull) && (
-        <DropdownMenu
-          isOpen={isTableMenuOpen}
-          onOpenChange={setIsTableMenuOpen}
-          trigger={
-            <ToolbarButton onClick={() => {}} title={t("toolbar.table")}>
-              <FigmaTableIcon className="h-4 w-4" />
-            </ToolbarButton>
-          }
-          contentClassName="p-2 min-w-56"
-        >
-          <TableInsertGrid
-            insertLabel={t("tableMenu.insertTable")}
-            previewTemplate={t("tableMenu.gridPreview")}
-            onInsert={(rows, cols) => {
-              editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
-              setIsTableMenuOpen(false);
-            }}
-          />
         </DropdownMenu>
       )}
 

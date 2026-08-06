@@ -30,6 +30,19 @@ export interface UEditorRef {
   prepareContentForSave: (options?: UEditorPrepareContentForSaveOptions) => Promise<UEditorPrepareContentForSaveResult>;
 }
 
+export type UEditorBuiltinFontFamily =
+  | "Inter"
+  | "Roboto"
+  | "Lexend"
+  | "Montserrat"
+  | "Lora"
+  | "Playfair Display"
+  | "Georgia"
+  | "Times New Roman"
+  | "System UI"
+  | "JetBrains Mono"
+  | (string & {});
+
 export type UEditorFontFamilyOption = {
   label: string;
   value: string;
@@ -94,6 +107,8 @@ export interface UEditorProps {
   /** Whether the editor has rounded corners. Defaults to `true`. */
   rounded?: boolean;
   fontFamilies?: UEditorFontFamilyOption[];
+  /** Default font family for the editor. Defaults to `"Inter"`. */
+  defaultFontFamily?: UEditorBuiltinFontFamily;
   fontSizes?: UEditorFontSizeOption[];
   lineHeights?: UEditorLineHeightOption[];
   letterSpacings?: UEditorLetterSpacingOption[];

@@ -78,6 +78,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
   variant = "default",
   rounded = true,
   fontFamilies,
+  defaultFontFamily = "Inter",
   fontSizes,
   lineHeights,
   letterSpacings,
@@ -423,6 +424,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
               maxImageFileSize={maxImageFileSize}
               allowedImageMimeTypes={allowedImageMimeTypes}
               fontFamilies={fontFamilies as UEditorFontFamilyOption[] | undefined}
+              defaultFontFamily={defaultFontFamily}
               fontSizes={fontSizes as UEditorFontSizeOption[] | undefined}
               lineHeights={lineHeights as UEditorLineHeightOption[] | undefined}
               letterSpacings={letterSpacings as UEditorLetterSpacingOption[] | undefined}
@@ -448,6 +450,7 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         }}
         className="relative flex-1 overflow-y-auto"
         style={{
+          fontFamily: defaultFontFamily,
           minHeight: editable ? minHeight : undefined,
           maxHeight,
         }}
@@ -455,18 +458,18 @@ const UEditor = React.forwardRef<UEditorRef, UEditorProps>(({
         <span
           ref={tableColumnGuideRef}
           aria-hidden="true"
-          className="pointer-events-none absolute z-20 bg-primary opacity-0 transition-opacity duration-200 delay-100 ease-out"
+          className="pointer-events-none absolute z-20 bg-primary/50 opacity-0 transition-opacity duration-200 delay-100 ease-out"
         />
         <span
           ref={tableRowGuideRef}
           aria-hidden="true"
-          className="pointer-events-none absolute z-20 bg-primary opacity-0 transition-opacity duration-200 delay-100 ease-out"
+          className="pointer-events-none absolute z-20 bg-primary/50 opacity-0 transition-opacity duration-200 delay-100 ease-out"
         />
         <span
           ref={activeTableCellHighlightRef}
           aria-hidden="true"
           data-ueditor-active-cell-highlight=""
-          className="pointer-events-none hidden absolute z-20 rounded-[2px] border-2 border-primary bg-primary/10"
+          className="pointer-events-none hidden absolute z-20 rounded-[2px] border border-primary/50 bg-primary/5"
         />
         <div
           ref={formulaCoordinateOverlayRef}

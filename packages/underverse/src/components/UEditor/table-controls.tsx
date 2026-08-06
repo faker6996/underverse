@@ -404,7 +404,7 @@ export function TableControls({ editor, containerRef, showCellInspector = true }
   }, [editor, scheduleSyncFromSelection]);
 
   const canExpandTable = Boolean(layout);
-  const controlsVisible = dragPreview !== null;
+  const controlsVisible = false;
   const tableMenuOpen = openMenuKey === "table";
   const startTableResize = React.useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
     if (event.button !== 0 || dragStateRef.current) return;

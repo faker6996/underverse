@@ -333,7 +333,7 @@ function getColumnResizeGhost(view: EditorView) {
     ghost.style.pointerEvents = "none";
     ghost.style.width = "2px";
     ghost.style.backgroundColor = "var(--primary, #2563eb)";
-    ghost.style.opacity = "1";
+    ghost.style.opacity = "0.5";
     ghost.style.borderRadius = "9999px";
     ghost.style.boxShadow = "0 0 0 1px color-mix(in oklch, var(--background, #fff) 80%, transparent)";
     ghost.style.transform = "translateX(-1px)";
