@@ -1,13 +1,13 @@
-# Auto Publish @underverse-ui/underverse to npm using OIDC Trusted Publishing
-#
-# Trigger: Push to main branch with changes in components/ui, packages/underverse, or lib folder
+# Auto-publish @underverse-ui/underverse with npm Trusted Publishing (OIDC).
 
 name: Publish Package
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
+      - ".github/workflows/publish-package.yml"
       - "components/ui/**"
       - "packages/underverse/**"
       - "lib/**"
@@ -25,16 +25,14 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
-
-      - name: Remove deprecated npm configuration
-        run: npm config delete always-auth --location=user
+          package-manager-cache: false
 
       # Install root dependencies first (needed for building)
       - name: Install root dependencies
@@ -76,12 +74,11 @@ jobs:
         run: npm run generate:api
         working-directory: packages/underverse
 
-      # Use Token Auth (Granular Token) + Provenance
+      # npm exchanges GitHub's short-lived OIDC token for publish credentials.
+      # No NPM_TOKEN secret is needed. Provenance is added automatically.
       - name: Publish to npm
-        run: npm publish --access public --provenance
+        run: npm publish --access public
         working-directory: packages/underverse
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Commit version bump
         run: |
